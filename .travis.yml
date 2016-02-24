@@ -1,0 +1,28 @@
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-4.8
+      - g++-4.8
+      - wget
+      # Package list from http://bazel.io/docs/install.html
+      - pkg-config
+      - zip
+      - unzip
+      - zlib1g-dev
+jdk:
+  - oraclejdk8
+
+before_install:
+  - wget 'https://github.com/bazelbuild/bazel/releases/download/0.2.0/bazel-0.2.0-installer-linux-x86_64.sh'
+  - sha256sum -c .bazel-installer-linux-x86_64.sh.sha256
+  - chmod +x bazel-0.2.0-installer-linux-x86_64.sh
+  - ./bazel-0.2.0-installer-linux-x86_64.sh --user
+  - mv .bazelrc.travis .bazelrc
+  - cat ~/.bazelrc >> .bazelrc
+
+script:
+  - bazel build test/...
+  - bazel run test:ScalaBinary
+  - bazel test test/...
