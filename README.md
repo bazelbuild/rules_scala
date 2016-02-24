@@ -28,6 +28,12 @@ load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
 scala_repositories()
 ```
 
+You may wish to have these rules loaded by default using bazel's prelude. Add the line:
+```
+load("@io_bazel_rules_scala//scala:scala.bzl", "scala_library", "scala_binary", "scala_test")
+```
+to the file `tools/build_rules/prelude_bazel` in your repo.
+
 [scala]: http://www.scala-lang.org/
 
 <a name="scala_library"></a>
