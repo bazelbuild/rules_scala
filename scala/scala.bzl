@@ -145,12 +145,6 @@ cd $0.runfiles
       output=ctx.outputs.executable,
       content=content)
 
-def _args_for_suites(suites):
-  args = ["-o"]
-  for suite in suites:
-    args.extend(["-s", suite])
-  return args
-
 def _write_test_launcher(ctx, jars):
   if len(ctx.attr.suites) != 0:
     print("suites attribute is deprecated. All scalatest test suites are run")
