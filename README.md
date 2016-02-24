@@ -16,7 +16,7 @@ currently four rules, `scala_library`, `scala_macro_library`, `scala_binary`
 and `scala_test`.
 
 In order to use `scala_library`, `scala_macro_library`, and `scala_binary`,
-you must add the following to your WORKSPACE file:
+you must have bazel 0.2.0 and add the following to your WORKSPACE file:
 
 ```python
 git_repository(
