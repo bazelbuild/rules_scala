@@ -38,10 +38,6 @@ scala_test(
     name = "HelloLibTest",
     size = "small",  # Not a macro, can pass test-specific attributes.
     srcs = ["HelloLibTest.scala"],
-    suites = [
-        "scala.test.ScalaSuite",
-        "scala.test.JavaSuite",
-    ],
     deps = [
         ":HelloLib",
     ],

@@ -277,6 +277,7 @@ scala_test(name, srcs, suites, deps, data, main_class, resources, scalacopts, jv
 using the `scalatest` library. It may depend on `scala_library`,
 `scala_macro_library` and `java_library` rules.
 
-A `scala_test` requires a `suites` attribute, specifying the fully qualified
-(canonical) names of the test suites to run. In a future version, we might
-investigate lifting this requirement.
+A `scala_test` by default runs all tests in a given target.
+For backwards compatiblity it accepts a `suites` attribute which
+is ignored due to the ease with which that field is not correctly
+populated and tests are not run.

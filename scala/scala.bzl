@@ -152,16 +152,18 @@ def _args_for_suites(suites):
   return args
 
 def _write_test_launcher(ctx, jars):
+  if len(ctx.attr.suites) != 0:
+    print("suites attribute is deprecated. All scalatest test suites are run")
+
   content = """#!/bin/bash
 cd $0.runfiles
 {java} -cp {cp} {name} {args} "$@"
 """
   content = content.format(
       java=ctx.file._java.path,
+      cp=":".join([j.short_path for j in jars]),
       name=ctx.attr.main_class,
-      args=' '.join(_args_for_suites(ctx.attr.suites)),
-      deploy_jar=ctx.outputs.jar.path,
-      cp=":".join([j.short_path for j in jars]))
+      args="-R \"{path}\" -oWDF".format(path=ctx.outputs.jar.short_path))
   ctx.file_action(
       output=ctx.outputs.executable,
       content=content)
@@ -319,7 +321,7 @@ scala_test = rule(
   implementation=_scala_test_impl,
   attrs={
       "main_class": attr.string(default="org.scalatest.tools.Runner"),
-      "suites": attr.string_list(non_empty=True, mandatory=True),
+      "suites": attr.string_list(),
       "_scalatest": attr.label(executable=True, default=Label("@scalatest//file"), single_file=True, allow_files=True),
       "_java": attr.label(executable=True, default=Label("@bazel_tools//tools/jdk:java"), single_file=True, allow_files=True),
       } + _implicit_deps + _common_attrs,
