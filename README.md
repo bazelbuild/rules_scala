@@ -27,6 +27,7 @@ git_repository(
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
 scala_repositories()
 ```
+To use a particular commit, use the gitsha in the `commit = ` attribute and omit `tag`.
 
 You may wish to have these rules loaded by default using bazel's prelude. Add the line:
 ```
