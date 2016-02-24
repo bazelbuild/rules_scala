@@ -1,4 +1,5 @@
 # Scala Rules for Bazel
+[![Build Status](https://travis-ci.org/bazelbuild/rules_scala.svg?branch=master)](https://travis-ci.org/bazelbuild/rules_scala)
 
 <div class="toc">
   <h2>Rules</h2>
