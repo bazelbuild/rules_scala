@@ -7,11 +7,12 @@ addons:
       - g++-4.8
       - wget
       # Package list from http://bazel.io/docs/install.html
-      - openjdk-8-jdk
       - pkg-config
       - zip
       - unzip
       - zlib1g-dev
+jdk:
+  - oraclejdk8
 
 before_install:
   - wget 'https://github.com/bazelbuild/bazel/releases/download/0.2.0/bazel-0.2.0-installer-linux-x86_64.sh'
