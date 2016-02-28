@@ -60,18 +60,7 @@ touch -t 198001010000 {manifest}
       progress_message="scala %s" % ctx.label,
       arguments=[])
 
-def _compile(ctx, jars, buildijar):
-  res_cmd = ""
-  for f in ctx.files.resources:
-    c_dir, res_path = _adjust_resources_path(f.path)
-    change_dir = "-C " + c_dir if c_dir else ""
-    res_cmd = "\n{jar} uf {out} " + change_dir + " " + res_path
-  ijar_cmd = ""
-  if buildijar:
-    ijar_cmd = "\n{ijar} {out} {ijar_out}".format(
-      ijar=ctx.file._ijar.path,
-      out=ctx.outputs.jar.path,
-      ijar_out=ctx.outputs.ijar.path)
+def _compile_scalac(ctx, jars):
   cmd = """
 set -e
 mkdir -p {out}_tmp
@@ -80,7 +69,7 @@ mkdir -p {out}_tmp
 find {out}_tmp -exec touch -t 198001010000 {{}} \;
 touch -t 198001010000 {manifest}
 {jar} cmf {manifest} {out} -C {out}_tmp .
-""" + ijar_cmd + res_cmd
+""" + _get_res_cmd(ctx)
   cmd = cmd.format(
       scalac=ctx.file._scalac.path,
       scala_opts=" ".join(ctx.attr.scalacopts),
@@ -88,11 +77,8 @@ touch -t 198001010000 {manifest}
       out=ctx.outputs.jar.path,
       manifest=ctx.outputs.manifest.path,
       jar=ctx.file._jar.path,
-      ijar=ctx.file._ijar.path,
       jars=":".join([j.path for j in jars]),)
-  outs = [ctx.outputs.jar]
-  if buildijar:
-    outs.extend([ctx.outputs.ijar])
+
   ctx.action(
       inputs=list(jars) +
           ctx.files.srcs +
@@ -100,18 +86,57 @@ touch -t 198001010000 {manifest}
           ctx.files._jdk +
           ctx.files._scalasdk +
           [ctx.outputs.manifest, ctx.file._jar, ctx.file._ijar],
-      outputs=outs,
+      outputs=[ctx.outputs.jar],
       command=cmd,
       progress_message="scala %s" % ctx.label,
       arguments=[f.path for f in ctx.files.srcs])
 
-def _compile_or_empty(ctx, jars, buildijar):
+def _compile_zinc(ctx, jars):
+  return None
+
+def _get_res_cmd(ctx):
+  res_cmd = ""
+  for f in ctx.files.resources:
+    c_dir, res_path = _adjust_resources_path(f.path)
+    change_dir = "-C " + c_dir if c_dir else ""
+    res_cmd = "\n{jar} uf {out} " + change_dir + " " + res_path
+    res_cmd = res_cmd.format(
+      out=ctx.outputs.jar.path,
+      jar=ctx.file._jar.path,)
+  return res_cmd
+
+def _build_ijar(ctx):
+  ijar_cmd = """
+    set -e
+    {ijar} {out} {ijar_out}
+  """.format(
+    ijar=ctx.file._ijar.path,
+    out=ctx.outputs.jar.path,
+    ijar_out=ctx.outputs.ijar.path)
+
+  ctx.action(
+    inputs=[ctx.outputs.jar, ctx.file._ijar],
+    outputs=[ctx.outputs.ijar],
+    command=ijar_cmd,
+    progress_message="scala ijar %s" % ctx.label,)
+
+
+def _compile(ctx, jars, buildijar, usezinc):
+  if usezinc:
+    _compile_zinc(ctx, jars)
+  else:
+    _compile_scalac(ctx, jars)
+
+  if buildijar:
+    _build_ijar(ctx)
+
+def _compile_or_empty(ctx, jars, buildijar, usezinc):
   if len(ctx.files.srcs) == 0:
     _build_nosrc_jar(ctx, buildijar)
     #  no need to build ijar when empty
     return struct(ijar=ctx.outputs.jar, class_jar=ctx.outputs.jar)
   else:
-    _compile(ctx, jars, buildijar)
+    _compile(ctx, jars, buildijar, usezinc)
     ijar = None
     if buildijar:
       ijar = ctx.outputs.ijar
@@ -187,11 +212,11 @@ def _collect_jars(targets):
       compile_jars += target.files
   return struct(compiletime = compile_jars, runtime = runtime_jars)
 
-def _lib(ctx, non_macro_lib):
+def _lib(ctx, non_macro_lib, usezinc):
   jars = _collect_jars(ctx.attr.deps)
   (cjars, rjars) = (jars.compiletime, jars.runtime)
   _write_manifest(ctx)
-  outputs = _compile_or_empty(ctx, cjars, non_macro_lib)
+  outputs = _compile_or_empty(ctx, cjars, non_macro_lib, usezinc)
 
   rjars += [ctx.outputs.jar]
   rjars += _collect_jars(ctx.attr.runtime_deps).runtime
@@ -215,15 +240,15 @@ def _lib(ctx, non_macro_lib):
       runfiles=runfiles)
 
 def _scala_library_impl(ctx):
-  return _lib(ctx, True)
+  return _lib(ctx, True, usezinc = False)
 
 def _scala_macro_library_impl(ctx):
-  return _lib(ctx, False)  # don't build the ijar for macros
+  return _lib(ctx, False, usezinc = False)  # don't build the ijar for macros
 
 # Common code shared by all scala binary implementations.
 def _scala_binary_common(ctx, cjars, rjars):
   _write_manifest(ctx)
-  _compile_or_empty(ctx, cjars, False)  # no need to build an ijar for an executable
+  _compile_or_empty(ctx, cjars, False, usezinc = False) # no need to build an ijar for an executable
 
   runfiles = ctx.runfiles(
       files = list(rjars) + [ctx.outputs.executable] + [ctx.file._java] + ctx.files._jdk,
