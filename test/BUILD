@@ -88,3 +88,8 @@ scala_binary(
     main_class = "scala.test.ScalaLibBinary",
     deps = ["ScalaLibResources"],
 )
+
+scala_library(
+  name = "jar_export",
+  exports = ["@com_twitter__scalding_date//jar"]
+)

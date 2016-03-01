@@ -327,6 +327,17 @@ scala_test = rule(
   test=True,
 )
 
+def scala_version():
+  """return the scala version for use in maven coordinates"""
+  return "2.11"
+
+def scala_mvn_artifact(artifact):
+  gav = artifact.split(":")
+  groupid = gav[0]
+  artifactid = gav[1]
+  version = gav[2]
+  return "%s:%s_%s:%s" % (groupid, artifactid, scala_version(), version)
+
 SCALA_BUILD_FILE = """
 # scala.BUILD
 exports_files([
@@ -342,7 +353,7 @@ exports_files([
   "lib/scala-continuations-library_2.11-1.0.2.jar",
   "lib/scala-continuations-plugin_2.11.7-1.0.2.jar",
   "lib/scala-library.jar",
-  "lib/scala-parser-comscala-2.11.7/binators_2.11-1.0.4.jar",
+  "lib/scala-parser-combinators_2.11-1.0.4.jar",
   "lib/scala-reflect.jar",
   "lib/scala-swing_2.11-1.0.2.jar",
   "lib/scala-xml_2.11-1.0.4.jar",
