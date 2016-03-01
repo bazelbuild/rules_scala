@@ -60,18 +60,7 @@ touch -t 198001010000 {manifest}
       progress_message="scala %s" % ctx.label,
       arguments=[])
 
-def _compile(ctx, jars, buildijar):
-  res_cmd = ""
-  for f in ctx.files.resources:
-    c_dir, res_path = _adjust_resources_path(f.path)
-    change_dir = "-C " + c_dir if c_dir else ""
-    res_cmd = "\n{jar} uf {out} " + change_dir + " " + res_path
-  ijar_cmd = ""
-  if buildijar:
-    ijar_cmd = "\n{ijar} {out} {ijar_out}".format(
-      ijar=ctx.file._ijar.path,
-      out=ctx.outputs.jar.path,
-      ijar_out=ctx.outputs.ijar.path)
+def _compile_scalac(ctx, jars):
   cmd = """
 set -e
 mkdir -p {out}_tmp
@@ -80,7 +69,7 @@ mkdir -p {out}_tmp
 find {out}_tmp -exec touch -t 198001010000 {{}} \;
 touch -t 198001010000 {manifest}
 {jar} cmf {manifest} {out} -C {out}_tmp .
-""" + ijar_cmd + res_cmd
+""" + _get_res_cmd(ctx)
   cmd = cmd.format(
       scalac=ctx.file._scalac.path,
       scala_opts=" ".join(ctx.attr.scalacopts),
@@ -88,11 +77,8 @@ touch -t 198001010000 {manifest}
       out=ctx.outputs.jar.path,
       manifest=ctx.outputs.manifest.path,
       jar=ctx.file._jar.path,
-      ijar=ctx.file._ijar.path,
       jars=":".join([j.path for j in jars]),)
-  outs = [ctx.outputs.jar]
-  if buildijar:
-    outs.extend([ctx.outputs.ijar])
+
   ctx.action(
       inputs=list(jars) +
           ctx.files.srcs +
@@ -100,18 +86,123 @@ touch -t 198001010000 {manifest}
           ctx.files._jdk +
           ctx.files._scalasdk +
           [ctx.outputs.manifest, ctx.file._jar, ctx.file._ijar],
-      outputs=outs,
+      outputs=[ctx.outputs.jar],
       command=cmd,
       progress_message="scala %s" % ctx.label,
       arguments=[f.path for f in ctx.files.srcs])
 
-def _compile_or_empty(ctx, jars, buildijar):
+def _compile_zinc(ctx, jars):
+  worker = ctx.executable.worker
+
+  tmp_out_dir = ctx.new_file(ctx.outputs.jar.path + "_tmp")
+
+  flags = [
+    "-fork-java",
+    "-scala-compiler", ctx.file._scala_compiler_jar.path,
+    "-scala-library", ctx.file._scala_library_jar.path,
+    "-scala-extra", ctx.file._scala_reflect_jar.path,
+    "-sbt-interface", ctx.file._sbt_interface_jar.path,
+    "-compiler-interface", ctx.file._compiler_interface_jar.path,
+    "-cp {jars}",
+    "-d", tmp_out_dir.path,
+  ]
+  flags = " ".join(flags)
+  flags = flags.format(
+      out=ctx.outputs.jar.path,
+      jars=":".join([j.path for j in jars]))
+  work_unit_args = ctx.new_file(ctx.configuration.bin_dir, ctx.label.name + "_args")
+  ctx.file_action(output = work_unit_args, content=flags)
+
+  # Generate the "@"-file containing the command-line args for the unit of work.
+  argfile = ctx.new_file(ctx.configuration.bin_dir, "worker_input")
+  argfile_contents = "\n".join(["-argfile", work_unit_args.path] + [f.path for f in ctx.files.srcs])
+  ctx.file_action(output=argfile, content=argfile_contents)
+
+  # Classpath for the compiler/worker itself, these are not the compile time dependencies.
+  classpath_jars = [
+      ctx.file._compiler_interface_jar,
+      ctx.file._incremental_compiler_jar,
+      ctx.file._scala_compiler_jar,
+      ctx.file._scala_library_jar,
+      ctx.file._scala_reflect_jar,
+      ctx.file._sbt_interface_jar,
+      ctx.file._zinc,
+      ctx.file._zinc_compiler_jar,
+      ctx.file._nailgun_server_jar,
+  ]
+  compiler_classpath = ":".join([f.path for f in classpath_jars])
+
+  ctx.action(
+      inputs=list(jars) + ctx.files.srcs + [ctx.outputs.manifest, argfile, work_unit_args] + classpath_jars,
+      outputs=[tmp_out_dir],
+      executable=worker,
+      progress_message="Zinc Worker: %s" % ctx.label.name,
+      mnemonic="Scala",
+      arguments=ctx.attr.worker_args + [compiler_classpath] + ["@" + argfile.path],
+  )
+
+  cmd = """
+set -e
+# Make jar file deterministic by setting the timestamp of files
+find {tmp_out} | xargs touch -t 198001010000
+touch -t 198001010000 {manifest}
+jar cmf {manifest} {out} -C {tmp_out} .
+""" + _get_res_cmd(ctx)
+  cmd = cmd.format(
+      tmp_out=tmp_out_dir.path,
+      out=ctx.outputs.jar.path,
+      manifest=ctx.outputs.manifest.path)
+
+  ctx.action(
+      inputs=[tmp_out_dir, ctx.outputs.manifest],
+      outputs=[ctx.outputs.jar],
+      command=cmd,
+      progress_message="Building Jar: %s" % ctx.label)
+
+
+def _get_res_cmd(ctx):
+  res_cmd = ""
+  for f in ctx.files.resources:
+    c_dir, res_path = _adjust_resources_path(f.path)
+    change_dir = "-C " + c_dir if c_dir else ""
+    res_cmd = "\n{jar} uf {out} " + change_dir + " " + res_path
+    res_cmd = res_cmd.format(
+      out=ctx.outputs.jar.path,
+      jar=ctx.file._jar.path,)
+  return res_cmd
+
+def _build_ijar(ctx):
+  ijar_cmd = """
+    set -e
+    {ijar} {out} {ijar_out}
+  """.format(
+    ijar=ctx.file._ijar.path,
+    out=ctx.outputs.jar.path,
+    ijar_out=ctx.outputs.ijar.path)
+
+  ctx.action(
+    inputs=[ctx.outputs.jar, ctx.file._ijar],
+    outputs=[ctx.outputs.ijar],
+    command=ijar_cmd,
+    progress_message="scala ijar %s" % ctx.label,)
+
+
+def _compile(ctx, jars, buildijar, usezinc):
+  if usezinc:
+    _compile_zinc(ctx, jars)
+  else:
+    _compile_scalac(ctx, jars)
+
+  if buildijar:
+    _build_ijar(ctx)
+
+def _compile_or_empty(ctx, jars, buildijar, usezinc):
   if len(ctx.files.srcs) == 0:
     _build_nosrc_jar(ctx, buildijar)
     #  no need to build ijar when empty
     return struct(ijar=ctx.outputs.jar, class_jar=ctx.outputs.jar)
   else:
-    _compile(ctx, jars, buildijar)
+    _compile(ctx, jars, buildijar, usezinc)
     ijar = None
     if buildijar:
       ijar = ctx.outputs.ijar
@@ -187,11 +278,11 @@ def _collect_jars(targets):
       compile_jars += target.files
   return struct(compiletime = compile_jars, runtime = runtime_jars)
 
-def _lib(ctx, non_macro_lib):
+def _lib(ctx, non_macro_lib, usezinc):
   jars = _collect_jars(ctx.attr.deps)
   (cjars, rjars) = (jars.compiletime, jars.runtime)
   _write_manifest(ctx)
-  outputs = _compile_or_empty(ctx, cjars, non_macro_lib)
+  outputs = _compile_or_empty(ctx, cjars, non_macro_lib, usezinc)
 
   rjars += [ctx.outputs.jar]
   rjars += _collect_jars(ctx.attr.runtime_deps).runtime
@@ -215,15 +306,18 @@ def _lib(ctx, non_macro_lib):
       runfiles=runfiles)
 
 def _scala_library_impl(ctx):
-  return _lib(ctx, True)
+  return _lib(ctx, True, usezinc = False)
+
+def _scala_worker_impl(ctx):
+  return _lib(ctx, True, usezinc = True)
 
 def _scala_macro_library_impl(ctx):
-  return _lib(ctx, False)  # don't build the ijar for macros
+  return _lib(ctx, False, usezinc = False)  # don't build the ijar for macros
 
 # Common code shared by all scala binary implementations.
 def _scala_binary_common(ctx, cjars, rjars):
   _write_manifest(ctx)
-  _compile_or_empty(ctx, cjars, False)  # no need to build an ijar for an executable
+  _compile_or_empty(ctx, cjars, False, usezinc = False) # no need to build an ijar for an executable
 
   runfiles = ctx.runfiles(
       files = list(rjars) + [ctx.outputs.executable] + [ctx.file._java] + ctx.files._jdk,
@@ -254,7 +348,8 @@ _implicit_deps = {
   "_ijar": attr.label(executable=True, default=Label("//tools/defaults:ijar"), single_file=True, allow_files=True),
   "_scalac": attr.label(executable=True, default=Label("@scala//:bin/scalac"), single_file=True, allow_files=True),
   "_scalalib": attr.label(default=Label("@scala//:lib/scala-library.jar"), single_file=True, allow_files=True),
-  "_scalaxml": attr.label(default=Label("@scala//:lib/scala-xml_2.11-1.0.4.jar"), single_file=True, allow_files=True),
+  # "_scalaxml": attr.label(default=Label("@scala//:lib/scala-xml_2.11-1.0.4.jar"), single_file=True, allow_files=True),
+  "_scalaxml": attr.label(default=Label("@scala//:lib/scala-library.jar"), single_file=True, allow_files=True),
   "_scalasdk": attr.label(default=Label("@scala//:sdk"), allow_files=True),
   "_scalareflect": attr.label(default=Label("@scala//:lib/scala-reflect.jar"), single_file=True, allow_files=True),
   "_jar": attr.label(executable=True, default=Label("@bazel_tools//tools/jdk:jar"), single_file=True, allow_files=True),
@@ -272,6 +367,67 @@ _common_attrs = {
   "scalacopts":attr.string_list(),
   "jvm_flags": attr.string_list(),
 }
+
+_zinc_compile_attrs = {
+  "_zinc": attr.label(
+      default=Label("@zinc//file"),
+      executable=True,
+      single_file=True,
+      allow_files=True),
+  "_zinc_compiler_jar": attr.label(
+      default=Label("@zinc_0_3_10_SNAPSHOT_jar//jar"),
+      single_file=True,
+      allow_files=True),
+  "_scala_compiler_jar": attr.label(
+      default=Label("@scala_compiler_jar//jar"),
+      single_file=True,
+      allow_files=True),
+  "_incremental_compiler_jar": attr.label(
+      default=Label("@incremental_compiler_0_13_9_jar//jar"),
+      single_file=True,
+      allow_files=True),
+  "_scala_library_jar": attr.label(
+      default=Label("@scala_library_jar//jar"),
+      single_file=True,
+      allow_files=True),
+  "_scala_reflect_jar": attr.label(
+      default=Label("@scala_reflect_jar//jar"),
+      single_file=True,
+      allow_files=True),
+  "_sbt_interface_jar": attr.label(
+      default=Label("@sbt_interface_0_13_9_jar//jar"),
+      single_file=True,
+      allow_files=True),
+  "_compiler_interface_jar": attr.label(
+      default=Label("@compiler_interface_0_13_9_sources_jar//jar"),
+      single_file=True,
+      allow_files=True),
+  "_nailgun_server_jar": attr.label(
+      default=Label("@nailgun_server_0_9_1_jar//jar"),
+      single_file=True,
+      allow_files=True),
+
+}
+
+scala_worker = rule(
+  implementation=_scala_worker_impl,
+  attrs={
+      "main_class": attr.string(),
+      "exports": attr.label_list(allow_files=False),
+      # Worker Args
+      "worker": attr.label(
+          cfg=HOST_CFG,
+          default=Label("@io_bazel_rules_scala//scala:scala-worker"),
+          allow_files=True,
+          executable=True),
+      "worker_args": attr.string_list(),
+      } + _implicit_deps + _common_attrs + _zinc_compile_attrs,
+  outputs={
+      "jar": "%{name}_deploy.jar",
+      "ijar": "%{name}_ijar.jar",
+      "manifest": "%{name}_MANIFEST.MF",
+      },
+)
 
 scala_library = rule(
   implementation=_scala_library_impl,
@@ -367,6 +523,31 @@ filegroup(
 )
 """
 
+SCALA_2_10_BUILD_FILE = """
+# scala.BUILD
+exports_files([
+  "bin/scala",
+  "bin/scalac",
+  "bin/scaladoc",
+  "lib/akka-actors.jar",
+  "lib/jline.jar",
+  "lib/scala-actors-migration.jar",
+  "lib/scala-actors.jar",
+  "lib/scala-compiler.jar",
+  "lib/scala-library.jar",
+  "lib/scala-reflect.jar",
+  "lib/scala-swing.jar",
+  "lib/scalap.jar",
+  "lib/typesafe-config.jar",
+])
+
+filegroup(
+    name = "sdk",
+    srcs = glob(["**"]),
+    visibility = ["//visibility:public"],
+)
+"""
+
 def scala_repositories():
   native.new_http_archive(
     name = "scala",
@@ -380,3 +561,68 @@ def scala_repositories():
     url = "https://oss.sonatype.org/content/groups/public/org/scalatest/scalatest_2.11/2.2.6/scalatest_2.11-2.2.6.jar",
     sha256 = "f198967436a5e7a69cfd182902adcfbcb9f2e41b349e1a5c8881a2407f615962",
   )
+
+def scala_2_10_repositories():
+  native.new_http_archive(
+    name = "scala",
+    strip_prefix = "scala-2.10.6",
+    sha256 = "54adf583dae6734d66328cafa26d9fa03b8c4cf607e27b9f3915f96e9bcd2d67",
+    url = "https://downloads.lightbend.com/scala/2.10.6/scala-2.10.6.tgz",
+    build_file_content = SCALA_2_10_BUILD_FILE,
+  )
+
+def zinc_repositories():
+  native.http_file(
+    name = "zinc",
+    url = "https://databricks-mvn.s3.amazonaws.com/binaries/zinc/12-29-15/zinc?AWSAccessKeyId=AKIAJ6V3VSHTA5RSYEQA&Expires=1482970631&Signature=tAP2QKWEnte6v3DpRFtAxGNkUps%3D",
+    sha256 = "255cbd2acb9e78ac30d20d3b57ba6fc4a38476b4eaa74173ba28c2839b4549df"
+  )
+
+  native.http_jar(
+    name = "scala_compiler_jar",
+    url = "https://databricks-mvn.s3.amazonaws.com/binaries/zinc/12-29-15/scala-compiler.jar?AWSAccessKeyId=AKIAJ6V3VSHTA5RSYEQA&Expires=1482962357&Signature=zDYAnLusbKWFFyhI3jokN%2FxissM%3D",
+    sha256 = "7ceaacf9b279b0e53c49234709623f55f6ce61613f14183a817e91e870da6bc8"
+  )
+
+  native.http_jar(
+    name = "incremental_compiler_0_13_9_jar",
+    url = "https://databricks-mvn.s3.amazonaws.com/binaries/zinc/12-29-15/incremental-compiler-0.13.9.jar?AWSAccessKeyId=AKIAJ6V3VSHTA5RSYEQA&Expires=1482971670&Signature=usTDvNkRldp8FSFys%2Fm0zKy0aHg%3D",
+    sha256 = "ddfbc88b9dd629118cad135ec32ec6cd1bc9969ca406cb780529a8cb037e1134"
+  )
+
+  native.http_jar(
+    name = "scala_library_jar",
+    url = "https://databricks-mvn.s3.amazonaws.com/binaries/zinc/12-29-15/scala-library.jar?AWSAccessKeyId=AKIAJ6V3VSHTA5RSYEQA&Expires=1482962357&Signature=fS5ZliC81RaOCArtLERGLOaCS2U%3D",
+    sha256 = "2aa6d7e5bb277c4072ac04433b9626aab586a313a41a57e192ea2acf430cdc29"
+  )
+
+  native.http_jar(
+    name = "sbt_interface_0_13_9_jar",
+    url = "https://databricks-mvn.s3.amazonaws.com/binaries/zinc/12-29-15/sbt-interface-0.13.9.jar?AWSAccessKeyId=AKIAJ6V3VSHTA5RSYEQA&Expires=1482962357&Signature=uu9taX3NAXzcieiTgcjFSOKqBVM%3D",
+    sha256 = "8004c0089728819896d678b3056b0ad0308e9760cb584b3cfc8eabde88f4e2bf"
+  )
+
+  native.http_jar(
+    name = "compiler_interface_0_13_9_sources_jar",
+    url = "https://databricks-mvn.s3.amazonaws.com/binaries/zinc/12-29-15/compiler-interface-0.13.9-sources.jar?AWSAccessKeyId=AKIAJ6V3VSHTA5RSYEQA&Expires=1482962357&Signature=bdNIS9%2BhpySfYIa7V9%2ByceDUClA%3D",
+    sha256 = "d124212ca6d83abe7ef4a275f545a2ac1d3fc8a43ac49d5e2a40054783062127"
+  )
+
+  native.http_jar(
+    name = "scala_reflect_jar",
+    url = "https://databricks-mvn.s3.amazonaws.com/binaries/zinc/12-29-15/scala-reflect.jar?AWSAccessKeyId=AKIAJ6V3VSHTA5RSYEQA&Expires=1482962357&Signature=btywJi2tZAudjoCVlMyjagDbQ2o%3D",
+    sha256 = "ad9b8ec8f7cb6a1d68d3b50a5d6cc61143b783f85523122871d98bac20dd48e3"
+  )
+
+  native.http_jar(
+    name = "zinc_0_3_10_SNAPSHOT_jar",
+    url = "https://databricks-mvn.s3.amazonaws.com/binaries/zinc/12-29-15/zinc-0.3.10-SNAPSHOT.jar?AWSAccessKeyId=AKIAJ6V3VSHTA5RSYEQA&Expires=1482968757&Signature=5mojfgtEVjsYUgoVWX54QSiUIu8%3D",
+    sha256 = "1db98ace1e69a7b7f757f7726e494816583ed44ca46ccd3ed11563772dacb915"
+  )
+
+  native.http_jar(
+    name = "nailgun_server_0_9_1_jar",
+    url = "http://central.maven.org/maven2/com/martiansoftware/nailgun-server/0.9.1/nailgun-server-0.9.1.jar",
+    sha256 = "4518faa6bf4bd26fccdc4d85e1625dc679381a08d56872d8ad12151dda9cef25"
+  )
+
