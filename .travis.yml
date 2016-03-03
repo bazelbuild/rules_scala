@@ -23,6 +23,4 @@ before_install:
   - cat ~/.bazelrc >> .bazelrc
 
 script:
-  - bazel build test/...
-  - bazel run test:ScalaBinary
-  - bazel test test/...
+  - bash test_run.sh
