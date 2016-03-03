@@ -15,5 +15,15 @@
 package scala.test
 
 object ScalaLibResources {
-  def getGreetings() = scala.io.Source.fromInputStream(getClass.getResourceAsStream("hellos")).getLines.toList
+  def getGreetings() =
+    scala.io.Source
+      .fromInputStream(getClass.getResourceAsStream("hellos"))
+      .getLines
+      .toList
+
+  def getFarewells() =
+    scala.io.Source
+      .fromInputStream(getClass.getResourceAsStream("byes"))
+      .getLines
+      .toList
 }
