@@ -79,7 +79,7 @@ java_library(
 scala_library(
     name = "ScalaLibResources",
     srcs = ["src/main/scala/scala/test/ScalaLibResources.scala"],
-    resources = ["src/main/resources/scala/test/hellos"],
+    resources = ["src/main/resources/scala/test/hellos", "src/main/resources/scala/test/byes"],
 )
 
 scala_binary(
