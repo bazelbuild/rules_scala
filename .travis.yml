@@ -23,4 +23,4 @@ before_install:
   - cat ~/.bazelrc >> .bazelrc
 
 script:
-  - test_run.sh
+  - bash test_run.sh
