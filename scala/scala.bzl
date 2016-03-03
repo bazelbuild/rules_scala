@@ -26,12 +26,16 @@ def _adjust_resources_path(path):
     return dir_1 + dir_2, rel_path
   return "", path
 
-def _build_nosrc_jar(ctx, buildijar):
+def _add_resources_cmd(ctx):
   res_cmd = ""
   for f in ctx.files.resources:
     c_dir, res_path = _adjust_resources_path(f.path)
     change_dir = "-C " + c_dir if c_dir else ""
-    res_cmd = "\n{jar} uf {out} " + change_dir + " " + res_path
+    res_cmd += "\n{jar} uf {out} " + change_dir + " " + res_path
+  return res_cmd
+
+def _build_nosrc_jar(ctx, buildijar):
+  res_cmd = _add_resources_cmd(ctx)
   ijar_cmd = ""
   if buildijar:
     ijar_cmd = "\ncp {out} {ijar_out}".format(
@@ -61,11 +65,7 @@ touch -t 198001010000 {manifest}
       arguments=[])
 
 def _compile(ctx, jars, buildijar):
-  res_cmd = ""
-  for f in ctx.files.resources:
-    c_dir, res_path = _adjust_resources_path(f.path)
-    change_dir = "-C " + c_dir if c_dir else ""
-    res_cmd = "\n{jar} uf {out} " + change_dir + " " + res_path
+  res_cmd = _add_resources_cmd(ctx)
   ijar_cmd = ""
   if buildijar:
     ijar_cmd = "\n{ijar} {out} {ijar_out}".format(
