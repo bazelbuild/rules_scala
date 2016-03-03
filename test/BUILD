@@ -14,7 +14,18 @@ java_binary(
 # For now, we have to use a java_import proxy.
 java_import(
     name = "lib_import",
-    jars = [":HelloLib_deploy.jar"],
+    # these are the outputs of the scala_library targets
+    jars = [":HelloLib_deploy.jar",
+            "OtherLib_deploy.jar",
+            "Exported_deploy.jar",
+            "Runtime_deploy.jar",
+           ],
+    runtime_deps = ["org_scala_lang__scala_library", "OtherJavaLib"]
+)
+
+java_import(
+    name = "org_scala_lang__scala_library",
+    jars = ["@scala//:lib/scala-library.jar"]
 )
 
 scala_binary(
