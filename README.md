@@ -17,13 +17,13 @@ currently four rules, `scala_library`, `scala_macro_library`, `scala_binary`
 and `scala_test`.
 
 In order to use `scala_library`, `scala_macro_library`, and `scala_binary`,
-you must have bazel 0.2.0 and add the following to your WORKSPACE file:
+you must have bazel 0.2.1 and add the following to your WORKSPACE file:
 
 ```python
 git_repository(
     name = "io_bazel_rules_scala",
     remote = "https://github.com/bazelbuild/rules_scala.git",
-    tag = "0.0.1",
+    tag = "0.0.2",
 )
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
 scala_repositories()
