@@ -151,8 +151,7 @@ def _write_test_launcher(ctx, jars):
     print("suites attribute is deprecated. All scalatest test suites are run")
 
   content = """#!/bin/bash
-cd $0.runfiles
-{java} -cp {cp} {name} {args} "$@"
+{java} -cp {cp} {name} {args} -C io.bazel.rules.scala.JUnitXmlReporter "$@"
 """
   content = content.format(
       java=ctx.file._java.path,
@@ -243,7 +242,9 @@ def _scala_binary_impl(ctx):
   return _scala_binary_common(ctx, cjars, rjars)
 
 def _scala_test_impl(ctx):
-  jars = _collect_jars(ctx.attr.deps)
+  deps = ctx.attr.deps
+  deps += [ctx.attr._scalatest_reporter]
+  jars = _collect_jars(deps)
   (cjars, rjars) = (jars.compiletime, jars.runtime)
   cjars += [ctx.file._scalareflect, ctx.file._scalatest, ctx.file._scalaxml]
   rjars += [ctx.outputs.jar, ctx.file._scalalib, ctx.file._scalareflect, ctx.file._scalatest, ctx.file._scalaxml]
@@ -318,6 +319,7 @@ scala_test = rule(
       "main_class": attr.string(default="org.scalatest.tools.Runner"),
       "suites": attr.string_list(),
       "_scalatest": attr.label(executable=True, default=Label("@scalatest//file"), single_file=True, allow_files=True),
+      "_scalatest_reporter": attr.label(default=Label("//scala/support:test_reporter")),
       } + _implicit_deps + _common_attrs,
   outputs={
       "jar": "%{name}_deploy.jar",

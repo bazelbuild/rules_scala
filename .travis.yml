@@ -5,6 +5,7 @@ addons:
     packages:
       - gcc-4.8
       - g++-4.8
+      - libxml2-utils
       - wget
       # Package list from http://bazel.io/docs/install.html
       - pkg-config
