@@ -73,6 +73,7 @@ def _compile(ctx, jars, buildijar):
       out=ctx.outputs.jar.path,
       ijar_out=ctx.outputs.ijar.path)
   cmd = """
+rm -rf {out}_tmp
 set -e
 mkdir -p {out}_tmp
 env JAVACMD={java} {scalac} {scala_opts} {jvm_flags} -classpath "{jars}" $@ -d {out}_tmp
@@ -80,6 +81,7 @@ env JAVACMD={java} {scalac} {scala_opts} {jvm_flags} -classpath "{jars}" $@ -d {
 find {out}_tmp -exec touch -t 198001010000 {{}} \;
 touch -t 198001010000 {manifest}
 {jar} cmf {manifest} {out} -C {out}_tmp .
+rm -rf {out}_tmp
 """ + ijar_cmd + res_cmd
   cmd = cmd.format(
       java=ctx.file._java.path,
