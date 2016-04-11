@@ -7,7 +7,7 @@ load("//scala:scala.bzl", "scala_library")
 scala_library(
   name = "source_jar",
   # SourceJar1.jar was created by:
-  # jar -cfM test/src/main/scala/scala/test/srcjars/SourceJar1.sources.jar \
+  # jar -cfM test/src/main/scala/scala/test/srcjars/SourceJar1.srcjar \
   # test/src/main/scala/scala/test/srcjars/SourceJar1.scala
   srcs = ["SourceJar1.srcjar"],
 )
