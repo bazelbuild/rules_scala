@@ -166,12 +166,14 @@ def _write_test_launcher(ctx, jars):
 
 def _collect_jars(targets):
   """Compute the runtime and compile-time dependencies from the given targets"""
-  compile_jars = set()  # not transitive
-  runtime_jars = set()  # this is transitive
+  compile_jars = set()
+  runtime_jars = set()
+  ijars = set()
   for target in targets:
     found = False
     if hasattr(target, "scala"):
       compile_jars += [target.scala.outputs.ijar]
+      ijars += [target.scala.outputs.ijar]
       compile_jars += target.scala.transitive_compile_exports
       runtime_jars += target.scala.transitive_runtime_deps
       runtime_jars += target.scala.transitive_runtime_exports
@@ -187,7 +189,7 @@ def _collect_jars(targets):
       # support http_file pointed at a jar. http_jar uses ijar, which breaks scala macros
       runtime_jars += target.files
       compile_jars += target.files
-  return struct(compiletime = compile_jars, runtime = runtime_jars)
+  return struct(compiletime = compile_jars, runtime = runtime_jars, ijars = ijars)
 
 def _lib(ctx, non_macro_lib):
   jars = _collect_jars(ctx.attr.deps)
@@ -200,13 +202,17 @@ def _lib(ctx, non_macro_lib):
 
   if not non_macro_lib:
     #  macros need the scala reflect jar
-    cjars += [ctx.file._scalareflect]
     rjars += [ctx.file._scalareflect]
+
+  cjars_no_ijars = set()
+  for jar in cjars:
+    if jar not in jars.ijars:
+      cjars_no_ijars += [jar]
 
   texp = _collect_jars(ctx.attr.exports)
   scalaattr = struct(outputs = outputs,
                      transitive_runtime_deps = rjars,
-                     transitive_compile_exports = texp.compiletime,
+                     transitive_compile_exports = texp.compiletime + cjars_no_ijars,
                      transitive_runtime_exports = texp.runtime
                      )
   runfiles = ctx.runfiles(
