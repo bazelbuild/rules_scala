@@ -14,8 +14,10 @@
 
 """Rules for supporting the Scala language."""
 
-
 _scala_filetype = FileType([".scala"])
+_srcjar_filetype = FileType([".srcjar"])
+# TODO is there a way to derive this from the above?
+_scala_srcjar_filetype = FileType([".scala", ".srcjar"])
 
 def _adjust_resources_path(path):
   dir_1, dir_2, rel_path = path.partition("resources")
@@ -64,7 +66,7 @@ touch -t 198001010000 {manifest}
       progress_message="scala %s" % ctx.label,
       arguments=[])
 
-def _compile(ctx, jars, buildijar):
+def _compile(ctx, jars, dep_srcjars, buildijar):
   res_cmd = _add_resources_cmd(ctx)
   ijar_cmd = ""
   if buildijar:
@@ -72,15 +74,50 @@ def _compile(ctx, jars, buildijar):
       ijar=ctx.file._ijar.path,
       out=ctx.outputs.jar.path,
       ijar_out=ctx.outputs.ijar.path)
+
+  sources = []
+  srcjars = []
+  for f in ctx.files.srcs:
+    #TODO this is gross but we aren't given a good "filterNot"
+    if len(_srcjar_filetype.filter([f])) == 0:
+      sources.append(f)
+    else:
+      srcjars.append(f)
+
+  all_srcjars = srcjars + list(dep_srcjars)
+
+  srcjar_cmd = "\n_SRCJAR_ARG=\"\""
+  if len(all_srcjars) > 0:
+    for srcjar in all_srcjars:
+      # Note: this is double escaped because we need to do one format call
+      # per each srcjar, but then we are going to include this in the bigger format
+      # call that is done to generate the full command
+
+      # Note: unzip has -o set (overriding files), and all of the files are unzipped into the same directory.
+      # I feel this is ok because everything should be from the same source tree, so it should have to be consistent
+      # (the whole point of bazel is resolving diamonds). That said, a good TODO might be to ensure that
+      # if there are duplicate files, they are identical (and error otherwise)
+
+      #TODO would like to be able to switch >/dev/null, -v, etc based on the user's settings
+      srcjar_cmd += """
+rm -rf {{out}}_tmp_expand_srcjars
+mkdir -p {{out}}_tmp_expand_srcjars
+unzip -o {srcjar} -d {{out}}_tmp_expand_srcjars >/dev/null
+""".format(srcjar = srcjar.path)
+    srcjar_cmd += """
+_SRCJAR_ARG=$(find {out}_tmp_expand_srcjars -type f -name "*.scala")
+"""
+
   cmd = """
 rm -rf {out}_tmp
 set -e
-mkdir -p {out}_tmp
-env JAVACMD={java} {scalac} {scala_opts} {jvm_flags} -classpath "{jars}" $@ -d {out}_tmp
+mkdir -p {out}_tmp""" + srcjar_cmd + """
+env JAVACMD={java} {scalac} {scala_opts} {jvm_flags} -classpath "{jars}" $_SRCJAR_ARG $@ -d {out}_tmp
 # Make jar file deterministic by setting the timestamp of files
 find {out}_tmp -exec touch -t 198001010000 {{}} \;
 touch -t 198001010000 {manifest}
 {jar} cmf {manifest} {out} -C {out}_tmp .
+rm -rf {out}_tmp_expand_srcjars
 rm -rf {out}_tmp
 """ + ijar_cmd + res_cmd
   cmd = cmd.format(
@@ -92,12 +129,14 @@ rm -rf {out}_tmp
       manifest=ctx.outputs.manifest.path,
       jar=ctx.file._jar.path,
       ijar=ctx.file._ijar.path,
-      jars=":".join([j.path for j in jars]),)
+      jars=":".join([j.path for j in jars])
+    )
   outs = [ctx.outputs.jar]
   if buildijar:
     outs.extend([ctx.outputs.ijar])
   ctx.action(
       inputs=list(jars) +
+          list(dep_srcjars) +
           ctx.files.srcs +
           ctx.files.resources +
           ctx.files._jdk +
@@ -106,15 +145,16 @@ rm -rf {out}_tmp
       outputs=outs,
       command=cmd,
       progress_message="scala %s" % ctx.label,
-      arguments=[f.path for f in ctx.files.srcs])
+      arguments=[f.path for f in sources])
 
-def _compile_or_empty(ctx, jars, buildijar):
-  if len(ctx.files.srcs) == 0:
+def _compile_or_empty(ctx, jars, srcjars, buildijar):
+  # We assume that if a srcjar is present, it is not empty
+  if len(ctx.files.srcs) + len(srcjars) == 0:
     _build_nosrc_jar(ctx, buildijar)
     #  no need to build ijar when empty
     return struct(ijar=ctx.outputs.jar, class_jar=ctx.outputs.jar)
   else:
-    _compile(ctx, jars, buildijar)
+    _compile(ctx, jars, srcjars, buildijar)
     ijar = None
     if buildijar:
       ijar = ctx.outputs.ijar
@@ -123,7 +163,7 @@ def _compile_or_empty(ctx, jars, buildijar):
       ijar = ctx.outputs.jar
     return struct(ijar=ijar, class_jar=ctx.outputs.jar)
 
-def _write_manifest(ctx):
+def write_manifest(ctx):
   # TODO(bazel-team): I don't think this classpath is what you want
   manifest = "Class-Path: %s\n" % ctx.file._scalalib.path
   if getattr(ctx.attr, "main_class", ""):
@@ -132,7 +172,6 @@ def _write_manifest(ctx):
   ctx.file_action(
       output = ctx.outputs.manifest,
       content = manifest)
-
 
 def _write_launcher(ctx, jars):
   content = """#!/bin/bash
@@ -164,6 +203,13 @@ def _write_test_launcher(ctx, jars):
       output=ctx.outputs.executable,
       content=content)
 
+def _collect_srcjars(targets):
+  srcjars = set()
+  for target in targets:
+    if hasattr(target, "srcjar"):
+      srcjars += [target.srcjar]
+  return srcjars
+
 def _collect_jars(targets):
   """Compute the runtime and compile-time dependencies from the given targets"""
   compile_jars = set()
@@ -172,8 +218,8 @@ def _collect_jars(targets):
   for target in targets:
     found = False
     if hasattr(target, "scala"):
-      compile_jars += [target.scala.outputs.ijar]
-      ijars += [target.scala.outputs.ijar]
+      if hasattr(target.scala.outputs, "ijar"):
+        compile_jars += [target.scala.outputs.ijar]
       compile_jars += target.scala.transitive_compile_exports
       runtime_jars += target.scala.transitive_runtime_deps
       runtime_jars += target.scala.transitive_runtime_exports
@@ -189,13 +235,16 @@ def _collect_jars(targets):
       # support http_file pointed at a jar. http_jar uses ijar, which breaks scala macros
       runtime_jars += target.files
       compile_jars += target.files
-  return struct(compiletime = compile_jars, runtime = runtime_jars, ijars = ijars)
+  return struct(compiletime = compile_jars, runtime = runtime_jars)
 
 def _lib(ctx, non_macro_lib):
+  # This will be used to pick up srcjars from non-scala library
+  # targets (like thrift code generation)
+  srcjars = _collect_srcjars(ctx.attr.deps)
   jars = _collect_jars(ctx.attr.deps)
   (cjars, rjars) = (jars.compiletime, jars.runtime)
-  _write_manifest(ctx)
-  outputs = _compile_or_empty(ctx, cjars, non_macro_lib)
+  write_manifest(ctx)
+  outputs = _compile_or_empty(ctx, cjars, srcjars, non_macro_lib)
 
   rjars += [ctx.outputs.jar]
   rjars += _collect_jars(ctx.attr.runtime_deps).runtime
@@ -204,15 +253,10 @@ def _lib(ctx, non_macro_lib):
     #  macros need the scala reflect jar
     rjars += [ctx.file._scalareflect]
 
-  cjars_no_ijars = set()
-  for jar in cjars:
-    if jar not in jars.ijars:
-      cjars_no_ijars += [jar]
-
   texp = _collect_jars(ctx.attr.exports)
   scalaattr = struct(outputs = outputs,
                      transitive_runtime_deps = rjars,
-                     transitive_compile_exports = texp.compiletime + cjars_no_ijars,
+                     transitive_compile_exports = texp.compiletime + cjars,
                      transitive_runtime_exports = texp.runtime
                      )
   runfiles = ctx.runfiles(
@@ -230,8 +274,8 @@ def _scala_macro_library_impl(ctx):
 
 # Common code shared by all scala binary implementations.
 def _scala_binary_common(ctx, cjars, rjars):
-  _write_manifest(ctx)
-  _compile_or_empty(ctx, cjars, False)  # no need to build an ijar for an executable
+  write_manifest(ctx)
+  _compile_or_empty(ctx, cjars, [], False)  # no need to build an ijar for an executable
 
   runfiles = ctx.runfiles(
       files = list(rjars) + [ctx.outputs.executable] + [ctx.file._java] + ctx.files._jdk,
@@ -260,22 +304,23 @@ def _scala_test_impl(ctx):
   _write_test_launcher(ctx, rjars)
   return _scala_binary_common(ctx, cjars, rjars)
 
-_implicit_deps = {
-  "_ijar": attr.label(executable=True, default=Label("//tools/defaults:ijar"), single_file=True, allow_files=True),
-  "_scalac": attr.label(executable=True, default=Label("@scala//:bin/scalac"), single_file=True, allow_files=True),
-  "_scalalib": attr.label(default=Label("@scala//:lib/scala-library.jar"), single_file=True, allow_files=True),
-  "_scalaxml": attr.label(default=Label("@scala//:lib/scala-xml_2.11-1.0.4.jar"), single_file=True, allow_files=True),
-  "_scalasdk": attr.label(default=Label("@scala//:sdk"), allow_files=True),
-  "_scalareflect": attr.label(default=Label("@scala//:lib/scala-reflect.jar"), single_file=True, allow_files=True),
-  "_java": attr.label(executable=True, default=Label("@bazel_tools//tools/jdk:java"), single_file=True, allow_files=True),
-  "_jar": attr.label(executable=True, default=Label("@bazel_tools//tools/jdk:jar"), single_file=True, allow_files=True),
-  "_jdk": attr.label(default=Label("//tools/defaults:jdk"), allow_files=True),
-}
+def implicit_deps():
+  return {
+    "_ijar": attr.label(executable=True, default=Label("//tools/defaults:ijar"), single_file=True, allow_files=True),
+    "_scalac": attr.label(executable=True, default=Label("@scala//:bin/scalac"), single_file=True, allow_files=True),
+    "_scalalib": attr.label(default=Label("@scala//:lib/scala-library.jar"), single_file=True, allow_files=True),
+    "_scalaxml": attr.label(default=Label("@scala//:lib/scala-xml_2.11-1.0.4.jar"), single_file=True, allow_files=True),
+    "_scalasdk": attr.label(default=Label("@scala//:sdk"), allow_files=True),
+    "_scalareflect": attr.label(default=Label("@scala//:lib/scala-reflect.jar"), single_file=True, allow_files=True),
+    "_java": attr.label(executable=True, default=Label("@bazel_tools//tools/jdk:java"), single_file=True, allow_files=True),
+    "_jar": attr.label(executable=True, default=Label("@bazel_tools//tools/jdk:jar"), single_file=True, allow_files=True),
+    "_jdk": attr.label(default=Label("//tools/defaults:jdk"), allow_files=True),
+  }
 
 # Common attributes reused across multiple rules.
 _common_attrs = {
   "srcs": attr.label_list(
-      allow_files=_scala_filetype),
+      allow_files=_scala_srcjar_filetype),
   "deps": attr.label_list(),
   "runtime_deps": attr.label_list(),
   "data": attr.label_list(allow_files=True, cfg=DATA_CFG),
@@ -289,7 +334,7 @@ scala_library = rule(
   attrs={
       "main_class": attr.string(),
       "exports": attr.label_list(allow_files=False),
-      } + _implicit_deps + _common_attrs,
+      } + implicit_deps() + _common_attrs,
   outputs={
       "jar": "%{name}_deploy.jar",
       "ijar": "%{name}_ijar.jar",
@@ -302,7 +347,7 @@ scala_macro_library = rule(
   attrs={
       "main_class": attr.string(),
       "exports": attr.label_list(allow_files=False),
-      } + _implicit_deps + _common_attrs,
+      } + implicit_deps() + _common_attrs,
   outputs={
       "jar": "%{name}_deploy.jar",
       "manifest": "%{name}_MANIFEST.MF",
@@ -313,7 +358,7 @@ scala_binary = rule(
   implementation=_scala_binary_impl,
   attrs={
       "main_class": attr.string(mandatory=True),
-      } + _implicit_deps + _common_attrs,
+      } + implicit_deps() + _common_attrs,
   outputs={
       "jar": "%{name}_deploy.jar",
       "manifest": "%{name}_MANIFEST.MF",
@@ -328,7 +373,7 @@ scala_test = rule(
       "suites": attr.string_list(),
       "_scalatest": attr.label(executable=True, default=Label("@scalatest//file"), single_file=True, allow_files=True),
       "_scalatest_reporter": attr.label(default=Label("//scala/support:test_reporter")),
-      } + _implicit_deps + _common_attrs,
+      } + implicit_deps() + _common_attrs,
   outputs={
       "jar": "%{name}_deploy.jar",
       "manifest": "%{name}_MANIFEST.MF",
