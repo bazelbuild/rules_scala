@@ -1,4 +1,9 @@
-load("//scala:scala.bzl", "scala_binary", "scala_library", "scala_test", "scala_macro_library")
+load("//scala:scala.bzl",
+    "scala_binary",
+    "scala_library",
+    "scala_test",
+    "scala_macro_library",
+    "scala_export_to_java")
 
 # The examples below show how to combine Scala and Java rules.
 # ScalaBinary is the Scala equivalent of JavaBinary.
@@ -21,6 +26,16 @@ java_import(
             "Runtime_deploy.jar",
            ],
     runtime_deps = ["org_scala_lang__scala_library", "OtherJavaLib"]
+)
+
+scala_export_to_java(
+    name = "lib_import_2",
+    exports = [":HelloLib",
+               "OtherLib",
+               "Exported",
+               "Runtime",
+              ],
+    runtime_deps = ["OtherJavaLib"],
 )
 
 java_import(

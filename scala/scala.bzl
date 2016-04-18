@@ -390,3 +390,15 @@ def scala_repositories():
     url = "https://oss.sonatype.org/content/groups/public/org/scalatest/scalatest_2.11/2.2.6/scalatest_2.11-2.2.6.jar",
     sha256 = "f198967436a5e7a69cfd182902adcfbcb9f2e41b349e1a5c8881a2407f615962",
   )
+
+def scala_export_to_java(name, exports, runtime_deps):
+  jars = []
+  for target in exports:
+    jars.append("{}_deploy.jar".format(target))
+
+  native.java_import(
+    name = name,
+    # these are the outputs of the scala_library targets
+    jars = jars,
+    runtime_deps = ["org_scala_lang__scala_library"] + runtime_deps
+  )
