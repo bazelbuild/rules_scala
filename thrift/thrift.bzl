@@ -18,7 +18,7 @@ find {out}_tmp -exec touch -t 198001010000 {{}} \;
 rm -rf {out}_tmp""".format(out=ctx.outputs.libarchive.path,
                            jar=ctx.file._jar.path)
   ctx.action(
-    inputs = ctx.files.srcs,
+    inputs = ctx.files.srcs + ctx.files._jar,
     outputs = [ctx.outputs.libarchive],
     command = cmd,
     progress_message = "making thrift archive %s" % ctx.label,
