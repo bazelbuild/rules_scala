@@ -18,7 +18,7 @@ find {out}_tmp -exec touch -t 198001010000 {{}} \;
 rm -rf {out}_tmp""".format(out=ctx.outputs.libarchive.path,
                            jar=ctx.file._jar.path)
   ctx.action(
-    inputs = ctx.files.srcs + ctx.files._jar,
+    inputs = ctx.files.srcs + ctx.files._jar + ctx.files._jdk,
     outputs = [ctx.outputs.libarchive],
     command = cmd,
     progress_message = "making thrift archive %s" % ctx.label,
@@ -68,6 +68,7 @@ thrift_library = rule(
       "srcs": attr.label_list(allow_files=_thrift_filetype),
       "deps": attr.label_list(),
       "_jar": attr.label(executable=True, default=Label("@bazel_tools//tools/jdk:jar"), single_file=True, allow_files=True),
+      "_jdk": attr.label(default=Label("//tools/defaults:jdk"), allow_files=True),
   },
   outputs={"libarchive": "lib%{name}.jar"},
 )
