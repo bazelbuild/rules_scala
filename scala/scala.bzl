@@ -84,9 +84,19 @@ def _compile(ctx, jars, dep_srcjars, buildijar):
     else:
       srcjars.append(f)
 
-  all_srcjars = srcjars + list(dep_srcjars)
+  # Set up the args to pass to scalac because they can be too long for bash
+  scalac_args_file = ctx.new_file(ctx.outputs.jar, ctx.outputs.jar.short_path + "scalac_args")
+  scalac_args = """{scala_opts} {jvm_flags} -classpath "{jars}" -d {out}_tmp {files}""".format(
+      scala_opts=" ".join(ctx.attr.scalacopts),
+      jvm_flags=" ".join(["-J" + flag for flag in ctx.attr.jvm_flags]),
+      jars=":".join([j.path for j in jars]),
+      files=" ".join([f.path for f in sources]),
+      out=ctx.outputs.jar.path
+      )
+  ctx.file_action(output = scalac_args_file, content = scalac_args)
 
-  srcjar_cmd = "\n_SRCJAR_ARG=\"\""
+  all_srcjars = srcjars + list(dep_srcjars)
+  srcjar_cmd = ""
   if len(all_srcjars) > 0:
     for srcjar in all_srcjars:
       # Note: this is double escaped because we need to do one format call
@@ -103,16 +113,19 @@ def _compile(ctx, jars, dep_srcjars, buildijar):
 rm -rf {{out}}_tmp_expand_srcjars
 mkdir -p {{out}}_tmp_expand_srcjars
 unzip -o {srcjar} -d {{out}}_tmp_expand_srcjars >/dev/null
+echo " " >> {{out}}_args/files_from_jar
+find {{out}}_tmp_expand_srcjars -type f -name "*.scala" >> {{out}}_args/files_from_jar
 """.format(srcjar = srcjar.path)
-    srcjar_cmd += """
-_SRCJAR_ARG=$(find {out}_tmp_expand_srcjars -type f -name "*.scala")
-"""
 
   cmd = """
 rm -rf {out}_tmp
 set -e
+rm -rf {out}_args
+mkdir -p {out}_args
+touch {out}_args/files_from_jar
 mkdir -p {out}_tmp""" + srcjar_cmd + """
-env JAVACMD={java} {scalac} {scala_opts} {jvm_flags} -classpath "{jars}" $_SRCJAR_ARG $@ -d {out}_tmp
+cat {scalac_args} {out}_args/files_from_jar > {out}_args/args
+env JAVACMD={java} {scalac} @{out}_args/args
 # Make jar file deterministic by setting the timestamp of files
 find {out}_tmp -exec touch -t 198001010000 {{}} \;
 touch -t 198001010000 {manifest}
@@ -123,13 +136,11 @@ rm -rf {out}_tmp
   cmd = cmd.format(
       java=ctx.file._java.path,
       scalac=ctx.file._scalac.path,
-      scala_opts=" ".join(ctx.attr.scalacopts),
-      jvm_flags=" ".join(["-J" + flag for flag in ctx.attr.jvm_flags]),
+      scalac_args=scalac_args_file.path,
       out=ctx.outputs.jar.path,
       manifest=ctx.outputs.manifest.path,
       jar=ctx.file._jar.path,
       ijar=ctx.file._ijar.path,
-      jars=":".join([j.path for j in jars])
     )
   outs = [ctx.outputs.jar]
   if buildijar:
@@ -141,11 +152,11 @@ rm -rf {out}_tmp
           ctx.files.resources +
           ctx.files._jdk +
           ctx.files._scalasdk +
-          [ctx.outputs.manifest, ctx.file._jar, ctx.file._ijar],
+          [ctx.outputs.manifest, ctx.file._jar, ctx.file._ijar, scalac_args_file],
       outputs=outs,
       command=cmd,
       progress_message="scala %s" % ctx.label,
-      arguments=[f.path for f in sources])
+      arguments=[])
 
 def _compile_or_empty(ctx, jars, srcjars, buildijar):
   # We assume that if a srcjar is present, it is not empty
