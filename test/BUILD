@@ -38,6 +38,13 @@ scala_export_to_java(
     runtime_deps = ["OtherJavaLib"],
 )
 
+java_binary(
+    name = "JavaBinary2",
+    srcs = ["JavaBinary.java"],
+    main_class = "scala.test.JavaBinary",
+    deps = [":lib_import_2"],
+)
+
 java_import(
     name = "org_scala_lang__scala_library",
     jars = ["@scala//:lib/scala-library.jar"]

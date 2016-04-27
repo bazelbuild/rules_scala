@@ -400,5 +400,5 @@ def scala_export_to_java(name, exports, runtime_deps):
     name = name,
     # these are the outputs of the scala_library targets
     jars = jars,
-    runtime_deps = ["org_scala_lang__scala_library"] + runtime_deps
+    runtime_deps = ["@scala//:lib/scala-library.jar"] + runtime_deps
   )
