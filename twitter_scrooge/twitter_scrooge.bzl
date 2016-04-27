@@ -4,7 +4,6 @@ load("//scala:scala.bzl",
   "scala_mvn_artifact",
   "scala_library",
   "write_manifest",
-  "implicit_deps",
   "collect_srcjars")
 
 def twitter_scrooge():
@@ -195,7 +194,7 @@ scrooge_scala_srcjar = rule(
           executable=True,
           default=Label("//src/scala/scripts:generator"),
           allow_files=True),
-    } + implicit_deps(),
+    },
     outputs={
       "srcjar": "lib%{name}.srcjar",
     },
