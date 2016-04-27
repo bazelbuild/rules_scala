@@ -26,11 +26,6 @@ def twitter_scrooge():
     sha1 = "cacf72eedeb5309ca02b2d8325c587198ecaac82",
   )
   native.maven_jar(
-    name = "scopt",
-    artifact = scala_mvn_artifact("com.github.scopt:scopt:3.3.0"),
-    sha1 = "9e6fb062b2f12a7945b9f38ee54784aee7edde20",
-  )
-  native.maven_jar(
     name = "util_core",
     artifact = scala_mvn_artifact("com.twitter:util-core:6.33.0"),
     sha1 = "bb49fa66a3ca9b7db8cd764d0b26ce498bbccc83",
@@ -82,7 +77,7 @@ def _assert_set_is_subset(left, right):
     fail('scrooge_srcjar target must depend on scrooge_srcjar targets sufficient to ' +
          'cover the transitive graph of thrift files. Uncovered sources: ' + missing)
 
-def _content_newline(data):
+def _path_newline(data):
   return '\n'.join([f.path for f in data])
 
 def _gen_scrooge_srcjar_impl(ctx):
@@ -114,33 +109,20 @@ def _gen_scrooge_srcjar_impl(ctx):
   # in order to generate code) have targets which will compile them.
   _assert_set_is_subset(only_transitive_thrift_srcs, transitive_owned_srcs)
 
-  #TODO would there be a case in which we want/need to allow more jars here?
-  transitive_cjars = [ctx.files._scrooge_core, ctx.files._libthrift, ctx.files._scalalib]
-  transitive_cjars = [file for files in transitive_cjars for file in files]
-
-  cjars = ctx.files._scrooge_generator + \
-          ctx.files._scopt + \
-          ctx.files._util_core + \
-          ctx.files._util_logging + \
-          ctx.files._scala_parser_combinators + \
-          transitive_cjars
-
   remote_jars_file = ctx.new_file(ctx.outputs.srcjar, ctx.outputs.srcjar.short_path + "_remote_jars")
-  ctx.file_action(output=remote_jars_file, content=_content_newline(remote_jars))
+  ctx.file_action(output=remote_jars_file, content=_path_newline(remote_jars))
 
   only_transitive_thrift_srcs_file = ctx.new_file(ctx.outputs.srcjar, ctx.outputs.srcjar.short_path + "_only_transitive_thrift_srcs")
-  ctx.file_action(output = only_transitive_thrift_srcs_file, content = _content_newline(only_transitive_thrift_srcs))
+  ctx.file_action(output = only_transitive_thrift_srcs_file, content = _path_newline(only_transitive_thrift_srcs))
 
   immediate_thrift_srcs_file = ctx.new_file(ctx.outputs.srcjar, ctx.outputs.srcjar.short_path + "_immediate_thrift_srcs")
-  ctx.file_action(output = immediate_thrift_srcs_file, content = _content_newline(immediate_thrift_srcs))
+  ctx.file_action(output = immediate_thrift_srcs_file, content = _path_newline(immediate_thrift_srcs))
 
   ctx.action(
-    #TODO do the dependencies of the executable need to be listed?
     executable = ctx.executable._pluck_scrooge_scala,
     inputs = list(remote_jars) +
         list(only_transitive_thrift_srcs) +
         list(immediate_thrift_srcs) +
-        cjars +
         [remote_jars_file,
          only_transitive_thrift_srcs_file,
          immediate_thrift_srcs_file],
@@ -154,11 +136,11 @@ def _gen_scrooge_srcjar_impl(ctx):
     progress_message = "creating scrooge files %s" % ctx.label,
   )
 
-  jars = _collect_scalaattr(ctx.attr.deps) # should be _collect_scalaattr
+  jars = _collect_scalaattr(ctx.attr.deps)
 
   scalaattr = struct(outputs = None,
-                     transitive_runtime_deps = jars.transitive_runtime_deps, #TODO are we missing any runtime deps?
-                     transitive_compile_exports = jars.transitive_compile_exports + set(transitive_cjars),
+                     transitive_runtime_deps = jars.transitive_runtime_deps,
+                     transitive_compile_exports = jars.transitive_compile_exports,
                      transitive_runtime_exports = jars.transitive_runtime_exports,
                      )
 
@@ -209,36 +191,9 @@ scrooge_scala_srcjar = rule(
         #     "covered," as well as needing the thrifts to
         #     do the code gen.
         "remote_jars": attr.label_list(),
-        "_scrooge_core": attr.label(
-            default=Label("@scrooge_core//jar"),
-            allow_files=True),
-        "_libthrift": attr.label(
-            default=Label("@libthrift//jar"),
-            allow_files=True),
-        "_scrooge_generator": attr.label(
-            default=Label("@scrooge_generator//jar"),
-            allow_files=True),
-        "_scopt": attr.label(
-            default=Label("@scopt//jar"),
-            allow_files=True),
-        "_util_core": attr.label(
-            default=Label("@util_core//jar"),
-            allow_files=True),
-        "_util_logging": attr.label(
-            default=Label("@util_logging//jar"),
-            allow_files=True),
-        "_scala_parser_combinators": attr.label(
-            default=Label("@scala//:lib/scala-parser-combinators_2.11-1.0.4.jar"),
-            allow_files=True),
         "_pluck_scrooge_scala": attr.label(
           executable=True,
           default=Label("//src/scala/scripts:generator"),
-          #single_file=True,
-          allow_files=True),
-        "_pluck_scrooge": attr.label(
-          executable=True,
-          default=Label("//src/python/scripts:twitter_scrooge_pluck_cmd"),
-          #single_file=True,
           allow_files=True),
     } + implicit_deps(),
     outputs={

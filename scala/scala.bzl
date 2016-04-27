@@ -113,7 +113,6 @@ rm -rf {out}_args
 mkdir -p {out}_args
 touch {out}_args/files_from_jar
 mkdir -p {out}_tmp""" + srcjar_cmd + """
-#TODO THIS IS A HACK TO SEE IF IT WORKS WITH ZINC...MUST REMOVE!!
 cat {scalac_args} {out}_args/files_from_jar > {out}_args/args
 env JAVACMD={java} {scalac} @{out}_args/args
 # Make jar file deterministic by setting the timestamp of files
@@ -137,7 +136,9 @@ rm -rf {out}_tmp
     outs.extend([ctx.outputs.ijar])
   ctx.action(
       inputs=list(jars) +
-          list(all_srcjars) +
+          list(dep_srcjars) +
+          list(srcjars) +
+          list(sources) +
           ctx.files.srcs +
           ctx.files.resources +
           ctx.files._jdk +
