@@ -14,6 +14,7 @@
 
 """Rules for supporting the Scala language."""
 
+_jar_filetype = FileType([".jar"])
 _scala_filetype = FileType([".scala"])
 _srcjar_filetype = FileType([".srcjar"])
 # TODO is there a way to derive this from the above?
@@ -66,6 +67,20 @@ touch -t 198001010000 {manifest}
       progress_message="scala %s" % ctx.label,
       arguments=[])
 
+def _collect_plugin_paths(plugins):
+  paths = set()
+  for p in plugins:
+    if hasattr(p, "path"):
+      paths += [p.path]
+    elif hasattr(p, "scala"):
+      paths += [p.scala.outputs.jar.path]
+    elif hasattr(p, "java"):
+      paths += [j.class_jar.path for j in p.java.outputs.jars]
+    # support http_file pointed at a jar. http_jar uses ijar, which breaks scala macros
+    elif hasattr(p, "files"):
+      paths += [f.path for f in p.files]
+  return paths
+
 def _compile(ctx, _jars, dep_srcjars, buildijar):
   jars = _jars
   res_cmd = _add_resources_cmd(ctx)
@@ -79,11 +94,17 @@ def _compile(ctx, _jars, dep_srcjars, buildijar):
   sources = _scala_filetype.filter(ctx.files.srcs)
   srcjars = _srcjar_filetype.filter(ctx.files.srcs)
   all_srcjars = set(srcjars + list(dep_srcjars))
+  # look for any plugins:
+  plugins = _collect_plugin_paths(ctx.attr.plugins)
+  plugin_arg = ""
+  if (len(plugins) > 0):
+    plugin_arg = " ".join(["-Xplugin:%s" % p for p in plugins])
 
   # Set up the args to pass to scalac because they can be too long for bash
   scalac_args_file = ctx.new_file(ctx.outputs.jar, ctx.outputs.jar.short_path + "scalac_args")
-  scalac_args = """{scala_opts} {jvm_flags} -classpath "{jars}" -d {out}_tmp {files}""".format(
+  scalac_args = """{scala_opts} {plugin_arg} {jvm_flags} -classpath "{jars}" -d {out}_tmp {files}""".format(
       scala_opts=" ".join(ctx.attr.scalacopts),
+      plugin_arg = plugin_arg,
       jvm_flags=" ".join(["-J" + flag for flag in ctx.attr.jvm_flags]),
       jars=":".join([j.path for j in jars]),
       files=" ".join([f.path for f in sources]),
@@ -106,10 +127,10 @@ unzip -o {srcjar} -d {{out}}_tmp_expand_srcjars >/dev/null
     srcjar_cmd += """find {out}_tmp_expand_srcjars -type f -name "*.scala" > {out}_args/files_from_jar\n"""
 
   cmd = """
-rm -rf {out}_tmp_expand_srcjars
-rm -rf {out}_tmp
-set -e
 rm -rf {out}_args
+rm -rf {out}_tmp
+rm -rf {out}_tmp_expand_srcjars
+set -e
 mkdir -p {out}_args
 touch {out}_args/files_from_jar
 mkdir -p {out}_tmp""" + srcjar_cmd + """
@@ -119,8 +140,9 @@ env JAVACMD={java} {scalac} @{out}_args/args
 find {out}_tmp -exec touch -t 198001010000 {{}} \;
 touch -t 198001010000 {manifest}
 {jar} cmf {manifest} {out} -C {out}_tmp .
-rm -rf {out}_tmp_expand_srcjars
+rm -rf {out}_args
 rm -rf {out}_tmp
+rm -rf {out}_tmp_expand_srcjars
 """ + ijar_cmd + res_cmd
   cmd = cmd.format(
       java=ctx.file._java.path,
@@ -140,10 +162,15 @@ rm -rf {out}_tmp
           list(srcjars) +
           list(sources) +
           ctx.files.srcs +
+          ctx.files.plugins +
           ctx.files.resources +
           ctx.files._jdk +
           ctx.files._scalasdk +
-          [ctx.outputs.manifest, ctx.file._jar, ctx.file._ijar, scalac_args_file],
+          [ctx.outputs.manifest,
+            ctx.file._jar,
+            ctx.file._ijar,
+            ctx.file._scalac,
+            scalac_args_file],
       outputs=outs,
       command=cmd,
       progress_message="scala %s" % ctx.label,
@@ -342,6 +369,7 @@ _common_attrs = {
   "srcs": attr.label_list(
       allow_files=_scala_srcjar_filetype),
   "deps": attr.label_list(),
+  "plugins": attr.label_list(allow_files=_jar_filetype),
   "runtime_deps": attr.label_list(),
   "data": attr.label_list(allow_files=True, cfg=DATA_CFG),
   "resources": attr.label_list(allow_files=True),

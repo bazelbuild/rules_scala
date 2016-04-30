@@ -15,12 +15,17 @@
 package scala.test
 
 object HelloLib {
+  // This is to check the linter, which will recommend changing this
+  // to just def dumb(x: Int) = x == 3
+  def dumb(x: Int) = if (x == 3) true else false
+
   def printMessage(arg: String) {
     MacroTest.hello(arg == "yo")
     println(getOtherLibMessage(arg))
     println(getOtherJavaLibMessage(arg))
     println(Exported.message)
   }
+
 
   def getOtherLibMessage(arg: String) : String = {
     arg + " " + OtherLib.getMessage()
@@ -30,3 +35,4 @@ object HelloLib {
     arg + " " + OtherJavaLib.getMessage()
   }
 }
+
