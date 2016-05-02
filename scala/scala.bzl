@@ -82,9 +82,8 @@ def _compile(ctx, _jars, dep_srcjars, buildijar):
 
   # Set up the args to pass to scalac because they can be too long for bash
   scalac_args_file = ctx.new_file(ctx.outputs.jar, ctx.outputs.jar.short_path + "scalac_args")
-  scalac_args = """{scala_opts} {jvm_flags} -classpath "{jars}" -d {out}_tmp {files}""".format(
-      scala_opts=" ".join(ctx.attr.scalacopts),
-      jvm_flags=" ".join(["-J" + flag for flag in ctx.attr.jvm_flags]),
+  scalac_args = """{scalacopts} -classpath "{jars}" -d {out}_tmp {files}""".format(
+      scalacopts=" ".join(ctx.attr.scalacopts),
       jars=":".join([j.path for j in jars]),
       files=" ".join([f.path for f in sources]),
       out=ctx.outputs.jar.path
@@ -114,7 +113,7 @@ mkdir -p {out}_args
 touch {out}_args/files_from_jar
 mkdir -p {out}_tmp""" + srcjar_cmd + """
 cat {scalac_args} {out}_args/files_from_jar > {out}_args/args
-env JAVACMD={java} {scalac} @{out}_args/args
+env JAVACMD={java} {scalac} {jvm_flags} @{out}_args/args
 # Make jar file deterministic by setting the timestamp of files
 find {out}_tmp -exec touch -t 198001010000 {{}} \;
 touch -t 198001010000 {manifest}
@@ -124,6 +123,7 @@ rm -rf {out}_tmp
 """ + ijar_cmd + res_cmd
   cmd = cmd.format(
       java=ctx.file._java.path,
+      jvm_flags=" ".join(["-J" + flag for flag in ctx.attr.jvm_flags]),
       scalac=ctx.file._scalac.path,
       scalac_args=scalac_args_file.path,
       out=ctx.outputs.jar.path,
