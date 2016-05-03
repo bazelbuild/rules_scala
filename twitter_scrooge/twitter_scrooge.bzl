@@ -123,7 +123,8 @@ def _gen_scrooge_srcjar_impl(ctx):
         list(only_transitive_thrift_srcs) +
         list(immediate_thrift_srcs) +
         ctx.files._jdk + #  We need the jdk to run java actions despite depending on _pluck_scrooge
-        [remote_jars_file,
+        [ctx.file._java,
+         remote_jars_file,
          only_transitive_thrift_srcs_file,
          immediate_thrift_srcs_file],
     outputs = [ctx.outputs.srcjar],
@@ -196,6 +197,7 @@ scrooge_scala_srcjar = rule(
           default=Label("//src/scala/scripts:generator"),
           allow_files=True),
         "_jdk": attr.label(default=Label("//tools/defaults:jdk"), allow_files=True),
+        "_java": attr.label(executable=True, default=Label("@bazel_tools//tools/jdk:java"), single_file=True, allow_files=True),
     },
     outputs={
       "srcjar": "lib%{name}.srcjar",
