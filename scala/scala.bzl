@@ -12,6 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# =============================================================================
+# NOTE: This is a fork of the Scala build file for Bazel, which lives at
+# https://github.com/bazelbuild/rules_scala/blob/master/scala/scala.bzl
+# In order to exclude the implicit dependency on akka-actor_2.11-2.3.10, we
+# made two changes (marked by comments starting with the word "CHANGE"):
+# 1. Comment out the corresponding line in SCALA_BUILD_FILE
+# 2. Explicitly exclude the corresponding folder from the glob
+# =============================================================================
+
 """Rules for supporting the Scala language."""
 
 _jar_filetype = FileType([".jar"])
@@ -447,7 +456,8 @@ exports_files([
   "bin/scala",
   "bin/scalac",
   "bin/scaladoc",
-  "lib/akka-actor_2.11-2.3.10.jar",
+  # CHANGE 1: exclude akka-actor from the list of exports.
+  #"lib/akka-actor_2.11-2.3.10.jar",
   "lib/config-1.2.1.jar",
   "lib/jline-2.12.1.jar",
   "lib/scala-actors-2.11.0.jar",
@@ -465,7 +475,8 @@ exports_files([
 
 filegroup(
     name = "sdk",
-    srcs = glob(["**"]),
+    # CHANGE 2: exclude akka-actor from the list of directories that are pulled in.
+    srcs = glob(["**"], exclude=["lib/akka-actor_2.11-2.3.10.jar"]),
     visibility = ["//visibility:public"],
 )
 """
