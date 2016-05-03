@@ -60,6 +60,7 @@ scala_binary(
 scala_library(
     name = "HelloLib",
     srcs = ["HelloLib.scala"],
+    plugins = ["@org_psywerx_hairyfotr__linter//jar"],
     deps = [
         "OtherJavaLib",
         "OtherLib",

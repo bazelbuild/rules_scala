@@ -24,7 +24,9 @@ rm -rf {out}_tmp"""
   cmd = cmd.format(out=ctx.outputs.libarchive.path,
                    jar=ctx.file._jar.path)
   ctx.action(
-    inputs = ctx.files.srcs + ctx.files._jar,
+    inputs = ctx.files.srcs +
+      ctx.files._jar +
+      ctx.files._jdk, #  We need _jdk to even run _jar. Depending on _jar is not enough with sandbox
     outputs = [ctx.outputs.libarchive],
     command = cmd,
     progress_message = "making thrift archive %s" % ctx.label,
@@ -83,6 +85,7 @@ thrift_library = rule(
       # created by this is created in such a way that absolute imports work...
       "absolute_prefix": attr.string(default='', mandatory=False),
       "_jar": attr.label(executable=True, default=Label("@bazel_tools//tools/jdk:jar"), single_file=True, allow_files=True),
+      "_jdk": attr.label(default=Label("//tools/defaults:jdk"), allow_files=True),
   },
   outputs={"libarchive": "lib%{name}.jar"},
 )
