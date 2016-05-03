@@ -24,7 +24,9 @@ rm -rf {out}_tmp"""
   cmd = cmd.format(out=ctx.outputs.libarchive.path,
                    jar=ctx.file._jar.path)
   ctx.action(
-    inputs = ctx.files.srcs + ctx.files._jar + ctx.files._jdk,
+    inputs = ctx.files.srcs +
+      ctx.files._jar +
+      ctx.files._jdk, #  We need _jdk to even run _jar. Depending on _jar is not enough with sandbox
     outputs = [ctx.outputs.libarchive],
     command = cmd,
     progress_message = "making thrift archive %s" % ctx.label,
