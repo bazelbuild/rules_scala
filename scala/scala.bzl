@@ -454,13 +454,13 @@ exports_files([
   "lib/scala-actors-migration_2.11-1.1.0.jar",
   "lib/scala-compiler.jar",
   "lib/scala-continuations-library_2.11-1.0.2.jar",
-  "lib/scala-continuations-plugin_2.11.7-1.0.2.jar",
+  "lib/scala-continuations-plugin_2.11.8-1.0.2.jar",
   "lib/scala-library.jar",
   "lib/scala-parser-combinators_2.11-1.0.4.jar",
   "lib/scala-reflect.jar",
   "lib/scala-swing_2.11-1.0.2.jar",
   "lib/scala-xml_2.11-1.0.4.jar",
-  "lib/scalap-2.11.7.jar",
+  "lib/scalap-2.11.8.jar",
 ])
 
 filegroup(
@@ -473,9 +473,9 @@ filegroup(
 def scala_repositories():
   native.new_http_archive(
     name = "scala",
-    strip_prefix = "scala-2.11.7",
-    sha256 = "ffe4196f13ee98a66cf54baffb0940d29432b2bd820bd0781a8316eec22926d0",
-    url = "https://downloads.typesafe.com/scala/2.11.7/scala-2.11.7.tgz",
+    strip_prefix = "scala-2.11.8",
+    sha256 = "87fc86a19d9725edb5fd9866c5ee9424cdb2cd86b767f1bb7d47313e8e391ace",
+    url = "https://downloads.typesafe.com/scala/2.11.8/scala-2.11.8.tgz",
     build_file_content = SCALA_BUILD_FILE,
   )
   native.http_file(
