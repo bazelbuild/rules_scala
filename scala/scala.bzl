@@ -24,10 +24,10 @@
 """Rules for supporting the Scala language."""
 
 _jar_filetype = FileType([".jar"])
-_scala_filetype = FileType([".scala"])
+_scala_filetype = FileType([".scala", ".java"])
 _srcjar_filetype = FileType([".srcjar"])
 # TODO is there a way to derive this from the above?
-_scala_srcjar_filetype = FileType([".scala", ".srcjar"])
+_scala_srcjar_filetype = FileType([".scala", ".java", ".srcjar"])
 
 def _adjust_resources_path(path):
   dir_1, dir_2, rel_path = path.partition("resources")
