@@ -447,7 +447,6 @@ exports_files([
   "bin/scala",
   "bin/scalac",
   "bin/scaladoc",
-  "lib/akka-actor_2.11-2.3.10.jar",
   "lib/config-1.2.1.jar",
   "lib/jline-2.12.1.jar",
   "lib/scala-actors-2.11.0.jar",
@@ -465,7 +464,10 @@ exports_files([
 
 filegroup(
     name = "sdk",
-    srcs = glob(["**"]),
+    # For some reason, the SDK zip contains a baked-in version of akka. We need
+    # to explicitly exclude it here, otherwise the scala compiler will grab it
+    # and put it on its classpath.
+    srcs = glob(["**"], exclude=["lib/akka-actor_2.11-2.3.10.jar"]),
     visibility = ["//visibility:public"],
 )
 """
