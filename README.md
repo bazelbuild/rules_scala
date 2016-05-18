@@ -17,18 +17,20 @@ currently four rules, `scala_library`, `scala_macro_library`, `scala_binary`
 and `scala_test`.
 
 In order to use `scala_library`, `scala_macro_library`, and `scala_binary`,
-you must have bazel 0.2.1 and add the following to your WORKSPACE file:
+you must have bazel 0.2.3 and add the following to your WORKSPACE file:
 
 ```python
 git_repository(
     name = "io_bazel_rules_scala",
     remote = "https://github.com/bazelbuild/rules_scala.git",
-    tag = "0.0.2",
+    commit = "7b891adb975b4e3e6569b763d39ab6e9234196c9", # update this as needed
 )
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
 scala_repositories()
 ```
-To use a particular commit, use the gitsha in the `commit = ` attribute and omit `tag`.
+To use a particular tag, use the tagged number in `tag = ` and omit the `commit` attribute.
+Note that these plugins are still evolving quickly, as is bazel, so you may need to select
+the version most appropriate for you.
 
 You may wish to have these rules loaded by default using bazel's prelude. Add the line:
 ```

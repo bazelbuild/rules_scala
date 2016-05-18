@@ -203,11 +203,12 @@ def write_manifest(ctx):
       content = manifest)
 
 def _write_launcher(ctx, jars):
-  classpath = ':'.join(["$0.runfiles/" + f.short_path for f in jars])
+  classpath = ':'.join(["$0.runfiles/%s/%s" % (ctx.workspace_name, f.short_path) for f in jars])
   content = """#!/bin/bash
 export CLASSPATH={classpath}
-$0.runfiles/{java} {name} "$@"
+$0.runfiles/{repo}/{java} {name} "$@"
 """.format(
+    repo=ctx.workspace_name,
     java=ctx.file._java.path,
     name=ctx.attr.main_class,
     deploy_jar=ctx.outputs.jar.path,
