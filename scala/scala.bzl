@@ -280,6 +280,7 @@ def _lib(ctx, non_macro_lib):
   rjars += [ctx.outputs.jar]
   rjars += _collect_jars(ctx.attr.runtime_deps).runtime
 
+  rjars += [ctx.file._scalalib, ctx.file._scalareflect]
   if not non_macro_lib:
     #  macros need the scala reflect jar
     rjars += [ctx.file._scalareflect]
