@@ -285,3 +285,19 @@ A `scala_test` by default runs all tests in a given target.
 For backwards compatiblity it accepts a `suites` attribute which
 is ignored due to the ease with which that field is not correctly
 populated and tests are not run.
+
+
+<a name="scala_repl"></a>
+## scala_repl
+```python
+scala_repl(name, deps, scalacopts, jvm_flags)
+```
+A scala repl allows you to add library dependendencies (not currently `scala_binary` targets)
+to generate a script to run which starts a REPL.
+Since `bazel run` closes stdin, it cannot be used to start the REPL. Instead,
+you use `bazel build` to build the script, then run that script as normal to start a REPL
+session. An example in this repo:
+```
+bazel build test:HelloLibRepl
+bazel-bin/test/HelloLibRepl
+```
