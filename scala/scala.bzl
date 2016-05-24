@@ -201,6 +201,25 @@ def _compile_or_empty(ctx, jars, srcjars, buildijar):
       ijar = ctx.outputs.jar
     return struct(ijar=ijar, class_jar=ctx.outputs.jar)
 
+def _build_deployable(ctx, jars):
+  cmd = "rm -rf {out}_tmp\n"
+  cmd += "mkdir -p {out}_tmp\n"
+  for jar in jars:
+    cmd += "unzip -o {jar} -d {{out}}_tmp >/dev/null\n".format(jar=jar.path)
+  cmd += "{jar} cmf {manifest} {out} -C {out}_tmp .\n"
+  cmd += "rm -rf {out}_tmp\n"
+
+  cmd = cmd.format(
+      out=ctx.outputs.deploy_jar.path,
+      jar=ctx.file._jar.path,
+      manifest=ctx.outputs.manifest.path)
+  ctx.action(
+      inputs=list(jars) + ctx.files._jdk + [ctx.outputs.manifest, ctx.file._jar],
+      outputs=[ctx.outputs.deploy_jar],
+      command=cmd,
+      progress_message="scala deployable %s" % ctx.label,
+      arguments=[])
+
 def write_manifest(ctx):
   # TODO(bazel-team): I don't think this classpath is what you want
   manifest = "Class-Path: %s\n" % ctx.file._scalalib.path
@@ -212,11 +231,12 @@ def write_manifest(ctx):
       content = manifest)
 
 def _write_launcher(ctx, jars):
-  classpath = ':'.join(["$0.runfiles/" + f.short_path for f in jars])
+  classpath = ':'.join(["$0.runfiles/%s/%s" % (ctx.workspace_name, f.short_path) for f in jars])
   content = """#!/bin/bash
 export CLASSPATH={classpath}
-$0.runfiles/{java} {name} "$@"
+$0.runfiles/{repo}/{java} {name} "$@"
 """.format(
+    repo=ctx.workspace_name,
     java=ctx.file._java.path,
     name=ctx.attr.main_class,
     deploy_jar=ctx.outputs.jar.path,
@@ -288,9 +308,13 @@ def _lib(ctx, non_macro_lib):
   rjars += [ctx.outputs.jar]
   rjars += _collect_jars(ctx.attr.runtime_deps).runtime
 
+  rjars += [ctx.file._scalalib, ctx.file._scalareflect]
   if not non_macro_lib:
     #  macros need the scala reflect jar
     rjars += [ctx.file._scalareflect]
+
+  _build_deployable(ctx, rjars)
+  outputs = struct(ijar=outputs.ijar, class_jar=outputs.class_jar, deploy_jar=ctx.outputs.deploy_jar)
 
   texp = _collect_jars(ctx.attr.exports)
   scalaattr = struct(outputs = outputs,
@@ -333,6 +357,7 @@ def _scala_macro_library_impl(ctx):
 def _scala_binary_common(ctx, cjars, rjars):
   write_manifest(ctx)
   _compile_or_empty(ctx, cjars, [], False)  # no need to build an ijar for an executable
+  _build_deployable(ctx, list(rjars))
 
   runfiles = ctx.runfiles(
       files = list(rjars) + [ctx.outputs.executable] + [ctx.file._java] + ctx.files._jdk,
@@ -393,7 +418,8 @@ scala_library = rule(
       "exports": attr.label_list(allow_files=False),
       } + _implicit_deps + _common_attrs,
   outputs={
-      "jar": "%{name}_deploy.jar",
+      "jar": "%{name}.jar",
+      "deploy_jar": "%{name}_deploy.jar",
       "ijar": "%{name}_ijar.jar",
       "manifest": "%{name}_MANIFEST.MF",
       },
@@ -406,7 +432,8 @@ scala_macro_library = rule(
       "exports": attr.label_list(allow_files=False),
       } + _implicit_deps + _common_attrs,
   outputs={
-      "jar": "%{name}_deploy.jar",
+      "jar": "%{name}.jar",
+      "deploy_jar": "%{name}_deploy.jar",
       "manifest": "%{name}_MANIFEST.MF",
       },
 )
@@ -417,7 +444,8 @@ scala_binary = rule(
       "main_class": attr.string(mandatory=True),
       } + _implicit_deps + _common_attrs,
   outputs={
-      "jar": "%{name}_deploy.jar",
+      "jar": "%{name}.jar",
+      "deploy_jar": "%{name}_deploy.jar",
       "manifest": "%{name}_MANIFEST.MF",
       },
   executable=True,
@@ -432,7 +460,8 @@ scala_test = rule(
       "_scalatest_reporter": attr.label(default=Label("//scala/support:test_reporter")),
       } + _implicit_deps + _common_attrs,
   outputs={
-      "jar": "%{name}_deploy.jar",
+      "jar": "%{name}.jar",
+      "deploy_jar": "%{name}_deploy.jar",
       "manifest": "%{name}_MANIFEST.MF",
       },
   executable=True,
@@ -456,26 +485,26 @@ exports_files([
   "bin/scala",
   "bin/scalac",
   "bin/scaladoc",
-  # CHANGE 1: exclude akka-actor from the list of exports.
-  #"lib/akka-actor_2.11-2.3.10.jar",
   "lib/config-1.2.1.jar",
   "lib/jline-2.12.1.jar",
   "lib/scala-actors-2.11.0.jar",
   "lib/scala-actors-migration_2.11-1.1.0.jar",
   "lib/scala-compiler.jar",
   "lib/scala-continuations-library_2.11-1.0.2.jar",
-  "lib/scala-continuations-plugin_2.11.7-1.0.2.jar",
+  "lib/scala-continuations-plugin_2.11.8-1.0.2.jar",
   "lib/scala-library.jar",
   "lib/scala-parser-combinators_2.11-1.0.4.jar",
   "lib/scala-reflect.jar",
   "lib/scala-swing_2.11-1.0.2.jar",
   "lib/scala-xml_2.11-1.0.4.jar",
-  "lib/scalap-2.11.7.jar",
+  "lib/scalap-2.11.8.jar",
 ])
 
 filegroup(
     name = "sdk",
-    # CHANGE 2: exclude akka-actor from the list of directories that are pulled in.
+    # For some reason, the SDK zip contains a baked-in version of akka. We need
+    # to explicitly exclude it here, otherwise the scala compiler will grab it
+    # and put it on its classpath.
     srcs = glob(["**"], exclude=["lib/akka-actor_2.11-2.3.10.jar"]),
     visibility = ["//visibility:public"],
 )
@@ -484,9 +513,9 @@ filegroup(
 def scala_repositories():
   native.new_http_archive(
     name = "scala",
-    strip_prefix = "scala-2.11.7",
-    sha256 = "ffe4196f13ee98a66cf54baffb0940d29432b2bd820bd0781a8316eec22926d0",
-    url = "https://downloads.typesafe.com/scala/2.11.7/scala-2.11.7.tgz",
+    strip_prefix = "scala-2.11.8",
+    sha256 = "87fc86a19d9725edb5fd9866c5ee9424cdb2cd86b767f1bb7d47313e8e391ace",
+    url = "https://downloads.typesafe.com/scala/2.11.8/scala-2.11.8.tgz",
     build_file_content = SCALA_BUILD_FILE,
   )
   native.http_file(
