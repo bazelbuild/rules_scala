@@ -366,6 +366,37 @@ def _scala_binary_impl(ctx):
   _write_launcher(ctx, rjars)
   return _scala_binary_common(ctx, cjars, rjars)
 
+def _scala_repl_impl(ctx):
+  jars = _collect_jars(ctx.attr.deps)
+  rjars = jars.runtime
+  rjars += [ctx.file._scalalib, ctx.file._scalareflect]
+  rjars += _collect_jars(ctx.attr.runtime_deps).runtime
+  classpath = ':'.join(["$0.runfiles/%s/%s" % (ctx.workspace_name, f.short_path) for f in rjars])
+  content = """#!/bin/bash
+env JAVACMD=$0.runfiles/{repo}/{java} $0.runfiles/{repo}/{scala} {jvm_flags} -classpath {classpath} {scala_opts} "$@"
+""".format(
+    java=ctx.file._java.path,
+    repo=ctx.workspace_name,
+    jvm_flags=" ".join(["-J" + flag for flag in ctx.attr.jvm_flags]),
+    scala=ctx.file._scala.path,
+    classpath=classpath,
+    scala_opts=" ".join(ctx.attr.scalacopts),
+  )
+  ctx.file_action(
+      output=ctx.outputs.executable,
+      content=content)
+
+  runfiles = ctx.runfiles(
+      files = list(rjars) +
+           [ctx.outputs.executable] +
+           [ctx.file._java] +
+           ctx.files._jdk +
+           [ctx.file._scala],
+      collect_data = True)
+  return struct(
+      files=set([ctx.outputs.executable]),
+      runfiles=runfiles)
+
 def _scala_test_impl(ctx):
   deps = ctx.attr.deps
   deps += [ctx.attr._scalatest_reporter]
@@ -379,6 +410,7 @@ def _scala_test_impl(ctx):
 
 _implicit_deps = {
   "_ijar": attr.label(executable=True, default=Label("@bazel_tools//tools/jdk:ijar"), single_file=True, allow_files=True),
+  "_scala": attr.label(executable=True, default=Label("@scala//:bin/scala"), single_file=True, allow_files=True),
   "_scalac": attr.label(executable=True, default=Label("@scala//:bin/scalac"), single_file=True, allow_files=True),
   "_scalalib": attr.label(default=Label("@scala//:lib/scala-library.jar"), single_file=True, allow_files=True),
   "_scalaxml": attr.label(default=Label("@scala//:lib/scala-xml_2.11-1.0.4.jar"), single_file=True, allow_files=True),
@@ -457,6 +489,13 @@ scala_test = rule(
       },
   executable=True,
   test=True,
+)
+
+scala_repl = rule(
+  implementation=_scala_repl_impl,
+  attrs= _implicit_deps + _common_attrs,
+  outputs={},
+  executable=True,
 )
 
 def scala_version():
