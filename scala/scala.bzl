@@ -29,31 +29,44 @@ def _adjust_resources_path(path):
     return dir_1 + dir_2, rel_path
   return "", path
 
-def _add_resources_cmd(ctx):
+def _add_resources_cmd(ctx, dest):
   res_cmd = ""
   for f in ctx.files.resources:
     c_dir, res_path = _adjust_resources_path(f.path)
-    change_dir = "-C " + c_dir if c_dir else ""
-    res_cmd += "\n{jar} uf {out} " + change_dir + " " + res_path
+    res_cmd += "\nmkdir -p $(dirname {out_dir}{res_path})\ncp {c_dir}{res_path} {out_dir}{res_path}".format(
+        out_dir=dest,
+        res_path=res_path,
+        c_dir=c_dir)
   return res_cmd
 
+def _get_jar_path(paths):
+  for p in paths:
+    path = p.path
+    if path.endswith("/jar_deploy.jar"):
+      return path
+  return None
+
 def _build_nosrc_jar(ctx, buildijar):
-  res_cmd = _add_resources_cmd(ctx)
+  cp_resources = _add_resources_cmd(ctx, "{out}_tmp".format(out=ctx.outputs.jar.path))
   ijar_cmd = ""
   if buildijar:
     ijar_cmd = "\ncp {out} {ijar_out}".format(
       out=ctx.outputs.jar.path,
       ijar_out=ctx.outputs.ijar.path)
   cmd = """
+rm -rf {out}_tmp
 set -e
-# Make jar file deterministic by setting the timestamp of files
-touch -t 198001010000 {manifest}
-{jar} cmf {manifest} {out}
-""" + ijar_cmd + res_cmd
+mkdir -p {out}_tmp
+# copy any resources
+{cp_resources}
+{java} -jar {jar} -m {manifest} {out}
+""" + ijar_cmd
   cmd = cmd.format(
+      cp_resources=cp_resources,
       out=ctx.outputs.jar.path,
       manifest=ctx.outputs.manifest.path,
-      jar=ctx.file._jar.path)
+      java=ctx.file._java.path,
+      jar=_get_jar_path(ctx.files._jar))
   outs = [ctx.outputs.jar]
   if buildijar:
     outs.extend([ctx.outputs.ijar])
@@ -61,7 +74,8 @@ touch -t 198001010000 {manifest}
       inputs=
           ctx.files.resources +
           ctx.files._jdk +
-          [ctx.outputs.manifest, ctx.file._jar],
+          ctx.files._jar +
+          [ctx.outputs.manifest, ctx.file._java],
       outputs=outs,
       command=cmd,
       progress_message="scala %s" % ctx.label,
@@ -83,7 +97,7 @@ def _collect_plugin_paths(plugins):
 
 def _compile(ctx, _jars, dep_srcjars, buildijar):
   jars = _jars
-  res_cmd = _add_resources_cmd(ctx)
+  cp_resources = _add_resources_cmd(ctx, "{out}_tmp".format(out=ctx.outputs.jar.path))
   ijar_cmd = ""
   if buildijar:
     ijar_cmd = "\n{ijar} {out} {ijar_out}".format(
@@ -135,22 +149,22 @@ touch {out}_args/files_from_jar
 mkdir -p {out}_tmp""" + srcjar_cmd + """
 cat {scalac_args} {out}_args/files_from_jar > {out}_args/args
 env JAVACMD={java} {scalac} {jvm_flags} @{out}_args/args
-# Make jar file deterministic by setting the timestamp of files
-find {out}_tmp -exec touch -t 198001010000 {{}} \;
-touch -t 198001010000 {manifest}
-{jar} cmf {manifest} {out} -C {out}_tmp .
+# add any resources
+{cp_resources}
+{java} -jar {jar} -m {manifest} {out} {out}_tmp
 rm -rf {out}_args
 rm -rf {out}_tmp
 rm -rf {out}_tmp_expand_srcjars
-""" + ijar_cmd + res_cmd
+""" + ijar_cmd
   cmd = cmd.format(
+      cp_resources=cp_resources,
       java=ctx.file._java.path,
       jvm_flags=" ".join(["-J" + flag for flag in ctx.attr.jvm_flags]),
       scalac=ctx.file._scalac.path,
       scalac_args=scalac_args_file.path,
       out=ctx.outputs.jar.path,
       manifest=ctx.outputs.manifest.path,
-      jar=ctx.file._jar.path,
+      jar=_get_jar_path(ctx.files._jar),
       ijar=ctx.file._ijar.path,
     )
   outs = [ctx.outputs.jar]
@@ -165,11 +179,12 @@ rm -rf {out}_tmp_expand_srcjars
           ctx.files.plugins +
           ctx.files.resources +
           ctx.files._jdk +
+          ctx.files._jar +
           ctx.files._scalasdk +
           [ctx.outputs.manifest,
-            ctx.file._jar,
             ctx.file._ijar,
             ctx.file._scalac,
+            ctx.file._java,
             scalac_args_file],
       outputs=outs,
       command=cmd,
@@ -197,15 +212,16 @@ def _build_deployable(ctx, jars):
   cmd += "mkdir -p {out}_tmp\n"
   for jar in jars:
     cmd += "unzip -o {jar} -d {{out}}_tmp >/dev/null\n".format(jar=jar.path)
-  cmd += "{jar} cmf {manifest} {out} -C {out}_tmp .\n"
+  cmd += "{java} -jar {jar} -m {manifest} {out} {out}_tmp\n"
   cmd += "rm -rf {out}_tmp\n"
 
   cmd = cmd.format(
       out=ctx.outputs.deploy_jar.path,
-      jar=ctx.file._jar.path,
+      jar=_get_jar_path(ctx.files._jar),
+      java=ctx.file._java.path,
       manifest=ctx.outputs.manifest.path)
   ctx.action(
-      inputs=list(jars) + ctx.files._jdk + [ctx.outputs.manifest, ctx.file._jar],
+      inputs=list(jars) + ctx.files._jdk + ctx.files._jar + [ctx.outputs.manifest],
       outputs=[ctx.outputs.deploy_jar],
       command=cmd,
       progress_message="scala deployable %s" % ctx.label,
@@ -418,7 +434,7 @@ _implicit_deps = {
   "_scalasdk": attr.label(default=Label("@scala//:sdk"), allow_files=True),
   "_scalareflect": attr.label(default=Label("@scala//:lib/scala-reflect.jar"), single_file=True, allow_files=True),
   "_java": attr.label(executable=True, default=Label("@bazel_tools//tools/jdk:java"), single_file=True, allow_files=True),
-  "_jar": attr.label(executable=True, default=Label("@bazel_tools//tools/jdk:jar"), single_file=True, allow_files=True),
+  "_jar": attr.label(executable=True, default=Label("//src/java/io/bazel/rulesscala/jar:jar_deploy.jar"), allow_files=True),
   "_jdk": attr.label(default=Label("//tools/defaults:jdk"), allow_files=True),
 }
 
