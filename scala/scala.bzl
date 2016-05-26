@@ -317,6 +317,7 @@ def _lib(ctx, non_macro_lib):
       files = list(rjars),
       collect_data = True)
   return struct(
+      files = set([ctx.outputs.jar]),  #  Here is the default output
       scala = scalaattr,
       runfiles=runfiles,
       # This is a free monoid given to the graph for the purpose of
