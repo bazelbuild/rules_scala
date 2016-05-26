@@ -19,10 +19,10 @@ test_disappearing_class() {
 
 test_build_is_identical() {
   bazel build test/... 
-  md5 bazel-bin/test/*.jar > hash1
+  md5sum bazel-bin/test/*.jar > hash1
   bazel clean
   bazel build test/... 
-  md5 bazel-bin/test/*.jar > hash2
+  md5sum bazel-bin/test/*.jar > hash2
   diff hash1 hash2
 }
 
