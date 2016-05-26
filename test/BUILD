@@ -140,7 +140,9 @@ java_library(
 scala_library(
     name = "ScalaLibResources",
     srcs = ["src/main/scala/scala/test/ScalaLibResources.scala"],
-    resources = ["src/main/resources/scala/test/hellos", "src/main/resources/scala/test/byes"],
+    resources = ["src/main/resources/scala/test/hellos",
+                 "src/main/resources/scala/test/byes",
+                 "//test/data:some.txt"],
 )
 
 scala_binary(

@@ -33,9 +33,13 @@ def _add_resources_cmd(ctx, dest):
   res_cmd = ""
   for f in ctx.files.resources:
     c_dir, res_path = _adjust_resources_path(f.path)
-    res_cmd += "\nmkdir -p $(dirname {out_dir}{res_path})\ncp {c_dir}{res_path} {out_dir}{res_path}".format(
+    target_path = res_path
+    if res_path[0] != "/":
+      target_path = "/" + res_path
+    res_cmd += "\nmkdir -p $(dirname {out_dir}{target_path})\ncp {c_dir}{res_path} {out_dir}{target_path}".format(
         out_dir=dest,
         res_path=res_path,
+        target_path=target_path,
         c_dir=c_dir)
   return res_cmd
 
