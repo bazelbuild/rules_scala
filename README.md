@@ -16,6 +16,8 @@ This rule is used for building [Scala][scala] projects with Bazel. There are
 currently four rules, `scala_library`, `scala_macro_library`, `scala_binary`
 and `scala_test`.
 
+## Getting started
+
 In order to use `scala_library`, `scala_macro_library`, and `scala_binary`,
 you must have bazel 0.2.3 and add the following to your WORKSPACE file:
 
@@ -32,11 +34,11 @@ To use a particular tag, use the tagged number in `tag = ` and omit the `commit`
 Note that these plugins are still evolving quickly, as is bazel, so you may need to select
 the version most appropriate for you.
 
-You may wish to have these rules loaded by default using bazel's prelude. Add the line:
-```
+Then in your BUILD file just add the following so the rules will be available:
+```python
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_library", "scala_binary", "scala_test")
 ```
-to the file `tools/build_rules/prelude_bazel` in your repo.
+You may wish to have these rules loaded by default using bazel's prelude. You can add the above to the file `tools/build_rules/prelude_bazel` in your repo (don't forget to have a, possible empty, BUILD file there) and then it will be automatically prepended to every BUILD file in the workspace.
 
 [scala]: http://www.scala-lang.org/
 
@@ -285,3 +287,19 @@ A `scala_test` by default runs all tests in a given target.
 For backwards compatiblity it accepts a `suites` attribute which
 is ignored due to the ease with which that field is not correctly
 populated and tests are not run.
+
+
+<a name="scala_repl"></a>
+## scala_repl
+```python
+scala_repl(name, deps, scalacopts, jvm_flags)
+```
+A scala repl allows you to add library dependendencies (not currently `scala_binary` targets)
+to generate a script to run which starts a REPL.
+Since `bazel run` closes stdin, it cannot be used to start the REPL. Instead,
+you use `bazel build` to build the script, then run that script as normal to start a REPL
+session. An example in this repo:
+```
+bazel build test:HelloLibRepl
+bazel-bin/test/HelloLibRepl
+```

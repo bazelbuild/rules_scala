@@ -3,7 +3,8 @@ load("//scala:scala.bzl",
     "scala_library",
     "scala_test",
     "scala_macro_library",
-    "scala_export_to_java")
+    "scala_export_to_java",
+    "scala_repl")
 
 # The examples below show how to combine Scala and Java rules.
 # ScalaBinary is the Scala equivalent of JavaBinary.
@@ -66,6 +67,11 @@ scala_library(
         "OtherLib",
         "MacroTest"
     ],
+)
+
+scala_repl(
+    name = "HelloLibRepl",
+    deps = [":HelloLib"]
 )
 
 scala_test(
