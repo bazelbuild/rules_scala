@@ -59,10 +59,6 @@ set -e
 mkdir -p {out}_tmp
 # copy any resources
 {cp_resources}
-# Make jar file deterministic by setting the timestamp of files
-find {out}_tmp -exec touch -t 198001010000 {{}} \;
-# Make jar file deterministic by setting the timestamp of files
-touch -t 198001010000 {manifest}
 {java} -jar {jar} -m {manifest} {out}
 """ + ijar_cmd
   cmd = cmd.format(
@@ -155,9 +151,6 @@ cat {scalac_args} {out}_args/files_from_jar > {out}_args/args
 env JAVACMD={java} {scalac} {jvm_flags} @{out}_args/args
 # add any resources
 {cp_resources}
-# Make jar file deterministic by setting the timestamp of files
-find {out}_tmp -exec touch -t 198001010000 {{}} \;
-touch -t 198001010000 {manifest}
 {java} -jar {jar} -m {manifest} {out} {out}_tmp
 rm -rf {out}_args
 rm -rf {out}_tmp
