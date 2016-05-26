@@ -214,6 +214,26 @@ def _compile_or_empty(ctx, jars, srcjars, buildijar):
       ijar = ctx.outputs.jar
     return struct(ijar=ijar, class_jar=ctx.outputs.jar)
 
+def _build_deployable(ctx, jars):
+  cmd = "rm -rf {out}_tmp\n"
+  cmd += "mkdir -p {out}_tmp\n"
+  for jar in jars:
+    cmd += "unzip -o {jar} -d {{out}}_tmp >/dev/null\n".format(jar=jar.path)
+  cmd += "{java} -jar {jar} -m {manifest} {out} {out}_tmp\n"
+  cmd += "rm -rf {out}_tmp\n"
+
+  cmd = cmd.format(
+      out=ctx.outputs.deploy_jar.path,
+      jar=_get_jar_path(ctx.files._jar),
+      java=ctx.file._java.path,
+      manifest=ctx.outputs.manifest.path)
+  ctx.action(
+      inputs=list(jars) + ctx.files._jdk + ctx.files._jar + [ctx.outputs.manifest],
+      outputs=[ctx.outputs.deploy_jar],
+      command=cmd,
+      progress_message="scala deployable %s" % ctx.label,
+      arguments=[])
+
 def write_manifest(ctx):
   # TODO(bazel-team): I don't think this classpath is what you want
   manifest = "Class-Path: %s\n" % ctx.file._scalalib.path
@@ -302,9 +322,13 @@ def _lib(ctx, non_macro_lib):
   rjars += [ctx.outputs.jar]
   rjars += _collect_jars(ctx.attr.runtime_deps).runtime
 
+  rjars += [ctx.file._scalalib, ctx.file._scalareflect]
   if not non_macro_lib:
     #  macros need the scala reflect jar
     rjars += [ctx.file._scalareflect]
+
+  _build_deployable(ctx, rjars)
+  outputs = struct(ijar=outputs.ijar, class_jar=outputs.class_jar, deploy_jar=ctx.outputs.deploy_jar)
 
   texp = _collect_jars(ctx.attr.exports)
   scalaattr = struct(outputs = outputs,
@@ -316,6 +340,7 @@ def _lib(ctx, non_macro_lib):
       files = list(rjars),
       collect_data = True)
   return struct(
+      files = set([ctx.outputs.jar]),  #  Here is the default output
       scala = scalaattr,
       runfiles=runfiles,
       # This is a free monoid given to the graph for the purpose of
@@ -347,6 +372,7 @@ def _scala_macro_library_impl(ctx):
 def _scala_binary_common(ctx, cjars, rjars):
   write_manifest(ctx)
   _compile_or_empty(ctx, cjars, [], False)  # no need to build an ijar for an executable
+  _build_deployable(ctx, list(rjars))
 
   runfiles = ctx.runfiles(
       files = list(rjars) + [ctx.outputs.executable] + [ctx.file._java] + ctx.files._jdk,
@@ -364,6 +390,37 @@ def _scala_binary_impl(ctx):
   _write_launcher(ctx, rjars)
   return _scala_binary_common(ctx, cjars, rjars)
 
+def _scala_repl_impl(ctx):
+  jars = _collect_jars(ctx.attr.deps)
+  rjars = jars.runtime
+  rjars += [ctx.file._scalalib, ctx.file._scalareflect]
+  rjars += _collect_jars(ctx.attr.runtime_deps).runtime
+  classpath = ':'.join(["$0.runfiles/%s/%s" % (ctx.workspace_name, f.short_path) for f in rjars])
+  content = """#!/bin/bash
+env JAVACMD=$0.runfiles/{repo}/{java} $0.runfiles/{repo}/{scala} {jvm_flags} -classpath {classpath} {scala_opts} "$@"
+""".format(
+    java=ctx.file._java.path,
+    repo=ctx.workspace_name,
+    jvm_flags=" ".join(["-J" + flag for flag in ctx.attr.jvm_flags]),
+    scala=ctx.file._scala.path,
+    classpath=classpath,
+    scala_opts=" ".join(ctx.attr.scalacopts),
+  )
+  ctx.file_action(
+      output=ctx.outputs.executable,
+      content=content)
+
+  runfiles = ctx.runfiles(
+      files = list(rjars) +
+           [ctx.outputs.executable] +
+           [ctx.file._java] +
+           ctx.files._jdk +
+           [ctx.file._scala],
+      collect_data = True)
+  return struct(
+      files=set([ctx.outputs.executable]),
+      runfiles=runfiles)
+
 def _scala_test_impl(ctx):
   deps = ctx.attr.deps
   deps += [ctx.attr._scalatest_reporter]
@@ -377,6 +434,7 @@ def _scala_test_impl(ctx):
 
 _implicit_deps = {
   "_ijar": attr.label(executable=True, default=Label("@bazel_tools//tools/jdk:ijar"), single_file=True, allow_files=True),
+  "_scala": attr.label(executable=True, default=Label("@scala//:bin/scala"), single_file=True, allow_files=True),
   "_scalac": attr.label(executable=True, default=Label("@scala//:bin/scalac"), single_file=True, allow_files=True),
   "_scalalib": attr.label(default=Label("@scala//:lib/scala-library.jar"), single_file=True, allow_files=True),
   "_scalaxml": attr.label(default=Label("@scala//:lib/scala-xml_2.11-1.0.4.jar"), single_file=True, allow_files=True),
@@ -407,7 +465,8 @@ scala_library = rule(
       "exports": attr.label_list(allow_files=False),
       } + _implicit_deps + _common_attrs,
   outputs={
-      "jar": "%{name}_deploy.jar",
+      "jar": "%{name}.jar",
+      "deploy_jar": "%{name}_deploy.jar",
       "ijar": "%{name}_ijar.jar",
       "manifest": "%{name}_MANIFEST.MF",
       },
@@ -420,7 +479,8 @@ scala_macro_library = rule(
       "exports": attr.label_list(allow_files=False),
       } + _implicit_deps + _common_attrs,
   outputs={
-      "jar": "%{name}_deploy.jar",
+      "jar": "%{name}.jar",
+      "deploy_jar": "%{name}_deploy.jar",
       "manifest": "%{name}_MANIFEST.MF",
       },
 )
@@ -431,7 +491,8 @@ scala_binary = rule(
       "main_class": attr.string(mandatory=True),
       } + _implicit_deps + _common_attrs,
   outputs={
-      "jar": "%{name}_deploy.jar",
+      "jar": "%{name}.jar",
+      "deploy_jar": "%{name}_deploy.jar",
       "manifest": "%{name}_MANIFEST.MF",
       },
   executable=True,
@@ -446,11 +507,19 @@ scala_test = rule(
       "_scalatest_reporter": attr.label(default=Label("//scala/support:test_reporter")),
       } + _implicit_deps + _common_attrs,
   outputs={
-      "jar": "%{name}_deploy.jar",
+      "jar": "%{name}.jar",
+      "deploy_jar": "%{name}_deploy.jar",
       "manifest": "%{name}_MANIFEST.MF",
       },
   executable=True,
   test=True,
+)
+
+scala_repl = rule(
+  implementation=_scala_repl_impl,
+  attrs= _implicit_deps + _common_attrs,
+  outputs={},
+  executable=True,
 )
 
 def scala_version():

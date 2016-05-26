@@ -37,4 +37,5 @@ bazel build test/... \
   && (find -L ./bazel-testlogs -iname "*.xml" | xargs -n1 xmllint > /dev/null) \
   && test_disappearing_class \
   && test_build_is_identical \
+  && echo "import scala.test._; HelloLib.printMessage(\"foo\")" | bazel-bin/test/HelloLibRepl | grep "foo scala" \
   && echo "all good"
