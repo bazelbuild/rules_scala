@@ -119,7 +119,7 @@ def _compile(ctx, _jars, dep_srcjars, buildijar):
     plugin_arg = " ".join(["-Xplugin:%s" % p for p in plugins])
 
   # Set up the args to pass to scalac because they can be too long for bash
-  scalac_args_file = ctx.new_file(ctx.outputs.jar, ctx.outputs.jar.short_path + "scalac_args")
+  scalac_args_file = ctx.new_file(ctx.outputs.jar, ctx.label.name + "_scalac_args")
   scalac_args = """{scala_opts} {plugin_arg} -classpath "{jars}" -d {out}_tmp {files}""".format(
       scala_opts=" ".join(ctx.attr.scalacopts),
       plugin_arg = plugin_arg,
