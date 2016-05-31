@@ -65,7 +65,8 @@ scala_library(
     deps = [
         "OtherJavaLib",
         "OtherLib",
-        "MacroTest"
+        "MacroTest",
+        "Exported"
     ],
 )
 
@@ -88,30 +89,9 @@ scala_repl(
     deps = [":HelloLibTest"])
 
 scala_library(
-    name = "a",
-    srcs = ["A.scala"]
-)
-
-scala_library(
-    name = "b",
-    exports = [":a"],
-)
-
-scala_library(
-    name = "c",
-    deps = [":b"],
-)
-
-scala_library(
-    name = "d",
-    deps = [":c"],
-    srcs = ["D.scala"],
-)
-
-scala_library(
     name = "OtherLib",
     srcs = ["OtherLib.scala"],
-    exports = ["ExportOnly"],  # test of exported target
+    deps = ["ExportOnly"],
 )
 
 # Test of library without src

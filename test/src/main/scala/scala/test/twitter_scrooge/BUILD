@@ -50,6 +50,7 @@ scala_library(
   name = "justscrooge1",
   srcs = ["JustScrooge1.scala"],
   deps = [":scrooge1"],
+  exports = [":scrooge1"]
 )
 
 scala_library(
@@ -68,6 +69,7 @@ scala_library(
   name = "justscrooge3",
   srcs = ["JustScrooge3.scala"],
   deps = [":scrooge3"],
+  exports = [":scrooge3"],
 )
 
 scala_library(
@@ -107,7 +109,7 @@ scala_binary(
 
 scala_library(
   name = "allscrooges",
-  deps = [
+  exports = [
     ":scrooge1",
     ":scrooge2_a",
     ":scrooge2_b",

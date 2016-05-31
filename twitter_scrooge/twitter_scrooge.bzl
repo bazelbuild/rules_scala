@@ -74,7 +74,7 @@ def _assert_set_is_subset(left, right):
       missing += [l]
   if len(missing) > 0:
     fail('scrooge_srcjar target must depend on scrooge_srcjar targets sufficient to ' +
-         'cover the transitive graph of thrift files. Uncovered sources: ' + missing)
+         'cover the transitive graph of thrift files. Uncovered sources: ' + str(missing))
 
 def _path_newline(data):
   return '\n'.join([f.path for f in data])
@@ -201,23 +201,25 @@ scrooge_scala_srcjar = rule(
 )
 
 def scrooge_scala_library(name, deps=[], remote_jars=[], jvm_flags=[], visibility=None):
-  scrooge_scala_srcjar(
-    name = name + '_srcjar',
-    deps = deps,
-    remote_jars = remote_jars,
-    visibility = visibility,
-  )
-  scala_library(
-    name = name,
-    deps = remote_jars + [
-      name + '_srcjar',
-      "@libthrift//jar",
-      "@scrooge_core//jar",
-    ],
-    exports = [
-      "@libthrift//jar",
-      "@scrooge_core//jar",
-    ],
-    jvm_flags = jvm_flags,
-    visibility = visibility,
-  )
+    srcjar = name + '_srcjar'
+    scrooge_scala_srcjar(
+        name = srcjar,
+        deps = deps,
+        remote_jars = remote_jars,
+        visibility = visibility,
+    )
+
+    scala_library(
+        name = name,
+        deps = deps + remote_jars + [
+            srcjar,
+            "@libthrift//jar",
+            "@scrooge_core//jar"
+        ],
+        exports = deps + remote_jars + [
+            "@libthrift//jar",
+            "@scrooge_core//jar",
+        ],
+        jvm_flags = jvm_flags,
+        visibility = visibility,
+    )
