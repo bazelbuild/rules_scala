@@ -248,7 +248,7 @@ export CLASSPATH={classpath}
 $0.runfiles/{repo}/{java} {name} "$@"
 """.format(
     repo=ctx.workspace_name,
-    java=ctx.file._java.path,
+    java=ctx.file._java.short_path,
     name=ctx.attr.main_class,
     deploy_jar=ctx.outputs.jar.path,
     classpath=classpath,
@@ -265,7 +265,7 @@ def _write_test_launcher(ctx, jars):
 {java} -cp {cp} {name} {args} -C io.bazel.rules.scala.JUnitXmlReporter "$@"
 """
   content = content.format(
-      java=ctx.file._java.path,
+      java=ctx.file._java.short_path,
       cp=":".join([j.short_path for j in jars]),
       name=ctx.attr.main_class,
       args="-R \"{path}\" -oWDF".format(path=ctx.outputs.jar.short_path))
@@ -396,10 +396,10 @@ def _scala_repl_impl(ctx):
   content = """#!/bin/bash
 env JAVACMD=$0.runfiles/{repo}/{java} $0.runfiles/{repo}/{scala} {jvm_flags} -classpath {classpath} {scala_opts} "$@"
 """.format(
-    java=ctx.file._java.path,
+    java=ctx.file._java.short_path,
     repo=ctx.workspace_name,
     jvm_flags=" ".join(["-J" + flag for flag in ctx.attr.jvm_flags]),
-    scala=ctx.file._scala.path,
+    scala=ctx.file._scala.short_path,
     classpath=classpath,
     scala_opts=" ".join(ctx.attr.scalacopts),
   )
