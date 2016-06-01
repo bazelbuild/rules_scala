@@ -16,6 +16,10 @@ package scala.test
 
 import org.scalatest._
 
+object TestUtil {
+  def foo: String = "bar"
+}
+
 class ScalaSuite extends FlatSpec {
   "HelloLib" should "call scala" in {
     assert(HelloLib.getOtherLibMessage("hello").equals("hello scala!"))
