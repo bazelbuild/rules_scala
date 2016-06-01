@@ -325,10 +325,10 @@ def _lib(ctx, non_macro_lib):
     rjars += [ctx.file._scalareflect]
 
   _build_deployable(ctx, rjars)
-  outputs = struct(ijar=outputs.ijar, class_jar=outputs.class_jar, deploy_jar=ctx.outputs.deploy_jar)
+  rule_outputs = struct(ijar=outputs.ijar, class_jar=outputs.class_jar, deploy_jar=ctx.outputs.deploy_jar)
 
   texp = _collect_jars(ctx.attr.exports)
-  scalaattr = struct(outputs = outputs,
+  scalaattr = struct(outputs = rule_outputs,
                      transitive_runtime_deps = rjars,
                      transitive_compile_exports = texp.compiletime + cjars,
                      transitive_runtime_exports = texp.runtime
@@ -376,8 +376,8 @@ def _scala_binary_common(ctx, cjars, rjars):
       collect_data = True)
 
   jars = _collect_jars(ctx.attr.deps)
-  outputs = struct(ijar=outputs.class_jar, class_jar=outputs.class_jar, deploy_jar=ctx.outputs.deploy_jar)
-  scalaattr = struct(outputs = outputs,
+  rule_outputs = struct(ijar=outputs.class_jar, class_jar=outputs.class_jar, deploy_jar=ctx.outputs.deploy_jar)
+  scalaattr = struct(outputs = rule_outputs,
                      transitive_runtime_deps = rjars,
                      transitive_compile_exports = set(),
                      transitive_runtime_exports = set()
