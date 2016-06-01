@@ -15,10 +15,11 @@
 """Rules for supporting the Scala language."""
 
 _jar_filetype = FileType([".jar"])
+_java_filetype = FileType([".java"])
 _scala_filetype = FileType([".scala"])
 _srcjar_filetype = FileType([".srcjar"])
 # TODO is there a way to derive this from the above?
-_scala_srcjar_filetype = FileType([".scala", ".srcjar"])
+_scala_srcjar_filetype = FileType([".scala", ".srcjar", ".java"])
 
 def _adjust_resources_path(path):
   dir_1, dir_2, rel_path = path.partition("resources")
@@ -109,7 +110,7 @@ def _compile(ctx, _jars, dep_srcjars, buildijar):
       out=ctx.outputs.jar.path,
       ijar_out=ctx.outputs.ijar.path)
 
-  sources = _scala_filetype.filter(ctx.files.srcs)
+  sources = _scala_filetype.filter(ctx.files.srcs) + _java_filetype.filter(ctx.files.srcs)
   srcjars = _srcjar_filetype.filter(ctx.files.srcs)
   all_srcjars = set(srcjars + list(dep_srcjars))
   # look for any plugins:
@@ -518,6 +519,26 @@ scala_repl = rule(
   outputs={},
   executable=True,
 )
+
+def mixed_scala_java_library(name, java_srcs, scala_srcs, visibility=None):
+    scala_library(
+        name = name + "_mix_scala",
+        srcs = java_srcs + scala_srcs,
+        visibility = visibility
+    )
+
+    scala_export_to_java(
+        name = name + "_mix_scala_export",
+        exports = [":" + name + "_mix_scala",],
+        runtime_deps = []
+    )
+
+    native.java_library(
+        name = name,
+        srcs = java_srcs,
+        deps = [":" + name + "_mix_scala_export"],
+        visibility = visibility
+    )
 
 def scala_version():
   """return the scala version for use in maven coordinates"""
