@@ -83,6 +83,10 @@ scala_test(
     ],
 )
 
+scala_repl(
+    name = "HelloLibTestRepl",
+    deps = [":HelloLibTest"])
+
 scala_library(
     name = "a",
     srcs = ["A.scala"]
@@ -153,6 +157,10 @@ scala_binary(
     main_class = "scala.test.ScalaLibBinary",
     deps = ["ScalaLibResources"],
 )
+
+scala_repl(
+    name = "ScalaLibBinaryRepl",
+    deps = [":ScalaLibBinary"])
 
 scala_library(
   name = "jar_export",

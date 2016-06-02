@@ -26,6 +26,12 @@ test_build_is_identical() {
   diff hash1 hash2
 }
 
+test_repl() {
+  echo "import scala.test._; HelloLib.printMessage(\"foo\")" | bazel-bin/test/HelloLibRepl | grep "foo scala" &&
+  echo "import scala.test._; TestUtil.foo" | bazel-bin/test/HelloLibTestRepl | grep "bar" &&
+  echo "import scala.test._; ScalaLibBinary.main(Array())" | bazel-bin/test/ScalaLibBinaryRepl | grep "A hui hou"
+}
+
 bazel build test/... \
   && bazel run test:ScalaBinary \
   && bazel run test:ScalaLibBinary \
@@ -37,5 +43,5 @@ bazel build test/... \
   && (find -L ./bazel-testlogs -iname "*.xml" | xargs -n1 xmllint > /dev/null) \
   && test_disappearing_class \
   && test_build_is_identical \
-  && echo "import scala.test._; HelloLib.printMessage(\"foo\")" | bazel-bin/test/HelloLibRepl | grep "foo scala" \
+  && test_repl \
   && echo "all good"
