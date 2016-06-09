@@ -520,19 +520,18 @@ scala_repl = rule(
   executable=True,
 )
 
-def mixed_scala_java_library(name, java_srcs, scala_srcs, visibility=None):
+def mixed_scala_java_library(name, srcs, visibility=None):
     scala_library(
         name = name + "_mix_scala",
-        srcs = java_srcs + scala_srcs,
+        srcs = srcs,
         visibility = visibility
     )
-
     scala_export_to_java(
         name = name + "_mix_scala_export",
         exports = [":" + name + "_mix_scala",],
         runtime_deps = []
     )
-
+    java_srcs = [f for f in srcs if f.endswith(".java")]
     native.java_library(
         name = name,
         srcs = java_srcs,

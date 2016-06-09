@@ -163,8 +163,8 @@ scala_library(
 #Mix java scala
 mixed_scala_java_library(
     name = "MixJavaScalaLib",
-    java_srcs = ["Baz.java"],
-    scala_srcs = ["Bar.scala"],
+    srcs = glob(["src/main/scala/scala/test/mix_java_scala/*.scala"]) + 
+           glob(["src/main/scala/scala/test/mix_java_scala/*.java"]),
 )
 #needed to test java sources are compiled
 scala_binary(
