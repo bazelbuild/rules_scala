@@ -330,7 +330,7 @@ def _lib(ctx, non_macro_lib):
   texp = _collect_jars(ctx.attr.exports)
   scalaattr = struct(outputs = rule_outputs,
                      transitive_runtime_deps = rjars,
-                     transitive_compile_exports = texp.compiletime + cjars,
+                     transitive_compile_exports = texp.compiletime,
                      transitive_runtime_exports = texp.runtime
                      )
   runfiles = ctx.runfiles(

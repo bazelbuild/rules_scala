@@ -22,7 +22,7 @@ object TestUtil {
 
 class ScalaSuite extends FlatSpec {
   "HelloLib" should "call scala" in {
-    assert(HelloLib.getOtherLibMessage("hello").equals("hello scala!"))
+    assert(HelloLib.getOtherLibMessage("hello").equals("hello you all, everybody. I am Runtime"))
   }
 }
 
