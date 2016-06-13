@@ -192,6 +192,7 @@ rm -rf {out}_tmp_expand_srcjars
             scalac_args_file],
       outputs=outs,
       command=cmd,
+      mnemonic="Scalac",
       progress_message="scala %s" % ctx.label,
       arguments=[])
 
@@ -228,6 +229,7 @@ def _build_deployable(ctx, jars):
       inputs=list(jars) + ctx.files._jdk + ctx.files._jar + [ctx.outputs.manifest],
       outputs=[ctx.outputs.deploy_jar],
       command=cmd,
+      mnemonic="ScalaDeployJar",
       progress_message="scala deployable %s" % ctx.label,
       arguments=[])
 
