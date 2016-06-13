@@ -29,21 +29,21 @@ test_build_is_identical() {
 test_transitive_deps() {
   set +e
 
-  bazel build test_expect_failure/transitive/scala_to_scala/...
+  bazel build test_expect_failure/transitive/scala_to_scala:d
   if [ $? -eq 0 ]; then
-    echo "'bazel build test_expect_failure/transitive/scala_to_scala/...' should have failed."
+    echo "'bazel build test_expect_failure/transitive/scala_to_scala:d' should have failed."
     exit 1
   fi
 
-  bazel build test_expect_failure/transitive/java_to_scala/...
+  bazel build test_expect_failure/transitive/java_to_scala:d
   if [ $? -eq 0 ]; then
-    echo "'bazel build test_expect_failure/transitive/java_to_scala/...' should have failed."
+    echo "'bazel build test_expect_failure/transitive/java_to_scala:d' should have failed."
     exit 1
   fi
 
-  bazel build test_expect_failure/transitive/scala_to_java/...
+  bazel build test_expect_failure/transitive/scala_to_java:d
   if [ $? -eq 0 ]; then
-    echo "'bazel build test_transitive_deps/scala_to_java/...' should have failed."
+    echo "'bazel build test_transitive_deps/scala_to_java:d' should have failed."
     exit 1
   fi
 

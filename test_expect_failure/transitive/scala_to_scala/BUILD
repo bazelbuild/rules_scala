@@ -19,4 +19,5 @@ scala_library(
     name = "d",
     deps = [":c"],
     srcs = ["D.scala"],
+    tags = ["manual"],
 )

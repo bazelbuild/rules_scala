@@ -21,4 +21,5 @@ java_library(
     name = "d",
     srcs = ["D.java"],
     deps = [":c"],
+    tags = ["manual"],
 )
