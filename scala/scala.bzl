@@ -520,16 +520,18 @@ scala_repl = rule(
   executable=True,
 )
 
-def mixed_scala_java_library(name, srcs, **kwargs):
+def mixed_scala_java_library(name, srcs, visibility = None, **kwargs):
     scala_library(
         name = name + "_mix_scala",
         srcs = srcs,
+        visibility = ['//visibility:private'],
         **kwargs
     )
     scala_export_to_java(
         name = name + "_mix_scala_export",
         exports = [":" + name + "_mix_scala",],
         runtime_deps = kwargs.get("runtime_deps",[]),
+        visibility = ['//visibility:private'],
         **kwargs
     )
     java_srcs = [f for f in srcs if f.endswith(".java")]
@@ -538,6 +540,7 @@ def mixed_scala_java_library(name, srcs, **kwargs):
         srcs = java_srcs,
         exports = [":" + name + "_mix_scala_export",] + kwargs.get("exports",[]),
         deps = [":" + name + "_mix_scala_export"] + kwargs.get("deps",[]),
+        visibility = visibility,
         **kwargs
     )
 
@@ -597,7 +600,7 @@ def scala_repositories():
     sha256 = "f198967436a5e7a69cfd182902adcfbcb9f2e41b349e1a5c8881a2407f615962",
   )
 
-def scala_export_to_java(name, exports, runtime_deps):
+def scala_export_to_java(name, exports, runtime_deps, visibility = None):
   jars = []
   for target in exports:
     jars.append("{}_deploy.jar".format(target))
@@ -606,5 +609,6 @@ def scala_export_to_java(name, exports, runtime_deps):
     name = name,
     # these are the outputs of the scala_library targets
     jars = jars,
-    runtime_deps = ["@scala//:lib/scala-library.jar"] + runtime_deps
+    runtime_deps = ["@scala//:lib/scala-library.jar"] + runtime_deps,
+    visibility = visibility
   )
