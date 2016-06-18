@@ -4,8 +4,7 @@ load("//scala:scala.bzl",
     "scala_test",
     "scala_macro_library",
     "scala_export_to_java",
-    "scala_repl",
-    "mixed_scala_java_library")
+    "scala_repl")
 
 # The examples below show how to combine Scala and Java rules.
 # ScalaBinary is the Scala equivalent of JavaBinary.
@@ -161,7 +160,7 @@ scala_library(
 )
 
 #Mix java scala
-mixed_scala_java_library(
+scala_library(
     name = "MixJavaScalaLib",
     srcs = glob(["src/main/scala/scala/test/mix_java_scala/*.scala"]) + 
            glob(["src/main/scala/scala/test/mix_java_scala/*.java"]),
