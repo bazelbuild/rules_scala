@@ -135,7 +135,8 @@ def _compile(ctx, _jars, dep_srcjars, buildijar):
   if (compile_java_srcs):
   # Set up the args to pass to javac because they can be too long for bash
     javac_args_file = ctx.new_file(ctx.outputs.jar, ctx.label.name + "_javac_args")
-    javac_args = """ -classpath "{jars}:{out}_tmp" -d {out}_tmp {files}""".format(
+    javac_args = """{javac_opts} -classpath "{jars}:{out}_tmp" -d {out}_tmp {files}""".format(
+      javac_opts=" ".join(ctx.attr.javacopts),
       jars=":".join([j.path for j in jars]),
       files=" ".join([f.path for f in java_srcs]),
       out=ctx.outputs.jar.path
@@ -472,6 +473,7 @@ _common_attrs = {
   "data": attr.label_list(allow_files=True, cfg=DATA_CFG),
   "resources": attr.label_list(allow_files=True),
   "scalacopts":attr.string_list(),
+  "javacopts":attr.string_list(),
   "jvm_flags": attr.string_list(),
 }
 
