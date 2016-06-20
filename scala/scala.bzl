@@ -190,7 +190,21 @@ rm -rf {out}_tmp_expand_srcjars
   outs = [ctx.outputs.jar]
   if buildijar:
     outs.extend([ctx.outputs.ijar])
-  ins = list(jars) + list(dep_srcjars) + list(srcjars) + list(sources) + ctx.files.srcs + ctx.files.plugins + ctx.files.resources + ctx.files._jdk + ctx.files._jar + ctx.files._scalasdk + [ctx.outputs.manifest, ctx.file._ijar, ctx.file._scalac, ctx.file._java, scalac_args_file]
+  ins = (list(jars) + 
+    list(dep_srcjars) + 
+    list(srcjars) + 
+    list(sources) + 
+    ctx.files.srcs + 
+    ctx.files.plugins + 
+    ctx.files.resources + 
+    ctx.files._jdk + 
+    ctx.files._jar + 
+    ctx.files._scalasdk + 
+    [ctx.outputs.manifest, 
+      ctx.file._ijar, 
+      ctx.file._scalac, 
+      ctx.file._java, 
+      scalac_args_file])
   if compile_java_srcs:
     ins.extend([javac_args_file])
   ctx.action(
