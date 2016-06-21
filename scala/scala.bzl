@@ -144,7 +144,7 @@ def _compile(ctx, _jars, dep_srcjars, buildijar):
     ctx.file_action(output = javac_args_file, content = javac_args)
     javac_sources_cmd = """
     cat {javac_args} {{out}}_args/files_from_jar > {{out}}_args/java_args
-    env JAVACMD={{java}} {javac} {{jvm_flags}} @{{out}}_args/java_args""".format(javac_args = javac_args_file.path,javac=ctx.file._javac.path)
+    {javac} {{jvm_flags}} @{{out}}_args/java_args""".format(javac_args = javac_args_file.path,javac=ctx.file._javac.path)
 
   srcjar_cmd = ""
   if len(all_srcjars) > 0:
