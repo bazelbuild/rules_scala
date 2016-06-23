@@ -15,10 +15,11 @@
 """Rules for supporting the Scala language."""
 
 _jar_filetype = FileType([".jar"])
+_java_filetype = FileType([".java"])
 _scala_filetype = FileType([".scala"])
 _srcjar_filetype = FileType([".srcjar"])
 # TODO is there a way to derive this from the above?
-_scala_srcjar_filetype = FileType([".scala", ".srcjar"])
+_scala_srcjar_filetype = FileType([".scala", ".srcjar", ".java"])
 
 def _adjust_resources_path(path):
   dir_1, dir_2, rel_path = path.partition("resources")
@@ -109,7 +110,8 @@ def _compile(ctx, _jars, dep_srcjars, buildijar):
       out=ctx.outputs.jar.path,
       ijar_out=ctx.outputs.ijar.path)
 
-  sources = _scala_filetype.filter(ctx.files.srcs)
+  java_srcs = _java_filetype.filter(ctx.files.srcs)
+  sources = _scala_filetype.filter(ctx.files.srcs) + java_srcs
   srcjars = _srcjar_filetype.filter(ctx.files.srcs)
   all_srcjars = set(srcjars + list(dep_srcjars))
   # look for any plugins:
@@ -128,6 +130,21 @@ def _compile(ctx, _jars, dep_srcjars, buildijar):
       out=ctx.outputs.jar.path
       )
   ctx.file_action(output = scalac_args_file, content = scalac_args)
+  javac_sources_cmd = ""
+  compile_java_srcs = len(java_srcs) != 0
+  if (compile_java_srcs):
+  # Set up the args to pass to javac because they can be too long for bash
+    javac_args_file = ctx.new_file(ctx.outputs.jar, ctx.label.name + "_javac_args")
+    javac_args = """{javac_opts} -classpath "{jars}:{out}_tmp" -d {out}_tmp {files}""".format(
+      javac_opts=" ".join(ctx.attr.javacopts),
+      jars=":".join([j.path for j in jars]),
+      files=" ".join([f.path for f in java_srcs]),
+      out=ctx.outputs.jar.path
+      )
+    ctx.file_action(output = javac_args_file, content = javac_args)
+    javac_sources_cmd = """
+    cat {javac_args} {{out}}_args/files_from_jar > {{out}}_args/java_args
+    {javac} {{jvm_flags}} @{{out}}_args/java_args""".format(javac_args = javac_args_file.path,javac=ctx.file._javac.path)
 
   srcjar_cmd = ""
   if len(all_srcjars) > 0:
@@ -151,8 +168,8 @@ set -e
 mkdir -p {out}_args
 touch {out}_args/files_from_jar
 mkdir -p {out}_tmp""" + srcjar_cmd + """
-cat {scalac_args} {out}_args/files_from_jar > {out}_args/args
-env JAVACMD={java} {scalac} {jvm_flags} @{out}_args/args
+cat {scalac_args} {out}_args/files_from_jar > {out}_args/scala_args
+env JAVACMD={java} {scalac} {jvm_flags} @{out}_args/scala_args""" + javac_sources_cmd + """
 # add any resources
 {cp_resources}
 {java} -jar {jar} -m {manifest} {out} {out}_tmp
@@ -174,22 +191,25 @@ rm -rf {out}_tmp_expand_srcjars
   outs = [ctx.outputs.jar]
   if buildijar:
     outs.extend([ctx.outputs.ijar])
+  ins = (list(jars) + 
+    list(dep_srcjars) + 
+    list(srcjars) + 
+    list(sources) + 
+    ctx.files.srcs + 
+    ctx.files.plugins + 
+    ctx.files.resources + 
+    ctx.files._jdk + 
+    ctx.files._jar + 
+    ctx.files._scalasdk + 
+    [ctx.outputs.manifest, 
+      ctx.file._ijar, 
+      ctx.file._scalac, 
+      ctx.file._java, 
+      scalac_args_file])
+  if compile_java_srcs:
+    ins.extend([javac_args_file])
   ctx.action(
-      inputs=list(jars) +
-          list(dep_srcjars) +
-          list(srcjars) +
-          list(sources) +
-          ctx.files.srcs +
-          ctx.files.plugins +
-          ctx.files.resources +
-          ctx.files._jdk +
-          ctx.files._jar +
-          ctx.files._scalasdk +
-          [ctx.outputs.manifest,
-            ctx.file._ijar,
-            ctx.file._scalac,
-            ctx.file._java,
-            scalac_args_file],
+      inputs=ins,
       outputs=outs,
       command=cmd,
       mnemonic="Scalac",
@@ -449,6 +469,7 @@ _implicit_deps = {
   "_scalasdk": attr.label(default=Label("@scala//:sdk"), allow_files=True),
   "_scalareflect": attr.label(default=Label("@scala//:lib/scala-reflect.jar"), single_file=True, allow_files=True),
   "_java": attr.label(executable=True, default=Label("@bazel_tools//tools/jdk:java"), single_file=True, allow_files=True),
+  "_javac": attr.label(executable=True, default=Label("@bazel_tools//tools/jdk:javac"), single_file=True, allow_files=True),
   "_jar": attr.label(executable=True, default=Label("//src/java/io/bazel/rulesscala/jar:jar_deploy.jar"), allow_files=True),
   "_jdk": attr.label(default=Label("//tools/defaults:jdk"), allow_files=True),
 }
@@ -463,6 +484,7 @@ _common_attrs = {
   "data": attr.label_list(allow_files=True, cfg=DATA_CFG),
   "resources": attr.label_list(allow_files=True),
   "scalacopts":attr.string_list(),
+  "javacopts":attr.string_list(),
   "jvm_flags": attr.string_list(),
 }
 

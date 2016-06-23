@@ -146,3 +146,17 @@ scala_library(
   name = "jar_export",
   exports = ["@com_twitter__scalding_date//jar"]
 )
+
+#Mix java scala
+scala_library(
+    name = "MixJavaScalaLib",
+    srcs = glob(["src/main/scala/scala/test/mix_java_scala/*.scala"]) + 
+           glob(["src/main/scala/scala/test/mix_java_scala/*.java"]),
+)
+#needed to test java sources are compiled
+scala_binary(
+    name = "MixJavaScalaLibBinary",
+    srcs = ["src/main/scala/scala/test/MixJavaScalaLibBinary.scala"],
+    main_class = "scala.test.MixJavaScalaLibBinary",
+    deps = ["MixJavaScalaLib"],
+)

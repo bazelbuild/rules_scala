@@ -62,6 +62,7 @@ bazel build test/... \
   && bazel run test:ScalaLibBinary \
   && bazel run test:JavaBinary \
   && bazel run test:JavaBinary2 \
+  && bazel run test:MixJavaScalaLibBinary \
   && bazel run test/src/main/scala/scala/test/twitter_scrooge:justscrooges \
   && bazel test test/... \
   && find -L ./bazel-testlogs -iname "*.xml" \
