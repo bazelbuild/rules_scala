@@ -599,12 +599,12 @@ def scala_repositories():
     name = "scala",
     strip_prefix = "scala-2.11.8",
     sha256 = "87fc86a19d9725edb5fd9866c5ee9424cdb2cd86b767f1bb7d47313e8e391ace",
-    url = "https://downloads.typesafe.com/scala/2.11.8/scala-2.11.8.tgz",
+    url = "http://bazel-mirror.storage.googleapis.com/downloads.typesafe.com/scala/2.11.8/scala-2.11.8.tgz",
     build_file_content = SCALA_BUILD_FILE,
   )
   native.http_file(
     name = "scalatest",
-    url = "https://oss.sonatype.org/content/groups/public/org/scalatest/scalatest_2.11/2.2.6/scalatest_2.11-2.2.6.jar",
+    url = "http://bazel-mirror.storage.googleapis.com/oss.sonatype.org/content/groups/public/org/scalatest/scalatest_2.11/2.2.6/scalatest_2.11-2.2.6.jar",
     sha256 = "f198967436a5e7a69cfd182902adcfbcb9f2e41b349e1a5c8881a2407f615962",
   )
 
