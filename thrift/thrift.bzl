@@ -23,6 +23,9 @@ rm -rf {out}_tmp"""
 
   cmd = cmd.format(out=ctx.outputs.libarchive.path,
                    jar=ctx.file._jar.path)
+  print(cmd)
+  print([f.path for f in ctx.files.srcs])
+
   ctx.action(
     inputs = ctx.files.srcs +
       ctx.files._jar +
