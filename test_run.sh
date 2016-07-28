@@ -57,18 +57,41 @@ test_repl() {
   echo "import scala.test._; ScalaLibBinary.main(Array())" | bazel-bin/test/ScalaLibBinaryRepl | grep "A hui hou"
 }
 
-bazel build test/... \
-  && bazel run test:ScalaBinary \
-  && bazel run test:ScalaLibBinary \
-  && bazel run test:JavaBinary \
-  && bazel run test:JavaBinary2 \
-  && bazel run test:MixJavaScalaLibBinary \
-  && bazel run test/src/main/scala/scala/test/twitter_scrooge:justscrooges \
-  && bazel test test/... \
-  && find -L ./bazel-testlogs -iname "*.xml" \
-  && (find -L ./bazel-testlogs -iname "*.xml" | xargs -n1 xmllint > /dev/null) \
-  && test_disappearing_class \
-  && test_build_is_identical \
-  && test_transitive_deps \
-  && test_repl \
-  && echo "all good"
+NC='\033[0m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+
+function run_test() {
+  set +e
+  TEST_ARG=$@
+  echo "running test $TEST_ARG"
+  RES=$($TEST_ARG 2>&1)
+  RESPONSE_CODE=$?
+  if [ $RESPONSE_CODE -eq 0 ]; then
+    echo -e "${GREEN} Test $TEST_ARG successful $NC"
+  else
+    echo $RES
+    echo -e "${RED} Test $TEST_ARG failed $NC"
+    exit $RESPONSE_CODE
+  fi
+}
+
+xmllint_test() {
+  find -L ./bazel-testlogs -iname "*.xml" | xargs -n1 xmllint > /dev/null
+}
+run_test bazel build test/...
+run_test bazel test test/...
+run_test bazel run test/src/main/scala/scala/test/twitter_scrooge:justscrooges
+run_test bazel run test:JavaBinary
+run_test bazel run test:JavaBinary2
+run_test bazel run test:MixJavaScalaLibBinary
+run_test bazel run test:ScalaBinary
+run_test bazel run test:ScalaLibBinary
+run_test test_disappearing_class
+run_test find -L ./bazel-testlogs -iname "*.xml"
+run_test xmllint_test
+run_test test_disappearing_class
+run_test test_build_is_identical
+run_test test_transitive_deps
+run_test test_repl
+
