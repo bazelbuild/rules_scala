@@ -554,8 +554,8 @@ def scala_repositories():
   native.new_http_archive(
     name = "scala",
     strip_prefix = "scala-2.11.8",
-    sha256 = "87fc86a19d9725edb5fd9866c5ee9424cdb2cd86b767f1bb7d47313e8e391ace",
-    url = "https://downloads.typesafe.com/scala/2.11.8/scala-2.11.8.tgz",
+    sha256 = "14baf8f2e0b8ed647e7248e33e2a12d1cc0ac7ba41d6fc07cf4d6185efed8ed9",
+    url = "https://storage.googleapis.com/improbable-build-deps/fabric/scala-2.11.8.tgz",
     build_file_content = SCALA_BUILD_FILE,
   )
   native.http_file(
