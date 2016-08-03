@@ -226,7 +226,7 @@ A `scala_binary` requires a `main_class` attribute.
     <tr>
       <td><code>main_class</code></td>
       <td>
-        <p><code>String, optional</code></p>
+        <p><code>String, required</code></p>
         <p>Name of class with main() method to use as an entry point</p>
         <p>
           The value of this attribute is a class name, not a source file. The

@@ -14,10 +14,9 @@
 
 package scala.test
 
-object ScalaLibBinary {
-  def main(args:Array[String]) {
-    ScalaLibResources.getGreetings foreach println
-    ScalaLibResources.getFarewells foreach println
-    ScalaLibResources.getData foreach println
+object MixJavaScalaLibBinary {
+  def main(args: Array[String]) {
+    val bar = new Bar()
+    println("created an instance of a mixed java scala code from a library")
   }
 }

@@ -7,15 +7,22 @@ load("//scala:scala.bzl",
   "collect_srcjars")
 
 def twitter_scrooge():
+  native.maven_server(
+    name = "twitter_scrooge_maven_server",
+    url = "http://bazel-mirror.storage.googleapis.com/repo1.maven.org/maven2/",
+  )
+
   native.maven_jar(
     name = "libthrift",
     artifact = "org.apache.thrift:libthrift:0.8.0",
     sha1 = "2203b4df04943f4d52c53b9608cef60c08786ef2",
+    server = "twitter_scrooge_maven_server",
   )
   native.maven_jar(
     name = "scrooge_core",
     artifact = scala_mvn_artifact("com.twitter:scrooge-core:4.6.0"),
     sha1 = "84b86c2e082aba6e0c780b3c76281703b891a2c8",
+    server = "twitter_scrooge_maven_server",
   )
 
   #scrooge-generator related dependencies
@@ -23,16 +30,19 @@ def twitter_scrooge():
     name = "scrooge_generator",
     artifact = scala_mvn_artifact("com.twitter:scrooge-generator:4.6.0"),
     sha1 = "cacf72eedeb5309ca02b2d8325c587198ecaac82",
+    server = "twitter_scrooge_maven_server",
   )
   native.maven_jar(
     name = "util_core",
     artifact = scala_mvn_artifact("com.twitter:util-core:6.33.0"),
     sha1 = "bb49fa66a3ca9b7db8cd764d0b26ce498bbccc83",
+    server = "twitter_scrooge_maven_server",
   )
   native.maven_jar(
     name = "util_logging",
     artifact = scala_mvn_artifact("com.twitter:util-logging:6.33.0"),
     sha1 = "3d28e46f8ee3b7ad1b98a51b98089fc01c9755dd",
+    server = "twitter_scrooge_maven_server",
   )
 
 def _collect_transitive_srcs(targets):
@@ -74,7 +84,7 @@ def _assert_set_is_subset(left, right):
       missing += [l]
   if len(missing) > 0:
     fail('scrooge_srcjar target must depend on scrooge_srcjar targets sufficient to ' +
-         'cover the transitive graph of thrift files. Uncovered sources: ' + missing)
+         'cover the transitive graph of thrift files. Uncovered sources: ' + str(missing))
 
 def _path_newline(data):
   return '\n'.join([f.path for f in data])
@@ -201,23 +211,25 @@ scrooge_scala_srcjar = rule(
 )
 
 def scrooge_scala_library(name, deps=[], remote_jars=[], jvm_flags=[], visibility=None):
-  scrooge_scala_srcjar(
-    name = name + '_srcjar',
-    deps = deps,
-    remote_jars = remote_jars,
-    visibility = visibility,
-  )
-  scala_library(
-    name = name,
-    deps = remote_jars + [
-      name + '_srcjar',
-      "@libthrift//jar",
-      "@scrooge_core//jar",
-    ],
-    exports = [
-      "@libthrift//jar",
-      "@scrooge_core//jar",
-    ],
-    jvm_flags = jvm_flags,
-    visibility = visibility,
-  )
+    srcjar = name + '_srcjar'
+    scrooge_scala_srcjar(
+        name = srcjar,
+        deps = deps,
+        remote_jars = remote_jars,
+        visibility = visibility,
+    )
+
+    scala_library(
+        name = name,
+        deps = deps + remote_jars + [
+            srcjar,
+            "@libthrift//jar",
+            "@scrooge_core//jar"
+        ],
+        exports = deps + remote_jars + [
+            "@libthrift//jar",
+            "@scrooge_core//jar",
+        ],
+        jvm_flags = jvm_flags,
+        visibility = visibility,
+    )
