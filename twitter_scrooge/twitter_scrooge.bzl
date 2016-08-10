@@ -18,12 +18,17 @@ def twitter_scrooge():
     sha1 = "2203b4df04943f4d52c53b9608cef60c08786ef2",
     server = "twitter_scrooge_maven_server",
   )
+
+  native.bind(name = 'io_bazel_rules_scala/dependency/thrift/libthrift', actual = '@libthrift//jar')
+
   native.maven_jar(
     name = "scrooge_core",
     artifact = scala_mvn_artifact("com.twitter:scrooge-core:4.6.0"),
     sha1 = "84b86c2e082aba6e0c780b3c76281703b891a2c8",
     server = "twitter_scrooge_maven_server",
   )
+
+  native.bind(name = 'io_bazel_rules_scala/dependency/thrift/scrooge_core', actual = '@scrooge_core//jar')
 
   #scrooge-generator related dependencies
   native.maven_jar(
@@ -223,12 +228,12 @@ def scrooge_scala_library(name, deps=[], remote_jars=[], jvm_flags=[], visibilit
         name = name,
         deps = deps + remote_jars + [
             srcjar,
-            "@libthrift//jar",
-            "@scrooge_core//jar"
+            "//external:io_bazel_rules_scala/dependency/thrift/libthrift",
+            "//external:io_bazel_rules_scala/dependency/thrift/scrooge_core"
         ],
         exports = deps + remote_jars + [
-            "@libthrift//jar",
-            "@scrooge_core//jar",
+            "//external:io_bazel_rules_scala/dependency/thrift/libthrift",
+            "//external:io_bazel_rules_scala/dependency/thrift/scrooge_core",
         ],
         jvm_flags = jvm_flags,
         visibility = visibility,
