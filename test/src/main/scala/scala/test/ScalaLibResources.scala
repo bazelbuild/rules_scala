@@ -15,15 +15,15 @@
 package scala.test
 
 object ScalaLibResources {
-  def getGreetings() =
-    scala.io.Source
-      .fromInputStream(getClass.getResourceAsStream("hellos"))
-      .getLines
-      .toList
+  def getGreetings() = get("hellos")
 
-  def getFarewells() =
+  def getFarewells = get("byes")
+
+  def getData = get("/test/data/some.txt")
+
+  private def get(s: String): List[String] =
     scala.io.Source
-      .fromInputStream(getClass.getResourceAsStream("byes"))
+      .fromInputStream(getClass.getResourceAsStream(s))
       .getLines
       .toList
 }

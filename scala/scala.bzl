@@ -24,10 +24,11 @@
 """Rules for supporting the Scala language."""
 
 _jar_filetype = FileType([".jar"])
-_scala_filetype = FileType([".scala", ".java"])
+_java_filetype = FileType([".java"])
+_scala_filetype = FileType([".scala"])
 _srcjar_filetype = FileType([".srcjar"])
 # TODO is there a way to derive this from the above?
-_scala_srcjar_filetype = FileType([".scala", ".java", ".srcjar"])
+_scala_srcjar_filetype = FileType([".scala", ".srcjar", ".java"])
 
 def _adjust_resources_path(path):
   dir_1, dir_2, rel_path = path.partition("resources")
@@ -38,31 +39,48 @@ def _adjust_resources_path(path):
     return dir_1 + dir_2, rel_path
   return "", path
 
-def _add_resources_cmd(ctx):
+def _add_resources_cmd(ctx, dest):
   res_cmd = ""
   for f in ctx.files.resources:
     c_dir, res_path = _adjust_resources_path(f.path)
-    change_dir = "-C " + c_dir if c_dir else ""
-    res_cmd += "\n{jar} uf {out} " + change_dir + " " + res_path
+    target_path = res_path
+    if res_path[0] != "/":
+      target_path = "/" + res_path
+    res_cmd += "\nmkdir -p $(dirname {out_dir}{target_path})\ncp {c_dir}{res_path} {out_dir}{target_path}".format(
+        out_dir=dest,
+        res_path=res_path,
+        target_path=target_path,
+        c_dir=c_dir)
   return res_cmd
 
+def _get_jar_path(paths):
+  for p in paths:
+    path = p.path
+    if path.endswith("/jar_deploy.jar"):
+      return path
+  return None
+
 def _build_nosrc_jar(ctx, buildijar):
-  res_cmd = _add_resources_cmd(ctx)
+  cp_resources = _add_resources_cmd(ctx, "{out}_tmp".format(out=ctx.outputs.jar.path))
   ijar_cmd = ""
   if buildijar:
     ijar_cmd = "\ncp {out} {ijar_out}".format(
       out=ctx.outputs.jar.path,
       ijar_out=ctx.outputs.ijar.path)
   cmd = """
+rm -rf {out}_tmp
 set -e
-# Make jar file deterministic by setting the timestamp of files
-touch -t 198001010000 {manifest}
-{jar} cmf {manifest} {out}
-""" + ijar_cmd + res_cmd
+mkdir -p {out}_tmp
+# copy any resources
+{cp_resources}
+{java} -jar {jar} -m {manifest} {out}
+""" + ijar_cmd
   cmd = cmd.format(
+      cp_resources=cp_resources,
       out=ctx.outputs.jar.path,
       manifest=ctx.outputs.manifest.path,
-      jar=ctx.file._jar.path)
+      java=ctx.file._java.path,
+      jar=_get_jar_path(ctx.files._jar))
   outs = [ctx.outputs.jar]
   if buildijar:
     outs.extend([ctx.outputs.ijar])
@@ -70,7 +88,8 @@ touch -t 198001010000 {manifest}
       inputs=
           ctx.files.resources +
           ctx.files._jdk +
-          [ctx.outputs.manifest, ctx.file._jar],
+          ctx.files._jar +
+          [ctx.outputs.manifest, ctx.file._java],
       outputs=outs,
       command=cmd,
       progress_message="scala %s" % ctx.label,
@@ -92,7 +111,7 @@ def _collect_plugin_paths(plugins):
 
 def _compile(ctx, _jars, dep_srcjars, buildijar):
   jars = _jars
-  res_cmd = _add_resources_cmd(ctx)
+  cp_resources = _add_resources_cmd(ctx, "{out}_tmp".format(out=ctx.outputs.jar.path))
   ijar_cmd = ""
   if buildijar:
     ijar_cmd = "\n{ijar} {out} {ijar_out}".format(
@@ -100,7 +119,8 @@ def _compile(ctx, _jars, dep_srcjars, buildijar):
       out=ctx.outputs.jar.path,
       ijar_out=ctx.outputs.ijar.path)
 
-  sources = _scala_filetype.filter(ctx.files.srcs)
+  java_srcs = _java_filetype.filter(ctx.files.srcs)
+  sources = _scala_filetype.filter(ctx.files.srcs) + java_srcs
   srcjars = _srcjar_filetype.filter(ctx.files.srcs)
   all_srcjars = set(srcjars + list(dep_srcjars))
   # look for any plugins:
@@ -110,7 +130,7 @@ def _compile(ctx, _jars, dep_srcjars, buildijar):
     plugin_arg = " ".join(["-Xplugin:%s" % p for p in plugins])
 
   # Set up the args to pass to scalac because they can be too long for bash
-  scalac_args_file = ctx.new_file(ctx.outputs.jar, ctx.outputs.jar.short_path + "scalac_args")
+  scalac_args_file = ctx.new_file(ctx.outputs.jar, ctx.label.name + "_scalac_args")
   scalac_args = """{scala_opts} {plugin_arg} -classpath "{jars}" -d {out}_tmp {files}""".format(
       scala_opts=" ".join(ctx.attr.scalacopts),
       plugin_arg = plugin_arg,
@@ -119,6 +139,21 @@ def _compile(ctx, _jars, dep_srcjars, buildijar):
       out=ctx.outputs.jar.path
       )
   ctx.file_action(output = scalac_args_file, content = scalac_args)
+  javac_sources_cmd = ""
+  compile_java_srcs = len(java_srcs) != 0
+  if (compile_java_srcs):
+  # Set up the args to pass to javac because they can be too long for bash
+    javac_args_file = ctx.new_file(ctx.outputs.jar, ctx.label.name + "_javac_args")
+    javac_args = """{javac_opts} -classpath "{jars}:{out}_tmp" -d {out}_tmp {files}""".format(
+      javac_opts=" ".join(ctx.attr.javacopts),
+      jars=":".join([j.path for j in jars]),
+      files=" ".join([f.path for f in java_srcs]),
+      out=ctx.outputs.jar.path
+      )
+    ctx.file_action(output = javac_args_file, content = javac_args)
+    javac_sources_cmd = """
+    cat {javac_args} {{out}}_args/files_from_jar > {{out}}_args/java_args
+    {javac} {{jvm_flags}} @{{out}}_args/java_args""".format(javac_args = javac_args_file.path,javac=ctx.file._javac.path)
 
   srcjar_cmd = ""
   if len(all_srcjars) > 0:
@@ -142,46 +177,51 @@ set -e
 mkdir -p {out}_args
 touch {out}_args/files_from_jar
 mkdir -p {out}_tmp""" + srcjar_cmd + """
-cat {scalac_args} {out}_args/files_from_jar > {out}_args/args
-env JAVACMD={java} {scalac} {jvm_flags} @{out}_args/args
-# Make jar file deterministic by setting the timestamp of files
-find {out}_tmp -exec touch -t 198001010000 {{}} \;
-touch -t 198001010000 {manifest}
-{jar} cmf {manifest} {out} -C {out}_tmp .
+cat {scalac_args} {out}_args/files_from_jar > {out}_args/scala_args
+env JAVACMD={java} {scalac} {jvm_flags} @{out}_args/scala_args""" + javac_sources_cmd + """
+# add any resources
+{cp_resources}
+{java} -jar {jar} -m {manifest} {out} {out}_tmp
 rm -rf {out}_args
 rm -rf {out}_tmp
 rm -rf {out}_tmp_expand_srcjars
-""" + ijar_cmd + res_cmd
+""" + ijar_cmd
   cmd = cmd.format(
+      cp_resources=cp_resources,
       java=ctx.file._java.path,
       jvm_flags=" ".join(["-J" + flag for flag in ctx.attr.jvm_flags]),
       scalac=ctx.file._scalac.path,
       scalac_args=scalac_args_file.path,
       out=ctx.outputs.jar.path,
       manifest=ctx.outputs.manifest.path,
-      jar=ctx.file._jar.path,
+      jar=_get_jar_path(ctx.files._jar),
       ijar=ctx.file._ijar.path,
     )
   outs = [ctx.outputs.jar]
   if buildijar:
     outs.extend([ctx.outputs.ijar])
+  ins = (list(jars) + 
+    list(dep_srcjars) + 
+    list(srcjars) + 
+    list(sources) + 
+    ctx.files.srcs + 
+    ctx.files.plugins + 
+    ctx.files.resources + 
+    ctx.files._jdk + 
+    ctx.files._jar + 
+    ctx.files._scalasdk + 
+    [ctx.outputs.manifest, 
+      ctx.file._ijar, 
+      ctx.file._scalac, 
+      ctx.file._java, 
+      scalac_args_file])
+  if compile_java_srcs:
+    ins.extend([javac_args_file])
   ctx.action(
-      inputs=list(jars) +
-          list(dep_srcjars) +
-          list(srcjars) +
-          list(sources) +
-          ctx.files.srcs +
-          ctx.files.plugins +
-          ctx.files.resources +
-          ctx.files._jdk +
-          ctx.files._scalasdk +
-          [ctx.outputs.manifest,
-            ctx.file._jar,
-            ctx.file._ijar,
-            ctx.file._scalac,
-            scalac_args_file],
+      inputs=ins,
       outputs=outs,
       command=cmd,
+      mnemonic="Scalac",
       progress_message="scala %s" % ctx.label,
       arguments=[])
 
@@ -206,17 +246,19 @@ def _build_deployable(ctx, jars):
   cmd += "mkdir -p {out}_tmp\n"
   for jar in jars:
     cmd += "unzip -o {jar} -d {{out}}_tmp >/dev/null\n".format(jar=jar.path)
-  cmd += "{jar} cmf {manifest} {out} -C {out}_tmp .\n"
+  cmd += "{java} -jar {jar} -m {manifest} {out} {out}_tmp\n"
   cmd += "rm -rf {out}_tmp\n"
 
   cmd = cmd.format(
       out=ctx.outputs.deploy_jar.path,
-      jar=ctx.file._jar.path,
+      jar=_get_jar_path(ctx.files._jar),
+      java=ctx.file._java.path,
       manifest=ctx.outputs.manifest.path)
   ctx.action(
-      inputs=list(jars) + ctx.files._jdk + [ctx.outputs.manifest, ctx.file._jar],
+      inputs=list(jars) + ctx.files._jdk + ctx.files._jar + [ctx.outputs.manifest],
       outputs=[ctx.outputs.deploy_jar],
       command=cmd,
+      mnemonic="ScalaDeployJar",
       progress_message="scala deployable %s" % ctx.label,
       arguments=[])
 
@@ -237,7 +279,7 @@ export CLASSPATH={classpath}
 $0.runfiles/{repo}/{java} {name} "$@"
 """.format(
     repo=ctx.workspace_name,
-    java=ctx.file._java.path,
+    java=ctx.file._java.short_path,
     name=ctx.attr.main_class,
     deploy_jar=ctx.outputs.jar.path,
     classpath=classpath,
@@ -254,7 +296,7 @@ def _write_test_launcher(ctx, jars):
 {java} -cp {cp} {name} {args} -C io.bazel.rules.scala.JUnitXmlReporter "$@"
 """
   content = content.format(
-      java=ctx.file._java.path,
+      java=ctx.file._java.short_path,
       cp=":".join([j.short_path for j in jars]),
       name=ctx.attr.main_class,
       args="-R \"{path}\" -oWDF".format(path=ctx.outputs.jar.short_path))
@@ -314,12 +356,12 @@ def _lib(ctx, non_macro_lib):
     rjars += [ctx.file._scalareflect]
 
   _build_deployable(ctx, rjars)
-  outputs = struct(ijar=outputs.ijar, class_jar=outputs.class_jar, deploy_jar=ctx.outputs.deploy_jar)
+  rule_outputs = struct(ijar=outputs.ijar, class_jar=outputs.class_jar, deploy_jar=ctx.outputs.deploy_jar)
 
   texp = _collect_jars(ctx.attr.exports)
-  scalaattr = struct(outputs = outputs,
+  scalaattr = struct(outputs = rule_outputs,
                      transitive_runtime_deps = rjars,
-                     transitive_compile_exports = texp.compiletime + cjars,
+                     transitive_compile_exports = texp.compiletime,
                      transitive_runtime_exports = texp.runtime
                      )
   runfiles = ctx.runfiles(
@@ -357,14 +399,23 @@ def _scala_macro_library_impl(ctx):
 # Common code shared by all scala binary implementations.
 def _scala_binary_common(ctx, cjars, rjars):
   write_manifest(ctx)
-  _compile_or_empty(ctx, cjars, [], False)  # no need to build an ijar for an executable
+  outputs = _compile_or_empty(ctx, cjars, [], False)  # no need to build an ijar for an executable
   _build_deployable(ctx, list(rjars))
 
   runfiles = ctx.runfiles(
       files = list(rjars) + [ctx.outputs.executable] + [ctx.file._java] + ctx.files._jdk,
       collect_data = True)
+
+  jars = _collect_jars(ctx.attr.deps)
+  rule_outputs = struct(ijar=outputs.class_jar, class_jar=outputs.class_jar, deploy_jar=ctx.outputs.deploy_jar)
+  scalaattr = struct(outputs = rule_outputs,
+                     transitive_runtime_deps = rjars,
+                     transitive_compile_exports = set(),
+                     transitive_runtime_exports = set()
+                     )
   return struct(
       files=set([ctx.outputs.executable]),
+      scala = scalaattr,
       runfiles=runfiles)
 
 def _scala_binary_impl(ctx):
@@ -385,10 +436,10 @@ def _scala_repl_impl(ctx):
   content = """#!/bin/bash
 env JAVACMD=$0.runfiles/{repo}/{java} $0.runfiles/{repo}/{scala} {jvm_flags} -classpath {classpath} {scala_opts} "$@"
 """.format(
-    java=ctx.file._java.path,
+    java=ctx.file._java.short_path,
     repo=ctx.workspace_name,
     jvm_flags=" ".join(["-J" + flag for flag in ctx.attr.jvm_flags]),
-    scala=ctx.file._scala.path,
+    scala=ctx.file._scala.short_path,
     classpath=classpath,
     scala_opts=" ".join(ctx.attr.scalacopts),
   )
@@ -427,7 +478,8 @@ _implicit_deps = {
   "_scalasdk": attr.label(default=Label("@scala//:sdk"), allow_files=True),
   "_scalareflect": attr.label(default=Label("@scala//:lib/scala-reflect.jar"), single_file=True, allow_files=True),
   "_java": attr.label(executable=True, default=Label("@bazel_tools//tools/jdk:java"), single_file=True, allow_files=True),
-  "_jar": attr.label(executable=True, default=Label("@bazel_tools//tools/jdk:jar"), single_file=True, allow_files=True),
+  "_javac": attr.label(executable=True, default=Label("@bazel_tools//tools/jdk:javac"), single_file=True, allow_files=True),
+  "_jar": attr.label(executable=True, default=Label("//src/java/io/bazel/rulesscala/jar:jar_deploy.jar"), allow_files=True),
   "_jdk": attr.label(default=Label("//tools/defaults:jdk"), allow_files=True),
 }
 
@@ -441,6 +493,7 @@ _common_attrs = {
   "data": attr.label_list(allow_files=True, cfg=DATA_CFG),
   "resources": attr.label_list(allow_files=True),
   "scalacopts":attr.string_list(),
+  "javacopts":attr.string_list(),
   "jvm_flags": attr.string_list(),
 }
 
@@ -560,7 +613,7 @@ def scala_repositories():
   )
   native.http_file(
     name = "scalatest",
-    url = "https://oss.sonatype.org/content/groups/public/org/scalatest/scalatest_2.11/2.2.6/scalatest_2.11-2.2.6.jar",
+    url = "http://bazel-mirror.storage.googleapis.com/oss.sonatype.org/content/groups/public/org/scalatest/scalatest_2.11/2.2.6/scalatest_2.11-2.2.6.jar",
     sha256 = "f198967436a5e7a69cfd182902adcfbcb9f2e41b349e1a5c8881a2407f615962",
   )
 

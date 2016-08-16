@@ -1,7 +1,7 @@
-package scala.test
+package example
 
 object D {
   def main(args: Array[String]) {
-    A.main(args)
+    A.foo
   }
 }

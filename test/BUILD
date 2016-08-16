@@ -65,7 +65,8 @@ scala_library(
     deps = [
         "OtherJavaLib",
         "OtherLib",
-        "MacroTest"
+        "MacroTest",
+        "Exported"
     ],
 )
 
@@ -83,31 +84,14 @@ scala_test(
     ],
 )
 
-scala_library(
-    name = "a",
-    srcs = ["A.scala"]
-)
-
-scala_library(
-    name = "b",
-    exports = [":a"],
-)
-
-scala_library(
-    name = "c",
-    deps = [":b"],
-)
-
-scala_library(
-    name = "d",
-    deps = [":c"],
-    srcs = ["D.scala"],
-)
+scala_repl(
+    name = "HelloLibTestRepl",
+    deps = [":HelloLibTest"])
 
 scala_library(
     name = "OtherLib",
     srcs = ["OtherLib.scala"],
-    exports = ["ExportOnly"],  # test of exported target
+    deps = ["ExportOnly"],
 )
 
 # Test of library without src
@@ -140,7 +124,11 @@ java_library(
 scala_library(
     name = "ScalaLibResources",
     srcs = ["src/main/scala/scala/test/ScalaLibResources.scala"],
-    resources = ["src/main/resources/scala/test/hellos", "src/main/resources/scala/test/byes"],
+    resources = [
+        "//test/data:some.txt",
+        "src/main/resources/scala/test/byes",
+        "src/main/resources/scala/test/hellos",
+        ],
 )
 
 scala_binary(
@@ -150,7 +138,25 @@ scala_binary(
     deps = ["ScalaLibResources"],
 )
 
+scala_repl(
+    name = "ScalaLibBinaryRepl",
+    deps = [":ScalaLibBinary"])
+
 scala_library(
   name = "jar_export",
   exports = ["@com_twitter__scalding_date//jar"]
+)
+
+#Mix java scala
+scala_library(
+    name = "MixJavaScalaLib",
+    srcs = glob(["src/main/scala/scala/test/mix_java_scala/*.scala"]) + 
+           glob(["src/main/scala/scala/test/mix_java_scala/*.java"]),
+)
+#needed to test java sources are compiled
+scala_binary(
+    name = "MixJavaScalaLibBinary",
+    srcs = ["src/main/scala/scala/test/MixJavaScalaLibBinary.scala"],
+    main_class = "scala.test.MixJavaScalaLibBinary",
+    deps = ["MixJavaScalaLib"],
 )
