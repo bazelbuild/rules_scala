@@ -65,7 +65,7 @@ public class JarHelper {
   }
 
   public static boolean isJar(String name) {
-    return name.endsWith(".jar");
+    return name.endsWith(".jar") && ((new File(name)).isFile());
   }
 
   /**
@@ -178,6 +178,33 @@ public class JarHelper {
   }
 
   /**
+   * This copies the contents of jarFile into out
+   * This is a static method to make it clear what is mutated (and it
+   * was written by someone who really likes to minimize state changes).
+   */
+  static private void copyJar(JarFile nameJf, Set<String> names, JarOutputStream out) throws IOException {
+    byte[] buffer = new byte[2048];
+    for (Enumeration<JarEntry> e = nameJf.entries(); e.hasMoreElements();) {
+      JarEntry existing = e.nextElement();
+      String name = existing.getName();
+      if (!names.contains(name)) {
+        JarEntry outEntry = new JarEntry(name);
+        outEntry.setTime(existing.getTime());
+        outEntry.setSize(existing.getSize());
+        out.putNextEntry(outEntry);
+        InputStream in = nameJf.getInputStream(existing);
+        while (0 < in.available()) {
+          int read = in.read(buffer);
+          out.write(buffer, 0, read);
+        }
+        in.close();
+        out.closeEntry();
+        names.add(name);
+      }
+    }
+  }
+
+  /**
    * Copies file or directory entries from the file system into the jar.
    * Directory entries will be detected and their names automatically '/'
    * suffixed.
@@ -197,31 +224,8 @@ public class JarHelper {
         }
         // Create a new entry
         if (JarHelper.isJar(name)) {
-          byte[] buffer = new byte[2048];
           JarFile nameJf = new JarFile(file);
-          for (Enumeration<JarEntry> e = nameJf.entries(); e.hasMoreElements();) {
-            try {
-              JarEntry existing = e.nextElement();
-              JarEntry outEntry = new JarEntry(existing.getName());
-              outEntry.setTime(existing.getTime());
-              outEntry.setSize(existing.getSize());
-              out.putNextEntry(outEntry);
-              InputStream in = nameJf.getInputStream(existing);
-              while (0 < in.available()){
-                int read = in.read(buffer);
-                out.write(buffer, 0, read);
-              }
-              in.close();
-              out.closeEntry();
-            } catch (ZipException ze) {
-              if (ze.getMessage().contains("duplicate entry")) {
-                // We ignore these and just take the last. I hope the consumers have tests!
-              }
-              else {
-                throw ze;
-              }
-            }
-          }
+          copyJar(nameJf, names, out);
         }
         else {
           long size = isDirectory ? 0 : file.length();

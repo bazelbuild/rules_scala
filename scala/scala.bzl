@@ -233,10 +233,13 @@ def _compile_or_empty(ctx, jars, srcjars, buildijar):
     return struct(ijar=ijar, class_jar=ctx.outputs.jar)
 
 def _build_deployable(ctx, jars):
+  # -m is the argument to pass a manifest to our jar creation code
+  # the next argument is the manifest itself, then the target jars
+  # finally the list of jars to merge
   args = ["-m", ctx.outputs.manifest.path, ctx.outputs.deploy_jar.path]
   args.extend([j.path for j in jars])
   ctx.action(
-      inputs=list(jars) + ctx.files._jdk + ctx.files._jar + [ctx.outputs.manifest],
+      inputs=list(jars) + [ctx.outputs.manifest],
       outputs=[ctx.outputs.deploy_jar],
       executable=ctx.executable._jar_bin,
       mnemonic="ScalaDeployJar",
