@@ -186,6 +186,10 @@ public class JarHelper {
     if (!names.contains(name)) {
       if (!file.exists()) {
         String path = file.getAbsolutePath();
+        // file.exists() may return false even though the file exists if its name contains a
+        // non-ASCII character (see https://bugs.openjdk.java.net/browse/JDK-4733494).
+        // If a file does contain a non-ASCII character, we print a warning here but continue
+        // processing, assuming that the file actually exists.
         if (containsNonAscii(path)) {
           System.err.println("warning: " + path + " contains non-ASCII characters in its name.");
         } else {
