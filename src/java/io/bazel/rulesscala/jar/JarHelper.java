@@ -16,15 +16,18 @@ package io.bazel.rulesscala.jar;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.zip.CRC32;
+import java.util.zip.ZipException;
 
 /**
  * A simple helper class for creating Jar files. All Jar entries are sorted alphabetically. Allows
@@ -59,6 +62,10 @@ public class JarHelper {
 
   public JarHelper(String filename) {
     jarFile = filename;
+  }
+
+  public static boolean isJar(String name) {
+    return name.endsWith(".jar");
   }
 
   /**
@@ -189,24 +196,53 @@ public class JarHelper {
           System.err.println("adding " + file);
         }
         // Create a new entry
-        long size = isDirectory ? 0 : file.length();
-        JarEntry outEntry = new JarEntry(name);
-        long newtime = normalize ? normalizedTimestamp(name) : file.lastModified();
-        outEntry.setTime(newtime);
-        outEntry.setSize(size);
-        if (size == 0L) {
-          outEntry.setMethod(JarEntry.STORED);
-          outEntry.setCrc(0);
-          out.putNextEntry(outEntry);
-        } else {
-          outEntry.setMethod(storageMethod);
-          if (storageMethod == JarEntry.STORED) {
-            outEntry.setCrc(hashFile(file));
+        if (JarHelper.isJar(name)) {
+          byte[] buffer = new byte[2048];
+          JarFile nameJf = new JarFile(file);
+          for (Enumeration<JarEntry> e = nameJf.entries(); e.hasMoreElements();) {
+            try {
+              JarEntry existing = e.nextElement();
+              JarEntry outEntry = new JarEntry(existing.getName());
+              outEntry.setTime(existing.getTime());
+              outEntry.setSize(existing.getSize());
+              out.putNextEntry(outEntry);
+              InputStream in = nameJf.getInputStream(existing);
+              while (0 < in.available()){
+                int read = in.read(buffer);
+                out.write(buffer, 0, read);
+              }
+              in.close();
+              out.closeEntry();
+            } catch (ZipException ze) {
+              if (ze.getMessage().contains("duplicate entry")) {
+                // We ignore these and just take the last. I hope the consumers have tests!
+              }
+              else {
+                throw ze;
+              }
+            }
           }
-          out.putNextEntry(outEntry);
-          Files.copy(file.toPath(), out);
         }
-        out.closeEntry();
+        else {
+          long size = isDirectory ? 0 : file.length();
+          JarEntry outEntry = new JarEntry(name);
+          long newtime = normalize ? normalizedTimestamp(name) : file.lastModified();
+          outEntry.setTime(newtime);
+          outEntry.setSize(size);
+          if (size == 0L) {
+            outEntry.setMethod(JarEntry.STORED);
+            outEntry.setCrc(0);
+            out.putNextEntry(outEntry);
+          } else {
+            outEntry.setMethod(storageMethod);
+            if (storageMethod == JarEntry.STORED) {
+              outEntry.setCrc(hashFile(file));
+            }
+            out.putNextEntry(outEntry);
+            Files.copy(file.toPath(), out);
+          }
+          out.closeEntry();
+        }
       }
     }
   }

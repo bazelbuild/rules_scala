@@ -233,25 +233,15 @@ def _compile_or_empty(ctx, jars, srcjars, buildijar):
     return struct(ijar=ijar, class_jar=ctx.outputs.jar)
 
 def _build_deployable(ctx, jars):
-  cmd = "rm -rf {out}_tmp\n"
-  cmd += "mkdir -p {out}_tmp\n"
-  for jar in jars:
-    cmd += "unzip -o {jar} -d {{out}}_tmp >/dev/null\n".format(jar=jar.path)
-  cmd += "{java} -jar {jar} -m {manifest} {out} {out}_tmp\n"
-  cmd += "rm -rf {out}_tmp\n"
-
-  cmd = cmd.format(
-      out=ctx.outputs.deploy_jar.path,
-      jar=_get_jar_path(ctx.files._jar),
-      java=ctx.file._java.path,
-      manifest=ctx.outputs.manifest.path)
+  args = ["-m", ctx.outputs.manifest.path, ctx.outputs.deploy_jar.path]
+  args.extend([j.path for j in jars])
   ctx.action(
       inputs=list(jars) + ctx.files._jdk + ctx.files._jar + [ctx.outputs.manifest],
       outputs=[ctx.outputs.deploy_jar],
-      command=cmd,
+      executable=ctx.executable._jar_bin,
       mnemonic="ScalaDeployJar",
       progress_message="scala deployable %s" % ctx.label,
-      arguments=[])
+      arguments=args)
 
 def write_manifest(ctx):
   # TODO(bazel-team): I don't think this classpath is what you want
@@ -471,6 +461,7 @@ _implicit_deps = {
   "_java": attr.label(executable=True, default=Label("@bazel_tools//tools/jdk:java"), single_file=True, allow_files=True),
   "_javac": attr.label(executable=True, default=Label("@bazel_tools//tools/jdk:javac"), single_file=True, allow_files=True),
   "_jar": attr.label(executable=True, default=Label("//src/java/io/bazel/rulesscala/jar:jar_deploy.jar"), allow_files=True),
+  "_jar_bin": attr.label(executable=True, default=Label("//src/java/io/bazel/rulesscala/jar")),
   "_jdk": attr.label(default=Label("//tools/defaults:jdk"), allow_files=True),
 }
 

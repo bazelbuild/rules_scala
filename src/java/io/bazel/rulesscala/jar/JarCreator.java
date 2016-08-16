@@ -70,6 +70,9 @@ public class JarCreator extends JarHelper {
     addDirectory(null, new File(directory));
   }
 
+  public void addZip(String name) {
+    jarEntries.put(name, (new File(name)).getAbsolutePath());
+  }
   /**
    * Adds the contents of a directory to the Jar file. All files below this
    * directory will be added to the Jar file using the prefix and the name
@@ -189,7 +192,13 @@ public class JarCreator extends JarHelper {
     JarCreator createJar = new JarCreator(output);
     createJar.setManifestFile(manifestFile);
     for (int i = (idx+1); i < args.length; i++) {
-      createJar.addDirectory(args[i]);
+      String thisName = args[i];
+      if (JarHelper.isJar(thisName)) {
+        createJar.addZip(thisName);
+      }
+      else {
+        createJar.addDirectory(thisName);
+      }
     }
     createJar.setCompression(true);
     createJar.setNormalize(true);
