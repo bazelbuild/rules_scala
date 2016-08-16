@@ -191,7 +191,8 @@ public class JarHelper {
         // If a file does contain a non-ASCII character, we print a warning here but continue
         // processing, assuming that the file actually exists.
         if (containsNonAscii(path)) {
-          System.err.println("warning: " + path + " contains non-ASCII characters in its name.");
+          System.err.println("warning: Excluding file " + path + " because its name contains non-ASCII characters.");
+          return;
         } else {
           throw new FileNotFoundException(path + " (No such file or directory)");
         }
