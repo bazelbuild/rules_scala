@@ -66,12 +66,12 @@ public class JarCreator extends JarHelper {
    *
    * @param directory the directory to add to the jar
    */
-  public void addDirectory(String directory) {
-    addDirectory(null, new File(directory));
+  public void addDirectory(File directory) {
+    addDirectory(null, directory);
   }
 
-  public void addZip(String name) {
-    jarEntries.put(name, (new File(name)).getAbsolutePath());
+  public void addZip(String name, File file) {
+    jarEntries.put(name, file.getAbsolutePath());
   }
   /**
    * Adds the contents of a directory to the Jar file. All files below this
@@ -193,11 +193,12 @@ public class JarCreator extends JarHelper {
     createJar.setManifestFile(manifestFile);
     for (int i = (idx+1); i < args.length; i++) {
       String thisName = args[i];
-      if (JarHelper.isJar(thisName)) {
-        createJar.addZip(thisName);
+      File f = new File(thisName);
+      if (JarHelper.isJar(thisName, f)) {
+        createJar.addZip(thisName, f);
       }
       else {
-        createJar.addDirectory(thisName);
+        createJar.addDirectory(f);
       }
     }
     createJar.setCompression(true);
