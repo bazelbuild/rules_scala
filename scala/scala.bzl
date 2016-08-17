@@ -233,9 +233,18 @@ def _compile_or_empty(ctx, jars, srcjars, buildijar):
     return struct(ijar=ijar, class_jar=ctx.outputs.jar)
 
 def _build_deployable(ctx, jars):
+  # the _jar_bin program we call below expects one optional argument:
   # -m is the argument to pass a manifest to our jar creation code
-  # the next argument is the manifest itself, then the target jars
-  # finally the list of jars to merge
+  # the next argument is the path manifest itself
+  # the manifest is set up by methods that call this function (see usages
+  # of _build_deployable and note that they always first call write_manifest).
+  # that is what creates the manifest content
+  #
+  # following the manifest argument and the manifest, the next argument is
+  # the output path for the target jar
+  #
+  # finally all the rest of the arguments are jars to be flattened into one
+  # fat jar
   args = ["-m", ctx.outputs.manifest.path, ctx.outputs.deploy_jar.path]
   args.extend([j.path for j in jars])
   ctx.action(

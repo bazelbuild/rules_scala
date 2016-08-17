@@ -70,8 +70,8 @@ public class JarCreator extends JarHelper {
     addDirectory(null, directory);
   }
 
-  public void addZip(String name, File file) {
-    jarEntries.put(name, file.getAbsolutePath());
+  public void addJar(File file) {
+    jarEntries.put(file.getAbsolutePath(), file.getAbsolutePath());
   }
   /**
    * Adds the contents of a directory to the Jar file. All files below this
@@ -194,8 +194,8 @@ public class JarCreator extends JarHelper {
     for (int i = (idx+1); i < args.length; i++) {
       String thisName = args[i];
       File f = new File(thisName);
-      if (JarHelper.isJar(thisName, f)) {
-        createJar.addZip(thisName, f);
+      if (JarHelper.isJar(f)) {
+        createJar.addJar(f);
       }
       else {
         createJar.addDirectory(f);

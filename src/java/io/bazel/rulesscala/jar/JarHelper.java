@@ -64,8 +64,8 @@ public class JarHelper {
     jarFile = filename;
   }
 
-  public static boolean isJar(String name, File file) {
-    return name.endsWith(".jar") && (file.isFile());
+  public static boolean isJar(File file) {
+    return file.getName().endsWith(".jar") && (file.isFile());
   }
 
   /**
@@ -223,7 +223,7 @@ public class JarHelper {
           System.err.println("adding " + file);
         }
         // Create a new entry
-        if (JarHelper.isJar(name, file)) {
+        if (JarHelper.isJar(file)) {
           JarFile nameJf = new JarFile(file);
           copyJar(nameJf, names, out);
         }
