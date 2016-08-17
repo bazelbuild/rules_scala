@@ -16,15 +16,18 @@ package io.bazel.rulesscala.jar;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.zip.CRC32;
+import java.util.zip.ZipException;
 
 /**
  * A simple helper class for creating Jar files. All Jar entries are sorted alphabetically. Allows
@@ -59,6 +62,10 @@ public class JarHelper {
 
   public JarHelper(String filename) {
     jarFile = filename;
+  }
+
+  public static boolean isJar(File file) {
+    return file.getName().endsWith(".jar") && (file.isFile());
   }
 
   /**
@@ -171,6 +178,33 @@ public class JarHelper {
   }
 
   /**
+   * This copies the contents of jarFile into out
+   * This is a static method to make it clear what is mutated (and it
+   * was written by someone who really likes to minimize state changes).
+   */
+  static private void copyJar(JarFile nameJf, Set<String> names, JarOutputStream out) throws IOException {
+    byte[] buffer = new byte[2048];
+    for (Enumeration<JarEntry> e = nameJf.entries(); e.hasMoreElements();) {
+      JarEntry existing = e.nextElement();
+      String name = existing.getName();
+      if (!names.contains(name)) {
+        JarEntry outEntry = new JarEntry(name);
+        outEntry.setTime(existing.getTime());
+        outEntry.setSize(existing.getSize());
+        out.putNextEntry(outEntry);
+        InputStream in = nameJf.getInputStream(existing);
+        while (0 < in.available()) {
+          int read = in.read(buffer);
+          out.write(buffer, 0, read);
+        }
+        in.close();
+        out.closeEntry();
+        names.add(name);
+      }
+    }
+  }
+
+  /**
    * Copies file or directory entries from the file system into the jar.
    * Directory entries will be detected and their names automatically '/'
    * suffixed.
@@ -189,24 +223,30 @@ public class JarHelper {
           System.err.println("adding " + file);
         }
         // Create a new entry
-        long size = isDirectory ? 0 : file.length();
-        JarEntry outEntry = new JarEntry(name);
-        long newtime = normalize ? normalizedTimestamp(name) : file.lastModified();
-        outEntry.setTime(newtime);
-        outEntry.setSize(size);
-        if (size == 0L) {
-          outEntry.setMethod(JarEntry.STORED);
-          outEntry.setCrc(0);
-          out.putNextEntry(outEntry);
-        } else {
-          outEntry.setMethod(storageMethod);
-          if (storageMethod == JarEntry.STORED) {
-            outEntry.setCrc(hashFile(file));
-          }
-          out.putNextEntry(outEntry);
-          Files.copy(file.toPath(), out);
+        if (JarHelper.isJar(file)) {
+          JarFile nameJf = new JarFile(file);
+          copyJar(nameJf, names, out);
         }
-        out.closeEntry();
+        else {
+          long size = isDirectory ? 0 : file.length();
+          JarEntry outEntry = new JarEntry(name);
+          long newtime = normalize ? normalizedTimestamp(name) : file.lastModified();
+          outEntry.setTime(newtime);
+          outEntry.setSize(size);
+          if (size == 0L) {
+            outEntry.setMethod(JarEntry.STORED);
+            outEntry.setCrc(0);
+            out.putNextEntry(outEntry);
+          } else {
+            outEntry.setMethod(storageMethod);
+            if (storageMethod == JarEntry.STORED) {
+              outEntry.setCrc(hashFile(file));
+            }
+            out.putNextEntry(outEntry);
+            Files.copy(file.toPath(), out);
+          }
+          out.closeEntry();
+        }
       }
     }
   }

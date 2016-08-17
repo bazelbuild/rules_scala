@@ -66,10 +66,13 @@ public class JarCreator extends JarHelper {
    *
    * @param directory the directory to add to the jar
    */
-  public void addDirectory(String directory) {
-    addDirectory(null, new File(directory));
+  public void addDirectory(File directory) {
+    addDirectory(null, directory);
   }
 
+  public void addJar(File file) {
+    jarEntries.put(file.getAbsolutePath(), file.getAbsolutePath());
+  }
   /**
    * Adds the contents of a directory to the Jar file. All files below this
    * directory will be added to the Jar file using the prefix and the name
@@ -189,7 +192,14 @@ public class JarCreator extends JarHelper {
     JarCreator createJar = new JarCreator(output);
     createJar.setManifestFile(manifestFile);
     for (int i = (idx+1); i < args.length; i++) {
-      createJar.addDirectory(args[i]);
+      String thisName = args[i];
+      File f = new File(thisName);
+      if (JarHelper.isJar(f)) {
+        createJar.addJar(f);
+      }
+      else {
+        createJar.addDirectory(f);
+      }
     }
     createJar.setCompression(true);
     createJar.setNormalize(true);
