@@ -462,6 +462,17 @@ def _scala_test_impl(ctx):
   _write_test_launcher(ctx, rjars)
   return _scala_binary_common(ctx, cjars, rjars)
 
+def _scala_specs2_test_impl(ctx):
+  deps = ctx.attr.deps
+  deps += [ctx.attr._scalatest_reporter]
+  jars = _collect_jars(deps)
+  (cjars, rjars) = (jars.compiletime, jars.runtime)
+  cjars += [ctx.file._scalareflect, ctx.file._specs2, ctx.file._scalaxml]
+  rjars += [ctx.outputs.jar, ctx.file._scalalib, ctx.file._scalareflect, ctx.file._specs2, ctx.file._scalaxml]
+  rjars += _collect_jars(ctx.attr.runtime_deps).runtime
+  _write_test_launcher(ctx, rjars)
+  return _scala_binary_common(ctx, cjars, rjars)
+
 _implicit_deps = {
   "_ijar": attr.label(executable=True, default=Label("@bazel_tools//tools/jdk:ijar"), single_file=True, allow_files=True),
   "_scala": attr.label(executable=True, default=Label("@scala//:bin/scala"), single_file=True, allow_files=True),
@@ -548,6 +559,23 @@ scala_test = rule(
   test=True,
 )
 
+scala_specs_test = rule(
+  implementation=_scala_specs2_test_impl,
+  attrs={
+     "main_class": attr.string(default="specs2.run"),
+     "suites": attr.string_list(),
+     "_specs2": attr.label(executable=True, default=Label("@specs2//file"), single_file=True, allow_files=True),
+     "_scalatest_reporter": attr.label(default=Label("//scala/support:test_reporter")),
+     } + _implicit_deps + _common_attrs,
+  outputs={
+     "jar": "%{name}.jar",
+     "deploy_jar": "%{name}_deploy.jar",
+     "manifest": "%{name}_MANIFEST.MF",
+     },
+  executable=True,
+  test=True,
+  )
+
 scala_repl = rule(
   implementation=_scala_repl_impl,
   attrs= _implicit_deps + _common_attrs,
@@ -609,6 +637,11 @@ def scala_repositories():
     name = "scalatest",
     url = "http://bazel-mirror.storage.googleapis.com/oss.sonatype.org/content/groups/public/org/scalatest/scalatest_2.11/2.2.6/scalatest_2.11-2.2.6.jar",
     sha256 = "f198967436a5e7a69cfd182902adcfbcb9f2e41b349e1a5c8881a2407f615962",
+  )
+  native.http_file(
+      name = "specs2",
+      url = "https://oss.sonatype.org/service/local/repositories/releases/content/org/specs2/specs2_2.11/3.3.1/specs2_2.11-3.3.1.jar",
+      #sha256 = ""
   )
 
 def scala_export_to_java(name, exports, runtime_deps):
