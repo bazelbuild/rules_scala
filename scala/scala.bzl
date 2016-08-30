@@ -564,7 +564,7 @@ scala_specs_test = rule(
   attrs={
      "main_class": attr.string(default="specs2.run"),
      "suites": attr.string_list(),
-     "_specs2": attr.label(executable=True, default=Label("@specs2//file"), single_file=True, allow_files=True),
+     "_specs2": attr.label(executable=True, default=Label("@specs2_core//jar:file"), single_file=True, allow_files=True),
      "_scalatest_reporter": attr.label(default=Label("//scala/support:test_reporter")),
      } + _implicit_deps + _common_attrs,
   outputs={
@@ -638,11 +638,7 @@ def scala_repositories():
     url = "http://bazel-mirror.storage.googleapis.com/oss.sonatype.org/content/groups/public/org/scalatest/scalatest_2.11/2.2.6/scalatest_2.11-2.2.6.jar",
     sha256 = "f198967436a5e7a69cfd182902adcfbcb9f2e41b349e1a5c8881a2407f615962",
   )
-  native.http_file(
-      name = "specs2",
-      url = "https://oss.sonatype.org/service/local/repositories/releases/content/org/specs2/specs2_2.11/3.3.1/specs2_2.11-3.3.1.jar",
-      #sha256 = ""
-  )
+
 
 def scala_export_to_java(name, exports, runtime_deps):
   jars = []
