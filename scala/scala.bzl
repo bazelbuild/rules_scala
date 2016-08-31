@@ -303,6 +303,7 @@ def _write_specs_launcher(ctx, jars):
 
   cmd = "{java} -cp {cp} specs2.run"
 
+  # read all *Spec.class files from the jar and run a specs2 runner on each one separately
   content = """#!/bin/bash
 jar -tf greeter_specs2.jar | grep 'Spec.class$' | sed 's~/~.~g;s/.\{6\}$//' | xargs -n1 """
 
