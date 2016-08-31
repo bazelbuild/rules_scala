@@ -297,6 +297,22 @@ def _write_test_launcher(ctx, jars):
       output=ctx.outputs.executable,
       content=content)
 
+def _write_specs_launcher(ctx, jars):
+  if len(ctx.attr.suites) != 0:
+    print("suites attribute is deprecated. All scalatest test suites are run")
+
+  content = """#!/bin/bash
+{java} -cp {cp} {name} "$@"
+"""
+  content = content.format(
+      java=ctx.file._java.short_path,
+      cp=":".join([j.short_path for j in jars]),
+      name=ctx.attr.main_class)
+  print(content)
+  ctx.file_action(
+      output=ctx.outputs.executable,
+      content=content)
+
 def collect_srcjars(targets):
   srcjars = set()
   for target in targets:
@@ -462,38 +478,18 @@ def _scala_test_impl(ctx):
   _write_test_launcher(ctx, rjars)
   return _scala_binary_common(ctx, cjars, rjars)
 
-_specs2_deps = {
-  "_specs2": attr.label(executable=True, default=Label("@specs2_core//jar:file"), single_file=True, allow_files=True),
-  "org_specs2_specs2_common_2_11": attr.label(executable=True, default=Label("@org_specs2_specs2_common_2_11//jar:file"), single_file=True, allow_files=True),
-  "org_scalaz_scalaz_core_2_11": attr.label(executable=True, default=Label("@org_scalaz_scalaz_core_2_11//jar:file"), single_file=True, allow_files=True),
-  "org_scala_lang_modules_scala_parser_combinators_2_11": attr.label(executable=True, default=Label("@org_scala_lang_modules_scala_parser_combinators_2_11//jar:file"), single_file=True, allow_files=True),
-  "org_specs2_specs2_codata_2_11": attr.label(executable=True, default=Label("@org_specs2_specs2_codata_2_11//jar:file"), single_file=True, allow_files=True),
-  "org_scala_lang_scala_reflect": attr.label(executable=True, default=Label("@org_scala_lang_scala_reflect//jar:file"), single_file=True, allow_files=True),
-  "org_specs2_specs2_matcher_2_11": attr.label(executable=True, default=Label("@org_specs2_specs2_matcher_2_11//jar:file"), single_file=True, allow_files=True),
-  "org_scala_lang_modules_scala_xml_2_11": attr.label(executable=True, default=Label("@org_scala_lang_modules_scala_xml_2_11//jar:file"), single_file=True, allow_files=True),
-  "org_scala_lang_scala_library": attr.label(executable=True, default=Label("@org_scala_lang_scala_library//jar:file"), single_file=True, allow_files=True),
-  "org_scalaz_scalaz_concurrent_2_11": attr.label(executable=True, default=Label("@org_scalaz_scalaz_concurrent_2_11//jar:file"), single_file=True, allow_files=True),
-  "org_scalaz_scalaz_effect_2_11": attr.label(executable=True, default=Label("@org_scalaz_scalaz_effect_2_11//jar:file"), single_file=True, allow_files=True),
-}
-
-def collect_specs2_deps(files):
-  specs2_deps = []
-  for key in _specs2_deps.keys():
-    specs2_deps += [getattr(files,key)]
-  return specs2_deps
-
 def _scala_specs2_test_impl(ctx):
   deps = ctx.attr.deps
   deps += [ctx.attr._scalatest_reporter]
-  specs2_deps = collect_specs2_deps(ctx.file)
   jars = _collect_jars(deps)
   (cjars, rjars) = (jars.compiletime, jars.runtime)
   cjars += [ctx.file._scalareflect, ctx.file._scalaxml]
   rjars += [ctx.outputs.jar, ctx.file._scalalib, ctx.file._scalareflect, ctx.file._scalaxml]
   rjars += _collect_jars(ctx.attr.runtime_deps).runtime
-  cjars += specs2_deps
-  rjars += specs2_deps
-  _write_test_launcher(ctx, rjars)
+  # Add all jars required for specs2 to runtime and compile time classpath
+  cjars += ctx.attr._specs2_all.java.transitive_runtime_deps
+  rjars += ctx.attr._specs2_all.java.transitive_runtime_deps
+  _write_specs_launcher(ctx, rjars)
   return _scala_binary_common(ctx, cjars, rjars)
 
 _implicit_deps = {
@@ -586,8 +582,9 @@ scala_specs_test = rule(
   attrs={
      "main_class": attr.string(default="specs2.run"),
      "suites": attr.string_list(),
+     "_specs2_all": attr.label(default=Label("//specs2:specs2_all"), allow_files=True),
      "_scalatest_reporter": attr.label(default=Label("//scala/support:test_reporter")),
-     } + _implicit_deps + _common_attrs + _specs2_deps,
+     } + _implicit_deps + _common_attrs,
   outputs={
      "jar": "%{name}.jar",
      "deploy_jar": "%{name}_deploy.jar",

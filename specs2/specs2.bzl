@@ -90,21 +90,3 @@ def specs2():
       artifact = "org.scalaz:scalaz-effect_2.11:7.2.3",
       sha1 = "8ab944e32781a44f2aecba99d392c3142b25af1c",
   )
-
-#  native.java_import(
-#             name = "specs2_all",
-#             visibility = ["//visibility:public"],
-#             exports = [
-#                 "@org_specs2_specs2_core_2_11//jar",
-#                 "@org_scala_lang_modules_scala_parser_combinators_2_11//jar",
-#                 "@org_scala_lang_modules_scala_xml_2_11//jar",
-#                 "@org_scala_lang_scala_library//jar",
-#                 "@org_scala_lang_scala_reflect//jar",
-#                 "@org_scalaz_scalaz_concurrent_2_11//jar",
-#                 "@org_scalaz_scalaz_core_2_11//jar",
-#                 "@org_scalaz_scalaz_effect_2_11//jar",
-#                 "@org_specs2_specs2_codata_2_11//jar",
-#                 "@org_specs2_specs2_common_2_11//jar",
-#                 "@org_specs2_specs2_matcher_2_11//jar",
-#             ],
-#         )
