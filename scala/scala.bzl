@@ -462,14 +462,29 @@ def _scala_test_impl(ctx):
   _write_test_launcher(ctx, rjars)
   return _scala_binary_common(ctx, cjars, rjars)
 
+_specs2_deps = {
+  "_specs2": attr.label(executable=True, default=Label("@specs2_core//jar:file"), single_file=True, allow_files=True),
+  "_specs2_common": attr.label(executable=True, default=Label("@org_specs2_specs2_common_2_11//jar:file"), single_file=True, allow_files=True),
+  "_specs2_scalaz_core": attr.label(executable=True, default=Label("@org_scalaz_scalaz_core_2_11//jar:file"), single_file=True, allow_files=True),
+}
+
+def collect_specs2_deps(files):
+  specs2_deps = []
+  for key in _specs2_deps.keys():
+    specs2_deps += [getattr(files,key)]
+  return specs2_deps
+
 def _scala_specs2_test_impl(ctx):
   deps = ctx.attr.deps
   deps += [ctx.attr._scalatest_reporter]
+  specs2_deps = collect_specs2_deps(ctx.file)
   jars = _collect_jars(deps)
   (cjars, rjars) = (jars.compiletime, jars.runtime)
-  cjars += [ctx.file._scalareflect, ctx.file._specs2, ctx.file._scalaxml]
-  rjars += [ctx.outputs.jar, ctx.file._scalalib, ctx.file._scalareflect, ctx.file._specs2, ctx.file._scalaxml]
+  cjars += [ctx.file._scalareflect, ctx.file._scalaxml]
+  rjars += [ctx.outputs.jar, ctx.file._scalalib, ctx.file._scalareflect, ctx.file._scalaxml]
   rjars += _collect_jars(ctx.attr.runtime_deps).runtime
+  cjars += specs2_deps
+  rjars += specs2_deps
   _write_test_launcher(ctx, rjars)
   return _scala_binary_common(ctx, cjars, rjars)
 
@@ -487,7 +502,6 @@ _implicit_deps = {
   "_jar_bin": attr.label(executable=True, default=Label("//src/java/io/bazel/rulesscala/jar")),
   "_jdk": attr.label(default=Label("//tools/defaults:jdk"), allow_files=True),
 }
-
 # Common attributes reused across multiple rules.
 _common_attrs = {
   "srcs": attr.label_list(
@@ -564,9 +578,8 @@ scala_specs_test = rule(
   attrs={
      "main_class": attr.string(default="specs2.run"),
      "suites": attr.string_list(),
-     "_specs2": attr.label(executable=True, default=Label("@specs2_core//jar:file"), single_file=True, allow_files=True),
      "_scalatest_reporter": attr.label(default=Label("//scala/support:test_reporter")),
-     } + _implicit_deps + _common_attrs,
+     } + _implicit_deps + _common_attrs + _specs2_deps,
   outputs={
      "jar": "%{name}.jar",
      "deploy_jar": "%{name}_deploy.jar",
