@@ -301,14 +301,19 @@ def _write_specs_launcher(ctx, jars):
   if len(ctx.attr.suites) != 0:
     print("suites attribute is deprecated. All scalatest test suites are run")
 
+  cmd = "{java} -cp {cp} specs2.run"
+
   content = """#!/bin/bash
-{java} -cp {cp} {name} "$@"
-"""
-  content = content.format(
+jar -tf greeter_specs2.jar | grep 'Spec.class$' | sed 's~/~.~g;s/.\{6\}$//' | xargs -n1 """
+
+  cmd = cmd.format(
       java=ctx.file._java.short_path,
-      cp=":".join([j.short_path for j in jars]),
-      name=ctx.attr.main_class)
+      cp=":".join([j.short_path for j in jars]))
+
+  content = content + cmd
+
   print(content)
+
   ctx.file_action(
       output=ctx.outputs.executable,
       content=content)
