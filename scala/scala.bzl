@@ -464,8 +464,16 @@ def _scala_test_impl(ctx):
 
 _specs2_deps = {
   "_specs2": attr.label(executable=True, default=Label("@specs2_core//jar:file"), single_file=True, allow_files=True),
-  "_specs2_common": attr.label(executable=True, default=Label("@org_specs2_specs2_common_2_11//jar:file"), single_file=True, allow_files=True),
-  "_specs2_scalaz_core": attr.label(executable=True, default=Label("@org_scalaz_scalaz_core_2_11//jar:file"), single_file=True, allow_files=True),
+  "org_specs2_specs2_common_2_11": attr.label(executable=True, default=Label("@org_specs2_specs2_common_2_11//jar:file"), single_file=True, allow_files=True),
+  "org_scalaz_scalaz_core_2_11": attr.label(executable=True, default=Label("@org_scalaz_scalaz_core_2_11//jar:file"), single_file=True, allow_files=True),
+  "org_scala_lang_modules_scala_parser_combinators_2_11": attr.label(executable=True, default=Label("@org_scala_lang_modules_scala_parser_combinators_2_11//jar:file"), single_file=True, allow_files=True),
+  "org_specs2_specs2_codata_2_11": attr.label(executable=True, default=Label("@org_specs2_specs2_codata_2_11//jar:file"), single_file=True, allow_files=True),
+  "org_scala_lang_scala_reflect": attr.label(executable=True, default=Label("@org_scala_lang_scala_reflect//jar:file"), single_file=True, allow_files=True),
+  "org_specs2_specs2_matcher_2_11": attr.label(executable=True, default=Label("@org_specs2_specs2_matcher_2_11//jar:file"), single_file=True, allow_files=True),
+  "org_scala_lang_modules_scala_xml_2_11": attr.label(executable=True, default=Label("@org_scala_lang_modules_scala_xml_2_11//jar:file"), single_file=True, allow_files=True),
+  "org_scala_lang_scala_library": attr.label(executable=True, default=Label("@org_scala_lang_scala_library//jar:file"), single_file=True, allow_files=True),
+  "org_scalaz_scalaz_concurrent_2_11": attr.label(executable=True, default=Label("@org_scalaz_scalaz_concurrent_2_11//jar:file"), single_file=True, allow_files=True),
+  "org_scalaz_scalaz_effect_2_11": attr.label(executable=True, default=Label("@org_scalaz_scalaz_effect_2_11//jar:file"), single_file=True, allow_files=True),
 }
 
 def collect_specs2_deps(files):
