@@ -25,7 +25,7 @@ def specs2():
   )
 
   native.maven_jar(
-      name = "specs2_core",
+      name = "org_specs2_specs2_core_2_11",
       artifact = "org.specs2:specs2-core_2.11:3.8.4",
   )
 
@@ -89,4 +89,24 @@ def specs2():
       name = "org_scalaz_scalaz_effect_2_11",
       artifact = "org.scalaz:scalaz-effect_2.11:7.2.3",
       sha1 = "8ab944e32781a44f2aecba99d392c3142b25af1c",
+  )
+
+  # Aditional dependencies for specs2 junit runner
+  native.maven_jar(
+      name = "org_specs2_specs2_junit_2_11",
+      artifact = "org.specs2:specs2-junit_2.11:3.8.4",
+  )
+
+  # org.specs2:specs2-junit_2.11:jar:3.8.4
+  native.maven_jar(
+      name = "junit_junit",
+      artifact = "junit:junit:4.12",
+      sha1 = "2973d150c0dc1fefe998f834810d68f278ea58ec",
+  )
+
+  # junit:junit:jar:4.12
+  native.maven_jar(
+      name = "org_hamcrest_hamcrest_core",
+      artifact = "org.hamcrest:hamcrest-core:1.3",
+      sha1 = "42a25dc3219429f0e5d060061f71acb49bf010a0",
   )
