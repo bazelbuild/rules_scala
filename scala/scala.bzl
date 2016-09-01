@@ -299,10 +299,8 @@ def _write_test_launcher(ctx, jars):
 
 def _write_specs2_launcher(ctx, jars):
   cmd = "{n1} {java} -cp {cp} {test_runner}"
-
   runner = ctx.attr.main_class
-
-  # -n1 will execute a the runner separately for each test - we do this only for specs2.run
+  # -n1 - a parameter for xargs that we need to run specs2.run tests. It will execute runner separately for each test.
   n1 = " -n1" if runner.strip() == "specs2.run" else ""
 
   # read all *Spec.class files from the jar and run them
