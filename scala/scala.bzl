@@ -301,19 +301,24 @@ def _write_specs_launcher(ctx, jars):
   if len(ctx.attr.suites) != 0:
     print("suites attribute is deprecated. All scalatest test suites are run")
 
-  cmd = "{java} -cp {cp} specs2.run"
+  cmd = "{n1} {java} -cp {cp} {test_runner}"
 
-  # read all *Spec.class files from the jar and run a specs2 runner on each one separately
+  runner = ctx.attr.main_class
+
+  # -n1 will execute a the runner separately for each test - we do this only for specs2.run
+  n1 = " -n1" if runner.strip() == "specs2.run" else ""
+
+  # read all *Spec.class files from the jar and run them
   content = """#!/bin/bash
-jar -tf greeter_specs2.jar | grep 'Spec.class$' | sed 's~/~.~g;s/.\{6\}$//' | xargs -n1 """
+jar -tf """+ ctx.outputs.jar.short_path + """ | grep 'Spec.class$' | sed 's~/~.~g;s/.\{6\}$//' | xargs """
 
   cmd = cmd.format(
+      n1 = n1,
+      test_runner = ctx.attr.main_class,
       java=ctx.file._java.short_path,
       cp=":".join([j.short_path for j in jars]))
 
   content = content + cmd
-
-  print(content)
 
   ctx.file_action(
       output=ctx.outputs.executable,
@@ -583,12 +588,29 @@ scala_test = rule(
   test=True,
 )
 
-scala_specs_test = rule(
+scala_specs2_test = rule(
   implementation=_scala_specs2_test_impl,
   attrs={
      "main_class": attr.string(default="specs2.run"),
      "suites": attr.string_list(),
      "_specs2_all": attr.label(default=Label("//specs2:specs2_all"), allow_files=True),
+     "_scalatest_reporter": attr.label(default=Label("//scala/support:test_reporter")),
+     } + _implicit_deps + _common_attrs,
+  outputs={
+     "jar": "%{name}.jar",
+     "deploy_jar": "%{name}_deploy.jar",
+     "manifest": "%{name}_MANIFEST.MF",
+     },
+  executable=True,
+  test=True,
+  )
+
+scala_specs2_junit_test = rule(
+  implementation=_scala_specs2_test_impl,
+  attrs={
+     "main_class": attr.string(default="org.junit.runner.JUnitCore"),
+     "suites": attr.string_list(),
+     "_specs2_all": attr.label(default=Label("//specs2:specs2_with_junit"), allow_files=True),
      "_scalatest_reporter": attr.label(default=Label("//scala/support:test_reporter")),
      } + _implicit_deps + _common_attrs,
   outputs={
