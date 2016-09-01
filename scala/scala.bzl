@@ -297,10 +297,7 @@ def _write_test_launcher(ctx, jars):
       output=ctx.outputs.executable,
       content=content)
 
-def _write_specs_launcher(ctx, jars):
-  if len(ctx.attr.suites) != 0:
-    print("suites attribute is deprecated. All scalatest test suites are run")
-
+def _write_specs2_launcher(ctx, jars):
   cmd = "{n1} {java} -cp {cp} {test_runner}"
 
   runner = ctx.attr.main_class
@@ -500,7 +497,7 @@ def _scala_specs2_test_impl(ctx):
   # Add all jars required for specs2 to runtime and compile time classpath
   cjars += ctx.attr._specs2_all.java.transitive_runtime_deps
   rjars += ctx.attr._specs2_all.java.transitive_runtime_deps
-  _write_specs_launcher(ctx, rjars)
+  _write_specs2_launcher(ctx, rjars)
   return _scala_binary_common(ctx, cjars, rjars)
 
 _implicit_deps = {
@@ -592,7 +589,6 @@ scala_specs2_test = rule(
   implementation=_scala_specs2_test_impl,
   attrs={
      "main_class": attr.string(default="specs2.run"),
-     "suites": attr.string_list(),
      "_specs2_all": attr.label(default=Label("//specs2:specs2_all"), allow_files=True),
      "_scalatest_reporter": attr.label(default=Label("//scala/support:test_reporter")),
      } + _implicit_deps + _common_attrs,
@@ -609,7 +605,6 @@ scala_specs2_junit_test = rule(
   implementation=_scala_specs2_test_impl,
   attrs={
      "main_class": attr.string(default="org.junit.runner.JUnitCore"),
-     "suites": attr.string_list(),
      "_specs2_all": attr.label(default=Label("//specs2:specs2_with_junit"), allow_files=True),
      "_scalatest_reporter": attr.label(default=Label("//scala/support:test_reporter")),
      } + _implicit_deps + _common_attrs,
