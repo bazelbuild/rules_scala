@@ -486,11 +486,9 @@ def _scala_test_impl(ctx):
 
 def _scala_specs2_test_impl(ctx):
   deps = ctx.attr.deps
-  deps += [ctx.attr._scalatest_reporter]
   jars = _collect_jars(deps)
   (cjars, rjars) = (jars.compiletime, jars.runtime)
-  cjars += [ctx.file._scalareflect, ctx.file._scalaxml]
-  rjars += [ctx.outputs.jar, ctx.file._scalalib, ctx.file._scalareflect, ctx.file._scalaxml]
+  rjars += [ctx.outputs.jar]
   rjars += _collect_jars(ctx.attr.runtime_deps).runtime
   # Add all jars required for specs2 to runtime and compile time classpath
   cjars += ctx.attr._specs2_all.java.transitive_runtime_deps
@@ -588,7 +586,6 @@ scala_specs2_test = rule(
   attrs={
      "main_class": attr.string(default="specs2.run"),
      "_specs2_all": attr.label(default=Label("//specs2:specs2_all"), allow_files=True),
-     "_scalatest_reporter": attr.label(default=Label("//scala/support:test_reporter")),
      } + _implicit_deps + _common_attrs,
   outputs={
      "jar": "%{name}.jar",
@@ -604,7 +601,6 @@ scala_specs2_junit_test = rule(
   attrs={
      "main_class": attr.string(default="org.junit.runner.JUnitCore"),
      "_specs2_all": attr.label(default=Label("//specs2:specs2_with_junit"), allow_files=True),
-     "_scalatest_reporter": attr.label(default=Label("//scala/support:test_reporter")),
      } + _implicit_deps + _common_attrs,
   outputs={
      "jar": "%{name}.jar",
