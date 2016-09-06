@@ -38,7 +38,7 @@ Then in your BUILD file just add the following so the rules will be available:
 ```python
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_library", "scala_binary", "scala_test")
 ```
-You may wish to have these rules loaded by default using bazel's prelude. You can add the above to the file `tools/build_rules/prelude_bazel` in your repo (don't forget to have a, possible empty, BUILD file there) and then it will be automatically prepended to every BUILD file in the workspace.
+You may wish to have these rules loaded by default using bazel's prelude. You can add the above to the file `tools/build_rules/prelude_bazel` in your repo (don't forget to have a, possibly empty, BUILD file there) and then it will be automatically prepended to every BUILD file in the workspace.
 
 [scala]: http://www.scala-lang.org/
 
