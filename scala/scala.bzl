@@ -297,6 +297,28 @@ def _write_test_launcher(ctx, jars):
       output=ctx.outputs.executable,
       content=content)
 
+def _write_specs2_launcher(ctx, jars):
+  cmd = "{n1} {java} -cp {cp} {test_runner}"
+  runner = ctx.attr.main_class
+  # -n1 - a parameter for xargs that we need to run specs2.run tests. It will execute runner separately for each test.
+  n1 = " -n1" if runner.strip() == "specs2.run" else ""
+
+  # read all *Spec.class files from the jar and run them
+  content = """#!/bin/bash
+jar -tf """+ ctx.outputs.jar.short_path + """ | grep 'Spec.class$' | sed 's~/~.~g;s/.\{6\}$//' | xargs """
+
+  cmd = cmd.format(
+      n1 = n1,
+      test_runner = ctx.attr.main_class,
+      java=ctx.file._java.short_path,
+      cp=":".join([j.short_path for j in jars]))
+
+  content = content + cmd
+
+  ctx.file_action(
+      output=ctx.outputs.executable,
+      content=content)
+
 def collect_srcjars(targets):
   srcjars = set()
   for target in targets:
@@ -462,6 +484,18 @@ def _scala_test_impl(ctx):
   _write_test_launcher(ctx, rjars)
   return _scala_binary_common(ctx, cjars, rjars)
 
+def _scala_specs2_test_impl(ctx):
+  deps = ctx.attr.deps
+  jars = _collect_jars(deps)
+  (cjars, rjars) = (jars.compiletime, jars.runtime)
+  rjars += [ctx.outputs.jar]
+  rjars += _collect_jars(ctx.attr.runtime_deps).runtime
+  # Add all jars required for specs2 to runtime and compile time classpath
+  cjars += ctx.attr._specs2_all.java.transitive_runtime_deps
+  rjars += ctx.attr._specs2_all.java.transitive_runtime_deps
+  _write_specs2_launcher(ctx, rjars)
+  return _scala_binary_common(ctx, cjars, rjars)
+
 _implicit_deps = {
   "_ijar": attr.label(executable=True, default=Label("@bazel_tools//tools/jdk:ijar"), single_file=True, allow_files=True),
   "_scala": attr.label(executable=True, default=Label("@scala//:bin/scala"), single_file=True, allow_files=True),
@@ -476,7 +510,6 @@ _implicit_deps = {
   "_jar_bin": attr.label(executable=True, default=Label("//src/java/io/bazel/rulesscala/jar")),
   "_jdk": attr.label(default=Label("//tools/defaults:jdk"), allow_files=True),
 }
-
 # Common attributes reused across multiple rules.
 _common_attrs = {
   "srcs": attr.label_list(
@@ -548,6 +581,36 @@ scala_test = rule(
   test=True,
 )
 
+scala_specs2_test = rule(
+  implementation=_scala_specs2_test_impl,
+  attrs={
+     "main_class": attr.string(default="specs2.run"),
+     "_specs2_all": attr.label(default=Label("//specs2:specs2_all"), allow_files=True),
+     } + _implicit_deps + _common_attrs,
+  outputs={
+     "jar": "%{name}.jar",
+     "deploy_jar": "%{name}_deploy.jar",
+     "manifest": "%{name}_MANIFEST.MF",
+     },
+  executable=True,
+  test=True,
+  )
+
+scala_specs2_junit_test = rule(
+  implementation=_scala_specs2_test_impl,
+  attrs={
+     "main_class": attr.string(default="org.junit.runner.JUnitCore"),
+     "_specs2_all": attr.label(default=Label("//specs2:specs2_with_junit"), allow_files=True),
+     } + _implicit_deps + _common_attrs,
+  outputs={
+     "jar": "%{name}.jar",
+     "deploy_jar": "%{name}_deploy.jar",
+     "manifest": "%{name}_MANIFEST.MF",
+     },
+  executable=True,
+  test=True,
+  )
+
 scala_repl = rule(
   implementation=_scala_repl_impl,
   attrs= _implicit_deps + _common_attrs,
@@ -610,6 +673,7 @@ def scala_repositories():
     url = "http://bazel-mirror.storage.googleapis.com/oss.sonatype.org/content/groups/public/org/scalatest/scalatest_2.11/2.2.6/scalatest_2.11-2.2.6.jar",
     sha256 = "f198967436a5e7a69cfd182902adcfbcb9f2e41b349e1a5c8881a2407f615962",
   )
+
 
 def scala_export_to_java(name, exports, runtime_deps):
   jars = []

@@ -1,5 +1,8 @@
 workspace(name = "io_bazel_rules_scala")
 
+load("//specs2:specs2.bzl", "specs2")
+specs2()
+
 load("//scala:scala.bzl", "scala_repositories", "scala_mvn_artifact")
 scala_repositories()
 
