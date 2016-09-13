@@ -207,8 +207,18 @@ SourceJars: {srcjars}
         mnemonic="Scalac",
         progress_message="scala %s" % ctx.label,
         execution_requirements={"supports-workers": "1"},
+        #  when we run with a worker, the `@argfile.path` is removed and passed
+        #  line by line as arguments in the protobuf. In that case,
+        #  the rest of the arguments are passed to the process that
+        #  starts up and stays resident.
+
+        # In either case (worker or not), they will be jvm flags which will
+        # be correctly handled since the executable is a jvm app that will
+        # consume the flags on startup.
+
         arguments=list(ctx.attr.jvm_flags) + ["@" + argfile.path],
       )
+
 
 def _compile_or_empty(ctx, jars, srcjars, buildijar):
     # We assume that if a srcjar is present, it is not empty
