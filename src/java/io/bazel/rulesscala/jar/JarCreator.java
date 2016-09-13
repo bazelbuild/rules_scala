@@ -189,7 +189,14 @@ public class JarCreator extends JarHelper {
     JarCreator createJar = new JarCreator(output);
     createJar.setManifestFile(manifestFile);
     for (int i = (idx+1); i < args.length; i++) {
-      createJar.addDirectory(args[i]);
+      String thisName = args[i];
+      File f = new File(thisName);
+      if (JarHelper.isJar(f)) {
+        createJar.addJar(f);
+      }
+      else {
+        createJar.addDirectory(f);
+      }
     }
     createJar.setCompression(true);
     createJar.setNormalize(true);

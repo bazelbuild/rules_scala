@@ -163,7 +163,6 @@ SourceJars: {srcjars}
 JavacPath: {javac_path}
 JavacOpts: {javac_opts}
 JavaFiles: {java_files}
-JvmFlags: {jvm_flags}
 ResourceSrcs: {resource_src}
 ResourceDests: {resource_dest}
 """.format(
@@ -180,11 +179,11 @@ ResourceDests: {resource_dest}
         javac_opts=" ".join(ctx.attr.javacopts),
         javac_path=ctx.file._javac.path,
         java_files=",".join([f.path for f in java_srcs]),
-        jvm_flags=" ".join(["-J" + flag for flag in ctx.attr.jvm_flags]),
         resource_src=",".join([f.path for f in ctx.files.resources]),
-        resource_dest=",".join([_adjust_resources_path(f.path)[1] for f in ctx.files.resources]),
+        resource_dest=",".join(
+          [_adjust_resources_path(f.path)[1] for f in ctx.files.resources]
+          ),
         )
-    # TODO why this path here?
     argfile = ctx.new_file(
       ctx.outputs.jar,
       "%s_worker_input" % ctx.label.name
@@ -214,7 +213,7 @@ ResourceDests: {resource_dest}
         mnemonic="Scalac",
         progress_message="scala %s" % ctx.label,
         execution_requirements={"supports-workers": "1"},
-        arguments=["@" + argfile.path],
+        arguments=list(ctx.attr.jvm_flags) + ["@" + argfile.path],
       )
 
 def _compile_or_empty(ctx, jars, srcjars, buildijar):
@@ -496,8 +495,8 @@ _implicit_deps = {
   "_scalareflect": attr.label(default=Label("@scala//:lib/scala-reflect.jar"), single_file=True, allow_files=True),
   "_java": attr.label(executable=True, default=Label("@bazel_tools//tools/jdk:java"), single_file=True, allow_files=True),
   "_javac": attr.label(executable=True, default=Label("@bazel_tools//tools/jdk:javac"), single_file=True, allow_files=True),
-  "_jar": attr.label(executable=True, default=Label("//src/java/io/bazel/rulesscala/jar:jar_deploy.jar"), allow_files=True),
-  "_jar_bin": attr.label(executable=True, default=Label("//src/java/io/bazel/rulesscala/jar")),
+  "_jar": attr.label(executable=True, default=Label("//src/java/io/bazel/rulesscala/jar:binary_deploy.jar"), allow_files=True),
+  "_jar_bin": attr.label(executable=True, default=Label("//src/java/io/bazel/rulesscala/jar:binary")),
   "_jdk": attr.label(default=Label("//tools/defaults:jdk"), allow_files=True),
 }
 
