@@ -174,7 +174,7 @@ SourceJars: {srcjars}
         javac_opts=" ".join(ctx.attr.javacopts),
         javac_path=ctx.file._javac.path,
         java_files=",".join([f.path for f in java_srcs]),
-        jvm_flags=" ".join(["-J" + flag for flag in ctx.attr.jvm_flags]),
+        jvm_flags=" ".join(ctx.attr.jvm_flags),
         resource_src=",".join([f.path for f in ctx.files.resources]),
         resource_dest=",".join(
           [_adjust_resources_path(f.path)[1] for f in ctx.files.resources]
@@ -218,7 +218,7 @@ SourceJars: {srcjars}
         # be correctly handled since the executable is a jvm app that will
         # consume the flags on startup.
 
-        arguments=list(ctx.attr.jvm_flags) + ["@" + argfile.path],
+        arguments=["--jvm_flag=%s" % flag for flag in ctx.attr.jvm_flags] + ["@" + argfile.path],
       )
 
 
