@@ -14,43 +14,36 @@
 
 package io.bazel.rulesscala.scalac;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.devtools.build.lib.worker.WorkerProtocol.Input;
 import com.google.devtools.build.lib.worker.WorkerProtocol.WorkRequest;
 import com.google.devtools.build.lib.worker.WorkerProtocol.WorkResponse;
 import io.bazel.rulesscala.jar.JarCreator;
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.Files;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.Enumeration;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.jar.JarOutputStream;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.UUID;
-import java.util.jar.Attributes;
-import java.util.jar.JarOutputStream;
-import java.util.jar.Manifest;
 import scala.Console$;
 import scala.tools.nsc.*;
 import scala.tools.nsc.reporters.ConsoleReporter;
@@ -61,9 +54,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * the DOS epoch. All Jar entries are sorted alphabetically.
  */
 public class ScalaCInvoker {
-  // Keep state across multiple builds.
-  static final LinkedHashMap<String, String> inputs = new LinkedHashMap<>();
-
   // Mostly lifted from bazel
   private static void runPersistentWorker() throws IOException {
     PrintStream originalStdOut = System.out;
@@ -74,11 +64,6 @@ public class ScalaCInvoker {
         WorkRequest request = WorkRequest.parseDelimitedFrom(System.in);
         if (request == null) {
           break;
-        }
-
-        inputs.clear();
-        for (Input input : request.getInputsList()) {
-          inputs.put(input.getPath(), input.getDigest().toStringUtf8());
         }
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -107,7 +92,6 @@ public class ScalaCInvoker {
             .writeDelimitedTo(System.out);
         System.out.flush();
       } finally {
-        // Be a good worker process and consume less memory when idle.
         System.gc();
       }
     }
@@ -133,11 +117,11 @@ public class ScalaCInvoker {
       String outputFolder) throws IOException, FileNotFoundException {
 
     List<File> outputPaths = new ArrayList<File>();
-    java.util.jar.JarFile jar = new java.util.jar.JarFile(jarPath);
-    java.util.Enumeration e = jar.entries();
+    JarFile jar = new JarFile(jarPath);
+    Enumeration e = jar.entries();
     while (e.hasMoreElements()) {
-      java.util.jar.JarEntry file = (java.util.jar.JarEntry) e.nextElement();
-      File f = new File(outputFolder + java.io.File.separator + file.getName());
+      JarEntry file = (JarEntry) e.nextElement();
+      File f = new File(outputFolder + File.separator + file.getName());
 
       if (file.isDirectory()) { // if its a directory, create it
         f.mkdirs();
@@ -148,8 +132,8 @@ public class ScalaCInvoker {
       parent.mkdirs();
       outputPaths.add(f);
 
-      java.io.InputStream is = jar.getInputStream(file); // get the input stream
-      java.io.FileOutputStream fos = new java.io.FileOutputStream(f);
+      InputStream is = jar.getInputStream(file); // get the input stream
+      FileOutputStream fos = new FileOutputStream(f);
       while (is.available() > 0) {  // write contents of 'is' to 'fos'
         fos.write(is.read());
       }
