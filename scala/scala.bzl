@@ -174,7 +174,8 @@ SourceJars: {srcjars}
         javac_opts=" ".join(ctx.attr.javacopts),
         javac_path=ctx.file._javac.path,
         java_files=",".join([f.path for f in java_srcs]),
-        jvm_flags=" ".join(ctx.attr.jvm_flags),
+        #  these are the flags passed to javac, which needs them prefixed by -J
+        jvm_flags=" ".join(["-J" + flag for flag in ctx.attr.jvm_flags]),
         resource_src=",".join([f.path for f in ctx.files.resources]),
         resource_dest=",".join(
           [_adjust_resources_path(f.path)[1] for f in ctx.files.resources]
