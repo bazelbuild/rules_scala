@@ -18,3 +18,17 @@ maven_jar(
   name = "org_psywerx_hairyfotr__linter",
   artifact = scala_mvn_artifact("org.psywerx.hairyfotr:linter:0.1.13"),
   sha1 = "e5b3e2753d0817b622c32aedcb888bcf39e275b4")
+
+
+maven_jar(
+  name = "guava",
+  artifact = "com.google.guava:guava:19.0",
+  sha1 = "659eb2d42945dea37b310d96af4e12bf83f54d14"
+)
+
+
+git_repository(
+    name = "io_bazel",
+      remote = "git://github.com/bazelbuild/bazel.git",
+      commit = "8d9fc9aef82d82076cfea2db010a3036d871027e",
+)

@@ -1,14 +1,22 @@
-load("//scala:scala.bzl", "scala_binary")
+load("//scala:scala.bzl", "scala_binary", "scala_library")
 
-scala_binary(
-  name = "generator",
+scala_library(
+  name = "generator_lib",
   srcs = ["TwitterScroogeGenerator.scala"],
-  main_class = "scripts.ScroogeGenerator",
   deps = [
     "@scrooge_generator//jar",
     "@util_core//jar",
     "@util_logging//jar",
     ":scala_parsers",
+  ],
+  visibility = ["//visibility:public"],
+)
+
+scala_binary(
+  name = "generator",
+  main_class = "scripts.ScroogeGenerator",
+  deps = [
+    ":generator_lib",
   ],
   visibility = ["//visibility:public"],
 )

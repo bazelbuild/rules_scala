@@ -173,6 +173,29 @@ public class JarCreator extends JarHelper {
     }
   }
 
+  public static void buildJar(String[] args) throws IOException {
+    if (args.length < 1) {
+      System.err.println("usage: CreateJar [-m manifest] output [root directories]");
+      System.exit(1);
+    }
+
+    int idx = 0;
+    String manifestFile = null;
+    if (args[0].equals("-m")) {
+      manifestFile = args[1];
+      idx = 2;
+    }
+    String output = args[idx];
+    JarCreator createJar = new JarCreator(output);
+    createJar.setManifestFile(manifestFile);
+    for (int i = (idx+1); i < args.length; i++) {
+      createJar.addDirectory(args[i]);
+    }
+    createJar.setCompression(true);
+    createJar.setNormalize(true);
+    createJar.execute();
+  }
+
   /**
    * A simple way to create Jar file using the JarCreator class.
    */
