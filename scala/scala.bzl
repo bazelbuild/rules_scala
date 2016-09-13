@@ -486,7 +486,7 @@ def _scala_test_impl(ctx):
 _implicit_deps = {
   "_ijar": attr.label(executable=True, default=Label("@bazel_tools//tools/jdk:ijar"), single_file=True, allow_files=True),
   "_scala": attr.label(executable=True, default=Label("@scala//:bin/scala"), single_file=True, allow_files=True),
-  "_scalac": attr.label(cfg=HOST_CFG, executable=True, default=Label("//src/java/io/bazel/rulesscala/scalac"), allow_files=True),
+  "_scalac": attr.label(executable=True, default=Label("//src/java/io/bazel/rulesscala/scalac"), allow_files=True),
   "_scalalib": attr.label(default=Label("@scala//:lib/scala-library.jar"), single_file=True, allow_files=True),
   "_scalareflect": attr.label(default=Label("@scala//:lib/scala-reflect.jar"), single_file=True, allow_files=True),
   "_scalacompiler": attr.label(default=Label("@scala//:lib/scala-compiler.jar"), single_file=True, allow_files=True),

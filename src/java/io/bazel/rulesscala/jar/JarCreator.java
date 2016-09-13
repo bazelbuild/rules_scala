@@ -207,41 +207,11 @@ public class JarCreator extends JarHelper {
    * A simple way to create Jar file using the JarCreator class.
    */
   public static void main(String[] args) {
-    if (args.length < 1) {
-      System.err.println("usage: CreateJar [-m manifest] output [root directories]");
-      System.exit(1);
-    }
-
-    int idx = 0;
-    String manifestFile = null;
-    if (args[0].equals("-m")) {
-      manifestFile = args[1];
-      idx = 2;
-    }
-    String output = args[idx];
-    JarCreator createJar = new JarCreator(output);
-    createJar.setManifestFile(manifestFile);
-    for (int i = (idx+1); i < args.length; i++) {
-      String thisName = args[i];
-      File f = new File(thisName);
-      if (JarHelper.isJar(f)) {
-        createJar.addJar(f);
-      }
-      else {
-        createJar.addDirectory(f);
-      }
-    }
-    createJar.setCompression(true);
-    createJar.setNormalize(true);
-    long start = System.currentTimeMillis();
     try {
-      createJar.execute();
+      buildJar(args);
     } catch (Throwable e) {
       e.printStackTrace();
       System.exit(1);
     }
-    long stop = System.currentTimeMillis();
-    //System.err.println((stop - start) + "ms.");
-    //System.err.println(output);
   }
 }

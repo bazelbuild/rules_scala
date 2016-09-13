@@ -61,25 +61,11 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * the DOS epoch. All Jar entries are sorted alphabetically.
  */
 public class ScalaCInvoker {
-  // A UUID that uniquely identifies this running worker process.
-  static final UUID workerUuid = UUID.randomUUID();
-
-  // A counter that increases with each work unit processed.
-  static int workUnitCounter = 1;
-
-  // If true, returns corrupt responses instead of correct protobufs.
-  static boolean poisoned = false;
-
   // Keep state across multiple builds.
   static final LinkedHashMap<String, String> inputs = new LinkedHashMap<>();
 
-  static class WorkerOptions {
-    public int exitAfter = 30;
-    public int poisonAfter = 30;
-  }
-
   // Mostly lifted from bazel
-  private static void runPersistentWorker(WorkerOptions workerOptions) throws IOException {
+  private static void runPersistentWorker() throws IOException {
     PrintStream originalStdOut = System.out;
     PrintStream originalStdErr = System.err;
 
@@ -114,24 +100,12 @@ public class ScalaCInvoker {
           System.setErr(originalStdErr);
         }
 
-        if (poisoned) {
-          System.out.println("I'm a poisoned worker and this is not a protobuf.");
-        } else {
-          WorkResponse.newBuilder()
-              .setOutput(baos.toString())
-              .setExitCode(exitCode)
-              .build()
-              .writeDelimitedTo(System.out);
-        }
+        WorkResponse.newBuilder()
+            .setOutput(baos.toString())
+            .setExitCode(exitCode)
+            .build()
+            .writeDelimitedTo(System.out);
         System.out.flush();
-
-        if (workerOptions.exitAfter > 0 && workUnitCounter > workerOptions.exitAfter) {
-          return;
-        }
-
-        if (workerOptions.poisonAfter > 0 && workUnitCounter > workerOptions.poisonAfter) {
-          poisoned = true;
-        }
       } finally {
         // Be a good worker process and consume less memory when idle.
         System.gc();
@@ -353,7 +327,7 @@ public class ScalaCInvoker {
   public static void main(String[] args) {
     try {
       if (ImmutableSet.copyOf(args).contains("--persistent_worker")) {
-        runPersistentWorker(new WorkerOptions());
+        runPersistentWorker();
       }
       else {
         processRequest(Arrays.asList(args));
