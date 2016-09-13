@@ -142,22 +142,22 @@ def _compile(ctx, _jars, dep_srcjars, buildijar):
     )
 
     scalac_args = """
-JarOutput: {out}
-Manifest: {manifest}
-ScalacOpts: {scala_opts}
-Plugins: {plugin_arg}
 Classpath: {cp}
-Files: {files}
 EnableIjar: {enableijar}
-ijarOutput: {ijar_out}
-ijarCmdPath: {ijar_cmd_path}
-SourceJars: {srcjars}
-JavacPath: {javac_path}
+Files: {files}
+IjarCmdPath: {ijar_cmd_path}
+IjarOutput: {ijar_out}
+JarOutput: {out}
 JavacOpts: {javac_opts}
+JavacPath: {javac_path}
 JavaFiles: {java_files}
 JvmFlags: {jvm_flags}
-ResourceSrcs: {resource_src}
+Manifest: {manifest}
+Plugins: {plugin_arg}
 ResourceDests: {resource_dest}
+ResourceSrcs: {resource_src}
+ScalacOpts: {scala_opts}
+SourceJars: {srcjars}
 """.format(
         out=ctx.outputs.jar.path,
         manifest=ctx.outputs.manifest.path,
