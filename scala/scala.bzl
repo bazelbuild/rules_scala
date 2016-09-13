@@ -63,14 +63,6 @@ def _get_jar_path(paths):
     return None
 
 
-def _get_scalac_jar_path(paths):
-    for p in paths:
-        path = p.path
-        if path.endswith("/scalac_deploy.jar"):
-            return path
-    return None
-
-
 def _build_nosrc_jar(ctx, buildijar):
     cp_resources = _add_resources_cmd(ctx, "{out}_tmp".format(
       out=ctx.outputs.jar.path)
@@ -166,12 +158,12 @@ JavaFiles: {java_files}
 ResourceSrcs: {resource_src}
 ResourceDests: {resource_dest}
 """.format(
-        out=ctx.outputs.jar.path,  # 0
-        manifest=ctx.outputs.manifest.path,  # 1
-        scala_opts=",".join(ctx.attr.scalacopts),  # 2
-        plugin_arg=plugin_arg,  # 3
-        cp=compiler_classpath,  # 4
-        files=",".join([f.path for f in sources]),  # 5
+        out=ctx.outputs.jar.path,
+        manifest=ctx.outputs.manifest.path,
+        scala_opts=",".join(ctx.attr.scalacopts),
+        plugin_arg=plugin_arg,
+        cp=compiler_classpath,
+        files=",".join([f.path for f in sources]),
         enableijar=buildijar,
         ijar_out=ijar_output_path,
         ijar_cmd_path=ijar_cmd_path,
