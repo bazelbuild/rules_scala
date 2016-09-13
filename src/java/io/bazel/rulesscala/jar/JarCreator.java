@@ -173,10 +173,7 @@ public class JarCreator extends JarHelper {
     }
   }
 
-  /**
-   * A simple way to create Jar file using the JarCreator class.
-   */
-  public static void main(String[] args) {
+  public static void buildJar(String[] args) throws IOException {
     if (args.length < 1) {
       System.err.println("usage: CreateJar [-m manifest] output [root directories]");
       System.exit(1);
@@ -203,15 +200,18 @@ public class JarCreator extends JarHelper {
     }
     createJar.setCompression(true);
     createJar.setNormalize(true);
-    long start = System.currentTimeMillis();
+    createJar.execute();
+  }
+
+  /**
+   * A simple way to create Jar file using the JarCreator class.
+   */
+  public static void main(String[] args) {
     try {
-      createJar.execute();
+      buildJar(args);
     } catch (Throwable e) {
       e.printStackTrace();
       System.exit(1);
     }
-    long stop = System.currentTimeMillis();
-    //System.err.println((stop - start) + "ms.");
-    //System.err.println(output);
   }
 }

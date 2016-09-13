@@ -19,7 +19,7 @@ and `scala_test`.
 ## Getting started
 
 In order to use `scala_library`, `scala_macro_library`, and `scala_binary`,
-you must have bazel 0.2.3 and add the following to your WORKSPACE file:
+you must have bazel 0.3.1 and add the following to your WORKSPACE file:
 
 ```python
 git_repository(
@@ -27,6 +27,12 @@ git_repository(
     remote = "https://github.com/bazelbuild/rules_scala.git",
     commit = "7b891adb975b4e3e6569b763d39ab6e9234196c9", # update this as needed
 )
+git_repository(
+    name = "io_bazel",
+    remote = "git://github.com/bazelbuild/bazel.git",
+    tag = "0.3.1",
+)
+
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
 scala_repositories()
 ```
@@ -39,6 +45,13 @@ Then in your BUILD file just add the following so the rules will be available:
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_library", "scala_binary", "scala_test")
 ```
 You may wish to have these rules loaded by default using bazel's prelude. You can add the above to the file `tools/build_rules/prelude_bazel` in your repo (don't forget to have a, possibly empty, BUILD file there) and then it will be automatically prepended to every BUILD file in the workspace.
+
+To run with a persistant worker (much faster), you need to add
+```python
+build --strategy=Scalac=worker
+test --strategy=Scalac=worker
+```
+to your command line, or to enable by default for building/testing add it to your .bazelrc.
 
 [scala]: http://www.scala-lang.org/
 
