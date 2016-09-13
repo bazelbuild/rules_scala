@@ -224,6 +224,7 @@ public class ScalaCInvoker {
         if (ops.javaFiles.length > 0) {
           StringBuilder cmd = new StringBuilder();
           cmd.append(ops.javacPath);
+          if (ops.jvmFlags != "") cmd.append(ops.jvmFlags);
           if (ops.javacOpts != "") cmd.append(ops.javacOpts);
 
           StringBuilder files = new StringBuilder();

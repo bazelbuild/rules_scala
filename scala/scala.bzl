@@ -155,6 +155,7 @@ SourceJars: {srcjars}
 JavacPath: {javac_path}
 JavacOpts: {javac_opts}
 JavaFiles: {java_files}
+JvmFlags: {jvm_flags}
 ResourceSrcs: {resource_src}
 ResourceDests: {resource_dest}
 """.format(
@@ -171,6 +172,7 @@ ResourceDests: {resource_dest}
         javac_opts=" ".join(ctx.attr.javacopts),
         javac_path=ctx.file._javac.path,
         java_files=",".join([f.path for f in java_srcs]),
+        jvm_flags=" ".join(["-J" + flag for flag in ctx.attr.jvm_flags]),
         resource_src=",".join([f.path for f in ctx.files.resources]),
         resource_dest=",".join(
           [_adjust_resources_path(f.path)[1] for f in ctx.files.resources]
