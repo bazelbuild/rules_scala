@@ -9,6 +9,7 @@ public class CompileOptions {
   final public String outputName;
   final public String manifestPath;
   final public String[] scalaOpts;
+  final public boolean printCompileTime;
   final public String[] pluginArgs;
   final public String classpath;
   final public String[] files;
@@ -29,6 +30,7 @@ public class CompileOptions {
     manifestPath = getOrError(argMap, "Manifest", "Missing required arg Manifest");
 
     scalaOpts = getCommaList(argMap, "ScalacOpts");
+    printCompileTime = booleanGetOrFalse(argMap, "PrintCompileTime");
     pluginArgs = buildPluginArgs(getOrEmpty(argMap, "Plugins"));
     classpath = getOrError(argMap, "Classpath", "Must supply the classpath arg");
     files = getCommaList(argMap, "Files");

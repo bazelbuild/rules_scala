@@ -154,6 +154,7 @@ JavaFiles: {java_files}
 JvmFlags: {jvm_flags}
 Manifest: {manifest}
 Plugins: {plugin_arg}
+PrintCompileTime: {print_compile_time}
 ResourceDests: {resource_dest}
 ResourceSrcs: {resource_src}
 ScalacOpts: {scala_opts}
@@ -162,6 +163,7 @@ SourceJars: {srcjars}
         out=ctx.outputs.jar.path,
         manifest=ctx.outputs.manifest.path,
         scala_opts=",".join(ctx.attr.scalacopts),
+        print_compile_time=ctx.attr.print_compile_time,
         plugin_arg=plugin_arg,
         cp=compiler_classpath,
         files=",".join([f.path for f in sources]),
@@ -516,6 +518,7 @@ _common_attrs = {
   "scalacopts":attr.string_list(),
   "javacopts":attr.string_list(),
   "jvm_flags": attr.string_list(),
+  "print_compile_time": attr.bool(default=False, mandatory=False),
 }
 
 scala_library = rule(

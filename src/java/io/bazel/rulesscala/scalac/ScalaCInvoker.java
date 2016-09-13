@@ -209,7 +209,9 @@ public class ScalaCInvoker {
       long start = System.currentTimeMillis();
       comp.process(compilerArgs);
       long stop = System.currentTimeMillis();
-      System.err.println("Compiler runtime: " + (stop - start) + "ms.");
+      if (ops.printCompileTime) {
+        System.err.println("Compiler runtime: " + (stop - start) + "ms.");
+      }
 
       ConsoleReporter reporter = (ConsoleReporter) reporterField.get(comp);
 
