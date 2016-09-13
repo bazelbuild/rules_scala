@@ -21,7 +21,6 @@ before_install:
   - chmod +x bazel-0.3.1-installer-linux-x86_64.sh
   - ./bazel-0.3.1-installer-linux-x86_64.sh --user
   - mv .bazelrc.travis .bazelrc
-  - cat ~/.bazelrc >> .bazelrc
 
 script:
   - bash test_run.sh
