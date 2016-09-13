@@ -20,13 +20,6 @@ maven_jar(
   sha1 = "e5b3e2753d0817b622c32aedcb888bcf39e275b4")
 
 
-maven_jar(
-  name = "guava",
-  artifact = "com.google.guava:guava:19.0",
-  sha1 = "659eb2d42945dea37b310d96af4e12bf83f54d14"
-)
-
-
 git_repository(
     name = "io_bazel",
       remote = "git://github.com/bazelbuild/bazel.git",
