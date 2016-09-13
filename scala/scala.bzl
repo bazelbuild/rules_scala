@@ -174,6 +174,7 @@ SourceJars: {srcjars}
         javac_opts=" ".join(ctx.attr.javacopts),
         javac_path=ctx.file._javac.path,
         java_files=",".join([f.path for f in java_srcs]),
+        #  these are the flags passed to javac, which needs them prefixed by -J
         jvm_flags=" ".join(["-J" + flag for flag in ctx.attr.jvm_flags]),
         resource_src=",".join([f.path for f in ctx.files.resources]),
         resource_dest=",".join(
@@ -218,7 +219,7 @@ SourceJars: {srcjars}
         # be correctly handled since the executable is a jvm app that will
         # consume the flags on startup.
 
-        arguments=list(ctx.attr.jvm_flags) + ["@" + argfile.path],
+        arguments=["--jvm_flag=%s" % flag for flag in ctx.attr.jvm_flags] + ["@" + argfile.path],
       )
 
 
