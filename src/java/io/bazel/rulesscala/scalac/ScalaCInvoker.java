@@ -50,8 +50,8 @@ import scala.tools.nsc.reporters.ConsoleReporter;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
- * A class for creating Jar files. Allows normalization of Jar entries by setting their timestamp to
- * the DOS epoch. All Jar entries are sorted alphabetically.
+ * This is our entry point to producing a scala target
+ * this can act as one of Bazel's persistant workers.
  */
 public class ScalaCInvoker {
   // Mostly lifted from bazel
@@ -222,29 +222,7 @@ public class ScalaCInvoker {
          * See if there are java sources to compile
          */
         if (ops.javaFiles.length > 0) {
-          StringBuilder cmd = new StringBuilder();
-          cmd.append(ops.javacPath);
-          if (ops.jvmFlags != "") cmd.append(ops.jvmFlags);
-          if (ops.javacOpts != "") cmd.append(ops.javacOpts);
-
-          StringBuilder files = new StringBuilder();
-          int cnt = 0;
-          for(String javaFile : ops.javaFiles) {
-            if (cnt > 0) files.append(" ");
-            files.append(javaFile);
-            cnt += 1;
-          }
-          Process iostat = new ProcessBuilder()
-            .command(cmd.toString(),
-                "-classpath", ops.classpath + ":" + tmpPath.toString(),
-                "-d", tmpPath.toString(),
-                files.toString())
-            .inheritIO()
-            .start();
-          int exitCode = iostat.waitFor();
-          if(exitCode != 0) {
-            throw new RuntimeException("javac process failed!");
-          }
+          compileJavaSources(ops, tmpPath);
         }
         /**
          * Copy the resources
@@ -278,6 +256,32 @@ public class ScalaCInvoker {
     }
     finally {
       removeTmp(tmpPath);
+    }
+  }
+
+  private static void compileJavaSources(CompileOptions ops, Path tmpPath) throws IOException, InterruptedException {
+    StringBuilder cmd = new StringBuilder();
+    cmd.append(ops.javacPath);
+    if (ops.jvmFlags != "") cmd.append(ops.jvmFlags);
+    if (ops.javacOpts != "") cmd.append(ops.javacOpts);
+
+    StringBuilder files = new StringBuilder();
+    int cnt = 0;
+    for(String javaFile : ops.javaFiles) {
+      if (cnt > 0) files.append(" ");
+      files.append(javaFile);
+      cnt += 1;
+    }
+    Process iostat = new ProcessBuilder()
+      .command(cmd.toString(),
+          "-classpath", ops.classpath + ":" + tmpPath.toString(),
+          "-d", tmpPath.toString(),
+          files.toString())
+      .inheritIO()
+      .start();
+    int exitCode = iostat.waitFor();
+    if(exitCode != 0) {
+      throw new RuntimeException("javac process failed!");
     }
   }
   private static void removeTmp(Path tmp) throws IOException {
