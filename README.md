@@ -48,7 +48,8 @@ You may wish to have these rules loaded by default using bazel's prelude. You ca
 
 To run with a persistant worker (much faster), you need to add
 ```python
---strategy=Scalac=worker
+build --strategy=Scalac=worker
+test --strategy=Scalac=worker
 ```
 to your command line, or to enable by default for building/testing add it to your .bazelrc.
 
