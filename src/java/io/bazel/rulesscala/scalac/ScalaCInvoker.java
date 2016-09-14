@@ -207,7 +207,17 @@ public class ScalaCInvoker {
 
       MainClass comp = new MainClass();
       long start = System.currentTimeMillis();
-      comp.process(compilerArgs);
+
+      try {
+        comp.process(compilerArgs);
+      } catch (Throwable ex) {
+        if(ex.toString().contains("scala.reflect.internal.Types$TypeError")){
+          throw new RuntimeException("Build failure with type error", ex);
+        } else {
+          throw ex;
+        }
+      }
+
       long stop = System.currentTimeMillis();
       if (ops.printCompileTime) {
         System.err.println("Compiler runtime: " + (stop - start) + "ms.");
