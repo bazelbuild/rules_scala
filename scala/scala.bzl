@@ -307,7 +307,7 @@ def _write_test_launcher(ctx, jars):
       java=ctx.file._java.short_path,
       cp=":".join([j.short_path for j in jars]),
       name=ctx.attr.main_class,
-      args="-R \"{path}\" -oWDF".format(path=ctx.outputs.jar.short_path))
+      args="-R \"{path}\" -oWDS".format(path=ctx.outputs.jar.short_path))
     ctx.file_action(
       output=ctx.outputs.executable,
       content=content)
