@@ -114,7 +114,7 @@ thrift_library = rule(
       # or whatever, but I think that we should make it such that the archive
       # created by this is created in such a way that absolute imports work...
       "absolute_prefix": attr.string(default='', mandatory=False),
-      "_jar": attr.label(executable=True, cfg=HOST_CFG, default=Label("@bazel_tools//tools/jdk:jar"), single_file=True, allow_files=True),
+      "_jar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:jar"), single_file=True, allow_files=True),
       "_jdk": attr.label(default=Label("//tools/defaults:jdk"), allow_files=True),
   },
   outputs={"libarchive": "lib%{name}.jar"},
