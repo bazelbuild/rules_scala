@@ -491,19 +491,19 @@ def _scala_test_impl(ctx):
     return _scala_binary_common(ctx, cjars, rjars)
 
 _implicit_deps = {
-  "_ijar": attr.label(executable=True, default=Label("@bazel_tools//tools/jdk:ijar"), single_file=True, allow_files=True),
-  "_scala": attr.label(executable=True, default=Label("@scala//:bin/scala"), single_file=True, allow_files=True),
-  "_scalac": attr.label(executable=True, default=Label("//src/java/io/bazel/rulesscala/scalac"), allow_files=True),
+  "_ijar": attr.label(executable=True, cfg=HOST_CFG, default=Label("@bazel_tools//tools/jdk:ijar"), single_file=True, allow_files=True),
+  "_scala": attr.label(executable=True, cfg=DATA_CFG, default=Label("@scala//:bin/scala"), single_file=True, allow_files=True),
+  "_scalac": attr.label(executable=True, cfg=HOST_CFG, default=Label("//src/java/io/bazel/rulesscala/scalac"), allow_files=True),
   "_scalalib": attr.label(default=Label("@scala//:lib/scala-library.jar"), single_file=True, allow_files=True),
   "_scalareflect": attr.label(default=Label("@scala//:lib/scala-reflect.jar"), single_file=True, allow_files=True),
   "_scalacompiler": attr.label(default=Label("@scala//:lib/scala-compiler.jar"), single_file=True, allow_files=True),
   "_scalaxml": attr.label(default=Label("@scala//:lib/scala-xml_2.11-1.0.4.jar"), single_file=True, allow_files=True),
   "_scalasdk": attr.label(default=Label("@scala//:sdk"), allow_files=True),
   "_scalareflect": attr.label(default=Label("@scala//:lib/scala-reflect.jar"), single_file=True, allow_files=True),
-  "_java": attr.label(executable=True, default=Label("@bazel_tools//tools/jdk:java"), single_file=True, allow_files=True),
-  "_javac": attr.label(executable=True, default=Label("@bazel_tools//tools/jdk:javac"), single_file=True, allow_files=True),
-  "_jar": attr.label(executable=True, default=Label("//src/java/io/bazel/rulesscala/jar:binary_deploy.jar"), allow_files=True),
-  "_jar_bin": attr.label(executable=True, default=Label("//src/java/io/bazel/rulesscala/jar:binary")),
+  "_java": attr.label(executable=True, cfg=HOST_CFG, default=Label("@bazel_tools//tools/jdk:java"), single_file=True, allow_files=True),
+  "_javac": attr.label(executable=True, cfg=HOST_CFG, default=Label("@bazel_tools//tools/jdk:javac"), single_file=True, allow_files=True),
+  "_jar": attr.label(executable=True, cfg=HOST_CFG, default=Label("//src/java/io/bazel/rulesscala/jar:binary_deploy.jar"), allow_files=True),
+  "_jar_bin": attr.label(executable=True, cfg=HOST_CFG, default=Label("//src/java/io/bazel/rulesscala/jar:binary")),
   "_jdk": attr.label(default=Label("//tools/defaults:jdk"), allow_files=True),
 }
 
@@ -567,7 +567,7 @@ scala_test = rule(
   attrs={
       "main_class": attr.string(default="org.scalatest.tools.Runner"),
       "suites": attr.string_list(),
-      "_scalatest": attr.label(executable=True, default=Label("@scalatest//file"), single_file=True, allow_files=True),
+      "_scalatest": attr.label(default=Label("@scalatest//file"), single_file=True, allow_files=True),
       "_scalatest_reporter": attr.label(default=Label("//scala/support:test_reporter")),
       } + _implicit_deps + _common_attrs,
   outputs={
