@@ -1,3 +1,5 @@
+package(default_testonly = 1)
+
 load("//scala:scala.bzl",
     "scala_binary",
     "scala_library",
