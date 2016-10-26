@@ -47,7 +47,7 @@ load("@io_bazel_rules_scala//scala:scala.bzl", "scala_library", "scala_binary", 
 You may wish to have these rules loaded by default using bazel's prelude. You can add the above to the file `tools/build_rules/prelude_bazel` in your repo (don't forget to have a, possibly empty, BUILD file there) and then it will be automatically prepended to every BUILD file in the workspace.
 
 To run with a persistant worker (much faster), you need to add
-```python
+```
 build --strategy=Scalac=worker
 test --strategy=Scalac=worker
 ```
