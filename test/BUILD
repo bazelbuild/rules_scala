@@ -155,6 +155,7 @@ scala_library(
     name = "MixJavaScalaLib",
     srcs = glob(["src/main/scala/scala/test/mix_java_scala/*.scala"]) +
            glob(["src/main/scala/scala/test/mix_java_scala/*.java"]),
+    jvm_flags = ["-Xms1G", "-Xmx4G"],
 )
 #needed to test java sources are compiled
 scala_binary(
