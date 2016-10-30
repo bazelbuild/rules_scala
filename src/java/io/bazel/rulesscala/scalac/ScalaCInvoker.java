@@ -36,6 +36,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -272,10 +273,13 @@ public class ScalaCInvoker {
   }
 
   private static void compileJavaSources(CompileOptions ops, Path tmpPath) throws IOException, InterruptedException {
-    StringBuilder cmd = new StringBuilder();
-    cmd.append(ops.javacPath);
-    if (ops.jvmFlags != "") cmd.append(ops.jvmFlags);
-    if (ops.javacOpts != "") cmd.append(ops.javacOpts);
+    ArrayList<String> commandParts = new ArrayList<>();
+    commandParts.add(ops.javacPath);
+
+    Collections.addAll(commandParts, ops.jvmFlags);
+    if (!"".equals(ops.javacOpts)) {
+      commandParts.add(ops.javacOpts);
+    }
 
     StringBuilder files = new StringBuilder();
     int cnt = 0;
@@ -284,11 +288,14 @@ public class ScalaCInvoker {
       files.append(javaFile);
       cnt += 1;
     }
-    Process iostat = new ProcessBuilder()
-      .command(cmd.toString(),
-          "-classpath", ops.classpath + ":" + tmpPath.toString(),
-          "-d", tmpPath.toString(),
-          files.toString())
+
+    commandParts.add("-classpath");
+    commandParts.add(ops.classpath + ":" + tmpPath.toString());
+    commandParts.add("-d");
+    commandParts.add(tmpPath.toString());
+    commandParts.add(files.toString());
+
+    Process iostat = new ProcessBuilder(commandParts)
       .inheritIO()
       .start();
     int exitCode = iostat.waitFor();
