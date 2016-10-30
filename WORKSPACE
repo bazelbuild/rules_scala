@@ -21,7 +21,7 @@ maven_jar(
 
 
 git_repository(
-    name = "io_bazel",
-      remote = "git://github.com/bazelbuild/bazel.git",
-      tag = "0.3.1",
+  name = "io_bazel",
+  remote = "git://github.com/bazelbuild/bazel.git",
+  tag = "0.3.2",
 )
