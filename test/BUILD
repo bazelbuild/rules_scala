@@ -188,8 +188,8 @@ scala_binary(
     deps = ["MixJavaScalaLib"],
 )
 
-scala_library(
-    name = "SupportJavaOnlySourcesToEaseJavaScalaInterop",
-    srcs = glob(["src/main/scala/scala/test/only_java/*.java"]),
-    jvm_flags = ["-Xms1G", "-Xmx4G"],
+scala_binary(
+    name = "JavaOnlySources",
+    srcs = ["src/main/scala/scala/test/only_java/Alpha.java"],
+    main_class = "scala.test.Alpha",
 )

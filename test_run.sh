@@ -102,4 +102,5 @@ run_test xmllint_test
 run_test test_build_is_identical
 run_test test_transitive_deps
 run_test test_repl
+run_test bazel run test:JavaOnlySources
 
