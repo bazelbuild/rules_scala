@@ -207,6 +207,7 @@ scrooge_scala_srcjar = rule(
         "remote_jars": attr.label_list(),
         "_pluck_scrooge_scala": attr.label(
           executable=True,
+          cfg="host",
           default=Label("//src/scala/scripts:generator"),
           allow_files=True),
     },
