@@ -90,7 +90,6 @@ run_test bazel run test:ScalaLibBinary
 run_test test_disappearing_class
 run_test find -L ./bazel-testlogs -iname "*.xml"
 run_test xmllint_test
-run_test test_disappearing_class
 run_test test_build_is_identical
 run_test test_transitive_deps
 run_test test_repl
