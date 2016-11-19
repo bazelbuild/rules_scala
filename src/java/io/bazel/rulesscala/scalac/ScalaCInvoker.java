@@ -281,19 +281,13 @@ public class ScalaCInvoker {
       commandParts.add(ops.javacOpts);
     }
 
-    StringBuilder files = new StringBuilder();
-    int cnt = 0;
-    for(String javaFile : ops.javaFiles) {
-      if (cnt > 0) files.append(" ");
-      files.append(javaFile);
-      cnt += 1;
-    }
-
     commandParts.add("-classpath");
     commandParts.add(ops.classpath + ":" + tmpPath.toString());
     commandParts.add("-d");
     commandParts.add(tmpPath.toString());
-    commandParts.add(files.toString());
+    for(String javaFile : ops.javaFiles) {
+      commandParts.add(javaFile.toString());
+    }
 
     Process iostat = new ProcessBuilder(commandParts)
       .inheritIO()
