@@ -129,8 +129,8 @@ scala_library(
     srcs = ["src/main/scala/scala/test/ScalaLibResources.scala"],
     resources = [
         "//test/data:some.txt",
-        "src/main/resources/scala/test/byes",
-        "src/main/resources/scala/test/hellos",
+        "//test/src/main/resources/scala/test:byes",
+        "//test/src/main/resources/scala/test:hellos",
         ],
 )
 
@@ -140,6 +140,8 @@ scala_library(
     resources = [
         "//test/data:more.txt",
         "//test/data:foo.txt",
+        "//test/src/main/resources/scala/test:more-hellos",
+        "//test/src/main/resources/scala/test:more-byes"
         ],
     resource_strip_prefix = "test/",
 )
@@ -151,9 +153,20 @@ scala_binary(
     deps = ["ScalaLibResources"],
 )
 
+scala_binary(
+    name = "MoreScalaLibBinary",
+    srcs = ["src/main/scala/scala/test/MoreScalaLibBinary.scala"],
+    main_class = "scala.test.MoreScalaLibBinary",
+    deps = ["MoreScalaLibResources"],
+)
+
 scala_repl(
     name = "ScalaLibBinaryRepl",
     deps = [":ScalaLibBinary"])
+
+scala_repl(
+    name = "MoreScalaLibBinaryRepl",
+    deps = [":MoreScalaLibBinary"])
 
 scala_library(
   name = "jar_export",
