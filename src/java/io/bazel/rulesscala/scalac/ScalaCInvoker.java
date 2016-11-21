@@ -240,7 +240,7 @@ public class ScalaCInvoker {
         /**
          * Copy the resources
          */
-        copyResources(ops.resourceFiles, tmpPath);
+        copyResources(ops.resourceFiles, ops.resourceStripPrefix, tmpPath);
         /**
          * Now build the output jar
          */
@@ -314,16 +314,41 @@ public class ScalaCInvoker {
       });
     }
   }
-  private static void copyResources(Map<String, String> resources, Path dest) throws IOException {
+  private static void copyResources(
+      Map<String, String> resources,
+      String resourceStripPrefix,
+      Path dest) throws IOException {
     for(Entry<String, String> e : resources.entrySet()) {
       Path source = Paths.get(e.getKey());
       String dstr = e.getValue();
       if (dstr.charAt(0) == '/') dstr = dstr.substring(1);
+      // Check if we need to modify resource destination path
+      if (!"".equals(resourceStripPrefix)) {
+        dstr = getResourcePath(source, resourceStripPrefix);
+      }
       Path target = dest.resolve(dstr);
       File tfile = target.getParent().toFile();
       tfile.mkdirs();
       Files.copy(source, target);
     }
+  }
+  private static String getResourcePath(
+      Path source,
+      String resourceStripPrefix) throws RuntimeException {
+    String sourcePath = source.toString();
+    // check if the Resource file is under the specified prefix to strip
+    if (!sourcePath.startsWith(resourceStripPrefix)) {
+      // Resource File is not under the specified prefix to strip
+      throw new RuntimeException("Resource File is not under the specified prefix to strip");
+    }
+    /**
+     * Using a simple String replaceFirst for now,
+     * Once we get merge into Bazel, we can use the PathFragments from
+     * google's devtools vfs library (which the java rules uses)
+     */
+    String newResPath = sourcePath.replaceFirst(resourceStripPrefix, "");
+    if (newResPath.charAt(0) == '/') newResPath = newResPath.substring(1);
+    return newResPath;
   }
 
   public static void main(String[] args) {

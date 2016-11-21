@@ -134,6 +134,16 @@ scala_library(
         ],
 )
 
+scala_library(
+    name = "MoreScalaLibResources",
+    srcs = ["src/main/scala/scala/test/MoreScalaLibResources.scala"],
+    resources = [
+        "//test/data:more.txt",
+        "//test/data:foo.txt",
+        ],
+    resource_strip_prefix = "test/",
+)
+
 scala_binary(
     name = "ScalaLibBinary",
     srcs = ["src/main/scala/scala/test/ScalaLibBinary.scala"],
