@@ -59,8 +59,8 @@ to your command line, or to enable by default for building/testing add it to you
 ## scala\_library / scala\_macro_library
 
 ```python
-scala_library(name, srcs, deps, runtime_deps, exports, data, main_class, resources, scalacopts, jvm_flags)
-scala_macro_library(name, srcs, deps, runtime_deps, exports, data, main_class, resources, scalacopts, jvm_flags)
+scala_library(name, srcs, deps, runtime_deps, exports, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags)
+scala_macro_library(name, srcs, deps, runtime_deps, exports, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags)
 ```
 
 `scala_library` generates a `.jar` file from `.scala` source files. This rule
@@ -151,6 +151,17 @@ In order to make a java rule use this jar file, use the `java_import` rule.
       </td>
     </tr>
     <tr>
+      <td><code>resource_strip_prefix</code></td>
+      <td>
+        <p><code>String; optional</code></p>
+        <p>
+          The path prefix to strip from Java resources. If specified,
+          this path prefix is stripped from every file in the `resources` attribute.
+          It is an error for a resource file not to be under this directory.
+        </p>
+      </td>
+    </tr>
+    <tr>
       <td><code>scalacopts</code></td>
       <td>
         <p><code>List of strings; optional</code></p>
@@ -182,7 +193,7 @@ In order to make a java rule use this jar file, use the `java_import` rule.
 ## scala_binary
 
 ```python
-scala_binary(name, srcs, deps, runtime_deps, data, main_class, resources, scalacopts, jvm_flags)
+scala_binary(name, srcs, deps, runtime_deps, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags)
 ```
 
 `scala_binary` generates a Scala executable. It may depend on `scala_library`, `scala_macro_library`
@@ -258,6 +269,17 @@ A `scala_binary` requires a `main_class` attribute.
       </td>
     </tr>
     <tr>
+      <td><code>resource_strip_prefix</code></td>
+      <td>
+        <p><code>String; optional</code></p>
+        <p>
+          The path prefix to strip from Java resources. If specified,
+          this path prefix is stripped from every file in the `resources` attribute.
+          It is an error for a resource file not to be under this directory.
+        </p>
+      </td>
+    </tr>
+    <tr>
       <td><code>scalacopts</code></td>
       <td>
         <p><code>List of strings; optional</code></p>
@@ -289,7 +311,7 @@ A `scala_binary` requires a `main_class` attribute.
 ## scala_test
 
 ```python
-scala_test(name, srcs, suites, deps, data, main_class, resources, scalacopts, jvm_flags)
+scala_test(name, srcs, suites, deps, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags)
 ```
 
 `scala_test` generates a Scala executable which runs unit test suites written
