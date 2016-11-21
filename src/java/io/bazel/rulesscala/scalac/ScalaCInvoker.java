@@ -350,7 +350,10 @@ public class ScalaCInvoker {
     // check if the Resource file is under the specified prefix to strip
     if (!sourcePath.startsWith(resourceStripPrefix)) {
       // Resource File is not under the specified prefix to strip
-      throw new RuntimeException("Resource File is not under the specified prefix to strip");
+      throw new RuntimeException("Resource File "
+        + sourcePath
+        + " is not under the specified strip prefix "
+        + resourceStripPrefix);
     }
     String newResPath = sourcePath.substring(resourceStripPrefix.length());
     return newResPath;
