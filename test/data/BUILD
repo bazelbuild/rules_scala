@@ -1,1 +1,1 @@
-exports_files(["some.txt"])
+exports_files(["some.txt", "more.txt", "foo.txt"])

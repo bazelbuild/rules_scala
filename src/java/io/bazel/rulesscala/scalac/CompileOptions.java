@@ -22,6 +22,7 @@ public class CompileOptions {
   final public String javacOpts;
   final public String[] jvmFlags;
   final public Map<String, String> resourceFiles;
+  final public String resourceStripPrefix;
 
   public CompileOptions(List<String> args) {
     Map<String, String> argMap = buildArgMap(args);
@@ -51,6 +52,7 @@ public class CompileOptions {
       ijarCmdPath = null;
     }
     resourceFiles = getResources(argMap);
+    resourceStripPrefix = getOrEmpty(argMap, "ResourceStripPrefix");
   }
 
   private static Map<String, String> getResources(Map<String, String> args) {

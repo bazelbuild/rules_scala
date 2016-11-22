@@ -240,7 +240,7 @@ public class ScalaCInvoker {
         /**
          * Copy the resources
          */
-        copyResources(ops.resourceFiles, tmpPath);
+        copyResources(ops.resourceFiles, ops.resourceStripPrefix, tmpPath);
         /**
          * Now build the output jar
          */
@@ -314,16 +314,49 @@ public class ScalaCInvoker {
       });
     }
   }
-  private static void copyResources(Map<String, String> resources, Path dest) throws IOException {
+  private static void copyResources(
+      Map<String, String> resources,
+      String resourceStripPrefix,
+      Path dest) throws IOException {
     for(Entry<String, String> e : resources.entrySet()) {
       Path source = Paths.get(e.getKey());
-      String dstr = e.getValue();
+      String dstr;
+      // Check if we need to modify resource destination path
+      if (!"".equals(resourceStripPrefix)) {
+	/**
+	 * NOTE: We are not using the Resource Hash Value as the destination path
+	 * when `resource_strip_prefix` present. The path in the hash value is computed
+	 * by the `_adjust_resources_path` in `scala.bzl`. These are the default paths,
+	 * ie, path that are automatically computed when there is no `resource_strip_prefix`
+	 * present. But when `resource_strip_prefix` is present, we need to strip the prefix
+	 * from the Source Path and use that as the new destination path
+	 * Refer Bazel -> BazelJavaRuleClasses.java#L227 for details
+	 */
+        dstr = getResourcePath(source, resourceStripPrefix);
+      } else {
+        dstr = e.getValue();
+      }
       if (dstr.charAt(0) == '/') dstr = dstr.substring(1);
       Path target = dest.resolve(dstr);
       File tfile = target.getParent().toFile();
       tfile.mkdirs();
       Files.copy(source, target);
     }
+  }
+  private static String getResourcePath(
+      Path source,
+      String resourceStripPrefix) throws RuntimeException {
+    String sourcePath = source.toString();
+    // check if the Resource file is under the specified prefix to strip
+    if (!sourcePath.startsWith(resourceStripPrefix)) {
+      // Resource File is not under the specified prefix to strip
+      throw new RuntimeException("Resource File "
+        + sourcePath
+        + " is not under the specified strip prefix "
+        + resourceStripPrefix);
+    }
+    String newResPath = sourcePath.substring(resourceStripPrefix.length());
+    return newResPath;
   }
 
   public static void main(String[] args) {
