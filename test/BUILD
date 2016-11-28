@@ -187,3 +187,9 @@ scala_binary(
     main_class = "scala.test.MixJavaScalaLibBinary",
     deps = ["MixJavaScalaLib"],
 )
+
+scala_binary(
+    name = "JavaOnlySources",
+    srcs = ["src/main/scala/scala/test/only_java/Alpha.java"],
+    main_class = "scala.test.Alpha",
+)
