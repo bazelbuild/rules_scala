@@ -522,19 +522,79 @@ _common_attrs = {
   "print_compile_time": attr.bool(default=False, mandatory=False),
 }
 
-scala_library = rule(
+scala_only_library = rule(
   implementation=_scala_library_impl,
   attrs={
       "main_class": attr.string(),
       "exports": attr.label_list(allow_files=False),
       } + _implicit_deps + _common_attrs,
   outputs={
-      "jar": "%{name}.jar",
+      "jar": "lib%{name}.jar",
       "deploy_jar": "%{name}_deploy.jar",
       "ijar": "%{name}_ijar.jar",
       "manifest": "%{name}_MANIFEST.MF",
       },
 )
+
+# creates a yolo copy of a jar so bazel can't track that it might have generated it itself in a java rule
+def yolocopy(name, index, jar):
+  target = "{}_yolocopy{}".format(name, index)
+  copy = "{}_yolocopy{}.jar".format(name, index)
+
+  native.genrule(
+    name = target,
+    srcs = [jar],
+    outs = [copy],
+    cmd = "cp $(location {}) $@".format(jar)
+  )
+
+  return copy
+
+# guesses the jar name of a scala dependency target
+def convertScalaTargetToJar(target):
+  if target.endswith("//jar") or target.endswith("//file"): # maven JAR and HTTP file artifacts
+    return target
+  elif target.find(":") == -1: # default target dependencies like //foo/bar
+    parts = target.split("/")
+    return "{}:lib{}.jar".format(target, parts[len(parts)-1])
+  else: # spefic target dependencies like //foo/bar:baz
+    parts = target.split(":")
+    return "{}:lib{}.jar".format(parts[0], parts[1])
+
+# wrapper around the scala_only_library rule that additionally generates a pseudo-implicit _java import target
+def scala_library(name, srcs = None, main_class = None, exports = None, deps = None, runtime_deps = None, testonly = None, visibility = None, resources = None):
+  scala_only_library(
+    name = name,
+    srcs = srcs,
+    main_class = main_class,
+    exports = exports,
+    deps = deps,
+    runtime_deps = runtime_deps,
+    testonly = testonly,
+    visibility = visibility,
+    resources = resources,
+  )
+
+  javaDependencies = []
+  javaDependencies.append(":lib{}.jar".format(name))
+  dependencyIndex = 0
+  if exports != None:
+    for target in exports:
+      javaDependencies.append(yolocopy(name, dependencyIndex, convertScalaTargetToJar(target)))
+      dependencyIndex += 1
+
+  javaRuntimeDeps = ["@scala//:lib/scala-library.jar"]
+  if runtime_deps != None:
+    for target in runtime_deps:
+      javaRuntimeDeps.append(yolocopy(name, dependencyIndex, convertScalaTargetToJar(target)))
+      dependencyIndex += 1
+
+  native.java_import(
+    name = "{}_java".format(name),
+    jars = javaDependencies,
+    runtime_deps = javaRuntimeDeps,
+    visibility = visibility,
+  )
 
 scala_macro_library = rule(
   implementation=_scala_macro_library_impl,
@@ -543,7 +603,7 @@ scala_macro_library = rule(
       "exports": attr.label_list(allow_files=False),
       } + _implicit_deps + _common_attrs,
   outputs={
-      "jar": "%{name}.jar",
+      "jar": "lib%{name}.jar",
       "deploy_jar": "%{name}_deploy.jar",
       "manifest": "%{name}_MANIFEST.MF",
       },
@@ -643,6 +703,7 @@ def scala_repositories():
   )
 
 def scala_export_to_java(name, exports, runtime_deps):
+  print("You are using scala_export_to_java, which is *very* slow. Depend on the implicit _java target of your scala_library instead!")
   jars = []
   for target in exports:
     jars.append("{}_deploy.jar".format(target))
