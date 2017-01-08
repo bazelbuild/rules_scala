@@ -12,6 +12,9 @@ tut_repositories()
 load("//jmh:jmh.bzl", "jmh_repositories")
 jmh_repositories()
 
+load("//junit:junit.bzl", "junit_repositories")
+junit_repositories()
+
 # test adding a scala jar:
 maven_jar(
   name = "com_twitter__scalding_date",

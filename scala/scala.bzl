@@ -298,6 +298,23 @@ def _write_launcher(ctx, jars):
         content=content)
 
 
+def _write_junit_test_launcher(ctx, jars, test_suite):
+    #TODO- allow jvm flags for the junit process
+    content = """#!/bin/bash
+{java} -cp {cp} -ea {classesFlag} org.junit.runner.JUnitCore {test_suite_class} 
+"""
+    content = content.format(
+      java=ctx.file._java.short_path,
+      #Possible problem- don't know if I need to manually add the discovered_classes file
+      # to the classpath and if so is this the path I need to add
+      cp=":".join([j.short_path for j in jars]) + ":" + test_suite.discovered_classes.short_path,
+      test_suite_class=test_suite.suite_class,
+      classesFlag = test_suite.classesFlag
+    )
+    ctx.file_action(
+        output=ctx.outputs.executable,
+        content=content)
+
 def _write_test_launcher(ctx, jars):
     if len(ctx.attr.suites) != 0:
         print(
@@ -492,6 +509,43 @@ def _scala_test_impl(ctx):
               ]
     rjars += _collect_jars(ctx.attr.runtime_deps).runtime
     _write_test_launcher(ctx, rjars)
+    return _scala_binary_common(ctx, cjars, rjars)
+
+def _discover_classes(ctx, suffix, archive):
+    discovered_classes = ctx.new_file(ctx.label.name + "_discovered_classes.txt")
+    ctx.action(
+      inputs=[archive],
+      outputs=[discovered_classes],
+      progress_message="Discovering classes with suffix of %s" % suffix,
+      command="unzip -l {archive} | grep {suffix}.class".format(archive=archive, suffix=suffix))
+    return discovered_classes
+
+def _gen_test_suite_based_on_prefix(ctx, archive):
+    #TODO enable custom patterns
+    #TODO evolve from suffix to pattern and add "Test*","*IT","*E2E" by default
+    discovered_classes = _discover_classes(ctx, "Test", archive)
+    return struct(suite_class = "io.bazel.rulesscala.test_discovery.DiscoveredTestSuite", classesFlag = "-Dbazel.discovered.classes.file.path=%s" % discovered_classes.short_path, discovered_classes = discovered_classes)
+
+def _scala_junit_test_impl(ctx):
+#TODO write a test that needs a compile time dependency and a runtime dependency    
+#    jars = _collect_jars(ctx.attr.deps)
+#    (cjars, rjars) = (jars.compiletime, jars.runtime)
+#    deps = ctx.attr.deps
+    deps = [ctx.attr._suite]
+    jars = _collect_jars(deps)
+    (cjars, rjars) = (jars.compiletime, jars.runtime)
+    cjars += [ctx.file._junit,ctx.file._hamcrest]
+    rjars += [
+              ctx.outputs.jar,
+              ctx.file._scalalib,
+              ctx.file._junit,
+              ctx.file._hamcrest,
+              ]
+    rjars += _collect_jars(ctx.attr.runtime_deps).runtime
+    test_suite = _gen_test_suite_based_on_prefix(ctx, ctx.outputs.jar)
+    _write_junit_test_launcher(ctx, rjars, test_suite)
+    #Possible problem- test_suite.discovered_classes file is not accesible to the binary
+    # should it be added to the runfiles? how?
     return _scala_binary_common(ctx, cjars, rjars)
 
 _implicit_deps = {
@@ -728,4 +782,20 @@ def scala_library_suite(name,
         ts.append(n)
     scala_library(name = name, deps = ts, exports = exports + ts, visibility = visibility)
 
+scala_junit_test = rule(
+  implementation=_scala_junit_test_impl,
+  attrs={
+#TODO see if we can parameterize the runner
+#      "main_class": attr.string(default="org.junit.runner.JUnitCore"),
+      "_junit": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/junit/junit"), single_file=True, allow_files=True),
+      "_hamcrest": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/hamcrest/hamcrest_core"), single_file=True, allow_files=True),
+      "_suite": attr.label(default=Label("//src/java/io/bazel/rulesscala/test_discovery:test_discovery")),
+      } + _implicit_deps + _common_attrs,
+  outputs={
+      "jar": "%{name}.jar",
+      "deploy_jar": "%{name}_deploy.jar",
+      "manifest": "%{name}_MANIFEST.MF",
+      },
+  test=True,
+)
 

@@ -8,7 +8,8 @@ load("//scala:scala.bzl",
     "scala_export_to_java",
     "scala_repl",
     "scala_test_suite",
-    "scala_library_suite")
+    "scala_library_suite",
+    "scala_junit_test")
 
 # The examples below show how to combine Scala and Java rules.
 # ScalaBinary is the Scala equivalent of JavaBinary.
@@ -215,4 +216,9 @@ scala_binary(
     name = "JavaOnlySources",
     srcs = ["src/main/scala/scala/test/only_java/Alpha.java"],
     main_class = "scala.test.Alpha",
+)
+
+scala_junit_test(
+    name = "JunitTest",
+    srcs = ["src/main/scala/scala/test/junit/JunitTest.scala"],
 )
