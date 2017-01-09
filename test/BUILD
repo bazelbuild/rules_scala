@@ -7,6 +7,7 @@ load("//scala:scala.bzl",
     "scala_macro_library",
     "scala_export_to_java",
     "scala_repl",
+    "scala_test_suite",
     "scala_library_suite")
 
 # The examples below show how to combine Scala and Java rules.
@@ -88,7 +89,7 @@ scala_test(
     ],
 )
 
-scala_test(
+scala_test_suite(
     name = "HelloLibTestSuite",
     size = "small",  # Not a macro, can pass test-specific attributes.
     srcs = glob(["HelloLibTest*.scala"]),
