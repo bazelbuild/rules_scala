@@ -338,3 +338,20 @@ session. An example in this repo:
 bazel build test:HelloLibRepl
 bazel-bin/test/HelloLibRepl
 ```
+
+<a name="scala_library_suite"></a>
+## scala_library_suite
+
+The scala library suite allows you to define a glob or series of targets to generate sub
+scala libraries for. The outer target will export all of the inner targets. This allows splitting up
+of a series of independent files in a larger target into smaller ones. This lets us cache outputs better
+and also build the indvidual targets in parallel. Downstream targets should not be aware of its presence.
+
+<a name="scala_test_suite"></a>
+## scala_test_suite
+
+The scala test suite allows you to define a glob or series of targets to generate sub
+scala tests for. The outer target defines a native test suite to run all the inner tests. This allows splitting up
+of a series of independent tests from one target into several. This lets us cache outputs better
+and also build and test the indvidual targets in parallel.
+

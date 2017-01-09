@@ -656,3 +656,63 @@ def scala_export_to_java(name, exports, runtime_deps):
     jars = jars,
     runtime_deps = ["@scala//:lib/scala-library.jar"] + runtime_deps
   )
+
+def _sanitize_string_for_usage(s):
+    res_array = []
+    for c in s:
+        if c.isalnum() or c == ".":
+            res_array.append(c)
+        else:
+            res_array.append("_")
+    return "".join(res_array)
+
+# This auto-generates a test suite based on the passed set of targets
+# we will add a root test_suite with the name of the passed name
+def scala_test_suite(name, srcs = [], deps = [], runtime_deps = [], data = [], resources = [],
+                     scalacopts = [], jvm_flags = [], visibility = None, size = None):
+    ts = []
+    for test_file in srcs:
+        n = "%s_test_suite_%s" % (name, _sanitize_string_for_usage(test_file))
+        scala_test(name = n, srcs = [test_file], deps = deps, runtime_deps = runtime_deps, resources=resources, scalacopts=scalacopts, jvm_flags=jvm_flags, visibility=visibility, size=size)
+        ts.append(n)
+    native.test_suite(name = name, tests = ts, visibility = visibility)
+
+# Scala library suite generates a series of scala libraries
+# then it depends on them with a meta one which exports all the sub targets
+def scala_library_suite(name,
+                        srcs = [],
+                        deps = [],
+                        exports = [],
+                        plugins = [],
+                        runtime_deps = [],
+                        data = [],
+                        resources = [],
+                        resource_strip_prefix = "",
+                        scalacopts = [],
+                        javacopts = [],
+                        jvm_flags = [],
+                        print_compile_time = False,
+                        visibility = None
+                        ):
+    ts = []
+    for src_file in srcs:
+        n = "%s_lib_%s" % (name, _sanitize_string_for_usage(src_file))
+        scala_library(name = n,
+                      srcs = [src_file],
+                      deps = deps,
+                      plugins = plugins,
+                      runtime_deps = runtime_deps,
+                      data = data,
+                      resources=resources,
+                      resource_strip_prefix = resource_strip_prefix,
+                      scalacopts = scalacopts,
+                      javacopts = javacopts,
+                      jvm_flags = jvm_flags,
+                      print_compile_time = print_compile_time,
+                      visibility=visibility,
+                      exports=exports
+                      )
+        ts.append(n)
+    scala_library(name = name, exports = exports + ts, visibility = visibility)
+
+

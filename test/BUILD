@@ -6,7 +6,9 @@ load("//scala:scala.bzl",
     "scala_test",
     "scala_macro_library",
     "scala_export_to_java",
-    "scala_repl")
+    "scala_repl",
+    "scala_test_suite",
+    "scala_library_suite")
 
 # The examples below show how to combine Scala and Java rules.
 # ScalaBinary is the Scala equivalent of JavaBinary.
@@ -87,6 +89,15 @@ scala_test(
     ],
 )
 
+scala_test_suite(
+    name = "HelloLibTestSuite",
+    size = "small",  # Not a macro, can pass test-specific attributes.
+    srcs = glob(["HelloLibTest*.scala"]),
+    deps = [
+        ":HelloLib",
+    ],
+)
+
 scala_repl(
     name = "HelloLibTestRepl",
     deps = [":HelloLibTest"])
@@ -107,6 +118,18 @@ scala_library(
     name = "Exported",
     srcs = ["Exported.scala"],
     runtime_deps = ["Runtime"],
+)
+
+# Test of a grouped library
+scala_library_suite(
+    name = "SuiteSrcs",
+    srcs = glob(["Data*.scala"]),
+)
+
+scala_library(
+    name = "ConsumeSuite",
+    srcs = ["SuiteUsage.scala"],
+    deps = ["SuiteSrcs"]
 )
 
 scala_macro_library(
