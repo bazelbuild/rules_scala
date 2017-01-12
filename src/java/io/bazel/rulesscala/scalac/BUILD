@@ -9,7 +9,7 @@ java_binary(name = "scalac",
     "@scala//:lib/scala-xml_2.11-1.0.4.jar",
     "//src/java/io/bazel/rulesscala/jar",
     "//src/java/com/google/devtools/build/lib:worker",
-    "@guava//jar",
+    "@scalac_rules_guava//jar",
   ],
   visibility = ["//visibility:public"],
 )

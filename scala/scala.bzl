@@ -651,14 +651,14 @@ def scala_repositories():
   )
 
   native.maven_jar(
-    name = "guava",
+    name = "scalac_rules_guava",
     artifact = "com.google.guava:guava:20.0",
     sha1 = "89507701249388e1ed5ddcf8c41f4ce1be7831ef",
     server = "scalac_deps_maven_server",
   )
 
   native.maven_jar(
-    name = "protobuf_java",
+    name = "scalac_rules_protobuf_java",
     artifact = "com.google.protobuf:protobuf-java:3.1.0",
     sha1 = "e13484d9da178399d32d2d27ee21a77cfb4b7873",
     server = "scalac_deps_maven_server",
