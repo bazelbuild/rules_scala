@@ -19,18 +19,13 @@ and `scala_test`.
 ## Getting started
 
 In order to use `scala_library`, `scala_macro_library`, and `scala_binary`,
-you must have bazel 0.3.1 and add the following to your WORKSPACE file:
+you must have bazel 0.3.1 or later and add the following to your WORKSPACE file:
 
 ```python
 git_repository(
     name = "io_bazel_rules_scala",
     remote = "https://github.com/bazelbuild/rules_scala.git",
-    commit = "bdd5e298b95a2a0bb05bf520e787069dcba1d6e9", # update this as needed
-)
-git_repository(
-    name = "io_bazel",
-    remote = "git://github.com/bazelbuild/bazel.git",
-    tag = "0.3.1",
+    commit = "73743b830ae98d13a946b25ad60cad5fee58e6d3", # update this as needed
 )
 
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
