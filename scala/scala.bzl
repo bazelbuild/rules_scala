@@ -645,6 +645,25 @@ def scala_repositories():
     sha256 = "f198967436a5e7a69cfd182902adcfbcb9f2e41b349e1a5c8881a2407f615962",
   )
 
+  native.maven_server(
+    name = "scalac_deps_maven_server",
+    url = "http://bazel-mirror.storage.googleapis.com/repo1.maven.org/maven2/",
+  )
+
+  native.maven_jar(
+    name = "guava",
+    artifact = "com.google.guava:guava:20.0",
+    sha1 = "89507701249388e1ed5ddcf8c41f4ce1be7831ef",
+    server = "scalac_deps_maven_server",
+  )
+
+  native.maven_jar(
+    name = "protobuf_java",
+    artifact = "com.google.protobuf:protobuf-java:3.1.0",
+    sha1 = "e13484d9da178399d32d2d27ee21a77cfb4b7873",
+    server = "scalac_deps_maven_server",
+  )
+
 def scala_export_to_java(name, exports, runtime_deps):
   jars = []
   for target in exports:
