@@ -732,6 +732,6 @@ def scala_library_suite(name,
                       exports=exports
                       )
         ts.append(n)
-    scala_library(name = name, exports = exports + ts, visibility = visibility)
+    scala_library(name = name, deps = ts, exports = exports + ts, visibility = visibility)
 
 
