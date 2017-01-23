@@ -59,6 +59,18 @@ test_transitive_deps() {
   exit 0
 }
 
+test_scala_library_suite() {
+  set +e
+
+  bazel build test_expect_failure/scala_library_suite:library_suite_dep_on_children
+  if [ $? -eq 0 ]; then
+    echo "'bazel build test_expect_failure/scala_library_suite:library_suite_dep_on_children' should have failed."
+    exit 1
+  fi
+  set -e
+  exit 0
+}
+
 test_repl() {
   echo "import scala.test._; HelloLib.printMessage(\"foo\")" | bazel-bin/test/HelloLibRepl | grep "foo java" &&
   echo "import scala.test._; TestUtil.foo" | bazel-bin/test/HelloLibTestRepl | grep "bar" &&
@@ -101,6 +113,7 @@ run_test find -L ./bazel-testlogs -iname "*.xml"
 run_test xmllint_test
 run_test test_build_is_identical
 run_test test_transitive_deps
+run_test test_scala_library_suite
 run_test test_repl
 run_test bazel run test:JavaOnlySources
 
