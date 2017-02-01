@@ -392,7 +392,7 @@ def _lib(ctx, non_macro_lib):
         # new targets which want to leverage a scala_library. For example,
         # new_target1 -> scala_library -> new_target2. There might be
         # information that new_target2 needs to get from new_target1,
-        # but we do not want to ohave to change scala_library to pass
+        # but we do not want to have to change scala_library to pass
         # this information through. extra_information allows passing
         # this information through, and it is up to the new_targets
         # to filter and make sense of this information.
