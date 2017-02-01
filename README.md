@@ -60,7 +60,7 @@ scala_macro_library(name, srcs, deps, runtime_deps, exports, data, main_class, r
 
 `scala_library` generates a `.jar` file from `.scala` source files. This rule
 also creates an interface jar to avoid recompiling downstream targets unless
-then interface changes.
+their interface changes.
 
 `scala_macro_library` generates a `.jar` file from `.scala` source files when
 they contain macros. For macros, there are no interface jars because the macro
