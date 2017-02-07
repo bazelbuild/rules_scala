@@ -200,7 +200,6 @@ SourceJars: {srcjars}
            ctx.files.plugins +
            ctx.files.resources +
            ctx.files._jdk +
-           ctx.files._scalasdk +
            [ctx.outputs.manifest,
             ctx.file._ijar,
             ctx.file._java,
@@ -494,13 +493,10 @@ def _scala_test_impl(ctx):
 
 _implicit_deps = {
   "_ijar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:ijar"), single_file=True, allow_files=True),
-  "_scala": attr.label(executable=True, cfg="data", default=Label("@scala//:bin/scala"), single_file=True, allow_files=True),
   "_scalac": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/scalac"), allow_files=True),
   "_scalalib": attr.label(default=Label("@scala//:lib/scala-library.jar"), single_file=True, allow_files=True),
   "_scalareflect": attr.label(default=Label("@scala//:lib/scala-reflect.jar"), single_file=True, allow_files=True),
   "_scalacompiler": attr.label(default=Label("@scala//:lib/scala-compiler.jar"), single_file=True, allow_files=True),
-  "_scalaxml": attr.label(default=Label("@scala//:lib/scala-xml_2.11-1.0.4.jar"), single_file=True, allow_files=True),
-  "_scalasdk": attr.label(default=Label("@scala//:sdk"), allow_files=True),
   "_scalareflect": attr.label(default=Label("@scala//:lib/scala-reflect.jar"), single_file=True, allow_files=True),
   "_java": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:java"), single_file=True, allow_files=True),
   "_javac": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:javac"), single_file=True, allow_files=True),
@@ -572,6 +568,7 @@ scala_test = rule(
       "suites": attr.string_list(),
       "_scalatest": attr.label(default=Label("@scalatest//file"), single_file=True, allow_files=True),
       "_scalatest_reporter": attr.label(default=Label("//scala/support:test_reporter")),
+      "_scalaxml": attr.label(default=Label("@scala//:lib/scala-xml_2.11-1.0.4.jar"), single_file=True, allow_files=True),
       } + _implicit_deps + _common_attrs,
   outputs={
       "jar": "%{name}.jar",
@@ -584,7 +581,11 @@ scala_test = rule(
 
 scala_repl = rule(
   implementation=_scala_repl_impl,
-  attrs= _implicit_deps + _common_attrs,
+  attrs= _implicit_deps +
+    _common_attrs +
+    {
+        "_scala": attr.label(executable=True, cfg="data", default=Label("@scala//:bin/scala"), single_file=True, allow_files=True)
+    },
   outputs={},
   executable=True,
 )
@@ -620,15 +621,6 @@ exports_files([
   "lib/scala-xml_2.11-1.0.4.jar",
   "lib/scalap-2.11.8.jar",
 ])
-
-filegroup(
-    name = "sdk",
-    # For some reason, the SDK zip contains a baked-in version of akka. We need
-    # to explicitly exclude it here, otherwise the scala compiler will grab it
-    # and put it on its classpath.
-    srcs = glob(["**"], exclude=["lib/akka-actor_2.11-2.3.10.jar"]),
-    visibility = ["//visibility:public"],
-)
 """
 
 def scala_repositories():
