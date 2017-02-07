@@ -2,13 +2,6 @@
 
 set -e
 
-setup_failing_build() {
-  for f in $(find ./test_expect_failure -iname "BUILD.fail"); do
-    g=${f%.fail}
-    mv $f $g
-  done
-}
-
 test_disappearing_class() {
   git checkout test_expect_failure/disappearing_class/ClassProvider.scala
   bazel build test_expect_failure/disappearing_class:uses_class
@@ -107,10 +100,6 @@ function run_test() {
 xmllint_test() {
   find -L ./bazel-testlogs -iname "*.xml" | xargs -n1 xmllint > /dev/null
 }
-
-# move the BUILD.fail files so bazel build //... works
-setup_failing_build
-
 run_test bazel build test/...
 run_test bazel test test/...
 run_test bazel run test/src/main/scala/scala/test/twitter_scrooge:justscrooges
