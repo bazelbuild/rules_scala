@@ -204,6 +204,8 @@ SourceJars: {srcjars}
             ctx.file._ijar,
             ctx.file._java,
             ctx.file._scalacompiler,
+            ctx.file._scalareflect,
+            ctx.file._scalalib,
             argfile])
     ctx.action(
         inputs=ins,
