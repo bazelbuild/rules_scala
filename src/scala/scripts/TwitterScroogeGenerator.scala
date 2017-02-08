@@ -13,14 +13,14 @@ import java.util.jar.{ JarEntry, JarFile, JarOutputStream }
 object FinalJarCreator {
   val gm = """(\S+) -> (\S+)""".r
 
-  def apply(dest: Path, owned: Set[Path], genFileMap: Path, scroogeDir: Path) {
+  def apply(dest: Path, owned: Set[String], genFileMap: Path, scroogeDir: Path) {
     val genmap = Source.fromFile(genFileMap.toString)
       .getLines
       .foldLeft(Map.empty[String, Set[String]]) { case (m, gm(thrift, gen)) =>
         m.+((thrift, m.getOrElse(thrift, Set.empty[String]) + gen))
       }
     val shouldMove =
-      owned.map(_.toString).foldLeft(Set.empty[String]) { (s, n) =>
+      owned.foldLeft(Set.empty[String]) { (s, n) =>
         genmap.get(n).fold(s) { s ++ _ }
       }.map { Paths.get(_).normalize }
     val jar = new JarOutputStream(new FileOutputStream(dest.toFile))
@@ -79,24 +79,17 @@ object ScroogeGenerator {
     }
   }
 
-  def extractJarTo(_jar: Path, _dest: Path): List[Path] = {
-    val files = Buffer[Path]()
+  def listJar(_jar: Path): List[String] = {
+    val files = List.newBuilder[String]
     val jar = new JarFile(_jar.toFile)
     val enumEntries = jar.entries()
     while (enumEntries.hasMoreElements) {
       val file = enumEntries.nextElement().asInstanceOf[JarEntry]
-      val path = _dest.resolve(file.getName)
-      if (file.isDirectory) Files.createDirectories(path)
-      else {
-        val is = jar.getInputStream(file)
-
-        try Files.copy(is, path) // Will error out if path already exists
-        finally is.close()
-
-        files += path
+      if (!file.isDirectory) {
+        files += file.getName
       }
     }
-    files.toList
+    files.result()
   }
 
   def readLinesAsPaths(path: Path): Set[Path] =
@@ -126,37 +119,27 @@ object ScroogeGenerator {
 
     val scrooge = new Compiler
 
-    // we need to extract into the same tree, as that is the only way to get relative imports between them working..
-    // AS SUCH, we are just going to try extracting EVERYTHING to the same tree, and we will just error if there
+    // these are the ones we are actually generating
+    def allFilesInZips(i: Iterable[Path]): Set[String] =
+      i.flatMap(listJar(_)).toSet
+
+    val immediateThriftSrcs = allFilesInZips(immediateThriftSrcJars)
+    immediateThriftSrcs.foreach { scrooge.thriftFiles += _ }
+    immediateThriftSrcJars.foreach { path => scrooge.includePaths += path.toString }
+    onlyTransitiveThriftSrcJars.foreach { path => scrooge.includePaths += path.toString }
+
+    // should check that we have no overlap in any of the types
+    // we are just going to try extracting EVERYTHING to the same tree, and we will just error if there
     // are more than one.
-    val _tmp =  Files.createTempDirectory(tmp, "jar")
-    // This will only be meaningful if they have absolute_prefix set
-    scrooge.includePaths += _tmp.toString
-
-    def extract(jars: Set[Path]): Set[Path] =
-      jars.flatMap { jar =>
-        val files = extractJarTo(jar, _tmp)
-        files.foreach { scrooge.includePaths += _.toString }
-        files
-      }
-
-    val immediateThriftSrcs = extract(immediateThriftSrcJars)
-
-    immediateThriftSrcs.foreach { scrooge.thriftFiles += _.toString }
-
-    val onlyTransitiveThriftSrcs = extract(onlyTransitiveThriftSrcJars)
-
-    val intersect = onlyTransitiveThriftSrcs.intersect(immediateThriftSrcs)
-
+    val intersect = allFilesInZips(onlyTransitiveThriftSrcJars).intersect(immediateThriftSrcs)
     if (intersect.nonEmpty)
       sys.error("onlyTransitiveThriftSrcs and immediateThriftSrcs should " +
         s"have not intersection, found: ${intersect.mkString(",")}")
 
     val remoteSrcJars = readLinesAsPaths(remoteJarsFile)
-    extract(remoteSrcJars)
+    remoteSrcJars.foreach { path => scrooge.includePaths += path.toString }
 
-    val dirsToDelete = Set(scroogeOutput, _tmp)
-
+    val dirsToDelete = Set(scroogeOutput)
     scrooge.destFolder = scroogeOutput.toString
     scrooge.fileMapPath = Some(genFileMap.toString)
     //TODO we should make this configurable
