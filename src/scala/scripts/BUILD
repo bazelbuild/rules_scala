@@ -7,7 +7,8 @@ scala_library(
     "@scrooge_generator//jar",
     "@util_core//jar",
     "@util_logging//jar",
-    ":scala_parsers",
+    "//src/scala/io/bazel/rules_scala/scrooge_support:compiler",
+    "//src/scala:parser_combinators",
   ],
   visibility = ["//visibility:public"],
 )
@@ -19,9 +20,4 @@ scala_binary(
     ":generator_lib",
   ],
   visibility = ["//visibility:public"],
-)
-
-java_import(
-  name = "scala_parsers",
-  jars = ["@scala//:lib/scala-parser-combinators_2.11-1.0.4.jar"],
 )

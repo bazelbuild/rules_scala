@@ -1,6 +1,6 @@
 package scripts
 
-import com.twitter.scrooge.Compiler
+import io.bazel.rules_scala.scrooge_support.{ Compiler, CompilerDefaults }
 
 import scala.collection.mutable.Buffer
 import scala.io.Source
@@ -8,7 +8,7 @@ import scala.io.Source
 import java.io.{ File, FileOutputStream, IOException }
 import java.nio.file.{ Files, SimpleFileVisitor, FileVisitResult, Path, Paths }
 import java.nio.file.attribute.{ BasicFileAttributes, FileTime }
-import java.util.jar.{ JarEntry, JarFile, JarOutputStream }
+import java.util.jar.{ JarEntry, JarOutputStream }
 
 object FinalJarCreator {
   val gm = """(\S+) -> (\S+)""".r
@@ -79,21 +79,9 @@ object ScroogeGenerator {
     }
   }
 
-  def listJar(_jar: Path): List[String] = {
-    val files = List.newBuilder[String]
-    val jar = new JarFile(_jar.toFile)
-    val enumEntries = jar.entries()
-    while (enumEntries.hasMoreElements) {
-      val file = enumEntries.nextElement().asInstanceOf[JarEntry]
-      if (!file.isDirectory) {
-        files += file.getName
-      }
-    }
-    files.result()
-  }
 
-  def readLinesAsPaths(path: Path): Set[Path] =
-    Source.fromFile(path.toString).getLines.map(Paths.get(_)).toSet
+  def readLines(path: Path): List[String] =
+    Source.fromFile(path.toString).getLines.toSet.toList.sorted
 
   def main(args: Array[String]) {
     if (args.length != 4) sys.error("Need to ensure enough arguments! " +
@@ -110,34 +98,34 @@ object ScroogeGenerator {
 
     // These are all of the files to include when generating scrooge
     // Should not include anything in immediateThriftSrcs
-    val onlyTransitiveThriftSrcJars = readLinesAsPaths(onlyTransitiveThriftSrcsFile)
+    val onlyTransitiveThriftSrcJars = readLines(onlyTransitiveThriftSrcsFile)
 
     // These are the files whose output we want
-    val immediateThriftSrcJars = readLinesAsPaths(immediateThriftSrcsFile)
+    val immediateThriftSrcJars = readLines(immediateThriftSrcsFile)
+    // remote jars are jars that come from another repo, really no different from transitive
+    val remoteSrcJars = readLines(remoteJarsFile)
 
     val genFileMap = scroogeOutput.resolve("gen-file-map.txt")
 
     val scrooge = new Compiler
 
-    // these are the ones we are actually generating
-    def allFilesInZips(i: Iterable[Path]): Set[String] =
-      i.flatMap(listJar(_)).toSet
-
-    val immediateThriftSrcs = allFilesInZips(immediateThriftSrcJars)
-    immediateThriftSrcs.foreach { scrooge.thriftFiles += _ }
-    immediateThriftSrcJars.foreach { path => scrooge.includePaths += path.toString }
-    onlyTransitiveThriftSrcJars.foreach { path => scrooge.includePaths += path.toString }
+    scrooge.compileJars ++= immediateThriftSrcJars
+    scrooge.includeJars ++= onlyTransitiveThriftSrcJars
+    scrooge.includeJars ++= remoteSrcJars
 
     // should check that we have no overlap in any of the types
     // we are just going to try extracting EVERYTHING to the same tree, and we will just error if there
     // are more than one.
-    val intersect = allFilesInZips(onlyTransitiveThriftSrcJars).intersect(immediateThriftSrcs)
+    def allFilesInZips(fs: List[String]): Set[String] =
+      fs.flatMap { f => CompilerDefaults.listJar(new File(f)) }.toSet
+
+    val immediateThriftSrcs = allFilesInZips(immediateThriftSrcJars)
+    val intersect = allFilesInZips(onlyTransitiveThriftSrcJars)
+      .intersect(immediateThriftSrcs)
+
     if (intersect.nonEmpty)
       sys.error("onlyTransitiveThriftSrcs and immediateThriftSrcs should " +
         s"have not intersection, found: ${intersect.mkString(",")}")
-
-    val remoteSrcJars = readLinesAsPaths(remoteJarsFile)
-    remoteSrcJars.foreach { path => scrooge.includePaths += path.toString }
 
     val dirsToDelete = Set(scroogeOutput)
     scrooge.destFolder = scroogeOutput.toString
