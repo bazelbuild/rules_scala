@@ -9,6 +9,7 @@ scala_library(
     "@util_logging//jar",
     "//src/scala/io/bazel/rules_scala/scrooge_support:compiler",
     "//src/scala:parser_combinators",
+    "//src/java/io/bazel/rulesscala/jar",
   ],
   visibility = ["//visibility:public"],
 )

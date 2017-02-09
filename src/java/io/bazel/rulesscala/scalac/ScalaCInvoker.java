@@ -122,6 +122,9 @@ public class ScalaCInvoker {
     Enumeration e = jar.entries();
     while (e.hasMoreElements()) {
       JarEntry file = (JarEntry) e.nextElement();
+      String thisFileName = file.getName();
+      // we don't bother to extract non-scala/java sources (skip manifest)
+      if (!(thisFileName.endsWith(".scala") || thisFileName.endsWith(".java"))) continue;
       File f = new File(outputFolder + File.separator + file.getName());
 
       if (file.isDirectory()) { // if its a directory, create it

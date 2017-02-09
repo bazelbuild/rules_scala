@@ -18,9 +18,18 @@ case class FocusedZipImporter(focus: Option[File], zips: List[File]) extends Imp
   private def toZipEntryPath(n: String): String = focus match {
     case None => n
     case Some(f) =>
-      val str = (new File(f, n)).toString
-      if (str(0) == File.pathSeparatorChar) str.substring(1)
-      else str
+      def loop(leftPart: File, p: List[String]): File = p match {
+        case Nil => leftPart
+        case ".." :: tail =>
+          val parent = leftPart.getParentFile
+          if (parent == null) sys.error(s"invalid path: $n with focus: $focus for zips: $zips")
+          else loop(parent, tail)
+        case child :: tail => loop(new File(leftPart, child), tail)
+      }
+      val parts = n.split("/", -1).toList
+      val newPath = loop(f, parts).toString
+      if (parts(0) == File.pathSeparatorChar) newPath.substring(1)
+      else newPath
   }
 
   private def resolve(filename: String): Option[(ZipEntry, ZipFile, FocusedZipImporter)] = {

@@ -102,7 +102,7 @@ class Compiler {
         val inputFile = Paths.get(inputFullPath).getFileName.toString
         val focus = Option((new File(inputFullPath)).getParentFile)
         // allow lookup either focused, or relative to the root of the repo
-        val importer = FocusedZipImporter(focus, allJars) +: MultiImporter(allJars.map(ZipImporter(_)))
+        val importer = FocusedZipImporter(focus, allJars) +: FocusedZipImporter(None, allJars)
         val parser = new ThriftParser(
           importer,
           strict,
