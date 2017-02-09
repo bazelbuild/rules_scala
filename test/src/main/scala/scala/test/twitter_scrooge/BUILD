@@ -54,6 +54,14 @@ scrooge_scala_library(
     ],
   visibility = ["//visibility:public"],
 )
+scrooge_scala_library(
+  name = "scrooge4a",
+  deps = [
+    "//test/src/main/scala/scala/test/twitter_scrooge/thrift/thrift2/thrift4:thrift4a",
+    ":scrooge4"
+    ],
+  visibility = ["//visibility:public"],
+)
 
 scala_library(
   name = "justscrooge1",

@@ -24,6 +24,7 @@ case class FocusedZipImporter(focus: Option[File], zips: List[File]) extends Imp
           val parent = leftPart.getParentFile
           if (parent == null) sys.error(s"invalid path: $n with focus: $focus for zips: $zips")
           else loop(parent, tail)
+        case "." :: tail => loop(leftPart, tail)
         case child :: tail => loop(new File(leftPart, child), tail)
       }
       val parts = n.split("/", -1).toList
