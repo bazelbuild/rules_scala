@@ -6,13 +6,16 @@ import java.io.File
 import java.util.zip.{ZipFile, ZipEntry}
 import scala.io.Source
 
+object FocusedZipImporter {
+  def forPaths(focus: Option[File], zips: List[File]): FocusedZipImporter =
+    FocusedZipImporter(focus, zips, zips.map(new ZipFile(_)))
+}
+
 /**
  * A FocusedZipImporter is just a ZipImporter that has a current directory
  * associated with it (the focus)
  */
-case class FocusedZipImporter(focus: Option[File], zips: List[File]) extends Importer {
-  private[this] val zipFiles = zips.map(new ZipFile(_))
-
+case class FocusedZipImporter(focus: Option[File], zips: List[File], zipFiles: List[ZipFile]) extends Importer {
   override lazy val canonicalPaths = zips.map(_.getCanonicalPath)
 
   private def toZipEntryPath(n: String): String = focus match {
