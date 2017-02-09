@@ -21,6 +21,7 @@ case class FocusedZipImporter(focus: Option[File], zips: List[File], zipFiles: L
   private def toZipEntryPath(n: String): String = focus match {
     case None => n
     case Some(f) =>
+      @annotation.tailrec
       def loop(leftPart: File, p: List[String]): File = p match {
         case Nil => leftPart
         case ".." :: tail =>

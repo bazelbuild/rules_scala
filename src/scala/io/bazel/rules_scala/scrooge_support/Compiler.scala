@@ -19,6 +19,16 @@ package io.bazel.rules_scala.scrooge_support
  * copy-pasta from:
  * https://github.com/twitter/scrooge/blob/develop/scrooge-generator/src/main/scala/com/twitter/scrooge/Compiler.scala
  * to customize the Importers
+ *
+ * Since scrooge always adds a Importer(".") it would find it from that path by happenstance of how bazel works, but
+ * not if there is sandboxing preventing it from seeing it.
+ *
+ * The solution is make a new Compiler class, don't reuse thrifts, and have better control of how importing works.
+ * Doing this I learned that scrooge's zip/jar support is pretty broken and really only works if all imports are
+ * considered relative to some fictional root directory (a style done at Twitter, but not really standard for thrift).
+ * With my new Compiler, I could only add the importers I want. I made a new importer which is a zip importer that also
+ * knows where it is in the zip file. In this way, it could use a thrift jar that itself has internal relative imports
+ * (such as our monster thrift jar at Stripe).
  */
 
 import com.twitter.scrooge._
