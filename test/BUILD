@@ -216,3 +216,30 @@ scala_binary(
     srcs = ["src/main/scala/scala/test/only_java/Alpha.java"],
     main_class = "scala.test.Alpha",
 )
+
+#Import native libs
+# Native library created on OSX with
+#    gcc -shared -o libNativeLibCompiledElsewhere.dylib NativeLib.c
+cc_library(
+    name = "NativeLibCompiledElsewhere",
+    srcs = [
+        "libNativeLibCompiledElsewhere.dylib",
+    ],
+)
+
+java_test(
+    name = "NativeTestJava",
+    srcs = ["NativeTestJava.java"],
+    test_class = "scala.test.NativeTestJava",
+    deps = [
+        ":NativeLibCompiledElsewhere",
+    ],
+)
+
+scala_test(
+    name = "NativeTestScala",
+    srcs = ["NativeTestScala.scala"],
+    deps = [
+        ":NativeLibCompiledElsewhere",
+    ],
+)
