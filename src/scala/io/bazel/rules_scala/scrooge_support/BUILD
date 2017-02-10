@@ -4,9 +4,9 @@ scala_library(
   name = "compiler",
   srcs = ["Compiler.scala"],
   deps = [
-    "@scrooge_generator//jar",
-    "@util_core//jar",
-    "@util_logging//jar",
+    "//external:io_bazel_rules_scala/dependency/thrift/scrooge_generator",
+    "//external:io_bazel_rules_scala/dependency/thrift/util_core",
+    "//external:io_bazel_rules_scala/dependency/thrift/util_logging",
     "//src/scala:parser_combinators",
     ":focused_zip_importer",
   ],
@@ -17,7 +17,7 @@ scala_library(
   name = "focused_zip_importer",
   srcs = ["FocusedZipImporter.scala"],
   deps = [
-    "@scrooge_generator//jar",
+    "//external:io_bazel_rules_scala/dependency/thrift/scrooge_generator",
   ],
   visibility = ["//visibility:public"],
 )

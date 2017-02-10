@@ -18,7 +18,6 @@ def twitter_scrooge():
     sha1 = "2203b4df04943f4d52c53b9608cef60c08786ef2",
     server = "twitter_scrooge_maven_server",
   )
-
   native.bind(name = 'io_bazel_rules_scala/dependency/thrift/libthrift', actual = '@libthrift//jar')
 
   native.maven_jar(
@@ -27,7 +26,6 @@ def twitter_scrooge():
     sha1 = "84b86c2e082aba6e0c780b3c76281703b891a2c8",
     server = "twitter_scrooge_maven_server",
   )
-
   native.bind(name = 'io_bazel_rules_scala/dependency/thrift/scrooge_core', actual = '@scrooge_core//jar')
 
   #scrooge-generator related dependencies
@@ -37,18 +35,23 @@ def twitter_scrooge():
     sha1 = "cacf72eedeb5309ca02b2d8325c587198ecaac82",
     server = "twitter_scrooge_maven_server",
   )
+  native.bind(name = 'io_bazel_rules_scala/dependency/thrift/scrooge_generator', actual = '@scrooge_generator//jar')
+
   native.maven_jar(
     name = "util_core",
     artifact = scala_mvn_artifact("com.twitter:util-core:6.33.0"),
     sha1 = "bb49fa66a3ca9b7db8cd764d0b26ce498bbccc83",
     server = "twitter_scrooge_maven_server",
   )
+  native.bind(name = 'io_bazel_rules_scala/dependency/thrift/util_core', actual = '@util_core//jar')
+
   native.maven_jar(
     name = "util_logging",
     artifact = scala_mvn_artifact("com.twitter:util-logging:6.33.0"),
     sha1 = "3d28e46f8ee3b7ad1b98a51b98089fc01c9755dd",
     server = "twitter_scrooge_maven_server",
   )
+  native.bind(name = 'io_bazel_rules_scala/dependency/thrift/util_logging', actual = '@util_logging//jar')
 
 def _collect_transitive_srcs(targets):
   r = set()

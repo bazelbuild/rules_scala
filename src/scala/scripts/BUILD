@@ -4,9 +4,9 @@ scala_library(
   name = "generator_lib",
   srcs = ["TwitterScroogeGenerator.scala"],
   deps = [
-    "@scrooge_generator//jar",
-    "@util_core//jar",
-    "@util_logging//jar",
+    "//external:io_bazel_rules_scala/dependency/thrift/scrooge_generator",
+    "//external:io_bazel_rules_scala/dependency/thrift/util_core",
+    "//external:io_bazel_rules_scala/dependency/thrift/util_logging",
     "//src/scala/io/bazel/rules_scala/scrooge_support:compiler",
     "//src/scala:parser_combinators",
     "//src/java/io/bazel/rulesscala/jar",
