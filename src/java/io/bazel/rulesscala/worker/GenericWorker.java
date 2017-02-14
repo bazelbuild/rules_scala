@@ -98,7 +98,7 @@ public class GenericWorker {
 
   private boolean contains(String[] args, String s) {
     for (String str : args) {
-      if (str == s) return true;
+      if (str.equals(s)) return true;
     }
     return false;
   }
@@ -122,7 +122,6 @@ public class GenericWorker {
         runPersistentWorker();
       }
       else {
-        runPersistentWorker();
         List<String> args = Arrays.asList(argArray);
         processor.processRequest(normalize(args));
       }
