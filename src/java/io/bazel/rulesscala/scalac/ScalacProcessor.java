@@ -39,8 +39,8 @@ class ScalacProcessor implements Processor {
       reporterField = Driver.class.getDeclaredField("reporter"); //NoSuchFieldException
       reporterField.setAccessible(true);
     }
-    catch (Exception ex) {
-      throw new RuntimeException("nope", ex);
+    catch (NoSuchFieldException ex) {
+      throw new RuntimeException("could not access reporter field on Driver", ex);
     }
   }
 

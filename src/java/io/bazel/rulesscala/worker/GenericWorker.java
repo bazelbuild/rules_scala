@@ -116,18 +116,13 @@ public class GenericWorker {
   /**
    * This is expected to be called by a main method
    */
-  public void run(String[] argArray) {
-    try {
-      if (contains(argArray, "--persistent_worker")) {
-        runPersistentWorker();
-      }
-      else {
-        List<String> args = Arrays.asList(argArray);
-        processor.processRequest(normalize(args));
-      }
+  public void run(String[] argArray) throws Exception {
+    if (contains(argArray, "--persistent_worker")) {
+      runPersistentWorker();
     }
-    catch (Exception ex) {
-      throw new RuntimeException("nope", ex);
+    else {
+      List<String> args = Arrays.asList(argArray);
+      processor.processRequest(normalize(args));
     }
   }
 }

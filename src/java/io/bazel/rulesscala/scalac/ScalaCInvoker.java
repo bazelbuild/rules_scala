@@ -42,7 +42,8 @@ public class ScalaCInvoker extends GenericWorker {
       w.run(args);
     }
     catch (Exception ex) {
-      throw new RuntimeException("nope", ex);
+      ex.printStackTrace();
+      System.exit(1);
     }
   }
 }
