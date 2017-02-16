@@ -10,13 +10,14 @@ scala_library(
     "//src/scala/io/bazel/rules_scala/scrooge_support:compiler",
     "//src/scala:parser_combinators",
     "//src/java/io/bazel/rulesscala/jar",
+    "//src/java/io/bazel/rulesscala/worker",
   ],
   visibility = ["//visibility:public"],
 )
 
 scala_binary(
   name = "generator",
-  main_class = "scripts.ScroogeGenerator",
+  main_class = "scripts.ScroogeWorker",
   deps = [
     ":generator_lib",
   ],

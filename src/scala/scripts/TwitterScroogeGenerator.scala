@@ -2,10 +2,11 @@ package scripts
 
 import io.bazel.rules_scala.scrooge_support.{ Compiler, CompilerDefaults }
 import io.bazel.rulesscala.jar.JarCreator
-import java.io.{ File, FileOutputStream, IOException }
+import java.io.{ File, FileOutputStream, IOException, PrintStream }
 import java.nio.file.attribute.{ BasicFileAttributes, FileTime }
 import java.nio.file.{ Files, SimpleFileVisitor, FileVisitResult, Path, Paths }
 import scala.collection.mutable.Buffer
+import io.bazel.rulesscala.worker.{ GenericWorker, Processor }
 import scala.io.Source
 
 object DeleteRecursively extends SimpleFileVisitor[Path] {
@@ -21,40 +22,53 @@ object DeleteRecursively extends SimpleFileVisitor[Path] {
   }
 }
 
-object ScroogeGenerator {
-  def deleteDir(path: Path) {
-    try {
-      Files.walkFileTree(path, DeleteRecursively)
-    } catch {
-      case e: Exception =>
-    }
+
+/**
+ * This is our entry point to producing a scala target
+ * this can act as one of Bazel's persistant workers.
+ */
+object ScroogeWorker extends GenericWorker(new ScroogeGenerator) {
+
+  override protected def setupOutput(ps: PrintStream): Unit = {
+    System.setOut(ps)
+    System.setErr(ps)
+    Console.setErr(ps)
+    Console.setOut(ps)
   }
 
-
-  def readLines(path: Path): List[String] =
-    Source.fromFile(path.toString).getLines.toSet.toList.sorted
-
   def main(args: Array[String]) {
-    if (args.length != 4) sys.error("Need to ensure enough arguments! " +
-      "Required 4 arguments: onlyTransitiveThriftSrcs immediateThriftSrcs " +
-      "jarOutput remoteJarsFile. Received: " + args)
+    try run(args)
+    catch {
+      case x: Exception =>
+        x.printStackTrace()
+        System.exit(1)
+    }
+  }
+}
 
-    val onlyTransitiveThriftSrcsFile = Paths.get(args(0))
-    val immediateThriftSrcsFile = Paths.get(args(1))
-    val jarOutput = args(2)
-    val remoteJarsFile = Paths.get(args(3))
+class ScroogeGenerator extends Processor {
+  def deleteDir(path: Path): Unit =
+    try Files.walkFileTree(path, DeleteRecursively)
+    catch {
+      case e: Exception => ()
+    }
+
+  def processRequest(args: java.util.List[String]) {
+    def getIdx(i: Int): List[String] =
+      if (args.size > i) args.get(i).split(':').toList.filter(_.nonEmpty)
+      else Nil
+
+    val jarOutput = args.get(0)
+    // These are the files whose output we want
+    val immediateThriftSrcJars = getIdx(1)
+    // These are all of the files to include when generating scrooge
+    // Should not include anything in immediateThriftSrcs
+    val onlyTransitiveThriftSrcJars = getIdx(2)
+    // remote jars are jars that come from another repo, really no different from transitive
+    val remoteSrcJars = getIdx(3)
 
     val tmp = Paths.get(Option(System.getenv("TMPDIR")).getOrElse("/tmp"))
     val scroogeOutput = Files.createTempDirectory(tmp, "scrooge")
-
-    // These are all of the files to include when generating scrooge
-    // Should not include anything in immediateThriftSrcs
-    val onlyTransitiveThriftSrcJars = readLines(onlyTransitiveThriftSrcsFile)
-
-    // These are the files whose output we want
-    val immediateThriftSrcJars = readLines(immediateThriftSrcsFile)
-    // remote jars are jars that come from another repo, really no different from transitive
-    val remoteSrcJars = readLines(remoteJarsFile)
 
     val scrooge = new Compiler
 
