@@ -94,8 +94,8 @@ def _assert_set_is_subset(left, right):
     fail('scrooge_srcjar target must depend on scrooge_srcjar targets sufficient to ' +
          'cover the transitive graph of thrift files. Uncovered sources: ' + str(missing))
 
-def _path_newline(data):
-  return '\n'.join([f.path for f in data])
+def _colon_paths(data):
+  return ':'.join([f.path for f in data])
 
 def _gen_scrooge_srcjar_impl(ctx):
   remote_jars = set()
@@ -126,31 +126,31 @@ def _gen_scrooge_srcjar_impl(ctx):
   # in order to generate code) have targets which will compile them.
   _assert_set_is_subset(only_transitive_thrift_srcs, transitive_owned_srcs)
 
-  remote_jars_file = ctx.new_file(ctx.outputs.srcjar, ctx.outputs.srcjar.short_path + "_remote_jars")
-  ctx.file_action(output=remote_jars_file, content=_path_newline(remote_jars))
+  path_content = "\n".join([_colon_paths(ps) for ps in [immediate_thrift_srcs, only_transitive_thrift_srcs, remote_jars]])
+  worker_content = "{output}\n{paths}\n".format(output = ctx.outputs.srcjar.path, paths = path_content)
 
-  only_transitive_thrift_srcs_file = ctx.new_file(ctx.outputs.srcjar, ctx.outputs.srcjar.short_path + "_only_transitive_thrift_srcs")
-  ctx.file_action(output = only_transitive_thrift_srcs_file, content = _path_newline(only_transitive_thrift_srcs))
-
-  immediate_thrift_srcs_file = ctx.new_file(ctx.outputs.srcjar, ctx.outputs.srcjar.short_path + "_immediate_thrift_srcs")
-  ctx.file_action(output = immediate_thrift_srcs_file, content = _path_newline(immediate_thrift_srcs))
-
+  argfile = ctx.new_file(ctx.outputs.srcjar, "%s_worker_input" % ctx.label.name)
+  ctx.file_action(output=argfile, content=worker_content)
   ctx.action(
     executable = ctx.executable._pluck_scrooge_scala,
     inputs = list(remote_jars) +
         list(only_transitive_thrift_srcs) +
         list(immediate_thrift_srcs) +
-        [remote_jars_file,
-         only_transitive_thrift_srcs_file,
-         immediate_thrift_srcs_file],
+        [argfile],
     outputs = [ctx.outputs.srcjar],
-    arguments = [
-      only_transitive_thrift_srcs_file.path,
-      immediate_thrift_srcs_file.path,
-      ctx.outputs.srcjar.path,
-      remote_jars_file.path,
-    ],
+    mnemonic="ScroogeRule",
     progress_message = "creating scrooge files %s" % ctx.label,
+    execution_requirements={"supports-workers": "1"},
+    #  when we run with a worker, the `@argfile.path` is removed and passed
+    #  line by line as arguments in the protobuf. In that case,
+    #  the rest of the arguments are passed to the process that
+    #  starts up and stays resident.
+
+    # In either case (worker or not), they will be jvm flags which will
+    # be correctly handled since the executable is a jvm app that will
+    # consume the flags on startup.
+
+    arguments=["--jvm_flag=%s" % flag for flag in ctx.attr.jvm_flags] + ["@" + argfile.path],
   )
 
   jars = _collect_scalaattr(ctx.attr.deps)
@@ -208,6 +208,7 @@ scrooge_scala_srcjar = rule(
         #     "covered," as well as needing the thrifts to
         #     do the code gen.
         "remote_jars": attr.label_list(),
+        "jvm_flags": attr.string_list(),  # the jvm flags to use with the generator
         "_pluck_scrooge_scala": attr.label(
           executable=True,
           cfg="host",

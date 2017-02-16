@@ -45,18 +45,23 @@ object CompilerDefaults {
   var language: String = "scala"
   var defaultNamespace: String = "thrift"
 
-  def listJar(_jar: File): List[String] = {
-    val files = List.newBuilder[String]
-    val jar = new JarFile(_jar)
-    val enumEntries = jar.entries()
-    while (enumEntries.hasMoreElements) {
-      val file = enumEntries.nextElement().asInstanceOf[JarEntry]
-      if (!file.isDirectory) {
-        files += file.getName
+  def listJar(_jar: File): List[String] =
+    try {
+      val files = List.newBuilder[String]
+      val jar = new JarFile(_jar)
+      val enumEntries = jar.entries()
+      while (enumEntries.hasMoreElements) {
+        val file = enumEntries.nextElement().asInstanceOf[JarEntry]
+        if (!file.isDirectory) {
+          files += file.getName
+        }
       }
+      files.result()
     }
-    files.result()
-  }
+    catch {
+      case x: Exception =>
+        throw new Exception(s"failed to open: ${_jar}", x)
+    }
 }
 
 class Compiler {
