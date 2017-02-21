@@ -350,3 +350,15 @@ scala tests for. The outer target defines a native test suite to run all the inn
 of a series of independent tests from one target into several. This lets us cache outputs better
 and also build and test the indvidual targets in parallel.
 
+## Building from source
+Test & Build:
+```
+bash test_run.sh
+```
+This doesn't currently pass on OS X (see #136 for details) and so you can also use:
+
+```
+bazel test //test/...
+```
+Note `bazel test //...` will not work since we have a sub-folder on the root folder which is meant to be used in a failure scenario in the integration tests.    
+Similarly to only build you should use `bazel build //src/...` due to that folder.
