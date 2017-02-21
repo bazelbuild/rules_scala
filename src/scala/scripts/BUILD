@@ -11,6 +11,7 @@ scala_library(
     "//src/scala:parser_combinators",
     "//src/java/io/bazel/rulesscala/jar",
     "//src/java/io/bazel/rulesscala/worker",
+    "//src/java/io/bazel/rulesscala/io_utils",
   ],
   visibility = ["//visibility:public"],
 )
