@@ -14,15 +14,15 @@ object TutCompiler {
     // Now move the single md file in that directory onto outfile
     mdOutput.toFile.listFiles.toList match {
       case List(path) =>
-        // expect exactly one output
-        if (!path.renameTo(new File(outfile))) {
-          System.err.println(s"could not move $path to $outfile")
-          System.exit(1)
-        }
-        else {
-          // remove the tmp directory
+        try {
+          Files.copy(path.toPath, Paths.get(outfile))
           DeleteRecursively.run(mdOutput)
           println(s"wrote: $outfile")
+        }
+        catch {
+          case t: Throwable =>
+            System.err.println(s"could not move $path to $outfile. $t")
+            System.exit(1)
         }
       case many =>
           System.err.println(s"expected one file in $mdOutput, found: $many")
