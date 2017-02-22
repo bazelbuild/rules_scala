@@ -2,26 +2,12 @@ package scripts
 
 import io.bazel.rules_scala.scrooge_support.{ Compiler, CompilerDefaults }
 import io.bazel.rulesscala.jar.JarCreator
-import java.io.{ File, FileOutputStream, IOException, PrintStream }
-import java.nio.file.attribute.{ BasicFileAttributes, FileTime }
-import java.nio.file.{ Files, SimpleFileVisitor, FileVisitResult, Path, Paths }
+import io.bazel.rulesscala.io_utils.DeleteRecursively
+import java.io.{ File, PrintStream }
+import java.nio.file.{ Files, Path, Paths }
 import scala.collection.mutable.Buffer
 import io.bazel.rulesscala.worker.{ GenericWorker, Processor }
 import scala.io.Source
-
-object DeleteRecursively extends SimpleFileVisitor[Path] {
-  override def visitFile(file: Path, attr: BasicFileAttributes) = {
-    Files.delete(file)
-    FileVisitResult.CONTINUE
-  }
-
-  override def postVisitDirectory(dir: Path, e: IOException) = {
-    if (e != null) throw e
-    Files.delete(dir)
-    FileVisitResult.CONTINUE
-  }
-}
-
 
 /**
  * This is our entry point to producing a scala target
@@ -48,7 +34,7 @@ object ScroogeWorker extends GenericWorker(new ScroogeGenerator) {
 
 class ScroogeGenerator extends Processor {
   def deleteDir(path: Path): Unit =
-    try Files.walkFileTree(path, DeleteRecursively)
+    try DeleteRecursively.run(path)
     catch {
       case e: Exception => ()
     }

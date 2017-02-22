@@ -6,6 +6,9 @@ scala_repositories()
 load("//twitter_scrooge:twitter_scrooge.bzl", "twitter_scrooge", "scrooge_scala_library")
 twitter_scrooge()
 
+load("//tut_rule:tut.bzl", "tut_repositories")
+tut_repositories()
+
 # test adding a scala jar:
 maven_jar(
   name = "com_twitter__scalding_date",
