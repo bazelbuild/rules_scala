@@ -227,7 +227,7 @@ class ScalacProcessor implements Processor {
     String contents = String.join("\n", args);
     BufferedWriter writer = Files.newBufferedWriter(argsFile);
     writer.write(contents);
-    writer.flush();
+    writer.close();
     return argsFile;
   }
 
