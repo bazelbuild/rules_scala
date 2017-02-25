@@ -707,6 +707,9 @@ def scala_library_suite(name,
                         print_compile_time = False,
                         visibility = None
                         ):
+    if (len(srcs) == 0):
+      fail('a library suite requires at least one item in srcs')
+
     ts = []
     for src_file in srcs:
         n = "%s_lib_%s" % (name, _sanitize_string_for_usage(src_file))
