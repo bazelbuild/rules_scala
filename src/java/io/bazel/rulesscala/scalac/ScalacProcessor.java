@@ -27,7 +27,6 @@ import java.util.Map.Entry;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.stream.Collectors;
 import scala.tools.nsc.*;
 import scala.tools.nsc.reporters.ConsoleReporter;
 
