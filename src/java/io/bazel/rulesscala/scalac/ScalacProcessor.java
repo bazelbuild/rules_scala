@@ -223,11 +223,12 @@ class ScalacProcessor implements Processor {
     args.add("-classpath " + ops.classpath + ":" + tmpPath.toString());
     args.add("-d " + tmpPath.toString());
     for(String javaFile : ops.javaFiles) {
-      args.add(javaFile.toString());
+      args.add(escapeSpaces(javaFile.toString()));
     }
-    String contents = String.join("\n", args.stream().map(ScalacProcessor::escapeSpaces).collect(Collectors.toList()));
+    String contents = String.join("\n", args);
     BufferedWriter writer = Files.newBufferedWriter(argsFile);
-    writer.write(contents, 0, 0);
+    writer.write(contents);
+    writer.flush();
     return argsFile;
   }
 
