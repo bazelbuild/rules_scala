@@ -19,20 +19,28 @@ def _common_prefix(strings):
   return pref
 
 def _thrift_library_impl(ctx):
-  prefix = ctx.attr.absolute_prefix
+  prefixes = [p for p in ctx.attr.absolute_prefixes + [ctx.attr.absolute_prefix] if p != '']
+
   src_paths = [f.path for f in ctx.files.srcs]
   if len(src_paths) <= 0:
     fail("we require at least one thrift file in a target")
 
   jarcmd = "{jar} cMf {out} -C {out}_tmp ."
-  if prefix != '':
+  if len(prefixes) > 0:
     common_prefix = _common_prefix(src_paths)
-    pos = common_prefix.find(prefix)
-    if pos < 0:
-      fail("could not find prefix: {prefix} in the common prefix: {common_prefix}".format(
-          prefix = prefix,
+    found_prefixes = [p for p in prefixes if common_prefix.find(p) >= 0]
+
+    if len(found_prefixes) == 0:
+      fail("could not find prefix from available prefixes: {prefixes} in the common prefix: {common_prefix}".format(
+          prefixes = ",".join(prefixes),
+          common_prefix = common_prefix))
+    elif len(found_prefixes) > 1:
+      fail("Too many not prefixes found, matched: {found_prefixes} in the common prefix: {common_prefix}".format(
+          found_prefixes = ",".join(found_prefixes),
           common_prefix = common_prefix))
     else:
+      prefix = found_prefixes[0]
+      pos = common_prefix.find(prefix)
       endpos = pos + len(prefix)
       actual_prefix = common_prefix[0:endpos]
       jarcmd = "{{jar}} cMf {{out}} -C {{out}}_tmp/{pf} .".format(pf=actual_prefix)
@@ -114,6 +122,7 @@ thrift_library = rule(
       # or whatever, but I think that we should make it such that the archive
       # created by this is created in such a way that absolute imports work...
       "absolute_prefix": attr.string(default='', mandatory=False),
+      "absolute_prefixes": attr.string_list(),
       "_jar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:jar"), single_file=True, allow_files=True),
       "_jdk": attr.label(default=Label("//tools/defaults:jdk"), allow_files=True),
   },
