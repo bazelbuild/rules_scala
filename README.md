@@ -408,6 +408,8 @@ thrift_library(name, srcs, deps, absolute_prefix, absolute_prefixes)
         <p>Each of these strings acts as a wildcard expression of the form <code>*string_value</code> that is removed from the start of the path.
         Example: thrift is at <code>a/b/c/d/e/A.thrift</code> , prefix of <code>b/c/d</code>. Will mean other thrift targets can refer to this thrift
         at <code>e/A.thrift</code>. Exactly one of these must match all thrift paths within the target, more than one or zero will fail the build.
+        The main use case to have several here is to make a macro target you can share across several indvidual <code>thrift_library</code>, if source path is
+        <code>/src/thrift</code> or <code>/src/main/thrift</code> it can strip off the prefix without users needing to configure it per target.
         </p>
       </td>
     </tr>
