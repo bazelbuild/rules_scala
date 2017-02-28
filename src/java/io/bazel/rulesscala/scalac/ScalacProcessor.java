@@ -5,6 +5,7 @@ import com.google.devtools.build.lib.worker.WorkerProtocol.WorkResponse;
 import io.bazel.rulesscala.jar.JarCreator;
 import io.bazel.rulesscala.worker.GenericWorker;
 import io.bazel.rulesscala.worker.Processor;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -184,26 +185,52 @@ class ScalacProcessor implements Processor {
     commandParts.add(ops.javacPath);
 
     Collections.addAll(commandParts, ops.jvmFlags);
-    if (!"".equals(ops.javacOpts)) {
-      commandParts.add(ops.javacOpts);
+    Path argsFile = newArgFile(ops, tmpPath);
+    commandParts.add("@" + normalizeSlash(argsFile.toFile().getAbsolutePath()));
+    try {
+      Process iostat = new ProcessBuilder(commandParts)
+        .inheritIO()
+        .start();
+      int exitCode = iostat.waitFor();
+      if(exitCode != 0) {
+        throw new RuntimeException("javac process failed!");
+      }
     }
-
-    commandParts.add("-classpath");
-    commandParts.add(ops.classpath + ":" + tmpPath.toString());
-    commandParts.add("-d");
-    commandParts.add(tmpPath.toString());
-    for(String javaFile : ops.javaFiles) {
-      commandParts.add(javaFile.toString());
-    }
-
-    Process iostat = new ProcessBuilder(commandParts)
-      .inheritIO()
-      .start();
-    int exitCode = iostat.waitFor();
-    if(exitCode != 0) {
-      throw new RuntimeException("javac process failed!");
+    finally {
+      removeTmp(argsFile);
     }
   }
+
+  private static final String normalizeSlash(String str) {
+    return str.replace(File.separatorChar, '/');
+  }
+
+  private static final String escapeSpaces(String str) {
+    return '\"' + normalizeSlash(str) + '\"';
+  }
+
+  /** collects javac compile options into an 'argfile'
+    * http://docs.oracle.com/javase/8/docs/technotes/tools/windows/javac.html#BHCJEIBB
+    */
+  private static final Path newArgFile(CompileOptions ops, Path tmpPath) throws IOException {
+    Path argsFile = Files.createTempFile("argfile", null);
+    List<String> args = new ArrayList<>();
+    if (!"".equals(ops.javacOpts)) {
+      args.add(ops.javacOpts);
+    }
+
+    args.add("-classpath " + ops.classpath + ":" + tmpPath.toString());
+    args.add("-d " + tmpPath.toString());
+    for(String javaFile : ops.javaFiles) {
+      args.add(escapeSpaces(javaFile.toString()));
+    }
+    String contents = String.join("\n", args);
+    BufferedWriter writer = Files.newBufferedWriter(argsFile);
+    writer.write(contents);
+    writer.close();
+    return argsFile;
+  }
+
   private static void removeTmp(Path tmp) throws IOException {
     if (tmp != null) {
       Files.walkFileTree(tmp, new SimpleFileVisitor<Path>() {
