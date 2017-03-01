@@ -3,13 +3,16 @@
 set -e
 
 test_disappearing_class() {
-  git checkout test_expect_failure/disappearing_class/ClassProvider.scala
+  # back up
+  cp test_expect_failure/disappearing_class/ClassProvider.scala ClassProvider.scala.tmp
   bazel build test_expect_failure/disappearing_class:uses_class
   echo -e "package scala.test\n\nobject BackgroundNoise{}" > test_expect_failure/disappearing_class/ClassProvider.scala
   set +e
   bazel build test_expect_failure/disappearing_class:uses_class
   RET=$?
-  git checkout test_expect_failure/disappearing_class/ClassProvider.scala
+  # restore
+  cp  ClassProvider.scala.tmp test_expect_failure/disappearing_class/ClassProvider.scala
+  rm -f ClassProvider.scala.tmp
   if [ $RET -eq 0 ]; then
     echo "Class caching at play. This should fail"
     exit 1
