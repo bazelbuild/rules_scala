@@ -84,15 +84,17 @@ RED='\033[0;31m'
 
 function run_test() {
   set +e
+  SECONDS=0
   TEST_ARG=$@
   echo "running test $TEST_ARG"
   RES=$($TEST_ARG 2>&1)
   RESPONSE_CODE=$?
+  DURATION=$SECONDS
   if [ $RESPONSE_CODE -eq 0 ]; then
-    echo -e "${GREEN} Test $TEST_ARG successful $NC"
+    echo -e "${GREEN} Test $TEST_ARG successful ($DURATION sec) $NC"
   else
     echo $RES
-    echo -e "${RED} Test $TEST_ARG failed $NC"
+    echo -e "${RED} Test $TEST_ARG failed $NC ($DURATION sec) $NC"
     exit $RESPONSE_CODE
   fi
 }
@@ -100,6 +102,7 @@ function run_test() {
 xmllint_test() {
   find -L ./bazel-testlogs -iname "*.xml" | xargs -n1 xmllint > /dev/null
 }
+
 run_test bazel build test/...
 run_test bazel test test/...
 run_test bazel run test/src/main/scala/scala/test/twitter_scrooge:justscrooges
