@@ -91,14 +91,6 @@ sh_test(
     
     
 sh_test(
-    name = "xmllint_test",
-    size = "small",
-    data = repo,
-    srcs = ["test_run.sh"],
-    args = ["xmllint_test"] + additions    )
-    
-    
-sh_test(
     name = "run_ScalaLibBinary",
     size = "medium",
     data = repo,
