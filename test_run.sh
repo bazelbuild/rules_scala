@@ -100,20 +100,8 @@ function run_test() {
 xmllint_test() {
   find -L ./bazel-testlogs -iname "*.xml" | xargs -n1 xmllint > /dev/null
 }
-run_test bazel build test/...
-run_test bazel test test/...
-run_test bazel run test/src/main/scala/scala/test/twitter_scrooge:justscrooges
-run_test bazel run test:JavaBinary
-run_test bazel run test:JavaBinary2
-run_test bazel run test:MixJavaScalaLibBinary
-run_test bazel run test:ScalaBinary
-run_test bazel run test:ScalaLibBinary
-run_test test_disappearing_class
-run_test find -L ./bazel-testlogs -iname "*.xml"
-run_test xmllint_test
-run_test test_build_is_identical
-run_test test_transitive_deps
-run_test test_scala_library_suite
-run_test test_repl
-run_test bazel run test:JavaOnlySources
+
+ls /Users/ors/tmp
+run_test $@
+
 

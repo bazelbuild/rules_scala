@@ -6,3 +6,9 @@ scala_library(name = "test_reporter",
   deps = ["@scalatest//file", "//src/scala:scala_xml"],
   visibility = ["//visibility:public"],
   )
+
+filegroup(
+    name = "sources",
+    data = glob(["**"]),
+    visibility = ["//visibility:public"]
+    )

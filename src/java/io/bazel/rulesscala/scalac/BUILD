@@ -12,3 +12,9 @@ java_binary(name = "scalac",
   ],
   visibility = ["//visibility:public"],
 )
+
+filegroup(
+    name = "sources",
+    data = glob(["**"]),
+    visibility = ["//visibility:public"]
+    )

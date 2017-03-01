@@ -17,3 +17,9 @@ scala_binary(
   deps = [":tut_compiler_lib"],
   visibility = ["//visibility:public"],
 )
+
+filegroup(
+    name = "sources",
+    data = glob(["**"]),
+    visibility = ["//visibility:public"]
+    )

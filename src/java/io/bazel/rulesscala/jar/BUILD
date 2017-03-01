@@ -11,3 +11,9 @@ java_binary(name = "binary",
   main_class = "io.bazel.rulesscala.jar.JarCreator",
   visibility = ["//visibility:public"],
 )
+
+filegroup(
+    name = "sources",
+    data = glob(["**"]),
+    visibility = ["//visibility:public"]
+    )

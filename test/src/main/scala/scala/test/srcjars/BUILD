@@ -17,3 +17,9 @@ scala_library(
   srcs = ["SourceJar2.scala"],
   deps = [":source_jar"],
 )
+
+filegroup(
+    name = "sources",
+    data = glob(["**"]),
+    visibility = ["//visibility:public"]
+    )

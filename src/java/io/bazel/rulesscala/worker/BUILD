@@ -8,3 +8,9 @@ java_library(name = "worker",
   ],
   visibility = ["//visibility:public"],
 )
+
+filegroup(
+    name = "sources",
+    data = glob(["**"]),
+    visibility = ["//visibility:public"]
+    )

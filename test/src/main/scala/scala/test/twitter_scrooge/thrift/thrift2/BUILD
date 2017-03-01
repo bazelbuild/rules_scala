@@ -13,3 +13,9 @@ thrift_library(
   deps = ["//test/src/main/scala/scala/test/twitter_scrooge/thrift/thrift2/thrift3"],
   visibility = ["//visibility:public"],
 )
+
+filegroup(
+    name = "sources",
+    data = glob(["**"]),
+    visibility = ["//visibility:public"]
+    )

@@ -9,3 +9,9 @@ scala_tut_doc(
     name = "some_example",
     src = "SomeExample.md",
     deps = [":test_dep"])
+
+filegroup(
+    name = "sources",
+    data = glob(["**"]),
+    visibility = ["//visibility:public"]
+    )

@@ -12,3 +12,9 @@ thrift_library(
   deps = [":thrift4"],
   visibility = ["//visibility:public"],
 )
+
+filegroup(
+    name = "sources",
+    data = glob(["**"]),
+    visibility = ["//visibility:public"]
+    )
