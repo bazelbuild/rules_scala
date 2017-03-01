@@ -1,0 +1,3 @@
+build --strategy=Scalac=worker
+test --strategy=Scalac=worker
+build --experimental_repository_cache=/tmp/.bazelcache
