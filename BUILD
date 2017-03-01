@@ -1,4 +1,5 @@
 repo = ["WORKSPACE",
+         ".bazelrc"
          "//scala:sources",
          "//scala/support:sources",
          "//src/java/com/google/devtools/build/lib:sources",
