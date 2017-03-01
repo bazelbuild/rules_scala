@@ -1,5 +1,4 @@
 repo = ["WORKSPACE",
-         ".bazelrc",
          "//scala:sources",
          "//scala/support:sources",
          "//src/java/com/google/devtools/build/lib:sources",
@@ -37,63 +36,49 @@ sh_test(
     size = "large",
     data = repo,
     srcs = ["test_run.sh"],
-    args = ["bazel","build","test/..."] + additions,
-    local = True
-)
+    args = ["bazel","build","test/..."] + additions)
 
 sh_test(
     name = "run_tests_under_tests_package",
     size = "large",
     data = repo,
     srcs = ["test_run.sh"],
-    args = ["bazel","test","test/..."] + additions,
-    local = True
-    )
+    args = ["bazel","test","test/..."] + additions    )
     
 sh_test(
     name = "run_justscrooges",
     size = "medium",
     data = repo,
     srcs = ["test_run.sh"],
-    args = ["bazel","run","test/src/main/scala/scala/test/twitter_scrooge:justscrooges"] + additions,
-    local = True
-    )
+    args = ["bazel","run","test/src/main/scala/scala/test/twitter_scrooge:justscrooges"] + additions    )
     
 sh_test(
     name = "run_JavaBinary",
     size = "large",
-    data = repo,
+    data = repo + ["@bazel_tools//tools/jdk:jar"],
     srcs = ["test_run.sh"],
-    args = ["bazel","run","test:JavaBinary"] + additions,
-    local = True
-    )
+    args = ["bazel","run","test:JavaBinary"] + additions    )
 
 sh_test(
     name = "run_JavaBinary2",
     size = "large",
     data = repo,
     srcs = ["test_run.sh"],
-    args = ["bazel","run","test:JavaBinary2"] + additions,
-    local = True
-    )
+    args = ["bazel","run","test:JavaBinary2"] + additions    )
     
 sh_test(
     name = "MixJavaScalaLibBinary",
     size = "medium",
     data = repo,
     srcs = ["test_run.sh"],
-    args = ["bazel","run","test:MixJavaScalaLibBinary"] + additions,
-    local = True
-    )
+    args = ["bazel","run","test:MixJavaScalaLibBinary"] + additions    )
     
 sh_test(
     name = "run_ScalaBinary",
     size = "medium",
     data = repo,
     srcs = ["test_run.sh"],
-    args = ["bazel","run","test:ScalaBinary"] + additions,
-    local = True
-    )
+    args = ["bazel","run","test:ScalaBinary"] + additions    )
     
     
 sh_test(
@@ -101,9 +86,7 @@ sh_test(
     size = "medium",
     data = repo,
     srcs = ["test_run.sh"],
-    args = ["test_disappearing_class"] + additions,
-    local = True
-    )
+    args = ["test_disappearing_class"] + additions    )
     
     
 sh_test(
@@ -111,9 +94,7 @@ sh_test(
     size = "small",
     data = repo,
     srcs = ["test_run.sh"],
-    args = ["xmllint_test"] + additions,
-    local = True
-    )
+    args = ["xmllint_test"] + additions    )
     
     
 sh_test(
@@ -121,18 +102,14 @@ sh_test(
     size = "medium",
     data = repo,
     srcs = ["test_run.sh"],
-    args = ["bazel","run","test:ScalaLibBinary"] + additions,
-    local = True
-    )  
+    args = ["bazel","run","test:ScalaLibBinary"] + additions    )  
       
 sh_test(
     name = "JavaOnlySources",
     size = "medium",
     data = repo,
     srcs = ["test_run.sh"],
-    args = ["bazel","run","test:JavaOnlySources"] + additions,
-    local = True
-    )
+    args = ["bazel","run","test:JavaOnlySources"] + additions    )
     
     
 sh_test(
@@ -140,9 +117,7 @@ sh_test(
     size = "large",
     data = repo,
     srcs = ["test_run.sh"],
-    args = ["test_build_is_identical"] + additions,
-    local = True
-    )
+    args = ["test_build_is_identical"] + additions    )
     
     
 sh_test(
@@ -150,9 +125,7 @@ sh_test(
     size = "medium",
     data = repo,
     srcs = ["test_run.sh"],
-    args = ["test_transitive_deps"] + additions,
-    local = True
-    )
+    args = ["test_transitive_deps"] + additions    )
     
     
 sh_test(
@@ -160,9 +133,7 @@ sh_test(
     size = "medium",
     data = repo,
     srcs = ["test_run.sh"],
-    args = ["test_scala_library_suite"] + additions,
-    local = True
-    )
+    args = ["test_scala_library_suite"] + additions    )
     
    
     
@@ -171,7 +142,5 @@ sh_test(
     size = "large",
     data = repo,
     srcs = ["test_run.sh"],
-    args = ["test_repl"] + additions,
-    local = True
-    )
+    args = ["test_repl"] + additions    )
     
