@@ -101,7 +101,6 @@ xmllint_test() {
   find -L ./bazel-testlogs -iname "*.xml" | xargs -n1 xmllint > /dev/null
 }
 
-ls /Users/ors/tmp
 run_test $@
 
 
