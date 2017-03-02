@@ -129,11 +129,3 @@ sh_test(
     args = ["test_scala_library_suite"] + additions    )
     
    
-    
-sh_test(
-    name = "test_repl",
-    size = "large",
-    data = repo,
-    srcs = ["test_run.sh"],
-    args = ["test_repl"] + additions    )
-    
