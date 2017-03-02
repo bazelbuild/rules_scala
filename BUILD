@@ -30,56 +30,54 @@ repo = ["WORKSPACE",
          "//tut_rule:sources",
          "//twitter_scrooge:sources"]
 
-additions = [] 
-
 sh_test(
     name = "build_targets_under_tests_package",
     size = "large",
     data = repo,
     srcs = ["test_run.sh"],
-    args = ["bazel","build","test/..."] + additions)
+    args = ["bazel","build","test/..."])
 
 sh_test(
     name = "run_tests_under_tests_package",
     size = "large",
     data = repo,
     srcs = ["test_run.sh"],
-    args = ["bazel","test","test/..."] + additions    )
+    args = ["bazel","test","test/..."] )
     
 sh_test(
     name = "run_justscrooges",
     size = "medium",
     data = repo,
     srcs = ["test_run.sh"],
-    args = ["bazel","run","test/src/main/scala/scala/test/twitter_scrooge:justscrooges"] + additions    )
+    args = ["bazel","run","test/src/main/scala/scala/test/twitter_scrooge:justscrooges"] )
     
 sh_test(
     name = "run_JavaBinary",
     size = "large",
-    data = repo + ["@bazel_tools//tools/jdk:jar"],
+    data = repo + ["@local_jdk//:jdk"],
     srcs = ["test_run.sh"],
-    args = ["bazel","run","test:JavaBinary"] + additions    )
+    args = ["bazel","run","test:JavaBinary"] )
 
 sh_test(
     name = "run_JavaBinary2",
     size = "large",
-    data = repo,
+    data = repo + ["@local_jdk//:jdk"],
     srcs = ["test_run.sh"],
-    args = ["bazel","run","test:JavaBinary2"] + additions    )
+    args = ["bazel","run","test:JavaBinary2"] )
     
 sh_test(
     name = "MixJavaScalaLibBinary",
     size = "medium",
     data = repo,
     srcs = ["test_run.sh"],
-    args = ["bazel","run","test:MixJavaScalaLibBinary"] + additions    )
+    args = ["bazel","run","test:MixJavaScalaLibBinary"] )
     
 sh_test(
     name = "run_ScalaBinary",
     size = "medium",
     data = repo,
     srcs = ["test_run.sh"],
-    args = ["bazel","run","test:ScalaBinary"] + additions    )
+    args = ["bazel","run","test:ScalaBinary"] )
     
     
 sh_test(
@@ -87,7 +85,7 @@ sh_test(
     size = "medium",
     data = repo,
     srcs = ["test_run.sh"],
-    args = ["test_disappearing_class"] + additions    )
+    args = ["test_disappearing_class"] )
     
     
 sh_test(
@@ -95,14 +93,14 @@ sh_test(
     size = "medium",
     data = repo,
     srcs = ["test_run.sh"],
-    args = ["bazel","run","test:ScalaLibBinary"] + additions    )  
+    args = ["bazel","run","test:ScalaLibBinary"] )  
       
 sh_test(
     name = "JavaOnlySources",
     size = "medium",
     data = repo,
     srcs = ["test_run.sh"],
-    args = ["bazel","run","test:JavaOnlySources"] + additions    )
+    args = ["bazel","run","test:JavaOnlySources"] )
     
     
 sh_test(
@@ -110,7 +108,7 @@ sh_test(
     size = "large",
     data = repo,
     srcs = ["test_run.sh"],
-    args = ["test_build_is_identical"] + additions    )
+    args = ["test_build_is_identical"] )
     
     
 sh_test(
@@ -118,7 +116,7 @@ sh_test(
     size = "medium",
     data = repo,
     srcs = ["test_run.sh"],
-    args = ["test_transitive_deps"] + additions    )
+    args = ["test_transitive_deps"] )
     
     
 sh_test(
@@ -126,6 +124,7 @@ sh_test(
     size = "medium",
     data = repo,
     srcs = ["test_run.sh"],
-    args = ["test_scala_library_suite"] + additions    )
+    args = ["test_scala_library_suite"] )
     
-   
+
+    
