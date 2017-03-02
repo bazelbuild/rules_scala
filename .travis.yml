@@ -23,4 +23,4 @@ before_install:
   - cat .bazelrc.travis >> .bazelrc
 
 script:
-  - bazel test :all
+  - bazel test test/integration-tests/...
