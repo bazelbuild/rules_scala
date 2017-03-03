@@ -59,70 +59,55 @@ class ScalacProcessor implements Processor {
         tmpPath.toString()
         };
 
-      String[] compilerArgs = GenericWorker.merge(
-        ops.scalaOpts,
-        ops.pluginArgs,
-        constParams,
-        extractSourceJars(ops, outputPath.getParent()));
+      List<File> jarFiles = extractSourceJars(ops, outputPath.getParent());
+      List<File> scalaJarFiles = filterFilesByExtension(jarFiles, ".scala");
+      List<File> javaJarFiles = filterFilesByExtension(jarFiles, ".java");
 
-      MainClass comp = new MainClass();
-      long start = System.currentTimeMillis();
-
-      try {
-        comp.process(compilerArgs);
-      } catch (Throwable ex) {
-        if(ex.toString().contains("scala.reflect.internal.Types$TypeError")){
-          throw new RuntimeException("Build failure with type error", ex);
-        } else {
-          throw ex;
-        }
+      String[] scalaSources = GenericWorker.appendToString(ops.files, scalaJarFiles);
+      String[] javaSources = GenericWorker.appendToString(ops.javaFiles, javaJarFiles);
+      if (scalaSources.length == 0 && javaSources.length == 0) {
+        throw new RuntimeException("Must have input files from either source jars or local files.");
       }
 
-      long stop = System.currentTimeMillis();
-      if (ops.printCompileTime) {
-        System.err.println("Compiler runtime: " + (stop - start) + "ms.");
+      /**
+       * Compile scala sources if available (if there are none, we will simply
+       * compile java sources).
+       */
+      if (scalaSources.length > 0) {
+        compileScalaSources(ops, scalaSources, tmpPath);
       }
+      /**
+       * See if there are java sources to compile
+       */
+      if (javaSources.length > 0) {
+        compileJavaSources(ops, javaSources, tmpPath);
+      }
+      /**
+       * Copy the resources
+       */
+      copyResources(ops.resourceFiles, ops.resourceStripPrefix, tmpPath);
+      /**
+       * Now build the output jar
+       */
+      String[] jarCreatorArgs = {
+        "-m",
+        ops.manifestPath,
+        outputPath.toString(),
+        tmpPath.toString()
+      };
+      JarCreator.buildJar(jarCreatorArgs);
 
-      ConsoleReporter reporter = (ConsoleReporter) reporterField.get(comp);
-
-      if (reporter.hasErrors()) {
-          reporter.printSummary();
-          reporter.flush();
-          throw new RuntimeException("Build failed");
-      } else {
-        /**
-         * See if there are java sources to compile
-         */
-        if (ops.javaFiles.length > 0) {
-          compileJavaSources(ops, tmpPath);
-        }
-        /**
-         * Copy the resources
-         */
-        copyResources(ops.resourceFiles, ops.resourceStripPrefix, tmpPath);
-        /**
-         * Now build the output jar
-         */
-        String[] jarCreatorArgs = {
-          "-m",
-          ops.manifestPath,
-          outputPath.toString(),
-          tmpPath.toString()
-        };
-        JarCreator.buildJar(jarCreatorArgs);
-
-        /**
-         * Now build the output ijar
-         */
-        if(ops.iJarEnabled) {
-          Process iostat = new ProcessBuilder()
-            .command(ops.ijarCmdPath, ops.outputName, ops.ijarOutput)
-            .inheritIO()
-            .start();
-          int exitCode = iostat.waitFor();
-          if(exitCode != 0) {
-            throw new RuntimeException("ijar process failed!");
-          }
+      /**
+       * Now build the output ijar
+       */
+      if(ops.iJarEnabled) {
+        Process iostat = new ProcessBuilder()
+          .command(ops.ijarCmdPath, ops.outputName, ops.ijarOutput)
+          .inheritIO()
+          .start();
+        int exitCode = iostat.waitFor();
+        if(exitCode != 0) {
+          throw new RuntimeException("ijar process failed!");
         }
       }
     }
@@ -131,7 +116,17 @@ class ScalacProcessor implements Processor {
     }
   }
 
-  static private String[] extractSourceJars(CompileOptions opts, Path tmpParent) throws IOException {
+  private List<File> filterFilesByExtension(List<File> files, String extension) {
+    List<File> filtered = new ArrayList<File>();
+    for (File f: files) {
+      if (f.toString().endsWith(extension)) {
+        filtered.add(f);
+      }
+    }
+    return filtered;
+  }
+
+  static private List<File> extractSourceJars(CompileOptions opts, Path tmpParent) throws IOException {
     List<File> sourceFiles = new ArrayList<File>();
 
     for(String jarPath : opts.sourceJars) {
@@ -140,11 +135,8 @@ class ScalacProcessor implements Processor {
         sourceFiles.addAll(extractJar(jarPath, tmpPath.toString()));
       }
     }
-    String[] files = GenericWorker.appendToString(opts.files, sourceFiles);
-    if(files.length == 0) {
-      throw new RuntimeException("Must have input files from either source jars or local files.");
-    }
-    return files;
+
+    return sourceFiles;
   }
 
   private static List<File> extractJar(String jarPath,
@@ -180,12 +172,52 @@ class ScalacProcessor implements Processor {
     return outputPaths;
   }
 
-  private static void compileJavaSources(CompileOptions ops, Path tmpPath) throws IOException, InterruptedException {
+  private static void compileScalaSources(CompileOptions ops, String[] scalaSources, Path tmpPath) throws IllegalAccessException {
+    String[] constParams = {
+      "-classpath",
+      ops.classpath,
+      "-d",
+      tmpPath.toString()
+    };
+
+    String[] compilerArgs = GenericWorker.merge(
+      ops.scalaOpts,
+      ops.pluginArgs,
+      constParams,
+      scalaSources);
+
+    MainClass comp = new MainClass();
+    long start = System.currentTimeMillis();
+    try {
+      comp.process(compilerArgs);
+    } catch (Throwable ex) {
+      if (ex.toString().contains("scala.reflect.internal.Types$TypeError")) {
+        throw new RuntimeException("Build failure with type error", ex);
+      } else {
+        throw ex;
+      }
+    }
+    long stop = System.currentTimeMillis();
+    if (ops.printCompileTime) {
+      System.err.println("Compiler runtime: " + (stop - start) + "ms.");
+    }
+
+
+    ConsoleReporter reporter = (ConsoleReporter) reporterField.get(comp);
+
+    if (reporter.hasErrors()) {
+      reporter.printSummary();
+      reporter.flush();
+      throw new RuntimeException("Build failed");
+    }
+  }
+
+  private static void compileJavaSources(CompileOptions ops, String[] javaSources, Path tmpPath) throws IOException, InterruptedException {
     ArrayList<String> commandParts = new ArrayList<>();
     commandParts.add(ops.javacPath);
 
     Collections.addAll(commandParts, ops.jvmFlags);
-    Path argsFile = newArgFile(ops, tmpPath);
+    Path argsFile = newArgFile(ops, javaSources, tmpPath);
     commandParts.add("@" + normalizeSlash(argsFile.toFile().getAbsolutePath()));
     try {
       Process iostat = new ProcessBuilder(commandParts)
@@ -212,7 +244,7 @@ class ScalacProcessor implements Processor {
   /** collects javac compile options into an 'argfile'
     * http://docs.oracle.com/javase/8/docs/technotes/tools/windows/javac.html#BHCJEIBB
     */
-  private static final Path newArgFile(CompileOptions ops, Path tmpPath) throws IOException {
+  private static final Path newArgFile(CompileOptions ops, String[] javaSources, Path tmpPath) throws IOException {
     Path argsFile = Files.createTempFile("argfile", null);
     List<String> args = new ArrayList<>();
     if (!"".equals(ops.javacOpts)) {
@@ -221,7 +253,7 @@ class ScalacProcessor implements Processor {
 
     args.add("-classpath " + ops.classpath + ":" + tmpPath.toString());
     args.add("-d " + tmpPath.toString());
-    for(String javaFile : ops.javaFiles) {
+    for(String javaFile : javaSources) {
       args.add(escapeSpaces(javaFile.toString()));
     }
     String contents = String.join("\n", args);
