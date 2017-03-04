@@ -23,3 +23,10 @@ java_library(
     deps = [":c"],
     tags = ["manual"],
 )
+
+filegroup(
+    name = "sources",
+    data = glob(["**"]),
+    path = "test/tut",
+    visibility = ["//visibility:public"]
+    )

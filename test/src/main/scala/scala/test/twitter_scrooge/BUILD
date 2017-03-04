@@ -140,3 +140,9 @@ scala_binary(
     deps = [":allscrooges"],
     main_class = "scala.test.twitter_scrooge.JustScrooge1",
 )
+
+filegroup(
+    name = "sources",
+    data = glob(["**"]),
+    visibility = ["//visibility:public"]
+    )

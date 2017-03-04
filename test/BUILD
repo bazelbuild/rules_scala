@@ -216,3 +216,9 @@ scala_binary(
     srcs = ["src/main/scala/scala/test/only_java/Alpha.java"],
     main_class = "scala.test.Alpha",
 )
+
+filegroup(
+    name = "sources",
+    data = glob(["**"]),
+    visibility = ["//visibility:public"]
+    )

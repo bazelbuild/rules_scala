@@ -3,3 +3,9 @@ java_library(
     srcs = glob(["*.java"]),
     visibility = ["//visibility:public"],
     )
+
+filegroup(
+    name = "sources",
+    data = glob(["**"]),
+    visibility = ["//visibility:public"]
+    )

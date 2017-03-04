@@ -1,6 +1,7 @@
 filegroup(
     name = "sources",
-    data = glob(["**"]),
-    path = "test/tut",
+    data = ["WORKSPACE",".bazelrc"],
     visibility = ["//visibility:public"]
     )
+
+    

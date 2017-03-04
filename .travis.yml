@@ -16,11 +16,11 @@ jdk:
   - oraclejdk8
 
 before_install:
-  - wget 'https://github.com/bazelbuild/bazel/releases/download/0.3.2/bazel-0.3.2-installer-linux-x86_64.sh'
+  - wget 'https://github.com/bazelbuild/bazel/releases/download/0.4.4/bazel-0.4.4-installer-linux-x86_64.sh'
   - sha256sum -c .bazel-installer-linux-x86_64.sh.sha256
-  - chmod +x bazel-0.3.2-installer-linux-x86_64.sh
-  - ./bazel-0.3.2-installer-linux-x86_64.sh --user
-  - mv .bazelrc.travis .bazelrc
+  - chmod +x bazel-0.4.4-installer-linux-x86_64.sh
+  - ./bazel-0.4.4-installer-linux-x86_64.sh --user
+  - cat .bazelrc.travis >> .bazelrc
 
 script:
-  - bash test_run.sh
+  - bazel test test/integration-tests/...

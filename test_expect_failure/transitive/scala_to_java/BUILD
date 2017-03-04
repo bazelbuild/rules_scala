@@ -21,3 +21,9 @@ scala_library(
     srcs = ["D.scala"],
     tags = ["manual"],
 )
+
+filegroup(
+    name = "sources",
+    data = glob(["**"]),
+    visibility = ["//visibility:public"]
+    )

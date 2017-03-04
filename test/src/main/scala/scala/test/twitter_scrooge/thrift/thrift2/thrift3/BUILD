@@ -5,3 +5,8 @@ thrift_library(
   srcs = ["Thrift3.thrift"],
   visibility = ["//visibility:public"],
 )
+filegroup(
+    name = "sources",
+    data = glob(["**"]),
+    visibility = ["//visibility:public"]
+    )

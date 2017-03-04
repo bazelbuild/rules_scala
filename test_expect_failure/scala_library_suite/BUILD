@@ -3,3 +3,8 @@ scala_library_suite(
     name = "library_suite_dep_on_children",
     srcs = glob(["Data*.scala"]),
 )
+filegroup(
+    name = "sources",
+    data = glob(["**"]),
+    visibility = ["//visibility:public"]
+    )

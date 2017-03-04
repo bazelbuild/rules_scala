@@ -9,3 +9,8 @@ java_library(
       "@scalac_rules_protobuf_java//jar",
     ],
 )
+filegroup(
+    name = "sources",
+    data = glob(["**"]),
+    visibility = ["//visibility:public"]
+    )

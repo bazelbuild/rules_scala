@@ -11,3 +11,9 @@ scala_library(
     name = "class_provider",
     srcs = ["ClassProvider.scala"],
 )
+
+filegroup(
+    name = "sources",
+    data = glob(["**"]),
+    visibility = ["//visibility:public"]
+    )
