@@ -517,7 +517,7 @@ def _discover_classes(ctx, suffix, archive):
       inputs=[archive],
       outputs=[discovered_classes],
       progress_message="Discovering classes with suffix of %s" % suffix,
-      command="unzip -l {archive} | grep {suffix}.class".format(archive=archive, suffix=suffix))
+      command="unzip -l {archive} | grep {suffix}.class > {out}".format(archive=archive.path, suffix=suffix,out=discovered_classes.path))
     return discovered_classes
 
 def _gen_test_suite_based_on_prefix(ctx, archive):
@@ -546,7 +546,15 @@ def _scala_junit_test_impl(ctx):
     _write_junit_test_launcher(ctx, rjars, test_suite)
     #Possible problem- test_suite.discovered_classes file is not accesible to the binary
     # should it be added to the runfiles? how?
-    return _scala_binary_common(ctx, cjars, rjars)
+    runfiles = ctx.runfiles(
+      files = list(rjars) + [ctx.outputs.executable] + [ctx.file._java] + ctx.files._jdk + [test_suite.discovered_classes],
+      collect_data = True)
+
+    out = _scala_binary_common(ctx, cjars, rjars)
+    return struct(
+        files = out.files,
+        scala = out.scala,
+        runfiles = runfiles)
 
 _implicit_deps = {
   "_ijar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:ijar"), single_file=True, allow_files=True),
