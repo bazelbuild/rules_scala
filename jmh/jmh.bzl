@@ -85,20 +85,39 @@ def scala_benchmark_jmh(**kw):
   src_jar = "%s_jmh.srcjar" % name
   benchmark_list = "resources/META-INF/BenchmarkList"
   compiler_hints = "resources/META-INF/CompilerHints"
+
+  binary_deploy_jar = "//src/java/io/bazel/rulesscala/jar:binary_deploy.jar"
+
+  java_tool = "@local_jdk//:java"
+  jar_tool = "@local_jdk//:jar"
+  jdk_tool = "//tools/defaults:jdk"
+
   native.genrule(
       name = codegen,
-      srcs = [lib],
+      srcs = [lib, binary_deploy_jar],
       outs = [src_jar, benchmark_list, compiler_hints],
-      tools = [tool, "@local_jdk//:jar"],
+      tools = [tool, java_tool, jar_tool, jdk_tool],
       cmd = """
+BINARY_DEPLOY_JAR=`pwd`/$(location {binary_deploy_jar})
+JAVA=`pwd`/$(location {java_tool})
+JAR=`pwd`/$(location {jar_tool})
+
 pushd `dirname $(location {lib})`
-jar -xf `basename $(location {lib})`
+$$JAR -xf `basename $(location {lib})`
 popd
+
 ./$(location {tool}) $(location {lib}) $(@D)
 pushd $(@D)/sources
-jar -cf ../{name}_jmh.srcjar ./**/*
+$$JAVA -jar $$BINARY_DEPLOY_JAR ../{name}_jmh.srcjar ./
 popd
-""".format(tool=tool, lib=lib, name=name),
+""".format(
+      tool=tool,
+      binary_deploy_jar=binary_deploy_jar,
+      java_tool=java_tool,
+      jar_tool=jar_tool,
+      lib=lib,
+      name=name,
+    ),
   )
 
   compiled_lib = name + "_compiled_benchmark_lib"
