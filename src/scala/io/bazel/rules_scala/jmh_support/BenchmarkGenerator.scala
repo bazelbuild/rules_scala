@@ -13,6 +13,14 @@ import org.openjdk.jmh.runner.options.{ Options, OptionsBuilder }
 import java.nio.file.{Files, FileSystems, Path}
 
 
+/**
+ * Wrapper around JMH generator code to find JMH benchmarks and emit generated
+ * code for running them.
+ *
+ * This implementation is derived from Thomas Switzer's excellent `sbt` plugin,
+ * `sbt-benchmark`. His original implementation may be found here:
+ * https://github.com/tixxit/sbt-benchmark/blob/master/src/main/scala/net/tixxit/sbt/benchmark/BenchmarkPlugin.scala
+ */
 object BenchmarkGenerator {
   case class JmhGeneratedSources(sources: Seq[Path], resources: Seq[Path])
 
