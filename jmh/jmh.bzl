@@ -63,6 +63,8 @@ def scala_benchmark_jmh(**kw):
   srcs = kw["srcs"]
   lib = "%s_generator" % name
   scalacopts = kw.get("scalacopts", [])
+  main_class = kw.get("main_class", "org.openjdk.jmh.Main")
+
   scala_library(
       name = lib,
       srcs = srcs,
@@ -138,5 +140,5 @@ popd
          "//external:io_bazel_rules_scala/dependency/jmh/org_apache_commons_commons_math3",
          compiled_lib,
     ],
-     main_class = "org.openjdk.jmh.Main"
+     main_class = main_class,
   )
