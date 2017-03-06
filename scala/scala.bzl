@@ -307,7 +307,7 @@ def _write_junit_test_launcher(ctx, jars, test_suite):
       java=ctx.file._java.short_path,
       #Possible problem- don't know if I need to manually add the discovered_classes file
       # to the classpath and if so is this the path I need to add
-      cp=":".join([j.short_path for j in jars]) + ":" + test_suite.discovered_classes.short_path,
+      cp=":".join([j.short_path for j in jars]),
       test_suite_class=test_suite.suite_class,
       classesFlag = test_suite.classesFlag
     )
@@ -543,18 +543,11 @@ def _scala_junit_test_impl(ctx):
               ]
     rjars += _collect_jars(ctx.attr.runtime_deps).runtime
     test_suite = _gen_test_suite_based_on_prefix(ctx, ctx.outputs.jar)
+    rjars += list([test_suite.discovered_classes])
     _write_junit_test_launcher(ctx, rjars, test_suite)
-    #Possible problem- test_suite.discovered_classes file is not accesible to the binary
-    # should it be added to the runfiles? how?
-    runfiles = ctx.runfiles(
-      files = list(rjars) + [ctx.outputs.executable] + [ctx.file._java] + ctx.files._jdk + [test_suite.discovered_classes],
-      collect_data = True)
 
-    out = _scala_binary_common(ctx, cjars, rjars)
-    return struct(
-        files = out.files,
-        scala = out.scala,
-        runfiles = runfiles)
+
+    return _scala_binary_common(ctx, cjars, rjars)
 
 _implicit_deps = {
   "_ijar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:ijar"), single_file=True, allow_files=True),
