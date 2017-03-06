@@ -74,9 +74,9 @@ def scala_benchmark_jmh(**kw):
       scalacopts = scalacopts,
       visibility = ["//visibility:public"],
   )
-  tool = "__jmh_benchmark_generator"
+  jmh_benchmark_generator_tool = "__jmh_benchmark_generator"
   scala_binary(
-    name = tool,
+    name = jmh_benchmark_generator_tool,
     main_class = "io.bazel.rules_scala.jmh_support.BenchmarkGenerator",
     deps = [
       "//src/scala/io/bazel/rules_scala/jmh_support:benchmark_generator_lib"
@@ -98,7 +98,12 @@ def scala_benchmark_jmh(**kw):
       name = codegen,
       srcs = [lib, binary_deploy_jar],
       outs = [src_jar, benchmark_list, compiler_hints],
-      tools = [tool, java_tool, jar_tool, jdk_tool],
+      tools = [
+          jmh_benchmark_generator_tool,
+          java_tool,
+          jar_tool,
+          jdk_tool,
+      ],
       cmd = """
 BINARY_DEPLOY_JAR=`pwd`/$(location {binary_deploy_jar})
 JAVA=`pwd`/$(location {java_tool})
@@ -108,12 +113,12 @@ pushd `dirname $(location {lib})`
 $$JAR -xf `basename $(location {lib})`
 popd
 
-./$(location {tool}) $(location {lib}) $(@D)
+./$(location {jmh_benchmark_generator_tool}) $(location {lib}) $(@D)
 pushd $(@D)/sources
 $$JAVA -jar $$BINARY_DEPLOY_JAR ../{name}_jmh.srcjar ./
 popd
 """.format(
-      tool=tool,
+      jmh_benchmark_generator_tool=jmh_benchmark_generator_tool,
       binary_deploy_jar=binary_deploy_jar,
       java_tool=java_tool,
       jar_tool=jar_tool,
