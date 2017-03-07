@@ -305,8 +305,6 @@ def _write_junit_test_launcher(ctx, jars, test_suite):
 """
     content = content.format(
       java=ctx.file._java.short_path,
-      #Possible problem- don't know if I need to manually add the discovered_classes file
-      # to the classpath and if so is this the path I need to add
       cp=":".join([j.short_path for j in jars]),
       test_suite_class=test_suite.suite_class,
       classesFlag = test_suite.classesFlag
