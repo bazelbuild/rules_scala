@@ -548,6 +548,8 @@ def _scala_junit_test_impl(ctx):
       files = [test_suite.discovered_classes])
 
     #TODO is there a way to easily merge both structs
+    #I'd like a scala case class copy:
+    #common_binary.copy(runfiles= common_binary.runfiles.merge(discovered_classes_runfiles))
     return struct(
       files = common_binary.files,
       scala = common_binary.scala,
@@ -793,8 +795,8 @@ scala_junit_test = rule(
   attrs={
 #TODO see if we can parameterize the runner
 #      "main_class": attr.string(default="org.junit.runner.JUnitCore"),
-      "_junit": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/junit/junit"), single_file=True, allow_files=True),
-      "_hamcrest": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/hamcrest/hamcrest_core"), single_file=True, allow_files=True),
+      "_junit": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/junit/junit"), single_file=True),
+      "_hamcrest": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/hamcrest/hamcrest_core"), single_file=True),
       "_suite": attr.label(default=Label("//src/java/io/bazel/rulesscala/test_discovery:test_discovery")),
       } + _implicit_deps + _common_attrs,
   outputs={
