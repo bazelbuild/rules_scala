@@ -515,6 +515,9 @@ def _discover_classes(ctx, suffix, archive):
       inputs=[archive],
       outputs=[discovered_classes],
       progress_message="Discovering classes with suffix of %s" % suffix,
+      #TODO consider with Damien/Ulf/Oscar the implications of switching from grep to scala code
+      #Pro-> logic will be cohesive (currently the scala code assumes stuff from the grep)
+      #Con-> IIRC Ulf warned me about performance implications of these traversals
       command="unzip -l {archive} | grep {suffix}.class > {out}".format(archive=archive.path, suffix=suffix,out=discovered_classes.path))
     return discovered_classes
 
