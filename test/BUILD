@@ -222,3 +222,23 @@ scala_junit_test(
     name = "TestTargetWithJunit",
     srcs = ["src/main/scala/scala/test/junit/JunitTest.scala"],
 )
+
+#JVM args
+#multiple suffix
+#custom suffix
+#pattern
+#-XX:HeapDumpPath=/some/custom/path
+#custom runner?
+#specs2
+#handle case where a target has no test classes
+
+scala_library(
+    name = "JUnitRuntimeDep",
+    srcs = ["src/main/scala/scala/test/junit/support/JUnitRuntimeDep.scala"],
+)
+scala_junit_test(
+    name = "JunitTestWithDeps",
+    srcs = ["src/main/scala/scala/test/junit/JunitWithDeps.scala"],
+    deps = [":HelloLib"],
+    runtime_deps = [":JUnitRuntimeDep"]
+)

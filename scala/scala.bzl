@@ -529,19 +529,15 @@ def _gen_test_suite_based_on_prefix(ctx, archive):
 
 def _scala_junit_test_impl(ctx):
 #TODO write a test that needs a compile time dependency and a runtime dependency    
-#    jars = _collect_jars(ctx.attr.deps)
-#    (cjars, rjars) = (jars.compiletime, jars.runtime)
-#    deps = ctx.attr.deps
-    deps = [ctx.attr._suite]
+    deps = ctx.attr.deps + [ctx.attr._suite]
     jars = _collect_jars(deps)
     (cjars, rjars) = (jars.compiletime, jars.runtime)
-    cjars += [ctx.file._junit,ctx.file._hamcrest]
+    junit_deps = [ctx.file._junit,ctx.file._hamcrest]
+    cjars += junit_deps
     rjars += [
               ctx.outputs.jar,
-              ctx.file._scalalib,
-              ctx.file._junit,
-              ctx.file._hamcrest,
-              ]
+              ctx.file._scalalib
+              ] + junit_deps
     rjars += _collect_jars(ctx.attr.runtime_deps).runtime
     test_suite = _gen_test_suite_based_on_prefix(ctx, ctx.outputs.jar)
     _write_junit_test_launcher(ctx, rjars, test_suite)
