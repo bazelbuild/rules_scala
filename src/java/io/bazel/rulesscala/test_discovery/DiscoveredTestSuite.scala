@@ -16,14 +16,18 @@ object TextFileSuite {
   private val discoveredClasses = readDiscoveredClasses(classesRegistry)
 
   private def readDiscoveredClasses(classesRegistry: String): Array[Class[_]] =
-  	classEntries(classesRegistry)
-  		.map(filterTimeStampAndWhitespace)
+  	entries(classesRegistry)
+  		.map(filterWhitespace)
+      .map(filterMetadata)
   		.map(dropFileSuffix)
   		.map(fileToClassFormat)
   		.map(Class.forName)
 
-  private def filterTimeStampAndWhitespace(classEntry: String): String = 
-  	classEntry.split("\\s+").last
+  private def filterMetadata(zipEntryParts: Array[String]): String = 
+  	zipEntryParts.last
+
+  private def filterWhitespace(zipEntry: String): Array[String] = 
+    zipEntry.split("\\s+")
 
   private def dropFileSuffix(classEntry: String): String = 
   	classEntry.split("\\.").head
@@ -32,7 +36,7 @@ object TextFileSuite {
   private def fileToClassFormat(classEntry: String): String = 
   	classEntry.replace('/', '.')
 
-  private def classEntries(classesRegistry: String): Array[String] =
+  private def entries(classesRegistry: String): Array[String] =
   	scala.io.Source.fromFile(classesRegistry).getLines.toArray
 
   private def classesRegistry: String =
