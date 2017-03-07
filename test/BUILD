@@ -219,6 +219,6 @@ scala_binary(
 )
 
 scala_junit_test(
-    name = "JunitTest",
+    name = "TestTargetWithJunit",
     srcs = ["src/main/scala/scala/test/junit/JunitTest.scala"],
 )
