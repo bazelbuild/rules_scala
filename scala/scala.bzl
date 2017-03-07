@@ -543,11 +543,18 @@ def _scala_junit_test_impl(ctx):
               ]
     rjars += _collect_jars(ctx.attr.runtime_deps).runtime
     test_suite = _gen_test_suite_based_on_prefix(ctx, ctx.outputs.jar)
-    rjars += list([test_suite.discovered_classes])
     _write_junit_test_launcher(ctx, rjars, test_suite)
 
+    common_binary = _scala_binary_common(ctx, cjars, rjars)
+    discovered_classes_runfiles = ctx.runfiles(
+      files = [test_suite.discovered_classes])
 
-    return _scala_binary_common(ctx, cjars, rjars)
+    #TODO is there a way to easily merge both structs
+    return struct(
+      files = common_binary.files,
+      scala = common_binary.scala,
+      runfiles= common_binary.runfiles.merge(discovered_classes_runfiles))
+
 
 _implicit_deps = {
   "_ijar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:ijar"), single_file=True, allow_files=True),
