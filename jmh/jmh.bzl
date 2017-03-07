@@ -91,6 +91,8 @@ def scala_benchmark_jmh(**kw):
       outs = [src_jar, benchmark_list, compiler_hints],
       tools = [
           jmh_benchmark_generator_tool,
+          # Without the JDK, local_jdk//:jar complains of failing to find
+          # a Java SE Runtime Environment.
           jdk_tool,
           jar_creator_tool,
           jar_tool,
