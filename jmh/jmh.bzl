@@ -74,14 +74,7 @@ def scala_benchmark_jmh(**kw):
       scalacopts = scalacopts,
       visibility = ["//visibility:public"],
   )
-  jmh_benchmark_generator_tool = "__jmh_benchmark_generator"
-  scala_binary(
-    name = jmh_benchmark_generator_tool,
-    main_class = "io.bazel.rules_scala.jmh_support.BenchmarkGenerator",
-    deps = [
-      "//src/scala/io/bazel/rules_scala/jmh_support:benchmark_generator_lib"
-    ],
-  )
+  jmh_benchmark_generator_tool = "//src/scala/io/bazel/rules_scala/jmh_support:benchmark_generator"
 
   codegen = name + "_codegen"
   src_jar = "%s_jmh.srcjar" % name
