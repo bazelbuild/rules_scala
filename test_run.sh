@@ -112,6 +112,16 @@ xmllint_test() {
   find -L ./bazel-testlogs -iname "*.xml" | xargs -n1 xmllint > /dev/null
 }
 
+multiple_junit_suffixes() {
+  bazel test //test:JunitMultipleSuffixes
+  matches=$(grep -c -e 'Running E2E' -e 'Running IT' ./bazel-testlogs/test/JunitMultipleSuffixes/test.log)
+  if [ $matches -eq 2 ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
 run_test bazel build test/...
 run_test bazel test test/...
 run_test bazel run test/src/main/scala/scala/test/twitter_scrooge:justscrooges
@@ -129,4 +139,4 @@ run_test test_scala_library_suite
 run_test test_repl
 run_test bazel run test:JavaOnlySources
 run_test test_benchmark_jmh
-
+run_test multiple_junit_suffixes

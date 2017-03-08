@@ -218,16 +218,7 @@ scala_binary(
     main_class = "scala.test.Alpha",
 )
 
-scala_junit_test(
-    name = "TestTargetWithJunit",
-    srcs = ["src/main/scala/scala/test/junit/JunitTest.scala"],
-)
-
-#JVM args
-#multiple suffix
-#custom suffix
 #pattern
-#-XX:HeapDumpPath=/some/custom/path
 #custom runner?
 #specs2
 #handle case where a target has no test classes
@@ -238,7 +229,18 @@ scala_library(
 )
 scala_junit_test(
     name = "JunitTestWithDeps",
-    srcs = ["src/main/scala/scala/test/junit/JunitWithDeps.scala"],
+    srcs = glob(["src/main/scala/scala/test/junit/JunitTests.scala"]),
     deps = [":HelloLib"],
-    runtime_deps = [":JUnitRuntimeDep"]
+    runtime_deps = [":JUnitRuntimeDep"],
+    jvm_flags = ["-XX:HeapDumpPath=/some/custom/path"],
+)
+scala_junit_test(
+    name = "JunitCustomSuffix",
+    srcs = glob(["src/main/scala/scala/test/junit/JunitCustomSuffix.scala"]),
+    suffixes = ["E2E"]
+)
+scala_junit_test(
+    name = "JunitMultipleSuffixes",
+    srcs = glob(["src/main/scala/scala/test/junit/JunitMultipleSuffixes.scala"]),
+    suffixes = ["E2E","IT"]
 )

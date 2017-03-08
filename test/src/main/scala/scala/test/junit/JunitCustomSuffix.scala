@@ -5,11 +5,11 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.junit.Assert._
 
-class JunitTest {
+class JunitCustomSuffixE2E {
 
   @Test
-  def junitTest: Unit = {
-  	assertEquals(1, 1);
+  def someTest: Unit = {
+  	assertEquals(1, 1)
   }
 
 }
