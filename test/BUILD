@@ -9,7 +9,8 @@ load("//scala:scala.bzl",
     "scala_repl",
     "scala_test_suite",
     "scala_library_suite",
-    "scala_junit_test")
+    "scala_junit_test",
+    "scala_specs2_junit_test")
 
 # The examples below show how to combine Scala and Java rules.
 # ScalaBinary is the Scala equivalent of JavaBinary.
@@ -218,10 +219,6 @@ scala_binary(
     main_class = "scala.test.Alpha",
 )
 
-#specs2
-#default macros for Test, E2E, IT?
-#handle case where a target has no test classes
-#remove duplicated code
 
 scala_library(
     name = "JUnitRuntimeDep",
@@ -231,7 +228,7 @@ scala_junit_test(
     name = "JunitTestWithDeps",
     srcs = glob(["src/main/scala/scala/test/junit/JunitTests.scala"]),
     size = "small",
-    deps = [":HelloLib"],
+    deps = [":OtherJavaLib"],
     runtime_deps = [":JUnitRuntimeDep"],
     jvm_flags = ["-XX:HeapDumpPath=/some/custom/path"],
 )
@@ -253,3 +250,17 @@ scala_junit_test(
     size = "small",
     patterns = ["Test.*"]
 )
+
+scala_specs2_junit_test(
+    name = "Specs2Tests",
+    srcs = glob(["src/main/scala/scala/test/junit/specs2/Specs2Tests.scala"]),
+    deps = [":OtherJavaLib"],
+    size = "small",
+)
+
+#handle case where a target has no test classes
+#remove duplicated code
+#default macros for Test, E2E, IT?
+#specs2 version variable (solve conflict of versions)
+#consider using more consice string interpolation
+

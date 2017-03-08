@@ -14,6 +14,7 @@
 
 """Rules for supporting the Scala language."""
 
+load("//specs2:specs2_junit.bzl", "specs2_junit_dependencies")
 _jar_filetype = FileType([".jar"])
 _java_filetype = FileType([".java"])
 _scala_filetype = FileType([".scala"])
@@ -689,6 +690,30 @@ exports_files([
   "lib/scala-xml_2.11-1.0.4.jar",
   "lib/scalap-2.11.8.jar",
 ])
+
+filegroup(
+    name = "scala-xml",
+    srcs = ["lib/scala-xml_2.11-1.0.4.jar"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "scala-parser-combinators",
+    srcs = ["lib/scala-parser-combinators_2.11-1.0.4.jar"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "scala-library",
+    srcs = ["lib/scala-library.jar"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "scala-reflect",
+    srcs = ["lib/scala-reflect.jar"],
+    visibility = ["//visibility:public"],
+)
 """
 
 def scala_repositories():
@@ -810,3 +835,8 @@ scala_junit_test = rule(
   test=True,
 )
 
+def scala_specs2_junit_test(name, **kwargs):
+  scala_junit_test(
+   name = name,
+   deps = specs2_junit_dependencies() + kwargs.pop("deps",[]),
+   **kwargs)
