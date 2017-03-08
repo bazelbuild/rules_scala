@@ -78,6 +78,15 @@ test_repl() {
   echo "import scala.test._; MoreScalaLibBinary.main(Array())" | bazel-bin/test/MoreScalaLibBinaryRepl | grep "More Hello"
 }
 
+test_benchmark_jmh() {
+  RES=$(bazel run -- test/jmh:test_benchmark -i1 -f1 -wi 1)
+  RESPONSE_CODE=$?
+  if [[ $RES != *Result*Benchmark* ]]; then
+    echo "Benchmark did not produce expected output:\n$RES"
+    exit 1
+  fi
+  exit $RESPONSE_CODE
+}
 NC='\033[0m'
 GREEN='\033[0;32m'
 RED='\033[0;31m'
@@ -119,4 +128,5 @@ run_test test_transitive_deps
 run_test test_scala_library_suite
 run_test test_repl
 run_test bazel run test:JavaOnlySources
+run_test test_benchmark_jmh
 
