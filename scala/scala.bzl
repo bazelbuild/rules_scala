@@ -510,22 +510,27 @@ def _scala_test_impl(ctx):
     _write_test_launcher(ctx, rjars)
     return _scala_binary_common(ctx, cjars, rjars)
 
-def _discover_classes(ctx, suffixes, archive):
+def _prep_grep_pattern_from(patterns):
+    combined_pattern = ""
+    for pattern in patterns:
+      combined_pattern += " -e {}\.class".format(pattern)
+    return combined_pattern
+
+def _discover_classes(ctx, patterns, archive):
     discovered_classes = ctx.new_file(ctx.label.name + "_discovered_classes.txt")
     ctx.action(
       inputs=[archive],
       outputs=[discovered_classes],
-      progress_message="Discovering classes with suffixes of %s" % suffixes,
+      progress_message="Discovering classes with patterns of %s" % patterns,
       #TODO consider with Damien/Ulf/Oscar the implications of switching from grep to scala code
       #Pro-> logic will be cohesive (currently the scala code assumes stuff from the grep)
       #Con-> IIRC Ulf warned me about performance implications of these traversals
-      command="unzip -l {archive} | grep -e {combined_suffixes}.class > {out}".format(archive=archive.path,combined_suffixes=" -e ".join(suffixes),out=discovered_classes.path))
+      command="unzip -l {archive} | grep {combined_patterns} > {out}".format(archive=archive.path, combined_patterns=_prep_grep_pattern_from(patterns), out=discovered_classes.path))
     return discovered_classes
 
 def _gen_test_suite_based_on_prefix(ctx, archive):
-    #TODO enable custom patterns
-    #TODO evolve from suffixes to pattern and add "Test*","*IT","*E2E" by default
-    discovered_classes = _discover_classes(ctx, ctx.attr.suffixes, archive)
+#add "Test*","*IT","*E2E" by default
+    discovered_classes = _discover_classes(ctx, ctx.attr.patterns, archive)
     return struct(suite_class = "io.bazel.rulesscala.test_discovery.DiscoveredTestSuite", classesFlag = "-Dbazel.discovered.classes.file.path=%s" % discovered_classes.short_path, discovered_classes = discovered_classes)
 
 def _scala_junit_test_impl(ctx):
@@ -792,9 +797,7 @@ def scala_library_suite(name,
 scala_junit_test = rule(
   implementation=_scala_junit_test_impl,
   attrs={
-#TODO see if we can parameterize the runner
-#      "main_class": attr.string(default="org.junit.runner.JUnitCore"),
-      "suffixes": attr.string_list(default=["Test"]),
+      "patterns": attr.string_list(default=["Test"]),
       "_junit": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/junit/junit"), single_file=True),
       "_hamcrest": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/hamcrest/hamcrest_core"), single_file=True),
       "_suite": attr.label(default=Label("//src/java/io/bazel/rulesscala/test_discovery:test_discovery")),

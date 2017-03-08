@@ -218,10 +218,10 @@ scala_binary(
     main_class = "scala.test.Alpha",
 )
 
-#pattern
-#custom runner?
 #specs2
+#default macros for Test, E2E, IT?
 #handle case where a target has no test classes
+#remove duplicated code
 
 scala_library(
     name = "JUnitRuntimeDep",
@@ -230,6 +230,7 @@ scala_library(
 scala_junit_test(
     name = "JunitTestWithDeps",
     srcs = glob(["src/main/scala/scala/test/junit/JunitTests.scala"]),
+    size = "small",
     deps = [":HelloLib"],
     runtime_deps = [":JUnitRuntimeDep"],
     jvm_flags = ["-XX:HeapDumpPath=/some/custom/path"],
@@ -237,10 +238,18 @@ scala_junit_test(
 scala_junit_test(
     name = "JunitCustomSuffix",
     srcs = glob(["src/main/scala/scala/test/junit/JunitCustomSuffix.scala"]),
-    suffixes = ["E2E"]
+    size = "small",
+    patterns = ["E2E"]
 )
 scala_junit_test(
     name = "JunitMultipleSuffixes",
     srcs = glob(["src/main/scala/scala/test/junit/JunitMultipleSuffixes.scala"]),
-    suffixes = ["E2E","IT"]
+    size = "small",
+    patterns = ["E2E","IT"]
+)
+scala_junit_test(
+    name = "JunitCustomPattern",
+    srcs = glob(["src/main/scala/scala/test/junit/JunitCustomPattern.scala"]),
+    size = "small",
+    patterns = ["Test.*"]
 )
