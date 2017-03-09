@@ -530,7 +530,6 @@ def _discover_classes(ctx, patterns, archive):
     return discovered_classes
 
 def _gen_test_suite_based_on_prefix(ctx, archive):
-#add "Test*","*IT","*E2E" by default
     discovered_classes = _discover_classes(ctx, ctx.attr.patterns, archive)
     return struct(suite_class = "io.bazel.rulesscala.test_discovery.DiscoveredTestSuite", classesFlag = "-Dbazel.discovered.classes.file.path=%s" % discovered_classes.short_path, discovered_classes = discovered_classes)
 
