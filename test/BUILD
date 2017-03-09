@@ -221,6 +221,10 @@ scala_binary(
 
 
 scala_library(
+    name = "JUnitCompileTimeDep",
+    srcs = ["src/main/scala/scala/test/junit/support/JUnitCompileTimeDep.scala"],
+)
+scala_library(
     name = "JUnitRuntimeDep",
     srcs = ["src/main/scala/scala/test/junit/support/JUnitRuntimeDep.scala"],
 )
@@ -228,7 +232,7 @@ scala_junit_test(
     name = "JunitTestWithDeps",
     srcs = glob(["src/main/scala/scala/test/junit/JunitTests.scala"]),
     size = "small",
-    deps = [":OtherJavaLib"],
+    deps = [":JUnitCompileTimeDep"],
     runtime_deps = [":JUnitRuntimeDep"],
     jvm_flags = ["-XX:HeapDumpPath=/some/custom/path"],
 )
@@ -254,6 +258,6 @@ scala_junit_test(
 scala_specs2_junit_test(
     name = "Specs2Tests",
     srcs = glob(["src/main/scala/scala/test/junit/specs2/Specs2Tests.scala"]),
-    deps = [":OtherJavaLib"],
+    deps = [":JUnitCompileTimeDep"],
     size = "small",
 )

@@ -5,7 +5,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.hamcrest.CoreMatchers._
 import org.hamcrest.MatcherAssert._
-import scala.test.HelloLib
+import scala.test.junit.support.JUnitCompileTimeDep
 import java.lang.management.ManagementFactory
 import java.lang.management.RuntimeMXBean
 
@@ -13,7 +13,7 @@ class JunitWithDepsTest {
 
   @Test
   def hasCompileTimeDependencies: Unit = {
-  	HelloLib.printMessage("yo")
+  	JUnitCompileTimeDep.hello
   }
 
   @Test
