@@ -56,6 +56,10 @@ def jmh_repositories():
       actual = '@io_bazel_rules_scala_org_apache_commons_commons_math3//jar',
   )
 
+jmh_benchmark_generator_tool = Label("//src/scala/io/bazel/rules_scala/jmh_support:benchmark_generator")
+jdk_tool = Label("//tools/defaults:jdk")
+jar_tool = Label("@local_jdk//:jar")
+jar_creator_tool = Label("//src/java/io/bazel/rulesscala/jar:binary")
 
 def scala_benchmark_jmh(**kw):
   name = kw["name"]
@@ -74,16 +78,11 @@ def scala_benchmark_jmh(**kw):
       scalacopts = scalacopts,
       visibility = ["//visibility:public"],
   )
-  jmh_benchmark_generator_tool = "//src/scala/io/bazel/rules_scala/jmh_support:benchmark_generator"
 
   codegen = name + "_codegen"
   src_jar = "%s_jmh.srcjar" % name
   benchmark_list = "resources/META-INF/BenchmarkList"
   compiler_hints = "resources/META-INF/CompilerHints"
-
-  jdk_tool = "//tools/defaults:jdk"
-  jar_tool = "@local_jdk//:jar"
-  jar_creator_tool = "//src/java/io/bazel/rulesscala/jar:binary"
 
   native.genrule(
       name = codegen,
