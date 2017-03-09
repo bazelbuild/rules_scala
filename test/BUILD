@@ -257,10 +257,3 @@ scala_specs2_junit_test(
     deps = [":OtherJavaLib"],
     size = "small",
 )
-
-#handle case where a target has no test classes
-#remove duplicated code
-#default macros for Test, E2E, IT?
-#specs2 version variable (solve conflict of versions)
-#consider using more consice string interpolation
-
