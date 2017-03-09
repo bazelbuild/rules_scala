@@ -1,22 +1,24 @@
+def specs2_version():
+  return "3.8.8"
 def specs2_repositories():
 
   native.maven_jar(
       name = "io_bazel_rules_scala_org_specs2_specs2_core",
-      artifact = "org.specs2:specs2-core_2.11:3.8.8",
+      artifact = "org.specs2:specs2-core_2.11:" + specs2_version(),
       sha1 = "495bed00c73483f4f5f43945fde63c615d03e637",
   )
   native.bind(name = 'io_bazel_rules_scala/dependency/specs2/specs2_core', actual = '@io_bazel_rules_scala_org_specs2_specs2_core//jar')
   
   native.maven_jar(
       name = "io_bazel_rules_scala_org_specs2_specs2_common",
-      artifact = "org.specs2:specs2-common_2.11:3.8.8",
+      artifact = "org.specs2:specs2-common_2.11:" + specs2_version(),
       sha1 = "15bc009eaae3a574796c0f558d8696b57ae903c3",
   )
   native.bind(name = 'io_bazel_rules_scala/dependency/specs2/specs2_common', actual = '@io_bazel_rules_scala_org_specs2_specs2_common//jar')
   
   native.maven_jar(
       name = "io_bazel_rules_scala_org_specs2_specs2_matcher",
-      artifact = "org.specs2:specs2-matcher_2.11:3.8.8",
+      artifact = "org.specs2:specs2-matcher_2.11:" + specs2_version(),
       sha1 = "d2e967737abef7421e47b8994a8c92784e624d62",
   )
   native.bind(name = 'io_bazel_rules_scala/dependency/specs2/specs2_matcher', actual = '@io_bazel_rules_scala_org_specs2_specs2_matcher//jar')
