@@ -61,6 +61,44 @@ jdk_tool = Label("//tools/defaults:jdk")
 jar_tool = Label("@local_jdk//:jar")
 jar_creator_tool = Label("//src/java/io/bazel/rulesscala/jar:binary")
 
+def _scala_construct_runtime_classpath(deps):
+  scala_targets = [d.scala for d in deps if hasattr(d, "scala")]
+  java_targets = [d.java for d in deps if hasattr(d, "java")]
+  files = []
+  for scala in scala_targets:
+    files += list(scala.transitive_runtime_deps)
+    files += list(scala.transitive_runtime_exports)
+  for java in java_targets:
+    files += list(java.transitive_runtime_deps)
+  return files
+
+def _scala_generate_benchmark(ctx):
+  class_jar = ctx.attr.src.scala.outputs.class_jar
+  classpath = _scala_construct_runtime_classpath([ctx.attr.src])
+  ctx.action(
+      outputs = [ctx.outputs.benchmark_list, ctx.outputs.compiler_hints, ctx.outputs.src_jar],
+      inputs = [class_jar] + classpath,
+      executable = list(ctx.attr._generator.files)[0],
+      arguments = [f.path for f in [class_jar, ctx.outputs.src_jar] + classpath],
+      progress_message = "Generating benchmark code for %s" % ctx.label,
+  )
+  return struct(
+      files=set([ctx.outputs.src_jar])
+  )
+
+scala_generate_benchmark = rule(
+    implementation = _scala_generate_benchmark,
+    attrs = {
+        "src": attr.label(allow_single_file=True, mandatory=True),
+        "_generator": attr.label(executable=True, cfg="host", default=Label("//src/scala/io/bazel/rules_scala/jmh_support:benchmark_generator"))
+    },
+    outputs = {
+        "src_jar": "%{name}.srcjar",
+        "benchmark_list": "resources/META-INF/BenchmarkList",
+        "compiler_hints": "resources/META-INF/CompilerHints",
+    },
+)
+
 def scala_benchmark_jmh(**kw):
   name = kw["name"]
   deps = kw.get("deps", [])
@@ -84,47 +122,15 @@ def scala_benchmark_jmh(**kw):
   benchmark_list = "resources/META-INF/BenchmarkList"
   compiler_hints = "resources/META-INF/CompilerHints"
 
-  native.genrule(
-      name = codegen,
-      srcs = [lib],
-      outs = [src_jar, benchmark_list, compiler_hints],
-      tools = [
-          jmh_benchmark_generator_tool,
-          # Without the JDK, local_jdk//:jar complains of failing to find
-          # a Java SE Runtime Environment.
-          jdk_tool,
-          jar_creator_tool,
-          jar_tool,
-      ],
-      cmd = """
-JAR_CREATOR=`pwd`/$(location {jar_creator_tool})
-JAR=`pwd`/$(location {jar_tool})
-
-pushd `dirname $(location {lib})`
-$$JAR -xf `basename $(location {lib})`
-popd
-
-./$(location {jmh_benchmark_generator_tool}) $(location {lib}) $(@D)
-pushd $(@D)/sources
-$$JAR_CREATOR ../{name}_jmh.srcjar ./
-popd
-""".format(
-      jmh_benchmark_generator_tool=jmh_benchmark_generator_tool,
-      jar_creator_tool=jar_creator_tool,
-      jar_tool=jar_tool,
-      lib=lib,
-      name=name,
-    ),
-  )
+  scala_generate_benchmark(name=codegen, src=lib)
 
   compiled_lib = name + "_compiled_benchmark_lib"
   scala_library(
       name = compiled_lib,
-      srcs = [src_jar],
+      srcs = ["%s.srcjar" % codegen],
       deps = deps + [
           "//external:io_bazel_rules_scala/dependency/jmh/jmh_core",
           lib,
-          codegen,
       ],
       resources = [benchmark_list, compiler_hints],
   )
