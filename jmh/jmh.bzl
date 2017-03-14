@@ -82,9 +82,6 @@ def _scala_generate_benchmark(ctx):
       arguments = [f.path for f in [class_jar, ctx.outputs.src_jar] + classpath],
       progress_message = "Generating benchmark code for %s" % ctx.label,
   )
-  return struct(
-      files=set([ctx.outputs.src_jar])
-  )
 
 scala_generate_benchmark = rule(
     implementation = _scala_generate_benchmark,
