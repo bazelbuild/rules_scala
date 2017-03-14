@@ -118,7 +118,6 @@ def scala_benchmark_jmh(**kw):
   )
 
   codegen = name + "_codegen"
-  src_jar = "%s_jmh.srcjar" % name
   benchmark_list = "resources/META-INF/BenchmarkList"
   compiler_hints = "resources/META-INF/CompilerHints"
 
