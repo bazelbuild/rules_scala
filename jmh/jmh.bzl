@@ -78,7 +78,7 @@ def _scala_generate_benchmark(ctx):
   ctx.action(
       outputs = [ctx.outputs.benchmark_list, ctx.outputs.compiler_hints, ctx.outputs.src_jar],
       inputs = [class_jar] + classpath,
-      executable = list(ctx.attr._generator.files)[0],
+      executable = ctx.executable._generator,
       arguments = [f.path for f in [class_jar, ctx.outputs.src_jar] + classpath],
       progress_message = "Generating benchmark code for %s" % ctx.label,
   )
