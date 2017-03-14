@@ -1,6 +1,6 @@
 load("//jmh:jmh.bzl", "scala_library", "scala_benchmark_jmh")
 
-native.java_library(
+java_library(
     name = "java_type",
     srcs = ["JavaType.java"],
     visibility = ["//visibility:public"],
