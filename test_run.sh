@@ -71,6 +71,18 @@ test_scala_library_suite() {
   exit 0
 }
 
+test_scala_junit_test_can_fail() {
+  set +e
+
+  bazel test test_expect_failure/scala_junit_test:failing_test
+  if [ $? -eq 0 ]; then
+    echo "'bazel build test_expect_failure/scala_junit_test:failing_test' should have failed."
+    exit 1
+  fi
+  set -e
+  exit 0
+}
+
 test_repl() {
   echo "import scala.test._; HelloLib.printMessage(\"foo\")" | bazel-bin/test/HelloLibRepl | grep "foo java" &&
   echo "import scala.test._; TestUtil.foo" | bazel-bin/test/HelloLibTestRepl | grep "bar" &&
@@ -140,3 +152,4 @@ run_test test_repl
 run_test bazel run test:JavaOnlySources
 run_test test_benchmark_jmh
 run_test multiple_junit_suffixes
+run_test test_scala_junit_test_can_fail
