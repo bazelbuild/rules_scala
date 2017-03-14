@@ -76,10 +76,10 @@ def _scala_generate_benchmark(ctx):
   class_jar = ctx.attr.src.scala.outputs.class_jar
   classpath = _scala_construct_runtime_classpath([ctx.attr.src])
   ctx.action(
-      outputs = [ctx.outputs.benchmark_list, ctx.outputs.compiler_hints, ctx.outputs.src_jar],
+      outputs = [ctx.outputs.src_jar, ctx.outputs.resource_jar],
       inputs = [class_jar] + classpath,
       executable = ctx.executable._generator,
-      arguments = [f.path for f in [class_jar, ctx.outputs.src_jar] + classpath],
+      arguments = [f.path for f in [class_jar, ctx.outputs.src_jar, ctx.outputs.resource_jar] + classpath],
       progress_message = "Generating benchmark code for %s" % ctx.label,
   )
 
@@ -91,8 +91,7 @@ scala_generate_benchmark = rule(
     },
     outputs = {
         "src_jar": "%{name}.srcjar",
-        "benchmark_list": "resources/META-INF/BenchmarkList",
-        "compiler_hints": "resources/META-INF/CompilerHints",
+        "resource_jar": "%{name}_resources.jar",
     },
 )
 
@@ -115,11 +114,7 @@ def scala_benchmark_jmh(**kw):
   )
 
   codegen = name + "_codegen"
-  benchmark_list = "resources/META-INF/BenchmarkList"
-  compiler_hints = "resources/META-INF/CompilerHints"
-
   scala_generate_benchmark(name=codegen, src=lib)
-
   compiled_lib = name + "_compiled_benchmark_lib"
   scala_library(
       name = compiled_lib,
@@ -128,7 +123,7 @@ def scala_benchmark_jmh(**kw):
           "//external:io_bazel_rules_scala/dependency/jmh/jmh_core",
           lib,
       ],
-      resources = [benchmark_list, compiler_hints],
+      resource_jars = ["%s_resources.jar" % codegen],
   )
   scala_binary(
      name = name,

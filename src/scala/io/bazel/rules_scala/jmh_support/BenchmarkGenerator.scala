@@ -30,41 +30,34 @@ object BenchmarkGenerator {
   case class BenchmarkGeneratorArgs(
     inputJar: Path,
     resultSourceJar: Path,
+    resultResourceJar: Path,
     classPath: List[Path]
-  ) {
-    val resultResourceDirectory: Path = resultSourceJar.getParent.resolve("resources")
-  }
+  )
 
   def main(argv: Array[String]): Unit = {
     val args = parseArgs(argv)
-    if (!args.resultResourceDirectory.toFile.isDirectory) {
-      args.resultResourceDirectory.toFile.mkdirs()
-    }
     generateJmhBenchmark(
       args.resultSourceJar,
-      args.resultResourceDirectory,
+      args.resultResourceJar,
       args.inputJar,
       args.classPath
     )
   }
 
   private def parseArgs(argv: Array[String]): BenchmarkGeneratorArgs = {
-    if (argv.length < 2) {
+    if (argv.length < 3) {
       System.err.println(
-        "Usage: BenchmarkGenerator INPUT_JAR RESULT_JAR [CLASSPATH_ELEMENT] [CLASSPATH_ELEMENT...]"
+        "Usage: BenchmarkGenerator INPUT_JAR RESULT_JAR RESOURCE_JAR [CLASSPATH_ELEMENT] [CLASSPATH_ELEMENT...]"
       )
       System.exit(1)
     }
     val fs = FileSystems.getDefault
 
-    val inputJar = fs.getPath(argv(0))
-    val resultSourceJar = fs.getPath(argv(1))
-    val classPath = argv.slice(2, argv.length).map { s => fs.getPath(s) }.toList
-
     BenchmarkGeneratorArgs(
-      inputJar,
-      resultSourceJar,
-      classPath
+      fs.getPath(argv(0)),
+      fs.getPath(argv(1)),
+      fs.getPath(argv(2)),
+      argv.slice(3, argv.length).map { s => fs.getPath(s) }.toList
     )
   }
 
@@ -93,30 +86,6 @@ object BenchmarkGenerator {
       }
     }
   }
-
-  private def createDirectories(p: Path): Unit = {
-    def missingParents(path: Path): List[Path] = {
-      if (path == null || path.toFile.exists() || path.toFile.isDirectory) {
-        Nil
-      } else {
-        path :: missingParents(path.getParent)
-      }
-    }
-    missingParents(p.getParent).reverse.foreach { d =>
-      if (!d.toFile.mkdir()) {
-        sys.error(s"Failed to create directory $d")
-      }
-    }
-  }
-
-  private def move(from: Path, to: Path): List[Path] =
-    listFilesRecursively(from)(_ => true).map { src =>
-      val tail = from.relativize(src)
-      val dest = to.resolve(tail)
-      createDirectories(dest)
-      Files.move(src, dest)
-      dest
-    }
 
   // Courtesy of Doug Tangren (https://groups.google.com/forum/#!topic/simple-build-tool/CYeLHcJjHyA)
   private def withClassLoader[A](cp: Seq[Path])(f: => A): A = {
@@ -151,7 +120,7 @@ object BenchmarkGenerator {
 
   private def generateJmhBenchmark(
     sourceJarOut: Path,
-    resourceDir: Path,
+    resourceJarOut: Path,
     benchmarkJarPath: Path,
     classpath: List[Path]
   ): Unit = {
@@ -180,7 +149,7 @@ object BenchmarkGenerator {
         }
       }
       constructJar(sourceJarOut, tmpSourceDir)
-      move(tmpResourceDir, resourceDir)
+      constructJar(resourceJarOut, tmpResourceDir)
     }
   }
 
