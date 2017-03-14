@@ -526,7 +526,7 @@ def _discover_classes(ctx, patterns, archive):
       #TODO consider with Damien/Ulf/Oscar the implications of switching from grep to scala code
       #Pro-> logic will be cohesive (currently the scala code assumes stuff from the grep)
       #Con-> IIRC Ulf warned me about performance implications of these traversals
-      command="unzip -l {archive} | grep {combined_patterns} > {out}".format(archive=archive.path, combined_patterns=_prep_grep_pattern_from(patterns), out=discovered_classes.path))
+      command="jar -tf {archive} | grep {combined_patterns} > {out}".format(archive=archive.path, combined_patterns=_prep_grep_pattern_from(patterns), out=discovered_classes.path))
     return discovered_classes
 
 def _gen_test_suite_based_on_prefix(ctx, archive):
