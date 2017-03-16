@@ -110,6 +110,8 @@ def scala_benchmark_jmh(**kw):
           "//external:io_bazel_rules_scala/dependency/jmh/jmh_core",
       ],
       scalacopts = scalacopts,
+      resources = kw.get("resources", []),
+      resource_jars = kw.get("resource_jars", []),
       visibility = ["//visibility:public"],
   )
 
