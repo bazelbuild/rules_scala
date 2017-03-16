@@ -156,6 +156,7 @@ Manifest: {manifest}
 Plugins: {plugin_arg}
 PrintCompileTime: {print_compile_time}
 ResourceDests: {resource_dest}
+ResourceJars: {resource_jars}
 ResourceSrcs: {resource_src}
 ResourceStripPrefix: {resource_strip_prefix}
 ScalacOpts: {scala_opts}
@@ -182,6 +183,7 @@ SourceJars: {srcjars}
           [_adjust_resources_path(f.path)[1] for f in ctx.files.resources]
           ),
         resource_strip_prefix=ctx.attr.resource_strip_prefix,
+        resource_jars=",".join([f.path for f in ctx.files.resource_jars]),
         )
     argfile = ctx.new_file(
       ctx.outputs.jar,
@@ -199,6 +201,7 @@ SourceJars: {srcjars}
            ctx.files.srcs +
            ctx.files.plugins +
            ctx.files.resources +
+           ctx.files.resource_jars +
            ctx.files._jdk +
            [ctx.outputs.manifest,
             ctx.file._ijar,
@@ -517,6 +520,7 @@ _common_attrs = {
   "data": attr.label_list(allow_files=True, cfg="data"),
   "resources": attr.label_list(allow_files=True),
   "resource_strip_prefix": attr.string(),
+  "resource_jars": attr.label_list(allow_files=True),
   "scalacopts":attr.string_list(),
   "javacopts":attr.string_list(),
   "jvm_flags": attr.string_list(),
