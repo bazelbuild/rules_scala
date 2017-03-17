@@ -1,10 +1,15 @@
 package foo
 
-import org.openjdk.jmh.annotations.Benchmark
+import org.openjdk.jmh.annotations.{Benchmark, Scope, State}
 
 class TestBenchmark {
-  @Benchmark
-  def sumIntegersBenchmark: Int = {
-    (0 until 1000).reduce(_ + _)
+  @State(Scope.Benchmark)
+  class BenchmarkState {
+    val myScalaType = ScalaType(100)
+    val myJavaType = new JavaType
   }
+
+  @Benchmark
+  def sumIntegersBenchmark: Int =
+    AddNumbers.addUntil1000
 }

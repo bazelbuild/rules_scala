@@ -10,7 +10,11 @@ import org.openjdk.jmh.generators.asm.ASMGeneratorSource
 import org.openjdk.jmh.runner.{ Runner, RunnerException }
 import org.openjdk.jmh.runner.options.{ Options, OptionsBuilder }
 
+import java.net.URI
+import scala.collection.JavaConverters._
 import java.nio.file.{Files, FileSystems, Path}
+
+import io.bazel.rulesscala.jar.JarCreator
 
 
 /**
@@ -22,25 +26,38 @@ import java.nio.file.{Files, FileSystems, Path}
  * https://github.com/tixxit/sbt-benchmark/blob/master/src/main/scala/net/tixxit/sbt/benchmark/BenchmarkPlugin.scala
  */
 object BenchmarkGenerator {
-  case class JmhGeneratedSources(sources: Seq[Path], resources: Seq[Path])
+
+  case class BenchmarkGeneratorArgs(
+    inputJar: Path,
+    resultSourceJar: Path,
+    resultResourceJar: Path,
+    classPath: List[Path]
+  )
 
   def main(argv: Array[String]): Unit = {
-    val classPath = System.getProperty("java.class.path").split(':').map {s =>
-      FileSystems.getDefault.getPath(s)
+    val args = parseArgs(argv)
+    generateJmhBenchmark(
+      args.resultSourceJar,
+      args.resultResourceJar,
+      args.inputJar,
+      args.classPath
+    )
+  }
+
+  private def parseArgs(argv: Array[String]): BenchmarkGeneratorArgs = {
+    if (argv.length < 3) {
+      System.err.println(
+        "Usage: BenchmarkGenerator INPUT_JAR RESULT_JAR RESOURCE_JAR [CLASSPATH_ELEMENT] [CLASSPATH_ELEMENT...]"
+      )
+      System.exit(1)
     }
     val fs = FileSystems.getDefault
 
-    val outDir = fs.getPath(argv(1))
-    val srcDir = outDir.resolve("sources")
-    if (!srcDir.toFile.isDirectory) { srcDir.toFile.mkdirs() }
-    val resourceDir = outDir.resolve("resources")
-    if (!resourceDir.toFile.isDirectory) { resourceDir.toFile.mkdirs() }
-
-    val generated = generateJmhBenchmark(
-      srcDir,
-      resourceDir,
-      List(fs.getPath(argv(0)).getParent),
-      classPath
+    BenchmarkGeneratorArgs(
+      fs.getPath(argv(0)),
+      fs.getPath(argv(1)),
+      fs.getPath(argv(2)),
+      argv.slice(3, argv.length).map { s => fs.getPath(s) }.toList
     )
   }
 
@@ -51,7 +68,7 @@ object BenchmarkGenerator {
 
   private def listFilesRecursively(root: Path)(pred: Path => Boolean): List[Path] = {
     def loop(fs0: List[Path], files: List[Path]): List[Path] = fs0 match {
-      case f :: fs if f.toFile.isDirectory => loop(fs ++ listFiles(f), files)
+      case f :: fs if Files.isDirectory(f) => loop(fs ++ listFiles(f), files)
       case f :: fs if pred(f) => loop(fs, f :: files)
       case _ :: fs => loop(fs, files)
       case Nil => files.reverse
@@ -60,34 +77,15 @@ object BenchmarkGenerator {
     loop(root :: Nil, Nil)
   }
 
-  private def collectClasses(root: Path): List[Path] =
-    listFilesRecursively(root) { path =>
-      path.getFileName.toString.endsWith(".class")
-    }
-
-  private def createDirectories(p: Path): Unit = {
-    def missingParents(path: Path): List[Path] = {
-      if (path == null || path.toFile.exists() || path.toFile.isDirectory) {
-        Nil
-      } else {
-        path :: missingParents(path.getParent)
-      }
-    }
-    missingParents(p.getParent).reverse.foreach { d =>
-      if (!d.toFile.mkdir()) {
-        sys.error(s"Failed to create directory $d")
+  private def collectClassesFromJar(root: Path): List[Path] = {
+    val uri = new URI("jar:file", null, root.toFile.getAbsolutePath, null)
+    val fs = FileSystems.newFileSystem(uri, Map.empty[String, String].asJava)
+    fs.getRootDirectories.asScala.toList.flatMap { rootDir =>
+      listFilesRecursively(rootDir) { (path: Path) =>
+        path.getFileName.toString.endsWith(".class")
       }
     }
   }
-
-  private def move(from: Path, to: Path): List[Path] =
-    listFilesRecursively(from)(_ => true).map { src =>
-      val tail = from.relativize(src)
-      val dest = to.resolve(tail)
-      createDirectories(dest)
-      Files.move(src, dest)
-      dest
-    }
 
   // Courtesy of Doug Tangren (https://groups.google.com/forum/#!topic/simple-build-tool/CYeLHcJjHyA)
   private def withClassLoader[A](cp: Seq[Path])(f: => A): A = {
@@ -109,17 +107,23 @@ object BenchmarkGenerator {
       f(tempDir)
     } finally {
       listFilesRecursively(tempDir)(_ => true).reverse.foreach {file =>
-        log(s"would delete $file")
+        Files.delete(file)
       }
     }
   }
 
+  private def constructJar(output: Path, fileDir: Path): Unit = {
+    val creator = new JarCreator(output.toAbsolutePath.toFile.toString)
+    creator.addDirectory(fileDir.toFile)
+    creator.execute
+  }
+
   private def generateJmhBenchmark(
-    sourceDir: Path,
-    resourceDir: Path,
-    benchmarkClasspath: Seq[Path],
-    fullClasspath: Seq[Path]
-  ): JmhGeneratedSources = {
+    sourceJarOut: Path,
+    resourceJarOut: Path,
+    benchmarkJarPath: Path,
+    classpath: List[Path]
+  ): Unit = {
     withTempDirectory { tempDir =>
       val tmpResourceDir = tempDir.resolve("resources")
       val tmpSourceDir = tempDir.resolve("sources")
@@ -127,13 +131,14 @@ object BenchmarkGenerator {
       tmpResourceDir.toFile.mkdir()
       tmpSourceDir.toFile.mkdir()
 
-      withClassLoader(benchmarkClasspath ++ fullClasspath) {
+      withClassLoader(benchmarkJarPath :: classpath) {
         val source = new ASMGeneratorSource
         val destination = new FileSystemDestination(tmpResourceDir.toFile, tmpSourceDir.toFile)
         val generator = new JMHGenerator
 
-        val classes = benchmarkClasspath.flatMap(f => collectClasses(f)).map(_.toFile)
-        source.processClasses(classes.asJava)
+        collectClassesFromJar(benchmarkJarPath).foreach { path =>
+          source.processClass(Files.newInputStream(path))
+        }
         generator.generate(source, destination)
         generator.complete(source, destination)
         if (destination.hasErrors) {
@@ -143,8 +148,8 @@ object BenchmarkGenerator {
           }
         }
       }
-
-      JmhGeneratedSources(move(tmpSourceDir, sourceDir), move(tmpResourceDir, resourceDir))
+      constructJar(sourceJarOut, tmpSourceDir)
+      constructJar(resourceJarOut, tmpResourceDir)
     }
   }
 
