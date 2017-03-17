@@ -286,12 +286,17 @@ def _write_launcher(ctx, jars):
       ["$0.runfiles/%s/%s" % (ctx.workspace_name, f.short_path) for f in jars]
       )
 
+    runtime_jvm_flags = ""
+    for flag in ctx.attr.runtime_jvm_flags:
+        runtime_jvm_flags += "'{flag}' ".format(flag=flag)
+
     content = """#!/bin/bash
   export CLASSPATH={classpath}
-  $0.runfiles/{repo}/{java} {name} "$@"
+  $0.runfiles/{repo}/{java} {runtime_jvm_flags} {name} "$@"
   """.format(
       repo=ctx.workspace_name,
       java=ctx.file._java.short_path,
+      runtime_jvm_flags=runtime_jvm_flags,
       name=ctx.attr.main_class,
       deploy_jar=ctx.outputs.jar.path,
       classpath=classpath,
@@ -558,6 +563,7 @@ scala_binary = rule(
   implementation=_scala_binary_impl,
   attrs={
       "main_class": attr.string(mandatory=True),
+      "runtime_jvm_flags": attr.string_list(),
       } + _implicit_deps + _common_attrs,
   outputs={
       "jar": "%{name}.jar",
