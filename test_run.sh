@@ -134,6 +134,11 @@ multiple_junit_suffixes() {
   fi
 }
 
+junit_generates_xml_logs() {
+  bazel test //test:JunitTestWithDeps
+  test -e ./bazel-testlogs/test/JunitTestWithDeps/test.xml
+}
+
 run_test bazel build test/...
 run_test bazel test test/...
 run_test bazel run test/src/main/scala/scala/test/twitter_scrooge:justscrooges
@@ -153,3 +158,4 @@ run_test bazel run test:JavaOnlySources
 run_test test_benchmark_jmh
 run_test multiple_junit_suffixes
 run_test test_scala_junit_test_can_fail
+run_test junit_generates_xml_logs
