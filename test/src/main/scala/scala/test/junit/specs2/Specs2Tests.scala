@@ -7,7 +7,7 @@ class JunitSpecs2Test extends SpecWithJUnit {
 
   "specs2 tests" should {
     "run smoothly in bazel" >> {
-      JUnitCompileTimeDep.hello
+      println(JUnitCompileTimeDep.hello)
       success
     }
   }

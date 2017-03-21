@@ -13,7 +13,7 @@ class JunitWithDepsTest {
 
   @Test
   def hasCompileTimeDependencies: Unit = {
-  	JUnitCompileTimeDep.hello
+  	println(JUnitCompileTimeDep.hello)
   }
 
   @Test
