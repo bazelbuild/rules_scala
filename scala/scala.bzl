@@ -520,13 +520,15 @@ def _prep_grep_pattern_from(patterns):
 def _discover_classes(ctx, patterns, archive):
     discovered_classes = ctx.new_file(ctx.label.name + "_discovered_classes.txt")
     ctx.action(
-      inputs=[archive],
+      #We need _jdk to even run _jar. Depending on _jar is not enough with sandbox
+      inputs= [archive] + ctx.files._jar + ctx.files._jdk,
       outputs=[discovered_classes],
       progress_message="Discovering classes with patterns of %s" % patterns,
       #TODO consider with Damien/Ulf/Oscar the implications of switching from grep to scala code
       #Pro-> logic will be cohesive (currently the scala code assumes stuff from the grep)
       #Con-> IIRC Ulf warned me about performance implications of these traversals
-      command="jar -tf {archive} | grep {combined_patterns} > {out}".format(archive=archive.path, combined_patterns=_prep_grep_pattern_from(patterns), out=discovered_classes.path))
+      command="{jar} -tf {archive} | grep {combined_patterns} > {out}".format(archive=archive.path, combined_patterns=_prep_grep_pattern_from(patterns), out=discovered_classes.path, 
+      jar=ctx.file._jar.path))
     return discovered_classes
 
 def _gen_test_suite_based_on_prefix(ctx, archive):
@@ -797,12 +799,13 @@ def scala_library_suite(name,
 
 scala_junit_test = rule(
   implementation=_scala_junit_test_impl,
-  attrs={
+  attrs= _implicit_deps + _common_attrs + {
       "patterns": attr.string_list(default=["Test"]),
       "_junit": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/junit/junit"), single_file=True),
       "_hamcrest": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/hamcrest/hamcrest_core"), single_file=True),
       "_suite": attr.label(default=Label("//src/java/io/bazel/rulesscala/test_discovery:test_discovery")),
-      } + _implicit_deps + _common_attrs,
+      "_jar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:jar"), single_file=True, allow_files=True),
+      },
   outputs={
       "jar": "%{name}.jar",
       "deploy_jar": "%{name}_deploy.jar",
