@@ -750,6 +750,14 @@ def scala_repositories():
     server = "scalac_deps_maven_server",
   )
 
+  native.bind(name = 'io_bazel_rules_scala/dependency/scala/scala_xml', actual = '@scala//:scala-xml')
+
+  native.bind(name = 'io_bazel_rules_scala/dependency/scala/parser_combinators', actual = '@scala//:scala-parser-combinators')
+
+  native.bind(name = 'io_bazel_rules_scala/dependency/scala/scala_library', actual = '@scala//:scala-library')
+
+  native.bind(name = 'io_bazel_rules_scala/dependency/scala/scala_reflect', actual = '@scala//:scala-reflect')
+
 def scala_export_to_java(name, exports, runtime_deps):
   jars = []
   for target in exports:
