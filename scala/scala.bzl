@@ -692,6 +692,29 @@ exports_files([
   "lib/scalap-2.11.8.jar",
 ])
 
+filegroup(
+    name = "scala-xml",
+    srcs = ["lib/scala-xml_2.11-1.0.4.jar"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "scala-parser-combinators",
+    srcs = ["lib/scala-parser-combinators_2.11-1.0.4.jar"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "scala-library",
+    srcs = ["lib/scala-library.jar"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "scala-reflect",
+    srcs = ["lib/scala-reflect.jar"],
+    visibility = ["//visibility:public"],
+)
 """
 
 def scala_repositories():

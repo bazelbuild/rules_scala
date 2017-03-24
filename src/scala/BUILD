@@ -16,14 +16,3 @@ java_import(
   visibility = ["//visibility:public"],
 )
 
-java_import(
-  name = "scala_library",
-  jars = ["@scala//:lib/scala-library.jar"],
-  visibility = ["//visibility:public"],
-)
-
-java_import(
-  name = "scala_reflect",
-  jars = ["@scala//:lib/scala-reflect.jar"],
-  visibility = ["//visibility:public"],
-)

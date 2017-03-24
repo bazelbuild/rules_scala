@@ -44,8 +44,8 @@ def specs2_dependencies():
   "//external:io_bazel_rules_scala/dependency/specs2/specs2_matcher",
   "//external:io_bazel_rules_scala/dependency/scalaz/scalaz_effect",
   "//external:io_bazel_rules_scala/dependency/scalaz/scalaz_core",
-  "//src/scala:scala_xml",
-  "//src/scala:parser_combinators",
-  "//src/scala:scala_library",
-  "//src/scala:scala_reflect",
+  "@scala//:scala-xml",
+  "@scala//:scala-parser-combinators",
+  "@scala//:scala-library",
+  "@scala//:scala-reflect",
   ]  
