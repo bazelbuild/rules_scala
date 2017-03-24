@@ -500,8 +500,7 @@ def _scala_test_impl(ctx):
     jars = _collect_jars(deps)
     (cjars, rjars) = (jars.compiletime, jars.runtime)
     cjars += [ctx.file._scalareflect, ctx.file._scalatest, ctx.file._scalaxml]
-    rjars += [
-              ctx.outputs.jar,
+    rjars += [ctx.outputs.jar,
               ctx.file._scalalib,
               ctx.file._scalareflect,
               ctx.file._scalatest,
@@ -533,7 +532,9 @@ def _discover_classes(ctx, patterns, archive):
 
 def _gen_test_suite_based_on_prefix(ctx, archive):
     discovered_classes = _discover_classes(ctx, ctx.attr.patterns, archive)
-    return struct(suite_class = "io.bazel.rulesscala.test_discovery.DiscoveredTestSuite", classesFlag = "-Dbazel.discovered.classes.file.path=%s" % discovered_classes.short_path, discovered_classes = discovered_classes)
+    return struct(suite_class = "io.bazel.rulesscala.test_discovery.DiscoveredTestSuite", 
+    classesFlag = "-Dbazel.discovered.classes.file.path=%s" % discovered_classes.short_path,
+    discovered_classes = discovered_classes)
 
 def _scala_junit_test_impl(ctx):
     deps = ctx.attr.deps + [ctx.attr._suite]
@@ -541,8 +542,7 @@ def _scala_junit_test_impl(ctx):
     (cjars, rjars) = (jars.compiletime, jars.runtime)
     junit_deps = [ctx.file._junit,ctx.file._hamcrest]
     cjars += junit_deps
-    rjars += [
-              ctx.outputs.jar,
+    rjars += [ctx.outputs.jar,
               ctx.file._scalalib
               ] + junit_deps
     rjars += _collect_jars(ctx.attr.runtime_deps).runtime
