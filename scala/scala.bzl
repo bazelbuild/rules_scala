@@ -293,7 +293,7 @@ def write_manifest(ctx):
         output=ctx.outputs.manifest,
         content=manifest)
 
-def _write_launcher(ctx, rjars, main_class, jvm_flags, args):
+def _write_launcher(ctx, rjars, main_class, jvm_flags, args, run_before_binary, run_after_binary):
     classpath = ':'.join(
       ["$JAVA_RUNFILES/{repo}/{spath}".format(
           repo = ctx.workspace_name, spath = f.short_path
@@ -316,14 +316,20 @@ if [[ -z "$JAVA_RUNFILES" ]]; then
 fi
 
 export CLASSPATH={classpath}
+{run_before_binary}
 $JAVA_RUNFILES/{repo}/{java} {jvm_flags} {main_class} {args} "$@"
+BINARY_EXIT_CODE=$?
+{run_after_binary}
+exit $BINARY_EXIT_CODE
 """.format(
         classpath = classpath,
         repo = ctx.workspace_name,
         java = ctx.executable._java.short_path,
-        jvm_flags = jvm_flags,
+        jvm_flags = " ".join(jvm_flags),
         main_class = main_class,
         args = args,
+        run_before_binary = run_before_binary,
+        run_after_binary = run_after_binary,
     )
 
     ctx.file_action(
@@ -468,8 +474,10 @@ def _scala_binary_impl(ctx):
       ctx = ctx,
       rjars = rjars,
       main_class = ctx.attr.main_class,
-      jvm_flags = "",
+      jvm_flags = ctx.attr.jvm_flags,
       args = "",
+      run_before_binary = "",
+      run_after_binary = "",
   )
   return _scala_binary_common(ctx, cjars, rjars)
 
@@ -479,17 +487,26 @@ def _scala_repl_impl(ctx):
   rjars += [ctx.file._scalalib, ctx.file._scalareflect, ctx.file._scalacompiler]
   rjars += _collect_jars(ctx.attr.runtime_deps).runtime
 
-  jvm_flags = " ".join(
-      ["-Dscala.usejavacp=true"] +
-      ["-J" + flag for flag in ctx.attr.jvm_flags]
-  )
   args = " ".join(ctx.attr.scalacopts)
   _write_launcher(
       ctx = ctx,
       rjars = rjars,
       main_class = "scala.tools.nsc.MainGenericRunner",
-      jvm_flags = jvm_flags,
+      jvm_flags = ["-Dscala.usejavacp=true"] + ctx.attr.jvm_flags,
       args = args,
+      run_before_binary = """
+# save stty like in bin/scala
+saved_stty=$(stty -g 2>/dev/null)
+if [[ ! $? ]]; then
+  saved_stty=""
+fi
+""",
+      run_after_binary = """
+if [[ "$saved_stty" != "" ]]; then
+  stty $saved_stty
+  saved_stty=""
+fi
+""",
   )
 
   runfiles = ctx.runfiles(
@@ -502,6 +519,10 @@ def _scala_repl_impl(ctx):
       runfiles = runfiles)
 
 def _scala_test_impl(ctx):
+    if len(ctx.attr.suites) != 0:
+        print(
+          "suites attribute is deprecated. All scalatest test suites are run"
+        )
     deps = ctx.attr.deps
     deps += [ctx.attr._scalatest_reporter]
     jars = _collect_jars(deps)
@@ -526,8 +547,10 @@ def _scala_test_impl(ctx):
         ctx = ctx,
         rjars = rjars,
         main_class = ctx.attr.main_class,
-        jvm_flags = "",
+        jvm_flags = ctx.attr.jvm_flags,
         args = args,
+        run_before_binary = "",
+        run_after_binary = "",
     )
     return _scala_binary_common(ctx, cjars, rjars)
 
