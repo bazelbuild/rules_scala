@@ -3,7 +3,7 @@ package scala.test.junit
 import org.junit.Test
 import org.junit.Assert._
 
-class TestJunitCustomPattern {
+class TestJunitCustomPrefix {
 
   @Test
   def someTest: Unit = {

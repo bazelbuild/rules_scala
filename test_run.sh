@@ -137,7 +137,7 @@ multiple_junit_suffixes() {
 
 multiple_junit_patterns() {
   bazel test //test:JunitPrefixesAndSuffixes
-  matches=$(grep -c -e 'Discovered classes' -e 'scala.test.junit.TestJunitCustomPattern' -e 'scala.test.junit.JunitCustomSuffixE2E' ./bazel-testlogs/test/JunitPrefixesAndSuffixes/test.log)
+  matches=$(grep -c -e 'Discovered classes' -e 'scala.test.junit.TestJunitCustomPrefix' -e 'scala.test.junit.JunitCustomSuffixE2E' ./bazel-testlogs/test/JunitPrefixesAndSuffixes/test.log)
   if [ $matches -eq 3 ]; then
     return 0
   else

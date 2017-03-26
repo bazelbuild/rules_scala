@@ -251,15 +251,15 @@ scala_junit_test(
     print_discovered_classes = True
 )
 scala_junit_test(
-    name = "JunitCustomPattern",
-    srcs = ["src/main/scala/scala/test/junit/JunitCustomPattern.scala"],
+    name = "JunitCustomPrefix",
+    srcs = ["src/main/scala/scala/test/junit/JunitCustomPrefix.scala"],
     size = "small",
     prefixes = ["Test"]
 )
 scala_junit_test(
     name = "JunitPrefixesAndSuffixes",
     srcs = ["src/main/scala/scala/test/junit/JunitCustomSuffix.scala",
-            "src/main/scala/scala/test/junit/JunitCustomPattern.scala"],
+            "src/main/scala/scala/test/junit/JunitCustomPrefix.scala"],
     size = "small",
     suffixes = ["E2E"],
     prefixes = ["Test"],
