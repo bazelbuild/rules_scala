@@ -162,6 +162,18 @@ test_junit_test_must_have_prefix_or_suffix() {
   exit 0
 }
 
+test_junit_test_errors_when_no_tests_found() {
+  set +e
+
+  bazel test test_expect_failure/scala_junit_test:no_tests_found
+  if [ $? -eq 0 ]; then
+    echo "'bazel build test_expect_failure/scala_junit_test:no_tests_found' should have failed."
+    exit 1
+  fi
+  set -e
+  exit 0
+}
+
 run_test bazel build test/...
 run_test bazel test test/...
 run_test bazel run test/src/main/scala/scala/test/twitter_scrooge:justscrooges
@@ -184,3 +196,4 @@ run_test test_scala_junit_test_can_fail
 run_test junit_generates_xml_logs
 run_test multiple_junit_patterns
 run_test test_junit_test_must_have_prefix_or_suffix
+run_test test_junit_test_errors_when_no_tests_found

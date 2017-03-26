@@ -11,3 +11,9 @@ scala_junit_test(
     srcs = ["JunitTest.scala"],
     size = "small",
 )
+scala_junit_test(
+    name = "no_tests_found",
+    srcs = ["JunitTest.scala"],
+    suffixes = ["DoesNotMatch"],
+    size = "small",
+)

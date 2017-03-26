@@ -48,6 +48,11 @@ object PrefixSuffixTestDiscoveringSuite {
       println("Discovered classes:")
       classes.foreach(c => println(c.getName))
     }
+    if (classes.isEmpty)
+      throw new IllegalStateException("Was not able to discover any classes " + 
+                                      s"for archive=$archivePath, " +
+                                      s"prefixes=$prefixes, " +
+                                      s"suffixes=$suffixes")
     classes
   }
 
