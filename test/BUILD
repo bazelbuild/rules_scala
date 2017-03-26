@@ -238,12 +238,6 @@ scala_junit_test(
     jvm_flags = ["-XX:HeapDumpPath=/some/custom/path"],
 )
 scala_junit_test(
-    name = "JunitCustomSuffix",
-    srcs = ["src/main/scala/scala/test/junit/JunitCustomSuffix.scala"],
-    size = "small",
-    suffixes = ["E2E"]
-)
-scala_junit_test(
     name = "JunitMultipleSuffixes",
     srcs = ["src/main/scala/scala/test/junit/JunitMultipleSuffixes.scala"],
     size = "small",
@@ -251,15 +245,16 @@ scala_junit_test(
     print_discovered_classes = True
 )
 scala_junit_test(
-    name = "JunitCustomPrefix",
-    srcs = ["src/main/scala/scala/test/junit/JunitCustomPrefix.scala"],
+    name = "JunitMultiplePrefixes",
+    srcs = ["src/main/scala/scala/test/junit/JunitMultiplePrefixes.scala"],
     size = "small",
-    prefixes = ["Test"]
+    prefixes = ["Test","OtherCustomPrefix"],
+    print_discovered_classes = True
 )
 scala_junit_test(
     name = "JunitPrefixesAndSuffixes",
-    srcs = ["src/main/scala/scala/test/junit/JunitCustomSuffix.scala",
-            "src/main/scala/scala/test/junit/JunitCustomPrefix.scala"],
+    srcs = ["src/main/scala/scala/test/junit/JunitMultipleSuffixes.scala",
+            "src/main/scala/scala/test/junit/JunitMultiplePrefixes.scala"],
     size = "small",
     suffixes = ["E2E"],
     prefixes = ["Test"],

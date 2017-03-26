@@ -11,3 +11,11 @@ class TestJunitCustomPrefix {
   }
 
 }
+class OtherCustomPrefixJunit {
+
+  @Test
+  def someTest: Unit = {
+  	assertEquals(1, 1)
+  }
+
+}

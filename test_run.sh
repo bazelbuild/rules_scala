@@ -135,9 +135,20 @@ multiple_junit_suffixes() {
   fi
 }
 
+multiple_junit_prefixes() {
+  bazel test //test:JunitMultiplePrefixes
+
+  matches=$(grep -c -e 'Discovered classes' -e 'scala.test.junit.TestJunitCustomPrefix' -e 'scala.test.junit.OtherCustomPrefixJunit' ./bazel-testlogs/test/JunitMultiplePrefixes/test.log)
+  if [ $matches -eq 3 ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
 multiple_junit_patterns() {
   bazel test //test:JunitPrefixesAndSuffixes
-  matches=$(grep -c -e 'Discovered classes' -e 'scala.test.junit.TestJunitCustomPrefix' -e 'scala.test.junit.JunitCustomSuffixE2E' ./bazel-testlogs/test/JunitPrefixesAndSuffixes/test.log)
+  matches=$(grep -c -e 'Discovered classes' -e 'scala.test.junit.TestJunitCustomPrefix' -e 'scala.test.junit.JunitSuffixE2E' ./bazel-testlogs/test/JunitPrefixesAndSuffixes/test.log)
   if [ $matches -eq 3 ]; then
     return 0
   else
@@ -192,6 +203,7 @@ run_test test_repl
 run_test bazel run test:JavaOnlySources
 run_test test_benchmark_jmh
 run_test multiple_junit_suffixes
+run_test multiple_junit_prefixes
 run_test test_scala_junit_test_can_fail
 run_test junit_generates_xml_logs
 run_test multiple_junit_patterns
