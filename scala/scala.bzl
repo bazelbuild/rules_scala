@@ -521,6 +521,8 @@ def _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, archive):
     printFlag = "-Dbazel.discover.classes.print.discovered=%s" % ctx.attr.print_discovered_classes)
 
 def _scala_junit_test_impl(ctx):
+    if (not(ctx.attr.prefixes) and not(ctx.attr.suffixes)):
+      fail("Setting at least one of the attributes ('prefixes','suffixes') is required")
     deps = ctx.attr.deps + [ctx.attr._suite]
     jars = _collect_jars(deps)
     (cjars, rjars) = (jars.compiletime, jars.runtime)
