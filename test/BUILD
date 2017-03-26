@@ -231,6 +231,7 @@ scala_library(
 scala_junit_test(
     name = "JunitTestWithDeps",
     srcs = glob(["src/main/scala/scala/test/junit/JunitTests.scala"]),
+    suffixes = ["Test"],
     size = "small",
     deps = [":JUnitCompileTimeDep"],
     runtime_deps = [":JUnitRuntimeDep"],
@@ -240,19 +241,29 @@ scala_junit_test(
     name = "JunitCustomSuffix",
     srcs = glob(["src/main/scala/scala/test/junit/JunitCustomSuffix.scala"]),
     size = "small",
-    patterns = ["E2E"]
+    suffixes = ["E2E"]
 )
 scala_junit_test(
     name = "JunitMultipleSuffixes",
     srcs = glob(["src/main/scala/scala/test/junit/JunitMultipleSuffixes.scala"]),
     size = "small",
-    patterns = ["E2E","IT"]
+    suffixes = ["E2E","IT"],
+    print_discovered_classes = True
 )
 scala_junit_test(
     name = "JunitCustomPattern",
     srcs = glob(["src/main/scala/scala/test/junit/JunitCustomPattern.scala"]),
     size = "small",
-    patterns = ["Test.*"]
+    prefixes = ["Test"]
+)
+scala_junit_test(
+    name = "JunitPrefixesAndSuffixes",
+    srcs = ["src/main/scala/scala/test/junit/JunitCustomSuffix.scala",
+            "src/main/scala/scala/test/junit/JunitCustomPattern.scala"],
+    size = "small",
+    suffixes = ["E2E"],
+    prefixes = ["Test"],
+    print_discovered_classes = True
 )
 
 scala_specs2_junit_test(
@@ -260,4 +271,5 @@ scala_specs2_junit_test(
     srcs = glob(["src/main/scala/scala/test/junit/specs2/Specs2Tests.scala"]),
     deps = [":JUnitCompileTimeDep"],
     size = "small",
+    suffixes = ["Test"],
 )

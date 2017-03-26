@@ -301,13 +301,16 @@ def _write_launcher(ctx, jars):
 
 def _write_junit_test_launcher(ctx, jars, test_suite):
     content = """#!/bin/bash
-{java} -cp {cp} -ea {classesFlag} {jvm_flags} org.junit.runner.JUnitCore {test_suite_class} 
+{java} -cp {cp} -ea {archiveFlag} {prefixesFlag} {suffixesFlag} {printFlag} {jvm_flags} org.junit.runner.JUnitCore {test_suite_class} 
 """
     content = content.format(
       java=ctx.file._java.short_path,
       cp=":".join([j.short_path for j in jars]),
       test_suite_class=test_suite.suite_class,
-      classesFlag = test_suite.classesFlag,
+      archiveFlag = test_suite.archiveFlag,
+      prefixesFlag = test_suite.prefixesFlag,
+      suffixesFlag = test_suite.suffixesFlag,
+      printFlag = test_suite.printFlag,
       #allows setting xmx for example for tests which use a lot of memory
       jvm_flags = " ".join(ctx.attr.jvm_flags)
     )
@@ -510,31 +513,12 @@ def _scala_test_impl(ctx):
     _write_test_launcher(ctx, rjars)
     return _scala_binary_common(ctx, cjars, rjars)
 
-def _prep_grep_pattern_from(patterns):
-    combined_pattern = ""
-    for pattern in patterns:
-      combined_pattern += " -e {}\.class".format(pattern)
-    return combined_pattern
-
-def _discover_classes(ctx, patterns, archive):
-    discovered_classes = ctx.new_file(ctx.label.name + "_discovered_classes.txt")
-    ctx.action(
-      #We need _jdk to even run _jar. Depending on _jar is not enough with sandbox
-      inputs= [archive] + ctx.files._jar + ctx.files._jdk,
-      outputs=[discovered_classes],
-      progress_message="Discovering classes with patterns of %s" % patterns,
-      #TODO consider with Damien/Ulf/Oscar the implications of switching from grep to scala code
-      #Pro-> logic will be cohesive (currently the scala code assumes stuff from the grep)
-      #Con-> IIRC Ulf warned me about performance implications of these traversals
-      command="{jar} -tf {archive} | grep {combined_patterns} > {out}".format(archive=archive.path, combined_patterns=_prep_grep_pattern_from(patterns), out=discovered_classes.path, 
-      jar=ctx.file._jar.path))
-    return discovered_classes
-
-def _gen_test_suite_based_on_prefix(ctx, archive):
-    discovered_classes = _discover_classes(ctx, ctx.attr.patterns, archive)
+def _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, archive):
     return struct(suite_class = "io.bazel.rulesscala.test_discovery.DiscoveredTestSuite", 
-    classesFlag = "-Dbazel.discovered.classes.file.path=%s" % discovered_classes.short_path,
-    discovered_classes = discovered_classes)
+    archiveFlag = "-Dbazel.discover.classes.archive.file.path=%s" % archive.short_path,
+    prefixesFlag = "-Dbazel.discover.classes.prefixes=%s" % ",".join(ctx.attr.prefixes),
+    suffixesFlag = "-Dbazel.discover.classes.suffixes=%s" % ",".join(ctx.attr.suffixes),
+    printFlag = "-Dbazel.discover.classes.print.discovered=%s" % ctx.attr.print_discovered_classes)
 
 def _scala_junit_test_impl(ctx):
     deps = ctx.attr.deps + [ctx.attr._suite]
@@ -546,20 +530,10 @@ def _scala_junit_test_impl(ctx):
               ctx.file._scalalib
               ] + junit_deps
     rjars += _collect_jars(ctx.attr.runtime_deps).runtime
-    test_suite = _gen_test_suite_based_on_prefix(ctx, ctx.outputs.jar)
+    test_suite = _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, ctx.outputs.jar)
     _write_junit_test_launcher(ctx, rjars, test_suite)
 
-    common_binary = _scala_binary_common(ctx, cjars, rjars)
-    discovered_classes_runfiles = ctx.runfiles(
-      files = [test_suite.discovered_classes])
-
-    #TODO is there a way to easily merge both structs
-    #I'd like a scala case class copy:
-    #common_binary.copy(runfiles= common_binary.runfiles.merge(discovered_classes_runfiles))
-    return struct(
-      files = common_binary.files,
-      scala = common_binary.scala,
-      runfiles= common_binary.runfiles.merge(discovered_classes_runfiles))
+    return _scala_binary_common(ctx, cjars, rjars)
 
 
 _implicit_deps = {
@@ -831,11 +805,12 @@ def scala_library_suite(name,
 scala_junit_test = rule(
   implementation=_scala_junit_test_impl,
   attrs= _implicit_deps + _common_attrs + {
-      "patterns": attr.string_list(default=["Test"]),
+      "prefixes": attr.string_list(default=[]),
+      "suffixes": attr.string_list(default=[]),
+      "print_discovered_classes": attr.bool(default=False, mandatory=False),
       "_junit": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/junit/junit"), single_file=True),
       "_hamcrest": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/hamcrest/hamcrest_core"), single_file=True),
       "_suite": attr.label(default=Label("//src/java/io/bazel/rulesscala/test_discovery:test_discovery")),
-      "_jar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:jar"), single_file=True, allow_files=True),
       },
   outputs={
       "jar": "%{name}.jar",

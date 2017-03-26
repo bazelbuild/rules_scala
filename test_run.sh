@@ -126,8 +126,19 @@ xmllint_test() {
 
 multiple_junit_suffixes() {
   bazel test //test:JunitMultipleSuffixes
-  matches=$(grep -c -e 'Running E2E' -e 'Running IT' ./bazel-testlogs/test/JunitMultipleSuffixes/test.log)
-  if [ $matches -eq 2 ]; then
+
+  matches=$(grep -c -e 'Discovered classes' -e 'scala.test.junit.JunitSuffixIT' -e 'scala.test.junit.JunitSuffixE2E' ./bazel-testlogs/test/JunitMultipleSuffixes/test.log)
+  if [ $matches -eq 3 ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+multiple_junit_patterns() {
+  bazel test //test:JunitPrefixesAndSuffixes
+  matches=$(grep -c -e 'Discovered classes' -e 'scala.test.junit.TestJunitCustomPattern' -e 'scala.test.junit.JunitCustomSuffixE2E' ./bazel-testlogs/test/JunitPrefixesAndSuffixes/test.log)
+  if [ $matches -eq 3 ]; then
     return 0
   else
     return 1
@@ -159,3 +170,4 @@ run_test test_benchmark_jmh
 run_test multiple_junit_suffixes
 run_test test_scala_junit_test_can_fail
 run_test junit_generates_xml_logs
+run_test multiple_junit_patterns

@@ -9,7 +9,6 @@ class JunitSuffixE2E {
 
   @Test
   def someTest: Unit = {
-  	println("Running E2E")
   	assertEquals(1, 1)
   }
 
@@ -18,7 +17,6 @@ class JunitSuffixIT {
 
   @Test
   def someTest: Unit = {
-  	println("Running IT")
   	assertEquals(1, 1)
   }
 
