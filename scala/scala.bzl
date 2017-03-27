@@ -574,7 +574,7 @@ def _scala_junit_test_impl(ctx):
               ] + junit_deps
     rjars += _collect_jars(ctx.attr.runtime_deps).runtime
     test_suite = _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, ctx.outputs.jar)
-    launcherJvmFlags = ["-ea", test_suit.archiveFlag, test_suite.prefixesFlag, test_suite.suffixesFlag, test_suite.printFlag]
+    launcherJvmFlags = ["-ea", test_suite.archiveFlag, test_suite.prefixesFlag, test_suite.suffixesFlag, test_suite.printFlag]
     _write_launcher(
         ctx = ctx,
         rjars = jars,
