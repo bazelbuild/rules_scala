@@ -21,6 +21,17 @@ _srcjar_filetype = FileType([".srcjar"])
 # TODO is there a way to derive this from the above?
 _scala_srcjar_filetype = FileType([".scala", ".srcjar", ".java"])
 
+def _get_runfiles(target):
+    runfiles = depset()
+    runfiles += target.data_runfiles.files
+    runfiles += target.default_runfiles.files
+    return runfiles
+
+def _get_all_runfiles(targets):
+    runfiles = depset()
+    for target in targets:
+      runfiles += _get_runfiles(target)
+    return runfiles
 
 def _adjust_resources_path(path):
     #  Here we are looking to find out the offset of this resource inside
@@ -84,14 +95,16 @@ def _build_nosrc_jar(ctx, buildijar):
         cp_resources=cp_resources,
         out=ctx.outputs.jar.path,
         manifest=ctx.outputs.manifest.path,
-        java=ctx.file._java.path,
+        java=ctx.executable._java.path,
         jar=_get_jar_path(ctx.files._jar))
     outs = [ctx.outputs.jar]
     if buildijar:
         outs.extend([ctx.outputs.ijar])
 
-    inputs = ctx.files.resources + ctx.files._jdk + ctx.files._jar + [
-      ctx.outputs.manifest, ctx.file._java
+    inputs = ctx.files.resources + [
+        ctx.outputs.manifest,
+        ctx.executable._jar,
+        ctx.executable._java,
       ]
 
     ctx.action(
@@ -124,7 +137,7 @@ def _compile(ctx, _jars, dep_srcjars, buildijar):
     ijar_cmd_path = ""
     if buildijar:
         ijar_output_path = ctx.outputs.ijar.path
-        ijar_cmd_path = ctx.file._ijar.path
+        ijar_cmd_path = ctx.executable._ijar.path
 
     java_srcs = _java_filetype.filter(ctx.files.srcs)
     sources = _scala_filetype.filter(ctx.files.srcs) + java_srcs
@@ -174,7 +187,7 @@ SourceJars: {srcjars}
         ijar_cmd_path=ijar_cmd_path,
         srcjars=",".join([f.path for f in all_srcjars]),
         javac_opts=" ".join(ctx.attr.javacopts),
-        javac_path=ctx.file._javac.path,
+        javac_path=ctx.executable._javac.path,
         java_files=",".join([f.path for f in java_srcs]),
         #  these are the flags passed to javac, which needs them prefixed by -J
         jvm_flags=",".join(["-J" + flag for flag in ctx.attr.jvm_flags]),
@@ -202,10 +215,10 @@ SourceJars: {srcjars}
            ctx.files.plugins +
            ctx.files.resources +
            ctx.files.resource_jars +
-           ctx.files._jdk +
            [ctx.outputs.manifest,
-            ctx.file._ijar,
-            ctx.file._java,
+            ctx.executable._ijar,
+            ctx.executable._java,
+            ctx.executable._javac,
             ctx.file._scalacompiler,
             ctx.file._scalareflect,
             ctx.file._scalalib,
@@ -280,45 +293,49 @@ def write_manifest(ctx):
         output=ctx.outputs.manifest,
         content=manifest)
 
-
-def _write_launcher(ctx, jars):
+def _write_launcher(ctx, rjars, main_class, jvm_flags, args, run_before_binary, run_after_binary):
     classpath = ':'.join(
-      ["$0.runfiles/%s/%s" % (ctx.workspace_name, f.short_path) for f in jars]
-      )
+      ["$JAVA_RUNFILES/{repo}/{spath}".format(
+          repo = ctx.workspace_name, spath = f.short_path
+      ) for f in rjars])
 
     content = """#!/bin/bash
-  export CLASSPATH={classpath}
-  $0.runfiles/{repo}/{java} {name} "$@"
-  """.format(
-      repo=ctx.workspace_name,
-      java=ctx.file._java.short_path,
-      name=ctx.attr.main_class,
-      deploy_jar=ctx.outputs.jar.path,
-      classpath=classpath,
+
+case "$0" in
+/*) self="$0" ;;
+*)  self="$PWD/$0" ;;
+esac
+
+if [[ -z "$JAVA_RUNFILES" ]]; then
+  if [[ -e "${{self}}.runfiles" ]]; then
+    export JAVA_RUNFILES="${{self}}.runfiles"
+  fi
+  if [[ -n "$JAVA_RUNFILES" ]]; then
+    export TEST_SRCDIR=${{TEST_SRCDIR:-$JAVA_RUNFILES}}
+  fi
+fi
+
+export CLASSPATH={classpath}
+{run_before_binary}
+$JAVA_RUNFILES/{repo}/{java} {jvm_flags} {main_class} {args} "$@"
+BINARY_EXIT_CODE=$?
+{run_after_binary}
+exit $BINARY_EXIT_CODE
+""".format(
+        classpath = classpath,
+        repo = ctx.workspace_name,
+        java = ctx.executable._java.short_path,
+        jvm_flags = " ".join(jvm_flags),
+        main_class = main_class,
+        args = args,
+        run_before_binary = run_before_binary,
+        run_after_binary = run_after_binary,
     )
+
     ctx.file_action(
-        output=ctx.outputs.executable,
-        content=content)
-
-
-def _write_test_launcher(ctx, jars):
-    if len(ctx.attr.suites) != 0:
-        print(
-          "suites attribute is deprecated. All scalatest test suites are run"
-        )
-
-    content = """#!/bin/bash
-{java} -cp {cp} {name} {args} -C io.bazel.rules.scala.JUnitXmlReporter "$@"
-"""
-    content = content.format(
-      java=ctx.file._java.short_path,
-      cp=":".join([j.short_path for j in jars]),
-      name=ctx.attr.main_class,
-      args="-R \"{path}\" -oWDS".format(path=ctx.outputs.jar.short_path))
-    ctx.file_action(
-      output=ctx.outputs.executable,
-      content=content)
-
+        output = ctx.outputs.executable,
+        content = content,
+    )
 
 def collect_srcjars(targets):
     srcjars = set()
@@ -384,6 +401,9 @@ def _lib(ctx, non_macro_lib):
                        transitive_compile_exports=texp.compiletime,
                        transitive_runtime_exports=texp.runtime
                        )
+
+    # Note that rjars already transitive so don't really
+    # need to use transitive_files with _get_all_runfiles
     runfiles = ctx.runfiles(
         files=list(rjars),
         collect_data=True)
@@ -425,11 +445,15 @@ def _scala_binary_common(ctx, cjars, rjars):
   _build_deployable(ctx, list(rjars))
 
   runfiles = ctx.runfiles(
-      files = list(rjars) + [ctx.outputs.executable] + [ctx.file._java] + ctx.files._jdk,
+      files = list(rjars) + [ctx.outputs.executable],
+      transitive_files = _get_runfiles(ctx.attr._java),
       collect_data = True)
 
-  jars = _collect_jars(ctx.attr.deps)
-  rule_outputs = struct(ijar=outputs.class_jar, class_jar=outputs.class_jar, deploy_jar=ctx.outputs.deploy_jar)
+  rule_outputs = struct(
+      ijar=outputs.class_jar,
+      class_jar=outputs.class_jar,
+      deploy_jar=ctx.outputs.deploy_jar,
+  )
   scalaattr = struct(outputs = rule_outputs,
                      transitive_runtime_deps = rjars,
                      transitive_compile_exports = set(),
@@ -446,41 +470,59 @@ def _scala_binary_impl(ctx):
   cjars += [ctx.file._scalareflect]
   rjars += [ctx.outputs.jar, ctx.file._scalalib, ctx.file._scalareflect]
   rjars += _collect_jars(ctx.attr.runtime_deps).runtime
-  _write_launcher(ctx, rjars)
+  _write_launcher(
+      ctx = ctx,
+      rjars = rjars,
+      main_class = ctx.attr.main_class,
+      jvm_flags = ctx.attr.jvm_flags,
+      args = "",
+      run_before_binary = "",
+      run_after_binary = "",
+  )
   return _scala_binary_common(ctx, cjars, rjars)
 
 def _scala_repl_impl(ctx):
   jars = _collect_jars(ctx.attr.deps)
   rjars = jars.runtime
-  rjars += [ctx.file._scalalib, ctx.file._scalareflect]
+  rjars += [ctx.file._scalalib, ctx.file._scalareflect, ctx.file._scalacompiler]
   rjars += _collect_jars(ctx.attr.runtime_deps).runtime
-  classpath = ':'.join(["$0.runfiles/%s/%s" % (ctx.workspace_name, f.short_path) for f in rjars])
-  content = """#!/bin/bash
-env JAVACMD=$0.runfiles/{repo}/{java} $0.runfiles/{repo}/{scala} {jvm_flags} -classpath {classpath} {scala_opts} "$@"
-""".format(
-    java=ctx.file._java.short_path,
-    repo=ctx.workspace_name,
-    jvm_flags=" ".join(["-J" + flag for flag in ctx.attr.jvm_flags]),
-    scala=ctx.file._scala.short_path,
-    classpath=classpath,
-    scala_opts=" ".join(ctx.attr.scalacopts),
+
+  args = " ".join(ctx.attr.scalacopts)
+  _write_launcher(
+      ctx = ctx,
+      rjars = rjars,
+      main_class = "scala.tools.nsc.MainGenericRunner",
+      jvm_flags = ["-Dscala.usejavacp=true"] + ctx.attr.jvm_flags,
+      args = args,
+      run_before_binary = """
+# save stty like in bin/scala
+saved_stty=$(stty -g 2>/dev/null)
+if [[ ! $? ]]; then
+  saved_stty=""
+fi
+""",
+      run_after_binary = """
+if [[ "$saved_stty" != "" ]]; then
+  stty $saved_stty
+  saved_stty=""
+fi
+""",
   )
-  ctx.file_action(
-      output=ctx.outputs.executable,
-      content=content)
 
   runfiles = ctx.runfiles(
-      files = list(rjars) +
-           [ctx.outputs.executable] +
-           [ctx.file._java] +
-           ctx.files._jdk +
-           [ctx.file._scala],
+      files = list(rjars) + [ctx.outputs.executable],
+      transitive_files = _get_runfiles(ctx.attr._java),
       collect_data = True)
+
   return struct(
-      files=set([ctx.outputs.executable]),
-      runfiles=runfiles)
+      files = set([ctx.outputs.executable]),
+      runfiles = runfiles)
 
 def _scala_test_impl(ctx):
+    if len(ctx.attr.suites) != 0:
+        print(
+          "suites attribute is deprecated. All scalatest test suites are run"
+        )
     deps = ctx.attr.deps
     deps += [ctx.attr._scalatest_reporter]
     jars = _collect_jars(deps)
@@ -494,17 +536,32 @@ def _scala_test_impl(ctx):
               ctx.file._scalaxml
               ]
     rjars += _collect_jars(ctx.attr.runtime_deps).runtime
-    _write_test_launcher(ctx, rjars)
+
+    args = " ".join([
+        "-R \"{path}\"".format(path=ctx.outputs.jar.short_path),
+        "-oWDS",
+        "-C io.bazel.rules.scala.JUnitXmlReporter ",
+    ])
+    # main_class almost has to be "org.scalatest.tools.Runner" due to args....
+    _write_launcher(
+        ctx = ctx,
+        rjars = rjars,
+        main_class = ctx.attr.main_class,
+        jvm_flags = ctx.attr.jvm_flags,
+        args = args,
+        run_before_binary = "",
+        run_after_binary = "",
+    )
     return _scala_binary_common(ctx, cjars, rjars)
 
 _implicit_deps = {
-  "_ijar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:ijar"), single_file=True, allow_files=True),
+  "_ijar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:ijar"), allow_files=True),
   "_scalac": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/scalac"), allow_files=True),
   "_scalalib": attr.label(default=Label("@scala//:lib/scala-library.jar"), single_file=True, allow_files=True),
   "_scalacompiler": attr.label(default=Label("@scala//:lib/scala-compiler.jar"), single_file=True, allow_files=True),
   "_scalareflect": attr.label(default=Label("@scala//:lib/scala-reflect.jar"), single_file=True, allow_files=True),
-  "_java": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:java"), single_file=True, allow_files=True),
-  "_javac": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:javac"), single_file=True, allow_files=True),
+  "_java": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:java"), allow_files=True),
+  "_javac": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:javac"), allow_files=True),
   "_jar": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/jar:binary_deploy.jar"), allow_files=True),
   "_jar_bin": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/jar:binary")),
   "_jdk": attr.label(default=Label("//tools/defaults:jdk"), allow_files=True),
@@ -587,11 +644,7 @@ scala_test = rule(
 
 scala_repl = rule(
   implementation=_scala_repl_impl,
-  attrs= _implicit_deps +
-    _common_attrs +
-    {
-        "_scala": attr.label(executable=True, cfg="data", default=Label("@scala//:bin/scala"), single_file=True, allow_files=True)
-    },
+  attrs= _implicit_deps + _common_attrs,
   outputs={},
   executable=True,
 )
