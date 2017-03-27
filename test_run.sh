@@ -114,7 +114,7 @@ function run_test() {
   if [ $RESPONSE_CODE -eq 0 ]; then
     echo -e "${GREEN} Test $TEST_ARG successful ($DURATION sec) $NC"
   else
-    echo $RES
+    echo "$RES"
     echo -e "${RED} Test $TEST_ARG failed $NC ($DURATION sec) $NC"
     exit $RESPONSE_CODE
   fi

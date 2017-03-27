@@ -1,1 +1,1 @@
-exports_files(["byes", "hellos", "more-byes", "more-hellos"])
+exports_files(["byes", "hellos", "hellos-and-byes.jar", "more-byes", "more-hellos"])

@@ -219,7 +219,6 @@ scala_binary(
     main_class = "scala.test.Alpha",
 )
 
-
 scala_library(
     name = "JUnitCompileTimeDep",
     srcs = ["src/main/scala/scala/test/junit/support/JUnitCompileTimeDep.scala"],
@@ -267,4 +266,35 @@ scala_specs2_junit_test(
     deps = [":JUnitCompileTimeDep"],
     size = "small",
     suffixes = ["Test"],
+)
+
+# Make sure scala_binary works in test environment
+[sh_test(
+    name = "Run" + binary,
+    srcs = ["test_binary.sh"],
+    args = ["$(location %s)" % binary],
+    data = [":%s" % binary],
+) for binary in [
+    "JavaBinary",
+    "JavaBinary2",
+    "ScalaBinary",
+    "ScalaLibBinary",
+    "MoreScalaLibBinary",
+    "MixJavaScalaLibBinary",
+    "JavaOnlySources",
+]]
+
+# Make sure scala_binary works in genrule environment
+genrule(
+    name = "ScalaBinaryInGenrule",
+    tools = [":ScalaBinary"],
+    outs = ["scala_binary_out.txt"],
+    cmd = "$(location :ScalaBinary) > $@",
+)
+
+sh_test(
+    name = "TestScalaBinaryInGenrule",
+    srcs = ["test_binary.sh"],
+    args = ["cat $(location :ScalaBinaryInGenrule)"],
+    data = [":ScalaBinaryInGenrule"],
 )

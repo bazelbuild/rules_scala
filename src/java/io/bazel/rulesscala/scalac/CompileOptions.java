@@ -23,6 +23,7 @@ public class CompileOptions {
   final public String[] jvmFlags;
   final public Map<String, String> resourceFiles;
   final public String resourceStripPrefix;
+  final public String[] resourceJars;
 
   public CompileOptions(List<String> args) {
     Map<String, String> argMap = buildArgMap(args);
@@ -53,6 +54,7 @@ public class CompileOptions {
     }
     resourceFiles = getResources(argMap);
     resourceStripPrefix = getOrEmpty(argMap, "ResourceStripPrefix");
+    resourceJars = getCommaList(argMap, "ResourceJars");
   }
 
   private static Map<String, String> getResources(Map<String, String> args) {

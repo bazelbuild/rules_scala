@@ -87,6 +87,10 @@ class ScalacProcessor implements Processor {
        */
       copyResources(ops.resourceFiles, ops.resourceStripPrefix, tmpPath);
       /**
+       * Extract and copy resources from resource jars
+       */
+      copyResourceJars(ops.resourceJars, tmpPath);
+      /**
        * Now build the output jar
        */
       String[] jarCreatorArgs = {
@@ -126,13 +130,14 @@ class ScalacProcessor implements Processor {
     return filtered;
   }
 
+  static private String[] sourceExtensions = {".scala", ".java"};
   static private List<File> extractSourceJars(CompileOptions opts, Path tmpParent) throws IOException {
     List<File> sourceFiles = new ArrayList<File>();
 
     for(String jarPath : opts.sourceJars) {
       if (jarPath.length() > 0){
         Path tmpPath = Files.createTempDirectory(tmpParent, "tmp");
-        sourceFiles.addAll(extractJar(jarPath, tmpPath.toString()));
+        sourceFiles.addAll(extractJar(jarPath, tmpPath.toString(), sourceExtensions));
       }
     }
 
@@ -140,7 +145,8 @@ class ScalacProcessor implements Processor {
   }
 
   private static List<File> extractJar(String jarPath,
-      String outputFolder) throws IOException, FileNotFoundException {
+      String outputFolder,
+      String[] extensions) throws IOException, FileNotFoundException {
 
     List<File> outputPaths = new ArrayList<File>();
     JarFile jar = new JarFile(jarPath);
@@ -149,7 +155,7 @@ class ScalacProcessor implements Processor {
       JarEntry file = (JarEntry) e.nextElement();
       String thisFileName = file.getName();
       // we don't bother to extract non-scala/java sources (skip manifest)
-      if (!(thisFileName.endsWith(".scala") || thisFileName.endsWith(".java"))) continue;
+      if (extensions != null && !matchesFileExtensions(thisFileName, extensions)) continue;
       File f = new File(outputFolder + File.separator + file.getName());
 
       if (file.isDirectory()) { // if its a directory, create it
@@ -170,6 +176,15 @@ class ScalacProcessor implements Processor {
       is.close();
     }
     return outputPaths;
+  }
+
+  private static boolean matchesFileExtensions(String fileName, String[] extensions) {
+    for (String e: extensions) {
+      if (fileName.endsWith(e)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private static void compileScalaSources(CompileOptions ops, String[] scalaSources, Path tmpPath) throws IllegalAccessException {
@@ -323,5 +338,10 @@ class ScalacProcessor implements Processor {
     }
     String newResPath = sourcePath.substring(resourceStripPrefix.length());
     return newResPath;
+  }
+  private static void copyResourceJars(String[] resourceJars, Path dest) throws IOException {
+    for (String jarPath: resourceJars) {
+      extractJar(jarPath, dest.toString(), null);
+    }
   }
 }
