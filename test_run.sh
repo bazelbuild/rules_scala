@@ -71,6 +71,18 @@ test_scala_library_suite() {
   exit 0
 }
 
+test_scala_junit_test_can_fail() {
+  set +e
+
+  bazel test test_expect_failure/scala_junit_test:failing_test
+  if [ $? -eq 0 ]; then
+    echo "'bazel build test_expect_failure/scala_junit_test:failing_test' should have failed."
+    exit 1
+  fi
+  set -e
+  exit 0
+}
+
 test_repl() {
   echo "import scala.test._; HelloLib.printMessage(\"foo\")" | bazel-bin/test/HelloLibRepl | grep "foo java" &&
   echo "import scala.test._; TestUtil.foo" | bazel-bin/test/HelloLibTestRepl | grep "bar" &&
@@ -112,6 +124,67 @@ xmllint_test() {
   find -L ./bazel-testlogs -iname "*.xml" | xargs -n1 xmllint > /dev/null
 }
 
+multiple_junit_suffixes() {
+  bazel test //test:JunitMultipleSuffixes
+
+  matches=$(grep -c -e 'Discovered classes' -e 'scala.test.junit.JunitSuffixIT' -e 'scala.test.junit.JunitSuffixE2E' ./bazel-testlogs/test/JunitMultipleSuffixes/test.log)
+  if [ $matches -eq 3 ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+multiple_junit_prefixes() {
+  bazel test //test:JunitMultiplePrefixes
+
+  matches=$(grep -c -e 'Discovered classes' -e 'scala.test.junit.TestJunitCustomPrefix' -e 'scala.test.junit.OtherCustomPrefixJunit' ./bazel-testlogs/test/JunitMultiplePrefixes/test.log)
+  if [ $matches -eq 3 ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+multiple_junit_patterns() {
+  bazel test //test:JunitPrefixesAndSuffixes
+  matches=$(grep -c -e 'Discovered classes' -e 'scala.test.junit.TestJunitCustomPrefix' -e 'scala.test.junit.JunitSuffixE2E' ./bazel-testlogs/test/JunitPrefixesAndSuffixes/test.log)
+  if [ $matches -eq 3 ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+junit_generates_xml_logs() {
+  bazel test //test:JunitTestWithDeps
+  test -e ./bazel-testlogs/test/JunitTestWithDeps/test.xml
+}
+
+test_junit_test_must_have_prefix_or_suffix() {
+  set +e
+
+  bazel test test_expect_failure/scala_junit_test:no_prefix_or_suffix
+  if [ $? -eq 0 ]; then
+    echo "'bazel build test_expect_failure/scala_junit_test:no_prefix_or_suffix' should have failed."
+    exit 1
+  fi
+  set -e
+  exit 0
+}
+
+test_junit_test_errors_when_no_tests_found() {
+  set +e
+
+  bazel test test_expect_failure/scala_junit_test:no_tests_found
+  if [ $? -eq 0 ]; then
+    echo "'bazel build test_expect_failure/scala_junit_test:no_tests_found' should have failed."
+    exit 1
+  fi
+  set -e
+  exit 0
+}
+
 run_test bazel build test/...
 run_test bazel test test/...
 run_test bazel run test/src/main/scala/scala/test/twitter_scrooge:justscrooges
@@ -129,4 +202,10 @@ run_test test_scala_library_suite
 run_test test_repl
 run_test bazel run test:JavaOnlySources
 run_test test_benchmark_jmh
-
+run_test multiple_junit_suffixes
+run_test multiple_junit_prefixes
+run_test test_scala_junit_test_can_fail
+run_test junit_generates_xml_logs
+run_test multiple_junit_patterns
+run_test test_junit_test_must_have_prefix_or_suffix
+run_test test_junit_test_errors_when_no_tests_found

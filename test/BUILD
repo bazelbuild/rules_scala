@@ -8,7 +8,9 @@ load("//scala:scala.bzl",
     "scala_export_to_java",
     "scala_repl",
     "scala_test_suite",
-    "scala_library_suite")
+    "scala_library_suite",
+    "scala_junit_test",
+    "scala_specs2_junit_test")
 
 # The examples below show how to combine Scala and Java rules.
 # ScalaBinary is the Scala equivalent of JavaBinary.
@@ -215,6 +217,55 @@ scala_binary(
     name = "JavaOnlySources",
     srcs = ["src/main/scala/scala/test/only_java/Alpha.java"],
     main_class = "scala.test.Alpha",
+)
+
+scala_library(
+    name = "JUnitCompileTimeDep",
+    srcs = ["src/main/scala/scala/test/junit/support/JUnitCompileTimeDep.scala"],
+)
+scala_library(
+    name = "JUnitRuntimeDep",
+    srcs = ["src/main/scala/scala/test/junit/support/JUnitRuntimeDep.scala"],
+)
+scala_junit_test(
+    name = "JunitTestWithDeps",
+    srcs = ["src/main/scala/scala/test/junit/JunitTests.scala"],
+    suffixes = ["Test"],
+    size = "small",
+    deps = [":JUnitCompileTimeDep"],
+    runtime_deps = [":JUnitRuntimeDep"],
+    jvm_flags = ["-XX:HeapDumpPath=/some/custom/path"],
+)
+scala_junit_test(
+    name = "JunitMultipleSuffixes",
+    srcs = ["src/main/scala/scala/test/junit/JunitMultipleSuffixes.scala"],
+    size = "small",
+    suffixes = ["E2E","IT"],
+    print_discovered_classes = True
+)
+scala_junit_test(
+    name = "JunitMultiplePrefixes",
+    srcs = ["src/main/scala/scala/test/junit/JunitMultiplePrefixes.scala"],
+    size = "small",
+    prefixes = ["Test","OtherCustomPrefix"],
+    print_discovered_classes = True
+)
+scala_junit_test(
+    name = "JunitPrefixesAndSuffixes",
+    srcs = ["src/main/scala/scala/test/junit/JunitMultipleSuffixes.scala",
+            "src/main/scala/scala/test/junit/JunitMultiplePrefixes.scala"],
+    size = "small",
+    suffixes = ["E2E"],
+    prefixes = ["Test"],
+    print_discovered_classes = True
+)
+
+scala_specs2_junit_test(
+    name = "Specs2Tests",
+    srcs = ["src/main/scala/scala/test/junit/specs2/Specs2Tests.scala"],
+    deps = [":JUnitCompileTimeDep"],
+    size = "small",
+    suffixes = ["Test"],
 )
 
 # Make sure scala_binary works in test environment

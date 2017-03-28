@@ -14,6 +14,7 @@
 
 """Rules for supporting the Scala language."""
 
+load("//specs2:specs2_junit.bzl", "specs2_junit_dependencies")
 _jar_filetype = FileType([".jar"])
 _java_filetype = FileType([".java"])
 _scala_filetype = FileType([".scala"])
@@ -535,8 +536,7 @@ def _scala_test_impl(ctx):
     jars = _collect_jars(deps)
     (cjars, rjars) = (jars.compiletime, jars.runtime)
     cjars += [ctx.file._scalareflect, ctx.file._scalatest, ctx.file._scalaxml]
-    rjars += [
-              ctx.outputs.jar,
+    rjars += [ctx.outputs.jar,
               ctx.file._scalalib,
               ctx.file._scalareflect,
               ctx.file._scalatest,
@@ -560,6 +560,40 @@ def _scala_test_impl(ctx):
         run_after_binary = "",
     )
     return _scala_binary_common(ctx, cjars, rjars)
+
+def _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, archive):
+    return struct(suite_class = "io.bazel.rulesscala.test_discovery.DiscoveredTestSuite", 
+    archiveFlag = "-Dbazel.discover.classes.archive.file.path=%s" % archive.short_path,
+    prefixesFlag = "-Dbazel.discover.classes.prefixes=%s" % ",".join(ctx.attr.prefixes),
+    suffixesFlag = "-Dbazel.discover.classes.suffixes=%s" % ",".join(ctx.attr.suffixes),
+    printFlag = "-Dbazel.discover.classes.print.discovered=%s" % ctx.attr.print_discovered_classes)
+
+def _scala_junit_test_impl(ctx):
+    if (not(ctx.attr.prefixes) and not(ctx.attr.suffixes)):
+      fail("Setting at least one of the attributes ('prefixes','suffixes') is required")
+    deps = ctx.attr.deps + [ctx.attr._suite]
+    jars = _collect_jars(deps)
+    (cjars, rjars) = (jars.compiletime, jars.runtime)
+    junit_deps = [ctx.file._junit,ctx.file._hamcrest]
+    cjars += junit_deps
+    rjars += [ctx.outputs.jar,
+              ctx.file._scalalib
+              ] + junit_deps
+    rjars += _collect_jars(ctx.attr.runtime_deps).runtime
+    test_suite = _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, ctx.outputs.jar)
+    launcherJvmFlags = ["-ea", test_suite.archiveFlag, test_suite.prefixesFlag, test_suite.suffixesFlag, test_suite.printFlag]
+    _write_launcher(
+        ctx = ctx,
+        rjars = rjars,
+        main_class = "org.junit.runner.JUnitCore",
+        jvm_flags = launcherJvmFlags + ctx.attr.jvm_flags,
+        args = test_suite.suite_class,
+        run_before_binary = "",
+        run_after_binary = "",
+    )
+
+    return _scala_binary_common(ctx, cjars, rjars)
+
 
 _implicit_deps = {
   "_ijar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:ijar"), allow_files=True),
@@ -687,6 +721,30 @@ exports_files([
   "lib/scala-xml_2.11-1.0.4.jar",
   "lib/scalap-2.11.8.jar",
 ])
+
+filegroup(
+    name = "scala-xml",
+    srcs = ["lib/scala-xml_2.11-1.0.4.jar"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "scala-parser-combinators",
+    srcs = ["lib/scala-parser-combinators_2.11-1.0.4.jar"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "scala-library",
+    srcs = ["lib/scala-library.jar"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "scala-reflect",
+    srcs = ["lib/scala-reflect.jar"],
+    visibility = ["//visibility:public"],
+)
 """
 
 def scala_repositories():
@@ -721,6 +779,14 @@ def scala_repositories():
     sha1 = "e13484d9da178399d32d2d27ee21a77cfb4b7873",
     server = "scalac_deps_maven_server",
   )
+
+  native.bind(name = 'io_bazel_rules_scala/dependency/scala/scala_xml', actual = '@scala//:scala-xml')
+
+  native.bind(name = 'io_bazel_rules_scala/dependency/scala/parser_combinators', actual = '@scala//:scala-parser-combinators')
+
+  native.bind(name = 'io_bazel_rules_scala/dependency/scala/scala_library', actual = '@scala//:scala-library')
+
+  native.bind(name = 'io_bazel_rules_scala/dependency/scala/scala_reflect', actual = '@scala//:scala-reflect')
 
 def scala_export_to_java(name, exports, runtime_deps):
   jars = []
@@ -792,4 +858,26 @@ def scala_library_suite(name,
         ts.append(n)
     scala_library(name = name, deps = ts, exports = exports + ts, visibility = visibility)
 
+scala_junit_test = rule(
+  implementation=_scala_junit_test_impl,
+  attrs= _implicit_deps + _common_attrs + {
+      "prefixes": attr.string_list(default=[]),
+      "suffixes": attr.string_list(default=[]),
+      "print_discovered_classes": attr.bool(default=False, mandatory=False),
+      "_junit": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/junit/junit"), single_file=True),
+      "_hamcrest": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/hamcrest/hamcrest_core"), single_file=True),
+      "_suite": attr.label(default=Label("//src/java/io/bazel/rulesscala/test_discovery:test_discovery")),
+      },
+  outputs={
+      "jar": "%{name}.jar",
+      "deploy_jar": "%{name}_deploy.jar",
+      "manifest": "%{name}_MANIFEST.MF",
+      },
+  test=True,
+)
 
+def scala_specs2_junit_test(name, **kwargs):
+  scala_junit_test(
+   name = name,
+   deps = specs2_junit_dependencies() + kwargs.pop("deps",[]),
+   **kwargs)
