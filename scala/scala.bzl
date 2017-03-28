@@ -102,7 +102,8 @@ def _build_nosrc_jar(ctx, buildijar):
     if buildijar:
         outs.extend([ctx.outputs.ijar])
 
-    inputs = ctx.files.resources + [
+    # _jdk added manually since _java doesn't currently setup runfiles
+    inputs = ctx.files.resources + ctx.files._jdk + [
         ctx.outputs.manifest,
         ctx.executable._jar,
         ctx.executable._java,
@@ -208,6 +209,9 @@ SourceJars: {srcjars}
     outs = [ctx.outputs.jar]
     if buildijar:
         outs.extend([ctx.outputs.ijar])
+    # _jdk added manually since _java doesn't currently setup runfiles
+    # _scalac, as a java_binary, should already have it in its runfiles; however,
+    # adding does ensure _java not orphaned if _scalac ever was not a java_binary
     ins = (list(jars) +
            list(dep_srcjars) +
            list(srcjars) +
@@ -216,6 +220,7 @@ SourceJars: {srcjars}
            ctx.files.plugins +
            ctx.files.resources +
            ctx.files.resource_jars +
+           ctx.files._jdk +
            [ctx.outputs.manifest,
             ctx.executable._ijar,
             ctx.executable._java,
@@ -363,7 +368,7 @@ def _collect_jars(targets):
             # see JavaSkylarkApiProvider.java,
             # this is just the compile-time deps
             # this should be improved in bazel 0.1.5 to get outputs.ijar
-            # compile_jars += [target.java.outputs.ijar]
+            # compile_jars += [output.ijar for output in target.java.outputs.jars]
             compile_jars += target.java.transitive_deps
             runtime_jars += target.java.transitive_runtime_deps
             found = True
@@ -445,8 +450,9 @@ def _scala_binary_common(ctx, cjars, rjars):
   outputs = _compile_or_empty(ctx, cjars, [], False)  # no need to build an ijar for an executable
   _build_deployable(ctx, list(rjars))
 
+  # _jdk added manually since _java doesn't currently setup runfiles
   runfiles = ctx.runfiles(
-      files = list(rjars) + [ctx.outputs.executable],
+      files = list(rjars) + [ctx.outputs.executable] + ctx.files._jdk,
       transitive_files = _get_runfiles(ctx.attr._java),
       collect_data = True)
 
@@ -510,8 +516,9 @@ fi
 """,
   )
 
+  # _jdk added manually since _java doesn't currently setup runfiles
   runfiles = ctx.runfiles(
-      files = list(rjars) + [ctx.outputs.executable],
+      files = list(rjars) + [ctx.outputs.executable] + ctx.files._jdk,
       transitive_files = _get_runfiles(ctx.attr._java),
       collect_data = True)
 
