@@ -577,7 +577,7 @@ def _scala_junit_test_impl(ctx):
     launcherJvmFlags = ["-ea", test_suite.archiveFlag, test_suite.prefixesFlag, test_suite.suffixesFlag, test_suite.printFlag]
     _write_launcher(
         ctx = ctx,
-        rjars = jars,
+        rjars = rjars,
         main_class = "org.junit.runner.JUnitCore",
         jvm_flags = launcherJvmFlags + ctx.attr.jvm_flags,
         args = test_suite.suite_class,
