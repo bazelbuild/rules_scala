@@ -598,9 +598,9 @@ def _scala_junit_test_impl(ctx):
 _implicit_deps = {
   "_ijar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:ijar"), allow_files=True),
   "_scalac": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/scalac"), allow_files=True),
-  "_scalalib": attr.label(default=Label("@scala//:lib/scala-library.jar"), single_file=True, allow_files=True),
-  "_scalacompiler": attr.label(default=Label("@scala//:lib/scala-compiler.jar"), single_file=True, allow_files=True),
-  "_scalareflect": attr.label(default=Label("@scala//:lib/scala-reflect.jar"), single_file=True, allow_files=True),
+  "_scalalib": attr.label(default=Label("@scala//:scala-library"), single_file=True, allow_files=True),
+  "_scalacompiler": attr.label(default=Label("@scala//:scala-compiler"), single_file=True, allow_files=True),
+  "_scalareflect": attr.label(default=Label("@scala//:scala-reflect"), single_file=True, allow_files=True),
   "_java": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:java"), allow_files=True),
   "_javac": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:javac"), allow_files=True),
   "_jar": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/jar:binary_deploy.jar"), allow_files=True),
@@ -670,9 +670,9 @@ scala_test = rule(
   attrs={
       "main_class": attr.string(default="org.scalatest.tools.Runner"),
       "suites": attr.string_list(),
-      "_scalatest": attr.label(default=Label("@scalatest//file"), single_file=True, allow_files=True),
+      "_scalatest": attr.label(default=Label("@scalatest//jar"), single_file=True, allow_files=True),
       "_scalatest_reporter": attr.label(default=Label("//scala/support:test_reporter")),
-      "_scalaxml": attr.label(default=Label("@scala//:lib/scala-xml_2.11-1.0.4.jar"), single_file=True, allow_files=True),
+      "_scalaxml": attr.label(default=Label("@scala//:scala-xml"), single_file=True, allow_files=True),
       } + _implicit_deps + _common_attrs,
   outputs={
       "jar": "%{name}.jar",
@@ -722,27 +722,33 @@ exports_files([
   "lib/scalap-2.11.8.jar",
 ])
 
-filegroup(
+java_import(
     name = "scala-xml",
-    srcs = ["lib/scala-xml_2.11-1.0.4.jar"],
+    jars = ["lib/scala-xml_2.11-1.0.4.jar"],
     visibility = ["//visibility:public"],
 )
 
-filegroup(
+java_import(
     name = "scala-parser-combinators",
-    srcs = ["lib/scala-parser-combinators_2.11-1.0.4.jar"],
+    jars = ["lib/scala-parser-combinators_2.11-1.0.4.jar"],
     visibility = ["//visibility:public"],
 )
 
-filegroup(
+java_import(
     name = "scala-library",
-    srcs = ["lib/scala-library.jar"],
+    jars = ["lib/scala-library.jar"],
     visibility = ["//visibility:public"],
 )
 
-filegroup(
+java_import(
+    name = "scala-compiler",
+    jars = ["lib/scala-compiler.jar"],
+    visibility = ["//visibility:public"],
+)
+
+java_import(
     name = "scala-reflect",
-    srcs = ["lib/scala-reflect.jar"],
+    jars = ["lib/scala-reflect.jar"],
     visibility = ["//visibility:public"],
 )
 """
@@ -755,7 +761,8 @@ def scala_repositories():
     url = "http://bazel-mirror.storage.googleapis.com/downloads.typesafe.com/scala/2.11.8/scala-2.11.8.tgz",
     build_file_content = SCALA_BUILD_FILE,
   )
-  native.http_file(
+
+  native.http_jar(
     name = "scalatest",
     url = "http://bazel-mirror.storage.googleapis.com/oss.sonatype.org/content/groups/public/org/scalatest/scalatest_2.11/2.2.6/scalatest_2.11-2.2.6.jar",
     sha256 = "f198967436a5e7a69cfd182902adcfbcb9f2e41b349e1a5c8881a2407f615962",
@@ -785,6 +792,8 @@ def scala_repositories():
   native.bind(name = 'io_bazel_rules_scala/dependency/scala/parser_combinators', actual = '@scala//:scala-parser-combinators')
 
   native.bind(name = 'io_bazel_rules_scala/dependency/scala/scala_library', actual = '@scala//:scala-library')
+
+  native.bind(name = 'io_bazel_rules_scala/dependency/scala/scala_compiler', actual = '@scala//:scala-compiler')
 
   native.bind(name = 'io_bazel_rules_scala/dependency/scala/scala_reflect', actual = '@scala//:scala-reflect')
 
