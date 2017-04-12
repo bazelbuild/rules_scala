@@ -27,12 +27,16 @@ java_binary(
 java_import(
     name = "lib_import",
     # these are the outputs of the scala_library targets
-    jars = [":HelloLib_deploy.jar",
-            "OtherLib_deploy.jar",
-            "Exported_deploy.jar",
-            "Runtime_deploy.jar",
-           ],
-    runtime_deps = ["org_scala_lang__scala_library", "OtherJavaLib"]
+    jars = [
+        ":HelloLib_deploy.jar",
+        "OtherLib_deploy.jar",
+        "Exported_deploy.jar",
+        "Runtime_deploy.jar",
+    ],
+    runtime_deps = [
+        "OtherJavaLib",
+        "@scala//:scala-library",
+    ],
 )
 
 scala_export_to_java(
@@ -50,11 +54,6 @@ java_binary(
     srcs = ["JavaBinary.java"],
     main_class = "scala.test.JavaBinary",
     deps = [":lib_import_2"],
-)
-
-java_import(
-    name = "org_scala_lang__scala_library",
-    jars = ["@scala//:lib/scala-library.jar"]
 )
 
 scala_binary(

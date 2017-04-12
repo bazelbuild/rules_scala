@@ -703,25 +703,6 @@ def scala_mvn_artifact(artifact):
 
 SCALA_BUILD_FILE = """
 # scala.BUILD
-exports_files([
-  "bin/scala",
-  "bin/scalac",
-  "bin/scaladoc",
-  "lib/config-1.2.1.jar",
-  "lib/jline-2.12.1.jar",
-  "lib/scala-actors-2.11.0.jar",
-  "lib/scala-actors-migration_2.11-1.1.0.jar",
-  "lib/scala-compiler.jar",
-  "lib/scala-continuations-library_2.11-1.0.2.jar",
-  "lib/scala-continuations-plugin_2.11.8-1.0.2.jar",
-  "lib/scala-library.jar",
-  "lib/scala-parser-combinators_2.11-1.0.4.jar",
-  "lib/scala-reflect.jar",
-  "lib/scala-swing_2.11-1.0.2.jar",
-  "lib/scala-xml_2.11-1.0.4.jar",
-  "lib/scalap-2.11.8.jar",
-])
-
 java_import(
     name = "scala-xml",
     jars = ["lib/scala-xml_2.11-1.0.4.jar"],
@@ -806,7 +787,7 @@ def scala_export_to_java(name, exports, runtime_deps):
     name = name,
     # these are the outputs of the scala_library targets
     jars = jars,
-    runtime_deps = ["@scala//:lib/scala-library.jar"] + runtime_deps
+    runtime_deps = ["@scala//:scala-library"] + runtime_deps
   )
 
 def _sanitize_string_for_usage(s):

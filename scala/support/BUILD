@@ -5,7 +5,7 @@ scala_library(
     srcs = ["JUnitXmlReporter.scala"],
     visibility = ["//visibility:public"],
     deps = [
-        "//src/scala:scala_xml",
+        "@scala//:scala-xml",
         "@scalatest//jar",
     ],
 )
