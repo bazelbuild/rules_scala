@@ -1,7 +1,5 @@
 package io.bazel.rulesscala.scalac;
 
-import com.google.devtools.build.lib.worker.WorkerProtocol.WorkRequest;
-import com.google.devtools.build.lib.worker.WorkerProtocol.WorkResponse;
 import io.bazel.rulesscala.jar.JarCreator;
 import io.bazel.rulesscala.worker.GenericWorker;
 import io.bazel.rulesscala.worker.Processor;
@@ -23,11 +21,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import scala.tools.nsc.*;
+import scala.tools.nsc.Driver;
+import scala.tools.nsc.MainClass;
 import scala.tools.nsc.reporters.ConsoleReporter;
 
 class ScalacProcessor implements Processor {
@@ -45,6 +44,7 @@ class ScalacProcessor implements Processor {
     }
   }
 
+  @Override
   public void processRequest(List<String> args) throws Exception {
     Path tmpPath = null;
     try {
@@ -52,12 +52,6 @@ class ScalacProcessor implements Processor {
 
       Path outputPath = FileSystems.getDefault().getPath(ops.outputName);
       tmpPath = Files.createTempDirectory(outputPath.getParent(), "tmp");
-      String[] constParams = {
-        "-classpath",
-        ops.classpath,
-        "-d",
-        tmpPath.toString()
-        };
 
       List<File> jarFiles = extractSourceJars(ops, outputPath.getParent());
       List<File> scalaJarFiles = filterFilesByExtension(jarFiles, ".scala");
@@ -120,7 +114,7 @@ class ScalacProcessor implements Processor {
     }
   }
 
-  private List<File> filterFilesByExtension(List<File> files, String extension) {
+  private static List<File> filterFilesByExtension(List<File> files, String extension) {
     List<File> filtered = new ArrayList<File>();
     for (File f: files) {
       if (f.toString().endsWith(extension)) {
@@ -150,9 +144,9 @@ class ScalacProcessor implements Processor {
 
     List<File> outputPaths = new ArrayList<File>();
     JarFile jar = new JarFile(jarPath);
-    Enumeration e = jar.entries();
+    Enumeration<JarEntry> e = jar.entries();
     while (e.hasMoreElements()) {
-      JarEntry file = (JarEntry) e.nextElement();
+      JarEntry file = e.nextElement();
       String thisFileName = file.getName();
       // we don't bother to extract non-scala/java sources (skip manifest)
       if (extensions != null && !matchesFileExtensions(thisFileName, extensions)) continue;

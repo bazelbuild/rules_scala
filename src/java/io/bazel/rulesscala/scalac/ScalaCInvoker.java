@@ -16,7 +16,6 @@ package io.bazel.rulesscala.scalac;
 
 import java.io.PrintStream;
 import io.bazel.rulesscala.worker.GenericWorker;
-import io.bazel.rulesscala.worker.Processor;
 import scala.Console$;
 
 /**
