@@ -1,6 +1,5 @@
 package io.bazel.rulesscala.scalac;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,7 +86,7 @@ public class CompileOptions {
   private static String[] getCommaList(Map<String, String> m, String k) {
     if(m.containsKey(k)) {
       String v = m.get(k);
-      if (v == "") {
+      if ("".equals(v)) {
         return new String[]{};
       }
       else {
