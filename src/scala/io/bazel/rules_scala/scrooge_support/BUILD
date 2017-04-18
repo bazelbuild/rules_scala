@@ -1,23 +1,23 @@
 load("//scala:scala.bzl", "scala_library")
 
 scala_library(
-  name = "compiler",
-  srcs = ["Compiler.scala"],
-  deps = [
-    "//external:io_bazel_rules_scala/dependency/thrift/scrooge_generator",
-    "//external:io_bazel_rules_scala/dependency/thrift/util_core",
-    "//external:io_bazel_rules_scala/dependency/thrift/util_logging",
-    "//src/scala:parser_combinators",
-    ":focused_zip_importer",
-  ],
-  visibility = ["//visibility:public"],
+    name = "compiler",
+    srcs = ["Compiler.scala"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":focused_zip_importer",
+        "//external:io_bazel_rules_scala/dependency/thrift/scrooge_generator",
+        "//external:io_bazel_rules_scala/dependency/thrift/util_core",
+        "//external:io_bazel_rules_scala/dependency/thrift/util_logging",
+        "@scala//:scala-parser-combinators",
+    ],
 )
 
 scala_library(
-  name = "focused_zip_importer",
-  srcs = ["FocusedZipImporter.scala"],
-  deps = [
-    "//external:io_bazel_rules_scala/dependency/thrift/scrooge_generator",
-  ],
-  visibility = ["//visibility:public"],
+    name = "focused_zip_importer",
+    srcs = ["FocusedZipImporter.scala"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//external:io_bazel_rules_scala/dependency/thrift/scrooge_generator",
+    ],
 )
