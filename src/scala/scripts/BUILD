@@ -6,13 +6,10 @@ scala_library(
     visibility = ["//visibility:public"],
     deps = [
         "//external:io_bazel_rules_scala/dependency/thrift/scrooge_generator",
-        "//external:io_bazel_rules_scala/dependency/thrift/util_core",
-        "//external:io_bazel_rules_scala/dependency/thrift/util_logging",
         "//src/java/io/bazel/rulesscala/io_utils",
         "//src/java/io/bazel/rulesscala/jar",
         "//src/java/io/bazel/rulesscala/worker",
         "//src/scala/io/bazel/rules_scala/scrooge_support:compiler",
-        "@scala//:scala-parser-combinators",
     ],
 )
 

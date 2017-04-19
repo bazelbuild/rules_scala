@@ -11,7 +11,6 @@ scala_library(
         "//external:io_bazel_rules_scala/dependency/jmh/org_ows2_asm_asm",
         "//src/java/io/bazel/rulesscala/io_utils",
         "//src/java/io/bazel/rulesscala/jar",
-        "@scala//:scala-compiler",
     ],
 )
 
