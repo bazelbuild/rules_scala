@@ -22,11 +22,15 @@ In order to use `scala_library`, `scala_macro_library`, and `scala_binary`,
 you must have bazel 0.3.1 or later and add the following to your WORKSPACE file:
 
 ```python
-git_repository(
-    name = "io_bazel_rules_scala",
-    remote = "https://github.com/bazelbuild/rules_scala.git",
-    commit = "73743b830ae98d13a946b25ad60cad5fee58e6d3", # update this as needed
-)
+
+rules_scala_version="d916599d38de29085e5ca9eae167716c4f150a02" # update this as needed
+
+http_archive(
+             name = "io_bazel_rules_scala",
+             url = "https://github.com/bazelbuild/rules_scala/archive/%s.zip"%rules_scala_version,
+             type = "zip",
+             strip_prefix= "rules_scala-%s" % rules_scala_version
+             )
 
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
 scala_repositories()
