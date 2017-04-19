@@ -562,7 +562,7 @@ def _scala_test_impl(ctx):
     return _scala_binary_common(ctx, cjars, rjars)
 
 def _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, archive):
-    return struct(suite_class = "io.bazel.rulesscala.test_discovery.DiscoveredTestSuite", 
+    return struct(suite_class = "io.bazel.rulesscala.test_discovery.DiscoveredTestSuite",
     archiveFlag = "-Dbazel.discover.classes.archive.file.path=%s" % archive.short_path,
     prefixesFlag = "-Dbazel.discover.classes.prefixes=%s" % ",".join(ctx.attr.prefixes),
     suffixesFlag = "-Dbazel.discover.classes.suffixes=%s" % ",".join(ctx.attr.suffixes),
@@ -705,7 +705,7 @@ SCALA_BUILD_FILE = """
 # scala.BUILD
 java_import(
     name = "scala-xml",
-    jars = ["lib/scala-xml_2.11-1.0.4.jar"],
+    jars = ["lib/scala-xml_2.11-1.0.5.jar"],
     visibility = ["//visibility:public"],
 )
 
@@ -737,9 +737,9 @@ java_import(
 def scala_repositories():
   native.new_http_archive(
     name = "scala",
-    strip_prefix = "scala-2.11.8",
-    sha256 = "87fc86a19d9725edb5fd9866c5ee9424cdb2cd86b767f1bb7d47313e8e391ace",
-    url = "http://bazel-mirror.storage.googleapis.com/downloads.typesafe.com/scala/2.11.8/scala-2.11.8.tgz",
+    strip_prefix = "scala-2.11.11",
+    sha256 = "12037ca64c68468e717e950f47fc77d5ceae5e74e3bdca56f6d02fd5bfd6900b",
+    url = "https://downloads.lightbend.com/scala/2.11.11/scala-2.11.11.tgz",
     build_file_content = SCALA_BUILD_FILE,
   )
 
