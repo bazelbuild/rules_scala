@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
+import java.util.regex.Pattern;
 import java.util.zip.CRC32;
 import java.util.zip.ZipException;
 
@@ -59,6 +60,8 @@ public class JarHelper {
   // The state needed to create the Jar
   protected final Set<String> names = new HashSet<>();
   protected JarOutputStream out;
+
+  private static final Pattern ASCII_PATTERN = Pattern.compile("\\A\\p{ASCII}*\\z");
 
   public JarHelper(String filename) {
     jarFile = filename;
@@ -112,6 +115,10 @@ public class JarHelper {
     } else {
       return DOS_EPOCH_IN_JAVA_TIME;
     }
+  }
+
+  private boolean containsNonAscii(String name) {
+    return !ASCII_PATTERN.matcher(name).matches();
   }
 
   /**
@@ -212,7 +219,17 @@ public class JarHelper {
   protected void copyEntry(String name, File file) throws IOException {
     if (!names.contains(name)) {
       if (!file.exists()) {
-        throw new FileNotFoundException(file.getAbsolutePath() + " (No such file or directory)");
+        String path = file.getAbsolutePath();
+        // file.exists() may return false even though the file exists if its name contains a
+        // non-ASCII character (see https://bugs.openjdk.java.net/browse/JDK-4733494).
+        // If a file does contain a non-ASCII character, we print a warning here but continue
+        // processing, assuming that the file actually exists.
+        if (containsNonAscii(path)) {
+          System.err.println("warning: Excluding file " + path + " because its name contains non-ASCII characters.");
+          return;
+        } else {
+          throw new FileNotFoundException(path + " (No such file or directory)");
+        }
       }
       boolean isDirectory = file.isDirectory();
       if (isDirectory && !name.endsWith("/")) {
