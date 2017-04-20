@@ -3,9 +3,9 @@ java_library(
     srcs = ["WorkerProtocol.java"],
     visibility = ["//visibility:public"],
     deps = [
-      "@scalac_rules_protobuf_java//jar",
+      "//external:io_bazel_rules_scala/dependency/com_google_protobuf/protobuf_java"
     ],
     exports = [
-      "@scalac_rules_protobuf_java//jar",
+      "//external:io_bazel_rules_scala/dependency/com_google_protobuf/protobuf_java"
     ],
 )

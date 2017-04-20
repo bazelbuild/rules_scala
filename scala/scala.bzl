@@ -598,9 +598,9 @@ def _scala_junit_test_impl(ctx):
 _implicit_deps = {
   "_ijar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:ijar"), allow_files=True),
   "_scalac": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/scalac"), allow_files=True),
-  "_scalalib": attr.label(default=Label("@scala//:scala-library"), single_file=True, allow_files=True),
-  "_scalacompiler": attr.label(default=Label("@scala//:scala-compiler"), single_file=True, allow_files=True),
-  "_scalareflect": attr.label(default=Label("@scala//:scala-reflect"), single_file=True, allow_files=True),
+  "_scalalib": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_library"), single_file=True, allow_files=True),
+  "_scalacompiler": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_compiler"), single_file=True, allow_files=True),
+  "_scalareflect": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_reflect"), single_file=True, allow_files=True),
   "_java": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:java"), allow_files=True),
   "_javac": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:javac"), allow_files=True),
   "_jar": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/jar:binary_deploy.jar"), allow_files=True),
@@ -670,9 +670,9 @@ scala_test = rule(
   attrs={
       "main_class": attr.string(default="org.scalatest.tools.Runner"),
       "suites": attr.string_list(),
-      "_scalatest": attr.label(default=Label("@scalatest//jar"), single_file=True, allow_files=True),
+      "_scalatest": attr.label(default=Label('//external:io_bazel_rules_scala/dependency/scalatest/scalatest'), single_file=True, allow_files=True),
       "_scalatest_reporter": attr.label(default=Label("//scala/support:test_reporter")),
-      "_scalaxml": attr.label(default=Label("@scala//:scala-xml"), single_file=True, allow_files=True),
+      "_scalaxml": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_xml"), single_file=True, allow_files=True),
       } + _implicit_deps + _common_attrs,
   outputs={
       "jar": "%{name}.jar",
@@ -755,28 +755,25 @@ def scala_repositories():
   )
 
   native.maven_jar(
-    name = "scalac_rules_guava",
-    artifact = "com.google.guava:guava:20.0",
-    sha1 = "89507701249388e1ed5ddcf8c41f4ce1be7831ef",
-    server = "scalac_deps_maven_server",
-  )
-
-  native.maven_jar(
     name = "scalac_rules_protobuf_java",
     artifact = "com.google.protobuf:protobuf-java:3.1.0",
     sha1 = "e13484d9da178399d32d2d27ee21a77cfb4b7873",
     server = "scalac_deps_maven_server",
   )
 
-  native.bind(name = 'io_bazel_rules_scala/dependency/scala/scala_xml', actual = '@scala//:scala-xml')
+  native.bind(name = 'io_bazel_rules_scala/dependency/com_google_protobuf/protobuf_java', actual = '@scalac_rules_protobuf_java//jar')
 
   native.bind(name = 'io_bazel_rules_scala/dependency/scala/parser_combinators', actual = '@scala//:scala-parser-combinators')
 
-  native.bind(name = 'io_bazel_rules_scala/dependency/scala/scala_library', actual = '@scala//:scala-library')
-
   native.bind(name = 'io_bazel_rules_scala/dependency/scala/scala_compiler', actual = '@scala//:scala-compiler')
 
+  native.bind(name = 'io_bazel_rules_scala/dependency/scala/scala_library', actual = '@scala//:scala-library')
+
   native.bind(name = 'io_bazel_rules_scala/dependency/scala/scala_reflect', actual = '@scala//:scala-reflect')
+
+  native.bind(name = 'io_bazel_rules_scala/dependency/scala/scala_xml', actual = '@scala//:scala-xml')
+
+  native.bind(name = 'io_bazel_rules_scala/dependency/scalatest/scalatest', actual = '@scalatest//jar')
 
 def scala_export_to_java(name, exports, runtime_deps):
   jars = []
@@ -787,7 +784,7 @@ def scala_export_to_java(name, exports, runtime_deps):
     name = name,
     # these are the outputs of the scala_library targets
     jars = jars,
-    runtime_deps = ["@scala//:scala-library"] + runtime_deps
+    runtime_deps = ["//external:io_bazel_rules_scala/dependency/scala/scala_library"] + runtime_deps
   )
 
 def _sanitize_string_for_usage(s):
