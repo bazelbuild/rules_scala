@@ -1,8 +1,9 @@
 attr_aspects = [
+    "deps",
+    "runtime_deps",
     "_scalalib",
-    "_scalacompiler",
     "_scalareflect",
-    "_scalaxml",
+    "_scalatest_reporter",
 ]
 
 def _aspect_impl(target, ctx):
@@ -10,8 +11,11 @@ def _aspect_impl(target, ctx):
     for name in attr_aspects:
         if hasattr(ctx.rule.attr, name):
             attr = getattr(ctx.rule.attr, name)
-            if hasattr(attr, "visited"):
-                visited += attr.visited
+            # Need to handle whether attribute is label or label list
+            children = attr if type(attr) == "list" else [attr]
+            for child in children:
+                if hasattr(child, "visited"):
+                    visited += child.visited
     return struct(visited = visited)
 
 test_aspect = aspect(
@@ -22,12 +26,14 @@ test_aspect = aspect(
 def _rule_impl(ctx):
     expected = [
         "dummy",
+        "jar", # This is scalatest since @scalatest/jar
         "scala-library",
-        "scala-compiler",
         "scala-reflect",
-        "scala-xml",
+        "scala-xml", # dependency of test_reporter
+        "test_reporter",
     ]
-    visited = ctx.attr.scala_rule.visited
+    # Remove duplicates and sort so can do simple comparison
+    visited = sorted(depset(ctx.attr.scala_rule.visited).to_list())
     if visited == expected:
         content = "true"
     else:
