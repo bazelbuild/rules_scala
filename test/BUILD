@@ -192,6 +192,10 @@ scala_repl(
     name = "MoreScalaLibBinaryRepl",
     deps = [":MoreScalaLibBinary"])
 
+scala_repl(
+    name = "ReplWithSources",
+    srcs = ["A.scala"])
+
 scala_library(
   name = "jar_export",
   exports = ["@com_twitter__scalding_date//jar"]

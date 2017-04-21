@@ -149,12 +149,7 @@ def _compile(ctx, _jars, dep_srcjars, buildijar):
     plugins = _collect_plugin_paths(ctx.attr.plugins)
     plugin_arg = ",".join(list(plugins))
 
-    compiler_classpath = '{scalalib}:{scalacompiler}:{scalareflect}:{jars}'.format(  # noqa
-        scalalib=ctx.file._scalalib.path,
-        scalacompiler=ctx.file._scalacompiler.path,
-        scalareflect=ctx.file._scalareflect.path,
-        jars=":".join([j.path for j in jars]),
-    )
+    compiler_classpath = ":".join([j.path for j in jars])
 
     scalac_args = """
 Classpath: {cp}
@@ -225,9 +220,6 @@ SourceJars: {srcjars}
             ctx.executable._ijar,
             ctx.executable._java,
             ctx.executable._javac,
-            ctx.file._scalacompiler,
-            ctx.file._scalareflect,
-            ctx.file._scalalib,
             argfile])
     ctx.action(
         inputs=ins,
@@ -291,7 +283,7 @@ def _build_deployable(ctx, jars):
 
 def write_manifest(ctx):
     # TODO(bazel-team): I don't think this classpath is what you want
-    manifest = "Class-Path: %s\n" % ctx.file._scalalib.path
+    manifest = "Class-Path: \n"
     if getattr(ctx.attr, "main_class", ""):
         manifest += "Main-Class: %s\n" % ctx.attr.main_class
 
@@ -380,23 +372,28 @@ def _collect_jars(targets):
 
     return struct(compiletime = compile_jars, runtime = runtime_jars)
 
+# Extract very common code out from dependency analysis into single place
+# automatically adds dependency on scala-library and scala-reflect
+# collects jars from deps, runtime jars from runtime_deps, and
+def _collect_jars_from_common_ctx(ctx, extra_deps = [], extra_runtime_deps = []):
+    # Get jars from deps
+    auto_deps = [ctx.attr._scalalib, ctx.attr._scalareflect]
+    deps_jars = _collect_jars(ctx.attr.deps + auto_deps + extra_deps)
+    (cjars, rjars) = (deps_jars.compiletime, deps_jars.runtime)
+    rjars += _collect_jars(ctx.attr.runtime_deps + extra_runtime_deps).runtime
+    return struct(compiletime = cjars, runtime = rjars)
 
 def _lib(ctx, non_macro_lib):
     # This will be used to pick up srcjars from non-scala library
     # targets (like thrift code generation)
     srcjars = collect_srcjars(ctx.attr.deps)
-    jars = _collect_jars(ctx.attr.deps)
+    jars = _collect_jars_from_common_ctx(ctx)
     (cjars, rjars) = (jars.compiletime, jars.runtime)
+
     write_manifest(ctx)
     outputs = _compile_or_empty(ctx, cjars, srcjars, non_macro_lib)
 
     rjars += [ctx.outputs.jar]
-    rjars += _collect_jars(ctx.attr.runtime_deps).runtime
-
-    rjars += [ctx.file._scalalib, ctx.file._scalareflect]
-    if not non_macro_lib:
-        #  macros need the scala reflect jar
-        rjars += [ctx.file._scalareflect]
 
     _build_deployable(ctx, rjars)
     rule_outputs = struct(ijar=outputs.ijar, class_jar=outputs.class_jar, deploy_jar=ctx.outputs.deploy_jar)
@@ -472,11 +469,10 @@ def _scala_binary_common(ctx, cjars, rjars):
       runfiles=runfiles)
 
 def _scala_binary_impl(ctx):
-  jars = _collect_jars(ctx.attr.deps)
+  jars = _collect_jars_from_common_ctx(ctx)
   (cjars, rjars) = (jars.compiletime, jars.runtime)
-  cjars += [ctx.file._scalareflect]
-  rjars += [ctx.outputs.jar, ctx.file._scalalib, ctx.file._scalareflect]
-  rjars += _collect_jars(ctx.attr.runtime_deps).runtime
+  rjars += [ctx.outputs.jar]
+
   _write_launcher(
       ctx = ctx,
       rjars = rjars,
@@ -489,10 +485,10 @@ def _scala_binary_impl(ctx):
   return _scala_binary_common(ctx, cjars, rjars)
 
 def _scala_repl_impl(ctx):
-  jars = _collect_jars(ctx.attr.deps)
-  rjars = jars.runtime
-  rjars += [ctx.file._scalalib, ctx.file._scalareflect, ctx.file._scalacompiler]
-  rjars += _collect_jars(ctx.attr.runtime_deps).runtime
+  # need scala-compiler for MainGenericRunner below
+  jars = _collect_jars_from_common_ctx(ctx, extra_runtime_deps = [ctx.attr._scalacompiler])
+  (cjars, rjars) = (jars.compiletime, jars.runtime)
+  rjars += [ctx.outputs.jar]
 
   args = " ".join(ctx.attr.scalacopts)
   _write_launcher(
@@ -516,33 +512,24 @@ fi
 """,
   )
 
-  # _jdk added manually since _java doesn't currently setup runfiles
-  runfiles = ctx.runfiles(
-      files = list(rjars) + [ctx.outputs.executable] + ctx.files._jdk,
-      transitive_files = _get_runfiles(ctx.attr._java),
-      collect_data = True)
-
-  return struct(
-      files = set([ctx.outputs.executable]),
-      runfiles = runfiles)
+  return _scala_binary_common(ctx, cjars, rjars)
 
 def _scala_test_impl(ctx):
     if len(ctx.attr.suites) != 0:
         print(
           "suites attribute is deprecated. All scalatest test suites are run"
         )
-    deps = ctx.attr.deps
-    deps += [ctx.attr._scalatest_reporter]
-    jars = _collect_jars(deps)
+    jars = _collect_jars_from_common_ctx(ctx,
+        extra_runtime_deps = [ctx.attr._scalatest_reporter],
+    )
     (cjars, rjars) = (jars.compiletime, jars.runtime)
-    cjars += [ctx.file._scalareflect, ctx.file._scalatest, ctx.file._scalaxml]
-    rjars += [ctx.outputs.jar,
-              ctx.file._scalalib,
-              ctx.file._scalareflect,
-              ctx.file._scalatest,
-              ctx.file._scalaxml
-              ]
-    rjars += _collect_jars(ctx.attr.runtime_deps).runtime
+    # _scalatest is an http_jar, so its compile jar is run through ijar
+    # however, contains macros, so need to handle separately
+    scalatest_jars = _collect_jars([ctx.attr._scalatest]).runtime
+    cjars += scalatest_jars
+    rjars += scalatest_jars
+
+    rjars += [ctx.outputs.jar]
 
     args = " ".join([
         "-R \"{path}\"".format(path=ctx.outputs.jar.short_path),
@@ -571,15 +558,13 @@ def _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, archive):
 def _scala_junit_test_impl(ctx):
     if (not(ctx.attr.prefixes) and not(ctx.attr.suffixes)):
       fail("Setting at least one of the attributes ('prefixes','suffixes') is required")
-    deps = ctx.attr.deps + [ctx.attr._suite]
-    jars = _collect_jars(deps)
+    jars = _collect_jars_from_common_ctx(ctx,
+        extra_deps = [ctx.attr._junit, ctx.attr._hamcrest, ctx.attr._suite],
+    )
     (cjars, rjars) = (jars.compiletime, jars.runtime)
-    junit_deps = [ctx.file._junit,ctx.file._hamcrest]
-    cjars += junit_deps
-    rjars += [ctx.outputs.jar,
-              ctx.file._scalalib
-              ] + junit_deps
-    rjars += _collect_jars(ctx.attr.runtime_deps).runtime
+
+    rjars += [ctx.outputs.jar]
+
     test_suite = _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, ctx.outputs.jar)
     launcherJvmFlags = ["-ea", test_suite.archiveFlag, test_suite.prefixesFlag, test_suite.suffixesFlag, test_suite.printFlag]
     _write_launcher(
@@ -598,9 +583,9 @@ def _scala_junit_test_impl(ctx):
 _implicit_deps = {
   "_ijar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:ijar"), allow_files=True),
   "_scalac": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/scalac"), allow_files=True),
-  "_scalalib": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_library"), single_file=True, allow_files=True),
-  "_scalacompiler": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_compiler"), single_file=True, allow_files=True),
-  "_scalareflect": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_reflect"), single_file=True, allow_files=True),
+  "_scalalib": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_library"), allow_files=True),
+  "_scalacompiler": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_compiler"), allow_files=True),
+  "_scalareflect": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_reflect"), allow_files=True),
   "_java": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:java"), allow_files=True),
   "_javac": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:javac"), allow_files=True),
   "_jar": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/jar:binary_deploy.jar"), allow_files=True),
@@ -670,9 +655,8 @@ scala_test = rule(
   attrs={
       "main_class": attr.string(default="org.scalatest.tools.Runner"),
       "suites": attr.string_list(),
-      "_scalatest": attr.label(default=Label('//external:io_bazel_rules_scala/dependency/scalatest/scalatest'), single_file=True, allow_files=True),
+      "_scalatest": attr.label(default=Label('//external:io_bazel_rules_scala/dependency/scalatest/scalatest'), allow_files=True),
       "_scalatest_reporter": attr.label(default=Label("//scala/support:test_reporter")),
-      "_scalaxml": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_xml"), single_file=True, allow_files=True),
       } + _implicit_deps + _common_attrs,
   outputs={
       "jar": "%{name}.jar",
@@ -686,7 +670,11 @@ scala_test = rule(
 scala_repl = rule(
   implementation=_scala_repl_impl,
   attrs= _implicit_deps + _common_attrs,
-  outputs={},
+  outputs={
+      "jar": "%{name}.jar",
+      "deploy_jar": "%{name}_deploy.jar",
+      "manifest": "%{name}_MANIFEST.MF",
+  },
   executable=True,
 )
 
@@ -743,6 +731,7 @@ def scala_repositories():
     build_file_content = SCALA_BUILD_FILE,
   )
 
+  # scalatest has macros, note http_jar is invoking ijar
   native.http_jar(
     name = "scalatest",
     url = "http://bazel-mirror.storage.googleapis.com/oss.sonatype.org/content/groups/public/org/scalatest/scalatest_2.11/2.2.6/scalatest_2.11-2.2.6.jar",
@@ -851,8 +840,8 @@ scala_junit_test = rule(
       "prefixes": attr.string_list(default=[]),
       "suffixes": attr.string_list(default=[]),
       "print_discovered_classes": attr.bool(default=False, mandatory=False),
-      "_junit": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/junit/junit"), single_file=True),
-      "_hamcrest": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/hamcrest/hamcrest_core"), single_file=True),
+      "_junit": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/junit/junit")),
+      "_hamcrest": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/hamcrest/hamcrest_core")),
       "_suite": attr.label(default=Label("//src/java/io/bazel/rulesscala/test_discovery:test_discovery")),
       },
   outputs={
