@@ -78,13 +78,14 @@ class JUnitXmlReporter extends Reporter {
   // Writes the xml file for a single test suite.  Removes processed
   // events from the events Set as they are used.
   //
-  private def write(suites: Set[Testsuite]): Unit = {
-    val filespec  = System.getenv.get("XML_OUTPUT_FILE")
-    val out = new PrintWriter(filespec, "UTF-8")
-    val xml    = xmlify(suites.toList.sortBy(_.name))
-    out.print(prettyXml(xml))
-    out.close()
-  }
+  private def write(suites: Set[Testsuite]): Unit =
+    Option(System.getenv.get("XML_OUTPUT_FILE"))
+      .foreach { filespec =>
+        val out = new PrintWriter(filespec, "UTF-8")
+        val xml = xmlify(suites.toList.sortBy(_.name))
+        out.print(prettyXml(xml))
+        out.close()
+      }
 
   //
   // Constructs a Testsuite object corresponding to a specified
