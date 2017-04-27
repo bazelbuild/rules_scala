@@ -315,6 +315,8 @@ fi
 
 export CLASSPATH={classpath}
 {run_before_binary}
+echo "foo-------"
+echo "$@"
 $JAVA_RUNFILES/{repo}/{java} {jvm_flags} {main_class} {args} "$@"
 BINARY_EXIT_CODE=$?
 {run_after_binary}
