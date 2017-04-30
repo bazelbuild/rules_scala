@@ -82,9 +82,13 @@ class JUnitXmlReporter extends Reporter {
     Option(System.getenv.get("XML_OUTPUT_FILE"))
       .foreach { filespec =>
         val out = new PrintWriter(filespec, "UTF-8")
-        val xml = xmlify(suites.toList.sortBy(_.name))
-        out.print(prettyXml(xml))
-        out.close()
+        try {
+          val xml = xmlify(suites.toList.sortBy(_.name))
+          out.print(prettyXml(xml))
+        }
+        finally {
+          out.close()
+        }
       }
 
   //
