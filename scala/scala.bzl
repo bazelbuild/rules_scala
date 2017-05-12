@@ -734,13 +734,13 @@ def scala_repositories():
   # scalatest has macros, note http_jar is invoking ijar
   native.http_jar(
     name = "scalatest",
-    url = "http://bazel-mirror.storage.googleapis.com/oss.sonatype.org/content/groups/public/org/scalatest/scalatest_2.11/2.2.6/scalatest_2.11-2.2.6.jar",
+    url = "http://mirror.bazel.build/oss.sonatype.org/content/groups/public/org/scalatest/scalatest_2.11/2.2.6/scalatest_2.11-2.2.6.jar",
     sha256 = "f198967436a5e7a69cfd182902adcfbcb9f2e41b349e1a5c8881a2407f615962",
   )
 
   native.maven_server(
     name = "scalac_deps_maven_server",
-    url = "http://bazel-mirror.storage.googleapis.com/repo1.maven.org/maven2/",
+    url = "http://mirror.bazel.build/repo1.maven.org/maven2/",
   )
 
   native.maven_jar(
