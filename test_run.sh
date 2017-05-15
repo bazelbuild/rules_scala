@@ -192,6 +192,7 @@ run_test bazel run test/src/main/scala/scala/test/twitter_scrooge:justscrooges
 run_test bazel run test:JavaBinary
 run_test bazel run test:JavaBinary2
 run_test bazel run test:MixJavaScalaLibBinary
+run_test bazel run test:MixJavaScalaSrcjarLibBinary
 run_test bazel run test:ScalaBinary
 run_test bazel run test:ScalaLibBinary
 run_test test_disappearing_class
