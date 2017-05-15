@@ -297,6 +297,10 @@ def _write_launcher(ctx, rjars, main_class, jvm_flags, args, run_before_binary, 
           repo = ctx.workspace_name, spath = f.short_path
       ) for f in rjars])
 
+    location_expanded_jvm_flags = []
+    for jvm_flag in jvm_flags:
+        location_expanded_jvm_flags.append(ctx.expand_location(jvm_flag, ctx.attr.data))
+
     content = """#!/bin/bash
 
 case "$0" in
@@ -323,7 +327,7 @@ exit $BINARY_EXIT_CODE
         classpath = classpath,
         repo = ctx.workspace_name,
         java = ctx.executable._java.short_path,
-        jvm_flags = " ".join(jvm_flags),
+        jvm_flags = " ".join(location_expanded_jvm_flags),
         main_class = main_class,
         args = args,
         run_before_binary = run_before_binary,

@@ -301,3 +301,12 @@ sh_test(
     args = ["cat $(location :ScalaBinaryInGenrule)"],
     data = [":ScalaBinaryInGenrule"],
 )
+
+scala_specs2_junit_test(
+    name = "data_location_expansion",
+    srcs = ["src/main/scala/scala/test/location_expansion/LocationExpansionTest.scala"],
+    size = "small",
+    suffixes = ["Test"],
+    data = ["//src/java/com/google/devtools/build/lib:worker"],
+    jvm_flags = ["-Dlocation.expanded=$(location //src/java/com/google/devtools/build/lib:worker)"],
+)
