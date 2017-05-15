@@ -57,7 +57,8 @@ class ScalacProcessor implements Processor {
       List<File> scalaJarFiles = filterFilesByExtension(jarFiles, ".scala");
       List<File> javaJarFiles = filterFilesByExtension(jarFiles, ".java");
 
-      String[] scalaSources = GenericWorker.appendToString(ops.files, scalaJarFiles);
+      String[] scalaSources = collectMixedScalaSources(ops.files, scalaJarFiles, javaJarFiles);
+
       String[] javaSources = GenericWorker.appendToString(ops.javaFiles, javaJarFiles);
       if (scalaSources.length == 0 && javaSources.length == 0) {
         throw new RuntimeException("Must have input files from either source jars or local files.");
@@ -112,6 +113,11 @@ class ScalacProcessor implements Processor {
     finally {
       removeTmp(tmpPath);
     }
+  }
+
+  private static String[] collectMixedScalaSources(String[] files, List<File> scalaJarFiles, List<File> javaJarFiles) {
+    String[] scalaSources = GenericWorker.appendToString(files, scalaJarFiles);
+    return GenericWorker.appendToString(scalaSources, javaJarFiles);
   }
 
   private static List<File> filterFilesByExtension(List<File> files, String extension) {

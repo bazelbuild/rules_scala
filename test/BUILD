@@ -216,6 +216,24 @@ scala_binary(
     deps = ["MixJavaScalaLib"],
 )
 
+#Mix java scala (srcjar), much like above only the java is provided via srcjar
+scala_library(
+    name = "MixJavaScalaSrcjarLib",
+    srcs = glob([
+      "src/main/scala/scala/test/mix_java_scala/*.scala",
+      # srcjar created with `jar -cfM Baz.srcjar Baz.java`
+      "src/main/scala/scala/test/mix_java_scala/*.srcjar"
+    ]),
+    jvm_flags = ["-Xms1G", "-Xmx4G"],
+)
+#needed to test java sources are compiled
+scala_binary(
+    name = "MixJavaScalaSrcjarLibBinary",
+    srcs = ["src/main/scala/scala/test/MixJavaScalaLibBinary.scala"],
+    main_class = "scala.test.MixJavaScalaLibBinary",
+    deps = ["MixJavaScalaSrcjarLib"],
+)
+
 scala_binary(
     name = "JavaOnlySources",
     srcs = ["src/main/scala/scala/test/only_java/Alpha.java"],
