@@ -116,7 +116,7 @@ class ScalacProcessor implements Processor {
   }
 
   private static String[] collectMixedScalaSources(String[] files, List<File> scalaJarFiles, List<File> javaJarFiles) {
-    String[] scalaSources = GenericWorker.appendToString(ops.files, scalaJarFiles);
+    String[] scalaSources = GenericWorker.appendToString(files, scalaJarFiles);
     return GenericWorker.appendToString(scalaSources, javaJarFiles);
   }
 
