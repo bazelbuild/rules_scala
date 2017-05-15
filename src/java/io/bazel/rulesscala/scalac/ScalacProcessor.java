@@ -59,10 +59,10 @@ class ScalacProcessor implements Processor {
 
       String[] scalaSources = GenericWorker.appendToString(ops.files, scalaJarFiles);
       // include java files from .srcjar's to support mixed compilation
-      scalaSources = GenericWorker.appendToString(scalaSources, javaJarFiles);
+      String[] mixedScalaSources = GenericWorker.appendToString(scalaSources, javaJarFiles);
 
       String[] javaSources = GenericWorker.appendToString(ops.javaFiles, javaJarFiles);
-      if (scalaSources.length == 0 && javaSources.length == 0) {
+      if (mixedScalaSources.length == 0 && javaSources.length == 0) {
         throw new RuntimeException("Must have input files from either source jars or local files.");
       }
 
@@ -70,8 +70,8 @@ class ScalacProcessor implements Processor {
        * Compile scala sources if available (if there are none, we will simply
        * compile java sources).
        */
-      if (scalaSources.length > 0) {
-        compileScalaSources(ops, scalaSources, tmpPath);
+      if (mixedScalaSources.length > 0) {
+        compileScalaSources(ops, mixedScalaSources, tmpPath);
       }
       /**
        * See if there are java sources to compile
