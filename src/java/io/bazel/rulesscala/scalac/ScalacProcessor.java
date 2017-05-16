@@ -57,7 +57,7 @@ class ScalacProcessor implements Processor {
       List<File> scalaJarFiles = filterFilesByExtension(jarFiles, ".scala");
       List<File> javaJarFiles = filterFilesByExtension(jarFiles, ".java");
 
-      String[] scalaSources = collectMixedScalaSources(ops.files, scalaJarFiles, javaJarFiles);
+      String[] scalaSources = collectSrcJarSources(ops.files, scalaJarFiles, javaJarFiles);
 
       String[] javaSources = GenericWorker.appendToString(ops.javaFiles, javaJarFiles);
       if (scalaSources.length == 0 && javaSources.length == 0) {
@@ -115,7 +115,7 @@ class ScalacProcessor implements Processor {
     }
   }
 
-  private static String[] collectMixedScalaSources(String[] files, List<File> scalaJarFiles, List<File> javaJarFiles) {
+  private static String[] collectSrcJarSources(String[] files, List<File> scalaJarFiles, List<File> javaJarFiles) {
     String[] scalaSources = GenericWorker.appendToString(files, scalaJarFiles);
     return GenericWorker.appendToString(scalaSources, javaJarFiles);
   }
