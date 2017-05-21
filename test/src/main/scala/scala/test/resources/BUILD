@@ -1,15 +1,13 @@
 
 load("//scala:scala.bzl", "scala_library")
 
-# Testing Resources without srcs
 scala_library(
-   name = "noSrcsResources",
+   name = "noSrcsWithDirectFileResources",
    resources  = ["resource.txt"]
 )
 
-# Testing filegroup resources without srcs 
 scala_library(
-   name = "noSrcsFilegroupResources",
+   name = "noSrcsWithFilegroupResources",
    resources = [":resource-fg"]
 )
 
