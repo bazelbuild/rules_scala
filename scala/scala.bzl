@@ -90,7 +90,7 @@ def _build_nosrc_jar(ctx, buildijar):
   mkdir -p {out}_tmp
   # copy any resources
   {cp_resources}
-  {java} -jar {jar} -m {manifest} {out}
+  {java} -jar {jar} -m {manifest} {out} {out}_tmp
   """ + ijar_cmd
     cmd = cmd.format(
         cp_resources=cp_resources,
