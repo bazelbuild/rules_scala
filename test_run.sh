@@ -186,6 +186,23 @@ test_junit_test_errors_when_no_tests_found() {
   exit 0
 }
 
+test_resources() {
+  RESOURCE_NAME="resource.txt"
+  TARGET=$1
+  OUTPUT_JAR="bazel-bin/test/src/main/scala/scala/test/resources/$TARGET.jar"
+  FULL_TARGET="test/src/main/scala/scala/test/resources/$TARGET.jar"
+  bazel build $FULL_TARGET
+  jar tf $OUTPUT_JAR | grep $RESOURCE_NAME
+}
+
+scala_library_jar_without_srcs_must_include_direct_file_resources(){
+  test_resources "noSrcsWithDirectFileResources"
+}
+
+scala_library_jar_without_srcs_must_include_filegroup_resources(){
+  test_resources "noSrcsWithFilegroupResources"
+}
+
 run_test bazel build test/...
 run_test bazel test test/...
 run_test bazel run test/src/main/scala/scala/test/twitter_scrooge:justscrooges
@@ -211,3 +228,5 @@ run_test junit_generates_xml_logs
 run_test multiple_junit_patterns
 run_test test_junit_test_must_have_prefix_or_suffix
 run_test test_junit_test_errors_when_no_tests_found
+run_test scala_library_jar_without_srcs_must_include_direct_file_resources
+run_test scala_library_jar_without_srcs_must_include_filegroup_resources
