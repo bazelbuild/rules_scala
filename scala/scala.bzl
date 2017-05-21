@@ -76,28 +76,30 @@ def _get_jar_path(paths):
 
 
 def _build_nosrc_jar(ctx, buildijar):
-    cp_resources = _add_resources_cmd(ctx, "{out}_tmp".format(
-      out=ctx.outputs.jar.path)
-    )
+    temp_resources_dir="{jar_output}_temp_resources_dir".format(jar_output=ctx.outputs.jar.path)
+    cp_resources = _add_resources_cmd(ctx, temp_resources_dir)
     ijar_cmd = ""
     if buildijar:
-        ijar_cmd = "\ncp {out} {ijar_out}".format(
-          out=ctx.outputs.jar.path,
-          ijar_out=ctx.outputs.ijar.path)
+        ijar_cmd = "\ncp {jar_output} {ijar_output}".format(
+          jar_output=ctx.outputs.jar.path,
+          ijar_output=ctx.outputs.ijar.path)
     cmd = """
-  rm -rf {out}_tmp
+  rm -rf {temp_resources_dir}
   set -e
-  mkdir -p {out}_tmp
+  mkdir -p {temp_resources_dir}
   # copy any resources
   {cp_resources}
-  {java} -jar {jar} -m {manifest} {out} {out}_tmp
+  # adding {temp_resources_dir} as last argument will copy its content into the jar output
+  {java} -jar {jarBuilder} -m {manifest} {jar_output} {temp_resources_dir}
   """ + ijar_cmd
     cmd = cmd.format(
+        temp_resources_dir=temp_resources_dir,
         cp_resources=cp_resources,
-        out=ctx.outputs.jar.path,
-        manifest=ctx.outputs.manifest.path,
+        jar_output=ctx.outputs.jar.path,
         java=ctx.executable._java.path,
-        jar=_get_jar_path(ctx.files._jar))
+        jarBuilder=_get_jar_path(ctx.files._jar),
+        manifest=ctx.outputs.manifest.path,
+        )
     outs = [ctx.outputs.jar]
     if buildijar:
         outs.extend([ctx.outputs.ijar])
