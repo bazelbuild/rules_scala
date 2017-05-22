@@ -293,52 +293,41 @@ def write_manifest(ctx):
         output=ctx.outputs.manifest,
         content=manifest)
 
-def _write_launcher(ctx, rjars, main_class, jvm_flags, args, run_before_binary, run_after_binary):
-    classpath = ':'.join(
-      ["$JAVA_RUNFILES/{repo}/{spath}".format(
-          repo = ctx.workspace_name, spath = f.short_path
-      ) for f in rjars])
+def _write_launcher(ctx, rjars, main_class, jvm_flags, args="", wrapper_preamble=""):
+    runfiles_root = "${TEST_SRCDIR}/%s" % ctx.workspace_name
+    classpath = ":".join(["%s/%s" % (runfiles_root, j.short_path) for j in rjars])
+    jvm_flags = " ".join([ctx.expand_location(f, ctx.attr.data) for f in jvm_flags])
+    javabin = "%s/%s" % (runfiles_root, ctx.executable._java.short_path)
+    template = ctx.attr._java_stub_template.files.to_list()[0]
 
-    location_expanded_jvm_flags = []
-    for jvm_flag in jvm_flags:
-        location_expanded_jvm_flags.append(ctx.expand_location(jvm_flag, ctx.attr.data))
+    wrapper = ctx.new_file(ctx.label.name + "_wrapper.sh")
+    ctx.file_action(
+        output = wrapper,
+        content = """#!/bin/bash
+{preamble}
 
-    content = """#!/bin/bash
-
-case "$0" in
-/*) self="$0" ;;
-*)  self="$PWD/$0" ;;
-esac
-
-if [[ -z "$JAVA_RUNFILES" ]]; then
-  if [[ -e "${{self}}.runfiles" ]]; then
-    export JAVA_RUNFILES="${{self}}.runfiles"
-  fi
-  if [[ -n "$JAVA_RUNFILES" ]]; then
-    export TEST_SRCDIR=${{TEST_SRCDIR:-$JAVA_RUNFILES}}
-  fi
-fi
-
-export CLASSPATH={classpath}
-{run_before_binary}
-$JAVA_RUNFILES/{repo}/{java} {jvm_flags} {main_class} {args} "$@"
-BINARY_EXIT_CODE=$?
-{run_after_binary}
-exit $BINARY_EXIT_CODE
+{javabin} "$@" {args}
 """.format(
-        classpath = classpath,
-        repo = ctx.workspace_name,
-        java = ctx.executable._java.short_path,
-        jvm_flags = " ".join(location_expanded_jvm_flags),
-        main_class = main_class,
-        args = args,
-        run_before_binary = run_before_binary,
-        run_after_binary = run_after_binary,
+            preamble=wrapper_preamble,
+            javabin=javabin,
+            args=args,
+        ),
     )
 
-    ctx.file_action(
+    ctx.template_action(
+        template = template,
         output = ctx.outputs.executable,
-        content = content,
+        substitutions = {
+            "%classpath%": classpath,
+            "%java_start_class%": main_class,
+            "%javabin%": "JAVABIN=%s/%s" % (runfiles_root, wrapper.short_path),
+            "%jvm_flags%": jvm_flags,
+            "%needs_runfiles%": "",
+            "%runfiles_manifest_only%": "",
+            "%set_jacoco_metadata%": "",
+            "%workspace_prefix%": ctx.workspace_name + "/",
+        },
+        executable = True,
     )
 
 def collect_srcjars(targets):
@@ -437,7 +426,7 @@ def _lib(ctx, non_macro_lib):
 def _collect_extra_information(targets):
   r = []
   for target in targets:
-    if hasattr(target, 'extra_information'):
+    if hasattr(target, "extra_information"):
       r.extend(target.extra_information)
   return r
 
@@ -453,9 +442,11 @@ def _scala_binary_common(ctx, cjars, rjars):
   outputs = _compile_or_empty(ctx, cjars, [], False)  # no need to build an ijar for an executable
   _build_deployable(ctx, list(rjars))
 
+  java_wrapper = ctx.new_file(ctx.label.name + "_wrapper.sh")
+
   # _jdk added manually since _java doesn't currently setup runfiles
   runfiles = ctx.runfiles(
-      files = list(rjars) + [ctx.outputs.executable] + ctx.files._jdk,
+      files = list(rjars) + [ctx.outputs.executable, java_wrapper] + ctx.files._jdk,
       transitive_files = _get_runfiles(ctx.attr._java),
       collect_data = True)
 
@@ -484,9 +475,6 @@ def _scala_binary_impl(ctx):
       rjars = rjars,
       main_class = ctx.attr.main_class,
       jvm_flags = ctx.attr.jvm_flags,
-      args = "",
-      run_before_binary = "",
-      run_after_binary = "",
   )
   return _scala_binary_common(ctx, cjars, rjars)
 
@@ -503,18 +491,19 @@ def _scala_repl_impl(ctx):
       main_class = "scala.tools.nsc.MainGenericRunner",
       jvm_flags = ["-Dscala.usejavacp=true"] + ctx.attr.jvm_flags,
       args = args,
-      run_before_binary = """
+      wrapper_preamble = """
 # save stty like in bin/scala
 saved_stty=$(stty -g 2>/dev/null)
 if [[ ! $? ]]; then
   saved_stty=""
 fi
-""",
-      run_after_binary = """
-if [[ "$saved_stty" != "" ]]; then
-  stty $saved_stty
-  saved_stty=""
-fi
+function finish() {
+  if [[ "$saved_stty" != "" ]]; then
+    stty $saved_stty
+    saved_stty=""
+  fi
+}
+trap finish EXIT
 """,
   )
 
@@ -549,8 +538,6 @@ def _scala_test_impl(ctx):
         main_class = ctx.attr.main_class,
         jvm_flags = ctx.attr.jvm_flags,
         args = args,
-        run_before_binary = "",
-        run_after_binary = "",
     )
     return _scala_binary_common(ctx, cjars, rjars)
 
@@ -579,12 +566,13 @@ def _scala_junit_test_impl(ctx):
         main_class = "org.junit.runner.JUnitCore",
         jvm_flags = launcherJvmFlags + ctx.attr.jvm_flags,
         args = test_suite.suite_class,
-        run_before_binary = "",
-        run_after_binary = "",
     )
 
     return _scala_binary_common(ctx, cjars, rjars)
 
+_launcher_template = {
+  "_java_stub_template": attr.label(default=Label("@java_stub_template//file")),
+}
 
 _implicit_deps = {
   "_ijar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:ijar"), allow_files=True),
@@ -647,7 +635,7 @@ scala_binary = rule(
   implementation=_scala_binary_impl,
   attrs={
       "main_class": attr.string(mandatory=True),
-      } + _implicit_deps + _common_attrs,
+      } + _launcher_template + _implicit_deps + _common_attrs,
   outputs={
       "jar": "%{name}.jar",
       "deploy_jar": "%{name}_deploy.jar",
@@ -661,9 +649,9 @@ scala_test = rule(
   attrs={
       "main_class": attr.string(default="org.scalatest.tools.Runner"),
       "suites": attr.string_list(),
-      "_scalatest": attr.label(default=Label('//external:io_bazel_rules_scala/dependency/scalatest/scalatest'), allow_files=True),
+      "_scalatest": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scalatest/scalatest"), allow_files=True),
       "_scalatest_reporter": attr.label(default=Label("//scala/support:test_reporter")),
-      } + _implicit_deps + _common_attrs,
+      } + _launcher_template + _implicit_deps + _common_attrs,
   outputs={
       "jar": "%{name}.jar",
       "deploy_jar": "%{name}_deploy.jar",
@@ -675,7 +663,7 @@ scala_test = rule(
 
 scala_repl = rule(
   implementation=_scala_repl_impl,
-  attrs= _implicit_deps + _common_attrs,
+  attrs= _launcher_template + _implicit_deps + _common_attrs,
   outputs={
       "jar": "%{name}.jar",
       "deploy_jar": "%{name}_deploy.jar",
@@ -756,19 +744,30 @@ def scala_repositories():
     server = "scalac_deps_maven_server",
   )
 
-  native.bind(name = 'io_bazel_rules_scala/dependency/com_google_protobuf/protobuf_java', actual = '@scalac_rules_protobuf_java//jar')
+  # Template for binary launcher
+  BAZEL_JAVA_LAUNCHER_VERSION = "0.4.5"
+  native.http_file(
+    name = "java_stub_template",
+    url = ("https://raw.githubusercontent.com/bazelbuild/bazel/" +
+           BAZEL_JAVA_LAUNCHER_VERSION +
+           "/src/main/java/com/google/devtools/build/lib/bazel/rules/java/" +
+           "java_stub_template.txt"),
+    sha256 = "f09d06d55cd25168427a323eb29d32beca0ded43bec80d76fc6acd8199a24489",
+  )
 
-  native.bind(name = 'io_bazel_rules_scala/dependency/scala/parser_combinators', actual = '@scala//:scala-parser-combinators')
+  native.bind(name = "io_bazel_rules_scala/dependency/com_google_protobuf/protobuf_java", actual = "@scalac_rules_protobuf_java//jar")
 
-  native.bind(name = 'io_bazel_rules_scala/dependency/scala/scala_compiler', actual = '@scala//:scala-compiler')
+  native.bind(name = "io_bazel_rules_scala/dependency/scala/parser_combinators", actual = "@scala//:scala-parser-combinators")
 
-  native.bind(name = 'io_bazel_rules_scala/dependency/scala/scala_library', actual = '@scala//:scala-library')
+  native.bind(name = "io_bazel_rules_scala/dependency/scala/scala_compiler", actual = "@scala//:scala-compiler")
 
-  native.bind(name = 'io_bazel_rules_scala/dependency/scala/scala_reflect', actual = '@scala//:scala-reflect')
+  native.bind(name = "io_bazel_rules_scala/dependency/scala/scala_library", actual = "@scala//:scala-library")
 
-  native.bind(name = 'io_bazel_rules_scala/dependency/scala/scala_xml', actual = '@scala//:scala-xml')
+  native.bind(name = "io_bazel_rules_scala/dependency/scala/scala_reflect", actual = "@scala//:scala-reflect")
 
-  native.bind(name = 'io_bazel_rules_scala/dependency/scalatest/scalatest', actual = '@scalatest//jar')
+  native.bind(name = "io_bazel_rules_scala/dependency/scala/scala_xml", actual = "@scala//:scala-xml")
+
+  native.bind(name = "io_bazel_rules_scala/dependency/scalatest/scalatest", actual = "@scalatest//jar")
 
 def scala_export_to_java(name, exports, runtime_deps):
   jars = []
@@ -842,7 +841,7 @@ def scala_library_suite(name,
 
 scala_junit_test = rule(
   implementation=_scala_junit_test_impl,
-  attrs= _implicit_deps + _common_attrs + {
+  attrs= _launcher_template + _implicit_deps + _common_attrs + {
       "prefixes": attr.string_list(default=[]),
       "suffixes": attr.string_list(default=[]),
       "print_discovered_classes": attr.bool(default=False, mandatory=False),

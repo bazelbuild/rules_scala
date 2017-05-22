@@ -10,7 +10,8 @@ object TutCompiler {
     val tmp = Paths.get(Option(System.getenv("TMPDIR")).getOrElse("/tmp"))
     val mdOutput = Files.createTempDirectory(tmp, "tut")
     val outfile = args(1)
-    TutMain.main(Array(args(0), mdOutput.toString, ".*\\.md$"))
+    val classpath = System.getProperty("java.class.path")
+    TutMain.main(Array(args(0), mdOutput.toString, ".*\\.md$", "-classpath", classpath))
     // Now move the single md file in that directory onto outfile
     mdOutput.toFile.listFiles.toList match {
       case List(path) =>
