@@ -7,6 +7,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.util.jar.JarInputStream
 import java.util.jar.JarEntry
+import java.lang.reflect.Modifier
 /*
   The test running and discovery mechanism works in the following manner:
     - Bazel rule executes a JVM application to run tests (currently `JUnitCore`) and asks it to run 
@@ -63,6 +64,7 @@ object PrefixSuffixTestDiscoveringSuite {
       .map(dropFileSuffix)
       .map(fileToClassFormat)
       .map(Class.forName)
+      .filter(concreteClasses)
       .toArray
 
   private def matchingEntries(archive: JarInputStream,
@@ -124,5 +126,8 @@ object PrefixSuffixTestDiscoveringSuite {
 
   private def printDiscoveredClasses: Boolean =
     System.getProperty("bazel.discover.classes.print.discovered").toBoolean
+
+  private def concreteClasses(testClass: Class[_]): Boolean =
+    !Modifier.isAbstract(testClass.getModifiers)
 
 }

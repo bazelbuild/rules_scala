@@ -328,3 +328,11 @@ scala_specs2_junit_test(
     data = ["//src/java/com/google/devtools/build/lib:worker"],
     jvm_flags = ["-Dlocation.expanded=$(location //src/java/com/google/devtools/build/lib:worker)"],
 )
+
+scala_junit_test(
+    name = "JunitFiltersAbstractClassesAndInterfaces",
+    srcs = ["src/main/scala/scala/test/junit/JunitAbstractClassAndInterface.scala"],
+    size = "small",
+    suffixes = ["Test"],
+    print_discovered_classes = True
+)
