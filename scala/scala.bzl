@@ -319,9 +319,9 @@ if [[ -z "$JAVA_RUNFILES" ]]; then
   fi
 fi
 
-export CLASSPATH={classpath}
+CLASSPATH={classpath}
 {run_before_binary}
-$JAVA_RUNFILES/{repo}/{java} {jvm_flags} {main_class} {args} "$@"
+$JAVA_RUNFILES/{repo}/{java} -classpath "$CLASSPATH" {jvm_flags} {main_class} {args} "$@"
 BINARY_EXIT_CODE=$?
 {run_after_binary}
 exit $BINARY_EXIT_CODE
