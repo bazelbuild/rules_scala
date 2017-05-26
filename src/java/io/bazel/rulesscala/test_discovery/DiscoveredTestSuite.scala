@@ -63,6 +63,7 @@ object PrefixSuffixTestDiscoveringSuite {
     matchingEntries(archive, prefixes, suffixes)
       .map(dropFileSuffix)
       .map(fileToClassFormat)
+      .filterNot(innerClasses)
       .map(Class.forName)
       .filter(concreteClasses)
       .toArray
@@ -129,5 +130,8 @@ object PrefixSuffixTestDiscoveringSuite {
 
   private def concreteClasses(testClass: Class[_]): Boolean =
     !Modifier.isAbstract(testClass.getModifiers)
+
+  private def innerClasses(testClassName: String): Boolean =
+    testClassName.contains('$')
 
 }
