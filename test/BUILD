@@ -336,3 +336,11 @@ scala_junit_test(
     suffixes = ["Test"],
     print_discovered_classes = True
 )
+
+scala_junit_test(
+    name = "JunitFiltersInnerClasses",
+    srcs = ["src/main/scala/scala/test/junit/JunitInnerClass.scala"],
+    size = "small",
+    prefixes = ["Test"],
+    print_discovered_classes = True
+)
