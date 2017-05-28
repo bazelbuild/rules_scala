@@ -295,7 +295,9 @@ def write_manifest(ctx):
 
 def _write_launcher(ctx, rjars, main_class, jvm_flags, args="", wrapper_preamble=""):
     runfiles_root = "${TEST_SRCDIR}/%s" % ctx.workspace_name
-    classpath = ":".join(["%s/%s" % (runfiles_root, j.short_path) for j in rjars])
+    # RUNPATH is defined here:
+    # https://github.com/bazelbuild/bazel/blob/0.4.5/src/main/java/com/google/devtools/build/lib/bazel/rules/java/java_stub_template.txt#L227
+    classpath = ":".join(["${RUNPATH}%s" % (j.short_path) for j in rjars])
     jvm_flags = " ".join([ctx.expand_location(f, ctx.attr.data) for f in jvm_flags])
     javabin = "%s/%s" % (runfiles_root, ctx.executable._java.short_path)
     template = ctx.attr._java_stub_template.files.to_list()[0]
