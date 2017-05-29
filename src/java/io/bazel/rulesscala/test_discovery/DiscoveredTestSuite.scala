@@ -159,6 +159,6 @@ object PrefixSuffixTestDiscoveringSuite {
       }
     }
 
-  private lazy val runWithAnnotation = classOf[RunWith]
-  private lazy val testAnnotation = classOf[Test]  
+  private val runWithAnnotation = classOf[RunWith]
+  private val testAnnotation = classOf[Test]  
 }
