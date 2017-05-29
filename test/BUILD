@@ -344,3 +344,27 @@ scala_junit_test(
     prefixes = ["Test"],
     print_discovered_classes = True
 )
+
+scala_junit_test(
+    name = "JunitFiltersClassesWithoutTests",
+    srcs = ["src/main/scala/scala/test/junit/JunitNoTests.scala"],
+    size = "small",
+    suffixes = ["Test"],
+    print_discovered_classes = True
+)
+
+scala_junit_test(
+    name = "JunitIncludesClassesWithTestsFromParent",
+    srcs = ["src/main/scala/scala/test/junit/JunitIncludesTestHierarchies.scala"],
+    size = "small",
+    suffixes = ["Test"],
+    print_discovered_classes = True
+)
+
+scala_junit_test(
+    name = "JunitIncludesClassesWithRunWith",
+    srcs = ["src/main/scala/scala/test/junit/JunitIncludesRunWith.scala"],
+    size = "small",
+    suffixes = ["Test"],
+    print_discovered_classes = True
+)
