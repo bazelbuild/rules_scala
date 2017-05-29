@@ -1,5 +1,6 @@
 package io.bazel.rulesscala.test_discovery
 
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Suite
 import org.junit.runners.model.RunnerBuilder
@@ -8,6 +9,8 @@ import java.io.FileInputStream
 import java.util.jar.JarInputStream
 import java.util.jar.JarEntry
 import java.lang.reflect.Modifier
+import java.lang.annotation.Annotation
+import scala.annotation.tailrec
 /*
   The test running and discovery mechanism works in the following manner:
     - Bazel rule executes a JVM application to run tests (currently `JUnitCore`) and asks it to run 
@@ -66,6 +69,7 @@ object PrefixSuffixTestDiscoveringSuite {
       .filterNot(innerClasses)
       .map(Class.forName)
       .filter(concreteClasses)
+      .filter(containsTests)
       .toArray
 
   private def matchingEntries(archive: JarInputStream,
@@ -134,4 +138,27 @@ object PrefixSuffixTestDiscoveringSuite {
   private def innerClasses(testClassName: String): Boolean =
     testClassName.contains('$')
 
+  private def containsTests(testClass: Class[_]): Boolean =
+    annotatedWithRunWith(testClass) || hasTestAnnotatedMethodsInClassHierarchy(testClass)
+
+  private def annotatedWithRunWith(testClass: Class[_]) =
+    testClass.getAnnotation(runWithAnnotation) != null
+
+  @tailrec
+  private def hasTestAnnotatedMethodsInClassHierarchy(testClass: Class[_]): Boolean =
+    Option(testClass) match {
+      case None => false
+      case Some(currentTestClass) if hasTestAnnotatedMethodsInCurrentClass(currentTestClass) => true
+      case Some(currentTestClass) => hasTestAnnotatedMethodsInClassHierarchy(currentTestClass.getSuperclass)
+    }
+
+  private def hasTestAnnotatedMethodsInCurrentClass(testClass: Class[_]): Boolean =
+    testClass.getDeclaredMethods.exists { method =>
+      method.getAnnotations.exists { annotation: Annotation =>
+        testAnnotation.isAssignableFrom(annotation.annotationType)
+      }
+    }
+
+  private lazy val runWithAnnotation = classOf[RunWith]
+  private lazy val testAnnotation = classOf[Test]  
 }
