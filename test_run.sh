@@ -257,6 +257,17 @@ scala_library_jar_without_srcs_must_include_filegroup_resources(){
   test_resources "noSrcsWithFilegroupResources"
 }
 
+scala_library_jar_without_srcs_must_fail_on_mismatching_resource_strip_prefix() {
+  set +e
+  bazel build test_expect_failure/wrong_resource_strip_prefix:noSrcsJarWithWrongStripPrefix
+  if [ $? -eq 0 ]; then
+    echo "'bazel build of scala_library with invalid resource_strip_prefix should have failed."
+    exit 1
+  fi
+  set -e
+  exit 0
+}
+
 scala_test_test_filters() {
     # test package wildcard (both)
     local output=$(bazel test \
@@ -344,6 +355,7 @@ $runner multiple_junit_suffixes
 $runner multiple_junit_prefixes
 $runner test_scala_junit_test_can_fail
 $runner junit_generates_xml_logs
+$runner scala_library_jar_without_srcs_must_fail_on_mismatching_resource_strip_prefix
 $runner multiple_junit_patterns
 $runner test_junit_test_must_have_prefix_or_suffix
 $runner test_junit_test_errors_when_no_tests_found

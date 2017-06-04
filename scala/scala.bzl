@@ -34,25 +34,39 @@ def _get_all_runfiles(targets):
       runfiles += _get_runfiles(target)
     return runfiles
 
-def _adjust_resources_path(path):
-    #  Here we are looking to find out the offset of this resource inside
-    #  any resources folder. We want to return the root to the resources folder
-    #  and then the sub path inside it
-    dir_1, dir_2, rel_path = path.partition("resources")
-    if rel_path:
-        return dir_1 + dir_2, rel_path
 
-    #  The same as the above but just looking for java
-    (dir_1, dir_2, rel_path) = path.partition("java")
-    if rel_path:
-        return dir_1 + dir_2, rel_path
-    return "", path
+def _adjust_resources_path_by_strip_prefix(path,resource_strip_prefix):
+    if not path.startswith(resource_strip_prefix):
+      fail("Resource file %s is not under the specified prefix to strip" % path)
 
+    clean_path = path[len(resource_strip_prefix):]
+    return resource_strip_prefix, clean_path
+
+def _adjust_resources_path_by_default_prefixes(path):
+      #  Here we are looking to find out the offset of this resource inside
+      #  any resources folder. We want to return the root to the resources folder
+      #  and then the sub path inside it
+      dir_1, dir_2, rel_path = path.partition("resources")
+      if rel_path:
+          return  dir_1 + dir_2, rel_path
+
+      #  The same as the above but just looking for java
+      (dir_1, dir_2, rel_path) = path.partition("java")
+      if rel_path:
+          return  dir_1 + dir_2, rel_path
+
+      return "", path
+
+def _adjust_resources_path(path, resource_strip_prefix):
+    if resource_strip_prefix:
+      return _adjust_resources_path_by_strip_prefix(path,resource_strip_prefix)
+    else:
+      return _adjust_resources_path_by_default_prefixes(path)
 
 def _add_resources_cmd(ctx, dest):
     res_cmd = ""
     for f in ctx.files.resources:
-        c_dir, res_path = _adjust_resources_path(f.path)
+        c_dir, res_path = _adjust_resources_path(f.path, ctx.attr.resource_strip_prefix)
         target_path = res_path
         if res_path[0] != "/":
             target_path = "/" + res_path
@@ -192,7 +206,7 @@ SourceJars: {srcjars}
         jvm_flags=",".join(["-J" + flag for flag in ctx.attr.jvm_flags]),
         resource_src=",".join([f.path for f in ctx.files.resources]),
         resource_dest=",".join(
-          [_adjust_resources_path(f.path)[1] for f in ctx.files.resources]
+          [_adjust_resources_path_by_default_prefixes(f.path)[1] for f in ctx.files.resources]
           ),
         resource_strip_prefix=ctx.attr.resource_strip_prefix,
         resource_jars=",".join([f.path for f in ctx.files.resource_jars]),
