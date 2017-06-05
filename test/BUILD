@@ -374,3 +374,11 @@ scala_junit_test(
     suffixes = ["Test"],
     print_discovered_classes = True
 )
+
+scala_junit_test(
+    name = "JunitFilterTest",
+    size = "small",
+    srcs = ["src/main/scala/scala/test/junit/FilterTest.scala"],
+    print_discovered_classes = True,
+    suffixes = ["Test"],
+)

@@ -226,6 +226,40 @@ scala_test_test_filters() {
     fi
 }
 
+scala_junit_test_test_filter(){
+  local output=$(bazel test \
+    --nocache_test_results \
+    --test_output=streamed \
+    '--test_filter=scala.test.junit.FirstFilterTest#(method1|method2)$|scala.test.junit.SecondFilterTest#(method2|method3)$' \
+    test:JunitFilterTest)
+  local expected=(
+      "scala.test.junit.FirstFilterTest#method1"
+      "scala.test.junit.FirstFilterTest#method2"
+      "scala.test.junit.SecondFilterTest#method2"
+      "scala.test.junit.SecondFilterTest#method3")
+  local unexpected=(
+      "scala.test.junit.FirstFilterTest#method3"
+      "scala.test.junit.SecondFilterTest#method1"
+      "scala.test.junit.ThirdFilterTest#method1"
+      "scala.test.junit.ThirdFilterTest#method2"
+      "scala.test.junit.ThirdFilterTest#method3")
+  for method in "${expected[@]}"; do
+    if ! grep "$method" <<<$output; then
+      echo "output:"
+      echo "$output"
+      echo "Expected $method in output, but was not found."
+      exit 1
+    fi
+  done
+  for method in "${unexpected[@]}"; do
+    if grep "$method" <<<$output; then
+      echo "output:"
+      echo "$output"
+      echo "Not expecting $method in output, but was found."
+      exit 1
+    fi
+  done
+}
 
 run_test bazel build test/...
 run_test bazel test test/...
@@ -256,3 +290,4 @@ run_test scala_library_jar_without_srcs_must_include_direct_file_resources
 run_test scala_library_jar_without_srcs_must_include_filegroup_resources
 run_test bazel run test/src/main/scala/scala/test/large_classpath:largeClasspath
 run_test scala_test_test_filters
+run_test scala_junit_test_test_filter
