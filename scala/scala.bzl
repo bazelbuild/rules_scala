@@ -517,12 +517,12 @@ def _scala_test_impl(ctx):
           "suites attribute is deprecated. All scalatest test suites are run"
         )
     jars = _collect_jars_from_common_ctx(ctx,
-        extra_runtime_deps = [ctx.attr._scalatest_reporter],
+        extra_runtime_deps = [ctx.attr._scalatest_reporter, ctx.attr._scalatest_runner],
     )
     (cjars, rjars) = (jars.compiletime, jars.runtime)
     # _scalatest is an http_jar, so its compile jar is run through ijar
     # however, contains macros, so need to handle separately
-    scalatest_jars = _collect_jars([ctx.attr._scalatest, ctx.attr._scalatest_runner]).runtime
+    scalatest_jars = _collect_jars([ctx.attr._scalatest]).runtime
     cjars += scalatest_jars
     rjars += scalatest_jars
 
