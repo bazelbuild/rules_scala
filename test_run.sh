@@ -203,6 +203,30 @@ scala_library_jar_without_srcs_must_include_filegroup_resources(){
   test_resources "noSrcsWithFilegroupResources"
 }
 
+scala_test_test_filters() {
+    # test package wildcard (both)
+    local output=$(bazel test \
+                         --cache_test_results=no \
+                         --test_output streamed \
+                         --test_filter scala.test.* \
+                         test:TestFilterTests)
+    if [[ $output != *"tests a"* || $output != *"tests b"* ]]; then
+        echo "Should have contained test output from both test filter test a and b"
+        exit 1
+    fi
+    # test just one
+    local output=$(bazel test \
+                         --cache_test_results=no \
+                         --test_output streamed \
+                         --test_filter scala.test.TestFilterTestA \
+                         test:TestFilterTests)
+    if [[ $output != *"tests a"* || $output == *"tests b"* ]]; then
+        echo "Should have only contained test output from test filter test a"
+        exit 1
+    fi
+}
+
+
 run_test bazel build test/...
 run_test bazel test test/...
 run_test bazel run test/src/main/scala/scala/test/twitter_scrooge:justscrooges
@@ -231,3 +255,4 @@ run_test test_junit_test_errors_when_no_tests_found
 run_test scala_library_jar_without_srcs_must_include_direct_file_resources
 run_test scala_library_jar_without_srcs_must_include_filegroup_resources
 run_test bazel run test/src/main/scala/scala/test/large_classpath:largeClasspath
+run_test scala_test_test_filters

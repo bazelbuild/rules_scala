@@ -522,7 +522,7 @@ def _scala_test_impl(ctx):
     (cjars, rjars) = (jars.compiletime, jars.runtime)
     # _scalatest is an http_jar, so its compile jar is run through ijar
     # however, contains macros, so need to handle separately
-    scalatest_jars = _collect_jars([ctx.attr._scalatest]).runtime
+    scalatest_jars = _collect_jars([ctx.attr._scalatest, ctx.attr._scalatest_runner]).runtime
     cjars += scalatest_jars
     rjars += scalatest_jars
 
@@ -649,9 +649,10 @@ scala_binary = rule(
 scala_test = rule(
   implementation=_scala_test_impl,
   attrs={
-      "main_class": attr.string(default="org.scalatest.tools.Runner"),
+      "main_class": attr.string(default="io.bazel.rulesscala.scala_test.Runner"),
       "suites": attr.string_list(),
       "_scalatest": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scalatest/scalatest"), allow_files=True),
+      "_scalatest_runner": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/scala_test:runner.jar"), allow_files=True),
       "_scalatest_reporter": attr.label(default=Label("//scala/support:test_reporter")),
       } + _launcher_template + _implicit_deps + _common_attrs,
   outputs={
