@@ -29,3 +29,17 @@ maven_jar(
   sha1 = "e5b3e2753d0817b622c32aedcb888bcf39e275b4")
 
 
+# dependencies needed for BazelTestRunner
+maven_server(
+    name = "one_hippo",
+    url = "http://maven.onehippo.com/maven2/",
+)
+
+maven_jar(
+      name = "javax_inject",
+      artifact = "javax.inject:javax.inject:1")
+
+maven_jar(
+      name = "javax_annotation_inject",
+      artifact = "javax.annotation:jsr305:1.0",
+      server = "one_hippo")
