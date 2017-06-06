@@ -304,11 +304,12 @@ scala_specs2_junit_test(
 ) for binary in [
     "JavaBinary",
     "JavaBinary2",
+    "JavaOnlySources",
+    "MixJavaScalaLibBinary",
+    "MixJavaScalaSrcjarLibBinary",
+    "MoreScalaLibBinary",
     "ScalaBinary",
     "ScalaLibBinary",
-    "MoreScalaLibBinary",
-    "MixJavaScalaLibBinary",
-    "JavaOnlySources",
 ]]
 
 # Make sure scala_binary works in genrule environment

@@ -232,18 +232,18 @@ run_test bazel test test/...
 run_test bazel run test/src/main/scala/scala/test/twitter_scrooge:justscrooges
 run_test bazel run test:JavaBinary
 run_test bazel run test:JavaBinary2
+run_test bazel run test:JavaOnlySources
 run_test bazel run test:MixJavaScalaLibBinary
 run_test bazel run test:MixJavaScalaSrcjarLibBinary
+run_test bazel run test:MoreScalaLibBinary
 run_test bazel run test:ScalaBinary
 run_test bazel run test:ScalaLibBinary
 run_test test_disappearing_class
 run_test find -L ./bazel-testlogs -iname "*.xml"
 run_test xmllint_test
-run_test test_build_is_identical
 run_test test_transitive_deps
 run_test test_scala_library_suite
 run_test test_repl
-run_test bazel run test:JavaOnlySources
 run_test test_benchmark_jmh
 run_test multiple_junit_suffixes
 run_test multiple_junit_prefixes
@@ -256,3 +256,8 @@ run_test scala_library_jar_without_srcs_must_include_direct_file_resources
 run_test scala_library_jar_without_srcs_must_include_filegroup_resources
 run_test bazel run test/src/main/scala/scala/test/large_classpath:largeClasspath
 run_test scala_test_test_filters
+
+
+# This test wipes the build cache so perform at end to avoid degrading the
+# performance of running the other tests
+run_test test_build_is_identical
