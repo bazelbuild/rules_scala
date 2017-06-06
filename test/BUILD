@@ -99,6 +99,12 @@ scala_test_suite(
     ],
 )
 
+scala_test(
+    name = "TestFilterTests",
+    size = "small",
+    srcs = glob(["TestFilterTest*.scala"]),
+)
+
 scala_repl(
     name = "HelloLibTestRepl",
     deps = [":HelloLibTest"])
