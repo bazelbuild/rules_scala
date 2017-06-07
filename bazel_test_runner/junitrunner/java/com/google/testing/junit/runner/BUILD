@@ -24,7 +24,7 @@ java_library(
         "//bazel_test_runner/junitrunner/java/com/google/testing/junit/runner/model:model",
         "//bazel_test_runner/junitrunner/java/com/google/testing/junit/runner/sharding:sharding",
         "//bazel_test_runner/junitrunner/java/com/google/testing/junit/runner/util:util",
-        "@io_bazel_rules_scala_junit_junit//jar",
+        "//external:io_bazel_rules_scala/dependency/junit/junit",
     ],
 )
 

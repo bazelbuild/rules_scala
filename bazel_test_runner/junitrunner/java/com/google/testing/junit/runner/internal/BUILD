@@ -8,7 +8,7 @@ java_library(
     srcs = glob(["*.java"]),
     deps = [
         "//bazel_test_runner/junitrunner/java/com/google/testing/junit/runner/util:util",
-        "@javax_inject//jar",
+        "//external:io_bazel_rules_scala/dependency/javax/javax_inject",
     ],
 )
 
@@ -23,8 +23,8 @@ java_library(
         "//bazel_test_runner/junitrunner/java/com/google/testing/junit/junit4:runner",
         "//bazel_test_runner/junitrunner/java/com/google/testing/junit/runner/model:model",
         "//bazel_test_runner/junitrunner/java/com/google/testing/junit/runner/util:util",
-        "@javax_inject//jar",
-        "@io_bazel_rules_scala_junit_junit//jar",
+        "//external:io_bazel_rules_scala/dependency/javax/javax_inject",
+        "//external:io_bazel_rules_scala/dependency/junit/junit",
     ],
 )
 

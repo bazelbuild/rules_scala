@@ -5,7 +5,7 @@ java_library(
     name = "api",
     srcs = glob(["*.java"]),
     deps = [
-        "@io_bazel_rules_scala_junit_junit//jar",
+        "//external:io_bazel_rules_scala/dependency/junit/junit",
     ],
 )
 

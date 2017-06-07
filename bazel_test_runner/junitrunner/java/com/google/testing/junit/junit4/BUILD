@@ -16,8 +16,8 @@ java_library(
     testonly = 0,  # TODO(bazel-team): make it testonly
     srcs = glob(["runner/*.java"]),
     deps = [
-        "@javax_inject//jar",
-        "@io_bazel_rules_scala_junit_junit//jar",
+        "//external:io_bazel_rules_scala/dependency/javax/javax_inject",
+        "//external:io_bazel_rules_scala/dependency/junit/junit",
     ],
 )
 

@@ -4,8 +4,8 @@ java_library(
     name = "util",
     srcs = glob(["*.java"]),
     deps = [
-        "@javax_annotation_inject//jar",
-        "@io_bazel_rules_scala_junit_junit//jar",
+        "//external:io_bazel_rules_scala/dependency/javax_annotation_inject/jsr305",
+        "//external:io_bazel_rules_scala/dependency/junit/junit",
     ],
 )
 
