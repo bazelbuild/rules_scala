@@ -36,4 +36,4 @@ before_install:
   - cat .bazelrc.travis >> .bazelrc
 
 script:
-  - bash test_run.sh
+  - travis_wait bash test_run.sh
