@@ -1,7 +1,7 @@
 # This is from Bazel's former travis setup, to avoid blowing up the RAM usage.
 startup --host_jvm_args=-Xmx2500m
 startup --host_jvm_args=-Xms2500m
-startup --batch
+# startup --batch # we actually start many bazels in the test script, we don't want batch
 test --ram_utilization_factor=10
 
 # Just making sure that we don't OOM with parallel builds
