@@ -297,7 +297,9 @@ def _write_launcher(ctx, rjars, main_class, jvm_flags, args="", wrapper_preamble
     runfiles_root = "${TEST_SRCDIR}/%s" % ctx.workspace_name
     # RUNPATH is defined here:
     # https://github.com/bazelbuild/bazel/blob/0.4.5/src/main/java/com/google/devtools/build/lib/bazel/rules/java/java_stub_template.txt#L227
-    classpath = ":".join(["${RUNPATH}%s" % (j.short_path) for j in rjars])
+    classpath2 = ":".join(["${RUNPATH}%s" % (j.short_path) for j in rjars])
+    classpath = "${RUNPATH}/target/test-classes:" + classpath2
+
     jvm_flags = " ".join([ctx.expand_location(f, ctx.attr.data) for f in jvm_flags])
     javabin = "%s/%s" % (runfiles_root, ctx.executable._java.short_path)
     template = ctx.attr._java_stub_template.files.to_list()[0]
@@ -307,12 +309,15 @@ def _write_launcher(ctx, rjars, main_class, jvm_flags, args="", wrapper_preamble
         output = wrapper,
         content = """#!/bin/bash
 {preamble}
+mkdir {runfiles_root}/target
+mkdir {runfiles_root}/target/test-classes
 
 {javabin} "$@" {args}
 """.format(
             preamble=wrapper_preamble,
             javabin=javabin,
             args=args,
+            runfiles_root = runfiles_root
         ),
     )
 
