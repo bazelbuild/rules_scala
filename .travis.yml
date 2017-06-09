@@ -36,4 +36,4 @@ before_install:
   - cat .bazelrc.travis >> .bazelrc
 
 script:
-  - bash test_run.sh
+  - bash test_run.sh ci
