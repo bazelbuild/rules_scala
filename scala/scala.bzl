@@ -558,30 +558,32 @@ def _scala_test_impl(ctx):
     return _scala_binary_common(ctx, cjars, rjars)
 
 def _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, archive):
-    return struct(suite_class = "io.bazel.rulesscala.test_discovery.DiscoveredTestSuite",
-    archiveFlag = "-Dbazel.discover.classes.archive.file.path=%s" % archive.short_path,
+    return struct(archiveFlag = "-Dbazel.discover.classes.archive.file.path=%s" % archive.short_path,
     prefixesFlag = "-Dbazel.discover.classes.prefixes=%s" % ",".join(ctx.attr.prefixes),
     suffixesFlag = "-Dbazel.discover.classes.suffixes=%s" % ",".join(ctx.attr.suffixes),
-    printFlag = "-Dbazel.discover.classes.print.discovered=%s" % ctx.attr.print_discovered_classes)
+    printFlag = "-Dbazel.discover.classes.print.discovered=%s" % ctx.attr.print_discovered_classes,
+    testSuiteFlag = "-Dbazel.test_suite=io.bazel.rulesscala.test_discovery.DiscoveredTestSuite"
+  )
 
 def _scala_junit_test_impl(ctx):
     if (not(ctx.attr.prefixes) and not(ctx.attr.suffixes)):
       fail("Setting at least one of the attributes ('prefixes','suffixes') is required")
     jars = _collect_jars_from_common_ctx(ctx,
-        extra_deps = [ctx.attr._junit, ctx.attr._hamcrest, ctx.attr._suite],
+        extra_deps = [ctx.attr._junit, ctx.attr._hamcrest, ctx.attr._suite, ctx.attr._bazel_test_runner],
     )
     (cjars, rjars) = (jars.compiletime, jars.runtime)
 
     rjars += [ctx.outputs.jar]
 
     test_suite = _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, ctx.outputs.jar)
-    launcherJvmFlags = ["-ea", test_suite.archiveFlag, test_suite.prefixesFlag, test_suite.suffixesFlag, test_suite.printFlag]
+    launcherJvmFlags = ["-ea", test_suite.archiveFlag, test_suite.prefixesFlag, test_suite.suffixesFlag, test_suite.printFlag,
+                        test_suite.testSuiteFlag]
+
     _write_launcher(
         ctx = ctx,
         rjars = rjars,
-        main_class = "org.junit.runner.JUnitCore",
+        main_class = "bazel_test_runner.junitrunner.java.com.google.testing.junit.runner.BazelTestRunner",
         jvm_flags = launcherJvmFlags + ctx.attr.jvm_flags,
-        args = test_suite.suite_class,
     )
 
     return _scala_binary_common(ctx, cjars, rjars)
@@ -865,6 +867,7 @@ scala_junit_test = rule(
       "_junit": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/junit/junit")),
       "_hamcrest": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/hamcrest/hamcrest_core")),
       "_suite": attr.label(default=Label("//src/java/io/bazel/rulesscala/test_discovery:test_discovery")),
+      "_bazel_test_runner": attr.label(default=Label("//bazel_test_runner/junitrunner/java/com/google/testing/junit/runner:test_runner")),
       },
   outputs={
       "jar": "%{name}.jar",
