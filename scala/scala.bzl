@@ -174,7 +174,7 @@ Files: {files}
 IjarCmdPath: {ijar_cmd_path}
 IjarOutput: {ijar_out}
 JarOutput: {out}
-JavacOpts: {javac_opts}
+JavacOpts: -encoding utf8 {javac_opts}
 JavacPath: {javac_path}
 JavaFiles: {java_files}
 JvmFlags: {jvm_flags}
