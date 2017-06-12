@@ -382,3 +382,9 @@ scala_junit_test(
     print_discovered_classes = True,
     suffixes = ["Test"],
 )
+
+scala_library(
+    name = "filesWithUtf8",
+    srcs = ["src/main/scala/scala/test/utf8/JavaClassWithUtf8.java",
+            "src/main/scala/scala/test/utf8/ScalaClassWithUtf8.scala"]
+    )
