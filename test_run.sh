@@ -213,7 +213,13 @@ multiple_junit_patterns() {
 
 junit_generates_xml_logs() {
   bazel test //test:JunitTestWithDeps
-  test -e ./bazel-testlogs/test/JunitTestWithDeps/test.xml
+  matches=$(grep -c -e "testcase name='hasCompileTimeDependencies'" -e "testcase name='hasRuntimeDependencies'" ./bazel-testlogs/test/JunitTestWithDeps/test.xml)
+  if [ $matches -eq 2 ]; then
+    return 0
+  else
+    return 1
+  fi
+  test -e 
 }
 
 test_junit_test_must_have_prefix_or_suffix() {
