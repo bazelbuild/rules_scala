@@ -558,7 +558,8 @@ def _scala_test_impl(ctx):
     return _scala_binary_common(ctx, cjars, rjars)
 
 def _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, archive):
-    return struct(testSuiteFlag = "-Dbazel.test_suite=io.bazel.rulesscala.test_discovery.DiscoveredTestSuite", archiveFlag = "-Dbazel.discover.classes.archive.file.path=%s" % archive.short_path,
+    return struct(testSuiteFlag = "-Dbazel.test_suite=io.bazel.rulesscala.test_discovery.DiscoveredTestSuite",
+    archiveFlag = "-Dbazel.discover.classes.archive.file.path=%s" % archive.short_path,
     prefixesFlag = "-Dbazel.discover.classes.prefixes=%s" % ",".join(ctx.attr.prefixes),
     suffixesFlag = "-Dbazel.discover.classes.suffixes=%s" % ",".join(ctx.attr.suffixes),
     printFlag = "-Dbazel.discover.classes.print.discovered=%s" % ctx.attr.print_discovered_classes)
