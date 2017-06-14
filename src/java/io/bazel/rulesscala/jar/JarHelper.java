@@ -177,17 +177,21 @@ public class JarHelper {
     }
   }
 
+  protected boolean ignoreFileName(String name) {
+    return false;
+  }
+
   /**
    * This copies the contents of jarFile into out
    * This is a static method to make it clear what is mutated (and it
    * was written by someone who really likes to minimize state changes).
    */
-  static private void copyJar(JarFile nameJf, Set<String> names, JarOutputStream out) throws IOException {
+  private void copyJar(JarFile nameJf, Set<String> names, JarOutputStream out) throws IOException {
     byte[] buffer = new byte[2048];
     for (Enumeration<JarEntry> e = nameJf.entries(); e.hasMoreElements();) {
       JarEntry existing = e.nextElement();
       String name = existing.getName();
-      if (!names.contains(name)) {
+      if (!(ignoreFileName(name) || names.contains(name))) {
         JarEntry outEntry = new JarEntry(name);
         outEntry.setTime(existing.getTime());
         outEntry.setSize(existing.getSize());
