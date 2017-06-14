@@ -213,7 +213,7 @@ multiple_junit_patterns() {
 
 junit_generates_xml_logs() {
   bazel test //test:JunitTestWithDeps
-  matches=$(grep -c -e "testcase name=\'hasCompileTimeDependencies\'" -e "testcase name=\'hasRuntimeDependencies\'" ./bazel-testlogs/test/JunitTestWithDeps/test.xml)
+  matches=$(grep -c -e "testcase name='hasCompileTimeDependencies'" -e "testcase name='hasRuntimeDependencies'" ./bazel-testlogs/test/JunitTestWithDeps/test.xml)
   if [ $matches -eq 2 ]; then
     return 0
   else
