@@ -153,7 +153,7 @@ def _gen_scrooge_srcjar_impl(ctx):
     arguments=["--jvm_flag=%s" % flag for flag in ctx.attr.jvm_flags] + ["@" + argfile.path],
   )
 
-  deps_jars = _collect_scalaattr(ctx.attr.deps)
+  deps_jars = _collect_jars(ctx.attr.deps)
 
   scalaattr = struct(
       outputs = None,
@@ -177,15 +177,16 @@ def _gen_scrooge_srcjar_impl(ctx):
     )],
   )
 
-# TODO(twigg): Use one in scala.bzl ...
-def _collect_scalaattr(targets):
+# TODO(twigg): Use the one in scala.bzl?
+def _collect_jars(targets):
   compile_jars = depset()
   transitive_runtime_jars = depset()
 
   for target in targets:
-    if hasattr(target, "scala"):
-      compile_jars += target.scala.compile_jars
-      transitive_runtime_jars += target.scala.transitive_runtime_jars
+    if java_common.provider in target:
+      java_provider = target[java_common.provider]
+      compile_jars += java_provider.compile_jars
+      transitive_runtime_jars += java_provider.transitive_runtime_jars
 
   return struct(
     compile_jars = compile_jars,

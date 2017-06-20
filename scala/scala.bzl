@@ -358,13 +358,9 @@ def _collect_jars(targets):
     compile_jars = depset()
     runtime_jars = depset()
     for target in targets:
-        if hasattr(target, "scala"):
-            compile_jars += target.scala.compile_jars
-            runtime_jars += target.scala.transitive_runtime_jars
-        elif java_common.provider in target:
+        if java_common.provider in target:
             java_provider = target[java_common.provider]
-            # TODO(twigg): Use compile_jars when released (narrowly missed 0.5.0 :( )
-            compile_jars += target.java.transitive_deps  # java_provider.compile_jars
+            compile_jars += java_provider.compile_jars
             runtime_jars += java_provider.transitive_runtime_jars
         else:
             # support http_file pointed at a jar. http_jar uses ijar,
@@ -432,10 +428,9 @@ def _lib(ctx, non_macro_lib):
         compile_jars = next_cjars,
         transitive_runtime_jars = transitive_rjars,
     )
-    # TODO(twigg): Linearization is concerning here.
     java_provider = java_common.create_provider(
-        compile_time_jars = scalaattr.compile_jars.to_list(),
-        runtime_jars = scalaattr.transitive_runtime_jars.to_list(),
+        compile_time_jars = scalaattr.compile_jars,
+        runtime_jars = scalaattr.transitive_runtime_jars,
     )
 
     return struct(
@@ -801,20 +796,6 @@ def scala_repositories():
   native.bind(name = "io_bazel_rules_scala/dependency/scala/scala_xml", actual = "@scala//:scala-xml")
 
   native.bind(name = "io_bazel_rules_scala/dependency/scalatest/scalatest", actual = "@scalatest//jar")
-
-# With providers changes, this is completely deprecatable once bazel release includes
-# fixes to java rules using JavaProvider
-def scala_export_to_java(name, exports, runtime_deps):
-  jars = []
-  for target in exports:
-    jars.append("{}_deploy.jar".format(target))
-
-  native.java_import(
-    name = name,
-    # these are the outputs of the scala_library targets
-    jars = jars,
-    runtime_deps = ["//external:io_bazel_rules_scala/dependency/scala/scala_library"] + runtime_deps
-  )
 
 def _sanitize_string_for_usage(s):
     res_array = []
