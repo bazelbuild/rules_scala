@@ -14,10 +14,16 @@
 
 package scala.test
 
-object MoreScalaLibBinary {
-  def main(args:Array[String]) {
-    MoreScalaLibResources.getGreetings foreach println
-    MoreScalaLibResources.getFarewells foreach println
-    MoreScalaLibResources.getData foreach println
-  }
+object ResourcesStripScalaLib {
+  def getGreetings() = get("/src/main/resources/scala/test/more-hellos")
+
+  def getFarewells = get("/src/main/resources/scala/test/more-byes")
+
+  def getData = get("/data/more.txt")
+
+  private def get(s: String): List[String] =
+    scala.io.Source
+      .fromInputStream(getClass.getResourceAsStream(s))
+      .getLines
+      .toList
 }
