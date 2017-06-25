@@ -253,7 +253,7 @@ SourceJars: {srcjars}
         # be correctly handled since the executable is a jvm app that will
         # consume the flags on startup.
 
-        arguments=["--jvm_flag=%s" % flag for flag in ctx.attr.jvm_flags] + ["@" + argfile.path],
+        arguments=["--jvm_flag=%s" % flag for flag in ctx.attr.scalac_jvm_flags] + ["@" + argfile.path],
       )
 
 
@@ -616,6 +616,7 @@ _common_attrs = {
   "scalacopts":attr.string_list(),
   "javacopts":attr.string_list(),
   "jvm_flags": attr.string_list(),
+  "scalac_jvm_flags": attr.string_list(),
   "print_compile_time": attr.bool(default=False, mandatory=False),
 }
 
