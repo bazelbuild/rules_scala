@@ -231,7 +231,6 @@ class ScalacProcessor implements Processor {
     ArrayList<String> commandParts = new ArrayList<>();
     commandParts.add(ops.javacPath);
 
-    Collections.addAll(commandParts, ops.jvmFlags);
     Path argsFile = newArgFile(ops, javaSources, tmpPath);
     commandParts.add("@" + normalizeSlash(argsFile.toFile().getAbsolutePath()));
     try {
