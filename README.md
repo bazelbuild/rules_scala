@@ -58,8 +58,8 @@ to your command line, or to enable by default for building/testing add it to you
 ## scala\_library / scala\_macro_library
 
 ```python
-scala_library(name, srcs, deps, runtime_deps, exports, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags)
-scala_macro_library(name, srcs, deps, runtime_deps, exports, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags)
+scala_library(name, srcs, deps, runtime_deps, exports, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags, scalac_jvm_flags, javac_jvm_flags)
+scala_macro_library(name, srcs, deps, runtime_deps, exports, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags, scalac_jvm_flags, javac_jvm_flags)
 ```
 
 `scala_library` generates a `.jar` file from `.scala` source files. This rule
@@ -175,10 +175,32 @@ In order to make a java rule use this jar file, use the `java_import` rule.
     <tr>
       <td><code>jvm_flags</code></td>
       <td>
+        <p><code>List of strings; optional; deprecated</code></p>
+        <p>
+          Deprecated, superseded by scalac_jvm_flags and javac_jvm_flags. Is not used and is kept as backwards compatibility for the near future. Effectively jvm_flags is now an executable target attribute only.
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td><code>scalac_jvm_flags</code></td>
+      <td>
         <p><code>List of strings; optional</code></p>
         <p>
           List of JVM flags to be passed to scalac after the
           <code>scalacopts</code>. Subject to
+          <a href="http://bazel.io/docs/be/make-variables.html">Make variable
+          substitution</a> and
+          <a href="http://bazel.io/docs/be/common-definitions.html#borne-shell-tokenization">Bourne shell tokenization.</a>
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td><code>javac_jvm_flags</code></td>
+      <td>
+        <p><code>List of strings; optional</code></p>
+        <p>
+          List of JVM flags to be passed to javac after the
+          <code>javacopts</code>. Subject to
           <a href="http://bazel.io/docs/be/make-variables.html">Make variable
           substitution</a> and
           <a href="http://bazel.io/docs/be/common-definitions.html#borne-shell-tokenization">Bourne shell tokenization.</a>
@@ -192,7 +214,7 @@ In order to make a java rule use this jar file, use the `java_import` rule.
 ## scala_binary
 
 ```python
-scala_binary(name, srcs, deps, runtime_deps, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags)
+scala_binary(name, srcs, deps, runtime_deps, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags, scalac_jvm_flags, javac_jvm_flags)
 ```
 
 `scala_binary` generates a Scala executable. It may depend on `scala_library`, `scala_macro_library`
@@ -295,8 +317,33 @@ A `scala_binary` requires a `main_class` attribute.
       <td>
         <p><code>List of strings; optional</code></p>
         <p>
+          List of JVM flags to be passed to the executing JVM. Subject to
+          <a href="http://bazel.io/docs/be/make-variables.html">Make variable
+          substitution</a> and
+          <a href="http://bazel.io/docs/be/common-definitions.html#borne-shell-tokenization">Bourne shell tokenization.</a>
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td><code>scalac_jvm_flags</code></td>
+      <td>
+        <p><code>List of strings; optional</code></p>
+        <p>
           List of JVM flags to be passed to scalac after the
           <code>scalacopts</code>. Subject to
+          <a href="http://bazel.io/docs/be/make-variables.html">Make variable
+          substitution</a> and
+          <a href="http://bazel.io/docs/be/common-definitions.html#borne-shell-tokenization">Bourne shell tokenization.</a>
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td><code>javac_jvm_flags</code></td>
+      <td>
+        <p><code>List of strings; optional</code></p>
+        <p>
+          List of JVM flags to be passed to javac after the
+          <code>javacopts</code>. Subject to
           <a href="http://bazel.io/docs/be/make-variables.html">Make variable
           substitution</a> and
           <a href="http://bazel.io/docs/be/common-definitions.html#borne-shell-tokenization">Bourne shell tokenization.</a>
@@ -310,7 +357,7 @@ A `scala_binary` requires a `main_class` attribute.
 ## scala_test
 
 ```python
-scala_test(name, srcs, suites, deps, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags)
+scala_test(name, srcs, suites, deps, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags, scalac_jvm_flags, javac_jvm_flags)
 ```
 
 `scala_test` generates a Scala executable which runs unit test suites written
@@ -326,7 +373,7 @@ populated and tests are not run.
 <a name="scala_repl"></a>
 ## scala_repl
 ```python
-scala_repl(name, deps, scalacopts, jvm_flags)
+scala_repl(name, deps, scalacopts, jvm_flags, scalac_jvm_flags, javac_jvm_flags)
 ```
 A scala repl allows you to add library dependendencies (not currently `scala_binary` targets)
 to generate a script to run which starts a REPL.
