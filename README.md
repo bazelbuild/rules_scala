@@ -19,7 +19,7 @@ and `scala_test`.
 ## Getting started
 
 In order to use `scala_library`, `scala_macro_library`, and `scala_binary`,
-you must have bazel 0.3.1 or later and add the following to your WORKSPACE file:
+you must have bazel 0.5.2 or later and add the following to your WORKSPACE file:
 
 ```python
 
