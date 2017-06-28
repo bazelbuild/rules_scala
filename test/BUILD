@@ -5,7 +5,6 @@ load("//scala:scala.bzl",
     "scala_library",
     "scala_test",
     "scala_macro_library",
-    "scala_export_to_java",
     "scala_repl",
     "scala_test_suite",
     "scala_library_suite",
@@ -19,41 +18,28 @@ java_binary(
     name = "JavaBinary",
     srcs = ["JavaBinary.java"],
     main_class = "scala.test.JavaBinary",
-    deps = [":lib_import"],
-)
-
-# TODO(bazel-team): Allow java rules to depend directly on scala_library.
-# For now, we have to use a java_import proxy.
-java_import(
-    name = "lib_import",
-    # these are the outputs of the scala_library targets
-    jars = [
-        ":HelloLib_deploy.jar",
-        "OtherLib_deploy.jar",
-        "Exported_deploy.jar",
-        "Runtime_deploy.jar",
+    deps = [
+        ":HelloLib",
+        ":OtherLib",
+        ":Exported",
+        ":Runtime",
     ],
     runtime_deps = [
-        "OtherJavaLib",
+        ":OtherJavaLib",
         "@scala//:scala-library",
-    ],
-)
-
-scala_export_to_java(
-    name = "lib_import_2",
-    exports = [":HelloLib",
-               "OtherLib",
-               "Exported",
-               "Runtime",
-              ],
-    runtime_deps = ["OtherJavaLib"],
+    ]
 )
 
 java_binary(
     name = "JavaBinary2",
     srcs = ["JavaBinary.java"],
     main_class = "scala.test.JavaBinary",
-    deps = [":lib_import_2"],
+    deps = [
+        ":HelloLib",
+        ":OtherLib",
+        ":Exported",
+        ":Runtime",
+    ],
 )
 
 scala_binary(
