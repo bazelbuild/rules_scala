@@ -149,7 +149,7 @@ def _collect_plugin_paths(plugins):
     return paths
 
 
-def _compile(ctx, cjars, dep_srcjars, buildijar):
+def _compile(ctx, cjars, dep_srcjars, buildijar, rjars=[], labels = {}):
     ijar_output_path = ""
     ijar_cmd_path = ""
     if buildijar:
@@ -164,7 +164,11 @@ def _compile(ctx, cjars, dep_srcjars, buildijar):
     plugins = _collect_plugin_paths(ctx.attr.plugins)
     plugin_arg = ",".join(list(plugins))
 
-    compiler_classpath = ":".join([j.path for j in cjars])
+    all_jars = cjars + rjars
+    compiler_classpath = ":".join([j.path for j in all_jars])
+    direct_jars = ":".join([j.path for j in cjars])
+    indirect_jars = ":".join([j.path for j in rjars])
+    indirect_targets = ":".join([labels[j.path] for j in rjars])
 
     scalac_args = """
 Classpath: {cp}
@@ -185,6 +189,9 @@ ResourceSrcs: {resource_src}
 ResourceStripPrefix: {resource_strip_prefix}
 ScalacOpts: {scala_opts}
 SourceJars: {srcjars}
+DirectJars: {direct_jars}
+IndirectJars: {indirect_jars}
+IndirectTargets: {indirect_targets}
 """.format(
         out=ctx.outputs.jar.path,
         manifest=ctx.outputs.manifest.path,
@@ -208,6 +215,9 @@ SourceJars: {srcjars}
           ),
         resource_strip_prefix=ctx.attr.resource_strip_prefix,
         resource_jars=",".join([f.path for f in ctx.files.resource_jars]),
+        direct_jars=direct_jars,
+        indirect_jars=indirect_jars,
+        indirect_targets=indirect_targets
         )
     argfile = ctx.new_file(
       ctx.outputs.jar,
@@ -221,7 +231,7 @@ SourceJars: {srcjars}
     # _jdk added manually since _java doesn't currently setup runfiles
     # _scalac, as a java_binary, should already have it in its runfiles; however,
     # adding does ensure _java not orphaned if _scalac ever was not a java_binary
-    ins = (list(cjars) +
+    ins = (list(all_jars) +
            list(dep_srcjars) +
            list(srcjars) +
            list(sources) +
@@ -255,14 +265,14 @@ SourceJars: {srcjars}
       )
 
 
-def _compile_or_empty(ctx, jars, srcjars, buildijar):
+def _compile_or_empty(ctx, jars, srcjars, buildijar, transitive_jars, jars2labels):
     # We assume that if a srcjar is present, it is not empty
     if len(ctx.files.srcs) + len(srcjars) == 0:
         _build_nosrc_jar(ctx, buildijar)
         #  no need to build ijar when empty
         return struct(ijar=ctx.outputs.jar, class_jar=ctx.outputs.jar)
     else:
-        _compile(ctx, jars, srcjars, buildijar)
+        _compile(ctx, jars, srcjars, buildijar, transitive_jars, jars2labels)
         ijar = None
         if buildijar:
             ijar = ctx.outputs.ijar
@@ -356,18 +366,21 @@ def _collect_jars(targets):
     """Compute the runtime and compile-time dependencies from the given targets"""  # noqa
     compile_jars = depset()
     runtime_jars = depset()
+    jars2labels = {}
     for target in targets:
         if java_common.provider in target:
             java_provider = target[java_common.provider]
             compile_jars += java_provider.compile_jars
             runtime_jars += java_provider.transitive_runtime_jars
+            jars2labels.update(dict([(jar.path, target.label)
+              for jar in (java_provider.compile_jars + java_provider.transitive_runtime_jars)]))
         else:
             # support http_file pointed at a jar. http_jar uses ijar,
             # which breaks scala macros
             compile_jars += target.files
             runtime_jars += target.files
 
-    return struct(compile_jars = compile_jars, transitive_runtime_jars = runtime_jars)
+    return struct(compile_jars = compile_jars, transitive_runtime_jars = runtime_jars, jars2labels=jars2labels)
 
 # Extract very common code out from dependency analysis into single place
 # automatically adds dependency on scala-library and scala-reflect
@@ -376,10 +389,13 @@ def _collect_jars_from_common_ctx(ctx, extra_deps = [], extra_runtime_deps = [])
     # Get jars from deps
     auto_deps = [ctx.attr._scalalib, ctx.attr._scalareflect]
     deps_jars = _collect_jars(ctx.attr.deps + auto_deps + extra_deps)
-    (cjars, transitive_rjars) = (deps_jars.compile_jars, deps_jars.transitive_runtime_jars)
-    transitive_rjars += _collect_jars(
-        ctx.attr.runtime_deps + extra_runtime_deps).transitive_runtime_jars
-    return struct(compile_jars = cjars, transitive_runtime_jars = transitive_rjars)
+    (cjars, transitive_rjars, jars2labels) = (deps_jars.compile_jars, deps_jars.transitive_runtime_jars, deps_jars.jars2labels)
+
+    runtime_dep_jars =  _collect_jars(ctx.attr.runtime_deps + extra_runtime_deps)
+    transitive_rjars += runtime_dep_jars.transitive_runtime_jars
+
+    jars2labels.update(runtime_dep_jars.jars2labels)
+    return struct(compile_jars = cjars, transitive_runtime_jars = transitive_rjars, jars2labels=jars2labels)
 
 def _lib(ctx, non_macro_lib):
     # Build up information from dependency-like attributes
@@ -391,7 +407,7 @@ def _lib(ctx, non_macro_lib):
     (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
 
     write_manifest(ctx)
-    outputs = _compile_or_empty(ctx, cjars, srcjars, non_macro_lib)
+    outputs = _compile_or_empty(ctx, cjars, srcjars, non_macro_lib, transitive_rjars, jars.jars2labels)
 
     transitive_rjars += [ctx.outputs.jar]
 

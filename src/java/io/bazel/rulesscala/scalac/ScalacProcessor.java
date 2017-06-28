@@ -192,7 +192,10 @@ class ScalacProcessor implements Processor {
       "-classpath",
       ops.classpath,
       "-d",
-      tmpPath.toString()
+      tmpPath.toString(),
+            "-P:classpath-shrinker:direct-jars:" + String.join(":", ops.directJars),
+            "-P:classpath-shrinker:indirect-jars:" + String.join(":", ops.indirectJars),
+            "-P:classpath-shrinker:indirect-targets:" + String.join(":", ops.indirectTargets),
     };
 
     String[] compilerArgs = GenericWorker.merge(

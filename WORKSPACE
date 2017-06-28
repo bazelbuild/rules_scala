@@ -29,3 +29,7 @@ maven_jar(
   sha1 = "e5b3e2753d0817b622c32aedcb888bcf39e275b4")
 
 
+http_jar(
+    name = "classpath_shrinker",
+    url = "file:///Users/natans/work/classpath-shrinker/plugin/target/scala-2.11/classpath-shrinker_2.11-0.1.1.jar",
+)
