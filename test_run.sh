@@ -64,7 +64,7 @@ test_scala_library_suite() {
 }
 
 test_scala_library_expect_warning_on_missing_direct_deps() {
-  expected_message="target 'transitive_dependency' should be added to deps"
+  expected_message="target '//test_expect_logs/missing_direct_deps:direct_dependency' should be added to deps"
   command='bazel build test_expect_logs/missing_direct_deps:transitive_dependency_user'
   output=$($command 2>&1)
   echo "$output"
@@ -335,36 +335,36 @@ else
 fi
 
 $runner test_scala_library_expect_warning_on_missing_direct_deps
-#$runner bazel build test/...
-#$runner bazel test test/...
-#$runner bazel run test/src/main/scala/scala/test/twitter_scrooge:justscrooges
-#$runner bazel run test:JavaBinary
-#$runner bazel run test:JavaBinary2
-#$runner bazel run test:MixJavaScalaLibBinary
-#$runner bazel run test:MixJavaScalaSrcjarLibBinary
-#$runner bazel run test:ScalaBinary
-#$runner bazel run test:ScalaLibBinary
-#$runner test_disappearing_class
-#$runner find -L ./bazel-testlogs -iname "*.xml"
-#$runner xmllint_test
-#$runner test_build_is_identical
-#$runner test_transitive_deps
-#$runner test_scala_library_suite
-#$runner test_repl
-#$runner bazel run test:JavaOnlySources
-#$runner test_benchmark_jmh
-#$runner multiple_junit_suffixes
-#$runner multiple_junit_prefixes
-#$runner test_scala_junit_test_can_fail
-#$runner junit_generates_xml_logs
-#$runner scala_library_jar_without_srcs_must_fail_on_mismatching_resource_strip_prefix
-#$runner multiple_junit_patterns
-#$runner test_junit_test_must_have_prefix_or_suffix
-#$runner test_junit_test_errors_when_no_tests_found
-#$runner scala_library_jar_without_srcs_must_include_direct_file_resources
-#$runner scala_library_jar_without_srcs_must_include_filegroup_resources
-#$runner bazel run test/src/main/scala/scala/test/large_classpath:largeClasspath
-#$runner scala_test_test_filters
-#$runner scala_junit_test_test_filter
+$runner bazel build test/...
+$runner bazel test test/...
+$runner bazel run test/src/main/scala/scala/test/twitter_scrooge:justscrooges
+$runner bazel run test:JavaBinary
+$runner bazel run test:JavaBinary2
+$runner bazel run test:MixJavaScalaLibBinary
+$runner bazel run test:MixJavaScalaSrcjarLibBinary
+$runner bazel run test:ScalaBinary
+$runner bazel run test:ScalaLibBinary
+$runner test_disappearing_class
+$runner find -L ./bazel-testlogs -iname "*.xml"
+$runner xmllint_test
+$runner test_build_is_identical
+$runner test_transitive_deps
+$runner test_scala_library_suite
+$runner test_repl
+$runner bazel run test:JavaOnlySources
+$runner test_benchmark_jmh
+$runner multiple_junit_suffixes
+$runner multiple_junit_prefixes
+$runner test_scala_junit_test_can_fail
+$runner junit_generates_xml_logs
+$runner scala_library_jar_without_srcs_must_fail_on_mismatching_resource_strip_prefix
+$runner multiple_junit_patterns
+$runner test_junit_test_must_have_prefix_or_suffix
+$runner test_junit_test_errors_when_no_tests_found
+$runner scala_library_jar_without_srcs_must_include_direct_file_resources
+$runner scala_library_jar_without_srcs_must_include_filegroup_resources
+$runner bazel run test/src/main/scala/scala/test/large_classpath:largeClasspath
+$runner scala_test_test_filters
+$runner scala_junit_test_test_filter
 $runner scalac_jvm_flags_are_configured
 $runner javac_jvm_flags_are_configured

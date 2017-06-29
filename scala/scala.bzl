@@ -166,9 +166,9 @@ def _compile(ctx, cjars, dep_srcjars, buildijar, rjars=[], labels = {}):
 
     all_jars = cjars + rjars
     compiler_classpath = ":".join([j.path for j in all_jars])
-    direct_jars = ":".join([j.path for j in cjars])
-    indirect_jars = ":".join([j.path for j in rjars])
-    indirect_targets = ":".join([labels[j.path] for j in rjars])
+    direct_jars = ",".join([j.path for j in cjars])
+    indirect_jars = ",".join([j.path for j in rjars])
+    indirect_targets = ",".join([labels[j.path] for j in rjars])
 
     scalac_args = """
 Classpath: {cp}

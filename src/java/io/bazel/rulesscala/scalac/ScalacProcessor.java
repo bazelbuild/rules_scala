@@ -17,11 +17,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -187,7 +183,15 @@ class ScalacProcessor implements Processor {
     return false;
   }
 
+  private static String[] encodeBazelTargets(String[] targets) {
+    return Arrays.stream(targets)
+            .map(label -> label.replace(":", ";"))
+            .toArray(String[]::new);
+  }
+
   private static void compileScalaSources(CompileOptions ops, String[] scalaSources, Path tmpPath) throws IllegalAccessException {
+    String[] targets = encodeBazelTargets(ops.indirectTargets);
+
     String[] constParams = {
       "-classpath",
       ops.classpath,
@@ -195,7 +199,7 @@ class ScalacProcessor implements Processor {
       tmpPath.toString(),
             "-P:classpath-shrinker:direct-jars:" + String.join(":", ops.directJars),
             "-P:classpath-shrinker:indirect-jars:" + String.join(":", ops.indirectJars),
-            "-P:classpath-shrinker:indirect-targets:" + String.join(":", ops.indirectTargets),
+            "-P:classpath-shrinker:indirect-targets:" + String.join(":", targets),
     };
 
     String[] compilerArgs = GenericWorker.merge(
