@@ -66,8 +66,7 @@ def _scala_construct_runtime_classpath(deps):
   java_targets = [d.java for d in deps if hasattr(d, "java")]
   files = []
   for scala in scala_targets:
-    files += list(scala.transitive_runtime_deps)
-    files += list(scala.transitive_runtime_exports)
+    files += list(scala.transitive_runtime_jars)
   for java in java_targets:
     files += list(java.transitive_runtime_deps)
   return files
