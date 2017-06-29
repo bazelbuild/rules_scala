@@ -835,7 +835,8 @@ def scala_library_suite(name,
                         print_compile_time = False,
                         visibility = None
                         ):
-    if (len(srcs) > 0):
+    if (len(srcs) > 1):
+        # we only do this if there is more than 1 source
         ts = []
         for src_file in srcs:
             n = "%s_lib_%s" % (name, _sanitize_string_for_usage(src_file))
@@ -857,8 +858,9 @@ def scala_library_suite(name,
             ts.append(n)
         scala_library(name = name, deps = ts, exports = exports + ts, visibility = visibility)
     else:
+        # for 1 or 0 sources, just use a normal scala_library target
         scala_library(name = name,
-                      srcs = [],
+                      srcs = srcs,
                       deps = deps,
                       plugins = plugins,
                       runtime_deps = runtime_deps,
