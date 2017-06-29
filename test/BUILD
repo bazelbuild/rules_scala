@@ -388,3 +388,27 @@ scala_library(
     srcs = ["src/main/scala/scala/test/utf8/JavaClassWithUtf8.java",
             "src/main/scala/scala/test/utf8/ScalaClassWithUtf8.scala"]
     )
+
+# make sure making a fat jar strips signatures
+java_import(
+    name = "fakejar",
+    jars = ["fake_sig.jar"])
+
+scala_binary(
+    name = "ScalaBinary_with_fake",
+    srcs = ["ScalaBinary.scala"],
+    main_class = "scala.test.ScalaBinary",
+    deps = [":HelloLib", ":MacroTest", ":fakejar"],
+)
+
+py_binary(
+    name = "jar_lister",
+    srcs = ["jar_lister.py"]
+)
+
+sh_test(
+  name = "no_sig",
+  srcs = ["no_sigs.sh"],
+  args = ["$(location //test:jar_lister)", "$(location //test:ScalaBinary_with_fake_deploy.jar)"],
+  data = [":ScalaBinary_with_fake_deploy.jar", ":jar_lister"],
+)
