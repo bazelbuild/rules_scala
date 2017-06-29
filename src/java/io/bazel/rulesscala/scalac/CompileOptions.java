@@ -1,6 +1,5 @@
 package io.bazel.rulesscala.scalac;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,9 +19,9 @@ public class CompileOptions {
   final public String[] javaFiles;
   final public String javacPath;
   final public String javacOpts;
-  final public String[] jvmFlags;
   final public Map<String, String> resourceFiles;
   final public String resourceStripPrefix;
+  final public String[] resourceJars;
 
   public CompileOptions(List<String> args) {
     Map<String, String> argMap = buildArgMap(args);
@@ -39,7 +38,6 @@ public class CompileOptions {
     javaFiles = getCommaList(argMap, "JavaFiles");
     javacPath = getOrEmpty(argMap, "JavacPath");
     javacOpts = getOrEmpty(argMap, "JavacOpts");
-    jvmFlags = getCommaList(argMap, "JvmFlags");
 
     sourceJars = getCommaList(argMap, "SourceJars");
     iJarEnabled = booleanGetOrFalse(argMap, "EnableIjar");
@@ -53,6 +51,7 @@ public class CompileOptions {
     }
     resourceFiles = getResources(argMap);
     resourceStripPrefix = getOrEmpty(argMap, "ResourceStripPrefix");
+    resourceJars = getCommaList(argMap, "ResourceJars");
   }
 
   private static Map<String, String> getResources(Map<String, String> args) {
@@ -85,7 +84,7 @@ public class CompileOptions {
   private static String[] getCommaList(Map<String, String> m, String k) {
     if(m.containsKey(k)) {
       String v = m.get(k);
-      if (v == "") {
+      if ("".equals(v)) {
         return new String[]{};
       }
       else {

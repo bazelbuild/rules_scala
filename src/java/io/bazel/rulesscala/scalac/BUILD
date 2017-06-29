@@ -1,14 +1,18 @@
-java_binary(name = "scalac",
-  main_class = "io.bazel.rulesscala.scalac.ScalaCInvoker",
-  srcs = ["ScalaCInvoker.java", "CompileOptions.java", "ScalacProcessor.java"],
-
-  deps = [
-    "@scala//:lib/scala-library.jar",
-    "@scala//:lib/scala-reflect.jar",
-    "@scala//:lib/scala-compiler.jar",
-    "//src/java/io/bazel/rulesscala/jar",
-    "//src/java/io/bazel/rulesscala/worker",
-    "//src/java/com/google/devtools/build/lib:worker",
-  ],
-  visibility = ["//visibility:public"],
+java_binary(
+    name = "scalac",
+    srcs = [
+        "CompileOptions.java",
+        "ScalaCInvoker.java",
+        "ScalacProcessor.java",
+    ],
+    main_class = "io.bazel.rulesscala.scalac.ScalaCInvoker",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//src/java/com/google/devtools/build/lib:worker",
+        "//src/java/io/bazel/rulesscala/jar",
+        "//src/java/io/bazel/rulesscala/worker",
+        '//external:io_bazel_rules_scala/dependency/scala/scala_compiler',
+        '//external:io_bazel_rules_scala/dependency/scala/scala_library',
+        '//external:io_bazel_rules_scala/dependency/scala/scala_reflect',
+    ],
 )

@@ -9,7 +9,7 @@ load("//scala:scala.bzl",
 def twitter_scrooge():
   native.maven_server(
     name = "twitter_scrooge_maven_server",
-    url = "http://bazel-mirror.storage.googleapis.com/repo1.maven.org/maven2/",
+    url = "http://mirror.bazel.build/repo1.maven.org/maven2/",
   )
 
   native.maven_jar(
@@ -153,13 +153,13 @@ def _gen_scrooge_srcjar_impl(ctx):
     arguments=["--jvm_flag=%s" % flag for flag in ctx.attr.jvm_flags] + ["@" + argfile.path],
   )
 
-  jars = _collect_scalaattr(ctx.attr.deps)
+  deps_jars = _collect_jars(ctx.attr.deps)
 
-  scalaattr = struct(outputs = None,
-                     transitive_runtime_deps = jars.transitive_runtime_deps,
-                     transitive_compile_exports = jars.transitive_compile_exports,
-                     transitive_runtime_exports = jars.transitive_runtime_exports,
-                     )
+  scalaattr = struct(
+      outputs = None,
+      compile_jars = deps_jars.compile_jars,
+      transitive_runtime_jars = deps_jars.transitive_runtime_jars,
+  )
 
   transitive_srcjars = collect_srcjars(ctx.attr.deps) + collect_extra_srcjars(ctx.attr.deps)
 
@@ -177,22 +177,20 @@ def _gen_scrooge_srcjar_impl(ctx):
     )],
   )
 
-def _collect_scalaattr(targets):
-  transitive_runtime_deps = set()
-  transitive_compile_exports = set()
-  transitive_runtime_exports = set()
+# TODO(twigg): Use the one in scala.bzl?
+def _collect_jars(targets):
+  compile_jars = depset()
+  transitive_runtime_jars = depset()
+
   for target in targets:
-    if hasattr(target, "scala"):
-      transitive_runtime_deps += target.scala.transitive_runtime_deps
-      transitive_compile_exports += target.scala.transitive_compile_exports
-      if hasattr(target.scala.outputs, "ijar"):
-        transitive_compile_exports += [target.scala.outputs.ijar]
-      transitive_runtime_exports += target.scala.transitive_runtime_exports
+    if java_common.provider in target:
+      java_provider = target[java_common.provider]
+      compile_jars += java_provider.compile_jars
+      transitive_runtime_jars += java_provider.transitive_runtime_jars
 
   return struct(
-    transitive_runtime_deps = transitive_runtime_deps,
-    transitive_compile_exports = transitive_compile_exports,
-    transitive_runtime_exports = transitive_runtime_exports,
+    compile_jars = compile_jars,
+    transitive_runtime_jars = transitive_runtime_jars,
   )
 
 scrooge_scala_srcjar = rule(
@@ -204,7 +202,7 @@ scrooge_scala_srcjar = rule(
         #     is saying that we have a jar with a bunch
         #     of thrifts that we want to depend on. Seems like
         #     that should be a concern of thrift_library? we have
-        #     it here through becuase we need to show that it is
+        #     it here through because we need to show that it is
         #     "covered," as well as needing the thrifts to
         #     do the code gen.
         "remote_jars": attr.label_list(),
@@ -229,6 +227,8 @@ def scrooge_scala_library(name, deps=[], remote_jars=[], jvm_flags=[], visibilit
         visibility = visibility,
     )
 
+    # deps from macro invocation would come via srcjar
+    # however, retained to make dependency analysis via aspects easier
     scala_library(
         name = name,
         deps = deps + remote_jars + [

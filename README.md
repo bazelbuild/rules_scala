@@ -19,14 +19,18 @@ and `scala_test`.
 ## Getting started
 
 In order to use `scala_library`, `scala_macro_library`, and `scala_binary`,
-you must have bazel 0.3.1 or later and add the following to your WORKSPACE file:
+you must have bazel 0.5.2 or later and add the following to your WORKSPACE file:
 
 ```python
-git_repository(
-    name = "io_bazel_rules_scala",
-    remote = "https://github.com/bazelbuild/rules_scala.git",
-    commit = "73743b830ae98d13a946b25ad60cad5fee58e6d3", # update this as needed
-)
+
+rules_scala_version="031e73c02e0d8bfcd06c6e4086cdfc7f3a3061a8" # update this as needed
+
+http_archive(
+             name = "io_bazel_rules_scala",
+             url = "https://github.com/bazelbuild/rules_scala/archive/%s.zip"%rules_scala_version,
+             type = "zip",
+             strip_prefix= "rules_scala-%s" % rules_scala_version
+             )
 
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
 scala_repositories()
@@ -54,8 +58,8 @@ to your command line, or to enable by default for building/testing add it to you
 ## scala\_library / scala\_macro_library
 
 ```python
-scala_library(name, srcs, deps, runtime_deps, exports, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags)
-scala_macro_library(name, srcs, deps, runtime_deps, exports, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags)
+scala_library(name, srcs, deps, runtime_deps, exports, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags, scalac_jvm_flags, javac_jvm_flags)
+scala_macro_library(name, srcs, deps, runtime_deps, exports, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags, scalac_jvm_flags, javac_jvm_flags)
 ```
 
 `scala_library` generates a `.jar` file from `.scala` source files. This rule
@@ -171,10 +175,32 @@ In order to make a java rule use this jar file, use the `java_import` rule.
     <tr>
       <td><code>jvm_flags</code></td>
       <td>
+        <p><code>List of strings; optional; deprecated</code></p>
+        <p>
+          Deprecated, superseded by scalac_jvm_flags and javac_jvm_flags. Is not used and is kept as backwards compatibility for the near future. Effectively jvm_flags is now an executable target attribute only.
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td><code>scalac_jvm_flags</code></td>
+      <td>
         <p><code>List of strings; optional</code></p>
         <p>
           List of JVM flags to be passed to scalac after the
           <code>scalacopts</code>. Subject to
+          <a href="http://bazel.io/docs/be/make-variables.html">Make variable
+          substitution</a> and
+          <a href="http://bazel.io/docs/be/common-definitions.html#borne-shell-tokenization">Bourne shell tokenization.</a>
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td><code>javac_jvm_flags</code></td>
+      <td>
+        <p><code>List of strings; optional</code></p>
+        <p>
+          List of JVM flags to be passed to javac after the
+          <code>javacopts</code>. Subject to
           <a href="http://bazel.io/docs/be/make-variables.html">Make variable
           substitution</a> and
           <a href="http://bazel.io/docs/be/common-definitions.html#borne-shell-tokenization">Bourne shell tokenization.</a>
@@ -188,7 +214,7 @@ In order to make a java rule use this jar file, use the `java_import` rule.
 ## scala_binary
 
 ```python
-scala_binary(name, srcs, deps, runtime_deps, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags)
+scala_binary(name, srcs, deps, runtime_deps, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags, scalac_jvm_flags, javac_jvm_flags)
 ```
 
 `scala_binary` generates a Scala executable. It may depend on `scala_library`, `scala_macro_library`
@@ -291,8 +317,33 @@ A `scala_binary` requires a `main_class` attribute.
       <td>
         <p><code>List of strings; optional</code></p>
         <p>
+          List of JVM flags to be passed to the executing JVM. Subject to
+          <a href="http://bazel.io/docs/be/make-variables.html">Make variable
+          substitution</a> and
+          <a href="http://bazel.io/docs/be/common-definitions.html#borne-shell-tokenization">Bourne shell tokenization.</a>
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td><code>scalac_jvm_flags</code></td>
+      <td>
+        <p><code>List of strings; optional</code></p>
+        <p>
           List of JVM flags to be passed to scalac after the
           <code>scalacopts</code>. Subject to
+          <a href="http://bazel.io/docs/be/make-variables.html">Make variable
+          substitution</a> and
+          <a href="http://bazel.io/docs/be/common-definitions.html#borne-shell-tokenization">Bourne shell tokenization.</a>
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td><code>javac_jvm_flags</code></td>
+      <td>
+        <p><code>List of strings; optional</code></p>
+        <p>
+          List of JVM flags to be passed to javac after the
+          <code>javacopts</code>. Subject to
           <a href="http://bazel.io/docs/be/make-variables.html">Make variable
           substitution</a> and
           <a href="http://bazel.io/docs/be/common-definitions.html#borne-shell-tokenization">Bourne shell tokenization.</a>
@@ -306,7 +357,7 @@ A `scala_binary` requires a `main_class` attribute.
 ## scala_test
 
 ```python
-scala_test(name, srcs, suites, deps, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags)
+scala_test(name, srcs, suites, deps, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags, scalac_jvm_flags, javac_jvm_flags)
 ```
 
 `scala_test` generates a Scala executable which runs unit test suites written
@@ -322,7 +373,7 @@ populated and tests are not run.
 <a name="scala_repl"></a>
 ## scala_repl
 ```python
-scala_repl(name, deps, scalacopts, jvm_flags)
+scala_repl(name, deps, scalacopts, jvm_flags, scalac_jvm_flags, javac_jvm_flags)
 ```
 A scala repl allows you to add library dependendencies (not currently `scala_binary` targets)
 to generate a script to run which starts a REPL.
@@ -350,6 +401,71 @@ scala tests for. The outer target defines a native test suite to run all the inn
 of a series of independent tests from one target into several. This lets us cache outputs better
 and also build and test the indvidual targets in parallel.
 
+<a name="thrift_library"></a>
+## thrift_library
+
+```python
+load("@io_bazel_rules_scala//thrift:thrift.bzl", "thrift_library")
+thrift_library(name, srcs, deps, absolute_prefix, absolute_prefixes)
+```
+
+`thrift_library` generates a thrift source zip file. It should be consumed by a thrift compiler like `scrooge_scala_library`.
+
+<table class="table table-condensed table-bordered table-params">
+  <colgroup>
+    <col class="col-param" />
+    <col class="param-description" />
+  </colgroup>
+  <thead>
+    <tr>
+      <th colspan="2">Attributes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>name</code></td>
+      <td>
+        <p><code>Name, required</code></p>
+        <p>A unique name for this target</p>
+      </td>
+    </tr>
+      <td><code>srcs</code></td>
+      <td>
+        <p><code>List of labels, required</code></p>
+        <p>List of Thrift <code>.thrift</code> source files used to build the target</p>
+      </td>
+    </tr>
+    <tr>
+      <td><code>deps</code></td>
+      <td>
+        <p><code>List of labels, optional</code></p>
+        <p>List of other thrift dependencies that this thrift depends on.</p>
+      </td>
+    </tr>
+    <tr>
+      <td><code>absolute_prefix</code></td>
+      <td>
+        <p><code>string; optional (deprecated in favor of absolute_prefixes)</code></p>
+        <p>This string acts as a wildcard expression of the form *`string_value` that is removed from the start of the path.
+        Example: thrift is at `a/b/c/d/e/A.thrift` , prefix of `b/c/d`. Will mean other thrift targets can refer to this thrift
+        at `e/A.thrift`.
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td><code>absolute_prefixes</code></td>
+      <td>
+        <p><code>List of strings; optional</code></p>
+        <p>Each of these strings acts as a wildcard expression of the form <code>*string_value</code> that is removed from the start of the path.
+        Example: thrift is at <code>a/b/c/d/e/A.thrift</code> , prefix of <code>b/c/d</code>. Will mean other thrift targets can refer to this thrift
+        at <code>e/A.thrift</code>. Exactly one of these must match all thrift paths within the target, more than one or zero will fail the build.
+        The main use case to have several here is to make a macro target you can share across several indvidual <code>thrift_library</code>, if source path is
+        <code>/src/thrift</code> or <code>/src/main/thrift</code> it can strip off the prefix without users needing to configure it per target.
+        </p>
+      </td>
+    </tr>
+  </tbody>
+</table>
 ## Building from source
 Test & Build:
 ```
@@ -360,5 +476,5 @@ This doesn't currently pass on OS X (see #136 for details) and so you can also u
 ```
 bazel test //test/...
 ```
-Note `bazel test //...` will not work since we have a sub-folder on the root folder which is meant to be used in a failure scenario in the integration tests.    
+Note `bazel test //...` will not work since we have a sub-folder on the root folder which is meant to be used in a failure scenario in the integration tests.
 Similarly to only build you should use `bazel build //src/...` due to that folder.
