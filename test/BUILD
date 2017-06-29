@@ -107,6 +107,13 @@ scala_library(
     deps = ["ExportOnly"],
 )
 
+scala_library(
+    name = "OtherLibButWithJvmFlags",
+    srcs = ["OtherLib.scala"],
+    deps = ["ExportOnly"],
+    jvm_flags = ["-Xms1G", "-Xmx4G"],
+)
+
 # Test of library without src
 scala_library(
     name = "ExportOnly",
@@ -208,6 +215,13 @@ scala_library(
 #Mix java scala
 scala_library(
     name = "MixJavaScalaLib",
+    srcs = glob(["src/main/scala/scala/test/mix_java_scala/*.scala"]) +
+           glob(["src/main/scala/scala/test/mix_java_scala/*.java"]),
+    jvm_flags = ["-Xms1G", "-Xmx4G"],
+)
+#Mix java scala
+scala_library(
+    name = "MixJavaScalaLibWithJvmFlags",
     srcs = glob(["src/main/scala/scala/test/mix_java_scala/*.scala"]) +
            glob(["src/main/scala/scala/test/mix_java_scala/*.java"]),
     jvm_flags = ["-Xms1G", "-Xmx4G"],
