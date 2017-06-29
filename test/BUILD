@@ -80,8 +80,7 @@ scala_test(
 scala_library(
     name = "lib_to_test",
     srcs = ["LibToTest.scala"],
-    deps = [":HelloLibTest"],
-    exports = [":HelloLibTest"])
+    deps = [":HelloLibTest"])
 
 scala_test_suite(
     name = "HelloLibTestSuite",
@@ -187,8 +186,7 @@ scala_binary(
 scala_library(
     name = "lib_to_bin",
     srcs = ["LibToBin.scala"],
-    deps = [":ScalaLibBinary"],
-    exports = [":ScalaLibBinary"])
+    deps = [":ScalaLibBinary"])
 
 scala_repl(
     name = "ScalaLibBinaryRepl",
