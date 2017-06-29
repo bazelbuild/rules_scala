@@ -173,6 +173,16 @@ public class JarCreator extends JarHelper {
     }
   }
 
+  @Override
+  protected boolean ignoreFileName(String name) {
+    /*
+     * It does not make sense to copy signature files
+     * into a fat jar because the jar signature will
+     * be broken
+     */
+    return (name.endsWith(".DSA") || name.endsWith(".RSA"));
+  }
+
   public static void buildJar(String[] args) throws IOException {
     if (args.length < 1) {
       System.err.println("usage: CreateJar [-m manifest] output [root directories]");
