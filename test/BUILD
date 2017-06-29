@@ -76,6 +76,13 @@ scala_test(
     ],
 )
 
+# test that a library can depend on a test:
+scala_library(
+    name = "lib_to_test",
+    srcs = ["LibToTest.scala"],
+    deps = [":HelloLibTest"],
+    exports = [":HelloLibTest"])
+
 scala_test_suite(
     name = "HelloLibTestSuite",
     size = "small",  # Not a macro, can pass test-specific attributes.
@@ -175,6 +182,13 @@ scala_binary(
     main_class = "scala.test.ResourcesStripScalaBinary",
     deps = ["ResourcesStripScalaLib"],
 )
+
+# test that a library can depend on a binary:
+scala_library(
+    name = "lib_to_bin",
+    srcs = ["LibToBin.scala"],
+    deps = [":ScalaLibBinary"],
+    exports = [":ScalaLibBinary"])
 
 scala_repl(
     name = "ScalaLibBinaryRepl",

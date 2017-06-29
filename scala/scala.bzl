@@ -487,8 +487,15 @@ def _scala_binary_common(ctx, cjars, rjars):
       compile_jars = depset([outputs.class_jar]),
       transitive_runtime_jars = rjars,
   )
+
+  java_provider = java_common.create_provider(
+      compile_time_jars = scalaattr.compile_jars,
+      runtime_jars = scalaattr.transitive_runtime_jars,
+  )
+
   return struct(
       files=set([ctx.outputs.executable]),
+      providers = [java_provider],
       scala = scalaattr,
       runfiles=runfiles)
 
