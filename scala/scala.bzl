@@ -835,14 +835,30 @@ def scala_library_suite(name,
                         print_compile_time = False,
                         visibility = None
                         ):
-    if (len(srcs) == 0):
-      fail('a library suite requires at least one item in srcs')
-
-    ts = []
-    for src_file in srcs:
-        n = "%s_lib_%s" % (name, _sanitize_string_for_usage(src_file))
-        scala_library(name = n,
-                      srcs = [src_file],
+    if (len(srcs) > 0):
+        ts = []
+        for src_file in srcs:
+            n = "%s_lib_%s" % (name, _sanitize_string_for_usage(src_file))
+            scala_library(name = n,
+                          srcs = [src_file],
+                          deps = deps,
+                          plugins = plugins,
+                          runtime_deps = runtime_deps,
+                          data = data,
+                          resources=resources,
+                          resource_strip_prefix = resource_strip_prefix,
+                          scalacopts = scalacopts,
+                          javacopts = javacopts,
+                          jvm_flags = jvm_flags,
+                          print_compile_time = print_compile_time,
+                          visibility=visibility,
+                          exports=exports
+                          )
+            ts.append(n)
+        scala_library(name = name, deps = ts, exports = exports + ts, visibility = visibility)
+    else:
+        scala_library(name = name,
+                      srcs = [],
                       deps = deps,
                       plugins = plugins,
                       runtime_deps = runtime_deps,
@@ -856,8 +872,7 @@ def scala_library_suite(name,
                       visibility=visibility,
                       exports=exports
                       )
-        ts.append(n)
-    scala_library(name = name, deps = ts, exports = exports + ts, visibility = visibility)
+
 
 scala_junit_test = rule(
   implementation=_scala_junit_test_impl,

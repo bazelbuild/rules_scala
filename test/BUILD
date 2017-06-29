@@ -119,6 +119,12 @@ scala_library_suite(
     srcs = glob(["Data*.scala"]),
 )
 
+# test of a suite that pathologically has no srcs
+scala_library_suite(
+    name = "EmptySuite",
+    srcs = [],
+    exports = [":Exported"])
+
 scala_library(
     name = "ConsumeSuite",
     srcs = ["SuiteUsage.scala"],
