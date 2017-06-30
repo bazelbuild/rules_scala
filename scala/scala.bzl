@@ -620,6 +620,28 @@ _implicit_deps = {
   "_jdk": attr.label(default=Label("//tools/defaults:jdk"), allow_files=True),
 }
 
+# Single dep to allow IDEs to pickup all the implicit dependencies.
+_resolve_deps = {
+  "_scala_toolchain" : attr.label_list(default=[
+    Label("//external:io_bazel_rules_scala/dependency/scala/scala_library"),
+  ], allow_files=False),
+}
+
+_test_resolve_deps = {
+  "_scala_toolchain" : attr.label_list(default=[
+    Label("//external:io_bazel_rules_scala/dependency/scala/scala_library"),
+    Label("//external:io_bazel_rules_scala/dependency/scalatest/scalatest"),
+  ], allow_files=False),
+}
+
+_junit_resolve_deps = {
+  "_scala_toolchain" : attr.label_list(default=[
+    Label("//external:io_bazel_rules_scala/dependency/scala/scala_library"),
+    Label("//external:io_bazel_rules_scala/dependency/junit/junit"),
+    Label("//external:io_bazel_rules_scala/dependency/hamcrest/hamcrest_core"),
+  ], allow_files=False),
+}
+
 # Common attributes reused across multiple rules.
 _common_attrs = {
   "srcs": attr.label_list(
@@ -644,7 +666,7 @@ scala_library = rule(
   attrs={
       "main_class": attr.string(),
       "exports": attr.label_list(allow_files=False),
-      } + _implicit_deps + _common_attrs,
+      } + _implicit_deps + _common_attrs + _resolve_deps,
   outputs={
       "jar": "%{name}.jar",
       "deploy_jar": "%{name}_deploy.jar",
@@ -658,7 +680,7 @@ scala_macro_library = rule(
   attrs={
       "main_class": attr.string(),
       "exports": attr.label_list(allow_files=False),
-      } + _implicit_deps + _common_attrs,
+      } + _implicit_deps + _common_attrs + _resolve_deps,
   outputs={
       "jar": "%{name}.jar",
       "deploy_jar": "%{name}_deploy.jar",
@@ -670,7 +692,7 @@ scala_binary = rule(
   implementation=_scala_binary_impl,
   attrs={
       "main_class": attr.string(mandatory=True),
-      } + _launcher_template + _implicit_deps + _common_attrs,
+      } + _launcher_template + _implicit_deps + _common_attrs + _resolve_deps,
   outputs={
       "jar": "%{name}.jar",
       "deploy_jar": "%{name}_deploy.jar",
@@ -687,7 +709,7 @@ scala_test = rule(
       "_scalatest": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scalatest/scalatest"), allow_files=True),
       "_scalatest_runner": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/scala_test:runner.jar"), allow_files=True),
       "_scalatest_reporter": attr.label(default=Label("//scala/support:test_reporter")),
-      } + _launcher_template + _implicit_deps + _common_attrs,
+      } + _launcher_template + _implicit_deps + _common_attrs + _test_resolve_deps,
   outputs={
       "jar": "%{name}.jar",
       "deploy_jar": "%{name}_deploy.jar",
@@ -699,7 +721,7 @@ scala_test = rule(
 
 scala_repl = rule(
   implementation=_scala_repl_impl,
-  attrs= _launcher_template + _implicit_deps + _common_attrs,
+  attrs= _launcher_template + _implicit_deps + _common_attrs + _resolve_deps,
   outputs={
       "jar": "%{name}.jar",
       "deploy_jar": "%{name}_deploy.jar",
@@ -865,7 +887,7 @@ def scala_library_suite(name,
 
 scala_junit_test = rule(
   implementation=_scala_junit_test_impl,
-  attrs= _launcher_template + _implicit_deps + _common_attrs + {
+  attrs= _launcher_template + _implicit_deps + _common_attrs + _junit_resolve_deps + {
       "prefixes": attr.string_list(default=[]),
       "suffixes": attr.string_list(default=[]),
       "print_discovered_classes": attr.bool(default=False, mandatory=False),
