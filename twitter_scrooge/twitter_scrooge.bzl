@@ -102,6 +102,10 @@ def _gen_scrooge_srcjar_impl(ctx):
   for target in ctx.attr.remote_jars:
     remote_jars += _jar_filetype.filter(target.files)
 
+  remote_self_jars = set()
+  for target in ctx.attr.remote_self_jars:
+    remote_self_jars += _jar_filetype.filter(target.files)
+
   # These are the thrift sources whose generated code we will "own" as a target
   immediate_thrift_srcs = _collect_immediate_srcs(ctx.attr.deps)
 
@@ -126,7 +130,7 @@ def _gen_scrooge_srcjar_impl(ctx):
   # in order to generate code) have targets which will compile them.
   _assert_set_is_subset(only_transitive_thrift_srcs, transitive_owned_srcs)
 
-  path_content = "\n".join([_colon_paths(ps) for ps in [immediate_thrift_srcs, only_transitive_thrift_srcs, remote_jars]])
+  path_content = "\n".join([_colon_paths(ps) for ps in [immediate_thrift_srcs, only_transitive_thrift_srcs, remote_jars, remote_self_jars]])
   worker_content = "{output}\n{paths}\n".format(output = ctx.outputs.srcjar.path, paths = path_content)
 
   argfile = ctx.new_file(ctx.outputs.srcjar, "%s_worker_input" % ctx.label.name)
@@ -135,6 +139,7 @@ def _gen_scrooge_srcjar_impl(ctx):
     executable = ctx.executable._pluck_scrooge_scala,
     inputs = list(remote_jars) +
         list(only_transitive_thrift_srcs) +
+        list(remote_self_jars) +
         list(immediate_thrift_srcs) +
         [argfile],
     outputs = [ctx.outputs.srcjar],
@@ -206,6 +211,7 @@ scrooge_scala_srcjar = rule(
         #     "covered," as well as needing the thrifts to
         #     do the code gen.
         "remote_jars": attr.label_list(),
+        "remote_self_jars": attr.label_list(),
         "jvm_flags": attr.string_list(),  # the jvm flags to use with the generator
         "_pluck_scrooge_scala": attr.label(
           executable=True,
@@ -218,12 +224,13 @@ scrooge_scala_srcjar = rule(
     },
 )
 
-def scrooge_scala_library(name, deps=[], remote_jars=[], jvm_flags=[], visibility=None):
+def scrooge_scala_library(name, deps=[], remote_jars=[], remote_self_jars=[], jvm_flags=[], visibility=None):
     srcjar = name + '_srcjar'
     scrooge_scala_srcjar(
         name = srcjar,
         deps = deps,
         remote_jars = remote_jars,
+        remote_self_jars = remote_self_jars,
         visibility = visibility,
     )
 

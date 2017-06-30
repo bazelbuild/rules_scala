@@ -113,7 +113,7 @@ class Compiler {
     } yield inputFullPath
 
     val rootImporter = FocusedZipImporter.forPaths(None, allJars)
-    allPaths.foreach { inputFullPath =>
+    allPaths.filter(_.endsWith(".thrift")).foreach { inputFullPath =>
       try {
         val inputFile = Paths.get(inputFullPath).getFileName.toString
         val focus = Option((new File(inputFullPath)).getParentFile)
