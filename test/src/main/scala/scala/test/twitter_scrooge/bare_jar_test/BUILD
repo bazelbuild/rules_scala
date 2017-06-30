@@ -2,15 +2,20 @@ load("//scala:scala.bzl", "scala_binary")
 load("//thrift:thrift.bzl", "thrift_library")
 load("//twitter_scrooge:twitter_scrooge.bzl", "scrooge_scala_library")
 
-java_import(
+filegroup(
     name = "barejar",
-    jars = ["bare-thrift.jar"]
+    srcs= ["bare-thrift.jar"]
+)
+
+thrift_library(
+    name = "barethriftlib",
+    external_jars = [":barejar"]
 )
 
 scrooge_scala_library(
     name = "bare_thrifts",
     visibility = ["//visibility:public"],
-    remote_self_jars = [":barejar"]
+    deps = [":barethriftlib"]
 )
 
 scala_binary(

@@ -69,6 +69,16 @@ def _collect_owned_srcs(targets):
           r += target.scrooge_srcjar.transitive_owned_srcs
   return r
 
+def _collect_external_jars(targets):
+  r = set()
+  for target in targets:
+    if hasattr(target, "thrift"):
+      thrift = target.thrift
+      if hasattr(thrift, "external_jars"):
+        for jar in thrift.external_jars:
+          r += _jar_filetype.filter(jar.files)
+  return r
+
 def collect_extra_srcjars(targets):
   srcjars = set()
   for target in targets:
@@ -102,9 +112,9 @@ def _gen_scrooge_srcjar_impl(ctx):
   for target in ctx.attr.remote_jars:
     remote_jars += _jar_filetype.filter(target.files)
 
-  remote_self_jars = set()
-  for target in ctx.attr.remote_self_jars:
-    remote_self_jars += _jar_filetype.filter(target.files)
+  # These are JARs that are declared externally and only have Thrift files 
+  # in them.
+  external_jars = _collect_external_jars(ctx.attr.deps)
 
   # These are the thrift sources whose generated code we will "own" as a target
   immediate_thrift_srcs = _collect_immediate_srcs(ctx.attr.deps)
@@ -130,7 +140,7 @@ def _gen_scrooge_srcjar_impl(ctx):
   # in order to generate code) have targets which will compile them.
   _assert_set_is_subset(only_transitive_thrift_srcs, transitive_owned_srcs)
 
-  path_content = "\n".join([_colon_paths(ps) for ps in [immediate_thrift_srcs, only_transitive_thrift_srcs, remote_jars, remote_self_jars]])
+  path_content = "\n".join([_colon_paths(ps) for ps in [immediate_thrift_srcs, only_transitive_thrift_srcs, remote_jars, external_jars]])
   worker_content = "{output}\n{paths}\n".format(output = ctx.outputs.srcjar.path, paths = path_content)
 
   argfile = ctx.new_file(ctx.outputs.srcjar, "%s_worker_input" % ctx.label.name)
@@ -139,7 +149,7 @@ def _gen_scrooge_srcjar_impl(ctx):
     executable = ctx.executable._pluck_scrooge_scala,
     inputs = list(remote_jars) +
         list(only_transitive_thrift_srcs) +
-        list(remote_self_jars) +
+        list(external_jars) +
         list(immediate_thrift_srcs) +
         [argfile],
     outputs = [ctx.outputs.srcjar],
@@ -211,8 +221,6 @@ scrooge_scala_srcjar = rule(
         #     "covered," as well as needing the thrifts to
         #     do the code gen.
         "remote_jars": attr.label_list(),
-        # self_jars are JARs containing only Thrift files
-        "remote_self_jars": attr.label_list(),
         "jvm_flags": attr.string_list(),  # the jvm flags to use with the generator
         "_pluck_scrooge_scala": attr.label(
           executable=True,
@@ -225,13 +233,12 @@ scrooge_scala_srcjar = rule(
     },
 )
 
-def scrooge_scala_library(name, deps=[], remote_jars=[], remote_self_jars=[], jvm_flags=[], visibility=None):
+def scrooge_scala_library(name, deps=[], remote_jars=[], jvm_flags=[], visibility=None):
     srcjar = name + '_srcjar'
     scrooge_scala_srcjar(
         name = srcjar,
         deps = deps,
         remote_jars = remote_jars,
-        remote_self_jars = remote_self_jars,
         visibility = visibility,
     )
 
