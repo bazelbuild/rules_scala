@@ -211,6 +211,7 @@ scrooge_scala_srcjar = rule(
         #     "covered," as well as needing the thrifts to
         #     do the code gen.
         "remote_jars": attr.label_list(),
+        # self_jars are JARs containing only Thrift files
         "remote_self_jars": attr.label_list(),
         "jvm_flags": attr.string_list(),  # the jvm flags to use with the generator
         "_pluck_scrooge_scala": attr.label(
