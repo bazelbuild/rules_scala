@@ -23,7 +23,7 @@ def scala_tut_doc(**kw):
     name = tool,
     main_class = "io.bazel.rules_scala.tut_support.TutCompiler",
     deps = deps + [
-      "//src/scala/io/bazel/rules_scala/tut_support:tut_compiler_lib"
+      "@io_bazel_rules_scala//src/scala/io/bazel/rules_scala/tut_support:tut_compiler_lib"
     ],
   )
   native.genrule(
