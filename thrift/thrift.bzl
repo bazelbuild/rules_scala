@@ -74,22 +74,30 @@ rm -rf {out}_tmp"""
 
   transitive_srcs = _collect_thrift_srcs(ctx.attr.deps)
   transitive_srcs += [ctx.outputs.libarchive]
+  transitive_external_jars = _collect_thrift_external_jars(ctx.attr.deps)
+  for jar in ctx.attr.external_jars:
+    transitive_external_jars += jar.files
+
   return struct(
     thrift = struct(
       srcs = ctx.outputs.libarchive,
       transitive_srcs = transitive_srcs,
       external_jars = ctx.attr.external_jars,
+      transitive_external_jars = transitive_external_jars,
     ),
   )
 
 def _collect_thrift_attr(targets, attr):
-  s = set()
+  s = depset()
   for target in targets:
     s += getattr(target.thrift, attr)
   return s
 
 def _collect_thrift_srcs(targets):
   return _collect_thrift_attr(targets, "transitive_srcs")
+
+def _collect_thrift_external_jars(targets):
+  return _collect_thrift_attr(targets, "transitive_external_jars")
 
 def _valid_thrift_deps(targets):
   for target in targets:

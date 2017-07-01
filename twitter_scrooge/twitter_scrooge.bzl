@@ -54,14 +54,14 @@ def twitter_scrooge():
   native.bind(name = 'io_bazel_rules_scala/dependency/thrift/util_logging', actual = '@util_logging//jar')
 
 def _collect_transitive_srcs(targets):
-  r = set()
+  r = depset()
   for target in targets:
     if hasattr(target, "thrift"):
       r += target.thrift.transitive_srcs
   return r
 
 def _collect_owned_srcs(targets):
-  r = set()
+  r = depset()
   for _target in targets:
     if hasattr(_target, "extra_information"):
       for target in _target.extra_information:
@@ -70,17 +70,18 @@ def _collect_owned_srcs(targets):
   return r
 
 def _collect_external_jars(targets):
-  r = set()
+  r = depset()
   for target in targets:
     if hasattr(target, "thrift"):
       thrift = target.thrift
       if hasattr(thrift, "external_jars"):
         for jar in thrift.external_jars:
           r += _jar_filetype.filter(jar.files)
+      r += _jar_filetype.filter(thrift.transitive_external_jars)
   return r
 
 def collect_extra_srcjars(targets):
-  srcjars = set()
+  srcjars = depset()
   for target in targets:
     if hasattr(target, "extra_information"):
       for _target in target.extra_information:
@@ -89,17 +90,17 @@ def collect_extra_srcjars(targets):
   return srcjars
 
 def _collect_immediate_srcs(targets):
-  r = set()
+  r = depset()
   for target in targets:
     if hasattr(target, "thrift"):
       r += [target.thrift.srcs]
   return r
 
-def _assert_set_is_subset(left, right):
-  missing = set()
-  for l in left:
-    if l not in right:
-      missing += [l]
+def _assert_set_is_subset(want, have):
+  missing = depset()
+  for e in want:
+    if e not in have:
+      missing += [e]
   if len(missing) > 0:
     fail('scrooge_srcjar target must depend on scrooge_srcjar targets sufficient to ' +
          'cover the transitive graph of thrift files. Uncovered sources: ' + str(missing))
@@ -108,7 +109,7 @@ def _colon_paths(data):
   return ':'.join([f.path for f in data])
 
 def _gen_scrooge_srcjar_impl(ctx):
-  remote_jars = set()
+  remote_jars = depset()
   for target in ctx.attr.remote_jars:
     remote_jars += _jar_filetype.filter(target.files)
 
@@ -128,10 +129,9 @@ def _gen_scrooge_srcjar_impl(ctx):
   # These are the thrift sources in the dependency graph. They are necessary
   # to generate the code, but are not "owned" by this target and will not
   # be in the resultant source jar
-
   transitive_thrift_srcs = transitive_owned_srcs + _collect_transitive_srcs(ctx.attr.deps)
 
-  only_transitive_thrift_srcs = set()
+  only_transitive_thrift_srcs = depset()
   for src in transitive_thrift_srcs:
     if src not in immediate_thrift_srcs:
       only_transitive_thrift_srcs += [src]

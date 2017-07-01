@@ -324,7 +324,6 @@ fi
 $runner bazel build test/...
 $runner bazel test test/...
 $runner bazel run test/src/main/scala/scala/test/twitter_scrooge:justscrooges
-$runner bazel run test/src/main/scala/scala/test/twitter_scrooge/bare_jar_test:barethrifts
 $runner bazel run test:JavaBinary
 $runner bazel run test:JavaBinary2
 $runner bazel run test:MixJavaScalaLibBinary
