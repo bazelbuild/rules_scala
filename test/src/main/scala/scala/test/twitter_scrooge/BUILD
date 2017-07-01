@@ -64,11 +64,29 @@ scrooge_scala_library(
 )
 
 scrooge_scala_library(
-    name = "bare_thrift_scrooge",
-    deps = [
-        "//test/src/main/scala/scala/test/twitter_scrooge/thrift/bare_jar_thrifts",
-    ],
-    visibility = ["//visibility:public"],
+  name = "scroogebarejar1",
+  deps = [
+    "//test/src/main/scala/scala/test/twitter_scrooge/thrift/bare_jar_thrifts/bare_jar_1",
+  ],
+  visibility = ["//visibility:public"],
+)
+
+scrooge_scala_library(
+  name = "scroogebarejar2",
+  deps = [
+    "//test/src/main/scala/scala/test/twitter_scrooge/thrift/bare_jar_thrifts/bare_jar_2",
+  ],
+  visibility = ["//visibility:public"],
+)
+
+scrooge_scala_library(
+  name = "bare_thrift_scrooge",
+  deps = [
+    "//test/src/main/scala/scala/test/twitter_scrooge/thrift/bare_jar_thrifts",
+    ":scroogebarejar1",
+    ":scroogebarejar2",
+  ],
+  visibility = ["//visibility:public"],
 )
 
 scala_library(
@@ -156,7 +174,7 @@ scala_library(
 )
 
 scala_binary(
-    name = "barethrifts",
-    deps = [":bare_thrift_scrooge"],
-    main_class = "scala.test.twitter_scrooge.BareThrifts",
+  name = "barethrifts",
+  deps = [":bare_thrift_scrooge"],
+  main_class = "scala.test.twitter_scrooge.BareThrifts",
 )
