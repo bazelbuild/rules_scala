@@ -1,0 +1,1 @@
+-Xplugin:/Users/natans/Work/rules_scala/plugin/src/bazel-bin/main/dependency_analyzer.jar -Jdummy=1499012573000

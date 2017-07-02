@@ -1,0 +1,4 @@
+<plugin>
+  <name>dependency-analyzer</name>
+  <classname>plugin.src.main.scala.io.github.retronym.dependencyanalyzer.DependencyAnalyzer</classname>
+</plugin>

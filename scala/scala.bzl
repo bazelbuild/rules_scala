@@ -162,6 +162,11 @@ def _compile(ctx, cjars, dep_srcjars, buildijar, rjars=[], labels = {}):
     all_srcjars = set(srcjars + list(dep_srcjars))
     # look for any plugins:
     plugins = _collect_plugin_paths(ctx.attr.plugins)
+
+    if ctx.attr.enable_dependency_analyzer:
+      dep_plugin = ctx.attr.dependency_analyzer_plugin
+      plugins += [f.path for f in dep_plugin.files]
+
     plugin_arg = ",".join(list(plugins))
 
     all_jars = cjars + rjars
@@ -192,6 +197,7 @@ SourceJars: {srcjars}
 DirectJars: {direct_jars}
 IndirectJars: {indirect_jars}
 IndirectTargets: {indirect_targets}
+EnableDependencyAnalyzer: {enable_dependency_analyzer}
 """.format(
         out=ctx.outputs.jar.path,
         manifest=ctx.outputs.manifest.path,
@@ -217,7 +223,8 @@ IndirectTargets: {indirect_targets}
         resource_jars=",".join([f.path for f in ctx.files.resource_jars]),
         direct_jars=direct_jars,
         indirect_jars=indirect_jars,
-        indirect_targets=indirect_targets
+        indirect_targets=indirect_targets,
+        enable_dependency_analyzer = ctx.attr.enable_dependency_analyzer,
         )
     argfile = ctx.new_file(
       ctx.outputs.jar,
@@ -237,6 +244,7 @@ IndirectTargets: {indirect_targets}
            list(sources) +
            ctx.files.srcs +
            ctx.files.plugins +
+           ctx.files.dependency_analyzer_plugin +
            ctx.files.resources +
            ctx.files.resource_jars +
            ctx.files._jdk +
@@ -265,7 +273,7 @@ IndirectTargets: {indirect_targets}
       )
 
 
-def _compile_or_empty(ctx, jars, srcjars, buildijar, transitive_jars, jars2labels):
+def _compile_or_empty(ctx, jars, srcjars, buildijar, transitive_jars = [], jars2labels = []):
     # We assume that if a srcjar is present, it is not empty
     if len(ctx.files.srcs) + len(srcjars) == 0:
         _build_nosrc_jar(ctx, buildijar)
@@ -682,6 +690,8 @@ scala_library = rule(
   attrs={
       "main_class": attr.string(),
       "exports": attr.label_list(allow_files=False),
+      "enable_dependency_analyzer": attr.bool(default=True, mandatory=False),
+      "dependency_analyzer_plugin": attr.label(default=Label("@classpath_shrinker//jar"), allow_files=_jar_filetype, mandatory=False),
       } + _implicit_deps + _common_attrs + _resolve_deps,
   outputs={
       "jar": "%{name}.jar",

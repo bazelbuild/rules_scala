@@ -1,0 +1,38 @@
+rules_scala_version="3070353d06bb726141e6cea241e5d6e355a4d14f" # update this as needed
+
+http_archive(
+             name = "io_bazel_rules_scala",
+             url = "https://github.com/wix/rules_scala/archive/%s.zip"%rules_scala_version,
+             type = "zip",
+             strip_prefix= "rules_scala-%s" % rules_scala_version
+)
+
+load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
+scala_repositories()
+load("@io_bazel_rules_scala//specs2:specs2_junit.bzl","specs2_junit_repositories")
+specs2_junit_repositories()
+
+maven_jar(
+      name = "io_get_coursier_coursier_cache",
+      artifact = "io.get-coursier:coursier-cache_2.11:jar:1.0.0-M15",
+)
+
+maven_jar(
+      name = "io_get_coursier_coursier",
+      artifact = "io.get-coursier:coursier_2.11:jar:1.0.0-M15",
+)
+
+maven_jar(
+    name = "org_scalaz_scalaz_concurrent_2_11",
+    artifact = "org.scalaz:scalaz-concurrent_2.11:jar:7.2.7"
+)
+
+maven_jar(
+    name = "org_scalaz_scalaz_core_2_11",
+    artifact = "org.scalaz:scalaz-core_2.11:jar:7.2.7"
+)
+
+maven_jar(
+    name = "org_scalaz_scala_effect_2_11",
+    artifact = "org.scalaz:scalaz-effect_2.11:jar:7.2.7"
+)

@@ -7,7 +7,7 @@ scala_library(
         "A.scala",
         ],
     deps = ["direct_dependency"],
-    plugins = ["@classpath_shrinker//jar"],
+#    plugins = ["@classpath_shrinker//jar"],
 )
 
 scala_library(
@@ -16,7 +16,7 @@ scala_library(
         "B.scala",
         ],
     deps = ["transitive_dependency"],
-        plugins = ["@classpath_shrinker//jar"],
+#        plugins = ["@classpath_shrinker//jar"],
 
 )
 
@@ -25,6 +25,6 @@ scala_library(
     srcs=[
         "C.scala",
         ],
-            plugins = ["@classpath_shrinker//jar"],
+#            plugins = ["@classpath_shrinker//jar"],
 
 )
