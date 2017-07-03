@@ -22,7 +22,7 @@ def _thrift_library_impl(ctx):
   prefixes = [p for p in ctx.attr.absolute_prefixes + [ctx.attr.absolute_prefix] if p != '']
 
   src_paths = [f.path for f in ctx.files.srcs]
-  if len(src_paths) <= 0:
+  if len(src_paths) <= 0 and len(ctx.attr.external_jars) <= 0:
     fail("we require at least one thrift file in a target")
 
   jarcmd = "{jar} cMf {out} -C {out}_tmp ."
@@ -74,21 +74,30 @@ rm -rf {out}_tmp"""
 
   transitive_srcs = _collect_thrift_srcs(ctx.attr.deps)
   transitive_srcs += [ctx.outputs.libarchive]
+  transitive_external_jars = _collect_thrift_external_jars(ctx.attr.deps)
+  for jar in ctx.attr.external_jars:
+    transitive_external_jars += jar.files
+
   return struct(
     thrift = struct(
       srcs = ctx.outputs.libarchive,
       transitive_srcs = transitive_srcs,
+      external_jars = ctx.attr.external_jars,
+      transitive_external_jars = transitive_external_jars,
     ),
   )
 
 def _collect_thrift_attr(targets, attr):
-  s = set()
+  s = depset()
   for target in targets:
     s += getattr(target.thrift, attr)
   return s
 
 def _collect_thrift_srcs(targets):
   return _collect_thrift_attr(targets, "transitive_srcs")
+
+def _collect_thrift_external_jars(targets):
+  return _collect_thrift_attr(targets, "transitive_external_jars")
 
 def _valid_thrift_deps(targets):
   for target in targets:
@@ -124,6 +133,8 @@ thrift_library = rule(
       # created by this is created in such a way that absolute imports work...
       "absolute_prefix": attr.string(default='', mandatory=False),
       "absolute_prefixes": attr.string_list(),
+      # This is a list of JARs which only contain Thrift files
+      "external_jars": attr.label_list(),
       "_jar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:jar"), allow_files=True),
       "_jdk": attr.label(default=Label("//tools/defaults:jdk"), allow_files=True),
   },

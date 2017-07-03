@@ -53,12 +53,18 @@ class ScroogeGenerator extends Processor {
     // remote jars are jars that come from another repo, really no different from transitive
     val remoteSrcJars = getIdx(3)
 
+    // These are remote JARs where we want to export the generated class files
+    // built from the Thrifts in the JAR. This is the remote JAR version o
+    // immediateThriftSrcJars.
+    val remoteSelfThriftSources = getIdx(4)
+
     val tmp = Paths.get(Option(System.getenv("TMPDIR")).getOrElse("/tmp"))
     val scroogeOutput = Files.createTempDirectory(tmp, "scrooge")
 
     val scrooge = new Compiler
 
     scrooge.compileJars ++= immediateThriftSrcJars
+    scrooge.compileJars ++= remoteSelfThriftSources
     scrooge.includeJars ++= onlyTransitiveThriftSrcJars
     scrooge.includeJars ++= remoteSrcJars
 
