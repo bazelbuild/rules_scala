@@ -163,7 +163,7 @@ def _compile(ctx, cjars, dep_srcjars, buildijar, rjars=[], labels = {}):
     # look for any plugins:
     plugins = _collect_plugin_paths(ctx.attr.plugins)
 
-    if ctx.attr.enable_dependency_analyzer:
+    if hasattr(ctx.attr, 'enable_dependency_analyzer') and ctx.attr.enable_dependency_analyzer:
       dep_plugin = ctx.attr.dependency_analyzer_plugin
       plugins += [f.path for f in dep_plugin.files]
 
@@ -683,6 +683,8 @@ _common_attrs = {
   "scalac_jvm_flags": attr.string_list(),
   "javac_jvm_flags": attr.string_list(),
   "print_compile_time": attr.bool(default=False, mandatory=False),
+  "enable_dependency_analyzer": attr.bool(default=True, mandatory=False),
+  "dependency_analyzer_plugin": attr.label(default=Label("//plugin/src/main:dependency_analyzer"), allow_files=_jar_filetype, mandatory=False),
 }
 
 scala_library = rule(
@@ -690,8 +692,6 @@ scala_library = rule(
   attrs={
       "main_class": attr.string(),
       "exports": attr.label_list(allow_files=False),
-      "enable_dependency_analyzer": attr.bool(default=True, mandatory=False),
-      "dependency_analyzer_plugin": attr.label(default=Label("@classpath_shrinker//jar"), allow_files=_jar_filetype, mandatory=False),
       } + _implicit_deps + _common_attrs + _resolve_deps,
   outputs={
       "jar": "%{name}.jar",

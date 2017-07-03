@@ -195,9 +195,9 @@ class ScalacProcessor implements Processor {
     String[] targets = encodeBazelTargets(ops.indirectTargets);
 
     String[] pluginParamsInUse = {
-      "-P:classpath-shrinker:direct-jars:" + String.join(":", ops.directJars),
-      "-P:classpath-shrinker:indirect-jars:" + String.join(":", ops.indirectJars),
-      "-P:classpath-shrinker:indirect-targets:" + String.join(":", targets),
+      "-P:dependency-analyzer:direct-jars:" + String.join(":", ops.directJars),
+      "-P:dependency-analyzer:indirect-jars:" + String.join(":", ops.indirectJars),
+      "-P:dependency-analyzer:indirect-targets:" + String.join(":", targets),
     };
 
     String[] pluginParams;

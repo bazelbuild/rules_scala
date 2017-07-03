@@ -63,14 +63,19 @@ test_scala_library_suite() {
   action_should_fail build test_expect_failure/scala_library_suite:library_suite_dep_on_children
 }
 
-test_scala_library_expect_warning_on_missing_direct_deps() {
-  expected_message="target '//test_expect_logs/missing_direct_deps:direct_dependency' should be added to deps"
-  command='bazel build test_expect_logs/missing_direct_deps:transitive_dependency_user'
+test_scala_library_expect_failure_on_missing_direct_deps() {
+  expected_message="Target '//test_expect_failure/missing_direct_deps:direct_dependency' is used but isn't explicitly declared, please add it to the deps"
+  command='bazel build test_expect_failure/missing_direct_deps:transitive_dependency_user'
   output=$($command 2>&1)
+  if [  $? -eq 0 ]; then
+    echo "$output"
+    echo "'bazel build of scala_library with missing direct deps should have failed."
+    exit 1
+  fi
   echo "$output"
   echo $output | grep "$expected_message"
   if [ $? -ne 0 ]; then
-    echo "'bazel build test_expect_logs/missing_direct_deps:transitive_dependency_user' should have logged \"$expected_message\"."
+    echo "'bazel build test_expect_failure/missing_direct_deps:transitive_dependency_user' should have logged \"$expected_message\"."
     exit 1
   fi
   exit 0
@@ -334,7 +339,6 @@ else
   runner="run_test_ci"
 fi
 
-$runner test_scala_library_expect_warning_on_missing_direct_deps
 $runner bazel build test/...
 $runner bazel test test/...
 $runner bazel run test/src/main/scala/scala/test/twitter_scrooge:justscrooges
@@ -368,3 +372,4 @@ $runner scala_test_test_filters
 $runner scala_junit_test_test_filter
 $runner scalac_jvm_flags_are_configured
 $runner javac_jvm_flags_are_configured
+$runner test_scala_library_expect_failure_on_missing_direct_deps
