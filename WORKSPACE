@@ -5,7 +5,7 @@ workspace(name = "io_bazel_rules_scala")
 rules_scala_version="3070353d06bb726141e6cea241e5d6e355a4d14f" # update this as needed
 
 http_archive(
-             name = "io_bazel_rules_scala",
+             name = "io_bazel_rules_scala_for_plugin_bootstrapping",
              url = "https://github.com/wix/rules_scala/archive/%s.zip"%rules_scala_version,
              type = "zip",
              strip_prefix= "rules_scala-%s" % rules_scala_version

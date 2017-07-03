@@ -1,4 +1,4 @@
-load("@io_bazel_rules_scala//scala:scala.bzl", "scala_junit_test")
+load("@io_bazel_rules_scala_for_plugin_bootstrapping//scala:scala.bzl", "scala_junit_test")
 
 scala_junit_test(
         name = "dependency_analyzer_test",

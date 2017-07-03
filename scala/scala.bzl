@@ -164,16 +164,27 @@ def _compile(ctx, cjars, dep_srcjars, buildijar, rjars=[], labels = {}):
     plugins = _collect_plugin_paths(ctx.attr.plugins)
 
     if hasattr(ctx.attr, 'enable_dependency_analyzer') and ctx.attr.enable_dependency_analyzer:
+      enable_dependency_analyzer = ctx.attr.enable_dependency_analyzer
       dep_plugin = ctx.attr.dependency_analyzer_plugin
       plugins += [f.path for f in dep_plugin.files]
+      dependency_analyzer_plugin_jars = ctx.files.dependency_analyzer_plugin
+    else:
+      enable_dependency_analyzer = False
+      dependency_analyzer_plugin_jars = []
 
     plugin_arg = ",".join(list(plugins))
 
     all_jars = cjars + rjars
     compiler_classpath = ":".join([j.path for j in all_jars])
     direct_jars = ",".join([j.path for j in cjars])
-    indirect_jars = ",".join([j.path for j in rjars])
-    indirect_targets = ",".join([labels[j.path] for j in rjars])
+
+    valid_jar_paths = []
+    for j in rjars:
+      if j.path in labels:
+        valid_jar_paths.append(j.path)
+
+    indirect_jars = ",".join(valid_jar_paths)
+    indirect_targets = ",".join([labels[path] for path in valid_jar_paths])
 
     scalac_args = """
 Classpath: {cp}
@@ -224,7 +235,7 @@ EnableDependencyAnalyzer: {enable_dependency_analyzer}
         direct_jars=direct_jars,
         indirect_jars=indirect_jars,
         indirect_targets=indirect_targets,
-        enable_dependency_analyzer = ctx.attr.enable_dependency_analyzer,
+        enable_dependency_analyzer = enable_dependency_analyzer,
         )
     argfile = ctx.new_file(
       ctx.outputs.jar,
@@ -244,7 +255,7 @@ EnableDependencyAnalyzer: {enable_dependency_analyzer}
            list(sources) +
            ctx.files.srcs +
            ctx.files.plugins +
-           ctx.files.dependency_analyzer_plugin +
+           dependency_analyzer_plugin_jars +
            ctx.files.resources +
            ctx.files.resource_jars +
            ctx.files._jdk +
@@ -683,8 +694,6 @@ _common_attrs = {
   "scalac_jvm_flags": attr.string_list(),
   "javac_jvm_flags": attr.string_list(),
   "print_compile_time": attr.bool(default=False, mandatory=False),
-  "enable_dependency_analyzer": attr.bool(default=True, mandatory=False),
-  "dependency_analyzer_plugin": attr.label(default=Label("//plugin/src/main:dependency_analyzer"), allow_files=_jar_filetype, mandatory=False),
 }
 
 scala_library = rule(
@@ -692,6 +701,8 @@ scala_library = rule(
   attrs={
       "main_class": attr.string(),
       "exports": attr.label_list(allow_files=False),
+      "enable_dependency_analyzer": attr.bool(default=True, mandatory=False),
+      "dependency_analyzer_plugin": attr.label(default=Label("//plugin/src/main:dependency_analyzer"), allow_files=_jar_filetype, mandatory=False),
       } + _implicit_deps + _common_attrs + _resolve_deps,
   outputs={
       "jar": "%{name}.jar",
