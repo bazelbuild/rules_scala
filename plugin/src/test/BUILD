@@ -7,8 +7,6 @@ scala_junit_test(
         suffixes = ["Test"],
         size = "small",
         deps = ["//plugin/src/main:dependency_analyzer",
-                "//plugin/src/main:resources",
-                "//plugin/src/test/resources:resources",
                 "@io_get_coursier_coursier_cache//jar",
                 "@io_get_coursier_coursier//jar",
                 "@org_scalaz_scalaz_concurrent_2_11//jar",
@@ -16,5 +14,8 @@ scala_junit_test(
                 "//external:io_bazel_rules_scala/dependency/scalaz/scalaz_core",
                 "//external:io_bazel_rules_scala/dependency/scala/scala_xml",
                 "//external:io_bazel_rules_scala/dependency/scala/scala_compiler",
-                ]
+                "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+                ],
+        jvm_flags = ["-Dplugin.jar.location=$(location //plugin/src/main:dependency_analyzer)",
+                     "-Dscala.library.location=$(location //external:io_bazel_rules_scala/dependency/scala/scala_library)"],
 )

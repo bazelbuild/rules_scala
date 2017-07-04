@@ -12,9 +12,3 @@ scala_library(
     ],
 #    enable_dependency_analyzer = False
 )
-
-scala_library(
-    name = "resources",
-    resources = ["resources/toolbox.classpath"],
-    visibility = ["//visibility:public"],
-)

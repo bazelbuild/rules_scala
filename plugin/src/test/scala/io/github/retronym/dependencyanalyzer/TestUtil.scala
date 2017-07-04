@@ -1,11 +1,12 @@
 package plugin.src.test.scala.io.github.retronym.dependencyanalyzer
 
 import java.io.File
+import java.nio.file.Paths
 
 import coursier.maven.MavenRepository
 import coursier.{Cache, Dependency, Fetch, Resolution}
 
-import scala.reflect.internal.util.{BatchSourceFile, NoPosition}
+import scala.reflect.internal.util.BatchSourceFile
 import scala.reflect.io.VirtualDirectory
 import scala.tools.cmd.CommandLineParser
 import scala.tools.nsc.reporters.StoreReporter
@@ -38,8 +39,6 @@ object TestUtil {
     val basicOptions =
       createBasicCompileOptions(fullClasspath, toolboxPluginOptions)
 
-    println("basicOptions: " + basicOptions)
-
     eval(code, s"$basicOptions $compileOptions")
   }
 
@@ -59,17 +58,22 @@ object TestUtil {
     reporter
   }
 
-  def getResourceContent(resourceName: String): String = {
-    println("getResourceContent "+ resourceName)
-    val resource = getClass.getClassLoader.getResourceAsStream(resourceName)
-    println("getResourceContent resource: "+ resource)
+  lazy val baseDir = System.getProperty("user.dir")
 
-    val file = scala.io.Source.fromInputStream(resource)
-    file.getLines.mkString
+  lazy val toolboxClasspath: String = {
+    val jar = System.getProperty("scala.library.location")
+    val libPath = Paths.get(baseDir, jar).toAbsolutePath
+    libPath.toString
   }
 
-  lazy val toolboxClasspath: String = getResourceContent("toolbox.classpath")
-  lazy val toolboxPluginOptions: String = getResourceContent("toolbox.plugin")
+  lazy val toolboxPluginOptions: String = {
+    val jar = System.getProperty("plugin.jar.location")
+    val start= jar.indexOf("/plugin")
+    // this substring is needed due to issue: https://github.com/bazelbuild/bazel/issues/2475
+    val jarInRelationToBaseDir = jar.substring(start, jar.length)
+    val pluginPath = Paths.get(baseDir, jarInRelationToBaseDir).toAbsolutePath
+    s"-Xplugin:${pluginPath} -Jdummy=${pluginPath.toFile.lastModified}"
+  }
 
   private def createBasicCompileOptions(classpath: String, usePluginOptions: String) =
     s"-classpath $classpath $usePluginOptions"
