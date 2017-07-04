@@ -64,6 +64,8 @@ test_scala_library_suite() {
 }
 
 test_scala_library_expect_failure_on_missing_direct_deps() {
+  set +e
+
   expected_message="Target '//test_expect_failure/missing_direct_deps:direct_dependency' is used but isn't explicitly declared, please add it to the deps"
   command='bazel build test_expect_failure/missing_direct_deps:transitive_dependency_user'
   output=$($command 2>&1)
@@ -78,6 +80,8 @@ test_scala_library_expect_failure_on_missing_direct_deps() {
     echo "'bazel build test_expect_failure/missing_direct_deps:transitive_dependency_user' should have logged \"$expected_message\"."
     exit 1
   fi
+
+  set -e
   exit 0
 }
 
