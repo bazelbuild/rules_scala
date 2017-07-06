@@ -3,7 +3,6 @@ package io.bazel.rulesscala.scalac;
 import io.bazel.rulesscala.jar.JarCreator;
 import io.bazel.rulesscala.worker.GenericWorker;
 import io.bazel.rulesscala.worker.Processor;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -22,7 +21,6 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-
 import scala.tools.nsc.Driver;
 import scala.tools.nsc.MainClass;
 import scala.tools.nsc.reporters.ConsoleReporter;
@@ -32,12 +30,12 @@ class ScalacProcessor implements Processor {
    * This is the reporter field for scalac, which we want to access
    */
   private static Field reporterField;
-
   static {
     try {
       reporterField = Driver.class.getDeclaredField("reporter"); //NoSuchFieldException
       reporterField.setAccessible(true);
-    } catch (NoSuchFieldException ex) {
+    }
+    catch (NoSuchFieldException ex) {
       throw new RuntimeException("could not access reporter field on Driver", ex);
     }
   }
@@ -87,27 +85,28 @@ class ScalacProcessor implements Processor {
        * Now build the output jar
        */
       String[] jarCreatorArgs = {
-              "-m",
-              ops.manifestPath,
-              outputPath.toString(),
-              tmpPath.toString()
+        "-m",
+        ops.manifestPath,
+        outputPath.toString(),
+        tmpPath.toString()
       };
       JarCreator.buildJar(jarCreatorArgs);
 
       /**
        * Now build the output ijar
        */
-      if (ops.iJarEnabled) {
+      if(ops.iJarEnabled) {
         Process iostat = new ProcessBuilder()
-                .command(ops.ijarCmdPath, ops.outputName, ops.ijarOutput)
-                .inheritIO()
-                .start();
+          .command(ops.ijarCmdPath, ops.outputName, ops.ijarOutput)
+          .inheritIO()
+          .start();
         int exitCode = iostat.waitFor();
-        if (exitCode != 0) {
+        if(exitCode != 0) {
           throw new RuntimeException("ijar process failed!");
         }
       }
-    } finally {
+    }
+    finally {
       removeTmp(tmpPath);
     }
   }
@@ -119,7 +118,7 @@ class ScalacProcessor implements Processor {
 
   private static List<File> filterFilesByExtension(List<File> files, String extension) {
     List<File> filtered = new ArrayList<File>();
-    for (File f : files) {
+    for (File f: files) {
       if (f.toString().endsWith(extension)) {
         filtered.add(f);
       }
@@ -128,12 +127,11 @@ class ScalacProcessor implements Processor {
   }
 
   static private String[] sourceExtensions = {".scala", ".java"};
-
   static private List<File> extractSourceJars(CompileOptions opts, Path tmpParent) throws IOException {
     List<File> sourceFiles = new ArrayList<File>();
 
-    for (String jarPath : opts.sourceJars) {
-      if (jarPath.length() > 0) {
+    for(String jarPath : opts.sourceJars) {
+      if (jarPath.length() > 0){
         Path tmpPath = Files.createTempDirectory(tmpParent, "tmp");
         sourceFiles.addAll(extractJar(jarPath, tmpPath.toString(), sourceExtensions));
       }
@@ -143,8 +141,8 @@ class ScalacProcessor implements Processor {
   }
 
   private static List<File> extractJar(String jarPath,
-                                       String outputFolder,
-                                       String[] extensions) throws IOException, FileNotFoundException {
+      String outputFolder,
+      String[] extensions) throws IOException, FileNotFoundException {
 
     List<File> outputPaths = new ArrayList<File>();
     JarFile jar = new JarFile(jarPath);
@@ -177,7 +175,7 @@ class ScalacProcessor implements Processor {
   }
 
   private static boolean matchesFileExtensions(String fileName, String[] extensions) {
-    for (String e : extensions) {
+    for (String e: extensions) {
       if (fileName.endsWith(e)) {
         return true;
       }
@@ -208,19 +206,18 @@ class ScalacProcessor implements Processor {
     }
 
     String[] constParams = {
-            "-classpath",
-            ops.classpath,
-            "-d",
-            tmpPath.toString()
+      "-classpath",
+      ops.classpath,
+      "-d",
+      tmpPath.toString()
     };
 
-
     String[] compilerArgs = GenericWorker.merge(
-            ops.scalaOpts,
-            ops.pluginArgs,
-            constParams,
-            pluginParams,
-            scalaSources);
+      ops.scalaOpts,
+      ops.pluginArgs,
+      constParams,
+      pluginParams,
+      scalaSources);
 
     MainClass comp = new MainClass();
     long start = System.currentTimeMillis();
@@ -256,13 +253,14 @@ class ScalacProcessor implements Processor {
     commandParts.add("@" + normalizeSlash(argsFile.toFile().getAbsolutePath()));
     try {
       Process iostat = new ProcessBuilder(commandParts)
-              .inheritIO()
-              .start();
+        .inheritIO()
+        .start();
       int exitCode = iostat.waitFor();
-      if (exitCode != 0) {
+      if(exitCode != 0) {
         throw new RuntimeException("javac process failed!");
       }
-    } finally {
+    }
+    finally {
       removeTmp(argsFile);
     }
   }
@@ -275,10 +273,9 @@ class ScalacProcessor implements Processor {
     return '\"' + normalizeSlash(str) + '\"';
   }
 
-  /**
-   * collects javac compile options into an 'argfile'
-   * http://docs.oracle.com/javase/8/docs/technotes/tools/windows/javac.html#BHCJEIBB
-   */
+  /** collects javac compile options into an 'argfile'
+    * http://docs.oracle.com/javase/8/docs/technotes/tools/windows/javac.html#BHCJEIBB
+    */
   private static final Path newArgFile(CompileOptions ops, String[] javaSources, Path tmpPath) throws IOException {
     Path argsFile = Files.createTempFile("argfile", null);
     List<String> args = new ArrayList<>();
@@ -288,7 +285,7 @@ class ScalacProcessor implements Processor {
 
     args.add("-classpath " + ops.classpath + ":" + tmpPath.toString());
     args.add("-d " + tmpPath.toString());
-    for (String javaFile : javaSources) {
+    for(String javaFile : javaSources) {
       args.add(escapeSpaces(javaFile.toString()));
     }
     String contents = String.join("\n", args);
@@ -301,39 +298,38 @@ class ScalacProcessor implements Processor {
   private static void removeTmp(Path tmp) throws IOException {
     if (tmp != null) {
       Files.walkFileTree(tmp, new SimpleFileVisitor<Path>() {
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-          Files.delete(file);
-          return FileVisitResult.CONTINUE;
-        }
+         @Override
+         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+             Files.delete(file);
+             return FileVisitResult.CONTINUE;
+         }
 
-        @Override
-        public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-          Files.delete(dir);
-          return FileVisitResult.CONTINUE;
-        }
+         @Override
+         public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+             Files.delete(dir);
+             return FileVisitResult.CONTINUE;
+         }
       });
     }
   }
-
   private static void copyResources(
-          Map<String, String> resources,
-          String resourceStripPrefix,
-          Path dest) throws IOException {
-    for (Entry<String, String> e : resources.entrySet()) {
+      Map<String, String> resources,
+      String resourceStripPrefix,
+      Path dest) throws IOException {
+    for(Entry<String, String> e : resources.entrySet()) {
       Path source = Paths.get(e.getKey());
       String dstr;
       // Check if we need to modify resource destination path
       if (!"".equals(resourceStripPrefix)) {
-        /**
-         * NOTE: We are not using the Resource Hash Value as the destination path
-         * when `resource_strip_prefix` present. The path in the hash value is computed
-         * by the `_adjust_resources_path` in `scala.bzl`. These are the default paths,
-         * ie, path that are automatically computed when there is no `resource_strip_prefix`
-         * present. But when `resource_strip_prefix` is present, we need to strip the prefix
-         * from the Source Path and use that as the new destination path
-         * Refer Bazel -> BazelJavaRuleClasses.java#L227 for details
-         */
+  /**
+   * NOTE: We are not using the Resource Hash Value as the destination path
+   * when `resource_strip_prefix` present. The path in the hash value is computed
+   * by the `_adjust_resources_path` in `scala.bzl`. These are the default paths,
+   * ie, path that are automatically computed when there is no `resource_strip_prefix`
+   * present. But when `resource_strip_prefix` is present, we need to strip the prefix
+   * from the Source Path and use that as the new destination path
+   * Refer Bazel -> BazelJavaRuleClasses.java#L227 for details
+   */
         dstr = getResourcePath(source, resourceStripPrefix);
       } else {
         dstr = e.getValue();
@@ -345,25 +341,23 @@ class ScalacProcessor implements Processor {
       Files.copy(source, target);
     }
   }
-
   private static String getResourcePath(
-          Path source,
-          String resourceStripPrefix) throws RuntimeException {
+      Path source,
+      String resourceStripPrefix) throws RuntimeException {
     String sourcePath = source.toString();
     // check if the Resource file is under the specified prefix to strip
     if (!sourcePath.startsWith(resourceStripPrefix)) {
       // Resource File is not under the specified prefix to strip
       throw new RuntimeException("Resource File "
-              + sourcePath
-              + " is not under the specified strip prefix "
-              + resourceStripPrefix);
+        + sourcePath
+        + " is not under the specified strip prefix "
+        + resourceStripPrefix);
     }
     String newResPath = sourcePath.substring(resourceStripPrefix.length());
     return newResPath;
   }
-
   private static void copyResourceJars(String[] resourceJars, Path dest) throws IOException {
-    for (String jarPath : resourceJars) {
+    for (String jarPath: resourceJars) {
       extractJar(jarPath, dest.toString(), null);
     }
   }
