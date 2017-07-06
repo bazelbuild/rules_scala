@@ -40,9 +40,20 @@ class ScroogeGenerator extends Processor {
     }
 
   def processRequest(args: java.util.List[String]) {
-    def getIdx(i: Int): List[String] =
-      if (args.size > i) args.get(i).drop(1).split(':').toList.filter(_.nonEmpty)
+    def getIdx(i: Int): List[String] = {
+      if (args.size > i) {
+        // bazel worker arguments cannot be empty so we pad to ensure non-empty
+        // and drop it off on the other side
+        // https://github.com/bazelbuild/bazel/issues/3329
+        val workerArgPadLen = 1 // workerArgPadLen == "_".length
+        args.get(i)
+          .drop(workerArgPadLen)
+          .split(':')
+          .toList
+          .filter(_.nonEmpty)
+      }
       else Nil
+    }
 
     val jarOutput = args.get(0)
     // These are the files whose output we want
