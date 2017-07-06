@@ -41,7 +41,7 @@ class ScroogeGenerator extends Processor {
 
   def processRequest(args: java.util.List[String]) {
     def getIdx(i: Int): List[String] =
-      if (args.size > i) args.get(i).split(':').toList.filter(_.nonEmpty)
+      if (args.size > i) args.get(i).drop(1).split(':').toList.filter(_.nonEmpty)
       else Nil
 
     val jarOutput = args.get(0)

@@ -140,7 +140,7 @@ def _gen_scrooge_srcjar_impl(ctx):
   # in order to generate code) have targets which will compile them.
   _assert_set_is_subset(only_transitive_thrift_srcs, transitive_owned_srcs)
 
-  path_content = "\n".join([_colon_paths(ps) for ps in [immediate_thrift_srcs, only_transitive_thrift_srcs, remote_jars, external_jars]])
+  path_content = "\n".join(["_" + _colon_paths(ps) for ps in [immediate_thrift_srcs, only_transitive_thrift_srcs, remote_jars, external_jars]])
   worker_content = "{output}\n{paths}\n".format(output = ctx.outputs.srcjar.path, paths = path_content)
 
   argfile = ctx.new_file(ctx.outputs.srcjar, "%s_worker_input" % ctx.label.name)
