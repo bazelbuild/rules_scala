@@ -1,6 +1,6 @@
-load("@io_bazel_rules_scala_for_plugin_bootstrapping//scala:scala.bzl", "scala_library")
+load("//scala:scala.bzl", "scala_library", "scala_library_for_plugin_bootstrapping")
 
-scala_library(
+scala_library_for_plugin_bootstrapping(
     name = "dependency_analyzer",
     srcs = ["scala/io/github/retronym/dependencyanalyzer/DependencyAnalyzer.scala",
             "scala_2_11/io/github/retronym/dependencyanalyzer/Compat.scala",
@@ -10,5 +10,4 @@ scala_library(
     deps = [
         "//external:io_bazel_rules_scala/dependency/scala/scala_compiler"
     ],
-#    enable_dependency_analyzer = False
 )

@@ -163,7 +163,9 @@ def _compile(ctx, cjars, dep_srcjars, buildijar, rjars=[], labels = {}):
     # look for any plugins:
     plugins = _collect_plugin_paths(ctx.attr.plugins)
 
-    if hasattr(ctx.attr, 'enable_dependency_analyzer') and ctx.attr.enable_dependency_analyzer:
+    if (hasattr(ctx.attr, 'enable_dependency_analyzer')
+        and ctx.attr.enable_dependency_analyzer
+        and hasattr(ctx.attr, 'dependency_analyzer_plugin')):
       enable_dependency_analyzer = ctx.attr.enable_dependency_analyzer
       dep_plugin = ctx.attr.dependency_analyzer_plugin
       plugins += [f.path for f in dep_plugin.files]
@@ -696,20 +698,31 @@ _common_attrs = {
   "print_compile_time": attr.bool(default=False, mandatory=False),
 }
 
+library_attrs = {
+  "main_class": attr.string(),
+  "exports": attr.label_list(allow_files=False),
+}
+
+library_outputs = {
+  "jar": "%{name}.jar",
+  "deploy_jar": "%{name}_deploy.jar",
+  "ijar": "%{name}_ijar.jar",
+  "manifest": "%{name}_MANIFEST.MF",
+}
+
 scala_library = rule(
   implementation=_scala_library_impl,
   attrs={
-      "main_class": attr.string(),
-      "exports": attr.label_list(allow_files=False),
       "enable_dependency_analyzer": attr.bool(default=True, mandatory=False),
       "dependency_analyzer_plugin": attr.label(default=Label("//plugin/src/main:dependency_analyzer"), allow_files=_jar_filetype, mandatory=False),
-      } + _implicit_deps + _common_attrs + _resolve_deps,
-  outputs={
-      "jar": "%{name}.jar",
-      "deploy_jar": "%{name}_deploy.jar",
-      "ijar": "%{name}_ijar.jar",
-      "manifest": "%{name}_MANIFEST.MF",
-      },
+      } + _implicit_deps + _common_attrs + library_attrs + _resolve_deps,
+  outputs=library_outputs,
+)
+
+scala_library_for_plugin_bootstrapping = rule(
+  implementation=_scala_library_impl,
+  attrs= _implicit_deps + _common_attrs + library_attrs + _resolve_deps,
+  outputs=library_outputs,
 )
 
 scala_macro_library = rule(

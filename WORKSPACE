@@ -1,15 +1,6 @@
 workspace(name = "io_bazel_rules_scala")
 
 
-####### previous rules scala for building of scala compiler plugin
-rules_scala_version="3070353d06bb726141e6cea241e5d6e355a4d14f" # update this as needed
-
-http_archive(
-             name = "io_bazel_rules_scala_for_plugin_bootstrapping",
-             url = "https://github.com/wix/rules_scala/archive/%s.zip"%rules_scala_version,
-             type = "zip",
-             strip_prefix= "rules_scala-%s" % rules_scala_version
-)
 
 load("//scala:scala.bzl", "scala_repositories", "scala_mvn_artifact")
 scala_repositories()
