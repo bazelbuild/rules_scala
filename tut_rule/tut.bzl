@@ -27,7 +27,7 @@ def scala_tut_doc(**kw):
     ],
   )
   native.genrule(
-      name = "%s__tut" % name,
+      name = name,
       srcs = [src],
       outs = ["%s_tut.md" % name],
       tools = [tool],

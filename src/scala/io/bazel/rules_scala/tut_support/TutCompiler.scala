@@ -7,8 +7,7 @@ import tut.TutMain
 
 object TutCompiler {
   def main(args: Array[String]): Unit = {
-    val tmp = Paths.get(Option(System.getenv("TMPDIR")).getOrElse("/tmp"))
-    val mdOutput = Files.createTempDirectory(tmp, "tut")
+    val mdOutput = Files.createTempDirectory("tut")
     val outfile = args(1)
     val classpath = System.getProperty("java.class.path")
     TutMain.main(Array(args(0), mdOutput.toString, ".*\\.md$", "-classpath", classpath))
