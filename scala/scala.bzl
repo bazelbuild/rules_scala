@@ -714,7 +714,7 @@ scala_library = rule(
   implementation=_scala_library_impl,
   attrs={
       "enable_dependency_analyzer": attr.bool(default=True, mandatory=False),
-      "dependency_analyzer_plugin": attr.label(default=Label("//plugin/src/main:dependency_analyzer"), allow_files=_jar_filetype, mandatory=False),
+      "dependency_analyzer_plugin": attr.label(default=Label("@io_bazel_rules_scala//plugin/src/main:dependency_analyzer"), allow_files=_jar_filetype, mandatory=False),
       } + _implicit_deps + _common_attrs + library_attrs + _resolve_deps,
   outputs=library_outputs,
 )

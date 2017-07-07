@@ -192,14 +192,14 @@ class ScalacProcessor implements Processor {
   private static void compileScalaSources(CompileOptions ops, String[] scalaSources, Path tmpPath) throws IllegalAccessException {
     String[] targets = encodeBazelTargets(ops.indirectTargets);
 
-    String[] pluginParamsInUse = {
-      "-P:dependency-analyzer:direct-jars:" + String.join(":", ops.directJars),
-      "-P:dependency-analyzer:indirect-jars:" + String.join(":", ops.indirectJars),
-      "-P:dependency-analyzer:indirect-targets:" + String.join(":", targets),
-    };
 
     String[] pluginParams;
     if (ops.enableDependencyAnalyzer) {
+      String[] pluginParamsInUse = {
+        "-P:dependency-analyzer:direct-jars:" + String.join(":", ops.directJars),
+        "-P:dependency-analyzer:indirect-jars:" + String.join(":", ops.indirectJars),
+        "-P:dependency-analyzer:indirect-targets:" + String.join(":", targets),
+      };
       pluginParams = pluginParamsInUse;
     } else {
       pluginParams = new String[0];

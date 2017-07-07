@@ -80,7 +80,7 @@ class DependencyAnalyzerTest {
       s"error on $target should not appear in errors!")
   }
 
-  implicit class `decode bazel lables`(targetLabel: String) {
+  implicit class `decode bazel labels`(targetLabel: String) {
     def decoded() = {
       targetLabel.replace(";", ":")
     }
