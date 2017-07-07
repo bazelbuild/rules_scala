@@ -1,12 +1,11 @@
 package plugin.src.main.scala.io.github.retronym.dependencyanalyzer
 
-import plugin.src.main.scala_2_11.io.github.retronym.dependencyanalyzer.Compat
 
 import scala.reflect.io.AbstractFile
 import scala.tools.nsc.plugins.{Plugin, PluginComponent}
 import scala.tools.nsc.{Global, Phase}
 
-class DependencyAnalyzer(val global: Global) extends Plugin with Compat {
+class DependencyAnalyzer(val global: Global) extends Plugin {
 
   val name = "dependency-analyzer"
   val description =
