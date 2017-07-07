@@ -1,5 +1,4 @@
-package plugin.src.main.scala.io.github.retronym.dependencyanalyzer
-
+package plugin.src.main.io.bazel.rulesscala.dependencyanalyzer
 
 import scala.reflect.io.AbstractFile
 import scala.tools.nsc.plugins.{Plugin, PluginComponent}

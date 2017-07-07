@@ -1,7 +1,7 @@
-package plugin.src.test.scala.io.github.retronym.dependencyanalyzer
+package plugin.src.test.io.bazel.rulesscala.dependencyanalyzer
 
 import coursier.{Dependency, Module}
-import plugin.src.test.scala.io.github.retronym.dependencyanalyzer.TestUtil._
+import TestUtil._
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4

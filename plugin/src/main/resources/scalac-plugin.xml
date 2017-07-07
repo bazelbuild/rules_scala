@@ -1,4 +1,4 @@
 <plugin>
   <name>dependency-analyzer</name>
-  <classname>plugin.src.main.scala.io.github.retronym.dependencyanalyzer.DependencyAnalyzer</classname>
+  <classname>plugin.src.main.io.bazel.rulesscala.dependencyanalyzer.DependencyAnalyzer</classname>
 </plugin>

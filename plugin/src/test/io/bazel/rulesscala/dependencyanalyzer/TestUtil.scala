@@ -1,4 +1,4 @@
-package plugin.src.test.scala.io.github.retronym.dependencyanalyzer
+package plugin.src.test.io.bazel.rulesscala.dependencyanalyzer
 
 import java.io.File
 import java.nio.file.Paths
