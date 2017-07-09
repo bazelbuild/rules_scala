@@ -382,6 +382,13 @@ def collect_srcjars(targets):
             srcjars += [target.srcjars.srcjar]
     return srcjars
 
+def update_jars_to_labels(jars2labels, target, java_provider):
+  for jar in (java_provider.compile_jars + java_provider.transitive_runtime_jars):
+    if jar.path not in jars2labels:
+      if hasattr(target, "jars_to_labels") and jar.path in target.jars_to_labels:
+        jars2labels[jar.path] = target.jars_to_labels[jar.path]
+      else:
+        jars2labels[jar.path] = target.label
 
 def _collect_jars(targets):
     """Compute the runtime and compile-time dependencies from the given targets"""  # noqa
@@ -393,8 +400,7 @@ def _collect_jars(targets):
             java_provider = target[java_common.provider]
             compile_jars += java_provider.compile_jars
             runtime_jars += java_provider.transitive_runtime_jars
-            jars2labels.update(dict([(jar.path, target.label)
-              for jar in (java_provider.compile_jars + java_provider.transitive_runtime_jars)]))
+            update_jars_to_labels(jars2labels, target, java_provider)
         else:
             # support http_file pointed at a jar. http_jar uses ijar,
             # which breaks scala macros
@@ -484,6 +490,7 @@ def _lib(ctx, non_macro_lib):
         # this information through, and it is up to the new_targets
         # to filter and make sense of this information.
         extra_information=_collect_extra_information(ctx.attr.deps),
+        jars_to_labels = jars.jars2labels,
       )
 
 
