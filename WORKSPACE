@@ -46,3 +46,10 @@ maven_jar(
     artifact = "org.scalaz:scalaz-concurrent_2.11:jar:7.2.7",
     sha1 = "abaea3aa04f11301f63099d96cf47f91ec229ed4"
 )
+
+# test of strict deps
+maven_jar(
+    name = "com_google_guava_guava_21_0",
+    artifact = "com.google.guava:guava:21.0",
+    sha1 = "3a3d111be1be1b745edfa7d91678a12d7ed38709"
+)

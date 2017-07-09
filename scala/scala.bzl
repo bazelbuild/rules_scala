@@ -180,13 +180,8 @@ def _compile(ctx, cjars, dep_srcjars, buildijar, rjars=[], labels = {}):
     compiler_classpath = ":".join([j.path for j in all_jars])
     direct_jars = ",".join([j.path for j in cjars])
 
-    valid_jar_paths = []
-    for j in rjars:
-      if j.path in labels:
-        valid_jar_paths.append(j.path)
-
-    indirect_jars = ",".join(valid_jar_paths)
-    indirect_targets = ",".join([labels[path] for path in valid_jar_paths])
+    indirect_jars = ",".join([j.path for j in rjars])
+    indirect_targets = ",".join([labels[j.path] for j in rjars])
 
     scalac_args = """
 Classpath: {cp}
@@ -382,8 +377,8 @@ def collect_srcjars(targets):
             srcjars += [target.srcjars.srcjar]
     return srcjars
 
-def update_jars_to_labels(jars2labels, target, java_provider):
-  for jar in (java_provider.compile_jars + java_provider.transitive_runtime_jars):
+def update_jars_to_labels(jars2labels, target, all_jars):
+  for jar in all_jars:
     if jar.path not in jars2labels:
       if hasattr(target, "jars_to_labels") and jar.path in target.jars_to_labels:
         jars2labels[jar.path] = target.jars_to_labels[jar.path]
@@ -400,12 +395,12 @@ def _collect_jars(targets):
             java_provider = target[java_common.provider]
             compile_jars += java_provider.compile_jars
             runtime_jars += java_provider.transitive_runtime_jars
-            update_jars_to_labels(jars2labels, target, java_provider)
         else:
             # support http_file pointed at a jar. http_jar uses ijar,
             # which breaks scala macros
             compile_jars += target.files
             runtime_jars += target.files
+        update_jars_to_labels(jars2labels, target, compile_jars + runtime_jars)
 
     return struct(compile_jars = compile_jars, transitive_runtime_jars = runtime_jars, jars2labels=jars2labels)
 
