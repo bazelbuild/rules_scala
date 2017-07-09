@@ -63,11 +63,14 @@ test_scala_library_suite() {
   action_should_fail build test_expect_failure/scala_library_suite:library_suite_dep_on_children
 }
 
-test_scala_library_expect_failure_on_missing_direct_external_deps() {
+test_scala_library_expect_failure_on_missing_direct_deps() {
   set +e
+  dependenecy_target=$1
+  test_target=$2
 
-  expected_message="Target '@com_google_guava_guava_21_0//jar:file' is used but isn't explicitly declared, please add it to the deps"
-  command='bazel build test_expect_failure/missing_direct_deps/external_deps:transitive_external_dependency_user'
+  expected_message="Target '$dependenecy_target' is used but isn't explicitly declared, please add it to the deps"
+  command="bazel build $test_target"
+
   output=$($command 2>&1)
   if [  $? -eq 0 ]; then
     echo "$output"
@@ -77,34 +80,26 @@ test_scala_library_expect_failure_on_missing_direct_external_deps() {
   echo "$output"
   echo $output | grep "$expected_message"
   if [ $? -ne 0 ]; then
-    echo "'bazel build test_expect_failure/missing_direct_deps/external_deps:transitive_external_dependency_user' should have logged \"$expected_message\"."
-    exit 1
+    echo "'bazel build $test_target' should have logged \"$expected_message\"."
+      exit 1
   fi
 
   set -e
   exit 0
 }
 
+test_scala_library_expect_failure_on_missing_direct_external_deps() {
+  dependenecy_target='@com_google_guava_guava_21_0//jar:file'
+  test_target='test_expect_failure/missing_direct_deps/external_deps:transitive_external_dependency_user'
+
+  test_scala_library_expect_failure_on_missing_direct_deps $dependenecy_target $test_target
+}
+
 test_scala_library_expect_failure_on_missing_direct_internal_deps() {
-  set +e
+  dependenecy_target='//test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency'
+  test_target='test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency_user'
 
-  expected_message="Target '//test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency' is used but isn't explicitly declared, please add it to the deps"
-  command='bazel build test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency_user'
-  output=$($command 2>&1)
-  if [  $? -eq 0 ]; then
-    echo "$output"
-    echo "'bazel build of scala_library with missing direct deps should have failed."
-    exit 1
-  fi
-  echo "$output"
-  echo $output | grep "$expected_message"
-  if [ $? -ne 0 ]; then
-    echo "'bazel build test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency_user' should have logged \"$expected_message\"."
-    exit 1
-  fi
-
-  set -e
-  exit 0
+  test_scala_library_expect_failure_on_missing_direct_deps $dependenecy_target $test_target
 }
 
 test_scala_junit_test_can_fail() {
