@@ -189,21 +189,25 @@ class ScalacProcessor implements Processor {
             .toArray(String[]::new);
   }
 
-  private static void compileScalaSources(CompileOptions ops, String[] scalaSources, Path tmpPath) throws IllegalAccessException {
-    String[] targets = encodeBazelTargets(ops.indirectTargets);
-
-
+  private static String[] getPluginParamsFrom(CompileOptions ops, String[] targets) {
     String[] pluginParams;
     if (ops.enableDependencyAnalyzer) {
       String[] pluginParamsInUse = {
-        "-P:dependency-analyzer:direct-jars:" + String.join(":", ops.directJars),
-        "-P:dependency-analyzer:indirect-jars:" + String.join(":", ops.indirectJars),
-        "-P:dependency-analyzer:indirect-targets:" + String.join(":", targets),
+              "-P:dependency-analyzer:direct-jars:" + String.join(":", ops.directJars),
+              "-P:dependency-analyzer:indirect-jars:" + String.join(":", ops.indirectJars),
+              "-P:dependency-analyzer:indirect-targets:" + String.join(":", targets),
       };
       pluginParams = pluginParamsInUse;
     } else {
       pluginParams = new String[0];
     }
+    return pluginParams;
+  }
+
+  private static void compileScalaSources(CompileOptions ops, String[] scalaSources, Path tmpPath) throws IllegalAccessException {
+    String[] targets = encodeBazelTargets(ops.indirectTargets);
+
+    String[] pluginParams = getPluginParamsFrom(ops, targets);
 
     String[] constParams = {
       "-classpath",

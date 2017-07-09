@@ -8,7 +8,8 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
 
   val name = "dependency-analyzer"
   val description =
-    "Warns about classpath entries that are not directly needed."
+    "Analyzes the used dependencies and fails the compilation " +
+      "if they are not explicitly used as direct dependencies (only declared transitively)"
   val components = List[PluginComponent](Component)
 
   var indirect: Map[String, String] = Map.empty
@@ -54,8 +55,7 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
       private def warnOnIndirectTargetsFoundIn(usedJars: Set[AbstractFile]) = {
         for (usedJar <- usedJars;
              usedJarPath = usedJar.path;
-             target <- indirect.get(usedJarPath)
-             if !direct.contains(usedJarPath)) {
+             target <- indirect.get(usedJarPath) if !direct.contains(usedJarPath)) {
           reporter.error(NoPosition, s"Target '$target' is used but isn't explicitly declared, please add it to the deps")
         }
       }

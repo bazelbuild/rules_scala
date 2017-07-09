@@ -164,12 +164,11 @@ def _compile(ctx, cjars, dep_srcjars, buildijar, rjars=[], labels = {}):
     plugins = _collect_plugin_paths(ctx.attr.plugins)
 
     if (hasattr(ctx.attr, 'enable_dependency_analyzer')
-        and ctx.attr.enable_dependency_analyzer
-        and hasattr(ctx.attr, 'dependency_analyzer_plugin')):
+        and ctx.attr.enable_dependency_analyzer):
       enable_dependency_analyzer = ctx.attr.enable_dependency_analyzer
-      dep_plugin = ctx.attr.dependency_analyzer_plugin
+      dep_plugin = ctx.attr._dependency_analyzer_plugin
       plugins += [f.path for f in dep_plugin.files]
-      dependency_analyzer_plugin_jars = ctx.files.dependency_analyzer_plugin
+      dependency_analyzer_plugin_jars = ctx.files._dependency_analyzer_plugin
     else:
       enable_dependency_analyzer = False
       dependency_analyzer_plugin_jars = []
@@ -716,11 +715,14 @@ scala_library = rule(
   implementation=_scala_library_impl,
   attrs={
       "enable_dependency_analyzer": attr.bool(default=True, mandatory=False),
-      "dependency_analyzer_plugin": attr.label(default=Label("@io_bazel_rules_scala//plugin/src/main:dependency_analyzer"), allow_files=_jar_filetype, mandatory=False),
+      "_dependency_analyzer_plugin": attr.label(default=Label("@io_bazel_rules_scala//plugin/src/main:dependency_analyzer"), allow_files=_jar_filetype, mandatory=False),
       } + _implicit_deps + _common_attrs + library_attrs + _resolve_deps,
   outputs=library_outputs,
 )
 
+# the scala compiler plugin used for dependency analysis is compiled using `scala_library`.
+# in order to avoid cyclic dependencies `scala_library_for_plugin_bootstrapping` was created for this purpose,
+# which does not contain plugin related attributes, and thus avoids the cyclic dependency issue
 scala_library_for_plugin_bootstrapping = rule(
   implementation=_scala_library_impl,
   attrs= _implicit_deps + _common_attrs + library_attrs + _resolve_deps,
