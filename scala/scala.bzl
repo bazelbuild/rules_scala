@@ -376,30 +376,44 @@ def collect_srcjars(targets):
             srcjars += [target.srcjars.srcjar]
     return srcjars
 
-def update_jars_to_labels(jars2labels, target, all_jars):
+def update_jars_to_labels(jars2labels, dependency, all_jars):
   for jar in all_jars:
-    if jar.path not in jars2labels:
-      if hasattr(target, "jars_to_labels") and jar.path in target.jars_to_labels:
-        jars2labels[jar.path] = target.jars_to_labels[jar.path]
-      else:
-        jars2labels[jar.path] = target.label
+   add_new_jar_mappings_only(jars2labels, dependency, jar)
 
-def _collect_jars(targets):
+
+def add_new_jar_mappings_only(jars2labels, dependency, jar):
+ if jar_was_previously_mapped(jars2labels, jar):
+   return
+
+ if jar_was_mapped_by_transitive_dependencies_of(dependency, jar):
+   jars2labels[jar.path] = dependency.jars_to_labels[jar.path]
+ else:
+   jars2labels[jar.path] = dependency.label
+
+
+def jar_was_previously_mapped(jars2labels, jar):
+  return jar.path in jars2labels
+
+def jar_was_mapped_by_transitive_dependencies_of(dependency, jar):
+ return hasattr(dependency, "jars_to_labels") and jar.path in dependency.jars_to_labels
+
+
+def _collect_jars(dep_targets):
     """Compute the runtime and compile-time dependencies from the given targets"""  # noqa
     compile_jars = depset()
     runtime_jars = depset()
     jars2labels = {}
-    for target in targets:
-        if java_common.provider in target:
-            java_provider = target[java_common.provider]
+    for dep_target in dep_targets:
+        if java_common.provider in dep_target:
+            java_provider = dep_target[java_common.provider]
             compile_jars += java_provider.compile_jars
             runtime_jars += java_provider.transitive_runtime_jars
         else:
             # support http_file pointed at a jar. http_jar uses ijar,
             # which breaks scala macros
-            compile_jars += target.files
-            runtime_jars += target.files
-        update_jars_to_labels(jars2labels, target, compile_jars + runtime_jars)
+            compile_jars += dep_target.files
+            runtime_jars += dep_target.files
+        update_jars_to_labels(jars2labels, dep_target, compile_jars + runtime_jars)
 
     return struct(compile_jars = compile_jars, transitive_runtime_jars = runtime_jars, jars2labels=jars2labels)
 
