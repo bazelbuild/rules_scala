@@ -165,7 +165,7 @@ def _compile(ctx, cjars, dep_srcjars, buildijar, rjars=[], labels = {}):
 
     if (hasattr(ctx.attr, 'enable_dependency_analyzer')
         and ctx.attr.enable_dependency_analyzer):
-      enable_dependency_analyzer = ctx.attr.enable_dependency_analyzer
+      enable_dependency_analyzer = True
       dep_plugin = ctx.attr._dependency_analyzer_plugin
       plugins += [f.path for f in dep_plugin.files]
       dependency_analyzer_plugin_jars = ctx.files._dependency_analyzer_plugin
