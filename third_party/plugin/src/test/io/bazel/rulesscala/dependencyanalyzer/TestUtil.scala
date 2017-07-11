@@ -1,4 +1,4 @@
-package plugin.src.test.io.bazel.rulesscala.dependencyanalyzer
+package third_party.plugin.src.test.io.bazel.rulesscala.dependencyanalyzer
 
 import java.io.File
 import java.nio.file.Paths
@@ -68,7 +68,7 @@ object TestUtil {
 
   lazy val toolboxPluginOptions: String = {
     val jar = System.getProperty("plugin.jar.location")
-    val start= jar.indexOf("/plugin")
+    val start= jar.indexOf("/third_party/plugin")
     // this substring is needed due to issue: https://github.com/bazelbuild/bazel/issues/2475
     val jarInRelationToBaseDir = jar.substring(start, jar.length)
     val pluginPath = Paths.get(baseDir, jarInRelationToBaseDir).toAbsolutePath

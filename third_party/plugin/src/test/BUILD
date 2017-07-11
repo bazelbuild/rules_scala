@@ -1,3 +1,5 @@
+licenses(["notice"])  # 3-clause BSD
+
 load("//scala:scala.bzl", "scala_junit_test")
 
 scala_junit_test(
@@ -6,7 +8,7 @@ scala_junit_test(
                 "io/bazel/rulesscala/dependencyanalyzer/TestUtil.scala"],
         suffixes = ["Test"],
         size = "small",
-        deps = ["//plugin/src/main:dependency_analyzer",
+        deps = ["//third_party/plugin/src/main:dependency_analyzer",
                 "@io_get_coursier_coursier_cache//jar",
                 "@io_get_coursier_coursier//jar",
                 "@org_scalaz_scalaz_concurrent_2_11//jar",
@@ -16,6 +18,6 @@ scala_junit_test(
                 "//external:io_bazel_rules_scala/dependency/scala/scala_compiler",
                 "//external:io_bazel_rules_scala/dependency/scala/scala_library",
                 ],
-        jvm_flags = ["-Dplugin.jar.location=$(location //plugin/src/main:dependency_analyzer)",
+        jvm_flags = ["-Dplugin.jar.location=$(location //third_party/plugin/src/main:dependency_analyzer)",
                      "-Dscala.library.location=$(location //external:io_bazel_rules_scala/dependency/scala/scala_library)"],
 )

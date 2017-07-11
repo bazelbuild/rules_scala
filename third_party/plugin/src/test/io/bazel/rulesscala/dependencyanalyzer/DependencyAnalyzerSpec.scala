@@ -1,4 +1,4 @@
-package plugin.src.test.io.bazel.rulesscala.dependencyanalyzer
+package third_party.plugin.src.test.io.bazel.rulesscala.dependencyanalyzer
 
 import coursier.{Dependency, Module}
 import TestUtil._

@@ -1,4 +1,0 @@
-<plugin>
-  <name>dependency-analyzer</name>
-  <classname>plugin.src.main.io.bazel.rulesscala.dependencyanalyzer.DependencyAnalyzer</classname>
-</plugin>
