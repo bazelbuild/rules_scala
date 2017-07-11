@@ -88,16 +88,23 @@ test_scala_library_expect_failure_on_missing_direct_deps() {
   exit 0
 }
 
-test_scala_library_expect_failure_on_missing_direct_external_deps() {
-  dependenecy_target='@com_google_guava_guava_21_0//jar:file'
+test_scala_library_expect_failure_on_missing_direct_internal_deps() {
+  dependenecy_target='//test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency'
+  test_target='test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency_user'
+
+  test_scala_library_expect_failure_on_missing_direct_deps $dependenecy_target $test_target
+}
+
+test_scala_library_expect_failure_on_missing_direct_external_deps_jar() {
+  dependenecy_target='@com_google_guava_guava_21_0//jar:jar'
   test_target='test_expect_failure/missing_direct_deps/external_deps:transitive_external_dependency_user'
 
   test_scala_library_expect_failure_on_missing_direct_deps $dependenecy_target $test_target
 }
 
-test_scala_library_expect_failure_on_missing_direct_internal_deps() {
-  dependenecy_target='//test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency'
-  test_target='test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency_user'
+test_scala_library_expect_failure_on_missing_direct_external_deps_file_group() {
+  dependenecy_target='@com_google_guava_guava_21_0//jar:file'
+  test_target='test_expect_failure/missing_direct_deps/external_deps_file_group:transitive_external_dependency_user'
 
   test_scala_library_expect_failure_on_missing_direct_deps $dependenecy_target $test_target
 }
@@ -395,4 +402,5 @@ $runner scala_junit_test_test_filter
 $runner scalac_jvm_flags_are_configured
 $runner javac_jvm_flags_are_configured
 $runner test_scala_library_expect_failure_on_missing_direct_internal_deps
-$runner test_scala_library_expect_failure_on_missing_direct_external_deps
+$runner test_scala_library_expect_failure_on_missing_direct_external_deps_jar
+$runner test_scala_library_expect_failure_on_missing_direct_external_deps_file_group
