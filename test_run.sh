@@ -63,12 +63,12 @@ test_scala_library_suite() {
   action_should_fail build test_expect_failure/scala_library_suite:library_suite_dep_on_children
 }
 
-test_scala_library_expect_failure_on_missing_direct_deps() {
+test_scala_library_expect_failure_on_missing_direct_deps_with_expected_message() {
   set +e
-  dependenecy_target=$1
+
+  expected_message=$1
   test_target=$2
 
-  expected_message="Target '$dependenecy_target' is used but isn't explicitly declared, please add it to the deps"
   command="bazel build $test_target"
 
   output=$($command 2>&1)
@@ -86,6 +86,23 @@ test_scala_library_expect_failure_on_missing_direct_deps() {
 
   set -e
   exit 0
+}
+
+test_scala_library_expect_failure_on_missing_direct_deps_when_strict_is_disabled() {
+  expected_message="not found: value C"
+  test_target='test_expect_failure/missing_direct_deps/strict_disabled:transitive_dependency_user'
+
+  test_scala_library_expect_failure_on_missing_direct_deps_with_expected_message "$expected_message" $test_target
+}
+
+test_scala_library_expect_failure_on_missing_direct_deps() {
+  dependenecy_target=$1
+  test_target=$2
+  expected_message="Target '$dependenecy_target' is used but isn't explicitly declared, please add it to the deps"
+
+  echo 'expected_message in caller: ' $expected_message
+
+  test_scala_library_expect_failure_on_missing_direct_deps_with_expected_message "$expected_message" $test_target
 }
 
 test_scala_library_expect_failure_on_missing_direct_internal_deps() {
@@ -404,3 +421,4 @@ $runner javac_jvm_flags_are_configured
 $runner test_scala_library_expect_failure_on_missing_direct_internal_deps
 $runner test_scala_library_expect_failure_on_missing_direct_external_deps_jar
 $runner test_scala_library_expect_failure_on_missing_direct_external_deps_file_group
+$runner test_scala_library_expect_failure_on_missing_direct_deps_when_strict_is_disabled
