@@ -377,25 +377,27 @@ def collect_srcjars(targets):
             srcjars += [target.srcjars.srcjar]
     return srcjars
 
-def update_jars_to_labels(jars2labels, dependency, all_jars):
+def add_labels_of_jars_to(jars2labels, dependency, all_jars):
   for jar in all_jars:
-   add_new_jar_mappings_only(jars2labels, dependency, jar)
+   add_label_of_jar_to(jars2labels, dependency, jar)
 
 
-def add_new_jar_mappings_only(jars2labels, dependency, jar):
- if jar_was_previously_mapped(jars2labels, jar):
+def add_label_of_jar_to(jars2labels, dependency, jar):
+ if label_already_exists(jars2labels, jar):
    return
 
- if jar_was_mapped_by_transitive_dependencies_of(dependency, jar):
+ # skylark exposes only labels of direct dependencies.
+ # to get labels of indirect dependencies we collect them from the providers transitively
+ if provider_of_dependency_contains_label_of(dependency, jar):
    jars2labels[jar.path] = dependency.jars_to_labels[jar.path]
  else:
    jars2labels[jar.path] = dependency.label
 
 
-def jar_was_previously_mapped(jars2labels, jar):
+def label_already_exists(jars2labels, jar):
   return jar.path in jars2labels
 
-def jar_was_mapped_by_transitive_dependencies_of(dependency, jar):
+def provider_of_dependency_contains_label_of(dependency, jar):
  return hasattr(dependency, "jars_to_labels") and jar.path in dependency.jars_to_labels
 
 
@@ -422,7 +424,7 @@ def _collect_jars(dep_targets):
             runtime_jars += dep_target.files
             transitive_cjars += dep_target.files
 
-        update_jars_to_labels(jars2labels, dep_target, transitive_cjars)
+        add_labels_of_jars_to(jars2labels, dep_target, transitive_cjars)
 
     return struct(compile_jars = compile_jars, transitive_runtime_jars = runtime_jars, jars2labels=jars2labels, transitive_cjars=transitive_cjars)
 
