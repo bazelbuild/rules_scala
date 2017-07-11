@@ -400,6 +400,8 @@ def label_already_exists(jars2labels, jar):
 def provider_of_dependency_contains_label_of(dependency, jar):
  return hasattr(dependency, "jars_to_labels") and jar.path in dependency.jars_to_labels
 
+def dep_target_contains_ijar(dep_target):
+  return hasattr(dep_target, 'scala') and hasattr(dep_target.scala, 'outputs') and hasattr(dep_target.scala.outputs, 'ijar')
 
 def _collect_jars(dep_targets):
     """Compute the runtime and compile-time dependencies from the given targets"""  # noqa
@@ -408,7 +410,7 @@ def _collect_jars(dep_targets):
     transitive_cjars = depset()
     jars2labels = {}
     for dep_target in dep_targets:
-        if hasattr(dep_target, 'scala') and hasattr(dep_target.scala, 'outputs') and hasattr(dep_target.scala.outputs, 'ijar'):
+        if dep_target_contains_ijar(dep_target):
           transitive_cjars += [dep_target.scala.outputs.ijar]
         if hasattr(dep_target, 'transitive_cjars'):
           transitive_cjars += dep_target.transitive_cjars
