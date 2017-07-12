@@ -68,24 +68,32 @@ test_scala_library_expect_failure_on_missing_direct_deps_with_expected_message()
 
   expected_message=$1
   test_target=$2
+  operator=${3:-"eq"}
 
-  command="bazel build $test_target"
+  if [ "${operator}" = "eq" ]; then
+    error_message="bazel build of scala_library with missing direct deps should have failed."
+  else
+    error_message="bazel build of scala_library with missing direct deps should not have failed."
+  fi
 
-  output=$($command 2>&1)
-  if [  $? -eq 0 ]; then
-    echo "$output"
-    echo "'bazel build of scala_library with missing direct deps should have failed."
+  command="bazel build ${test_target}"
+
+  output=$(${command} 2>&1)
+  status_code=$?
+
+  echo "$output"
+  if [ ${status_code} -${operator} 0 ]; then
+    echo ${error_message}
     exit 1
   fi
-  echo "$output"
-  echo $output | grep "$expected_message"
+
+  echo ${output} | grep "$expected_message"
   if [ $? -ne 0 ]; then
-    echo "'bazel build $test_target' should have logged \"$expected_message\"."
+    echo "'bazel build ${test_target}' should have logged \"${expected_message}\"."
       exit 1
   fi
 
   set -e
-  exit 0
 }
 
 test_scala_library_expect_failure_on_missing_direct_deps_when_strict_is_disabled() {
@@ -113,10 +121,10 @@ test_scala_library_expect_failure_on_missing_direct_internal_deps() {
 }
 
 test_scala_binary_expect_failure_on_missing_direct_deps() {
-  dependenecy_target='//test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency'
+  dependency_target='//test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency'
   test_target='test_expect_failure/missing_direct_deps/internal_deps:user_binary'
 
-  test_scala_library_expect_failure_on_missing_direct_deps ${dependenecy_target} ${test_target}
+  test_scala_library_expect_failure_on_missing_direct_deps ${dependency_target} ${test_target}
 }
 
 test_scala_library_expect_failure_on_missing_direct_external_deps_jar() {
@@ -131,6 +139,31 @@ test_scala_library_expect_failure_on_missing_direct_external_deps_file_group() {
   test_target='test_expect_failure/missing_direct_deps/external_deps_file_group:transitive_external_dependency_user'
 
   test_scala_library_expect_failure_on_missing_direct_deps $dependenecy_target $test_target
+}
+
+test_dependency_analyzer_modes() {
+  expected_message="error: Target '//test_expect_failure/dep_analyzer_modes:transitive_dependency' is used but isn't explicitly declared, please add it to the deps"
+  test_target='test_expect_failure/dep_analyzer_modes:error_mode'
+
+  test_scala_library_expect_failure_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target}
+
+
+  expected_message="warning: Target '//test_expect_failure/dep_analyzer_modes:transitive_dependency' is used but isn't explicitly declared, please add it to the deps"
+  test_target='test_expect_failure/dep_analyzer_modes:warn_mode'
+
+  test_scala_library_expect_failure_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target} "ne"
+
+
+  expected_message="Incorrect mode of dependency analyzer plugin! Mode must be 'error', 'warn' or 'off'."
+  test_target='test_expect_failure/dep_analyzer_modes:weird_mode'
+
+  test_scala_library_expect_failure_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target}
+
+
+  expected_message="test_expect_failure/dep_analyzer_modes/A.scala:[0-9+]: error: not found: value C"
+  test_target='test_expect_failure/dep_analyzer_modes:off_mode'
+
+  test_scala_library_expect_failure_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target}
 }
 
 test_scala_junit_test_can_fail() {
@@ -430,3 +463,4 @@ $runner test_scala_library_expect_failure_on_missing_direct_external_deps_jar
 $runner test_scala_library_expect_failure_on_missing_direct_external_deps_file_group
 $runner test_scala_library_expect_failure_on_missing_direct_deps_when_strict_is_disabled
 $runner test_scala_binary_expect_failure_on_missing_direct_deps
+$runner test_dependency_analyzer_modes

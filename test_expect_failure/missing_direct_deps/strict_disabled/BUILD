@@ -7,7 +7,7 @@ scala_library(
         "A.scala",
         ],
     deps = ["direct_dependency"],
-    enable_dependency_analyzer = False
+    dependency_analyzer_mode = "off"
 )
 
 scala_library(

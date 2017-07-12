@@ -14,6 +14,7 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
 
   var indirect: Map[String, String] = Map.empty
   var direct: Set[String] = Set.empty
+  var analyzerMode: String = "error"
 
   override def processOptions(options: List[String], error: (String) => Unit): Unit = {
     var indirectJars: Seq[String] = Seq.empty
@@ -24,6 +25,7 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
         case "direct-jars" :: data => direct = data.toSet
         case "indirect-jars" :: data => indirectJars = data;
         case "indirect-targets" :: data => indirectTargets = data.map(_.replace(";", ":"))
+        case "mode" :: mode => analyzerMode = mode.head
         case unknown :: _ => error(s"unknown param $unknown")
         case Nil =>
       }
@@ -56,7 +58,12 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
         for (usedJar <- usedJars;
              usedJarPath = usedJar.path;
              target <- indirect.get(usedJarPath) if !direct.contains(usedJarPath)) {
-          reporter.error(NoPosition, s"Target '$target' is used but isn't explicitly declared, please add it to the deps")
+          val errorMessage = s"Target '$target' is used but isn't explicitly declared, please add it to the deps"
+
+          analyzerMode match {
+            case "error" => reporter.error(NoPosition, errorMessage)
+            case "warn" => reporter.warning(NoPosition, errorMessage)
+          }
         }
       }
 

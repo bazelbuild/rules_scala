@@ -162,18 +162,19 @@ def _compile(ctx, cjars, dep_srcjars, buildijar, transitive_cjars=[], labels = {
     all_srcjars = set(srcjars + list(dep_srcjars))
     # look for any plugins:
     plugins = _collect_plugin_paths(ctx.attr.plugins)
+    dependency_analyzer_plugin_jars = []
+    dependency_analyzer_mode = "off"
+    provided_cjars = cjars
 
-    if (hasattr(ctx.attr, 'enable_dependency_analyzer')
-        and ctx.attr.enable_dependency_analyzer):
-      enable_dependency_analyzer = True
-      dep_plugin = ctx.attr._dependency_analyzer_plugin
-      plugins += [f.path for f in dep_plugin.files]
-      dependency_analyzer_plugin_jars = ctx.files._dependency_analyzer_plugin
-      provided_cjars = transitive_cjars
-    else:
-      enable_dependency_analyzer = False
-      dependency_analyzer_plugin_jars = []
-      provided_cjars = cjars
+    if (hasattr(ctx.attr, 'dependency_analyzer_mode')):
+      if (ctx.attr.dependency_analyzer_mode not in ["error", "warn", "off"]):
+        fail("Incorrect mode of dependency analyzer plugin! Mode must be 'error', 'warn' or 'off'")
+      elif (ctx.attr.dependency_analyzer_mode != "off"):
+        dependency_analyzer_mode = ctx.attr.dependency_analyzer_mode
+        dep_plugin = ctx.attr._dependency_analyzer_plugin
+        plugins += [f.path for f in dep_plugin.files]
+        dependency_analyzer_plugin_jars = ctx.files._dependency_analyzer_plugin
+        provided_cjars = transitive_cjars
 
     plugin_arg = ",".join(list(plugins))
 
@@ -205,7 +206,7 @@ SourceJars: {srcjars}
 DirectJars: {direct_jars}
 IndirectJars: {indirect_jars}
 IndirectTargets: {indirect_targets}
-EnableDependencyAnalyzer: {enable_dependency_analyzer}
+DependencyAnalyzerMode: {dependency_analyzer_mode}
 """.format(
         out=ctx.outputs.jar.path,
         manifest=ctx.outputs.manifest.path,
@@ -232,7 +233,7 @@ EnableDependencyAnalyzer: {enable_dependency_analyzer}
         direct_jars=direct_jars,
         indirect_jars=indirect_jars,
         indirect_targets=indirect_targets,
-        enable_dependency_analyzer = enable_dependency_analyzer,
+        dependency_analyzer_mode = dependency_analyzer_mode,
         )
     argfile = ctx.new_file(
       ctx.outputs.jar,
@@ -742,7 +743,7 @@ library_outputs = {
 scala_library = rule(
   implementation=_scala_library_impl,
   attrs={
-      "enable_dependency_analyzer": attr.bool(default=True, mandatory=False),
+      "dependency_analyzer_mode": attr.string(default="error", mandatory=False),
       "_dependency_analyzer_plugin": attr.label(default=Label("@io_bazel_rules_scala//third_party/plugin/src/main:dependency_analyzer"), allow_files=_jar_filetype, mandatory=False),
       } + _implicit_deps + _common_attrs + library_attrs + _resolve_deps,
   outputs=library_outputs,
@@ -773,7 +774,7 @@ scala_macro_library = rule(
 scala_binary = rule(
   implementation=_scala_binary_impl,
   attrs={
-      "enable_dependency_analyzer": attr.bool(default=True, mandatory=False),
+      "dependency_analyzer_mode": attr.string(default="error", mandatory=False),
       "_dependency_analyzer_plugin": attr.label(default=Label("@io_bazel_rules_scala//third_party/plugin/src/main:dependency_analyzer"), allow_files=_jar_filetype, mandatory=False),
       "main_class": attr.string(mandatory=True),
       } + _launcher_template + _implicit_deps + _common_attrs + _resolve_deps,

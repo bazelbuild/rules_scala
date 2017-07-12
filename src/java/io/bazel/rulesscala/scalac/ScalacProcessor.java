@@ -191,11 +191,13 @@ class ScalacProcessor implements Processor {
 
   private static String[] getPluginParamsFrom(CompileOptions ops, String[] targets) {
     String[] pluginParams;
-    if (ops.enableDependencyAnalyzer) {
+
+    if (!"off".equals(ops.dependencyAnalyzerMode)) {
       String[] pluginParamsInUse = {
               "-P:dependency-analyzer:direct-jars:" + String.join(":", ops.directJars),
               "-P:dependency-analyzer:indirect-jars:" + String.join(":", ops.indirectJars),
               "-P:dependency-analyzer:indirect-targets:" + String.join(":", targets),
+              "-P:dependency-analyzer:mode:" + ops.dependencyAnalyzerMode,
       };
       pluginParams = pluginParamsInUse;
     } else {
