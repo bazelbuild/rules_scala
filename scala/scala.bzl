@@ -996,6 +996,12 @@ java_import(
     jars = ["lib/scala-reflect.jar"],
     visibility = ["//visibility:public"],
 )
+
+java_library(
+    name = "transitive_scalatest",
+    exports = ["@scalatest//jar", "@scalactic//jar"],
+    visibility = ["//visibility:public"],
+)
 """
 
 def scala_repositories():
@@ -1012,6 +1018,13 @@ def scala_repositories():
     name = "scalatest",
     url = "http://oss.sonatype.org/content/groups/public/org/scalatest/scalatest_2.12/3.0.3/scalatest_2.12-3.0.3.jar",
     sha256 = "353f7c2bdde22c4286ee6a3ae0e425a9463b102f4c4cf76055a24f4666996762",
+  )
+
+  # scalatest has macros, note http_jar is invoking ijar
+  native.http_jar(
+    name = "scalactic",
+    url = "https://oss.sonatype.org/content/groups/public/org/scalactic/scalactic_2.12/3.0.3/scalactic_2.12-3.0.3.jar",
+    sha256 = "245ad1baab6661aee70c137c5e1625771c2624596b349b305801d94618673292",
   )
 
   native.maven_server(
@@ -1049,7 +1062,7 @@ def scala_repositories():
 
   native.bind(name = "io_bazel_rules_scala/dependency/scala/scala_xml", actual = "@scala//:scala-xml")
 
-  native.bind(name = "io_bazel_rules_scala/dependency/scalatest/scalatest", actual = "@scalatest//jar")
+  native.bind(name = "io_bazel_rules_scala/dependency/scalatest/scalatest", actual = "@scala//:transitive_scalatest")
 
 def _sanitize_string_for_usage(s):
     res_array = []

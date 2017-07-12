@@ -28,7 +28,7 @@ def _rule_impl(ctx):
         "scala_test" : [
             "//test/aspect:scala_test",
             "@scala//:scala-library",
-            "@scalatest//jar:jar",
+            "@scala//:transitive_scalatest",
         ],
         "scala_junit_test" : [
             "//test/aspect:scala_junit_test",
