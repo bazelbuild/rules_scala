@@ -530,9 +530,9 @@ def _scala_macro_library_impl(ctx):
   return _lib(ctx, False)  # don't build the ijar for macros
 
 # Common code shared by all scala binary implementations.
-def _scala_binary_common(ctx, cjars, rjars):
+def _scala_binary_common(ctx, cjars, rjars, jars):
   write_manifest(ctx)
-  outputs = _compile_or_empty(ctx, cjars, [], False)  # no need to build an ijar for an executable
+  outputs = _compile_or_empty(ctx, cjars, [], False, jars.transitive_cjars, jars.jars2labels)  # no need to build an ijar for an executable
   _build_deployable(ctx, list(rjars))
 
   java_wrapper = ctx.new_file(ctx.label.name + "_wrapper.sh")
@@ -576,7 +576,7 @@ def _scala_binary_impl(ctx):
       main_class = ctx.attr.main_class,
       jvm_flags = ctx.attr.jvm_flags,
   )
-  return _scala_binary_common(ctx, cjars, transitive_rjars)
+  return _scala_binary_common(ctx, cjars, transitive_rjars, jars)
 
 def _scala_repl_impl(ctx):
   # need scala-compiler for MainGenericRunner below
@@ -607,7 +607,7 @@ trap finish EXIT
 """,
   )
 
-  return _scala_binary_common(ctx, cjars, transitive_rjars)
+  return _scala_binary_common(ctx, cjars, transitive_rjars, jars)
 
 def _scala_test_impl(ctx):
     if len(ctx.attr.suites) != 0:
@@ -639,7 +639,7 @@ def _scala_test_impl(ctx):
         jvm_flags = ctx.attr.jvm_flags,
         args = args,
     )
-    return _scala_binary_common(ctx, cjars, transitive_rjars)
+    return _scala_binary_common(ctx, cjars, transitive_rjars, jars)
 
 def _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, archive):
     return struct(testSuiteFlag = "-Dbazel.test_suite=io.bazel.rulesscala.test_discovery.DiscoveredTestSuite",
@@ -667,7 +667,7 @@ def _scala_junit_test_impl(ctx):
         jvm_flags = launcherJvmFlags + ctx.attr.jvm_flags,
     )
 
-    return _scala_binary_common(ctx, cjars, transitive_rjars)
+    return _scala_binary_common(ctx, cjars, transitive_rjars, jars)
 
 _launcher_template = {
   "_java_stub_template": attr.label(default=Label("@java_stub_template//file")),
@@ -773,6 +773,8 @@ scala_macro_library = rule(
 scala_binary = rule(
   implementation=_scala_binary_impl,
   attrs={
+      "enable_dependency_analyzer": attr.bool(default=True, mandatory=False),
+      "_dependency_analyzer_plugin": attr.label(default=Label("@io_bazel_rules_scala//third_party/plugin/src/main:dependency_analyzer"), allow_files=_jar_filetype, mandatory=False),
       "main_class": attr.string(mandatory=True),
       } + _launcher_template + _implicit_deps + _common_attrs + _resolve_deps,
   outputs={

@@ -5,4 +5,6 @@ object A {
 		B.foo
 		C.foo
 	}
+
+	def main = foo
 }

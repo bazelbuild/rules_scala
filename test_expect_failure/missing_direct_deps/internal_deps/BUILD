@@ -1,5 +1,5 @@
 package(default_visibility = ["//visibility:public"])
-load("//scala:scala.bzl", "scala_library", "scala_test")
+load("//scala:scala.bzl", "scala_library", "scala_test", "scala_binary")
 
 scala_library(
     name="transitive_dependency_user",
@@ -22,4 +22,13 @@ scala_library(
     srcs=[
         "C.scala",
         ],
+)
+
+scala_binary(
+    name="user_binary",
+    main_class="A",
+    srcs=[
+        "A.scala",
+        ],
+    deps = ["direct_dependency"],
 )
