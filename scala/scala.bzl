@@ -956,7 +956,7 @@ scala_repl = rule(
 
 def scala_version():
   """return the scala version for use in maven coordinates"""
-  return "2.11"
+  return "2.12"
 
 def scala_mvn_artifact(artifact):
   gav = artifact.split(":")
@@ -969,13 +969,13 @@ SCALA_BUILD_FILE = """
 # scala.BUILD
 java_import(
     name = "scala-xml",
-    jars = ["lib/scala-xml_2.11-1.0.5.jar"],
+    jars = ["lib/scala-xml_2.12-1.0.6.jar"],
     visibility = ["//visibility:public"],
 )
 
 java_import(
     name = "scala-parser-combinators",
-    jars = ["lib/scala-parser-combinators_2.11-1.0.4.jar"],
+    jars = ["lib/scala-parser-combinators_2.12-1.0.5.jar"],
     visibility = ["//visibility:public"],
 )
 
@@ -1001,17 +1001,17 @@ java_import(
 def scala_repositories():
   native.new_http_archive(
     name = "scala",
-    strip_prefix = "scala-2.11.11",
-    sha256 = "12037ca64c68468e717e950f47fc77d5ceae5e74e3bdca56f6d02fd5bfd6900b",
-    url = "https://downloads.lightbend.com/scala/2.11.11/scala-2.11.11.tgz",
+    strip_prefix = "scala-2.12.2",
+    sha256 = "196168b246fcf10e275491c5e58a50ca9eb696da95e49155b3f86f001346a6f5",
+    url = "https://downloads.lightbend.com/scala/2.12.2/scala-2.12.2.tgz",
     build_file_content = SCALA_BUILD_FILE,
   )
 
   # scalatest has macros, note http_jar is invoking ijar
   native.http_jar(
     name = "scalatest",
-    url = "http://mirror.bazel.build/oss.sonatype.org/content/groups/public/org/scalatest/scalatest_2.11/2.2.6/scalatest_2.11-2.2.6.jar",
-    sha256 = "f198967436a5e7a69cfd182902adcfbcb9f2e41b349e1a5c8881a2407f615962",
+    url = "http://oss.sonatype.org/content/groups/public/org/scalatest/scalatest_2.12/3.0.3/scalatest_2.12-3.0.3.jar",
+    sha256 = "353f7c2bdde22c4286ee6a3ae0e425a9463b102f4c4cf76055a24f4666996762",
   )
 
   native.maven_server(
