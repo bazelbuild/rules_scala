@@ -4,7 +4,7 @@ load("//scala:scala.bzl", "scala_junit_test")
 
 scala_junit_test(
         name = "dependency_analyzer_test",
-        srcs = ["io/bazel/rulesscala/dependencyanalyzer/DependencyAnalyzerSpec.scala",
+        srcs = ["io/bazel/rulesscala/dependencyanalyzer/DependencyAnalyzerTest.scala",
                 "io/bazel/rulesscala/dependencyanalyzer/TestUtil.scala"],
         suffixes = ["Test"],
         size = "small",
