@@ -63,7 +63,7 @@ test_scala_library_suite() {
   action_should_fail build test_expect_failure/scala_library_suite:library_suite_dep_on_children
 }
 
-test_scala_library_expect_failure_on_missing_direct_deps_with_expected_message() {
+test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message() {
   set +e
 
   expected_message=$1
@@ -100,7 +100,7 @@ test_scala_library_expect_failure_on_missing_direct_deps_when_strict_is_disabled
   expected_message="not found: value C"
   test_target='test_expect_failure/missing_direct_deps/strict_disabled:transitive_dependency_user'
 
-  test_scala_library_expect_failure_on_missing_direct_deps_with_expected_message "$expected_message" $test_target
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "$expected_message" $test_target
 }
 
 test_scala_library_expect_failure_on_missing_direct_deps() {
@@ -110,7 +110,7 @@ test_scala_library_expect_failure_on_missing_direct_deps() {
 
   echo 'expected_message in caller: ' $expected_message
 
-  test_scala_library_expect_failure_on_missing_direct_deps_with_expected_message "$expected_message" $test_target
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "$expected_message" $test_target
 }
 
 test_scala_library_expect_failure_on_missing_direct_internal_deps() {
@@ -145,25 +145,25 @@ test_dependency_analyzer_modes() {
   expected_message="error: Target '//test_expect_failure/dep_analyzer_modes:transitive_dependency' is used but isn't explicitly declared, please add it to the deps"
   test_target='test_expect_failure/dep_analyzer_modes:error_mode'
 
-  test_scala_library_expect_failure_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target}
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target}
 
 
   expected_message="warning: Target '//test_expect_failure/dep_analyzer_modes:transitive_dependency' is used but isn't explicitly declared, please add it to the deps"
   test_target='test_expect_failure/dep_analyzer_modes:warn_mode'
 
-  test_scala_library_expect_failure_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target} "ne"
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target} "ne"
 
 
   expected_message="Incorrect mode of dependency analyzer plugin! Mode must be 'error', 'warn' or 'off'."
   test_target='test_expect_failure/dep_analyzer_modes:weird_mode'
 
-  test_scala_library_expect_failure_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target}
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target}
 
 
   expected_message="test_expect_failure/dep_analyzer_modes/A.scala:[0-9+]: error: not found: value C"
   test_target='test_expect_failure/dep_analyzer_modes:off_mode'
 
-  test_scala_library_expect_failure_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target}
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target}
 }
 
 test_scala_junit_test_can_fail() {

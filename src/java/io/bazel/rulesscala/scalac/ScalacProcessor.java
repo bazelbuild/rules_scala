@@ -189,10 +189,14 @@ class ScalacProcessor implements Processor {
             .toArray(String[]::new);
   }
 
+  private static boolean isModeEnabled(String mode) {
+    return !"off".equals(mode);
+  }
+
   private static String[] getPluginParamsFrom(CompileOptions ops, String[] targets) {
     String[] pluginParams;
 
-    if (!"off".equals(ops.dependencyAnalyzerMode)) {
+    if (isModeEnabled(ops.dependencyAnalyzerMode)) {
       String[] pluginParamsInUse = {
               "-P:dependency-analyzer:direct-jars:" + String.join(":", ops.directJars),
               "-P:dependency-analyzer:indirect-jars:" + String.join(":", ops.indirectJars),

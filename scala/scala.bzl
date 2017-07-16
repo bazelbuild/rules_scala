@@ -166,6 +166,7 @@ def _compile(ctx, cjars, dep_srcjars, buildijar, transitive_cjars=[], labels = {
     dependency_analyzer_mode = "off"
     provided_cjars = cjars
 
+    # "off" mode is useing as a feature toggle, that preserves original behaviour
     if (hasattr(ctx.attr, 'dependency_analyzer_mode')):
       if (ctx.attr.dependency_analyzer_mode not in ["error", "warn", "off"]):
         fail("Incorrect mode of dependency analyzer plugin! Mode must be 'error', 'warn' or 'off'")
