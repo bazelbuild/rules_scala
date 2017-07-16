@@ -1,17 +1,12 @@
 package third_party.plugin.src.test.io.bazel.rulesscala.dependencyanalyzer
 
-import java.io.File
 import java.nio.file.Paths
-
-import coursier.maven.MavenRepository
-import coursier.{Cache, Dependency, Fetch, Resolution}
 
 import scala.reflect.internal.util.BatchSourceFile
 import scala.reflect.io.VirtualDirectory
 import scala.tools.cmd.CommandLineParser
 import scala.tools.nsc.reporters.StoreReporter
 import scala.tools.nsc.{CompilerCommand, Global, Settings}
-import scalaz.concurrent.Task
 
 object TestUtil {
 
@@ -60,11 +55,8 @@ object TestUtil {
 
   lazy val baseDir = System.getProperty("user.dir")
 
-  lazy val toolboxClasspath: String = {
-    val jar = System.getProperty("scala.library.location")
-    val libPath = Paths.get(baseDir, jar).toAbsolutePath
-    libPath.toString
-  }
+  lazy val toolboxClasspath: String =
+    pathOf("scala.library.location")
 
   lazy val toolboxPluginOptions: String = {
     val jar = System.getProperty("plugin.jar.location")
@@ -75,6 +67,18 @@ object TestUtil {
     s"-Xplugin:${pluginPath} -Jdummy=${pluginPath.toFile.lastModified}"
   }
 
+  lazy val guavaClasspath: String =
+    pathOf("guava.jar.location")
+
+  lazy val apacheCommonsClasspath: String =
+    pathOf("apache.commons.jar.location")
+
+  private def pathOf(jvmFlag: String) = {
+    val jar = System.getProperty(jvmFlag)
+    val libPath = Paths.get(baseDir, jar).toAbsolutePath
+    libPath.toString
+  }
+
   private def createBasicCompileOptions(classpath: String, usePluginOptions: String) =
     s"-classpath $classpath $usePluginOptions"
 
@@ -82,37 +86,4 @@ object TestUtil {
     if (values.isEmpty) ""
     else s"-P:dependency-analyzer:$name:${values.mkString(":")}"
   }
-
-  object Coursier {
-    private final val repositories = Seq(
-      Cache.ivy2Local,
-      MavenRepository("https://repo1.maven.org/maven2")
-    )
-
-    def getArtifact(dependency: Dependency) = getArtifacts(Seq(dependency)).head
-
-    private def getArtifacts(deps: Seq[Dependency]): Seq[String] =
-      getArtifacts(deps, toAbsolutePath)
-
-    private def getArtifacts(deps: Seq[Dependency], fileToString: File => String): Seq[String] = {
-      val toResolve = Resolution(deps.toSet)
-      val fetch = Fetch.from(repositories, Cache.fetch())
-      val resolution = toResolve.process.run(fetch).run
-      val resolutionErrors = resolution.errors
-      if (resolutionErrors.nonEmpty)
-        sys.error(s"Modules could not be resolved:\n$resolutionErrors.")
-      val errorsOrJars = Task
-        .gatherUnordered(resolution.artifacts.map(Cache.file(_).run))
-        .unsafePerformSync
-      val onlyErrors = errorsOrJars.filter(_.isLeft)
-      if (onlyErrors.nonEmpty)
-        sys.error(s"Jars could not be fetched from cache:\n$onlyErrors")
-      errorsOrJars.flatMap(_.map(fileToString).toList)
-    }
-
-    private def toAbsolutePath(f: File): String =
-      f.getAbsolutePath
-
-  }
-
 }

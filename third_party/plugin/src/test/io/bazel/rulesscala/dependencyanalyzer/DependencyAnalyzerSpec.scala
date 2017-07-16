@@ -1,6 +1,5 @@
 package third_party.plugin.src.test.io.bazel.rulesscala.dependencyanalyzer
 
-import coursier.{Dependency, Module}
 import TestUtil._
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -9,14 +8,6 @@ import org.junit.runners.JUnit4
 @RunWith(classOf[JUnit4])
 class DependencyAnalyzerTest {
 
-  object Dependencies {
-    val commons =
-      Dependency(Module("org.apache.commons", "commons-lang3"), "3.5")
-    val guava = Dependency(Module("com.google.guava", "guava"), "21.0")
-  }
-
-  import Dependencies._
-
   @Test
   def `error on indirect dependency target`(): Unit = {
     val testCode =
@@ -24,10 +15,9 @@ class DependencyAnalyzerTest {
         |  org.apache.commons.lang3.ArrayUtils.EMPTY_BOOLEAN_ARRAY.length
         |}
       """.stripMargin
-    val commonsPath = Coursier.getArtifact(commons)
     val commonsTarget = "//commons:Target".encode()
-    val indirect = Map(commonsPath -> commonsTarget)
-    run(testCode, withIndirect = indirect).expectErrorOn(indirect(commonsPath).decoded)
+    val indirect = Map(apacheCommonsClasspath -> commonsTarget)
+    run(testCode, withIndirect = indirect).expectErrorOn(indirect(apacheCommonsClasspath).decoded)
   }
 
   @Test
@@ -38,13 +28,11 @@ class DependencyAnalyzerTest {
         |  com.google.common.base.Strings.commonPrefix("abc", "abcd")
         |}
       """.stripMargin
-    val commonsPath = Coursier.getArtifact(commons)
     val commonsTarget = "commonsTarget"
 
-    val guavaPath = Coursier.getArtifact(guava)
     val guavaTarget = "guavaTarget"
 
-    val indirect = Map(commonsPath -> commonsTarget, guavaPath -> guavaTarget)
+    val indirect = Map(apacheCommonsClasspath -> commonsTarget, guavaClasspath -> guavaTarget)
     run(testCode, withIndirect = indirect).expectErrorOn(commonsTarget, guavaTarget)
   }
 
@@ -55,11 +43,10 @@ class DependencyAnalyzerTest {
         |  org.apache.commons.lang3.ArrayUtils.EMPTY_BOOLEAN_ARRAY.length
         |}
       """.stripMargin
-    val commonsPath = Coursier.getArtifact(commons)
     val commonsTarget = "commonsTarget"
 
-    val direct = Seq(commonsPath)
-    val indirect = Map(commonsPath -> commonsTarget)
+    val direct = Seq(apacheCommonsClasspath)
+    val indirect = Map(apacheCommonsClasspath -> commonsTarget)
     run(testCode, withDirect = direct, withIndirect = indirect).noErrorOn(commonsTarget)
   }
 
