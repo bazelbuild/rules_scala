@@ -175,7 +175,7 @@ def _compile(ctx, cjars, dep_srcjars, buildijar, transitive_cjars=[], labels = {
         dep_plugin = ctx.attr._dependency_analyzer_plugin
         plugins += [f.path for f in dep_plugin.files]
         dependency_analyzer_plugin_jars = ctx.files._dependency_analyzer_plugin
-        compiler_classpath_jars = transitive_cjars
+        compiler_classpath_jars = cjars + transitive_cjars
 
     plugin_arg = ",".join(list(plugins))
 
@@ -711,7 +711,7 @@ _junit_resolve_deps = {
 }
 
 # Common attributes reused across multiple rules.
-_common_attrs = {
+_common_attrs_for_plugin_bootstrapping = {
   "srcs": attr.label_list(
       allow_files=_scala_srcjar_filetype),
   "deps": attr.label_list(),
@@ -729,6 +729,11 @@ _common_attrs = {
   "print_compile_time": attr.bool(default=False, mandatory=False),
 }
 
+_common_attrs = _common_attrs_for_plugin_bootstrapping + {
+  "dependency_analyzer_mode": attr.string(default="error", mandatory=False),
+  "_dependency_analyzer_plugin": attr.label(default=Label("@io_bazel_rules_scala//third_party/plugin/src/main:dependency_analyzer"), allow_files=_jar_filetype, mandatory=False),
+}
+
 library_attrs = {
   "main_class": attr.string(),
   "exports": attr.label_list(allow_files=False),
@@ -744,8 +749,6 @@ library_outputs = {
 scala_library = rule(
   implementation=_scala_library_impl,
   attrs={
-      "dependency_analyzer_mode": attr.string(default="error", mandatory=False),
-      "_dependency_analyzer_plugin": attr.label(default=Label("@io_bazel_rules_scala//third_party/plugin/src/main:dependency_analyzer"), allow_files=_jar_filetype, mandatory=False),
       } + _implicit_deps + _common_attrs + library_attrs + _resolve_deps,
   outputs=library_outputs,
 )
@@ -755,7 +758,7 @@ scala_library = rule(
 # which does not contain plugin related attributes, and thus avoids the cyclic dependency issue
 scala_library_for_plugin_bootstrapping = rule(
   implementation=_scala_library_impl,
-  attrs= _implicit_deps + _common_attrs + library_attrs + _resolve_deps,
+  attrs= _implicit_deps + library_attrs + _resolve_deps + _common_attrs_for_plugin_bootstrapping,
   outputs=library_outputs,
 )
 
@@ -775,8 +778,6 @@ scala_macro_library = rule(
 scala_binary = rule(
   implementation=_scala_binary_impl,
   attrs={
-      "dependency_analyzer_mode": attr.string(default="error", mandatory=False),
-      "_dependency_analyzer_plugin": attr.label(default=Label("@io_bazel_rules_scala//third_party/plugin/src/main:dependency_analyzer"), allow_files=_jar_filetype, mandatory=False),
       "main_class": attr.string(mandatory=True),
       } + _launcher_template + _implicit_deps + _common_attrs + _resolve_deps,
   outputs={
