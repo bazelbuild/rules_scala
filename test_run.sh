@@ -141,25 +141,31 @@ test_scala_library_expect_failure_on_missing_direct_external_deps_file_group() {
   test_scala_library_expect_failure_on_missing_direct_deps $dependenecy_target $test_target
 }
 
-test_dependency_analyzer_modes() {
+test_scala_library_expect_failure_on_missing_direct_deps_error_mode() {
   expected_message="error: Target '//test_expect_failure/dep_analyzer_modes:transitive_dependency' is used but isn't explicitly declared, please add it to the deps"
   test_target='test_expect_failure/dep_analyzer_modes:error_mode'
 
   test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target}
+}
 
+test_scala_library_expect_failure_on_missing_direct_deps_warn_mode() {
+  # warnings are cached. requires clean build...
+  bazel clean
 
   expected_message="warning: Target '//test_expect_failure/dep_analyzer_modes:transitive_dependency' is used but isn't explicitly declared, please add it to the deps"
   test_target='test_expect_failure/dep_analyzer_modes:warn_mode'
 
   test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target} "ne"
+}
 
-
+test_scala_library_expect_failure_on_missing_direct_deps_weird_mode() {
   expected_message="Incorrect mode of dependency analyzer plugin! Mode must be 'error', 'warn' or 'off'."
   test_target='test_expect_failure/dep_analyzer_modes:weird_mode'
 
   test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target}
+}
 
-
+test_scala_library_expect_failure_on_missing_direct_deps_off_mode() {
   expected_message="test_expect_failure/dep_analyzer_modes/A.scala:[0-9+]: error: not found: value C"
   test_target='test_expect_failure/dep_analyzer_modes:off_mode'
 
@@ -463,4 +469,7 @@ $runner test_scala_library_expect_failure_on_missing_direct_external_deps_jar
 $runner test_scala_library_expect_failure_on_missing_direct_external_deps_file_group
 $runner test_scala_library_expect_failure_on_missing_direct_deps_when_strict_is_disabled
 $runner test_scala_binary_expect_failure_on_missing_direct_deps
-$runner test_dependency_analyzer_modes
+$runner test_scala_library_expect_failure_on_missing_direct_deps_error_mode
+$runner test_scala_library_expect_failure_on_missing_direct_deps_warn_mode
+$runner test_scala_library_expect_failure_on_missing_direct_deps_weird_mode
+$runner test_scala_library_expect_failure_on_missing_direct_deps_off_mode
