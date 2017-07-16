@@ -164,7 +164,7 @@ def _compile(ctx, cjars, dep_srcjars, buildijar, transitive_cjars=[], labels = {
     plugins = _collect_plugin_paths(ctx.attr.plugins)
     dependency_analyzer_plugin_jars = []
     dependency_analyzer_mode = "off"
-    provided_cjars = cjars
+    compiler_classpath_jars = cjars
 
     # "off" mode is used as a feature toggle, that preserves original behaviour
     if (hasattr(ctx.attr, 'dependency_analyzer_mode')):
@@ -175,11 +175,11 @@ def _compile(ctx, cjars, dep_srcjars, buildijar, transitive_cjars=[], labels = {
         dep_plugin = ctx.attr._dependency_analyzer_plugin
         plugins += [f.path for f in dep_plugin.files]
         dependency_analyzer_plugin_jars = ctx.files._dependency_analyzer_plugin
-        provided_cjars = transitive_cjars
+        compiler_classpath_jars = transitive_cjars
 
     plugin_arg = ",".join(list(plugins))
 
-    compiler_classpath = ":".join([j.path for j in provided_cjars])
+    compiler_classpath = ":".join([j.path for j in compiler_classpath_jars])
     direct_jars = ",".join([j.path for j in cjars])
 
     indirect_jars = ",".join([j.path for j in transitive_cjars])
@@ -248,7 +248,7 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
     # _jdk added manually since _java doesn't currently setup runfiles
     # _scalac, as a java_binary, should already have it in its runfiles; however,
     # adding does ensure _java not orphaned if _scalac ever was not a java_binary
-    ins = (list(provided_cjars) +
+    ins = (list(compiler_classpath_jars) +
            list(dep_srcjars) +
            list(srcjars) +
            list(sources) +
