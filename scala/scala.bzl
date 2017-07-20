@@ -167,16 +167,13 @@ def _compile(ctx, cjars, dep_srcjars, buildijar, transitive_cjars=[], labels = {
     compiler_classpath_jars = cjars
     optional_scalac_args = ""
 
+    if not is_dependency_analyzer_off(ctx):
     # "off" mode is used as a feature toggle, that preserves original behaviour
-    if (hasattr(ctx.attr, 'dependency_analyzer_mode')):
-      if (ctx.attr.dependency_analyzer_mode not in ["error", "warn", "off"]):
-        fail("Incorrect mode of dependency analyzer plugin! Mode must be 'error', 'warn' or 'off'")
-      elif (ctx.attr.dependency_analyzer_mode != "off"):
         dependency_analyzer_mode = ctx.attr.dependency_analyzer_mode
         dep_plugin = ctx.attr._dependency_analyzer_plugin
         plugins += [f.path for f in dep_plugin.files]
         dependency_analyzer_plugin_jars = ctx.files._dependency_analyzer_plugin
-        compiler_classpath_jars = cjars + transitive_cjars
+        compiler_classpath_jars = transitive_cjars
 
         direct_jars = ",".join([j.path for j in cjars])
         indirect_jars = ",".join([j.path for j in transitive_cjars])
@@ -464,13 +461,22 @@ def _collect_jars(dep_targets, dependency_analyzer_is_off = True):
     else:
       return _collect_jars_when_dependency_analyzer_is_on(dep_targets)
 
+def is_dependency_analyzer_off(ctx):
+  if not hasattr(ctx.attr, 'dependency_analyzer_mode'):
+    return True
+
+  if ctx.attr.dependency_analyzer_mode not in ["error", "warn", "off"]:
+     fail("Incorrect mode of dependency analyzer plugin! Mode must be 'error', 'warn' or 'off'")
+
+  return ctx.attr.dependency_analyzer_mode == "off"
+
 
 # Extract very common code out from dependency analysis into single place
 # automatically adds dependency on scala-library and scala-reflect
 # collects jars from deps, runtime jars from runtime_deps, and
 def _collect_jars_from_common_ctx(ctx, extra_deps = [], extra_runtime_deps = []):
 
-    dependency_analyzer_is_off = hasattr(ctx.attr, 'dependency_analyzer_mode') and (ctx.attr.dependency_analyzer_mode == "off")
+    dependency_analyzer_is_off = is_dependency_analyzer_off(ctx)
 
     # Get jars from deps
     auto_deps = [ctx.attr._scalalib, ctx.attr._scalareflect]
@@ -657,12 +663,17 @@ def _scala_test_impl(ctx):
     jars = _collect_jars_from_common_ctx(ctx,
         extra_runtime_deps = [ctx.attr._scalatest_reporter, ctx.attr._scalatest_runner],
     )
-    (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
+    (cjars, transitive_rjars, transitive_cjars, jars_to_labels) = (jars.compile_jars, jars.transitive_runtime_jars,
+      jars.transitive_cjars, jars.jars2labels)
     # _scalatest is an http_jar, so its compile jar is run through ijar
     # however, contains macros, so need to handle separately
     scalatest_jars = _collect_jars([ctx.attr._scalatest]).transitive_runtime_jars
     cjars += scalatest_jars
     transitive_rjars += scalatest_jars
+
+    if is_dependency_analyzer_off(ctx):
+      transitive_cjars += scalatest_jars
+      add_labels_of_jars_to(jars_to_labels, ctx.attr._scalatest, scalatest_jars)
 
     transitive_rjars += [ctx.outputs.jar]
 
@@ -679,7 +690,7 @@ def _scala_test_impl(ctx):
         jvm_flags = ctx.attr.jvm_flags,
         args = args,
     )
-    return _scala_binary_common(ctx, cjars, transitive_rjars, jars.transitive_cjars, jars.jars2labels)
+    return _scala_binary_common(ctx, cjars, transitive_rjars, transitive_cjars, jars_to_labels)
 
 def _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, archive):
     return struct(testSuiteFlag = "-Dbazel.test_suite=io.bazel.rulesscala.test_discovery.DiscoveredTestSuite",
