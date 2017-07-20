@@ -149,7 +149,7 @@ def _collect_plugin_paths(plugins):
     return paths
 
 
-def _compile(ctx, cjars, dep_srcjars, buildijar, transitive_cjars=[], labels = {}):
+def _compile(ctx, cjars, dep_srcjars, buildijar, transitive_compile_jars=[], labels = {}):
     ijar_output_path = ""
     ijar_cmd_path = ""
     if buildijar:
@@ -173,11 +173,11 @@ def _compile(ctx, cjars, dep_srcjars, buildijar, transitive_cjars=[], labels = {
         dep_plugin = ctx.attr._dependency_analyzer_plugin
         plugins += [f.path for f in dep_plugin.files]
         dependency_analyzer_plugin_jars = ctx.files._dependency_analyzer_plugin
-        compiler_classpath_jars = transitive_cjars
+        compiler_classpath_jars = transitive_compile_jars
 
         direct_jars = ",".join([j.path for j in cjars])
-        indirect_jars = ",".join([j.path for j in transitive_cjars])
-        indirect_targets = ",".join([labels[j.path] for j in transitive_cjars])
+        indirect_jars = ",".join([j.path for j in transitive_compile_jars])
+        indirect_targets = ",".join([labels[j.path] for j in transitive_compile_jars])
 
         optional_scalac_args = """
 DirectJars: {direct_jars}
@@ -287,14 +287,14 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
       )
 
 
-def _compile_or_empty(ctx, jars, srcjars, buildijar, transitive_cjars = [], jars2labels = []):
+def _compile_or_empty(ctx, jars, srcjars, buildijar, transitive_compile_jars, jars2labels):
     # We assume that if a srcjar is present, it is not empty
     if len(ctx.files.srcs) + len(srcjars) == 0:
         _build_nosrc_jar(ctx, buildijar)
         #  no need to build ijar when empty
         return struct(ijar=ctx.outputs.jar, class_jar=ctx.outputs.jar)
     else:
-        _compile(ctx, jars, srcjars, buildijar, transitive_cjars, jars2labels)
+        _compile(ctx, jars, srcjars, buildijar, transitive_compile_jars, jars2labels)
         ijar = None
         if buildijar:
             ijar = ctx.outputs.ijar
@@ -385,7 +385,7 @@ def collect_srcjars(targets):
 
 def add_labels_of_jars_to(jars2labels, dependency, all_jars):
   for jar in all_jars:
-   add_label_of_jar_to(jars2labels, dependency, jar)
+    add_label_of_jar_to(jars2labels, dependency, jar)
 
 
 def add_label_of_jar_to(jars2labels, dependency, jar):
@@ -404,7 +404,7 @@ def label_already_exists(jars2labels, jar):
   return jar.path in jars2labels
 
 def provider_of_dependency_contains_label_of(dependency, jar):
- return hasattr(dependency, "jars_to_labels") and jar.path in dependency.jars_to_labels
+  return hasattr(dependency, "jars_to_labels") and jar.path in dependency.jars_to_labels
 
 def dep_target_contains_ijar(dep_target):
   return hasattr(dep_target, 'scala') and hasattr(dep_target.scala, 'outputs') and hasattr(dep_target.scala.outputs, 'ijar')
@@ -424,34 +424,34 @@ def _collect_jars_when_dependency_analyzer_is_off(dep_targets):
         compile_jars += dep_target.files
         runtime_jars += dep_target.files
 
-  return struct(compile_jars = compile_jars, transitive_runtime_jars = runtime_jars, jars2labels = {}, transitive_cjars = depset())
+  return struct(compile_jars = compile_jars, transitive_runtime_jars = runtime_jars, jars2labels = {}, transitive_compile_jars = depset())
 
 def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
-  transitive_cjars = depset()
+  transitive_compile_jars = depset()
   jars2labels = {}
   compile_jars = depset()
   runtime_jars = depset()
 
   for dep_target in dep_targets:
     if dep_target_contains_ijar(dep_target):
-        transitive_cjars += [dep_target.scala.outputs.ijar]
-    if hasattr(dep_target, 'transitive_cjars'):
-        transitive_cjars += dep_target.transitive_cjars
+        transitive_compile_jars += [dep_target.scala.outputs.ijar]
+    if hasattr(dep_target, 'transitive_compile_jars'):
+        transitive_compile_jars += dep_target.transitive_compile_jars
     if java_common.provider in dep_target:
         java_provider = dep_target[java_common.provider]
         compile_jars += java_provider.compile_jars
-        transitive_cjars += java_provider.compile_jars
+        transitive_compile_jars += java_provider.compile_jars
         runtime_jars += java_provider.transitive_runtime_jars
     else:
         # support http_file pointed at a jar. http_jar uses ijar,
         # which breaks scala macros
         compile_jars += dep_target.files
         runtime_jars += dep_target.files
-        transitive_cjars += dep_target.files
+        transitive_compile_jars += dep_target.files
 
-    add_labels_of_jars_to(jars2labels, dep_target, transitive_cjars)
+    add_labels_of_jars_to(jars2labels, dep_target, transitive_compile_jars)
 
-  return struct(compile_jars = compile_jars, transitive_runtime_jars = runtime_jars, jars2labels = jars2labels, transitive_cjars = transitive_cjars)
+  return struct(compile_jars = compile_jars, transitive_runtime_jars = runtime_jars, jars2labels = jars2labels, transitive_compile_jars = transitive_compile_jars)
 
 def _collect_jars(dep_targets, dependency_analyzer_is_off = True):
     """Compute the runtime and compile-time dependencies from the given targets"""  # noqa
@@ -481,7 +481,7 @@ def _collect_jars_from_common_ctx(ctx, extra_deps = [], extra_runtime_deps = [])
     # Get jars from deps
     auto_deps = [ctx.attr._scalalib, ctx.attr._scalareflect]
     deps_jars = _collect_jars(ctx.attr.deps + auto_deps + extra_deps, dependency_analyzer_is_off)
-    (cjars, transitive_rjars, jars2labels, transitive_cjars) = (deps_jars.compile_jars, deps_jars.transitive_runtime_jars, deps_jars.jars2labels, deps_jars.transitive_cjars)
+    (cjars, transitive_rjars, jars2labels, transitive_compile_jars) = (deps_jars.compile_jars, deps_jars.transitive_runtime_jars, deps_jars.jars2labels, deps_jars.transitive_compile_jars)
 
     runtime_dep_jars =  _collect_jars(ctx.attr.runtime_deps + extra_runtime_deps, dependency_analyzer_is_off)
     transitive_rjars += runtime_dep_jars.transitive_runtime_jars
@@ -489,7 +489,7 @@ def _collect_jars_from_common_ctx(ctx, extra_deps = [], extra_runtime_deps = [])
     if not dependency_analyzer_is_off:
       jars2labels.update(runtime_dep_jars.jars2labels)
 
-    return struct(compile_jars = cjars, transitive_runtime_jars = transitive_rjars, jars2labels=jars2labels, transitive_cjars = transitive_cjars)
+    return struct(compile_jars = cjars, transitive_runtime_jars = transitive_rjars, jars2labels=jars2labels, transitive_compile_jars = transitive_compile_jars)
 
 def _lib(ctx, non_macro_lib):
     # Build up information from dependency-like attributes
@@ -501,7 +501,7 @@ def _lib(ctx, non_macro_lib):
     (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
 
     write_manifest(ctx)
-    outputs = _compile_or_empty(ctx, cjars, srcjars, non_macro_lib, jars.transitive_cjars, jars.jars2labels)
+    outputs = _compile_or_empty(ctx, cjars, srcjars, non_macro_lib, jars.transitive_compile_jars, jars.jars2labels)
 
     transitive_rjars += [ctx.outputs.jar]
 
@@ -558,7 +558,7 @@ def _lib(ctx, non_macro_lib):
         # to filter and make sense of this information.
         extra_information=_collect_extra_information(ctx.attr.deps),
         jars_to_labels = jars.jars2labels,
-        transitive_cjars = jars.transitive_cjars,
+        transitive_compile_jars = jars.transitive_compile_jars,
       )
 
 
@@ -622,7 +622,7 @@ def _scala_binary_impl(ctx):
       main_class = ctx.attr.main_class,
       jvm_flags = ctx.attr.jvm_flags,
   )
-  return _scala_binary_common(ctx, cjars, transitive_rjars, jars.transitive_cjars, jars.jars2labels)
+  return _scala_binary_common(ctx, cjars, transitive_rjars, jars.transitive_compile_jars, jars.jars2labels)
 
 def _scala_repl_impl(ctx):
   # need scala-compiler for MainGenericRunner below
@@ -653,7 +653,7 @@ trap finish EXIT
 """,
   )
 
-  return _scala_binary_common(ctx, cjars, transitive_rjars, jars.transitive_cjars, jars.jars2labels)
+  return _scala_binary_common(ctx, cjars, transitive_rjars, jars.transitive_compile_jars, jars.jars2labels)
 
 def _scala_test_impl(ctx):
     if len(ctx.attr.suites) != 0:
@@ -663,8 +663,8 @@ def _scala_test_impl(ctx):
     jars = _collect_jars_from_common_ctx(ctx,
         extra_runtime_deps = [ctx.attr._scalatest_reporter, ctx.attr._scalatest_runner],
     )
-    (cjars, transitive_rjars, transitive_cjars, jars_to_labels) = (jars.compile_jars, jars.transitive_runtime_jars,
-      jars.transitive_cjars, jars.jars2labels)
+    (cjars, transitive_rjars, transitive_compile_jars, jars_to_labels) = (jars.compile_jars, jars.transitive_runtime_jars,
+      jars.transitive_compile_jars, jars.jars2labels)
     # _scalatest is an http_jar, so its compile jar is run through ijar
     # however, contains macros, so need to handle separately
     scalatest_jars = _collect_jars([ctx.attr._scalatest]).transitive_runtime_jars
@@ -672,7 +672,7 @@ def _scala_test_impl(ctx):
     transitive_rjars += scalatest_jars
 
     if is_dependency_analyzer_off(ctx):
-      transitive_cjars += scalatest_jars
+      transitive_compile_jars += scalatest_jars
       add_labels_of_jars_to(jars_to_labels, ctx.attr._scalatest, scalatest_jars)
 
     transitive_rjars += [ctx.outputs.jar]
@@ -690,7 +690,7 @@ def _scala_test_impl(ctx):
         jvm_flags = ctx.attr.jvm_flags,
         args = args,
     )
-    return _scala_binary_common(ctx, cjars, transitive_rjars, transitive_cjars, jars_to_labels)
+    return _scala_binary_common(ctx, cjars, transitive_rjars, transitive_compile_jars, jars_to_labels)
 
 def _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, archive):
     return struct(testSuiteFlag = "-Dbazel.test_suite=io.bazel.rulesscala.test_discovery.DiscoveredTestSuite",
@@ -718,7 +718,7 @@ def _scala_junit_test_impl(ctx):
         jvm_flags = launcherJvmFlags + ctx.attr.jvm_flags,
     )
 
-    return _scala_binary_common(ctx, cjars, transitive_rjars, jars.transitive_cjars, jars.jars2labels)
+    return _scala_binary_common(ctx, cjars, transitive_rjars, jars.transitive_compile_jars, jars.jars2labels)
 
 _launcher_template = {
   "_java_stub_template": attr.label(default=Label("@java_stub_template//file")),
