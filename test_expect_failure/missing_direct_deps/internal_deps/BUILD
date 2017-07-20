@@ -6,7 +6,8 @@ scala_library(
     srcs=[
         "A.scala",
         ],
-    deps = ["direct_dependency"],
+    deps = ["direct_dependency"],    
+    dependency_analyzer_mode="error",
 )
 
 scala_library(
@@ -15,6 +16,7 @@ scala_library(
         "B.scala",
         ],
     deps = ["transitive_dependency"],
+    dependency_analyzer_mode="error",
 )
 
 scala_library(
@@ -22,6 +24,7 @@ scala_library(
     srcs=[
         "C.scala",
         ],
+    dependency_analyzer_mode="error",
 )
 
 scala_binary(
@@ -31,4 +34,5 @@ scala_binary(
         "A.scala",
         ],
     deps = ["direct_dependency"],
+    dependency_analyzer_mode="error",
 )

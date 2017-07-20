@@ -16,6 +16,7 @@ scala_library(
         "B.scala",
         ],
     deps = ["transitive_dependency"],
+    dependency_analyzer_mode="error",
 )
 
 scala_library(
@@ -23,4 +24,5 @@ scala_library(
     srcs=[
         "C.scala",
         ],
+    dependency_analyzer_mode="error",
 )
