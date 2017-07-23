@@ -216,7 +216,7 @@ run_test_ci() {
     result=$?
     kill $pulse_printer_pid && wait $pulse_printer_pid 2>/dev/null || true
   } || return 1
-  
+
   DURATION=$SECONDS
   if [ $result -eq 0 ]; then
     echo -e "\n${GREEN}Test \"$TEST_ARG\" successful ($DURATION sec) $NC"
@@ -326,7 +326,7 @@ junit_generates_xml_logs() {
   else
     return 1
   fi
-  test -e 
+  test -e
 }
 
 test_junit_test_must_have_prefix_or_suffix() {
@@ -424,6 +424,37 @@ javac_jvm_flags_are_configured(){
   action_should_fail build //test_expect_failure/compilers_jvm_flags:can_configure_jvm_flags_for_javac
 }
 
+revert_internal_change() {
+  sed -i.bak "s/println(\"in C\"); println(\"in C\")/println(\"in C\")/" $no_recompilation_path/C.scala
+  rm $no_recompilation_path/C.scala.bak
+}
+
+test_scala_library_expect_no_recompilation_on_internal_change_of_transitive_dependency() {
+  set +e
+  no_recompilation_path="test/src/main/scala/scala/test/strict_deps/no_recompilation"
+  build_command="bazel build //$no_recompilation_path/... --subcommands"
+
+  echo "running initial build"
+  $build_command
+  echo "changing internal behaviour of C.scala"
+  sed -i.bak "s/println(\"in C\")/println(\"in C\"); println(\"in C\")/" ./$no_recompilation_path/C.scala
+
+  echo "running second build"
+  output=$(${build_command} 2>&1)
+
+  not_expected_recompiled_target=">>>>>>>>> # //$no_recompilation_path:transitive_dependency_user \[action"
+
+  echo ${output} | grep "$not_expected_recompiled_target"
+  if [ $? -eq 0 ]; then
+    echo "bazel build was executed after change of internal behaviour of 'transitive_dependency' target. compilation of 'transitive_dependency_user' should not have been triggered."
+    revert_internal_change
+    exit 1
+  fi
+
+  revert_internal_change
+  set -e
+}
+
 if [ "$1" != "ci" ]; then
   runner="run_test_local"
 else
@@ -473,3 +504,4 @@ $runner test_scala_library_expect_failure_on_missing_direct_deps_error_mode
 $runner test_scala_library_expect_failure_on_missing_direct_deps_warn_mode
 $runner test_scala_library_expect_failure_on_missing_direct_deps_weird_mode
 $runner test_scala_library_expect_failure_on_missing_direct_deps_off_mode
+$runner test_scala_library_expect_no_recompilation_on_internal_change_of_transitive_dependency
