@@ -7,7 +7,7 @@ scala_library(
         "A.scala",
         ],
     deps = ["direct_dependency"],    
-    dependency_analyzer_mode="error",
+    dependency_analyzer_mode_soon_to_be_removed="error",
 )
 
 scala_library(
@@ -16,7 +16,7 @@ scala_library(
         "B.scala",
         ],
     deps = ["transitive_dependency"],
-    dependency_analyzer_mode="error",
+    dependency_analyzer_mode_soon_to_be_removed="error",
 )
 
 scala_library(
@@ -24,7 +24,7 @@ scala_library(
     srcs=[
         "C.scala",
         ],
-    dependency_analyzer_mode="error",
+    dependency_analyzer_mode_soon_to_be_removed="error",
 )
 
 scala_binary(
@@ -34,5 +34,5 @@ scala_binary(
         "A.scala",
         ],
     deps = ["direct_dependency"],
-    dependency_analyzer_mode="error",
+    dependency_analyzer_mode_soon_to_be_removed="error",
 )

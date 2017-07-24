@@ -163,13 +163,13 @@ def _compile(ctx, cjars, dep_srcjars, buildijar, transitive_compile_jars=[], lab
     # look for any plugins:
     plugins = _collect_plugin_paths(ctx.attr.plugins)
     dependency_analyzer_plugin_jars = []
-    dependency_analyzer_mode = "off"
+    dependency_analyzer_mode_soon_to_be_removed = "off"
     compiler_classpath_jars = cjars
     optional_scalac_args = ""
 
     if not is_dependency_analyzer_off(ctx):
     # "off" mode is used as a feature toggle, that preserves original behaviour
-        dependency_analyzer_mode = ctx.attr.dependency_analyzer_mode
+        dependency_analyzer_mode_soon_to_be_removed = ctx.attr.dependency_analyzer_mode_soon_to_be_removed
         dep_plugin = ctx.attr._dependency_analyzer_plugin
         plugins += [f.path for f in dep_plugin.files]
         dependency_analyzer_plugin_jars = ctx.files._dependency_analyzer_plugin
@@ -216,7 +216,7 @@ ResourceSrcs: {resource_src}
 ResourceStripPrefix: {resource_strip_prefix}
 ScalacOpts: {scala_opts}
 SourceJars: {srcjars}
-DependencyAnalyzerMode: {dependency_analyzer_mode}
+DependencyAnalyzerMode: {dependency_analyzer_mode_soon_to_be_removed}
 """.format(
         out=ctx.outputs.jar.path,
         manifest=ctx.outputs.manifest.path,
@@ -240,7 +240,7 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
           ),
         resource_strip_prefix=ctx.attr.resource_strip_prefix,
         resource_jars=",".join([f.path for f in ctx.files.resource_jars]),
-        dependency_analyzer_mode = dependency_analyzer_mode,
+        dependency_analyzer_mode_soon_to_be_removed = dependency_analyzer_mode_soon_to_be_removed,
         )
     argfile = ctx.new_file(
       ctx.outputs.jar,
@@ -465,13 +465,13 @@ def _collect_jars(dep_targets, dependency_analyzer_is_off = True):
       return _collect_jars_when_dependency_analyzer_is_on(dep_targets)
 
 def is_dependency_analyzer_off(ctx):
-  if not hasattr(ctx.attr, 'dependency_analyzer_mode'):
+  if not hasattr(ctx.attr, 'dependency_analyzer_mode_soon_to_be_removed'):
     return True
 
-  if ctx.attr.dependency_analyzer_mode not in ["error", "warn", "off"]:
+  if ctx.attr.dependency_analyzer_mode_soon_to_be_removed not in ["error", "warn", "off"]:
      fail("Incorrect mode of dependency analyzer plugin! Mode must be 'error', 'warn' or 'off'")
 
-  return ctx.attr.dependency_analyzer_mode == "off"
+  return ctx.attr.dependency_analyzer_mode_soon_to_be_removed == "off"
 
 
 # Extract very common code out from dependency analysis into single place
@@ -782,7 +782,9 @@ _common_attrs_for_plugin_bootstrapping = {
 }
 
 _common_attrs = _common_attrs_for_plugin_bootstrapping + {
-  "dependency_analyzer_mode": attr.string(default="off", mandatory=False),
+  # dependency_analyzer_mode_soon_to_be_removed will be replaced by using command line flag called 'strict_java_deps' (https://github.com/bazelbuild/bazel/issues/3295)
+  # switching mode to "on" means that ANY API change in a target's transitive dependencies will trigger a recompilation of that target
+  "dependency_analyzer_mode_soon_to_be_removed": attr.string(default="off", mandatory=False),
   "_dependency_analyzer_plugin": attr.label(default=Label("@io_bazel_rules_scala//third_party/plugin/src/main:dependency_analyzer"), allow_files=_jar_filetype, mandatory=False),
 }
 
