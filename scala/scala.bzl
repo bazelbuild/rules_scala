@@ -783,7 +783,8 @@ _common_attrs_for_plugin_bootstrapping = {
 
 _common_attrs = _common_attrs_for_plugin_bootstrapping + {
   # dependency_analyzer_mode_soon_to_be_removed will be replaced by using command line flag called 'strict_java_deps' (https://github.com/bazelbuild/bazel/issues/3295)
-  # switching mode to "on" means that ANY API change in a target's transitive dependencies will trigger a recompilation of that target
+  # switching mode to "on" means that ANY API change in a target's transitive dependencies will trigger a recompilation of that target,
+  # on the other hand any internal change (i.e. on code that ijar omits) WON’T trigger recompilation by transitive dependencies
   "dependency_analyzer_mode_soon_to_be_removed": attr.string(default="off", mandatory=False),
   "_dependency_analyzer_plugin": attr.label(default=Label("@io_bazel_rules_scala//third_party/plugin/src/main:dependency_analyzer"), allow_files=_jar_filetype, mandatory=False),
 }
