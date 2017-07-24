@@ -443,7 +443,7 @@ javac_jvm_flags_are_configured(){
 }
 
 revert_internal_change() {
-  sed -i.bak "s/println(\"in C\"); println(\"in C\")/println(\"in C\")/" $no_recompilation_path/C.scala
+  sed -i.bak "s/println(\"altered\")/println(\"orig\")/" $no_recompilation_path/C.scala
   rm $no_recompilation_path/C.scala.bak
 }
 
@@ -455,12 +455,12 @@ test_scala_library_expect_no_recompilation_on_internal_change_of_transitive_depe
   echo "running initial build"
   $build_command
   echo "changing internal behaviour of C.scala"
-  sed -i.bak "s/println(\"in C\")/println(\"in C\"); println(\"in C\")/" ./$no_recompilation_path/C.scala
+  sed -i.bak "s/println(\"orig\")/println(\"altered\")/" ./$no_recompilation_path/C.scala
 
   echo "running second build"
   output=$(${build_command} 2>&1)
 
-  not_expected_recompiled_target=">>>>>>>>> # //$no_recompilation_path:transitive_dependency_user \[action"
+  not_expected_recompiled_target="//$no_recompilation_path:transitive_dependency_user"
 
   echo ${output} | grep "$not_expected_recompiled_target"
   if [ $? -eq 0 ]; then
