@@ -12,11 +12,14 @@ object TestUtil {
 
   import scala.language.postfixOps
 
+  final val defaultTarget = "//..."
+
   def run(code: String, withDirect: Seq[String] = Seq.empty, withIndirect: Map[String, String] = Map.empty): Seq[String] = {
     val compileOptions = Seq(
       constructParam("direct-jars", withDirect),
       constructParam("indirect-jars", withIndirect.keys),
-      constructParam("indirect-targets", withIndirect.values)
+      constructParam("indirect-targets", withIndirect.values),
+      constructParam("current-target", Seq(defaultTarget))
     ).mkString(" ")
 
     val extraClasspath = withDirect ++ withIndirect.keys

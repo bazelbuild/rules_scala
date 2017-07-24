@@ -55,11 +55,14 @@ class DependencyAnalyzerTest {
 
     private def checkErrorContainsMessage(target: String) = (_: String).contains(targetErrorMessage(target))
 
-    private def targetErrorMessage(target: String) = s"Target '$target' is used but isn't explicitly declared, please add it to the deps"
+    private def targetErrorMessage(target: String) =
+      s"""Target '$target' is used but isn't explicitly declared, please add it to the deps.
+         |You can use the following buildozer command:
+         |buildozer 'add deps $target' $defaultTarget""".stripMargin
 
     def expectErrorOn(targets: String*) = targets.foreach(target => assert(
       infos.exists(checkErrorContainsMessage(target)),
-      s"expected an error on $target to appear in errors!")
+      s"expected an error on $target to appear in errors (with buildozer command)!")
     )
 
     def noErrorOn(target: String) = assert(

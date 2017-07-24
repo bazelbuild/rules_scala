@@ -26,6 +26,7 @@ public class CompileOptions {
   final public String[] indirectJars;
   final public String[] indirectTargets;
   final public String dependencyAnalyzerMode;
+  final public String currentTarget;
 
   public CompileOptions(List<String> args) {
     Map<String, String> argMap = buildArgMap(args);
@@ -62,6 +63,7 @@ public class CompileOptions {
     indirectTargets = getCommaList(argMap, "IndirectTargets");
 
     dependencyAnalyzerMode = getOrElse(argMap, "DependencyAnalyzerMode", "off");
+    currentTarget = getOrElse(argMap, "CurrentTarget", "NA");
   }
 
   private static Map<String, String> getResources(Map<String, String> args) {

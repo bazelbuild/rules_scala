@@ -178,15 +178,18 @@ def _compile(ctx, cjars, dep_srcjars, buildijar, transitive_compile_jars=[], lab
         direct_jars = ",".join([j.path for j in cjars])
         indirect_jars = ",".join([j.path for j in transitive_compile_jars])
         indirect_targets = ",".join([labels[j.path] for j in transitive_compile_jars])
+        current_target = str(ctx.label)
 
         optional_scalac_args = """
 DirectJars: {direct_jars}
 IndirectJars: {indirect_jars}
 IndirectTargets: {indirect_targets}
+CurrentTarget: {current_target}
         """.format(
               direct_jars=direct_jars,
               indirect_jars=indirect_jars,
               indirect_targets=indirect_targets,
+              current_target = current_target
               )
 
     plugin_arg = ",".join(list(plugins))

@@ -185,23 +185,31 @@ class ScalacProcessor implements Processor {
 
   private static String[] encodeBazelTargets(String[] targets) {
     return Arrays.stream(targets)
-            .map(label -> label.replace(":", ";"))
+            .map(ScalacProcessor::encodeBazelTarget)
             .toArray(String[]::new);
+  }
+
+  private static String encodeBazelTarget(String target) {
+    return target.replace(":", ";");
   }
 
   private static boolean isModeEnabled(String mode) {
     return !"off".equals(mode);
   }
 
-  private static String[] getPluginParamsFrom(CompileOptions ops, String[] targets) {
+  private static String[] getPluginParamsFrom(CompileOptions ops) {
     String[] pluginParams;
 
     if (isModeEnabled(ops.dependencyAnalyzerMode)) {
+      String[] targets = encodeBazelTargets(ops.indirectTargets);
+      String currentTarget = encodeBazelTarget(ops.currentTarget);
+
       String[] pluginParamsInUse = {
               "-P:dependency-analyzer:direct-jars:" + String.join(":", ops.directJars),
               "-P:dependency-analyzer:indirect-jars:" + String.join(":", ops.indirectJars),
               "-P:dependency-analyzer:indirect-targets:" + String.join(":", targets),
               "-P:dependency-analyzer:mode:" + ops.dependencyAnalyzerMode,
+              "-P:dependency-analyzer:current-target:" + currentTarget,
       };
       pluginParams = pluginParamsInUse;
     } else {
@@ -211,9 +219,8 @@ class ScalacProcessor implements Processor {
   }
 
   private static void compileScalaSources(CompileOptions ops, String[] scalaSources, Path tmpPath) throws IllegalAccessException {
-    String[] targets = encodeBazelTargets(ops.indirectTargets);
 
-    String[] pluginParams = getPluginParamsFrom(ops, targets);
+    String[] pluginParams = getPluginParamsFrom(ops);
 
     String[] constParams = {
       "-classpath",
