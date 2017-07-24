@@ -66,7 +66,7 @@ test_scala_library_suite() {
 test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message() {
   set +e
 
-  declare -a expected_messages=("${!1}")
+  expected_message=$1
   test_target=$2
   operator=${3:-"eq"}
 
@@ -87,14 +87,11 @@ test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message() {
     exit 1
   fi
 
-  for expected_message in "${expected_messages[@]}"
-  do
-    echo ${output} | grep "$expected_message"
-    if [ $? -ne 0 ]; then
-      echo "'bazel build ${test_target}' should have logged \"${expected_message}\"."
-          exit 1
-    fi
-  done
+  echo ${output} | grep "$expected_message"
+  if [ $? -ne 0 ]; then
+    echo "'bazel build ${test_target}' should have logged \"${expected_message}\"."
+        exit 1
+  fi
 
   set -e
 }
@@ -110,13 +107,9 @@ test_scala_library_expect_failure_on_missing_direct_deps() {
   dependenecy_target=$1
   test_target=$2
 
-  local expected_messages=(
-        "Target '$dependenecy_target' is used but isn't explicitly declared, please add it to the deps"
-        "You can use the following buildozer command:"
-        "buildozer 'add deps $dependenecy_target' //$test_target"
-    )
+  local expected_messages="buildozer 'add deps $dependenecy_target' //$test_target"
 
-  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message expected_messages[@] $test_target
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" $test_target
 }
 
 test_scala_library_expect_failure_on_missing_direct_internal_deps() {
@@ -151,13 +144,9 @@ test_scala_library_expect_failure_on_missing_direct_deps_error_mode() {
   dependenecy_target='//test_expect_failure/dep_analyzer_modes:transitive_dependency'
   test_target='test_expect_failure/dep_analyzer_modes:error_mode'
 
-  local expected_messages=(
-      "error: Target '$dependenecy_target' is used but isn't explicitly declared, please add it to the deps"
-      "You can use the following buildozer command:"
-      "buildozer 'add deps $dependenecy_target' //$test_target"
-  )
+  expected_message="error: Target '$dependenecy_target' is used but isn't explicitly declared, please add it to the deps"
 
-  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message expected_messages[@] ${test_target}
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target}
 }
 
 test_scala_library_expect_failure_on_missing_direct_deps_warn_mode() {
@@ -167,13 +156,9 @@ test_scala_library_expect_failure_on_missing_direct_deps_warn_mode() {
   dependenecy_target='//test_expect_failure/dep_analyzer_modes:transitive_dependency'
   test_target='test_expect_failure/dep_analyzer_modes:warn_mode'
 
-  local expected_messages=(
-      "warning: Target '$dependenecy_target' is used but isn't explicitly declared, please add it to the deps"
-      "You can use the following buildozer command:"
-      "buildozer 'add deps $dependenecy_target' //$test_target"
-  )
+  expected_message="warning: Target '$dependenecy_target' is used but isn't explicitly declared, please add it to the deps"
 
-  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message expected_messages[@] ${test_target} "ne"
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target} "ne"
 }
 
 test_scala_library_expect_failure_on_missing_direct_deps_weird_mode() {

@@ -26,7 +26,7 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
         case "direct-jars" :: data => direct = data.toSet
         case "indirect-jars" :: data => indirectJars = data;
         case "indirect-targets" :: data => indirectTargets = data.map(_.replace(";", ":"))
-        case "current-target" :: target => currentTarget = target.map(_.replace(";", ":")).headOption.getOrElse("NA")
+        case "current-target" :: target => currentTarget = target.map(_.replace(";", ":")).head
         case "mode" :: mode => analyzerMode = mode.head
         case unknown :: _ => error(s"unknown param $unknown")
         case Nil =>

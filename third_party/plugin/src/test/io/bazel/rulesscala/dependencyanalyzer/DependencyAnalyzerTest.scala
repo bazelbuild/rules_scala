@@ -53,12 +53,16 @@ class DependencyAnalyzerTest {
 
   implicit class `nice errors on sequence of strings`(infos: Seq[String]) {
 
-    private def checkErrorContainsMessage(target: String) = (_: String).contains(targetErrorMessage(target))
+    private def checkErrorContainsMessage(target: String) = { info: String =>
+      info.contains(targetErrorMessage(target)) &
+        info.contains(buildozerCommand(target))
+    }
 
     private def targetErrorMessage(target: String) =
-      s"""Target '$target' is used but isn't explicitly declared, please add it to the deps.
-         |You can use the following buildozer command:
-         |buildozer 'add deps $target' $defaultTarget""".stripMargin
+      s"Target '$target' is used but isn't explicitly declared, please add it to the deps"
+
+    private def buildozerCommand(depTarget: String) =
+      s"buildozer 'add deps $depTarget' $defaultTarget"
 
     def expectErrorOn(targets: String*) = targets.foreach(target => assert(
       infos.exists(checkErrorContainsMessage(target)),
