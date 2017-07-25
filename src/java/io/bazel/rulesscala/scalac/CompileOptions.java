@@ -22,6 +22,11 @@ public class CompileOptions {
   final public Map<String, String> resourceFiles;
   final public String resourceStripPrefix;
   final public String[] resourceJars;
+  final public String[] directJars;
+  final public String[] indirectJars;
+  final public String[] indirectTargets;
+  final public String dependencyAnalyzerMode;
+  final public String currentTarget;
 
   public CompileOptions(List<String> args) {
     Map<String, String> argMap = buildArgMap(args);
@@ -52,6 +57,13 @@ public class CompileOptions {
     resourceFiles = getResources(argMap);
     resourceStripPrefix = getOrEmpty(argMap, "ResourceStripPrefix");
     resourceJars = getCommaList(argMap, "ResourceJars");
+
+    directJars = getCommaList(argMap, "DirectJars");
+    indirectJars = getCommaList(argMap, "IndirectJars");
+    indirectTargets = getCommaList(argMap, "IndirectTargets");
+
+    dependencyAnalyzerMode = getOrElse(argMap, "DependencyAnalyzerMode", "off");
+    currentTarget = getOrElse(argMap, "CurrentTarget", "NA");
   }
 
   private static Map<String, String> getResources(Map<String, String> args) {
@@ -96,10 +108,14 @@ public class CompileOptions {
   }
 
   private static String getOrEmpty(Map<String, String> m, String k) {
-    if(m.containsKey(k)) {
-      return m.get(k);
+    return getOrElse(m, k, "");
+  }
+
+  private static String getOrElse(Map<String, String> attrs, String key, String defaultValue) {
+    if(attrs.containsKey(key)) {
+      return attrs.get(key);
     } else {
-      return "";
+      return defaultValue;
     }
   }
 

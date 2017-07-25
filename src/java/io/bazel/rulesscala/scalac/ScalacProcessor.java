@@ -17,11 +17,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -187,7 +183,45 @@ class ScalacProcessor implements Processor {
     return false;
   }
 
+  private static String[] encodeBazelTargets(String[] targets) {
+    return Arrays.stream(targets)
+            .map(ScalacProcessor::encodeBazelTarget)
+            .toArray(String[]::new);
+  }
+
+  private static String encodeBazelTarget(String target) {
+    return target.replace(":", ";");
+  }
+
+  private static boolean isModeEnabled(String mode) {
+    return !"off".equals(mode);
+  }
+
+  private static String[] getPluginParamsFrom(CompileOptions ops) {
+    String[] pluginParams;
+
+    if (isModeEnabled(ops.dependencyAnalyzerMode)) {
+      String[] targets = encodeBazelTargets(ops.indirectTargets);
+      String currentTarget = encodeBazelTarget(ops.currentTarget);
+
+      String[] pluginParamsInUse = {
+              "-P:dependency-analyzer:direct-jars:" + String.join(":", ops.directJars),
+              "-P:dependency-analyzer:indirect-jars:" + String.join(":", ops.indirectJars),
+              "-P:dependency-analyzer:indirect-targets:" + String.join(":", targets),
+              "-P:dependency-analyzer:mode:" + ops.dependencyAnalyzerMode,
+              "-P:dependency-analyzer:current-target:" + currentTarget,
+      };
+      pluginParams = pluginParamsInUse;
+    } else {
+      pluginParams = new String[0];
+    }
+    return pluginParams;
+  }
+
   private static void compileScalaSources(CompileOptions ops, String[] scalaSources, Path tmpPath) throws IllegalAccessException {
+
+    String[] pluginParams = getPluginParamsFrom(ops);
+
     String[] constParams = {
       "-classpath",
       ops.classpath,
@@ -199,6 +233,7 @@ class ScalacProcessor implements Processor {
       ops.scalaOpts,
       ops.pluginArgs,
       constParams,
+      pluginParams,
       scalaSources);
 
     MainClass comp = new MainClass();

@@ -3,3 +3,4 @@ bazel-*
 *.idea
 hash1
 hash2
+.DS_store
