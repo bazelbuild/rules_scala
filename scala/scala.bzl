@@ -134,7 +134,7 @@ def _build_nosrc_jar(ctx, buildijar):
 
 
 def _collect_plugin_paths(plugins):
-    paths = set()
+    paths = depset()
     for p in plugins:
         if hasattr(p, "path"):
             paths += [p.path]
@@ -159,7 +159,7 @@ def _compile(ctx, cjars, dep_srcjars, buildijar, transitive_compile_jars=[], lab
     java_srcs = _java_filetype.filter(ctx.files.srcs)
     sources = _scala_filetype.filter(ctx.files.srcs) + java_srcs
     srcjars = _srcjar_filetype.filter(ctx.files.srcs)
-    all_srcjars = set(srcjars + list(dep_srcjars))
+    all_srcjars = depset(srcjars + list(dep_srcjars))
     # look for any plugins:
     plugins = _collect_plugin_paths(ctx.attr.plugins)
     dependency_analyzer_plugin_jars = []
@@ -380,7 +380,7 @@ def _write_launcher(ctx, rjars, main_class, jvm_flags, args="", wrapper_preamble
     )
 
 def collect_srcjars(targets):
-    srcjars = set()
+    srcjars = depset()
     for target in targets:
         if hasattr(target, "srcjars"):
             srcjars += [target.srcjars.srcjar]
@@ -609,7 +609,7 @@ def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2l
   )
 
   return struct(
-      files=set([ctx.outputs.executable]),
+      files=depset([ctx.outputs.executable]),
       providers = [java_provider],
       scala = scalaattr,
       runfiles=runfiles)
