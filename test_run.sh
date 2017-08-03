@@ -68,7 +68,7 @@ test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message() {
 
   expected_message=$1
   test_target=$2
-  strict_deps_mode=${3:-""}
+  strict_deps_mode=$3
   operator=${4:-"eq"}
 
   if [ "${operator}" = "eq" ]; then
@@ -459,7 +459,7 @@ $runner bazel run test:ScalaLibBinary
 $runner test_disappearing_class
 $runner find -L ./bazel-testlogs -iname "*.xml"
 $runner xmllint_test
-#$runner test_build_is_identical
+$runner test_build_is_identical
 $runner test_transitive_deps
 $runner test_scala_library_suite
 $runner test_repl
