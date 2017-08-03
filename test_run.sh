@@ -99,7 +99,7 @@ test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message() {
 
 test_scala_library_expect_failure_on_missing_direct_deps_strict_is_disabled_by_default() {
   expected_message="not found: value C"
-  test_target='test_expect_failure/missing_direct_deps/strict_disabled:transitive_dependency_user'
+  test_target='test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency_user'
 
   test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "$expected_message" $test_target
 }
@@ -136,23 +136,14 @@ test_scala_library_expect_failure_on_missing_direct_external_deps_jar() {
 
 test_scala_library_expect_failure_on_missing_direct_external_deps_file_group() {
   dependenecy_target='@com_google_guava_guava_21_0//jar:file'
-  test_target='test_expect_failure/missing_direct_deps/external_deps_file_group:transitive_external_dependency_user'
+  test_target='test_expect_failure/missing_direct_deps/external_deps:transitive_external_dependency_user_file_group'
 
   test_scala_library_expect_failure_on_missing_direct_deps $dependenecy_target $test_target
 }
 
-test_scala_library_expect_failure_on_missing_direct_deps_error_mode() {
-  dependenecy_target='//test_expect_failure/dep_analyzer_modes:transitive_dependency'
-  test_target='test_expect_failure/dep_analyzer_modes:mode'
-
-  expected_message="error: Target '$dependenecy_target' is used but isn't explicitly declared, please add it to the deps"
-
-  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target} "eq" "--strict_java_deps=error"
-}
-
 test_scala_library_expect_failure_on_missing_direct_deps_warn_mode() {
-  dependenecy_target='//test_expect_failure/dep_analyzer_modes:transitive_dependency'
-  test_target='test_expect_failure/dep_analyzer_modes:mode'
+  dependenecy_target='//test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency'
+  test_target='test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency_user'
 
   expected_message="warning: Target '$dependenecy_target' is used but isn't explicitly declared, please add it to the deps"
 
@@ -160,8 +151,8 @@ test_scala_library_expect_failure_on_missing_direct_deps_warn_mode() {
 }
 
 test_scala_library_expect_failure_on_missing_direct_deps_off_mode() {
-  expected_message="test_expect_failure/dep_analyzer_modes/A.scala:[0-9+]: error: not found: value C"
-  test_target='test_expect_failure/dep_analyzer_modes:mode'
+  expected_message="test_expect_failure/missing_direct_deps/internal_deps/A.scala:[0-9+]: error: not found: value C"
+  test_target='test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency_user'
 
   test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target} "eq" "--strict_java_deps=off"
 }
@@ -494,7 +485,6 @@ $runner test_scala_library_expect_failure_on_missing_direct_external_deps_jar
 $runner test_scala_library_expect_failure_on_missing_direct_external_deps_file_group
 $runner test_scala_library_expect_failure_on_missing_direct_deps_strict_is_disabled_by_default
 $runner test_scala_binary_expect_failure_on_missing_direct_deps
-$runner test_scala_library_expect_failure_on_missing_direct_deps_error_mode
 $runner test_scala_library_expect_failure_on_missing_direct_deps_warn_mode
 $runner test_scala_library_expect_failure_on_missing_direct_deps_off_mode
 $runner test_scala_library_expect_no_recompilation_on_internal_change_of_transitive_dependency
