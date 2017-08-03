@@ -107,7 +107,7 @@ test_scala_library_expect_failure_on_missing_direct_deps() {
   dependenecy_target=$1
   test_target=$2
 
-  local expected_messages="buildozer 'add deps $dependenecy_target' //$test_target"
+  local expected_message="buildozer 'add deps $dependenecy_target' //$test_target"
 
   test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" $test_target
 }
