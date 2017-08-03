@@ -69,6 +69,7 @@ test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message() {
   expected_message=$1
   test_target=$2
   operator=${3:-"eq"}
+  strict_deps_mode=${4:-""}
 
   if [ "${operator}" = "eq" ]; then
     error_message="bazel build of scala_library with missing direct deps should have failed."
@@ -76,7 +77,7 @@ test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message() {
     error_message="bazel build of scala_library with missing direct deps should not have failed."
   fi
 
-  command="bazel build ${test_target}"
+  command="bazel build ${test_target} ${strict_deps_mode}"
 
   output=$(${command} 2>&1)
   status_code=$?
@@ -96,7 +97,7 @@ test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message() {
   set -e
 }
 
-test_scala_library_expect_failure_on_missing_direct_deps_when_strict_is_disabled() {
+test_scala_library_expect_failure_on_missing_direct_deps_strict_is_disabled_by_default() {
   expected_message="not found: value C"
   test_target='test_expect_failure/missing_direct_deps/strict_disabled:transitive_dependency_user'
 
@@ -109,7 +110,7 @@ test_scala_library_expect_failure_on_missing_direct_deps() {
 
   local expected_message="buildozer 'add deps $dependenecy_target' //$test_target"
 
-  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" $test_target
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" $test_target "eq" "--strict_java_deps=error"
 }
 
 test_scala_library_expect_failure_on_missing_direct_internal_deps() {
@@ -142,37 +143,27 @@ test_scala_library_expect_failure_on_missing_direct_external_deps_file_group() {
 
 test_scala_library_expect_failure_on_missing_direct_deps_error_mode() {
   dependenecy_target='//test_expect_failure/dep_analyzer_modes:transitive_dependency'
-  test_target='test_expect_failure/dep_analyzer_modes:error_mode'
+  test_target='test_expect_failure/dep_analyzer_modes:mode'
 
   expected_message="error: Target '$dependenecy_target' is used but isn't explicitly declared, please add it to the deps"
 
-  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target}
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target} "eq" "--strict_java_deps=error"
 }
 
 test_scala_library_expect_failure_on_missing_direct_deps_warn_mode() {
-  # warnings are cached. requires clean build...
-  bazel clean
-
   dependenecy_target='//test_expect_failure/dep_analyzer_modes:transitive_dependency'
-  test_target='test_expect_failure/dep_analyzer_modes:warn_mode'
+  test_target='test_expect_failure/dep_analyzer_modes:mode'
 
   expected_message="warning: Target '$dependenecy_target' is used but isn't explicitly declared, please add it to the deps"
 
-  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target} "ne"
-}
-
-test_scala_library_expect_failure_on_missing_direct_deps_weird_mode() {
-  expected_message="Incorrect mode of dependency analyzer plugin! Mode must be 'error', 'warn' or 'off'."
-  test_target='test_expect_failure/dep_analyzer_modes:weird_mode'
-
-  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target}
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target} "ne" "--strict_java_deps=warn"
 }
 
 test_scala_library_expect_failure_on_missing_direct_deps_off_mode() {
   expected_message="test_expect_failure/dep_analyzer_modes/A.scala:[0-9+]: error: not found: value C"
-  test_target='test_expect_failure/dep_analyzer_modes:off_mode'
+  test_target='test_expect_failure/dep_analyzer_modes:mode'
 
-  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target}
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target} "eq" "--strict_java_deps=off"
 }
 
 test_scala_junit_test_can_fail() {
@@ -435,7 +426,7 @@ revert_internal_change() {
 test_scala_library_expect_no_recompilation_on_internal_change_of_transitive_dependency() {
   set +e
   no_recompilation_path="test/src/main/scala/scala/test/strict_deps/no_recompilation"
-  build_command="bazel build //$no_recompilation_path/... --subcommands"
+  build_command="bazel build //$no_recompilation_path/... --subcommands --strict_java_deps=error"
 
   echo "running initial build"
   $build_command
@@ -501,10 +492,9 @@ $runner javac_jvm_flags_are_configured
 $runner test_scala_library_expect_failure_on_missing_direct_internal_deps
 $runner test_scala_library_expect_failure_on_missing_direct_external_deps_jar
 $runner test_scala_library_expect_failure_on_missing_direct_external_deps_file_group
-$runner test_scala_library_expect_failure_on_missing_direct_deps_when_strict_is_disabled
+$runner test_scala_library_expect_failure_on_missing_direct_deps_strict_is_disabled_by_default
 $runner test_scala_binary_expect_failure_on_missing_direct_deps
 $runner test_scala_library_expect_failure_on_missing_direct_deps_error_mode
 $runner test_scala_library_expect_failure_on_missing_direct_deps_warn_mode
-$runner test_scala_library_expect_failure_on_missing_direct_deps_weird_mode
 $runner test_scala_library_expect_failure_on_missing_direct_deps_off_mode
 $runner test_scala_library_expect_no_recompilation_on_internal_change_of_transitive_dependency
