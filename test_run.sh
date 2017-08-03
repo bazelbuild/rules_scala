@@ -68,8 +68,8 @@ test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message() {
 
   expected_message=$1
   test_target=$2
-  operator=${3:-"eq"}
-  strict_deps_mode=${4:-""}
+  strict_deps_mode=${3:-""}
+  operator=${4:-"eq"}
 
   if [ "${operator}" = "eq" ]; then
     error_message="bazel build of scala_library with missing direct deps should have failed."
@@ -101,7 +101,7 @@ test_scala_library_expect_failure_on_missing_direct_deps_strict_is_disabled_by_d
   expected_message="not found: value C"
   test_target='test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency_user'
 
-  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "$expected_message" $test_target
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "$expected_message" $test_target ""
 }
 
 test_scala_library_expect_failure_on_missing_direct_deps() {
@@ -110,7 +110,7 @@ test_scala_library_expect_failure_on_missing_direct_deps() {
 
   local expected_message="buildozer 'add deps $dependenecy_target' //$test_target"
 
-  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" $test_target "eq" "--strict_java_deps=error"
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" $test_target "--strict_java_deps=error"
 }
 
 test_scala_library_expect_failure_on_missing_direct_internal_deps() {
@@ -147,14 +147,14 @@ test_scala_library_expect_failure_on_missing_direct_deps_warn_mode() {
 
   expected_message="warning: Target '$dependenecy_target' is used but isn't explicitly declared, please add it to the deps"
 
-  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target} "ne" "--strict_java_deps=warn"
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target} "--strict_java_deps=warn" "ne"
 }
 
 test_scala_library_expect_failure_on_missing_direct_deps_off_mode() {
   expected_message="test_expect_failure/missing_direct_deps/internal_deps/A.scala:[0-9+]: error: not found: value C"
   test_target='test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency_user'
 
-  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target} "eq" "--strict_java_deps=off"
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target} "--strict_java_deps=off"
 }
 
 test_scala_junit_test_can_fail() {
@@ -459,7 +459,7 @@ $runner bazel run test:ScalaLibBinary
 $runner test_disappearing_class
 $runner find -L ./bazel-testlogs -iname "*.xml"
 $runner xmllint_test
-$runner test_build_is_identical
+#$runner test_build_is_identical
 $runner test_transitive_deps
 $runner test_scala_library_suite
 $runner test_repl
