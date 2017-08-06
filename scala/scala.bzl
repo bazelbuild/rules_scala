@@ -466,7 +466,8 @@ def _collect_jars(dep_targets, dependency_analyzer_is_off = True):
 
 def is_dependency_analyzer_on(ctx):
   if (hasattr(ctx.attr,"_dependency_analyzer_plugin")
-    #when the strict deps FT is removed this will be removed as well
+    # when the strict deps FT is removed the "default" check
+    # will be removed since "default" will mean it's turned on
     and ctx.fragments.java.strict_java_deps != "default"
     and ctx.fragments.java.strict_java_deps != "off"):
     return True
