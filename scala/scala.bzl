@@ -163,13 +163,13 @@ def _compile(ctx, cjars, dep_srcjars, buildijar, transitive_compile_jars=[], lab
     # look for any plugins:
     plugins = _collect_plugin_paths(ctx.attr.plugins)
     dependency_analyzer_plugin_jars = []
-    dependency_analyzer_mode_soon_to_be_removed = "off"
+    dependency_analyzer_mode = "off"
     compiler_classpath_jars = cjars
     optional_scalac_args = ""
 
-    if not is_dependency_analyzer_off(ctx):
+    if is_dependency_analyzer_on(ctx):
     # "off" mode is used as a feature toggle, that preserves original behaviour
-        dependency_analyzer_mode_soon_to_be_removed = ctx.attr.dependency_analyzer_mode_soon_to_be_removed
+        dependency_analyzer_mode = ctx.fragments.java.strict_java_deps
         dep_plugin = ctx.attr._dependency_analyzer_plugin
         plugins += [f.path for f in dep_plugin.files]
         dependency_analyzer_plugin_jars = ctx.files._dependency_analyzer_plugin
@@ -216,7 +216,7 @@ ResourceSrcs: {resource_src}
 ResourceStripPrefix: {resource_strip_prefix}
 ScalacOpts: {scala_opts}
 SourceJars: {srcjars}
-DependencyAnalyzerMode: {dependency_analyzer_mode_soon_to_be_removed}
+DependencyAnalyzerMode: {dependency_analyzer_mode}
 """.format(
         out=ctx.outputs.jar.path,
         manifest=ctx.outputs.manifest.path,
@@ -240,7 +240,7 @@ DependencyAnalyzerMode: {dependency_analyzer_mode_soon_to_be_removed}
           ),
         resource_strip_prefix=ctx.attr.resource_strip_prefix,
         resource_jars=",".join([f.path for f in ctx.files.resource_jars]),
-        dependency_analyzer_mode_soon_to_be_removed = dependency_analyzer_mode_soon_to_be_removed,
+        dependency_analyzer_mode = dependency_analyzer_mode,
         )
     argfile = ctx.new_file(
       ctx.outputs.jar,
@@ -464,15 +464,16 @@ def _collect_jars(dep_targets, dependency_analyzer_is_off = True):
     else:
       return _collect_jars_when_dependency_analyzer_is_on(dep_targets)
 
-def is_dependency_analyzer_off(ctx):
-  if not hasattr(ctx.attr, 'dependency_analyzer_mode_soon_to_be_removed'):
+def is_dependency_analyzer_on(ctx):
+  if (hasattr(ctx.attr,"_dependency_analyzer_plugin")
+    # when the strict deps FT is removed the "default" check
+    # will be removed since "default" will mean it's turned on
+    and ctx.fragments.java.strict_java_deps != "default"
+    and ctx.fragments.java.strict_java_deps != "off"):
     return True
 
-  if ctx.attr.dependency_analyzer_mode_soon_to_be_removed not in ["error", "warn", "off"]:
-     fail("Incorrect mode of dependency analyzer plugin! Mode must be 'error', 'warn' or 'off'")
-
-  return ctx.attr.dependency_analyzer_mode_soon_to_be_removed == "off"
-
+def is_dependency_analyzer_off(ctx):
+  return not is_dependency_analyzer_on(ctx)
 
 # Extract very common code out from dependency analysis into single place
 # automatically adds dependency on scala-library and scala-reflect
@@ -782,10 +783,9 @@ _common_attrs_for_plugin_bootstrapping = {
 }
 
 _common_attrs = _common_attrs_for_plugin_bootstrapping + {
-  # dependency_analyzer_mode_soon_to_be_removed will be replaced by using command line flag called 'strict_java_deps' (https://github.com/bazelbuild/bazel/issues/3295)
+  # using stricts scala deps is done by using command line flag called 'strict_java_deps' 
   # switching mode to "on" means that ANY API change in a target's transitive dependencies will trigger a recompilation of that target,
   # on the other hand any internal change (i.e. on code that ijar omits) WON’T trigger recompilation by transitive dependencies
-  "dependency_analyzer_mode_soon_to_be_removed": attr.string(default="off", mandatory=False),
   "_dependency_analyzer_plugin": attr.label(default=Label("@io_bazel_rules_scala//third_party/plugin/src/main:dependency_analyzer"), allow_files=_jar_filetype, mandatory=False),
 }
 
@@ -806,6 +806,7 @@ scala_library = rule(
   attrs={
       } + _implicit_deps + _common_attrs + library_attrs + _resolve_deps,
   outputs=library_outputs,
+  fragments = ["java"]
 )
 
 # the scala compiler plugin used for dependency analysis is compiled using `scala_library`.
@@ -828,6 +829,7 @@ scala_macro_library = rule(
       "deploy_jar": "%{name}_deploy.jar",
       "manifest": "%{name}_MANIFEST.MF",
       },
+  fragments = ["java"]
 )
 
 scala_binary = rule(
@@ -841,6 +843,7 @@ scala_binary = rule(
       "manifest": "%{name}_MANIFEST.MF",
       },
   executable=True,
+  fragments = ["java"]
 )
 
 scala_test = rule(
@@ -859,6 +862,7 @@ scala_test = rule(
       },
   executable=True,
   test=True,
+  fragments = ["java"]
 )
 
 scala_repl = rule(
@@ -870,6 +874,7 @@ scala_repl = rule(
       "manifest": "%{name}_MANIFEST.MF",
   },
   executable=True,
+  fragments = ["java"]
 )
 
 def scala_version():
@@ -1044,6 +1049,7 @@ scala_junit_test = rule(
       "manifest": "%{name}_MANIFEST.MF",
       },
   test=True,
+  fragments = ["java"]
 )
 
 def scala_specs2_junit_test(name, **kwargs):
