@@ -270,15 +270,24 @@ class ScalacProcessor implements Processor {
     commandParts.add("@" + normalizeSlash(argsFile.toFile().getAbsolutePath()));
     try {
       Process iostat = new ProcessBuilder(commandParts)
-        .inheritIO()
         .start();
+      String error = getInputAsString(iostat.getErrorStream());
+      String output = getInputAsString(iostat.getInputStream());
       int exitCode = iostat.waitFor();
       if(exitCode != 0) {
-        throw new RuntimeException("javac process failed!");
+        throw new RuntimeException("javac process failed! "+ error + " " + output);
+      } else {
+        System.out.println("Javac stdout: " + output);
       }
     }
     finally {
       removeTmp(argsFile);
+    }
+  }
+
+  private static String getInputAsString(InputStream is) {
+    try(java.util.Scanner s = new java.util.Scanner(is)) {
+      return s.useDelimiter("\\A").hasNext() ? s.next() : "";
     }
   }
 
