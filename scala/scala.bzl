@@ -410,7 +410,8 @@ def provider_of_dependency_contains_label_of(dependency, jar):
   return hasattr(dependency, "jars_to_labels") and jar.path in dependency.jars_to_labels
 
 def dep_target_contains_ijar(dep_target):
-  return hasattr(dep_target, 'scala') and hasattr(dep_target.scala, 'outputs') and hasattr(dep_target.scala.outputs, 'ijar') and dep_target.scala.outputs.ijar
+  return (hasattr(dep_target, 'scala') and hasattr(dep_target.scala, 'outputs') and 
+          hasattr(dep_target.scala.outputs, 'ijar') and dep_target.scala.outputs.ijar)
 
 def _collect_jars_when_dependency_analyzer_is_off(dep_targets):
   compile_jars = depset()
