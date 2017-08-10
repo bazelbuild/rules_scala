@@ -1,6 +1,7 @@
 package scripts
 
 import io.bazel.rules_scala.scrooge_support.{ Compiler, CompilerDefaults }
+import com.twitter.scrooge.backend.WithFinagle
 import io.bazel.rulesscala.jar.JarCreator
 import io.bazel.rulesscala.io_utils.DeleteRecursively
 import java.io.{ File, PrintStream }
@@ -69,10 +70,17 @@ class ScroogeGenerator extends Processor {
     // immediateThriftSrcJars.
     val remoteSelfThriftSources = getIdx(4)
 
+    // Further configuration options for scrooge.
+    val additionalFlags = getIdx(5)
+
     val tmp = Paths.get(Option(System.getenv("TMPDIR")).getOrElse("/tmp"))
     val scroogeOutput = Files.createTempDirectory(tmp, "scrooge")
 
     val scrooge = new Compiler
+
+    if (additionalFlags.contains("--with-finagle")) {
+      scrooge.flags += WithFinagle
+    }
 
     scrooge.compileJars ++= immediateThriftSrcJars
     scrooge.compileJars ++= remoteSelfThriftSources
