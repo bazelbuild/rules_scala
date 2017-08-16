@@ -682,9 +682,17 @@ def _scala_test_impl(ctx):
 
     transitive_rjars += [ctx.outputs.jar]
 
+    # output report test duration
+    flags = "-oD"
+    if ctx.attr.full_stacktraces:
+        flags += "F"
+    else:
+        flags += "S"
+    if not ctx.attr.colors:
+        flags += "W"
     args = " ".join([
         "-R \"{path}\"".format(path=ctx.outputs.jar.short_path),
-        "-oWDS",
+        flags,
         "-C io.bazel.rules.scala.JUnitXmlReporter ",
     ])
     # main_class almost has to be "org.scalatest.tools.Runner" due to args....
@@ -852,6 +860,8 @@ scala_test = rule(
   attrs={
       "main_class": attr.string(default="io.bazel.rulesscala.scala_test.Runner"),
       "suites": attr.string_list(),
+      "colors": attr.bool(default=False),
+      "full_stacktraces": attr.bool(default=False),
       "_scalatest": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scalatest/scalatest"), allow_files=True),
       "_scalatest_runner": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/scala_test:runner.jar"), allow_files=True),
       "_scalatest_reporter": attr.label(default=Label("//scala/support:test_reporter")),
@@ -987,11 +997,12 @@ def _sanitize_string_for_usage(s):
 # This auto-generates a test suite based on the passed set of targets
 # we will add a root test_suite with the name of the passed name
 def scala_test_suite(name, srcs = [], deps = [], runtime_deps = [], data = [], resources = [],
-                     scalacopts = [], jvm_flags = [], visibility = None, size = None):
+                     scalacopts = [], jvm_flags = [], visibility = None, size = None,
+                     colors=False, full_stacktraces=False):
     ts = []
     for test_file in srcs:
         n = "%s_test_suite_%s" % (name, _sanitize_string_for_usage(test_file))
-        scala_test(name = n, srcs = [test_file], deps = deps, runtime_deps = runtime_deps, resources=resources, scalacopts=scalacopts, jvm_flags=jvm_flags, visibility=visibility, size=size)
+        scala_test(name = n, srcs = [test_file], deps = deps, runtime_deps = runtime_deps, resources=resources, scalacopts=scalacopts, jvm_flags=jvm_flags, visibility=visibility, size=size, colors=colors, full_stacktraces=full_stacktraces)
         ts.append(n)
     native.test_suite(name = name, tests = ts, visibility = visibility)
 
