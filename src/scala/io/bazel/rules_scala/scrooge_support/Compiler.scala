@@ -38,6 +38,7 @@ import com.twitter.scrooge.frontend.{FileParseException, TypeResolver, ThriftPar
 import java.io.{File, FileWriter}
 import java.nio.file.Paths
 import java.util.jar.{ JarFile, JarEntry }
+import java.util.logging.Level
 import scala.collection.concurrent.TrieMap
 import scala.collection.mutable
 
@@ -128,7 +129,8 @@ class Compiler {
           defaultOptional = isJava,
           skipIncludes = false,
           documentCache
-        )(com.twitter.logging.NullLogger) // scrooge warns on file names with "/"
+        )
+        parser.logger.setLevel(Level.OFF) // scrooge warns on file names with "/"
         val doc = parser.parseFile(inputFile).mapNamespaces(namespaceMappings.toMap)
 
         if (verbose) println("+ Compiling %s".format(inputFile))
