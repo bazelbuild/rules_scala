@@ -145,7 +145,12 @@ def _gen_scrooge_srcjar_impl(ctx):
   # https://github.com/bazelbuild/bazel/issues/3329
   worker_arg_pad = "_"
   path_content = "\n".join([worker_arg_pad + _colon_paths(ps) for ps in [immediate_thrift_srcs, only_transitive_thrift_srcs, remote_jars, external_jars]])
-  worker_content = "{output}\n{paths}\n".format(output = ctx.outputs.srcjar.path, paths = path_content)
+  worker_content = "{output}\n{paths}\n{flags}".format(
+          output = ctx.outputs.srcjar.path,
+          paths = path_content,
+          flags = worker_arg_pad + ':'.join([
+              '--with-finagle' if ctx.attr.with_finagle else '',
+          ]))
 
   argfile = ctx.new_file(ctx.outputs.srcjar, "%s_worker_input" % ctx.label.name)
   ctx.file_action(output=argfile, content=worker_content)
@@ -226,6 +231,7 @@ scrooge_scala_srcjar = rule(
         #     do the code gen.
         "remote_jars": attr.label_list(),
         "jvm_flags": attr.string_list(),  # the jvm flags to use with the generator
+        "with_finagle": attr.bool(default=False),
         "_pluck_scrooge_scala": attr.label(
           executable=True,
           cfg="host",
@@ -237,13 +243,14 @@ scrooge_scala_srcjar = rule(
     },
 )
 
-def scrooge_scala_library(name, deps=[], remote_jars=[], jvm_flags=[], visibility=None):
+def scrooge_scala_library(name, deps=[], remote_jars=[], jvm_flags=[], visibility=None, with_finagle=False):
     srcjar = name + '_srcjar'
     scrooge_scala_srcjar(
         name = srcjar,
         deps = deps,
         remote_jars = remote_jars,
         visibility = visibility,
+        with_finagle = with_finagle,
     )
 
     # deps from macro invocation would come via srcjar
