@@ -800,11 +800,14 @@ library_attrs = {
   "exports": attr.label_list(allow_files=False),
 }
 
-library_outputs = {
+common_outputs = {
   "jar": "%{name}.jar",
   "deploy_jar": "%{name}_deploy.jar",
-  "ijar": "%{name}_ijar.jar",
   "manifest": "%{name}_MANIFEST.MF",
+}
+
+library_outputs = common_outputs + {
+  "ijar": "%{name}_ijar.jar",
 }
 
 scala_library = rule(
@@ -830,11 +833,7 @@ scala_macro_library = rule(
       "main_class": attr.string(),
       "exports": attr.label_list(allow_files=False),
       } + _implicit_deps + _common_attrs + _resolve_deps,
-  outputs={
-      "jar": "%{name}.jar",
-      "deploy_jar": "%{name}_deploy.jar",
-      "manifest": "%{name}_MANIFEST.MF",
-      },
+  outputs= common_outputs,
   fragments = ["java"]
 )
 
@@ -843,11 +842,7 @@ scala_binary = rule(
   attrs={
       "main_class": attr.string(mandatory=True),
       } + _launcher_template + _implicit_deps + _common_attrs + _resolve_deps,
-  outputs={
-      "jar": "%{name}.jar",
-      "deploy_jar": "%{name}_deploy.jar",
-      "manifest": "%{name}_MANIFEST.MF",
-      },
+  outputs= common_outputs,
   executable=True,
   fragments = ["java"]
 )
@@ -863,11 +858,7 @@ scala_test = rule(
       "_scalatest_runner": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/scala_test:runner.jar"), allow_files=True),
       "_scalatest_reporter": attr.label(default=Label("//scala/support:test_reporter")),
       } + _launcher_template + _implicit_deps + _common_attrs + _test_resolve_deps,
-  outputs={
-      "jar": "%{name}.jar",
-      "deploy_jar": "%{name}_deploy.jar",
-      "manifest": "%{name}_MANIFEST.MF",
-      },
+  outputs= common_outputs,
   executable=True,
   test=True,
   fragments = ["java"]
@@ -876,11 +867,7 @@ scala_test = rule(
 scala_repl = rule(
   implementation=_scala_repl_impl,
   attrs= _launcher_template + _implicit_deps + _common_attrs + _resolve_deps,
-  outputs={
-      "jar": "%{name}.jar",
-      "deploy_jar": "%{name}_deploy.jar",
-      "manifest": "%{name}_MANIFEST.MF",
-  },
+  outputs= common_outputs,
   executable=True,
   fragments = ["java"]
 )
@@ -1052,11 +1039,7 @@ scala_junit_test = rule(
       "_suite": attr.label(default=Label("//src/java/io/bazel/rulesscala/test_discovery:test_discovery")),
       "_bazel_test_runner": attr.label(default=Label("@bazel_tools//tools/jdk:TestRunner_deploy.jar"), allow_files=True),
       },
-  outputs={
-      "jar": "%{name}.jar",
-      "deploy_jar": "%{name}_deploy.jar",
-      "manifest": "%{name}_MANIFEST.MF",
-      },
+  outputs= common_outputs,
   test=True,
   fragments = ["java"]
 )
