@@ -289,15 +289,56 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
         arguments=["--jvm_flag=%s" % flag for flag in ctx.attr.scalac_jvm_flags] + ["@" + argfile.path],
       )
 
+    java_jar = try_to_compile_java_jar(ctx, all_srcjars, java_srcs)
+    return java_jar
+
+
+def try_to_compile_java_jar(ctx, all_srcjars, java_srcs):
+    if not java_srcs and not all_srcjars:
+      return False
+
+    providers_of_dependencies = collect_java_providers_of(ctx.attr.deps)
+    scala_sources_java_provider = java_common.create_provider(
+        #the line below means we can't use the provider from java_common.compile
+        #since it will include the full jar when I want to expose only the ijar
+        #on the other hand we can't supply the java_common.compile the scala ijar since it needs the internals
+        compile_time_jars = [ctx.outputs.jar],
+        runtime_jars = [],
+    )
+    providers_of_dependencies += [scala_sources_java_provider]
+
+    java_jar = ctx.actions.declare_file(ctx.label.name + "_java.jar")
+
+    java_common.compile(
+                ctx,
+                source_jars = all_srcjars.to_list(),
+                source_files = java_srcs,
+                output = java_jar,
+                javac_opts = ctx.attr.javacopts + ctx.attr.javac_jvm_flags,
+                deps = providers_of_dependencies,
+                #exports can be empty since the manually created provider exposes exports
+                #needs to be empty since we want the provider.compile_jars to only contain the sources ijar
+                exports = [],
+                java_toolchain = ctx.attr._java_toolchain,
+                host_javabase = ctx.attr._host_javabase,
+    )
+    return java_jar
+
+def collect_java_providers_of(deps):
+    providers = []
+    for dep in deps:
+        if java_common.provider in dep:
+          providers.append(dep[java_common.provider])
+    return providers
 
 def _compile_or_empty(ctx, jars, srcjars, buildijar, transitive_compile_jars, jars2labels):
     # We assume that if a srcjar is present, it is not empty
     if len(ctx.files.srcs) + len(srcjars) == 0:
         _build_nosrc_jar(ctx, buildijar)
         #  no need to build ijar when empty
-        return struct(ijar=ctx.outputs.jar, class_jar=ctx.outputs.jar)
+        return struct(ijar=ctx.outputs.jar, class_jar=ctx.outputs.jar, java_jar = False)
     else:
-        _compile(ctx, jars, srcjars, buildijar, transitive_compile_jars, jars2labels)
+        java_jar = _compile(ctx, jars, srcjars, buildijar, transitive_compile_jars, jars2labels)
         ijar = None
         if buildijar:
             ijar = ctx.outputs.ijar
@@ -305,7 +346,7 @@ def _compile_or_empty(ctx, jars, srcjars, buildijar, transitive_compile_jars, ja
             #  macro code needs to be available at compile-time,
             #  so set ijar == jar
             ijar = ctx.outputs.jar
-        return struct(ijar=ijar, class_jar=ctx.outputs.jar)
+        return struct(ijar=ijar, class_jar=ctx.outputs.jar, java_jar = java_jar)
 
 def _build_deployable(ctx, jars):
     # This calls bazels singlejar utility.
@@ -503,13 +544,18 @@ def _lib(ctx, non_macro_lib):
     outputs = _compile_or_empty(ctx, cjars, srcjars, non_macro_lib, jars.transitive_compile_jars, jars.jars2labels)
 
     transitive_rjars += [ctx.outputs.jar]
+    if outputs.java_jar:
+      transitive_rjars += [outputs.java_jar]
 
     _build_deployable(ctx, transitive_rjars)
 
     # Now, need to setup providers for dependents
     # Notice that transitive_rjars just carries over from dependency analysis
     # but cjars 'resets' between cjars and next_cjars
-    next_cjars = depset([outputs.ijar])  # use ijar, if available, for future compiles
+    current_compile_files = [outputs.ijar]
+    if outputs.java_jar:
+      current_compile_files.extend([outputs.java_jar]) #handle java ijar
+    next_cjars = depset(current_compile_files)  # use ijar, if available, for future compiles
 
     # Using transitive_files since transitive_rjars a depset and avoiding linearization
     runfiles = ctx.runfiles(
@@ -578,6 +624,10 @@ def _scala_macro_library_impl(ctx):
 def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2labels):
   write_manifest(ctx)
   outputs = _compile_or_empty(ctx, cjars, [], False, transitive_compile_time_jars, jars2labels)  # no need to build an ijar for an executable
+  rjars += [ctx.outputs.jar]
+  if outputs.java_jar:
+    rjars += [outputs.java_jar]
+
   _build_deployable(ctx, list(rjars))
 
   java_wrapper = ctx.new_file(ctx.label.name + "_wrapper.sh")
@@ -608,31 +658,32 @@ def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2l
       files=depset([ctx.outputs.executable]),
       providers = [java_provider],
       scala = scalaattr,
+      transitive_rjars = rjars, #calling rules need this for the classpath in the launcher
       runfiles=runfiles)
 
 def _scala_binary_impl(ctx):
   jars = _collect_jars_from_common_ctx(ctx)
   (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
-  transitive_rjars += [ctx.outputs.jar]
 
+  out = _scala_binary_common(ctx, cjars, transitive_rjars, jars.transitive_compile_jars, jars.jars2labels)
   _write_launcher(
       ctx = ctx,
-      rjars = transitive_rjars,
+      rjars = out.transitive_rjars,
       main_class = ctx.attr.main_class,
       jvm_flags = ctx.attr.jvm_flags,
   )
-  return _scala_binary_common(ctx, cjars, transitive_rjars, jars.transitive_compile_jars, jars.jars2labels)
+  return out
 
 def _scala_repl_impl(ctx):
   # need scala-compiler for MainGenericRunner below
   jars = _collect_jars_from_common_ctx(ctx, extra_runtime_deps = [ctx.attr._scalacompiler])
   (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
-  transitive_rjars += [ctx.outputs.jar]
 
+  out = _scala_binary_common(ctx, cjars, transitive_rjars, jars.transitive_compile_jars, jars.jars2labels)
   args = " ".join(ctx.attr.scalacopts)
   _write_launcher(
       ctx = ctx,
-      rjars = transitive_rjars,
+      rjars = out.transitive_rjars,
       main_class = "scala.tools.nsc.MainGenericRunner",
       jvm_flags = ["-Dscala.usejavacp=true"] + ctx.attr.jvm_flags,
       args = args,
@@ -652,7 +703,7 @@ trap finish EXIT
 """,
   )
 
-  return _scala_binary_common(ctx, cjars, transitive_rjars, jars.transitive_compile_jars, jars.jars2labels)
+  return out
 
 def _scala_test_flags(ctx):
     # output report test duration
@@ -685,22 +736,21 @@ def _scala_test_impl(ctx):
       transitive_compile_jars += scalatest_jars
       add_labels_of_jars_to(jars_to_labels, ctx.attr._scalatest, scalatest_jars)
 
-    transitive_rjars += [ctx.outputs.jar]
-
     args = " ".join([
         "-R \"{path}\"".format(path=ctx.outputs.jar.short_path),
         _scala_test_flags(ctx),
         "-C io.bazel.rules.scala.JUnitXmlReporter ",
     ])
+    out = _scala_binary_common(ctx, cjars, transitive_rjars, transitive_compile_jars, jars_to_labels)
     # main_class almost has to be "org.scalatest.tools.Runner" due to args....
     _write_launcher(
         ctx = ctx,
-        rjars = transitive_rjars,
+        rjars = out.transitive_rjars,
         main_class = ctx.attr.main_class,
         jvm_flags = ctx.attr.jvm_flags,
         args = args,
     )
-    return _scala_binary_common(ctx, cjars, transitive_rjars, transitive_compile_jars, jars_to_labels)
+    return out
 
 def _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, archive):
     return struct(testSuiteFlag = "-Dbazel.test_suite=io.bazel.rulesscala.test_discovery.DiscoveredTestSuite",
@@ -717,18 +767,17 @@ def _scala_junit_test_impl(ctx):
     )
     (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
 
-    transitive_rjars += [ctx.outputs.jar]
-
+    out =  _scala_binary_common(ctx, cjars, transitive_rjars, jars.transitive_compile_jars, jars.jars2labels)
     test_suite = _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, ctx.outputs.jar)
     launcherJvmFlags = ["-ea", test_suite.archiveFlag, test_suite.prefixesFlag, test_suite.suffixesFlag, test_suite.printFlag, test_suite.testSuiteFlag]
     _write_launcher(
         ctx = ctx,
-        rjars = transitive_rjars,
+        rjars = out.transitive_rjars,
         main_class = "com.google.testing.junit.runner.BazelTestRunner",
         jvm_flags = launcherJvmFlags + ctx.attr.jvm_flags,
     )
 
-    return _scala_binary_common(ctx, cjars, transitive_rjars, jars.transitive_compile_jars, jars.jars2labels)
+    return out
 
 _launcher_template = {
   "_java_stub_template": attr.label(default=Label("@java_stub_template//file")),
@@ -745,6 +794,8 @@ _implicit_deps = {
   "_javac": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:javac"), allow_files=True),
   "_jar": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/jar:binary_deploy.jar"), allow_files=True),
   "_jdk": attr.label(default=Label("//tools/defaults:jdk"), allow_files=True),
+  "_java_toolchain": attr.label(default = Label("@bazel_tools//tools/jdk:toolchain")),
+  "_host_javabase": attr.label(default = Label("//tools/defaults:jdk"))
 }
 
 # Single dep to allow IDEs to pickup all the implicit dependencies.
@@ -825,6 +876,7 @@ scala_library_for_plugin_bootstrapping = rule(
   implementation=_scala_library_impl,
   attrs= _implicit_deps + library_attrs + _resolve_deps + _common_attrs_for_plugin_bootstrapping,
   outputs=library_outputs,
+  fragments = ["java"]
 )
 
 scala_macro_library = rule(
