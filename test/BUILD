@@ -424,3 +424,11 @@ scala_binary(
     main_class = "scala.test.A",
     deps = ["//test/example_jars:example_jar1", "//test/example_jars:example_jar2"]
 )
+
+scala_binary(
+    name = "ScalaBinary_dependent_on_binary_with_java",
+    srcs = ["src/main/scala/scala/test/BinaryDependentOnJava.scala"],
+    main_class = "scala.test.BinaryDependentOnJava",
+    deps = [":JavaOnlySources"],
+)
+

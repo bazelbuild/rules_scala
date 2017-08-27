@@ -644,9 +644,14 @@ def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2l
       class_jar=outputs.class_jar,
       deploy_jar=ctx.outputs.deploy_jar,
   )
+
+  compile_outputs = [outputs.class_jar]
+  if outputs.java_jar:
+    compile_outputs.extend([outputs.java_jar]) #handle java ijar
+
   scalaattr = struct(
       outputs = rule_outputs,
-      compile_jars = depset([outputs.class_jar]),
+      compile_jars = depset(compile_outputs),
       transitive_runtime_jars = rjars,
   )
 
