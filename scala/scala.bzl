@@ -149,7 +149,7 @@ def _collect_plugin_paths(plugins):
     return paths
 
 
-def _compile(ctx, cjars, dep_srcjars, buildijar, transitive_compile_jars=[], labels = {}):
+def _compile(ctx, cjars, dep_srcjars, buildijar, transitive_compile_jars, labels, implicit_junit_deps_needed_for_java_compilation):
     ijar_output_path = ""
     ijar_cmd_path = ""
     if buildijar:
@@ -289,15 +289,16 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
         arguments=["--jvm_flag=%s" % flag for flag in ctx.attr.scalac_jvm_flags] + ["@" + argfile.path],
       )
 
-    java_jar = try_to_compile_java_jar(ctx, all_srcjars, java_srcs)
+    java_jar = try_to_compile_java_jar(ctx, all_srcjars, java_srcs, implicit_junit_deps_needed_for_java_compilation)
     return java_jar
 
 
-def try_to_compile_java_jar(ctx, all_srcjars, java_srcs):
+def try_to_compile_java_jar(ctx, all_srcjars, java_srcs, implicit_junit_deps_needed_for_java_compilation):
     if not java_srcs and not all_srcjars:
       return False
 
     providers_of_dependencies = collect_java_providers_of(ctx.attr.deps)
+    providers_of_dependencies += collect_java_providers_of(implicit_junit_deps_needed_for_java_compilation)
     scala_sources_java_provider = java_common.create_provider(
         #the line below means we can't use the provider from java_common.compile
         #since it will include the full jar when I want to expose only the ijar
@@ -331,14 +332,14 @@ def collect_java_providers_of(deps):
           providers.append(dep[java_common.provider])
     return providers
 
-def _compile_or_empty(ctx, jars, srcjars, buildijar, transitive_compile_jars, jars2labels):
+def _compile_or_empty(ctx, jars, srcjars, buildijar, transitive_compile_jars, jars2labels, implicit_junit_deps_needed_for_java_compilation):
     # We assume that if a srcjar is present, it is not empty
     if len(ctx.files.srcs) + len(srcjars) == 0:
         _build_nosrc_jar(ctx, buildijar)
         #  no need to build ijar when empty
         return struct(ijar=ctx.outputs.jar, class_jar=ctx.outputs.jar, java_jar = False)
     else:
-        java_jar = _compile(ctx, jars, srcjars, buildijar, transitive_compile_jars, jars2labels)
+        java_jar = _compile(ctx, jars, srcjars, buildijar, transitive_compile_jars, jars2labels, implicit_junit_deps_needed_for_java_compilation)
         ijar = None
         if buildijar:
             ijar = ctx.outputs.ijar
@@ -541,7 +542,7 @@ def _lib(ctx, non_macro_lib):
     (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
 
     write_manifest(ctx)
-    outputs = _compile_or_empty(ctx, cjars, srcjars, non_macro_lib, jars.transitive_compile_jars, jars.jars2labels)
+    outputs = _compile_or_empty(ctx, cjars, srcjars, non_macro_lib, jars.transitive_compile_jars, jars.jars2labels, [])
 
     transitive_rjars += [ctx.outputs.jar]
     if outputs.java_jar:
@@ -621,9 +622,9 @@ def _scala_macro_library_impl(ctx):
   return _lib(ctx, False)  # don't build the ijar for macros
 
 # Common code shared by all scala binary implementations.
-def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2labels):
+def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2labels, implicit_junit_deps_needed_for_java_compilation = []):
   write_manifest(ctx)
-  outputs = _compile_or_empty(ctx, cjars, [], False, transitive_compile_time_jars, jars2labels)  # no need to build an ijar for an executable
+  outputs = _compile_or_empty(ctx, cjars, [], False, transitive_compile_time_jars, jars2labels, implicit_junit_deps_needed_for_java_compilation)  # no need to build an ijar for an executable
   rjars += [ctx.outputs.jar]
   if outputs.java_jar:
     rjars += [outputs.java_jar]
@@ -659,6 +660,7 @@ def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2l
       providers = [java_provider],
       scala = scalaattr,
       transitive_rjars = rjars, #calling rules need this for the classpath in the launcher
+      java_jar = outputs.java_jar,
       runfiles=runfiles)
 
 def _scala_binary_impl(ctx):
@@ -752,12 +754,19 @@ def _scala_test_impl(ctx):
     )
     return out
 
-def _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, archive):
+def _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, scala_archive, maybe_java_archive):
+    archives = _get_archives_short_path(scala_archive, maybe_java_archive)
     return struct(testSuiteFlag = "-Dbazel.test_suite=io.bazel.rulesscala.test_discovery.DiscoveredTestSuite",
-    archiveFlag = "-Dbazel.discover.classes.archive.file.path=%s" % archive.short_path,
+    archiveFlag = "-Dbazel.discover.classes.archives.file.paths=%s" % archives,
     prefixesFlag = "-Dbazel.discover.classes.prefixes=%s" % ",".join(ctx.attr.prefixes),
     suffixesFlag = "-Dbazel.discover.classes.suffixes=%s" % ",".join(ctx.attr.suffixes),
     printFlag = "-Dbazel.discover.classes.print.discovered=%s" % ctx.attr.print_discovered_classes)
+
+def _get_archives_short_path(scala_archive, maybe_java_archive):
+  java_archive_short_path = ""
+  if maybe_java_archive:
+    java_archive_short_path = "," + maybe_java_archive.short_path
+  return scala_archive.short_path + java_archive_short_path
 
 def _scala_junit_test_impl(ctx):
     if (not(ctx.attr.prefixes) and not(ctx.attr.suffixes)):
@@ -766,9 +775,10 @@ def _scala_junit_test_impl(ctx):
         extra_deps = [ctx.attr._junit, ctx.attr._hamcrest, ctx.attr._suite, ctx.attr._bazel_test_runner],
     )
     (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
+    implicit_junit_deps_needed_for_java_compilation = [ctx.attr._junit, ctx.attr._hamcrest]
 
-    out =  _scala_binary_common(ctx, cjars, transitive_rjars, jars.transitive_compile_jars, jars.jars2labels)
-    test_suite = _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, ctx.outputs.jar)
+    out =  _scala_binary_common(ctx, cjars, transitive_rjars, jars.transitive_compile_jars, jars.jars2labels, implicit_junit_deps_needed_for_java_compilation)
+    test_suite = _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, ctx.outputs.jar, out.java_jar)
     launcherJvmFlags = ["-ea", test_suite.archiveFlag, test_suite.prefixesFlag, test_suite.suffixesFlag, test_suite.printFlag, test_suite.testSuiteFlag]
     _write_launcher(
         ctx = ctx,

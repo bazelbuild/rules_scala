@@ -285,6 +285,13 @@ scala_junit_test(
     print_discovered_classes = True
 )
 
+scala_junit_test(
+    name = "JunitJavaTest",
+    srcs = ["src/main/scala/scala/test/junit/JunitJavaTest.java"],
+    suffixes = ["Test"],
+    size = "small",
+)
+
 scala_specs2_junit_test(
     name = "Specs2Tests",
     srcs = ["src/main/scala/scala/test/junit/specs2/Specs2Tests.scala"],
