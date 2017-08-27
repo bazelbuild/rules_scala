@@ -417,6 +417,10 @@ javac_jvm_flags_are_configured(){
   action_should_fail build //test_expect_failure/compilers_jvm_flags:can_configure_jvm_flags_for_javac
 }
 
+javac_jvm_flags_via_javacopts_are_configured(){
+  action_should_fail build //test_expect_failure/compilers_jvm_flags:can_configure_jvm_flags_for_javac_via_javacopts
+}
+
 revert_internal_change() {
   sed -i.bak "s/println(\"altered\")/println(\"orig\")/" $no_recompilation_path/C.scala
   rm $no_recompilation_path/C.scala.bak
@@ -488,6 +492,7 @@ $runner scala_test_test_filters
 $runner scala_junit_test_test_filter
 $runner scalac_jvm_flags_are_configured
 $runner javac_jvm_flags_are_configured
+$runner javac_jvm_flags_via_javacopts_are_configured
 $runner test_scala_library_expect_failure_on_missing_direct_internal_deps
 $runner test_scala_library_expect_failure_on_missing_direct_external_deps_jar
 $runner test_scala_library_expect_failure_on_missing_direct_external_deps_file_group
