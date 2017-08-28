@@ -452,6 +452,50 @@ test_scala_library_expect_no_recompilation_on_internal_change_of_transitive_depe
   set -e
 }
 
+test_scala_library_expect_no_recompilation_on_internal_change_of_java_dependency() {
+  test_scala_library_expect_no_recompilation_on_internal_change "C.java" "s/System.out.println(\"orig\")/System.out.println(\"altered\")/"
+}
+
+test_scala_library_expect_no_recompilation_on_internal_change_of_scala_dependency() {
+  test_scala_library_expect_no_recompilation_on_internal_change "B.scala" "s/println(\"orig\")/println(\"altered\")/"
+}
+
+test_scala_library_expect_no_recompilation_on_internal_change() {
+  changed_file=$1
+  changed_content=$2
+  set +e
+  no_recompilation_path="test/src/main/scala/scala/test/ijar"
+  build_command="bazel build //$no_recompilation_path/... --subcommands"
+
+  echo "running initial build"
+  $build_command
+  echo "changing internal behaviour of $changed_file"
+  sed -i.bak $changed_content ./$no_recompilation_path/$changed_file
+
+  echo "running second build"
+  output=$(${build_command} 2>&1)
+
+  not_expected_recompiled_target="//$no_recompilation_path:user"
+
+  echo ${output} | grep "$not_expected_recompiled_target"
+  if [ $? -eq 0 ]; then
+    echo "bazel build was executed after change of internal behaviour of 'dependency' target. compilation of 'user' should not have been triggered."
+    revert_direct_ijar_change $changed_file
+    exit 1
+  fi
+
+  revert_direct_ijar_change $changed_file
+  set -e
+}
+
+revert_direct_ijar_change() {
+  revert_change $no_recompilation_path $1
+}
+
+revert_change() {
+  mv $1/$2.bak $1/$2
+}
+
 if [ "$1" != "ci" ]; then
   runner="run_test_local"
 else
@@ -502,3 +546,5 @@ $runner test_scala_library_expect_failure_on_missing_direct_deps_warn_mode
 $runner test_scala_library_expect_failure_on_missing_direct_deps_off_mode
 $runner test_scala_library_expect_no_recompilation_on_internal_change_of_transitive_dependency
 $runner test_multi_service_manifest
+$runner test_scala_library_expect_no_recompilation_on_internal_change_of_scala_dependency
+$runner test_scala_library_expect_no_recompilation_on_internal_change_of_java_dependency

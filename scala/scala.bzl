@@ -308,13 +308,13 @@ def try_to_compile_java_jar(ctx, all_srcjars, java_srcs, implicit_junit_deps_nee
     )
     providers_of_dependencies += [scala_sources_java_provider]
 
-    java_jar = ctx.actions.declare_file(ctx.label.name + "_java.jar")
+    full_java_jar = ctx.actions.declare_file(ctx.label.name + "_java.jar")
 
-    java_common.compile(
+    provider = java_common.compile(
                 ctx,
                 source_jars = all_srcjars.to_list(),
                 source_files = java_srcs,
-                output = java_jar,
+                output = full_java_jar,
                 javac_opts = ctx.attr.javacopts + ctx.attr.javac_jvm_flags,
                 deps = providers_of_dependencies,
                 #exports can be empty since the manually created provider exposes exports
@@ -323,7 +323,7 @@ def try_to_compile_java_jar(ctx, all_srcjars, java_srcs, implicit_junit_deps_nee
                 java_toolchain = ctx.attr._java_toolchain,
                 host_javabase = ctx.attr._host_javabase,
     )
-    return java_jar
+    return struct(jar = full_java_jar, ijar = provider.compile_jars.to_list().pop())
 
 def collect_java_providers_of(deps):
     providers = []
@@ -546,7 +546,7 @@ def _lib(ctx, non_macro_lib):
 
     transitive_rjars += [ctx.outputs.jar]
     if outputs.java_jar:
-      transitive_rjars += [outputs.java_jar]
+      transitive_rjars += [outputs.java_jar.jar]
 
     _build_deployable(ctx, transitive_rjars)
 
@@ -555,7 +555,7 @@ def _lib(ctx, non_macro_lib):
     # but cjars 'resets' between cjars and next_cjars
     current_compile_files = [outputs.ijar]
     if outputs.java_jar:
-      current_compile_files.extend([outputs.java_jar]) #handle java ijar
+      current_compile_files.extend([outputs.java_jar.ijar])
     next_cjars = depset(current_compile_files)  # use ijar, if available, for future compiles
 
     # Using transitive_files since transitive_rjars a depset and avoiding linearization
@@ -627,7 +627,7 @@ def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2l
   outputs = _compile_or_empty(ctx, cjars, [], False, transitive_compile_time_jars, jars2labels, implicit_junit_deps_needed_for_java_compilation)  # no need to build an ijar for an executable
   rjars += [ctx.outputs.jar]
   if outputs.java_jar:
-    rjars += [outputs.java_jar]
+    rjars += [outputs.java_jar.jar]
 
   _build_deployable(ctx, list(rjars))
 
@@ -647,7 +647,7 @@ def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2l
 
   compile_outputs = [outputs.class_jar]
   if outputs.java_jar:
-    compile_outputs.extend([outputs.java_jar]) #handle java ijar
+    compile_outputs.extend([outputs.java_jar.ijar])
 
   scalaattr = struct(
       outputs = rule_outputs,
@@ -770,7 +770,7 @@ def _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, scala_archive, may
 def _get_archives_short_path(scala_archive, maybe_java_archive):
   java_archive_short_path = ""
   if maybe_java_archive:
-    java_archive_short_path = "," + maybe_java_archive.short_path
+    java_archive_short_path = "," + maybe_java_archive.jar.short_path
   return scala_archive.short_path + java_archive_short_path
 
 def _scala_junit_test_impl(ctx):
