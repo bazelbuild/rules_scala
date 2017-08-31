@@ -410,7 +410,7 @@ def provider_of_dependency_contains_label_of(dependency, jar):
   return hasattr(dependency, "jars_to_labels") and jar.path in dependency.jars_to_labels
 
 def dep_target_contains_ijar(dep_target):
-  return (hasattr(dep_target, 'scala') and hasattr(dep_target.scala, 'outputs') and 
+  return (hasattr(dep_target, 'scala') and hasattr(dep_target.scala, 'outputs') and
           hasattr(dep_target.scala.outputs, 'ijar') and dep_target.scala.outputs.ijar)
 
 def _collect_jars_when_dependency_analyzer_is_off(dep_targets):
@@ -741,6 +741,7 @@ _launcher_template = {
 }
 
 _implicit_deps = {
+  "_singlerjar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:singlejar"), allow_files=True),
   "_ijar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:ijar"), allow_files=True),
   "_scalac": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/scalac"), allow_files=True),
   "_scalalib": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_library"), allow_files=True),
@@ -795,7 +796,7 @@ _common_attrs_for_plugin_bootstrapping = {
 }
 
 _common_attrs = _common_attrs_for_plugin_bootstrapping + {
-  # using stricts scala deps is done by using command line flag called 'strict_java_deps' 
+  # using stricts scala deps is done by using command line flag called 'strict_java_deps'
   # switching mode to "on" means that ANY API change in a target's transitive dependencies will trigger a recompilation of that target,
   # on the other hand any internal change (i.e. on code that ijar omits) WON’T trigger recompilation by transitive dependencies
   "_dependency_analyzer_plugin": attr.label(default=Label("@io_bazel_rules_scala//third_party/plugin/src/main:dependency_analyzer"), allow_files=_jar_filetype, mandatory=False),
