@@ -313,7 +313,8 @@ def _build_deployable(ctx, jars):
     # https://github.com/bazelbuild/bazel/blob/1a06cb90e8a5bfd6134ed0a00f86cf73eb4cb60f/src/java_tools/singlejar/java/com/google/devtools/build/singlejar/SingleJar.java#L311
     args = ["--sources"]
     args.extend([j.path for j in jars])
-    args.extend(["--main_class", ctx.attr.main_class])
+    if getattr(ctx.attr, "main_class", ""):
+        args.extend(["--main_class", ctx.attr.main_class])
     args.extend(["--output", ctx.outputs.deploy_jar.path])
     ctx.action(
         inputs=list(jars),
