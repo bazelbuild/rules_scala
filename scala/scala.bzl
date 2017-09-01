@@ -310,8 +310,8 @@ def _compile_or_empty(ctx, jars, srcjars, buildijar, transitive_compile_jars, ja
 def _build_deployable(ctx, jars):
     # This calls bazels singlejar utility.
     # For a full list of available command line options see:
-    # https://github.com/bazelbuild/bazel/blob/1a06cb90e8a5bfd6134ed0a00f86cf73eb4cb60f/src/java_tools/singlejar/java/com/google/devtools/build/singlejar/SingleJar.java#L311
-    args = ["--sources"]
+    # https://github.com/bazelbuild/bazel/blob/master/src/java_tools/singlejar/java/com/google/devtools/build/singlejar/SingleJar.java#L311
+    args = ["--normalize", "--sources"]
     args.extend([j.path for j in jars])
     if getattr(ctx.attr, "main_class", ""):
         args.extend(["--main_class", ctx.attr.main_class])
