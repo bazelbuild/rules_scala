@@ -179,6 +179,14 @@ test_benchmark_jmh() {
   exit $RESPONSE_CODE
 }
 
+test_multi_service_manifest() {
+  deploy_jar='ScalaBinary_with_service_manifest_srcs_deploy.jar'
+  meta_file='META-INF/services/org.apache.beam.sdk.io.FileSystemRegistrar'
+  bazel build test:$deploy_jar
+  unzip -p bazel-bin/test/$deploy_jar $meta_file > service_manifest.txt
+  diff service_manifest.txt test/example_jars/expected_service_manifest.txt
+}
+
 NC='\033[0m'
 GREEN='\033[0;32m'
 RED='\033[0;31m'
@@ -488,3 +496,4 @@ $runner test_scala_binary_expect_failure_on_missing_direct_deps
 $runner test_scala_library_expect_failure_on_missing_direct_deps_warn_mode
 $runner test_scala_library_expect_failure_on_missing_direct_deps_off_mode
 $runner test_scala_library_expect_no_recompilation_on_internal_change_of_transitive_dependency
+$runner test_multi_service_manifest

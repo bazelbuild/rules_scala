@@ -1,0 +1,2 @@
+org.apache.beam.sdk.extensions.gcp.storage.GcsFileSystemRegistrar
+org.apache.beam.sdk.io.LocalFileSystemRegistrar

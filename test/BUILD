@@ -410,3 +410,10 @@ sh_test(
   args = ["$(location //test:jar_lister)", "$(location //test:ScalaBinary_with_fake_deploy.jar)"],
   data = [":ScalaBinary_with_fake_deploy.jar", ":jar_lister"],
 )
+
+scala_binary(
+    name = "ScalaBinary_with_service_manifest_srcs",
+    srcs = ["A.scala"],
+    main_class = "scala.test.A",
+    deps = ["//test/example_jars:example_jar1", "//test/example_jars:example_jar2"]
+)
