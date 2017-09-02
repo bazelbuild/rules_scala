@@ -308,24 +308,18 @@ def _compile_or_empty(ctx, jars, srcjars, buildijar, transitive_compile_jars, ja
         return struct(ijar=ijar, class_jar=ctx.outputs.jar)
 
 def _build_deployable(ctx, jars):
-    # the _jar_bin program we call below expects one optional argument:
-    # -m is the argument to pass a manifest to our jar creation code
-    # the next argument is the path manifest itself
-    # the manifest is set up by methods that call this function (see usages
-    # of _build_deployable and note that they always first call write_manifest)
-    # that is what creates the manifest content
-    #
-    # following the manifest argument and the manifest, the next argument is
-    # the output path for the target jar
-    #
-    # finally all the rest of the arguments are jars to be flattened into one
-    # fat jar
-    args = ["-m", ctx.outputs.manifest.path, ctx.outputs.deploy_jar.path]
+    # This calls bazels singlejar utility.
+    # For a full list of available command line options see:
+    # https://github.com/bazelbuild/bazel/blob/master/src/java_tools/singlejar/java/com/google/devtools/build/singlejar/SingleJar.java#L311
+    args = ["--normalize", "--sources"]
     args.extend([j.path for j in jars])
+    if getattr(ctx.attr, "main_class", ""):
+        args.extend(["--main_class", ctx.attr.main_class])
+    args.extend(["--output", ctx.outputs.deploy_jar.path])
     ctx.action(
-        inputs=list(jars) + [ctx.outputs.manifest],
+        inputs=list(jars),
         outputs=[ctx.outputs.deploy_jar],
-        executable=ctx.executable._jar_bin,
+        executable=ctx.executable._singlejar,
         mnemonic="ScalaDeployJar",
         progress_message="scala deployable %s" % ctx.label,
         arguments=args)
@@ -410,7 +404,7 @@ def provider_of_dependency_contains_label_of(dependency, jar):
   return hasattr(dependency, "jars_to_labels") and jar.path in dependency.jars_to_labels
 
 def dep_target_contains_ijar(dep_target):
-  return (hasattr(dep_target, 'scala') and hasattr(dep_target.scala, 'outputs') and 
+  return (hasattr(dep_target, 'scala') and hasattr(dep_target.scala, 'outputs') and
           hasattr(dep_target.scala.outputs, 'ijar') and dep_target.scala.outputs.ijar)
 
 def _collect_jars_when_dependency_analyzer_is_off(dep_targets):
@@ -741,6 +735,7 @@ _launcher_template = {
 }
 
 _implicit_deps = {
+  "_singlejar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:singlejar"), allow_files=True),
   "_ijar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:ijar"), allow_files=True),
   "_scalac": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/scalac"), allow_files=True),
   "_scalalib": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_library"), allow_files=True),
@@ -749,7 +744,6 @@ _implicit_deps = {
   "_java": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:java"), allow_files=True),
   "_javac": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:javac"), allow_files=True),
   "_jar": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/jar:binary_deploy.jar"), allow_files=True),
-  "_jar_bin": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/jar:binary")),
   "_jdk": attr.label(default=Label("//tools/defaults:jdk"), allow_files=True),
 }
 
@@ -795,7 +789,7 @@ _common_attrs_for_plugin_bootstrapping = {
 }
 
 _common_attrs = _common_attrs_for_plugin_bootstrapping + {
-  # using stricts scala deps is done by using command line flag called 'strict_java_deps' 
+  # using stricts scala deps is done by using command line flag called 'strict_java_deps'
   # switching mode to "on" means that ANY API change in a target's transitive dependencies will trigger a recompilation of that target,
   # on the other hand any internal change (i.e. on code that ijar omits) WON’T trigger recompilation by transitive dependencies
   "_dependency_analyzer_plugin": attr.label(default=Label("@io_bazel_rules_scala//third_party/plugin/src/main:dependency_analyzer"), allow_files=_jar_filetype, mandatory=False),
