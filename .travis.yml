@@ -11,8 +11,9 @@ os:
   - osx
 
 env:
-  - V=HEAD
+  # we want to test the most recent few releases
   - V=0.5.3
+  - V=0.5.4
 
 before_install:
   - |
@@ -24,21 +25,7 @@ before_install:
       sudo apt-get install libxml2-utils -y
       OS=linux
     fi
-    if [[ "${V}" == "HEAD" ]]; then
-      # Determine last successful build number. This may change while we are
-      # downloading, so it's important to determine ahead of time, in case
-      # we need to resume the download.
-      CI_INDEX_URL="http://ci.bazel.io/view/Bazel%20bootstrap%20and%20maintenance/job/Global/job/pipeline/lastSuccessfulBuild/artifact/node=${OS}-x86_64/variation="
-      wget -q -O build-index.html "${CI_INDEX_URL}"
-      CI_ARTIFACT=$(cat build-index.html | sed -n -E 's/.*(bazel(-[^-]*)?(-installer)?-'${OS}'-x86_64(-installer)?.sh).*/\1/p')
-      URL="${CI_INDEX_URL}/${CI_ARTIFACT}"
-
-      echo "artifact = $CI_ARTIFACT"
-      echo "download url = $URL"
-      rm build-index.html    
-    else
-      URL="https://github.com/bazelbuild/bazel/releases/download/${V}/bazel-${V}-installer-${OS}-x86_64.sh"
-    fi
+    URL="https://github.com/bazelbuild/bazel/releases/download/${V}/bazel-${V}-installer-${OS}-x86_64.sh"
     wget -O install.sh "${URL}"
     chmod +x install.sh
     ./install.sh --user
