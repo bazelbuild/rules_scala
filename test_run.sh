@@ -453,16 +453,26 @@ test_scala_library_expect_no_recompilation_on_internal_change_of_transitive_depe
 }
 
 test_scala_library_expect_no_recompilation_on_internal_change_of_java_dependency() {
-  test_scala_library_expect_no_recompilation_on_internal_change "C.java" "s/System.out.println(\"orig\")/System.out.println(\"altered\")/"
+  test_scala_library_expect_no_recompilation_of_target_on_internal_change_of_dependency "C.java" "s/System.out.println(\"orig\")/System.out.println(\"altered\")/"
 }
 
 test_scala_library_expect_no_recompilation_on_internal_change_of_scala_dependency() {
-  test_scala_library_expect_no_recompilation_on_internal_change "B.scala" "s/println(\"orig\")/println(\"altered\")/"
+  test_scala_library_expect_no_recompilation_of_target_on_internal_change_of_dependency "B.scala" "s/println(\"orig\")/println(\"altered\")/"
+}
+
+test_scala_library_expect_no_recompilation_of_target_on_internal_change_of_dependency() {
+  test_scala_library_expect_no_recompilation_on_internal_change $1 $2 ":user" "'user'"
+}
+
+test_scala_library_expect_no_java_recompilation_on_internal_change_of_scala_sibling() {
+  test_scala_library_expect_no_recompilation_on_internal_change "B.scala" "s/println(\"orig_sibling\")/println(\"altered_sibling\")/" "/dependency_java" "java sibling"
 }
 
 test_scala_library_expect_no_recompilation_on_internal_change() {
   changed_file=$1
   changed_content=$2
+  dependency=$3
+  dependency_description=$4
   set +e
   no_recompilation_path="test/src/main/scala/scala/test/ijar"
   build_command="bazel build //$no_recompilation_path/... --subcommands"
@@ -475,21 +485,17 @@ test_scala_library_expect_no_recompilation_on_internal_change() {
   echo "running second build"
   output=$(${build_command} 2>&1)
 
-  not_expected_recompiled_target="//$no_recompilation_path:user"
+  not_expected_recompiled_action="$no_recompilation_path$dependency"
 
-  echo ${output} | grep "$not_expected_recompiled_target"
+  echo ${output} | grep "$not_expected_recompiled_action"
   if [ $? -eq 0 ]; then
-    echo "bazel build was executed after change of internal behaviour of 'dependency' target. compilation of 'user' should not have been triggered."
-    revert_direct_ijar_change $changed_file
+    echo "bazel build was executed after change of internal behaviour of 'dependency' target. compilation of $dependency_description should not have been triggered."
+    revert_change $no_recompilation_path $changed_file
     exit 1
   fi
 
-  revert_direct_ijar_change $changed_file
+  revert_change $no_recompilation_path $changed_file
   set -e
-}
-
-revert_direct_ijar_change() {
-  revert_change $no_recompilation_path $1
 }
 
 revert_change() {
@@ -548,3 +554,4 @@ $runner test_scala_library_expect_no_recompilation_on_internal_change_of_transit
 $runner test_multi_service_manifest
 $runner test_scala_library_expect_no_recompilation_on_internal_change_of_scala_dependency
 $runner test_scala_library_expect_no_recompilation_on_internal_change_of_java_dependency
+$runner test_scala_library_expect_no_java_recompilation_on_internal_change_of_scala_sibling

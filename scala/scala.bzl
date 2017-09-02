@@ -289,21 +289,30 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
         arguments=["--jvm_flag=%s" % flag for flag in ctx.attr.scalac_jvm_flags] + ["@" + argfile.path],
       )
 
-    java_jar = try_to_compile_java_jar(ctx, all_srcjars, java_srcs, implicit_junit_deps_needed_for_java_compilation)
+    if buildijar:
+        scala_output = ctx.outputs.ijar
+    else:
+        scala_output = ctx.outputs.jar
+    java_jar = try_to_compile_java_jar(ctx,
+                                       scala_output,
+                                       all_srcjars,
+                                       java_srcs,
+                                       implicit_junit_deps_needed_for_java_compilation)
     return java_jar
 
 
-def try_to_compile_java_jar(ctx, all_srcjars, java_srcs, implicit_junit_deps_needed_for_java_compilation):
+def try_to_compile_java_jar(ctx,
+                            scala_output,
+                            all_srcjars,
+                            java_srcs,
+                            implicit_junit_deps_needed_for_java_compilation):
     if not java_srcs and not all_srcjars:
       return False
 
     providers_of_dependencies = collect_java_providers_of(ctx.attr.deps)
     providers_of_dependencies += collect_java_providers_of(implicit_junit_deps_needed_for_java_compilation)
     scala_sources_java_provider = java_common.create_provider(
-        #the line below means we can't use the provider from java_common.compile
-        #since it will include the full jar when I want to expose only the ijar
-        #on the other hand we can't supply the java_common.compile the scala ijar since it needs the internals
-        compile_time_jars = [ctx.outputs.jar],
+        compile_time_jars = [scala_output],
         runtime_jars = [],
     )
     providers_of_dependencies += [scala_sources_java_provider]
@@ -319,6 +328,7 @@ def try_to_compile_java_jar(ctx, all_srcjars, java_srcs, implicit_junit_deps_nee
                 deps = providers_of_dependencies,
                 #exports can be empty since the manually created provider exposes exports
                 #needs to be empty since we want the provider.compile_jars to only contain the sources ijar
+                #workaround until https://github.com/bazelbuild/bazel/issues/3528 is resolved
                 exports = [],
                 java_toolchain = ctx.attr._java_toolchain,
                 host_javabase = ctx.attr._host_javabase,
