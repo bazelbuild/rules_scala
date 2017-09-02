@@ -118,7 +118,7 @@ object PrefixSuffixTestDiscoveringSuite {
     new JarInputStream(new FileInputStream(archivePath))
 
   private def archivesPath: String =
-    System.getProperty("bazel.discover.classes.archives.file.paths")
+    System.getProperty("bazel.discover.classes.archives.file.paths") //this is set by scala_junit_test rule in scala.bzl
 
   private def suffixesWithClassSuffix: Set[String] =
     suffixes.map(_ + ".class")
