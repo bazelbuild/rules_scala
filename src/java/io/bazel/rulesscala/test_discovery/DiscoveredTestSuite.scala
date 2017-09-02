@@ -55,7 +55,7 @@ object PrefixSuffixTestDiscoveringSuite {
     classes
   }
 
-  private def discoverClassesIn(archivePath: String) = {
+  private def discoverClassesIn(archivePath: String): Array[Class[_]] = {
     val archive = archiveInputStream(archivePath)
     val classes = discoverClasses(archive, prefixes, suffixesWithClassSuffix)
     archive.close()
