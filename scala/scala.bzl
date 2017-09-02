@@ -337,7 +337,11 @@ def _compile_or_empty(ctx, jars, srcjars, buildijar, transitive_compile_jars, ja
     if len(ctx.files.srcs) + len(srcjars) == 0:
         _build_nosrc_jar(ctx, buildijar)
         #  no need to build ijar when empty
-        return struct(ijar=ctx.outputs.jar, class_jar=ctx.outputs.jar, java_jar = False)
+        return struct(ijar=ctx.outputs.jar,
+                      class_jar=ctx.outputs.jar,
+                      java_jar=False,
+                      full_jars=[ctx.outputs.jar],
+                      ijars=[ctx.outputs.jar])
     else:
         java_jar = _compile(ctx, jars, srcjars, buildijar, transitive_compile_jars, jars2labels, implicit_junit_deps_needed_for_java_compilation)
         ijar = None
@@ -347,7 +351,16 @@ def _compile_or_empty(ctx, jars, srcjars, buildijar, transitive_compile_jars, ja
             #  macro code needs to be available at compile-time,
             #  so set ijar == jar
             ijar = ctx.outputs.jar
-        return struct(ijar=ijar, class_jar=ctx.outputs.jar, java_jar = java_jar)
+        full_jars = [ctx.outputs.jar]
+        ijars = [ijar]
+        if java_jar:
+          full_jars += [java_jar.jar]
+          ijars += [java_jar.ijar]
+        return struct(ijar=ijar,
+                      class_jar=ctx.outputs.jar,
+                      java_jar=java_jar,
+                      full_jars=full_jars,
+                      ijars=ijars)
 
 def _build_deployable(ctx, jars):
     # This calls bazels singlejar utility.
@@ -544,19 +557,14 @@ def _lib(ctx, non_macro_lib):
     write_manifest(ctx)
     outputs = _compile_or_empty(ctx, cjars, srcjars, non_macro_lib, jars.transitive_compile_jars, jars.jars2labels, [])
 
-    transitive_rjars += [ctx.outputs.jar]
-    if outputs.java_jar:
-      transitive_rjars += [outputs.java_jar.jar]
+    transitive_rjars += outputs.full_jars
 
     _build_deployable(ctx, transitive_rjars)
 
     # Now, need to setup providers for dependents
     # Notice that transitive_rjars just carries over from dependency analysis
     # but cjars 'resets' between cjars and next_cjars
-    current_compile_files = [outputs.ijar]
-    if outputs.java_jar:
-      current_compile_files.extend([outputs.java_jar.ijar])
-    next_cjars = depset(current_compile_files)  # use ijar, if available, for future compiles
+    next_cjars = depset(outputs.ijars)  # use ijar, if available, for future compiles
 
     # Using transitive_files since transitive_rjars a depset and avoiding linearization
     runfiles = ctx.runfiles(
@@ -575,6 +583,7 @@ def _lib(ctx, non_macro_lib):
         ijar = outputs.ijar,
         class_jar = outputs.class_jar,
         deploy_jar = ctx.outputs.deploy_jar,
+        jars = outputs.full_jars #needed by intellij plugin
     )
     # Note that, internally, rules only care about compile_jars and transitive_runtime_jars
     # in a similar manner as the java_library and JavaProvider
@@ -582,6 +591,7 @@ def _lib(ctx, non_macro_lib):
         outputs = rule_outputs,
         compile_jars = next_cjars,
         transitive_runtime_jars = transitive_rjars,
+        transitive_exports = [] #needed by intellij plugin
     )
     java_provider = java_common.create_provider(
         compile_time_jars = scalaattr.compile_jars,
@@ -625,9 +635,7 @@ def _scala_macro_library_impl(ctx):
 def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2labels, implicit_junit_deps_needed_for_java_compilation = []):
   write_manifest(ctx)
   outputs = _compile_or_empty(ctx, cjars, [], False, transitive_compile_time_jars, jars2labels, implicit_junit_deps_needed_for_java_compilation)  # no need to build an ijar for an executable
-  rjars += [ctx.outputs.jar]
-  if outputs.java_jar:
-    rjars += [outputs.java_jar.jar]
+  rjars += outputs.full_jars
 
   _build_deployable(ctx, list(rjars))
 
@@ -643,16 +651,14 @@ def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2l
       ijar=outputs.class_jar,
       class_jar=outputs.class_jar,
       deploy_jar=ctx.outputs.deploy_jar,
+      jars = outputs.full_jars #needed by intellij plugin
   )
-
-  compile_outputs = [outputs.class_jar]
-  if outputs.java_jar:
-    compile_outputs.extend([outputs.java_jar.ijar])
 
   scalaattr = struct(
       outputs = rule_outputs,
-      compile_jars = depset(compile_outputs),
+      compile_jars = depset(outputs.ijars),
       transitive_runtime_jars = rjars,
+      transitive_exports = [] #needed by intellij plugin
   )
 
   java_provider = java_common.create_provider(
@@ -665,7 +671,6 @@ def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2l
       providers = [java_provider],
       scala = scalaattr,
       transitive_rjars = rjars, #calling rules need this for the classpath in the launcher
-      java_jar = outputs.java_jar,
       runfiles=runfiles)
 
 def _scala_binary_impl(ctx):
@@ -759,19 +764,18 @@ def _scala_test_impl(ctx):
     )
     return out
 
-def _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, scala_archive, maybe_java_archive):
-    archives = _get_archives_short_path(scala_archive, maybe_java_archive)
+def _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, archives):
+    serialized_archives = _serialize_archives_short_path(archives)
     return struct(testSuiteFlag = "-Dbazel.test_suite=io.bazel.rulesscala.test_discovery.DiscoveredTestSuite",
-    archiveFlag = "-Dbazel.discover.classes.archives.file.paths=%s" % archives,
+    archiveFlag = "-Dbazel.discover.classes.archives.file.paths=%s" % serialized_archives,
     prefixesFlag = "-Dbazel.discover.classes.prefixes=%s" % ",".join(ctx.attr.prefixes),
     suffixesFlag = "-Dbazel.discover.classes.suffixes=%s" % ",".join(ctx.attr.suffixes),
     printFlag = "-Dbazel.discover.classes.print.discovered=%s" % ctx.attr.print_discovered_classes)
 
-def _get_archives_short_path(scala_archive, maybe_java_archive):
-  java_archive_short_path = ""
-  if maybe_java_archive:
-    java_archive_short_path = "," + maybe_java_archive.jar.short_path
-  return scala_archive.short_path + java_archive_short_path
+def _serialize_archives_short_path(archives):
+  archives_short_path = ""
+  for archive in archives: archives_short_path += archive.short_path + ","
+  return archives_short_path[:-1] #remove redundant comma
 
 def _scala_junit_test_impl(ctx):
     if (not(ctx.attr.prefixes) and not(ctx.attr.suffixes)):
@@ -783,7 +787,7 @@ def _scala_junit_test_impl(ctx):
     implicit_junit_deps_needed_for_java_compilation = [ctx.attr._junit, ctx.attr._hamcrest]
 
     out =  _scala_binary_common(ctx, cjars, transitive_rjars, jars.transitive_compile_jars, jars.jars2labels, implicit_junit_deps_needed_for_java_compilation)
-    test_suite = _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, ctx.outputs.jar, out.java_jar)
+    test_suite = _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, out.scala.outputs.jars)
     launcherJvmFlags = ["-ea", test_suite.archiveFlag, test_suite.prefixesFlag, test_suite.suffixesFlag, test_suite.printFlag, test_suite.testSuiteFlag]
     _write_launcher(
         ctx = ctx,
