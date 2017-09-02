@@ -45,24 +45,30 @@ object PrefixSuffixTestDiscoveringSuite {
 
   private def discoverClasses(): Array[Class[_]] = {
 
-    val archive = archiveInputStream()
+    val archives = archivesPath.split(',')
+    val classes = archives.flatMap(discoverClassesIn)
+    if (classes.isEmpty)
+      throw new IllegalStateException("Was not able to discover any classes " +
+                                      s"for archive=$archives, " +
+                                      s"prefixes=$prefixes, " +
+                                      s"suffixes=$suffixes")
+    classes
+  }
+
+  private def discoverClassesIn(archivePath: String): Array[Class[_]] = {
+    val archive = archiveInputStream(archivePath)
     val classes = discoverClasses(archive, prefixes, suffixesWithClassSuffix)
     archive.close()
     if (printDiscoveredClasses) {
       println("Discovered classes:")
       classes.foreach(c => println(c.getName))
     }
-    if (classes.isEmpty)
-      throw new IllegalStateException("Was not able to discover any classes " +
-                                      s"for archive=$archivePath, " +
-                                      s"prefixes=$prefixes, " +
-                                      s"suffixes=$suffixes")
     classes
   }
 
   private def discoverClasses(archive: JarInputStream,
-    prefixes: Set[String],
-    suffixes: Set[String]): Array[Class[_]] =
+                              prefixes: Set[String],
+                              suffixes: Set[String]): Array[Class[_]] =
     matchingEntries(archive, prefixes, suffixes)
       .map(dropFileSuffix)
       .map(fileToClassFormat)
@@ -108,11 +114,11 @@ object PrefixSuffixTestDiscoveringSuite {
     .map(_.getName)
     .toList
 
-  private def archiveInputStream() =
+  private def archiveInputStream(archivePath: String) =
     new JarInputStream(new FileInputStream(archivePath))
 
-  private def archivePath: String =
-    System.getProperty("bazel.discover.classes.archive.file.path")
+  private def archivesPath: String =
+    System.getProperty("bazel.discover.classes.archives.file.paths") //this is set by scala_junit_test rule in scala.bzl
 
   private def suffixesWithClassSuffix: Set[String] =
     suffixes.map(_ + ".class")
