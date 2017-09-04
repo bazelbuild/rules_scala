@@ -10,6 +10,14 @@ scala_library(
 )
 
 scala_library(
+    name="transitive_dependency_java_user",
+    srcs=[
+        "User.java",
+        ],
+    deps = ["direct_dependency"],    
+)
+
+scala_library(
     name="direct_dependency",
     srcs=[
         "B.scala",

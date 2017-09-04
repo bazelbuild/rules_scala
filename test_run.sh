@@ -150,6 +150,15 @@ test_scala_library_expect_failure_on_missing_direct_deps_warn_mode() {
   test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target} "--strict_java_deps=warn" "ne"
 }
 
+test_scala_library_expect_failure_on_missing_direct_java() {
+  dependency_target='//test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency'
+  test_target='//test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency_java_user'
+
+  expected_message="$dependency_target[ \t]*to[ \t]*$test_target"
+
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" $test_target "--strict_java_deps=error"
+}
+
 test_scala_library_expect_failure_on_missing_direct_deps_off_mode() {
   expected_message="test_expect_failure/missing_direct_deps/internal_deps/A.scala:[0-9+]: error: not found: value C"
   test_target='test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency_user'
@@ -555,3 +564,4 @@ $runner test_multi_service_manifest
 $runner test_scala_library_expect_no_recompilation_on_internal_change_of_scala_dependency
 $runner test_scala_library_expect_no_recompilation_on_internal_change_of_java_dependency
 $runner test_scala_library_expect_no_java_recompilation_on_internal_change_of_scala_sibling
+$runner test_scala_library_expect_failure_on_missing_direct_java
