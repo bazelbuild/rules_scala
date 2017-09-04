@@ -606,6 +606,7 @@ def _lib(ctx, non_macro_lib):
     java_provider = java_common.create_provider(
         compile_time_jars = scalaattr.compile_jars,
         runtime_jars = scalaattr.transitive_runtime_jars,
+        transitive_compile_time_jars = jars.transitive_compile_jars,
     )
 
     return struct(
