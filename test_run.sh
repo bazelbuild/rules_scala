@@ -150,6 +150,15 @@ test_scala_library_expect_failure_on_missing_direct_deps_warn_mode() {
   test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target} "--strict_java_deps=warn" "ne"
 }
 
+test_scala_library_expect_failure_on_missing_direct_java() {
+  dependency_target='//test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency'
+  test_target='//test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency_java_user'
+
+  expected_message="$dependency_target[ \t]*to[ \t]*$test_target"
+
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" $test_target "--strict_java_deps=error"
+}
+
 test_scala_library_expect_failure_on_missing_direct_deps_off_mode() {
   expected_message="test_expect_failure/missing_direct_deps/internal_deps/A.scala:[0-9+]: error: not found: value C"
   test_target='test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency_user'
@@ -417,6 +426,10 @@ javac_jvm_flags_are_configured(){
   action_should_fail build //test_expect_failure/compilers_jvm_flags:can_configure_jvm_flags_for_javac
 }
 
+javac_jvm_flags_via_javacopts_are_configured(){
+  action_should_fail build //test_expect_failure/compilers_jvm_flags:can_configure_jvm_flags_for_javac_via_javacopts
+}
+
 revert_internal_change() {
   sed -i.bak "s/println(\"altered\")/println(\"orig\")/" $no_recompilation_path/C.scala
   rm $no_recompilation_path/C.scala.bak
@@ -446,6 +459,56 @@ test_scala_library_expect_no_recompilation_on_internal_change_of_transitive_depe
 
   revert_internal_change
   set -e
+}
+
+test_scala_library_expect_no_recompilation_on_internal_change_of_java_dependency() {
+  test_scala_library_expect_no_recompilation_of_target_on_internal_change_of_dependency "C.java" "s/System.out.println(\"orig\")/System.out.println(\"altered\")/"
+}
+
+test_scala_library_expect_no_recompilation_on_internal_change_of_scala_dependency() {
+  test_scala_library_expect_no_recompilation_of_target_on_internal_change_of_dependency "B.scala" "s/println(\"orig\")/println(\"altered\")/"
+}
+
+test_scala_library_expect_no_recompilation_of_target_on_internal_change_of_dependency() {
+  test_scala_library_expect_no_recompilation_on_internal_change $1 $2 ":user" "'user'"
+}
+
+test_scala_library_expect_no_java_recompilation_on_internal_change_of_scala_sibling() {
+  test_scala_library_expect_no_recompilation_on_internal_change "B.scala" "s/println(\"orig_sibling\")/println(\"altered_sibling\")/" "/dependency_java" "java sibling"
+}
+
+test_scala_library_expect_no_recompilation_on_internal_change() {
+  changed_file=$1
+  changed_content=$2
+  dependency=$3
+  dependency_description=$4
+  set +e
+  no_recompilation_path="test/src/main/scala/scala/test/ijar"
+  build_command="bazel build //$no_recompilation_path/... --subcommands"
+
+  echo "running initial build"
+  $build_command
+  echo "changing internal behaviour of $changed_file"
+  sed -i.bak $changed_content ./$no_recompilation_path/$changed_file
+
+  echo "running second build"
+  output=$(${build_command} 2>&1)
+
+  not_expected_recompiled_action="$no_recompilation_path$dependency"
+
+  echo ${output} | grep "$not_expected_recompiled_action"
+  if [ $? -eq 0 ]; then
+    echo "bazel build was executed after change of internal behaviour of 'dependency' target. compilation of $dependency_description should not have been triggered."
+    revert_change $no_recompilation_path $changed_file
+    exit 1
+  fi
+
+  revert_change $no_recompilation_path $changed_file
+  set -e
+}
+
+revert_change() {
+  mv $1/$2.bak $1/$2
 }
 
 if [ "$1" != "ci" ]; then
@@ -488,6 +551,7 @@ $runner scala_test_test_filters
 $runner scala_junit_test_test_filter
 $runner scalac_jvm_flags_are_configured
 $runner javac_jvm_flags_are_configured
+$runner javac_jvm_flags_via_javacopts_are_configured
 $runner test_scala_library_expect_failure_on_missing_direct_internal_deps
 $runner test_scala_library_expect_failure_on_missing_direct_external_deps_jar
 $runner test_scala_library_expect_failure_on_missing_direct_external_deps_file_group
@@ -497,3 +561,7 @@ $runner test_scala_library_expect_failure_on_missing_direct_deps_warn_mode
 $runner test_scala_library_expect_failure_on_missing_direct_deps_off_mode
 $runner test_scala_library_expect_no_recompilation_on_internal_change_of_transitive_dependency
 $runner test_multi_service_manifest
+$runner test_scala_library_expect_no_recompilation_on_internal_change_of_scala_dependency
+$runner test_scala_library_expect_no_recompilation_on_internal_change_of_java_dependency
+$runner test_scala_library_expect_no_java_recompilation_on_internal_change_of_scala_sibling
+$runner test_scala_library_expect_failure_on_missing_direct_java

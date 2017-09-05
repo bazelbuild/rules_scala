@@ -9,3 +9,8 @@ scala_library(
 	srcs = ["WillNotCompileJavaSinceXmxTooLow.java"],
 	javac_jvm_flags = ["-Xmx1M"],
 )
+scala_library(
+	name = "can_configure_jvm_flags_for_javac_via_javacopts",
+	srcs = ["WillNotCompileJavaSinceXmxTooLow.java"],
+	javacopts = ["-Xmx1M"],
+)

@@ -3,7 +3,7 @@ package io.bazel.rulesscala.scalac;
 import io.bazel.rulesscala.jar.JarCreator;
 import io.bazel.rulesscala.worker.GenericWorker;
 import io.bazel.rulesscala.worker.Processor;
-import java.io.BufferedWriter;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -67,12 +67,7 @@ class ScalacProcessor implements Processor {
       if (scalaSources.length > 0) {
         compileScalaSources(ops, scalaSources, tmpPath);
       }
-      /**
-       * See if there are java sources to compile
-       */
-      if (javaSources.length > 0) {
-        compileJavaSources(ops, javaSources, tmpPath);
-      }
+
       /**
        * Copy the resources
        */
@@ -260,56 +255,6 @@ class ScalacProcessor implements Processor {
       reporter.flush();
       throw new RuntimeException("Build failed");
     }
-  }
-
-  private static void compileJavaSources(CompileOptions ops, String[] javaSources, Path tmpPath) throws IOException, InterruptedException {
-    ArrayList<String> commandParts = new ArrayList<>();
-    commandParts.add(ops.javacPath);
-
-    Path argsFile = newArgFile(ops, javaSources, tmpPath);
-    commandParts.add("@" + normalizeSlash(argsFile.toFile().getAbsolutePath()));
-    try {
-      Process iostat = new ProcessBuilder(commandParts)
-        .inheritIO()
-        .start();
-      int exitCode = iostat.waitFor();
-      if(exitCode != 0) {
-        throw new RuntimeException("javac process failed!");
-      }
-    }
-    finally {
-      removeTmp(argsFile);
-    }
-  }
-
-  private static final String normalizeSlash(String str) {
-    return str.replace(File.separatorChar, '/');
-  }
-
-  private static final String escapeSpaces(String str) {
-    return '\"' + normalizeSlash(str) + '\"';
-  }
-
-  /** collects javac compile options into an 'argfile'
-    * http://docs.oracle.com/javase/8/docs/technotes/tools/windows/javac.html#BHCJEIBB
-    */
-  private static final Path newArgFile(CompileOptions ops, String[] javaSources, Path tmpPath) throws IOException {
-    Path argsFile = Files.createTempFile("argfile", null);
-    List<String> args = new ArrayList<>();
-    if (!"".equals(ops.javacOpts)) {
-      args.add(ops.javacOpts);
-    }
-
-    args.add("-classpath " + ops.classpath + ":" + tmpPath.toString());
-    args.add("-d " + tmpPath.toString());
-    for(String javaFile : javaSources) {
-      args.add(escapeSpaces(javaFile.toString()));
-    }
-    String contents = String.join("\n", args);
-    BufferedWriter writer = Files.newBufferedWriter(argsFile);
-    writer.write(contents);
-    writer.close();
-    return argsFile;
   }
 
   private static void removeTmp(Path tmp) throws IOException {

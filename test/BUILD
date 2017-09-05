@@ -285,6 +285,13 @@ scala_junit_test(
     print_discovered_classes = True
 )
 
+scala_junit_test(
+    name = "JunitJavaTest",
+    srcs = ["src/main/scala/scala/test/junit/JunitJavaTest.java"],
+    suffixes = ["Test"],
+    size = "small",
+)
+
 scala_specs2_junit_test(
     name = "Specs2Tests",
     srcs = ["src/main/scala/scala/test/junit/specs2/Specs2Tests.scala"],
@@ -416,4 +423,11 @@ scala_binary(
     srcs = ["A.scala"],
     main_class = "scala.test.A",
     deps = ["//test/example_jars:example_jar1", "//test/example_jars:example_jar2"]
+)
+
+scala_binary(
+    name = "ScalaBinary_dependent_on_binary_with_java",
+    srcs = ["src/main/scala/scala/test/BinaryDependentOnJava.scala"],
+    main_class = "scala.test.BinaryDependentOnJava",
+    deps = [":JavaOnlySources"],
 )
