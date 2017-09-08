@@ -260,11 +260,13 @@ def scrooge_scala_library(name, deps=[], remote_jars=[], jvm_flags=[], visibilit
         deps = deps + remote_jars + [
             srcjar,
             "//external:io_bazel_rules_scala/dependency/thrift/libthrift",
-            "//external:io_bazel_rules_scala/dependency/thrift/scrooge_core"
+            "//external:io_bazel_rules_scala/dependency/thrift/scrooge_core",
+            "//external:io_bazel_rules_scala/dependency/thrift/util_core",
         ],
         exports = deps + remote_jars + [
             "//external:io_bazel_rules_scala/dependency/thrift/libthrift",
             "//external:io_bazel_rules_scala/dependency/thrift/scrooge_core",
+            "//external:io_bazel_rules_scala/dependency/thrift/util_core",
         ],
         jvm_flags = jvm_flags,
         visibility = visibility,
