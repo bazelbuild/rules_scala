@@ -127,6 +127,13 @@ test_scala_binary_expect_failure_on_missing_direct_deps() {
   test_scala_library_expect_failure_on_missing_direct_deps ${dependency_target} ${test_target}
 }
 
+test_scala_binary_expect_failure_on_missing_direct_deps_through_other_binary() {
+  dependency_target='//test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency'
+  test_target='test_expect_failure/missing_direct_deps/internal_deps:binary_user_of_binary'
+
+  test_scala_library_expect_failure_on_missing_direct_deps ${dependency_target} ${test_target}
+}
+
 test_scala_library_expect_failure_on_missing_direct_external_deps_jar() {
   dependenecy_target='@com_google_guava_guava_21_0//jar:jar'
   test_target='test_expect_failure/missing_direct_deps/external_deps:transitive_external_dependency_user'
@@ -520,6 +527,8 @@ fi
 $runner bazel build test/...
 $runner bazel test test/...
 $runner bazel test third_party/...
+$runner bazel build "test/... --strict_java_deps=ERROR"
+$runner bazel test "test/... --strict_java_deps=ERROR"
 $runner bazel run test/src/main/scala/scala/test/twitter_scrooge:justscrooges
 $runner bazel run test:JavaBinary
 $runner bazel run test:JavaBinary2
@@ -557,6 +566,7 @@ $runner test_scala_library_expect_failure_on_missing_direct_external_deps_jar
 $runner test_scala_library_expect_failure_on_missing_direct_external_deps_file_group
 $runner test_scala_library_expect_failure_on_missing_direct_deps_strict_is_disabled_by_default
 $runner test_scala_binary_expect_failure_on_missing_direct_deps
+$runner test_scala_binary_expect_failure_on_missing_direct_deps_through_other_binary
 $runner test_scala_library_expect_failure_on_missing_direct_deps_warn_mode
 $runner test_scala_library_expect_failure_on_missing_direct_deps_off_mode
 $runner test_scala_library_expect_no_recompilation_on_internal_change_of_transitive_dependency

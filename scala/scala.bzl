@@ -496,14 +496,10 @@ def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
   runtime_jars = depset()
 
   for dep_target in dep_targets:
-    if dep_target_contains_ijar(dep_target):
-        transitive_compile_jars += [dep_target.scala.outputs.ijar]
-    if hasattr(dep_target, 'transitive_compile_jars'):
-        transitive_compile_jars += dep_target.transitive_compile_jars
     if java_common.provider in dep_target:
         java_provider = dep_target[java_common.provider]
         compile_jars += java_provider.compile_jars
-        transitive_compile_jars += java_provider.compile_jars
+        transitive_compile_jars += java_provider.transitive_compile_time_jars + java_provider.compile_jars
         runtime_jars += java_provider.transitive_runtime_jars
     else:
         # support http_file pointed at a jar. http_jar uses ijar,
@@ -607,6 +603,7 @@ def _lib(ctx, non_macro_lib):
         compile_time_jars = scalaattr.compile_jars,
         runtime_jars = scalaattr.transitive_runtime_jars,
         transitive_compile_time_jars = jars.transitive_compile_jars,
+        transitive_runtime_jars = scalaattr.transitive_runtime_jars,
     )
 
     return struct(
@@ -625,7 +622,6 @@ def _lib(ctx, non_macro_lib):
         # to filter and make sense of this information.
         extra_information=_collect_extra_information(ctx.attr.deps),
         jars_to_labels = jars.jars2labels,
-        transitive_compile_jars = jars.transitive_compile_jars,
       )
 
 
@@ -675,6 +671,8 @@ def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2l
   java_provider = java_common.create_provider(
       compile_time_jars = scalaattr.compile_jars,
       runtime_jars = scalaattr.transitive_runtime_jars,
+      transitive_compile_time_jars = transitive_compile_time_jars,
+      transitive_runtime_jars = scalaattr.transitive_runtime_jars,
   )
 
   return struct(
@@ -682,6 +680,7 @@ def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2l
       providers = [java_provider],
       scala = scalaattr,
       transitive_rjars = rjars, #calling rules need this for the classpath in the launcher
+      jars_to_labels = jars2labels,
       runfiles=runfiles)
 
 def _scala_binary_impl(ctx):
@@ -755,7 +754,7 @@ def _scala_test_impl(ctx):
     cjars += scalatest_jars
     transitive_rjars += scalatest_jars
 
-    if is_dependency_analyzer_off(ctx):
+    if is_dependency_analyzer_on(ctx):
       transitive_compile_jars += scalatest_jars
       add_labels_of_jars_to(jars_to_labels, ctx.attr._scalatest, scalatest_jars)
 
