@@ -31,10 +31,10 @@ non_deploy_jar_md5_sum() {
 
 test_build_is_identical() {
   bazel build test/...
-  $(non_deploy_jar_md5_sum) > hash1
+  non_deploy_jar_md5_sum > hash1
   bazel clean
   bazel build test/...
-  $(non_deploy_jar_md5_sum) > hash2
+  non_deploy_jar_md5_sum > hash2
   diff hash1 hash2
 }
 
