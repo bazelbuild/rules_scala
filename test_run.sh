@@ -25,12 +25,16 @@ fi
 echo "$_md5_util"
 }
 
+non_deploy_jar_md5_sum() {
+  find bazel-bin/test -name "*.jar" ! -name "*_deploy.jar" | $(md5_util)
+}
+
 test_build_is_identical() {
   bazel build test/...
-  $(md5_util) bazel-bin/test/*.jar > hash1
+  $(non_deploy_jar_md5_sum) > hash1
   bazel clean
   bazel build test/...
-  $(md5_util) bazel-bin/test/*.jar > hash2
+  $(non_deploy_jar_md5_sum) > hash2
   diff hash1 hash2
 }
 
@@ -194,6 +198,9 @@ test_multi_service_manifest() {
   bazel build test:$deploy_jar
   unzip -p bazel-bin/test/$deploy_jar $meta_file > service_manifest.txt
   diff service_manifest.txt test/example_jars/expected_service_manifest.txt
+  RESPONSE_CODE=$?
+  rm service_manifest.txt
+  exit $RESPONSE_CODE
 }
 
 NC='\033[0m'
