@@ -432,4 +432,3 @@ scala_binary(
     main_class = "scala.test.BinaryDependentOnJava",
     deps = [":JavaOnlySources"],
 )
-
