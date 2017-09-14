@@ -551,6 +551,9 @@ def _collect_jars_from_common_ctx(ctx, extra_deps = [], extra_runtime_deps = [])
 
     return struct(compile_jars = cjars, transitive_runtime_jars = transitive_rjars, jars2labels=jars2labels, transitive_compile_jars = transitive_compile_jars)
 
+def _format_full_jars_for_intellij_plugin(full_jars):
+    return [struct (class_jar = file, ijar = None) for file in files if not _is_source_jar(file)]
+
 def _lib(ctx, non_macro_lib):
     # Build up information from dependency-like attributes
 
@@ -585,11 +588,13 @@ def _lib(ctx, non_macro_lib):
     next_cjars += exports_jars.compile_jars
     transitive_rjars += exports_jars.transitive_runtime_jars
 
+
+
     rule_outputs = struct(
         ijar = outputs.ijar,
         class_jar = outputs.class_jar,
         deploy_jar = ctx.outputs.deploy_jar,
-        jars = outputs.full_jars #needed by intellij plugin
+        jars = _format_full_jars_for_intellij_plugin(outputs.full_jars)
     )
     # Note that, internally, rules only care about compile_jars and transitive_runtime_jars
     # in a similar manner as the java_library and JavaProvider
@@ -658,7 +663,7 @@ def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2l
       ijar=outputs.class_jar,
       class_jar=outputs.class_jar,
       deploy_jar=ctx.outputs.deploy_jar,
-      jars = outputs.full_jars #needed by intellij plugin
+      jars = _format_full_jars_for_intellij_plugin(outputs.full_jars)
   )
 
   scalaattr = struct(
