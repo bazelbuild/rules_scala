@@ -552,7 +552,7 @@ def _collect_jars_from_common_ctx(ctx, extra_deps = [], extra_runtime_deps = [])
     return struct(compile_jars = cjars, transitive_runtime_jars = transitive_rjars, jars2labels=jars2labels, transitive_compile_jars = transitive_compile_jars)
 
 def _format_full_jars_for_intellij_plugin(full_jars):
-    return [struct (class_jar = file, ijar = None) for file in files if not _is_source_jar(file)]
+    return [struct (class_jar = jar, ijar = None) for jar in full_jars]
 
 def _lib(ctx, non_macro_lib):
     # Build up information from dependency-like attributes
