@@ -789,7 +789,7 @@ def _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, archives):
 
 def _serialize_archives_short_path(archives):
   archives_short_path = ""
-  for archive in archives: archives_short_path += archive.short_path + ","
+  for archive in archives: archives_short_path += archive.class_jar.short_path + ","
   return archives_short_path[:-1] #remove redundant comma
 
 def _scala_junit_test_impl(ctx):
