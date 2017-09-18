@@ -21,11 +21,12 @@ before_install:
       OS=darwin
     else
       sysctl kernel.unprivileged_userns_clone=1
-      sudo apt-get update -q 
+      sudo apt-get update -q
       sudo apt-get install libxml2-utils -y
       OS=linux
     fi
-    URL="https://github.com/bazelbuild/bazel/releases/download/${V}/bazel-${V}-installer-${OS}-x86_64.sh"
+    URL="https://storage.googleapis.com/bazel/0.6.0/rc1/bazel-0.6.0rc1-installer-${OS}-x86_64.sh"
+    # URL="https://github.com/bazelbuild/bazel/releases/download/${V}/bazel-${V}-installer-${OS}-x86_64.sh"
     wget -O install.sh "${URL}"
     chmod +x install.sh
     ./install.sh --user
