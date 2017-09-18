@@ -145,7 +145,7 @@ def _collect_plugin_paths(plugins):
         # support http_file pointed at a jar. http_jar uses ijar,
         # which breaks scala macros
         elif hasattr(p, "files"):
-            paths += [f.path for f in p.files]
+            paths += [f.path for f in p.files if "-sources.jar" not in f.basename ]
     return paths
 
 
@@ -495,10 +495,10 @@ def _collect_jars_when_dependency_analyzer_is_off(dep_targets):
     else:
         # support http_file pointed at a jar. http_jar uses ijar,
         # which breaks scala macros
-        compile_jars += dep_target.files
-        runtime_jars += dep_target.files
+        compile_jars += filter_not_sources(dep_target.files)
+        runtime_jars += filter_not_sources(dep_target.files)
 
-  return struct(compile_jars = filter_not_sources(compile_jars),
+  return struct(compile_jars = compile_jars,
       transitive_runtime_jars = runtime_jars,
       jars2labels = {},
       transitive_compile_jars = depset())
@@ -518,16 +518,16 @@ def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
     else:
         # support http_file pointed at a jar. http_jar uses ijar,
         # which breaks scala macros
-        compile_jars += dep_target.files
-        runtime_jars += dep_target.files
+        compile_jars += filter_not_sources(dep_target.files)
+        runtime_jars += filter_not_sources(dep_target.files)
         transitive_compile_jars += dep_target.files
 
     add_labels_of_jars_to(jars2labels, dep_target, transitive_compile_jars)
 
-  return struct(compile_jars = filter_not_sources(compile_jars),
+  return struct(compile_jars = compile_jars,
     transitive_runtime_jars = runtime_jars,
     jars2labels = jars2labels,
-    transitive_compile_jars = filter_not_sources(transitive_compile_jars))
+    transitive_compile_jars = transitive_compile_jars)
 
 def _collect_jars(dep_targets, dependency_analyzer_is_off = True):
     """Compute the runtime and compile-time dependencies from the given targets"""  # noqa
