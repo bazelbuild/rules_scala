@@ -1,8 +1,5 @@
 workspace(name = "io_bazel_rules_scala")
 
-BAZEL_VERSION = "0.6.0rc1"
-BAZEL_VERSION_SHA = "43571405d296be05ef9cc875cb90c49be17409d7cd4d5a81c7bb84b33cbf7707"
-BAZEL_ZIP_PATH = "https://storage.googleapis.com/bazel/0.6.0/rc1/bazel-0.6.0rc1-dist.zip"
 
 
 load("//scala:scala.bzl", "scala_repositories", "scala_mvn_artifact")
