@@ -1,5 +1,8 @@
 workspace(name = "io_bazel_rules_scala")
 
+BAZEL_VERSION = "0.6.0rc1"
+BAZEL_VERSION_SHA = "43571405d296be05ef9cc875cb90c49be17409d7cd4d5a81c7bb84b33cbf7707"
+BAZEL_ZIP_PATH = "https://storage.googleapis.com/bazel/0.6.0/rc1/bazel-0.6.0rc1-dist.zip"
 
 
 load("//scala:scala.bzl", "scala_repositories", "scala_mvn_artifact")
@@ -23,6 +26,14 @@ maven_jar(
   artifact = scala_mvn_artifact("com.twitter:scalding-date:0.16.0-RC4"),
   sha1 = "659eb2d42945dea37b310d96af4e12bf83f54d14"
 )
+
+# For testing that we don't include sources jars to the classpath
+maven_jar(
+  name = "org_typelevel__cats_core",
+  artifact = scala_mvn_artifact("org.typelevel:cats-core:0.9.0"),
+  sha1 = "b2f8629c6ec834d8b6321288c9fe77823f1e1314"
+)
+
 
 # test of a plugin
 maven_jar(
