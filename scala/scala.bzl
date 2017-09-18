@@ -145,7 +145,7 @@ def _collect_plugin_paths(plugins):
         # support http_file pointed at a jar. http_jar uses ijar,
         # which breaks scala macros
         elif hasattr(p, "files"):
-            paths += [f.path for f in p.files if "-sources.jar" not in f.basename ]
+            paths += [f.path for f in p.files if not_sources_jar(f.basename) ]
     return paths
 
 
@@ -480,8 +480,11 @@ def dep_target_contains_ijar(dep_target):
 # one of them needs to be removed from classpath
 # import cats.implicits._
 
+def not_sources_jar(name):
+  return "-sources.jar" not in name
+
 def filter_not_sources(deps):
-  return depset([dep for dep in deps.to_list() if "-sources.jar" not in dep.basename ])
+  return depset([dep for dep in deps.to_list() if not_sources_jar(dep.basename) ])
 
 def _collect_jars_when_dependency_analyzer_is_off(dep_targets):
   compile_jars = depset()
