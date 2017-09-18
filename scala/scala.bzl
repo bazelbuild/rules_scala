@@ -481,8 +481,7 @@ def dep_target_contains_ijar(dep_target):
 # import cats.implicits._
 
 def filter_not_sources(deps):
-  return deps
-  # return depset([dep for dep in deps.to_list() if "-sources.jar" not in dep.basename ])
+  return depset([dep for dep in deps.to_list() if "-sources.jar" not in dep.basename ])
 
 def _collect_jars_when_dependency_analyzer_is_off(dep_targets):
   compile_jars = depset()
