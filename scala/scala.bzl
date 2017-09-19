@@ -523,7 +523,7 @@ def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
         # which breaks scala macros
         compile_jars += filter_not_sources(dep_target.files)
         runtime_jars += filter_not_sources(dep_target.files)
-        transitive_compile_jars += dep_target.files
+        transitive_compile_jars += filter_not_sources(dep_target.files)
 
     add_labels_of_jars_to(jars2labels, dep_target, transitive_compile_jars)
 
