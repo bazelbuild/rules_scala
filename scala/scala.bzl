@@ -145,7 +145,7 @@ def _collect_plugin_paths(plugins):
         # support http_file pointed at a jar. http_jar uses ijar,
         # which breaks scala macros
         elif hasattr(p, "files"):
-            paths += [f.path for f in p.files]
+            paths += [f.path for f in p.files if not_sources_jar(f.basename) ]
     return paths
 
 
@@ -472,6 +472,20 @@ def dep_target_contains_ijar(dep_target):
   return (hasattr(dep_target, 'scala') and hasattr(dep_target.scala, 'outputs') and
           hasattr(dep_target.scala.outputs, 'ijar') and dep_target.scala.outputs.ijar)
 
+# When import mavan_jar's for scala macros we have to use the jar:file requirement
+# since bazel 0.6.0 this brings in the source jar too
+# the scala compiler thinks a source jar can look like a package space
+# causing a conflict between objects and packages warning
+#  error: package cats contains object and package with same name: implicits
+# one of them needs to be removed from classpath
+# import cats.implicits._
+
+def not_sources_jar(name):
+  return "-sources.jar" not in name
+
+def filter_not_sources(deps):
+  return depset([dep for dep in deps.to_list() if not_sources_jar(dep.basename) ])
+
 def _collect_jars_when_dependency_analyzer_is_off(dep_targets):
   compile_jars = depset()
   runtime_jars = depset()
@@ -484,10 +498,13 @@ def _collect_jars_when_dependency_analyzer_is_off(dep_targets):
     else:
         # support http_file pointed at a jar. http_jar uses ijar,
         # which breaks scala macros
-        compile_jars += dep_target.files
-        runtime_jars += dep_target.files
+        compile_jars += filter_not_sources(dep_target.files)
+        runtime_jars += filter_not_sources(dep_target.files)
 
-  return struct(compile_jars = compile_jars, transitive_runtime_jars = runtime_jars, jars2labels = {}, transitive_compile_jars = depset())
+  return struct(compile_jars = compile_jars,
+      transitive_runtime_jars = runtime_jars,
+      jars2labels = {},
+      transitive_compile_jars = depset())
 
 def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
   transitive_compile_jars = depset()
@@ -504,13 +521,16 @@ def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
     else:
         # support http_file pointed at a jar. http_jar uses ijar,
         # which breaks scala macros
-        compile_jars += dep_target.files
-        runtime_jars += dep_target.files
-        transitive_compile_jars += dep_target.files
+        compile_jars += filter_not_sources(dep_target.files)
+        runtime_jars += filter_not_sources(dep_target.files)
+        transitive_compile_jars += filter_not_sources(dep_target.files)
 
     add_labels_of_jars_to(jars2labels, dep_target, transitive_compile_jars)
 
-  return struct(compile_jars = compile_jars, transitive_runtime_jars = runtime_jars, jars2labels = jars2labels, transitive_compile_jars = transitive_compile_jars)
+  return struct(compile_jars = compile_jars,
+    transitive_runtime_jars = runtime_jars,
+    jars2labels = jars2labels,
+    transitive_compile_jars = transitive_compile_jars)
 
 def _collect_jars(dep_targets, dependency_analyzer_is_off = True):
     """Compute the runtime and compile-time dependencies from the given targets"""  # noqa

@@ -24,6 +24,14 @@ maven_jar(
   sha1 = "659eb2d42945dea37b310d96af4e12bf83f54d14"
 )
 
+# For testing that we don't include sources jars to the classpath
+maven_jar(
+  name = "org_typelevel__cats_core",
+  artifact = scala_mvn_artifact("org.typelevel:cats-core:0.9.0"),
+  sha1 = "b2f8629c6ec834d8b6321288c9fe77823f1e1314"
+)
+
+
 # test of a plugin
 maven_jar(
   name = "org_psywerx_hairyfotr__linter",
