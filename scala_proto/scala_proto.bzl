@@ -1,3 +1,6 @@
+load("//scala:scala.bzl",
+  "scala_library")
+
 def scala_proto_repositories():
     native.maven_server(
         name = "scala_proto_deps_maven_server",
@@ -64,6 +67,30 @@ def scala_proto_repositories():
         actual = '@scala_proto_rules_scalapb_runtime//jar'
     )
 
+    native.maven_jar(
+        name = "scala_proto_rules_scalapb_lenses",
+        artifact = "com.trueaccord.lenses:lenses_2.11:0.4.12",
+        sha1 = "c5fbf5b872ce99d9a16d3392ccc0d15a0e43d823",
+        server = "scala_proto_deps_maven_server",
+    )
+
+    native.bind(
+        name = 'io_bazel_rules_scala/dependency/proto/scalapb_lenses',
+        actual = '@scala_proto_rules_scalapb_lenses//jar'
+    )
+
+    native.maven_jar(
+        name = "scala_proto_rules_scalapb_fastparse",
+        artifact = "com.lihaoyi:fastparse_2.11:0.4.4",
+        sha1 = "f065fe0afe6fd2b4557d985c37362c36f08f9947",
+        server = "scala_proto_deps_maven_server",
+    )
+
+    native.bind(
+        name = 'io_bazel_rules_scala/dependency/proto/scalapb_fastparse',
+        actual = '@scala_proto_rules_scalapb_fastparse//jar'
+    )
+
 def _colon_paths(data):
   return ':'.join([f.path for f in data])
 
@@ -86,8 +113,17 @@ def _gen_proto_srcjar_impl(ctx):
         execution_requirements={"supports-workers": "1"},
         arguments=["@" + argfile.path],
     )
+    srcjarsattr = struct(
+        srcjar = ctx.outputs.srcjar,
+    )
+    return struct(
+        srcjars=srcjarsattr,
+        extra_information=[struct(
+          srcjars=srcjarsattr,
+        )],
+    )
 
-proto_scala_srcjar = rule(
+scala_proto_srcjar = rule(
     _gen_proto_srcjar_impl,
     attrs={
         "deps": attr.label_list(
@@ -105,3 +141,29 @@ proto_scala_srcjar = rule(
       "srcjar": "lib%{name}.srcjar",
     },
 )
+
+def scala_proto_library(name, deps=[], visibility=None):
+    srcjar = name + '_srcjar'
+    scala_proto_srcjar(
+        name = srcjar,
+        deps = deps,
+        visibility = visibility,
+    )
+
+    scala_library(
+        name = name,
+        deps = [
+            srcjar,
+            "//external:io_bazel_rules_scala/dependency/proto/scalapb_runtime",
+            "//external:io_bazel_rules_scala/dependency/com_google_protobuf/protobuf_java",
+            "//external:io_bazel_rules_scala/dependency/proto/scalapb_lenses",
+            "//external:io_bazel_rules_scala/dependency/proto/scalapb_fastparse",
+        ],
+        exports = [
+            "//external:io_bazel_rules_scala/dependency/proto/scalapb_runtime",
+            "//external:io_bazel_rules_scala/dependency/com_google_protobuf/protobuf_java",
+            "//external:io_bazel_rules_scala/dependency/proto/scalapb_lenses",
+            "//external:io_bazel_rules_scala/dependency/proto/scalapb_fastparse",
+        ],
+        visibility = visibility,
+    )
