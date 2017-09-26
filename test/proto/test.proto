@@ -1,0 +1,8 @@
+syntax = "proto2";
+
+option java_package = "test.proto";
+
+message TestMessage {
+  optional uint32 a = 1;
+  optional bool b = 2;
+}

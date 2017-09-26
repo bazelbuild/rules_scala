@@ -113,7 +113,7 @@ def _gen_scrooge_srcjar_impl(ctx):
   for target in ctx.attr.remote_jars:
     remote_jars += _jar_filetype.filter(target.files)
 
-  # These are JARs that are declared externally and only have Thrift files 
+  # These are JARs that are declared externally and only have Thrift files
   # in them.
   external_jars = _collect_external_jars(ctx.attr.deps)
 
