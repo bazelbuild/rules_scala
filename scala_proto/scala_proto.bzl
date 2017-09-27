@@ -340,7 +340,7 @@ def _gen_proto_srcjar_impl(ctx):
         )],
     )
 
-scala_proto_srcjar = rule(
+scalapb_proto_srcjar = rule(
     _gen_proto_srcjar_impl,
     attrs={
         "deps": attr.label_list(
@@ -388,9 +388,9 @@ GRPC_DEPS = [
     "//external:io_bazel_rules_scala/dependency/proto/netty_handler_proxy",
 ]
 
-def scala_proto_library(name, deps=[], with_grpc=False, visibility=None):
+def scalapb_proto_library(name, deps=[], with_grpc=False, visibility=None):
     srcjar = name + '_srcjar'
-    scala_proto_srcjar(
+    scalapb_proto_srcjar(
         name = srcjar,
         with_grpc = with_grpc,
         deps = deps,

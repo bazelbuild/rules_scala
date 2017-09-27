@@ -20,7 +20,7 @@ proto_library(
 
 proto_library(
     name = "test_service",
-    deps = [":test2", ":test3"],
+    deps = [":test2", ":test3", ":test"],
     srcs = ["test_service.proto"],
     visibility = ["//visibility:public"],
 )
