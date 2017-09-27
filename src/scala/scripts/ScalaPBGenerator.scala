@@ -40,11 +40,12 @@ class ScalaPBGenerator extends Processor {
   def processRequest(args: java.util.List[String]) {
     val jarOutput = args.get(0)
     val protoFiles = args.get(1).split(':').toList
+    val withGrpc = args.get(2) == "True"
 
-    val tmp = Paths.get(Option(System.getenv("TMPDIR")).getOrElse("/tmp"))
+    val tmp = Paths.get(Option(System.getProperty("java.io.tmpdir")).getOrElse("/tmp"))
     val scalaPBOutput = Files.createTempDirectory(tmp, "bazelscalapb")
-
-    val scalaPBArgs = s"--scala_out=${scalaPBOutput}" :: protoFiles
+    val grpcPrefix = if (withGrpc) "grpc:" else ""
+    val scalaPBArgs = s"--scala_out=${grpcPrefix}${scalaPBOutput}" :: protoFiles
     val config = ScalaPBC.processArgs(scalaPBArgs.toArray)
     val code = ProtocBridge.runWithGenerators(
       protoc = a => com.github.os72.protocjar.Protoc.runProtoc(config.version +: a.toArray),

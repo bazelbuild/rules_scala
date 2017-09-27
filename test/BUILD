@@ -437,6 +437,31 @@ scala_binary(
 )
 
 scala_proto_library(
+    name = "test_proto_nogrpc",
+    deps = ["//test/proto:test2"]
+)
+
+scala_proto_library(
     name = "test_proto",
-    deps = ["//test/proto:test2", "//test/proto:test3"]
+    with_grpc = True,
+    deps = ["//test/proto:test_service"]
+)
+
+scala_library(
+    name = "lib_with_scala_proto_dep",
+    srcs = ["TestServer.scala"],
+    deps = [":test_proto"]
+)
+
+scala_binary(
+    name = "test_scala_proto_server",
+    main_class = "test.proto.TestServer",
+    deps = [":lib_with_scala_proto_dep"]
+)
+
+scala_binary(
+    name = "test_scala_proto_client",
+    main_class = "test.proto.TestClient",
+    srcs = ["TestClient.scala"],
+    deps = [":test_proto"]
 )

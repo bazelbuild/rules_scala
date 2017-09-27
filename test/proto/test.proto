@@ -2,7 +2,11 @@ syntax = "proto2";
 
 option java_package = "test.proto";
 
-message TestMessage {
+message TestRequest {
   optional uint32 a = 1;
   optional bool b = 2;
+}
+
+message TestMessage {
+  optional string foo = 1;
 }

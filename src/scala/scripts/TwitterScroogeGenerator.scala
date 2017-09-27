@@ -73,7 +73,7 @@ class ScroogeGenerator extends Processor {
     // Further configuration options for scrooge.
     val additionalFlags = getIdx(5)
 
-    val tmp = Paths.get(Option(System.getenv("TMPDIR")).getOrElse("/tmp"))
+    val tmp = Paths.get(Option(System.getProperty("java.io.tmpdir")).getOrElse("/tmp"))
     val scroogeOutput = Files.createTempDirectory(tmp, "scrooge")
 
     val scrooge = new Compiler
