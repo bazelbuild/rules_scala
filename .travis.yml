@@ -14,6 +14,7 @@ env:
   # we want to test the most recent few releases
   - V=0.5.3
   - V=0.5.4
+  - V=0.6.0rc2
 
 before_install:
   - |
@@ -21,11 +22,17 @@ before_install:
       OS=darwin
     else
       sysctl kernel.unprivileged_userns_clone=1
-      sudo apt-get update -q 
+      sudo apt-get update -q
       sudo apt-get install libxml2-utils -y
       OS=linux
     fi
-    URL="https://github.com/bazelbuild/bazel/releases/download/${V}/bazel-${V}-installer-${OS}-x86_64.sh"
+    if [[ $V =~ .*rc[0-9]+.* ]]; then
+      PRE_RC=$(expr "$V" : '\([0-9.]*\)rc.*')
+      RC_PRC=$(expr "$V" : '[0-9.]*\(rc.*\)')
+      URL="https://storage.googleapis.com/bazel/${PRE_RC}/${RC_PRC}/bazel-${V}-installer-${OS}-x86_64.sh"
+    else
+      URL="https://github.com/bazelbuild/bazel/releases/download/${V}/bazel-${V}-installer-${OS}-x86_64.sh"
+    fi
     wget -O install.sh "${URL}"
     chmod +x install.sh
     ./install.sh --user
@@ -34,3 +41,4 @@ before_install:
 
 script:
   - bash test_run.sh ci
+

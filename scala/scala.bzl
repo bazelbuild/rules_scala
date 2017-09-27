@@ -145,7 +145,7 @@ def _collect_plugin_paths(plugins):
         # support http_file pointed at a jar. http_jar uses ijar,
         # which breaks scala macros
         elif hasattr(p, "files"):
-            paths += [f.path for f in p.files]
+            paths += [f.path for f in p.files if not_sources_jar(f.basename) ]
     return paths
 
 
@@ -472,6 +472,20 @@ def dep_target_contains_ijar(dep_target):
   return (hasattr(dep_target, 'scala') and hasattr(dep_target.scala, 'outputs') and
           hasattr(dep_target.scala.outputs, 'ijar') and dep_target.scala.outputs.ijar)
 
+# When import mavan_jar's for scala macros we have to use the jar:file requirement
+# since bazel 0.6.0 this brings in the source jar too
+# the scala compiler thinks a source jar can look like a package space
+# causing a conflict between objects and packages warning
+#  error: package cats contains object and package with same name: implicits
+# one of them needs to be removed from classpath
+# import cats.implicits._
+
+def not_sources_jar(name):
+  return "-sources.jar" not in name
+
+def filter_not_sources(deps):
+  return depset([dep for dep in deps.to_list() if not_sources_jar(dep.basename) ])
+
 def _collect_jars_when_dependency_analyzer_is_off(dep_targets):
   compile_jars = depset()
   runtime_jars = depset()
@@ -484,10 +498,13 @@ def _collect_jars_when_dependency_analyzer_is_off(dep_targets):
     else:
         # support http_file pointed at a jar. http_jar uses ijar,
         # which breaks scala macros
-        compile_jars += dep_target.files
-        runtime_jars += dep_target.files
+        compile_jars += filter_not_sources(dep_target.files)
+        runtime_jars += filter_not_sources(dep_target.files)
 
-  return struct(compile_jars = compile_jars, transitive_runtime_jars = runtime_jars, jars2labels = {}, transitive_compile_jars = depset())
+  return struct(compile_jars = compile_jars,
+      transitive_runtime_jars = runtime_jars,
+      jars2labels = {},
+      transitive_compile_jars = depset())
 
 def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
   transitive_compile_jars = depset()
@@ -496,25 +513,24 @@ def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
   runtime_jars = depset()
 
   for dep_target in dep_targets:
-    if dep_target_contains_ijar(dep_target):
-        transitive_compile_jars += [dep_target.scala.outputs.ijar]
-    if hasattr(dep_target, 'transitive_compile_jars'):
-        transitive_compile_jars += dep_target.transitive_compile_jars
     if java_common.provider in dep_target:
         java_provider = dep_target[java_common.provider]
         compile_jars += java_provider.compile_jars
-        transitive_compile_jars += java_provider.compile_jars
+        transitive_compile_jars += java_provider.transitive_compile_time_jars + java_provider.compile_jars
         runtime_jars += java_provider.transitive_runtime_jars
     else:
         # support http_file pointed at a jar. http_jar uses ijar,
         # which breaks scala macros
-        compile_jars += dep_target.files
-        runtime_jars += dep_target.files
-        transitive_compile_jars += dep_target.files
+        compile_jars += filter_not_sources(dep_target.files)
+        runtime_jars += filter_not_sources(dep_target.files)
+        transitive_compile_jars += filter_not_sources(dep_target.files)
 
     add_labels_of_jars_to(jars2labels, dep_target, transitive_compile_jars)
 
-  return struct(compile_jars = compile_jars, transitive_runtime_jars = runtime_jars, jars2labels = jars2labels, transitive_compile_jars = transitive_compile_jars)
+  return struct(compile_jars = compile_jars,
+    transitive_runtime_jars = runtime_jars,
+    jars2labels = jars2labels,
+    transitive_compile_jars = transitive_compile_jars)
 
 def _collect_jars(dep_targets, dependency_analyzer_is_off = True):
     """Compute the runtime and compile-time dependencies from the given targets"""  # noqa
@@ -555,6 +571,9 @@ def _collect_jars_from_common_ctx(ctx, extra_deps = [], extra_runtime_deps = [])
 
     return struct(compile_jars = cjars, transitive_runtime_jars = transitive_rjars, jars2labels=jars2labels, transitive_compile_jars = transitive_compile_jars)
 
+def _format_full_jars_for_intellij_plugin(full_jars):
+    return [struct (class_jar = jar, ijar = None) for jar in full_jars]
+
 def _lib(ctx, non_macro_lib):
     # Build up information from dependency-like attributes
 
@@ -589,11 +608,13 @@ def _lib(ctx, non_macro_lib):
     next_cjars += exports_jars.compile_jars
     transitive_rjars += exports_jars.transitive_runtime_jars
 
+
+
     rule_outputs = struct(
         ijar = outputs.ijar,
         class_jar = outputs.class_jar,
         deploy_jar = ctx.outputs.deploy_jar,
-        jars = outputs.full_jars #needed by intellij plugin
+        jars = _format_full_jars_for_intellij_plugin(outputs.full_jars)
     )
     # Note that, internally, rules only care about compile_jars and transitive_runtime_jars
     # in a similar manner as the java_library and JavaProvider
@@ -607,6 +628,7 @@ def _lib(ctx, non_macro_lib):
         compile_time_jars = scalaattr.compile_jars,
         runtime_jars = scalaattr.transitive_runtime_jars,
         transitive_compile_time_jars = jars.transitive_compile_jars,
+        transitive_runtime_jars = scalaattr.transitive_runtime_jars,
     )
 
     return struct(
@@ -625,7 +647,6 @@ def _lib(ctx, non_macro_lib):
         # to filter and make sense of this information.
         extra_information=_collect_extra_information(ctx.attr.deps),
         jars_to_labels = jars.jars2labels,
-        transitive_compile_jars = jars.transitive_compile_jars,
       )
 
 
@@ -662,7 +683,7 @@ def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2l
       ijar=outputs.class_jar,
       class_jar=outputs.class_jar,
       deploy_jar=ctx.outputs.deploy_jar,
-      jars = outputs.full_jars #needed by intellij plugin
+      jars = _format_full_jars_for_intellij_plugin(outputs.full_jars)
   )
 
   scalaattr = struct(
@@ -675,6 +696,8 @@ def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2l
   java_provider = java_common.create_provider(
       compile_time_jars = scalaattr.compile_jars,
       runtime_jars = scalaattr.transitive_runtime_jars,
+      transitive_compile_time_jars = transitive_compile_time_jars,
+      transitive_runtime_jars = scalaattr.transitive_runtime_jars,
   )
 
   return struct(
@@ -682,6 +705,7 @@ def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2l
       providers = [java_provider],
       scala = scalaattr,
       transitive_rjars = rjars, #calling rules need this for the classpath in the launcher
+      jars_to_labels = jars2labels,
       runfiles=runfiles)
 
 def _scala_binary_impl(ctx):
@@ -755,7 +779,7 @@ def _scala_test_impl(ctx):
     cjars += scalatest_jars
     transitive_rjars += scalatest_jars
 
-    if is_dependency_analyzer_off(ctx):
+    if is_dependency_analyzer_on(ctx):
       transitive_compile_jars += scalatest_jars
       add_labels_of_jars_to(jars_to_labels, ctx.attr._scalatest, scalatest_jars)
 
@@ -785,7 +809,7 @@ def _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, archives):
 
 def _serialize_archives_short_path(archives):
   archives_short_path = ""
-  for archive in archives: archives_short_path += archive.short_path + ","
+  for archive in archives: archives_short_path += archive.class_jar.short_path + ","
   return archives_short_path[:-1] #remove redundant comma
 
 def _scala_junit_test_impl(ctx):

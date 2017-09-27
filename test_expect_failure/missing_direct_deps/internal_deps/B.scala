@@ -4,4 +4,6 @@ object B {
 	def foo = {
 		C.foo
 	}
+
+	def main = foo
 }

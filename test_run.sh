@@ -25,12 +25,16 @@ fi
 echo "$_md5_util"
 }
 
+non_deploy_jar_md5_sum() {
+  find bazel-bin/test -name "*.jar" ! -name "*_deploy.jar" | $(md5_util)
+}
+
 test_build_is_identical() {
   bazel build test/...
-  $(md5_util) bazel-bin/test/*.jar > hash1
+  non_deploy_jar_md5_sum > hash1
   bazel clean
   bazel build test/...
-  $(md5_util) bazel-bin/test/*.jar > hash2
+  non_deploy_jar_md5_sum > hash2
   diff hash1 hash2
 }
 
@@ -127,6 +131,13 @@ test_scala_binary_expect_failure_on_missing_direct_deps() {
   test_scala_library_expect_failure_on_missing_direct_deps ${dependency_target} ${test_target}
 }
 
+test_scala_binary_expect_failure_on_missing_direct_deps_located_in_dependency_which_is_scala_binary() {
+  dependency_target='//test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency'
+  test_target='test_expect_failure/missing_direct_deps/internal_deps:binary_user_of_binary'
+
+  test_scala_library_expect_failure_on_missing_direct_deps ${dependency_target} ${test_target}
+}
+
 test_scala_library_expect_failure_on_missing_direct_external_deps_jar() {
   dependenecy_target='@com_google_guava_guava_21_0//jar:jar'
   test_target='test_expect_failure/missing_direct_deps/external_deps:transitive_external_dependency_user'
@@ -194,6 +205,9 @@ test_multi_service_manifest() {
   bazel build test:$deploy_jar
   unzip -p bazel-bin/test/$deploy_jar $meta_file > service_manifest.txt
   diff service_manifest.txt test/example_jars/expected_service_manifest.txt
+  RESPONSE_CODE=$?
+  rm service_manifest.txt
+  exit $RESPONSE_CODE
 }
 
 NC='\033[0m'
@@ -520,6 +534,8 @@ fi
 $runner bazel build test/...
 $runner bazel test test/...
 $runner bazel test third_party/...
+$runner bazel build "test/... --strict_java_deps=ERROR"
+$runner bazel test "test/... --strict_java_deps=ERROR"
 $runner bazel run test/src/main/scala/scala/test/twitter_scrooge:justscrooges
 $runner bazel run test:JavaBinary
 $runner bazel run test:JavaBinary2
@@ -557,6 +573,7 @@ $runner test_scala_library_expect_failure_on_missing_direct_external_deps_jar
 $runner test_scala_library_expect_failure_on_missing_direct_external_deps_file_group
 $runner test_scala_library_expect_failure_on_missing_direct_deps_strict_is_disabled_by_default
 $runner test_scala_binary_expect_failure_on_missing_direct_deps
+$runner test_scala_binary_expect_failure_on_missing_direct_deps_located_in_dependency_which_is_scala_binary
 $runner test_scala_library_expect_failure_on_missing_direct_deps_warn_mode
 $runner test_scala_library_expect_failure_on_missing_direct_deps_off_mode
 $runner test_scala_library_expect_no_recompilation_on_internal_change_of_transitive_dependency

@@ -33,10 +33,28 @@ scala_library(
 )
 
 scala_binary(
+    name="direct_binary_dependency",
+    main_class="B",
+    srcs=[
+        "B.scala",
+        ],
+    deps = ["transitive_dependency"],
+)
+
+scala_binary(
     name="user_binary",
     main_class="A",
     srcs=[
         "A.scala",
         ],
     deps = ["direct_dependency"],
+)
+
+scala_binary(
+    name="binary_user_of_binary",
+    main_class="D",
+    srcs=[
+        "D.scala",
+        ],
+    deps = ["direct_binary_dependency"],
 )
