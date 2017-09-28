@@ -337,7 +337,7 @@ def _gen_proto_srcjar_impl(ctx):
         executable = ctx.executable._pluck_scalapb_scala,
         inputs = list(acc_imports) + [argfile],
         outputs = [ctx.outputs.srcjar],
-        mnemonic="ProtoScalaRule",
+        mnemonic="ProtoScalaPBRule",
         progress_message = "creating scalapb files %s" % ctx.label,
         execution_requirements={"supports-workers": "1"},
         arguments=["@" + argfile.path],
