@@ -314,10 +314,22 @@ def _gen_proto_srcjar_impl(ctx):
     acc_imports = depset()
     for target in ctx.attr.deps:
         acc_imports += target.proto.transitive_sources
-    worker_content = "{output}\n{paths}\n{with_grpc}".format(
+
+    # Command line args to worker cannot be empty so using padding
+    flags = ["-"]
+    if ctx.attr.with_grpc:
+        flags.append("grpc")
+    if ctx.attr.with_java_conversions:
+        flags.append("java_conversions")
+    if ctx.attr.with_flat_package:
+        flags.append("flat_package")
+    if ctx.attr.with_single_line_to_string:
+        flags.append("single_line_to_string")
+
+    worker_content = "{output}\n{paths}\n{flags_arg}".format(
         output = ctx.outputs.srcjar.path,
         paths = _colon_paths(acc_imports),
-        with_grpc = ctx.attr.with_grpc,
+        flags_arg = ",".join(flags),
     )
     argfile = ctx.new_file(ctx.outputs.srcjar, "%s_worker_input" % ctx.label.name)
     ctx.file_action(output=argfile, content=worker_content)
@@ -348,6 +360,9 @@ scalapb_proto_srcjar = rule(
             allow_rules=["proto_library"]
         ),
         "with_grpc": attr.bool(default=False),
+        "with_java_conversions": attr.bool(default=False),
+        "with_flat_package": attr.bool(default=False),
+        "with_single_line_to_string": attr.bool(default=False),
         "_pluck_scalapb_scala": attr.label(
           executable=True,
           cfg="host",
@@ -388,20 +403,40 @@ GRPC_DEPS = [
     "//external:io_bazel_rules_scala/dependency/proto/netty_handler_proxy",
 ]
 
-def scalapb_proto_library(name, deps=[], with_grpc=False, visibility=None):
+def scalapb_proto_library(
+        name,
+        deps = [],
+        with_grpc = False,
+        with_java_conversions = False,
+        with_flat_package = False,
+        with_single_line_to_string = False,
+        visibility = None):
+
     srcjar = name + '_srcjar'
     scalapb_proto_srcjar(
         name = srcjar,
         with_grpc = with_grpc,
+        with_java_conversions = with_java_conversions,
+        with_flat_package = with_flat_package,
+        with_single_line_to_string = with_single_line_to_string,
         deps = deps,
         visibility = visibility,
     )
 
     external_deps = SCALAPB_DEPS + GRPC_DEPS if (with_grpc) else SCALAPB_DEPS
+    internal_deps = [srcjar]
+
+    if with_java_conversions:
+        java_proto_lib = name + "_java_lib"
+        native.java_proto_library(
+            name = java_proto_lib,
+            deps = deps,
+        )
+        internal_deps.append(java_proto_lib)
 
     scala_library(
         name = name,
-        deps = [srcjar] + external_deps,
+        deps = internal_deps + external_deps,
         exports = external_deps,
         visibility = visibility,
     )
