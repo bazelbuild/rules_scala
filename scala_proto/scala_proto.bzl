@@ -423,8 +423,7 @@ def scalapb_proto_library(
         visibility = visibility,
     )
 
-    external_deps = SCALAPB_DEPS + GRPC_DEPS if (with_grpc) else SCALAPB_DEPS
-    internal_deps = [srcjar]
+    external_deps = list(SCALAPB_DEPS + GRPC_DEPS if (with_grpc) else SCALAPB_DEPS)
 
     if with_java_conversions:
         java_proto_lib = name + "_java_lib"
@@ -432,11 +431,12 @@ def scalapb_proto_library(
             name = java_proto_lib,
             deps = deps,
         )
-        internal_deps.append(java_proto_lib)
+        external_deps.append(java_proto_lib)
 
     scala_library(
         name = name,
-        deps = internal_deps + external_deps,
+        srcs = [srcjar],
+        deps = external_deps,
         exports = external_deps,
         visibility = visibility,
     )
