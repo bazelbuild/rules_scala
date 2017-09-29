@@ -319,7 +319,7 @@ def _gen_proto_srcjar_impl(ctx):
     flags = ["-"]
     if ctx.attr.with_grpc:
         flags.append("grpc")
-    if ctx.attr.with_java_conversions:
+    if ctx.attr.with_java:
         flags.append("java_conversions")
     if ctx.attr.with_flat_package:
         flags.append("flat_package")
@@ -360,7 +360,7 @@ scalapb_proto_srcjar = rule(
             allow_rules=["proto_library"]
         ),
         "with_grpc": attr.bool(default=False),
-        "with_java_conversions": attr.bool(default=False),
+        "with_java": attr.bool(default=False),
         "with_flat_package": attr.bool(default=False),
         "with_single_line_to_string": attr.bool(default=False),
         "_pluck_scalapb_scala": attr.label(
@@ -403,11 +403,32 @@ GRPC_DEPS = [
     "//external:io_bazel_rules_scala/dependency/proto/netty_handler_proxy",
 ]
 
+"""Generate scalapb bindings for a set of proto_library targets.
+
+Example:
+    scalapb_proto_library(
+        name = "exampla_proto_scala",
+        with_grpc = True,
+        deps = ["//src/proto:example_service"]
+    )
+
+Args:
+    name: A unique name for this rule
+    deps: Proto library targets that this rule depends on (must be of type proto_library)
+    with_grpc: Enables generation of grpc service bindings for services defined in deps
+    with_java: Enables generation of converters to and from java protobuf bindings
+    with_flat_package: When true, ScalaPB will not append the protofile base name to the package name
+    with_single_line_to_string: Enables generation of toString() methods that use the single line format
+
+Outputs:
+    A scala_library rule that includes the generated scalapb bindings, as
+    well as any library dependencies needed to compile and use these.
+"""
 def scalapb_proto_library(
         name,
         deps = [],
         with_grpc = False,
-        with_java_conversions = False,
+        with_java = False,
         with_flat_package = False,
         with_single_line_to_string = False,
         visibility = None):
@@ -416,7 +437,7 @@ def scalapb_proto_library(
     scalapb_proto_srcjar(
         name = srcjar,
         with_grpc = with_grpc,
-        with_java_conversions = with_java_conversions,
+        with_java = with_java,
         with_flat_package = with_flat_package,
         with_single_line_to_string = with_single_line_to_string,
         deps = deps,
@@ -425,7 +446,7 @@ def scalapb_proto_library(
 
     external_deps = list(SCALAPB_DEPS + GRPC_DEPS if (with_grpc) else SCALAPB_DEPS)
 
-    if with_java_conversions:
+    if with_java:
         java_proto_lib = name + "_java_lib"
         native.java_proto_library(
             name = java_proto_lib,

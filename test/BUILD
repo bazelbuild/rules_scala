@@ -444,7 +444,7 @@ scalapb_proto_library(
 scalapb_proto_library(
     name = "test_proto_java_conversions",
     deps = ["//test/proto:test2", "//test/proto:test"],
-    with_java_conversions = True,
+    with_java = True,
     with_flat_package = True,
 )
 
