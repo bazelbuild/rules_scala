@@ -28,7 +28,7 @@ maven_jar(
 maven_jar(
   name = "org_typelevel__cats_core",
   artifact = scala_mvn_artifact("org.typelevel:cats-core:0.9.0"),
-  sha1 = "b2f8629c6ec834d8b6321288c9fe77823f1e1314"
+  sha1 = "267cebe07afbb365b08a6e18be4b137508f16bee"
 )
 
 
