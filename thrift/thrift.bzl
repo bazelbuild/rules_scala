@@ -45,29 +45,26 @@ def _thrift_library_impl(ctx):
       actual_prefix = common_prefix[0:endpos]
       zipper_args = " ".join([ "%s=%s" % (src[endpos+1:], src) for src in src_paths ])
 
-  zipper_arg_path = ctx.actions.declare_file("%s_zipper_args" % ctx.outputs.libarchive.path)
-  ctx.file_action(zipper_arg_path, zipper_args)
-  _valid_thrift_deps(ctx.attr.deps)
-  # We move the files and touch them so that the output file is a purely deterministic
-  # product of the _content_ of the inputs
-  cmd = """
+  if len(src_paths) > 0:
+    zipper_arg_path = ctx.actions.declare_file("%s_zipper_args" % ctx.outputs.libarchive.path)
+    ctx.file_action(zipper_arg_path, zipper_args)
+    _valid_thrift_deps(ctx.attr.deps)
+    # We move the files and touch them so that the output file is a purely deterministic
+    # product of the _content_ of the inputs
+    cmd = """
 rm -f {out}
 {zipper} c {out} @{path}
 """
 
-  cmd = cmd.format(out=ctx.outputs.libarchive.path,
-                   #zipper_args=zipper_args,
-                   path=zipper_arg_path.path,
-                   zipper=ctx.executable._zipper.path)
+    cmd = cmd.format(out=ctx.outputs.libarchive.path,
+                     path=zipper_arg_path.path,
+                     zipper=ctx.executable._zipper.path)
 
-  if len(src_paths) > 0:
     ctx.action(
-      inputs = ctx.files.srcs +
-        [ctx.executable._zipper, zipper_arg_path],
+      inputs = ctx.files.srcs + [ctx.executable._zipper, zipper_arg_path],
       outputs = [ctx.outputs.libarchive],
       command = cmd,
-      progress_message = "making thrift archive %s" % ctx.label,
-      arguments = src_paths,
+      progress_message = "making thrift archive %s (%s files)" % (ctx.label, len(src_paths)),
     )
   else:
     # we still have to create the output we declared
