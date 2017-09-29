@@ -61,16 +61,32 @@ rm -rf {out}_tmp"""
   cmd = cmd.format(out=ctx.outputs.libarchive.path,
                    jar=ctx.executable._jar.path)
 
-  # We need _jdk to even run _jar. Depending on _jar is not enough with sandbox
-  ctx.action(
-    inputs = ctx.files.srcs +
-      ctx.files._jdk +
-      [ctx.executable._jar],
-    outputs = [ctx.outputs.libarchive],
-    command = cmd,
-    progress_message = "making thrift archive %s" % ctx.label,
-    arguments = src_paths,
-  )
+  if len(src_paths) > 0:
+    # We need _jdk to even run _jar. Depending on _jar is not enough with sandbox
+    ctx.action(
+      inputs = ctx.files.srcs +
+        ctx.files._jdk +
+        [ctx.executable._jar],
+      outputs = [ctx.outputs.libarchive],
+      command = cmd,
+      progress_message = "making thrift archive %s" % ctx.label,
+      arguments = src_paths,
+    )
+  else:
+    # we still have to create the output we declared
+    ctx.action(
+      inputs = [ctx.executable._zipper],
+      outputs = [ctx.outputs.libarchive],
+      command = """
+echo "empty" > {out}.contents
+rm -f {out}
+{zipper} c {out} {out}.contents
+rm {out}.contents
+""".format(out=ctx.outputs.libarchive.path,
+           zipper=ctx.executable._zipper.path),
+      progress_message = "making empty thrift archive %s" % ctx.label,
+    )
+
 
   transitive_srcs = _collect_thrift_srcs(ctx.attr.deps)
   transitive_srcs += [ctx.outputs.libarchive]
@@ -135,6 +151,7 @@ thrift_library = rule(
       "absolute_prefixes": attr.string_list(),
       # This is a list of JARs which only contain Thrift files
       "external_jars": attr.label_list(),
+      "_zipper": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/zip:zipper"), allow_files=True),
       "_jar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:jar"), allow_files=True),
       "_jdk": attr.label(default=Label("//tools/defaults:jdk"), allow_files=True),
   },
