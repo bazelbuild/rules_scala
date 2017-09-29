@@ -25,7 +25,7 @@ def _thrift_library_impl(ctx):
   if len(src_paths) <= 0 and len(ctx.attr.external_jars) <= 0:
     fail("we require at least one thrift file in a target")
 
-  jarcmd = "{jar} cMf {out} -C {out}_tmp ."
+  zipper_args = " ".join(src_paths)
   if len(prefixes) > 0:
     common_prefix = _common_prefix(src_paths)
     found_prefixes = [p for p in prefixes if common_prefix.find(p) >= 0]
@@ -43,30 +43,27 @@ def _thrift_library_impl(ctx):
       pos = common_prefix.find(prefix)
       endpos = pos + len(prefix)
       actual_prefix = common_prefix[0:endpos]
-      jarcmd = "{{jar}} cMf {{out}} -C {{out}}_tmp/{pf} .".format(pf=actual_prefix)
+      zipper_args = " ".join([ "%s=%s" % (src[endpos+1:], src) for src in src_paths ])
 
+  zipper_arg_path = ctx.actions.declare_file("%s_zipper_args" % ctx.outputs.libarchive.path)
+  ctx.file_action(zipper_arg_path, zipper_args)
   _valid_thrift_deps(ctx.attr.deps)
   # We move the files and touch them so that the output file is a purely deterministic
   # product of the _content_ of the inputs
   cmd = """
-rm -rf {out}_tmp
-mkdir -p {out}_tmp
-{jar} cMf {out}_tmp/tmp.jar $@
-unzip -q -o {out}_tmp/tmp.jar -d {out}_tmp 2>/dev/null
-rm -rf {out}_tmp/tmp.jar
-find {out}_tmp -exec touch -t 198001010000 {{}} \;
-""" + jarcmd + """
-rm -rf {out}_tmp"""
+rm -f {out}
+{zipper} c {out} @{path}
+"""
 
   cmd = cmd.format(out=ctx.outputs.libarchive.path,
-                   jar=ctx.executable._jar.path)
+                   #zipper_args=zipper_args,
+                   path=zipper_arg_path.path,
+                   zipper=ctx.executable._zipper.path)
 
   if len(src_paths) > 0:
-    # We need _jdk to even run _jar. Depending on _jar is not enough with sandbox
     ctx.action(
       inputs = ctx.files.srcs +
-        ctx.files._jdk +
-        [ctx.executable._jar],
+        [ctx.executable._zipper, zipper_arg_path],
       outputs = [ctx.outputs.libarchive],
       command = cmd,
       progress_message = "making thrift archive %s" % ctx.label,
@@ -151,9 +148,7 @@ thrift_library = rule(
       "absolute_prefixes": attr.string_list(),
       # This is a list of JARs which only contain Thrift files
       "external_jars": attr.label_list(),
-      "_zipper": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/zip:zipper"), allow_files=True),
-      "_jar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:jar"), allow_files=True),
-      "_jdk": attr.label(default=Label("//tools/defaults:jdk"), allow_files=True),
+      "_zipper": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/zip:zipper"), allow_files=True)
   },
   outputs={"libarchive": "lib%{name}.jar"},
 )
