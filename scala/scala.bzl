@@ -35,7 +35,7 @@ def _get_all_runfiles(targets):
     return runfiles
 
 
-def _adjust_resources_path_by_strip_prefix(path,resource_strip_prefix):
+def _adjust_resources_path_by_strip_prefix(path, resource_strip_prefix):
     if not path.startswith(resource_strip_prefix):
       fail("Resource file %s is not under the specified prefix to strip" % path)
 
@@ -63,66 +63,52 @@ def _adjust_resources_path(path, resource_strip_prefix):
     else:
       return _adjust_resources_path_by_default_prefixes(path)
 
-def _add_resources_cmd(ctx, dest):
-    res_cmd = ""
+def _add_resources_cmd(ctx):
+    res_cmd = []
     for f in ctx.files.resources:
         c_dir, res_path = _adjust_resources_path(f.path, ctx.attr.resource_strip_prefix)
         target_path = res_path
-        if res_path[0] != "/":
-            target_path = "/" + res_path
-        res_cmd += """
-          mkdir -p $(dirname {out_dir}{target_path})
-          cp {c_dir}{res_path} {out_dir}{target_path}
-        """.format(
-            out_dir=dest,
+        if target_path[0] == "/":
+            target_path = target_path[1:]
+        line = "{target_path}={c_dir}{res_path}\n".format(
             res_path=res_path,
             target_path=target_path,
             c_dir=c_dir)
-    return res_cmd
-
-
-def _get_jar_path(paths):
-    for p in paths:
-        path = p.path
-        if path.endswith("/binary_deploy.jar"):
-            return path
-    return None
-
+        res_cmd.extend([line])
+    return "".join(res_cmd)
 
 def _build_nosrc_jar(ctx, buildijar):
-    temp_resources_dir="{jar_output}_temp_resources_dir".format(jar_output=ctx.outputs.jar.path)
-    cp_resources = _add_resources_cmd(ctx, temp_resources_dir)
+    resources = _add_resources_cmd(ctx)
     ijar_cmd = ""
     if buildijar:
-        ijar_cmd = "\ncp {jar_output} {ijar_output}".format(
+        ijar_cmd = "\ncp {jar_output} {ijar_output}\n".format(
           jar_output=ctx.outputs.jar.path,
           ijar_output=ctx.outputs.ijar.path)
+
+    # this ensures the file is not empty
+    resources += ctx.outputs.manifest.path + "\n"
+
+    zipper_arg_path = ctx.actions.declare_file("%s_zipper_args" % ctx.outputs.jar.path)
+    ctx.file_action(zipper_arg_path, resources)
     cmd = """
-  rm -rf {temp_resources_dir}
-  set -e
-  mkdir -p {temp_resources_dir}
-  # copy any resources
-  {cp_resources}
-  # adding {temp_resources_dir} as last argument will copy its content into the jar output
-  {java} -jar {jarBuilder} -m {manifest} {jar_output} {temp_resources_dir}
-  """ + ijar_cmd
+rm -f {jar_output}
+{zipper} c {jar_output} @{path}
+""" + ijar_cmd
+
     cmd = cmd.format(
-        temp_resources_dir=temp_resources_dir,
-        cp_resources=cp_resources,
+        path = zipper_arg_path.path,
         jar_output=ctx.outputs.jar.path,
-        java=ctx.executable._java.path,
-        jarBuilder=_get_jar_path(ctx.files._jar),
-        manifest=ctx.outputs.manifest.path,
+        zipper=ctx.executable._zipper.path,
         )
+
     outs = [ctx.outputs.jar]
     if buildijar:
         outs.extend([ctx.outputs.ijar])
 
-    # _jdk added manually since _java doesn't currently setup runfiles
-    inputs = ctx.files.resources + ctx.files._jdk + [
+    inputs = ctx.files.resources + [
         ctx.outputs.manifest,
-        ctx.executable._jar,
-        ctx.executable._java,
+        ctx.executable._zipper,
+        zipper_arg_path
       ]
 
     ctx.action(
@@ -204,8 +190,6 @@ Files: {files}
 IjarCmdPath: {ijar_cmd_path}
 IjarOutput: {ijar_out}
 JarOutput: {out}
-JavacOpts: -encoding utf8 {javac_opts}
-JavacPath: {javac_path}
 JavaFiles: {java_files}
 Manifest: {manifest}
 Plugins: {plugin_arg}
@@ -229,10 +213,6 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
         ijar_out=ijar_output_path,
         ijar_cmd_path=ijar_cmd_path,
         srcjars=",".join([f.path for f in all_srcjars]),
-        javac_opts=" ".join(ctx.attr.javacopts) +
-                #  these are the flags passed to javac, which needs them prefixed by -J
-                " ".join(["-J" + flag for flag in ctx.attr.javac_jvm_flags]),
-        javac_path=ctx.executable._javac.path,
         java_files=",".join([f.path for f in java_srcs]),
         resource_src=",".join([f.path for f in ctx.files.resources]),
         resource_dest=",".join(
@@ -268,7 +248,6 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
            [ctx.outputs.manifest,
             ctx.executable._ijar,
             ctx.executable._java,
-            ctx.executable._javac,
             argfile])
     ctx.action(
         inputs=ins,
@@ -845,8 +824,7 @@ _implicit_deps = {
   "_scalacompiler": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_compiler"), allow_files=True),
   "_scalareflect": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_reflect"), allow_files=True),
   "_java": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:java"), allow_files=True),
-  "_javac": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:javac"), allow_files=True),
-  "_jar": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/jar:binary_deploy.jar"), allow_files=True),
+  "_zipper": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/zip:zipper"), allow_files=True),
   "_jdk": attr.label(default=Label("//tools/defaults:jdk"), allow_files=True),
   "_java_toolchain": attr.label(default = Label("@bazel_tools//tools/jdk:toolchain")),
   "_host_javabase": attr.label(default = Label("//tools/defaults:jdk"))

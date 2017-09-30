@@ -17,8 +17,6 @@ public class CompileOptions {
   final public String ijarOutput;
   final public String ijarCmdPath;
   final public String[] javaFiles;
-  final public String javacPath;
-  final public String javacOpts;
   final public Map<String, String> resourceFiles;
   final public String resourceStripPrefix;
   final public String[] resourceJars;
@@ -41,8 +39,6 @@ public class CompileOptions {
     files = getCommaList(argMap, "Files");
 
     javaFiles = getCommaList(argMap, "JavaFiles");
-    javacPath = getOrEmpty(argMap, "JavacPath");
-    javacOpts = getOrEmpty(argMap, "JavacOpts");
 
     sourceJars = getCommaList(argMap, "SourceJars");
     iJarEnabled = booleanGetOrFalse(argMap, "EnableIjar");
