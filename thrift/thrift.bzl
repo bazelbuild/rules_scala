@@ -25,7 +25,7 @@ def _thrift_library_impl(ctx):
   if len(src_paths) <= 0 and len(ctx.attr.external_jars) <= 0:
     fail("we require at least one thrift file in a target")
 
-  zipper_args = "\n".join(src_paths)
+  zipper_args = "\n".join(src_paths) + "\n"
   if len(prefixes) > 0:
     common_prefix = _common_prefix(src_paths)
     found_prefixes = [p for p in prefixes if common_prefix.find(p) >= 0]
@@ -43,7 +43,7 @@ def _thrift_library_impl(ctx):
       pos = common_prefix.find(prefix)
       endpos = pos + len(prefix)
       actual_prefix = common_prefix[0:endpos]
-      zipper_args = "\n".join([ "%s=%s" % (src[endpos+1:], src) for src in src_paths ])
+      zipper_args = "\n".join([ "%s=%s" % (src[endpos+1:], src) for src in src_paths ]) + "\n"
 
   if len(src_paths) > 0:
     zipper_arg_path = ctx.actions.declare_file("%s_zipper_args" % ctx.outputs.libarchive.path)
