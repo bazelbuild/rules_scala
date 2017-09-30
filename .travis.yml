@@ -14,7 +14,7 @@ env:
   # we want to test the most recent few releases
   - V=0.5.3
   - V=0.5.4
-  - V=0.6.0rc2
+  - V=0.6.0
 
 before_install:
   - |
