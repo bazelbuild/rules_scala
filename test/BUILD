@@ -436,28 +436,10 @@ scala_binary(
     deps = [":JavaOnlySources"],
 )
 
-scalapb_proto_library(
-    name = "test_proto_nogrpc",
-    deps = ["//test/proto:test2"]
-)
-
-scalapb_proto_library(
-    name = "test_proto_java_conversions",
-    deps = ["//test/proto:test2", "//test/proto:test"],
-    with_java = True,
-    with_flat_package = True,
-)
-
-scalapb_proto_library(
-    name = "test_proto",
-    with_grpc = True,
-    deps = ["//test/proto:test_service"]
-)
-
 scala_library(
     name = "lib_with_scala_proto_dep",
     srcs = ["TestServer.scala"],
-    deps = [":test_proto"]
+    deps = ["//test/proto:test_proto"]
 )
 
 scala_binary(

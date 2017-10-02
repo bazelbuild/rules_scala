@@ -38,8 +38,12 @@ class ScalaPBGenerator extends Processor {
     }
 
   def processRequest(args: java.util.List[String]) {
+    val curDir = Paths.get("").toAbsolutePath.toString
+
     val jarOutput = args.get(0)
-    val protoFiles = args.get(1).split(':').toList
+    val protoFiles = args.get(1).split(':').toList.map { protoFile =>
+      Paths.get(curDir, protoFile).toString
+    }
     val flagOpt = args.get(2) match {
       case "-" => None
       case s => Some(s.drop(2))
@@ -48,7 +52,7 @@ class ScalaPBGenerator extends Processor {
     val tmp = Paths.get(Option(System.getProperty("java.io.tmpdir")).getOrElse("/tmp"))
     val scalaPBOutput = Files.createTempDirectory(tmp, "bazelscalapb")
     val flagPrefix = flagOpt.map(_ + ":").getOrElse("")
-    val scalaPBArgs = s"--scala_out=${flagPrefix}${scalaPBOutput}" :: protoFiles
+    val scalaPBArgs = List(s"--proto_path=${curDir}", s"--scala_out=${flagPrefix}${scalaPBOutput}") ++ protoFiles
     val config = ScalaPBC.processArgs(scalaPBArgs.toArray)
     val code = ProtocBridge.runWithGenerators(
       protoc = a => com.github.os72.protocjar.Protoc.runProtoc(config.version +: a.toArray),
