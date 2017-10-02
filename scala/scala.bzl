@@ -553,6 +553,30 @@ def _collect_jars_from_common_ctx(ctx, extra_deps = [], extra_runtime_deps = [])
 def _format_full_jars_for_intellij_plugin(full_jars):
     return [struct (class_jar = jar, ijar = None) for jar in full_jars]
 
+def _create_java_provider(ctx, scalaattr, transitive_compile_time_jars):
+    # This is needed because Bazel >=0.6.0 requires ctx.actions and a Java
+    # toolchain. Fortunately, the same change that added this requirement also
+    # added this field to the Java provider so we can use it to test which
+    # Bazel version we are running under.
+    test_provider = java_common.create_provider()
+
+    if hasattr(test_provider, "full_compile_jars"):
+      return java_common.create_provider(
+          ctx.actions,
+          java_toolchain = ctx.attr._java_toolchain,
+          compile_time_jars = scalaattr.compile_jars,
+          runtime_jars = scalaattr.transitive_runtime_jars,
+          transitive_compile_time_jars = transitive_compile_time_jars,
+          transitive_runtime_jars = scalaattr.transitive_runtime_jars,
+      )
+    else:
+      return java_common.create_provider(
+          compile_time_jars = scalaattr.compile_jars,
+          runtime_jars = scalaattr.transitive_runtime_jars,
+          transitive_compile_time_jars = transitive_compile_time_jars,
+          transitive_runtime_jars = scalaattr.transitive_runtime_jars,
+      )
+
 def _lib(ctx, non_macro_lib):
     # Build up information from dependency-like attributes
 
@@ -604,28 +628,7 @@ def _lib(ctx, non_macro_lib):
         transitive_exports = [] #needed by intellij plugin
     )
 
-    # This is needed because Bazel >=0.6.0 requires ctx.actions and a Java
-    # toolchain. Fortunately, the same change that added this requirement also
-    # added this field to the Java provider so we can use it to test which
-    # Bazel version we are running under.
-    test_provider = java_common.create_provider()
-
-    if hasattr(test_provider, "full_compile_jars"):
-      java_provider = java_common.create_provider(
-          ctx.actions,
-          java_toolchain = ctx.attr._java_toolchain,
-          compile_time_jars = scalaattr.compile_jars,
-          runtime_jars = scalaattr.transitive_runtime_jars,
-          transitive_compile_time_jars = jars.transitive_compile_jars,
-          transitive_runtime_jars = scalaattr.transitive_runtime_jars,
-      )
-    else:
-      java_provider = java_common.create_provider(
-          compile_time_jars = scalaattr.compile_jars,
-          runtime_jars = scalaattr.transitive_runtime_jars,
-          transitive_compile_time_jars = jars.transitive_compile_jars,
-          transitive_runtime_jars = scalaattr.transitive_runtime_jars,
-      )
+    java_provider = _create_java_provider(ctx, scalaattr, jars.transitive_compile_jars)
 
     return struct(
         files = depset([ctx.outputs.jar]),  # Here is the default output
@@ -689,28 +692,7 @@ def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2l
       transitive_exports = [] #needed by intellij plugin
   )
 
-  # This is needed because Bazel >=0.6.0 requires ctx.actions and a Java
-  # toolchain. Fortunately, the same change that added this requirement also
-  # added this field to the Java provider so we can use it to test which
-  # Bazel version we are running under.
-  test_provider = java_common.create_provider()
-
-  if hasattr(test_provider, "full_compile_jars"):
-    java_provider = java_common.create_provider(
-        ctx.actions,
-        java_toolchain = ctx.attr._java_toolchain,
-        compile_time_jars = scalaattr.compile_jars,
-        runtime_jars = scalaattr.transitive_runtime_jars,
-        transitive_compile_time_jars = transitive_compile_time_jars,
-        transitive_runtime_jars = scalaattr.transitive_runtime_jars,
-    )
-  else:
-    java_provider = java_common.create_provider(
-        compile_time_jars = scalaattr.compile_jars,
-        runtime_jars = scalaattr.transitive_runtime_jars,
-        transitive_compile_time_jars = transitive_compile_time_jars,
-        transitive_runtime_jars = scalaattr.transitive_runtime_jars,
-    )
+  java_provider = _create_java_provider(ctx, scalaattr, transitive_compile_time_jars)
 
   return struct(
       files=depset([ctx.outputs.executable]),
