@@ -232,7 +232,7 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
     outs = [ctx.outputs.jar]
     if buildijar:
         outs.extend([ctx.outputs.ijar])
-    # _jdk added manually since _java doesn't currently setup runfiles
+    # _java_toolchain added manually since _java doesn't currently setup runfiles
     # _scalac, as a java_binary, should already have it in its runfiles; however,
     # adding does ensure _java not orphaned if _scalac ever was not a java_binary
     ins = (list(compiler_classpath_jars) +
@@ -244,7 +244,7 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
            dependency_analyzer_plugin_jars +
            ctx.files.resources +
            ctx.files.resource_jars +
-           ctx.files._jdk +
+           ctx.files._java_toolchain +
            [ctx.outputs.manifest,
             ctx.executable._ijar,
             ctx.executable._java,
@@ -603,12 +603,29 @@ def _lib(ctx, non_macro_lib):
         transitive_runtime_jars = transitive_rjars,
         transitive_exports = [] #needed by intellij plugin
     )
-    java_provider = java_common.create_provider(
-        compile_time_jars = scalaattr.compile_jars,
-        runtime_jars = scalaattr.transitive_runtime_jars,
-        transitive_compile_time_jars = jars.transitive_compile_jars,
-        transitive_runtime_jars = scalaattr.transitive_runtime_jars,
-    )
+
+    # This is needed because Bazel >=0.6.0 requires ctx.actions and a Java
+    # toolchain. Fortunately, the same change that added this requirement also
+    # added this field to the Java provider so we can use it to test which
+    # Bazel version we are running under.
+    test_provider = java_common.create_provider()
+
+    if hasattr(test_provider, "full_compile_jars"):
+      java_provider = java_common.create_provider(
+          ctx.actions,
+          java_toolchain = ctx.attr._java_toolchain,
+          compile_time_jars = scalaattr.compile_jars,
+          runtime_jars = scalaattr.transitive_runtime_jars,
+          transitive_compile_time_jars = jars.transitive_compile_jars,
+          transitive_runtime_jars = scalaattr.transitive_runtime_jars,
+      )
+    else:
+      java_provider = java_common.create_provider(
+          compile_time_jars = scalaattr.compile_jars,
+          runtime_jars = scalaattr.transitive_runtime_jars,
+          transitive_compile_time_jars = jars.transitive_compile_jars,
+          transitive_runtime_jars = scalaattr.transitive_runtime_jars,
+      )
 
     return struct(
         files = depset([ctx.outputs.jar]),  # Here is the default output
@@ -652,9 +669,9 @@ def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2l
 
   java_wrapper = ctx.new_file(ctx.label.name + "_wrapper.sh")
 
-  # _jdk added manually since _java doesn't currently setup runfiles
+  # _java_toolchain added manually since _java doesn't currently setup runfiles
   runfiles = ctx.runfiles(
-      files = list(rjars) + [ctx.outputs.executable, java_wrapper] + ctx.files._jdk,
+      files = list(rjars) + [ctx.outputs.executable, java_wrapper] + ctx.files._java_toolchain,
       transitive_files = _get_runfiles(ctx.attr._java),
       collect_data = True)
 
@@ -672,12 +689,28 @@ def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2l
       transitive_exports = [] #needed by intellij plugin
   )
 
-  java_provider = java_common.create_provider(
-      compile_time_jars = scalaattr.compile_jars,
-      runtime_jars = scalaattr.transitive_runtime_jars,
-      transitive_compile_time_jars = transitive_compile_time_jars,
-      transitive_runtime_jars = scalaattr.transitive_runtime_jars,
-  )
+  # This is needed because Bazel >=0.6.0 requires ctx.actions and a Java
+  # toolchain. Fortunately, the same change that added this requirement also
+  # added this field to the Java provider so we can use it to test which
+  # Bazel version we are running under.
+  test_provider = java_common.create_provider()
+
+  if hasattr(test_provider, "full_compile_jars"):
+    java_provider = java_common.create_provider(
+        ctx.actions,
+        java_toolchain = ctx.attr._java_toolchain,
+        compile_time_jars = scalaattr.compile_jars,
+        runtime_jars = scalaattr.transitive_runtime_jars,
+        transitive_compile_time_jars = transitive_compile_time_jars,
+        transitive_runtime_jars = scalaattr.transitive_runtime_jars,
+    )
+  else:
+    java_provider = java_common.create_provider(
+        compile_time_jars = scalaattr.compile_jars,
+        runtime_jars = scalaattr.transitive_runtime_jars,
+        transitive_compile_time_jars = transitive_compile_time_jars,
+        transitive_runtime_jars = scalaattr.transitive_runtime_jars,
+    )
 
   return struct(
       files=depset([ctx.outputs.executable]),
@@ -825,8 +858,7 @@ _implicit_deps = {
   "_scalareflect": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_reflect"), allow_files=True),
   "_java": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:java"), allow_files=True),
   "_zipper": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/zip:zipper"), allow_files=True),
-  "_jdk": attr.label(default=Label("//tools/defaults:jdk"), allow_files=True),
-  "_java_toolchain": attr.label(default = Label("@bazel_tools//tools/jdk:toolchain")),
+  "_java_toolchain": attr.label(default = Label("@bazel_tools//tools/jdk:current_java_toolchain")),
   "_host_javabase": attr.label(default = Label("//tools/defaults:jdk"))
 }
 
