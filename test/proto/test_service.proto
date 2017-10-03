@@ -1,6 +1,6 @@
 syntax = "proto2";
 
-import "test/proto/test.proto";
+import "test/proto2/test.proto";
 import "test/proto/test2.proto";
 import "test/proto/test3.proto";
 

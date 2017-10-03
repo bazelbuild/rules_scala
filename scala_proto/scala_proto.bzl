@@ -451,6 +451,7 @@ def scalapb_proto_library(
         native.java_proto_library(
             name = java_proto_lib,
             deps = deps,
+            visibility = visibility,
         )
         external_deps.append(java_proto_lib)
 
