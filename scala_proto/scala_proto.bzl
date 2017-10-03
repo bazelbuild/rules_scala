@@ -313,7 +313,8 @@ def _colon_paths(data):
 def _gen_proto_srcjar_impl(ctx):
     acc_imports = depset()
     for target in ctx.attr.deps:
-        acc_imports += target.proto.transitive_sources
+        if hasattr(target, 'proto'):
+            acc_imports += target.proto.transitive_sources
 
     # Command line args to worker cannot be empty so using padding
     flags = ["-"]
@@ -357,7 +358,6 @@ scalapb_proto_srcjar = rule(
     attrs={
         "deps": attr.label_list(
             mandatory=True,
-            allow_rules=["proto_library"]
         ),
         "with_grpc": attr.bool(default=False),
         "with_java": attr.bool(default=False),
@@ -414,7 +414,7 @@ Example:
 
 Args:
     name: A unique name for this rule
-    deps: Proto library targets that this rule depends on (must be of type proto_library)
+    deps: Proto library targets or jvm targets that this rule depends on
     with_grpc: Enables generation of grpc service bindings for services defined in deps
     with_java: Enables generation of converters to and from java protobuf bindings
     with_flat_package: When true, ScalaPB will not append the protofile base name to the package name
@@ -445,20 +445,12 @@ def scalapb_proto_library(
     )
 
     external_deps = list(SCALAPB_DEPS + GRPC_DEPS if (with_grpc) else SCALAPB_DEPS)
-
-    if with_java:
-        java_proto_lib = name + "_java_lib"
-        native.java_proto_library(
-            name = java_proto_lib,
-            deps = deps,
-            visibility = visibility,
-        )
-        external_deps.append(java_proto_lib)
+    scala_lib_deps = deps + external_deps
 
     scala_library(
         name = name,
         srcs = [srcjar],
-        deps = external_deps,
-        exports = external_deps,
+        deps = scala_lib_deps,
+        exports = scala_lib_deps,
         visibility = visibility,
     )
