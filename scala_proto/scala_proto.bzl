@@ -445,7 +445,7 @@ def scalapb_proto_library(
     )
 
     external_deps = list(SCALAPB_DEPS + GRPC_DEPS if (with_grpc) else SCALAPB_DEPS)
-    scala_lib_deps = deps + external_deps
+    scala_lib_deps = external_deps + deps
 
     scala_library(
         name = name,
