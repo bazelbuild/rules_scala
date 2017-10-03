@@ -308,7 +308,7 @@ def scala_proto_repositories():
     )
 
 def _colon_paths(data):
-  return ':'.join([f.path for f in data])
+  return ':'.join(["{root},{path}".format(root=f.owner.workspace_root, path=f.path) for f in data])
 
 def _gen_proto_srcjar_impl(ctx):
     acc_imports = depset()
