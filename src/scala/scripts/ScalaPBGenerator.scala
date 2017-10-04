@@ -49,6 +49,11 @@ class ScalaPBGenerator extends Processor {
       }
       (file, Paths.get(root, file).toString)
     }
+    // This will map the absolute path of a given proto file
+    // to a relative path that does not contain the repo prefix.
+    // This is to match the expected behavior of
+    // proto_library and java_proto_library where proto files
+    // can import other proto files using only the relative path
     val imports = parsedProtoFiles.map { case (relPath, absolutePath) =>
       s"-I${relPath}=${absolutePath}"
     }
