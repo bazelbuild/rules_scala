@@ -511,7 +511,7 @@ def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
     jars2labels = jars2labels,
     transitive_compile_jars = transitive_compile_jars)
 
-def _collect_jars(dep_targets, dependency_analyzer_is_off = True):
+def collect_jars(dep_targets, dependency_analyzer_is_off = True):
     """Compute the runtime and compile-time dependencies from the given targets"""  # noqa
 
     if dependency_analyzer_is_off:
@@ -539,10 +539,10 @@ def _collect_jars_from_common_ctx(ctx, extra_deps = [], extra_runtime_deps = [])
 
     # Get jars from deps
     auto_deps = [ctx.attr._scalalib, ctx.attr._scalareflect]
-    deps_jars = _collect_jars(ctx.attr.deps + auto_deps + extra_deps, dependency_analyzer_is_off)
+    deps_jars = collect_jars(ctx.attr.deps + auto_deps + extra_deps, dependency_analyzer_is_off)
     (cjars, transitive_rjars, jars2labels, transitive_compile_jars) = (deps_jars.compile_jars, deps_jars.transitive_runtime_jars, deps_jars.jars2labels, deps_jars.transitive_compile_jars)
 
-    runtime_dep_jars =  _collect_jars(ctx.attr.runtime_deps + extra_runtime_deps, dependency_analyzer_is_off)
+    runtime_dep_jars =  collect_jars(ctx.attr.runtime_deps + extra_runtime_deps, dependency_analyzer_is_off)
     transitive_rjars += runtime_dep_jars.transitive_runtime_jars
 
     if not dependency_analyzer_is_off:
@@ -553,7 +553,7 @@ def _collect_jars_from_common_ctx(ctx, extra_deps = [], extra_runtime_deps = [])
 def _format_full_jars_for_intellij_plugin(full_jars):
     return [struct (class_jar = jar, ijar = None) for jar in full_jars]
 
-def _create_java_provider(ctx, scalaattr, transitive_compile_time_jars):
+def create_java_provider(ctx, scalaattr, transitive_compile_time_jars):
     # This is needed because Bazel >=0.6.0 requires ctx.actions and a Java
     # toolchain. Fortunately, the same change that added this requirement also
     # added this field to the Java provider so we can use it to test which
@@ -607,7 +607,7 @@ def _lib(ctx, non_macro_lib):
     # Add information from exports (is key that AFTER all build actions/runfiles analysis)
     # Since after, will not show up in deploy_jar or old jars runfiles
     # Notice that compile_jars is intentionally transitive for exports
-    exports_jars = _collect_jars(ctx.attr.exports)
+    exports_jars = collect_jars(ctx.attr.exports)
     next_cjars += exports_jars.compile_jars
     transitive_rjars += exports_jars.transitive_runtime_jars
 
@@ -628,7 +628,7 @@ def _lib(ctx, non_macro_lib):
         transitive_exports = [] #needed by intellij plugin
     )
 
-    java_provider = _create_java_provider(ctx, scalaattr, jars.transitive_compile_jars)
+    java_provider = create_java_provider(ctx, scalaattr, jars.transitive_compile_jars)
 
     return struct(
         files = depset([ctx.outputs.jar]),  # Here is the default output
@@ -692,7 +692,7 @@ def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2l
       transitive_exports = [] #needed by intellij plugin
   )
 
-  java_provider = _create_java_provider(ctx, scalaattr, transitive_compile_time_jars)
+  java_provider = create_java_provider(ctx, scalaattr, transitive_compile_time_jars)
 
   return struct(
       files=depset([ctx.outputs.executable]),
@@ -769,7 +769,7 @@ def _scala_test_impl(ctx):
       jars.transitive_compile_jars, jars.jars2labels)
     # _scalatest is an http_jar, so its compile jar is run through ijar
     # however, contains macros, so need to handle separately
-    scalatest_jars = _collect_jars([ctx.attr._scalatest]).transitive_runtime_jars
+    scalatest_jars = collect_jars([ctx.attr._scalatest]).transitive_runtime_jars
     cjars += scalatest_jars
     transitive_rjars += scalatest_jars
 

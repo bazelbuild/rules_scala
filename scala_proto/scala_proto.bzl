@@ -1,5 +1,7 @@
 load("//scala:scala.bzl",
-  "scala_library")
+  "scala_library",
+  "collect_jars",
+  "create_java_provider")
 
 def scala_proto_repositories():
     native.maven_server(
@@ -312,9 +314,16 @@ def _colon_paths(data):
 
 def _gen_proto_srcjar_impl(ctx):
     acc_imports = depset()
+
+    proto_deps, java_proto_lib_deps = [], []
     for target in ctx.attr.deps:
         if hasattr(target, 'proto'):
+            proto_deps.append(target)
             acc_imports += target.proto.transitive_sources
+        else:
+            java_proto_lib_deps.append(target)
+
+    deps_jars = collect_jars(java_proto_lib_deps)
 
     # Command line args to worker cannot be empty so using padding
     flags = ["-"]
@@ -346,7 +355,15 @@ def _gen_proto_srcjar_impl(ctx):
     srcjarsattr = struct(
         srcjar = ctx.outputs.srcjar,
     )
+    scalaattr = struct(
+      outputs = None,
+      compile_jars =  deps_jars.compile_jars,
+      transitive_runtime_jars = deps_jars.transitive_runtime_jars,
+    )
+    java_provider = create_java_provider(ctx, scalaattr, depset())
     return struct(
+        scala = scalaattr,
+        providers = [java_provider],
         srcjars=srcjarsattr,
         extra_information=[struct(
           srcjars=srcjarsattr,
@@ -358,6 +375,7 @@ scalapb_proto_srcjar = rule(
     attrs={
         "deps": attr.label_list(
             mandatory=True,
+            allow_rules=["proto_library", "java_proto_library"]
         ),
         "with_grpc": attr.bool(default=False),
         "with_java": attr.bool(default=False),
@@ -414,7 +432,7 @@ Example:
 
 Args:
     name: A unique name for this rule
-    deps: Proto library targets or jvm targets that this rule depends on
+    deps: Proto library or java proto library targets that this rule depends on
     with_grpc: Enables generation of grpc service bindings for services defined in deps
     with_java: Enables generation of converters to and from java protobuf bindings
     with_flat_package: When true, ScalaPB will not append the protofile base name to the package name
@@ -445,12 +463,10 @@ def scalapb_proto_library(
     )
 
     external_deps = list(SCALAPB_DEPS + GRPC_DEPS if (with_grpc) else SCALAPB_DEPS)
-    scala_lib_deps = external_deps + deps
 
     scala_library(
         name = name,
-        srcs = [srcjar],
-        deps = scala_lib_deps,
-        exports = scala_lib_deps,
+        deps = [srcjar] + external_deps,
+        exports = external_deps,
         visibility = visibility,
     )
