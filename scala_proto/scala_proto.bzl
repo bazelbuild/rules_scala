@@ -323,6 +323,12 @@ def _gen_proto_srcjar_impl(ctx):
         else:
             java_proto_lib_deps.append(target)
 
+    if not ctx.attr.with_java and len(java_proto_lib_deps) > 0:
+        fail("cannot have java_proto_library dependencies with with_java is False")
+
+    if ctx.attr.with_java and len(java_proto_lib_deps) == 0:
+        fail("must have a java_proto_library dependency if with_java is True")
+
     deps_jars = collect_jars(java_proto_lib_deps)
 
     # Command line args to worker cannot be empty so using padding
@@ -432,7 +438,7 @@ Example:
 
 Args:
     name: A unique name for this rule
-    deps: Proto library or java proto library targets that this rule depends on
+    deps: Proto library or java proto library (if with_java is True) targets that this rule depends on
     with_grpc: Enables generation of grpc service bindings for services defined in deps
     with_java: Enables generation of converters to and from java protobuf bindings
     with_flat_package: When true, ScalaPB will not append the protofile base name to the package name
