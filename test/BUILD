@@ -166,7 +166,8 @@ scala_library(
         "//test/data:more.txt",
         "//test/data:foo.txt",
         "//test/src/main/resources/scala/test:more-hellos",
-        "//test/src/main/resources/scala/test:more-byes"
+        "//test/src/main/resources/scala/test:more-byes",
+        "//test/src/main/resources/scala/test:generated-hello",
         ],
     resource_strip_prefix = "test/",
 )

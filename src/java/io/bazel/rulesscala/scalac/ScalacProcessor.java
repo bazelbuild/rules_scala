@@ -275,11 +275,13 @@ class ScalacProcessor implements Processor {
     }
   }
   private static void copyResources(
-      Map<String, String> resources,
+      Map<String, Resource> resources,
       String resourceStripPrefix,
       Path dest) throws IOException {
-    for(Entry<String, String> e : resources.entrySet()) {
+    for(Entry<String, Resource> e : resources.entrySet()) {
       Path source = Paths.get(e.getKey());
+      Resource resource = e.getValue();
+      Path shortPath = Paths.get(resource.shortPath);
       String dstr;
       // Check if we need to modify resource destination path
       if (!"".equals(resourceStripPrefix)) {
@@ -292,9 +294,9 @@ class ScalacProcessor implements Processor {
    * from the Source Path and use that as the new destination path
    * Refer Bazel -> BazelJavaRuleClasses.java#L227 for details
    */
-        dstr = getResourcePath(source, resourceStripPrefix);
+        dstr = getResourcePath(shortPath, resourceStripPrefix);
       } else {
-        dstr = e.getValue();
+        dstr = resource.destination;
       }
       if (dstr.charAt(0) == '/') dstr = dstr.substring(1);
       Path target = dest.resolve(dstr);

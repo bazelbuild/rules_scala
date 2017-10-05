@@ -66,7 +66,7 @@ def _adjust_resources_path(path, resource_strip_prefix):
 def _add_resources_cmd(ctx):
     res_cmd = []
     for f in ctx.files.resources:
-        c_dir, res_path = _adjust_resources_path(f.path, ctx.attr.resource_strip_prefix)
+        c_dir, res_path = _adjust_resources_path(f.short_path, ctx.attr.resource_strip_prefix)
         target_path = res_path
         if target_path[0] == "/":
             target_path = target_path[1:]
@@ -197,6 +197,7 @@ PrintCompileTime: {print_compile_time}
 ResourceDests: {resource_dest}
 ResourceJars: {resource_jars}
 ResourceSrcs: {resource_src}
+ResourceShortPaths: {resource_short_paths}
 ResourceStripPrefix: {resource_strip_prefix}
 ScalacOpts: {scala_opts}
 SourceJars: {srcjars}
@@ -215,8 +216,9 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
         srcjars=",".join([f.path for f in all_srcjars]),
         java_files=",".join([f.path for f in java_srcs]),
         resource_src=",".join([f.path for f in ctx.files.resources]),
+        resource_short_paths=",".join([f.short_path for f in ctx.files.resources]),
         resource_dest=",".join(
-          [_adjust_resources_path_by_default_prefixes(f.path)[1] for f in ctx.files.resources]
+          [_adjust_resources_path_by_default_prefixes(f.short_path)[1] for f in ctx.files.resources]
           ),
         resource_strip_prefix=ctx.attr.resource_strip_prefix,
         resource_jars=",".join([f.path for f in ctx.files.resource_jars]),
