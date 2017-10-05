@@ -471,8 +471,17 @@ thrift_library(name, srcs, deps, absolute_prefix, absolute_prefixes)
 <a name="scalapb_proto_library"></a>
 ## scalapb_proto_library
 
+You first need to add the following to your WORKSPACE file:
+
 ```python
-load("//scala_proto:scala_proto.bzl", "scalapb_proto_library")
+load("@io_bazel_rules_scala//scala_proto:scala_proto.bzl", "scala_proto_repositories")
+scala_proto_repositories()
+```
+
+Then you can import `scalapb_proto_library` in any BUILD file like this:
+
+```python
+load("@io_bazel_rules_scala//scala_proto:scala_proto.bzl", "scalapb_proto_library")
 scalapb_proto_library(name, deps, with_grpc, with_java, with_flat_package, with_single_line_to_string)
 ```
 
