@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 public class CompileOptions {
+
   final public String outputName;
   final public String manifestPath;
   final public String[] scalaOpts;
@@ -17,7 +18,7 @@ public class CompileOptions {
   final public String ijarOutput;
   final public String ijarCmdPath;
   final public String[] javaFiles;
-  final public Map<String, String> resourceFiles;
+  final public Map<String, Resource> resourceFiles;
   final public String resourceStripPrefix;
   final public String[] resourceJars;
   final public String[] directJars;
@@ -62,15 +63,23 @@ public class CompileOptions {
     currentTarget = getOrElse(argMap, "CurrentTarget", "NA");
   }
 
-  private static Map<String, String> getResources(Map<String, String> args) {
+  private static Map<String, Resource> getResources(Map<String, String> args) {
     String[] keys = getCommaList(args, "ResourceSrcs");
-    String[] vals = getCommaList(args, "ResourceDests");
-    if (keys.length != vals.length)
-      throw new RuntimeException(String.format("mismatch in resources: keys: %s vals: %s",
+    String[] dests = getCommaList(args, "ResourceDests");
+    String[] shortPaths = getCommaList(args, "ResourceShortPaths");
+
+    if (keys.length != dests.length)
+      throw new RuntimeException(String.format("mismatch in resources: keys: %s dests: %s",
             getOrEmpty(args, "ResourceSrcs"), getOrEmpty(args, "ResourceDests")));
-    HashMap<String, String> res = new HashMap();
+
+    if (keys.length != shortPaths.length)
+      throw new RuntimeException(String.format("mismatch in resources: keys: %s shortPaths: %s",
+            getOrEmpty(args, "ResourceSrcs"), getOrEmpty(args, "ResourceShortPaths")));
+
+    HashMap<String, Resource> res = new HashMap();
     for(int idx = 0; idx < keys.length; idx++) {
-      res.put(keys[idx], vals[idx]);
+      Resource resource = new Resource(dests[idx], shortPaths[idx]);
+      res.put(keys[idx], resource);
     }
     return res;
   }

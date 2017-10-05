@@ -4,6 +4,7 @@ java_binary(
         "CompileOptions.java",
         "ScalaCInvoker.java",
         "ScalacProcessor.java",
+        "Resource.java",
     ],
     main_class = "io.bazel.rulesscala.scalac.ScalaCInvoker",
     visibility = ["//visibility:public"],
