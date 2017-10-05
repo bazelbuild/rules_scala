@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 public class CompileOptions {
-
   final public String outputName;
   final public String manifestPath;
   final public String[] scalaOpts;
