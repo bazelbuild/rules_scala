@@ -9,3 +9,9 @@ thrift_library(
   ],
   visibility = ["//visibility:public"],
 )
+
+thrift_library(
+  name = "thrift_many",
+  srcs = ["ThriftMany1.thrift", "ThriftMany2.thrift"],
+  visibility = ["//visibility:public"],
+)

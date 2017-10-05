@@ -14,6 +14,9 @@ tut_repositories()
 load("//jmh:jmh.bzl", "jmh_repositories")
 jmh_repositories()
 
+load("//scala_proto:scala_proto.bzl", "scala_proto_repositories")
+scala_proto_repositories()
+
 load("//specs2:specs2_junit.bzl","specs2_junit_repositories")
 specs2_junit_repositories()
 
@@ -49,4 +52,18 @@ maven_jar(
     name = "org_apache_commons_commons_lang_3_5",
     artifact = "org.apache.commons:commons-lang3:3.5",
     sha1 = "6c6c702c89bfff3cd9e80b04d668c5e190d588c6"
+)
+
+http_archive(
+    name = "com_google_protobuf",
+    urls = ["https://github.com/google/protobuf/archive/b4b0e304be5a68de3d0ee1af9b286f958750f5e4.zip"],
+    strip_prefix = "protobuf-b4b0e304be5a68de3d0ee1af9b286f958750f5e4",
+    sha256 = "ff771a662fb6bd4d3cc209bcccedef3e93980a49f71df1e987f6afa3bcdcba3a",
+)
+
+http_archive(
+    name = "com_google_protobuf_java",
+    urls = ["https://github.com/google/protobuf/archive/b4b0e304be5a68de3d0ee1af9b286f958750f5e4.zip"],
+    strip_prefix = "protobuf-b4b0e304be5a68de3d0ee1af9b286f958750f5e4",
+    sha256 = "ff771a662fb6bd4d3cc209bcccedef3e93980a49f71df1e987f6afa3bcdcba3a",
 )

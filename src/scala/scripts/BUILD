@@ -21,3 +21,28 @@ scala_binary(
         ":generator_lib",
     ],
 )
+
+scala_library(
+    name = "scalapb_generator_lib",
+    srcs = ["ScalaPBGenerator.scala"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//external:io_bazel_rules_scala/dependency/proto/protoc",
+        "//external:io_bazel_rules_scala/dependency/proto/scalapb_plugin",
+        "//external:io_bazel_rules_scala/dependency/proto/protoc_bridge",
+        "//external:io_bazel_rules_scala/dependency/proto/scalapbc",
+        "//external:io_bazel_rules_scala/dependency/com_google_protobuf/protobuf_java",
+        "//src/java/io/bazel/rulesscala/io_utils",
+        "//src/java/io/bazel/rulesscala/jar",
+        "//src/java/io/bazel/rulesscala/worker",
+    ],
+)
+
+scala_binary(
+    name = "scalapb_generator",
+    main_class = "scripts.ScalaPBWorker",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":scalapb_generator_lib",
+    ],
+)

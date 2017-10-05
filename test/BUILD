@@ -11,6 +11,9 @@ load("//scala:scala.bzl",
     "scala_junit_test",
     "scala_specs2_junit_test")
 
+load("//scala_proto:scala_proto.bzl",
+    "scalapb_proto_library")
+
 # The examples below show how to combine Scala and Java rules.
 # ScalaBinary is the Scala equivalent of JavaBinary.
 
@@ -431,4 +434,16 @@ scala_binary(
     srcs = ["src/main/scala/scala/test/BinaryDependentOnJava.scala"],
     main_class = "scala.test.BinaryDependentOnJava",
     deps = [":JavaOnlySources"],
+)
+
+scala_library(
+    name = "lib_with_scala_proto_dep",
+    srcs = ["TestServer.scala"],
+    deps = ["//test/proto:test_proto"]
+)
+
+scala_binary(
+    name = "test_scala_proto_server",
+    main_class = "test.proto.TestServer",
+    deps = [":lib_with_scala_proto_dep"]
 )
