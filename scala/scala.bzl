@@ -1024,7 +1024,7 @@ def scala_repositories():
   native.new_http_archive(
     name = "scala",
     strip_prefix = "scala-2.12.4-bin-17496bd",
-    sha256 = "b01b4961ab74c6fec46ac783d2e28d350ced1d20d5d74f642c0b68903ab34798",
+    sha256 = "325c851f4de289f27544ff0bae2c888dd3e49345795fde0240ef17b7e304d852",
     url = "http://www.scala-lang.org/files/archive/nightly/2.12.x/scala-2.12.4-bin-17496bd.tgz",
     build_file_content = SCALA_BUILD_FILE,
   )
