@@ -23,23 +23,23 @@ specs2_junit_repositories()
 # test adding a scala jar:
 maven_jar(
   name = "com_twitter__scalding_date",
-  artifact = scala_mvn_artifact("com.twitter:scalding-date:0.16.0-RC4"),
-  sha1 = "659eb2d42945dea37b310d96af4e12bf83f54d14"
+  artifact = scala_mvn_artifact("com.twitter:scalding-date:0.17.0"),
+  sha1 = "4fede78a279539a9aa394e54d654b2da8f072eb2"
 )
 
 # For testing that we don't include sources jars to the classpath
 maven_jar(
   name = "org_typelevel__cats_core",
   artifact = scala_mvn_artifact("org.typelevel:cats-core:0.9.0"),
-  sha1 = "b2f8629c6ec834d8b6321288c9fe77823f1e1314"
+  sha1 = "267cebe07afbb365b08a6e18be4b137508f16bee"
 )
 
 
 # test of a plugin
 maven_jar(
   name = "org_psywerx_hairyfotr__linter",
-  artifact = scala_mvn_artifact("org.psywerx.hairyfotr:linter:0.1.13"),
-  sha1 = "e5b3e2753d0817b622c32aedcb888bcf39e275b4")
+  artifact = scala_mvn_artifact("org.psywerx.hairyfotr:linter:0.1.17"),
+  sha1 = "4496d757ce23ce84ff91567bb3328f35c52138af")
 
 # test of strict deps (scalac plugin UT + E2E)
 maven_jar(

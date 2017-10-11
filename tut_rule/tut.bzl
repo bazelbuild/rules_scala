@@ -8,8 +8,8 @@ def tut_repositories():
 
   native.maven_jar(
     name = "io_bazel_rules_scala_org_tpolecat_tut_core",
-    artifact = "org.tpolecat:tut-core_2.11:0.4.8",
-    sha1 = "fc723eb822494580cc05d6b3b3a6039d2280a5a0",
+    artifact = "org.tpolecat:tut-core_2.12:0.4.8",
+    sha1 = "b68b5a52474bf249d1156f5002033498054b813c",
     server = "tut_repositories_maven_server",
   )
   native.bind(name = 'io_bazel_rules_scala/dependency/tut/tut_core', actual = '@io_bazel_rules_scala_org_tpolecat_tut_core//jar')

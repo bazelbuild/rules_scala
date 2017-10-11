@@ -28,7 +28,7 @@ def _rule_impl(ctx):
         "scala_test" : [
             "//test/aspect:scala_test",
             "@scala//:scala-library",
-            "@scalatest//jar:jar",
+            "@scala//:transitive_scalatest",
         ],
         "scala_junit_test" : [
             "//test/aspect:scala_junit_test",
@@ -52,7 +52,7 @@ def _rule_impl(ctx):
             "@scala//:scala-library",
             "@scala//:scala-reflect",
             # From specs2/specs2_junit.bzl:specs2_junit_dependencies()
-            "@io_bazel_rules_scala_org_specs2_specs2_junit_2_11//jar:jar",
+            "@io_bazel_rules_scala_org_specs2_specs2_junit_2_12//jar:jar",
         ],
     }
     content = ""
