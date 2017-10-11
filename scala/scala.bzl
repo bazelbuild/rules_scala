@@ -1023,9 +1023,9 @@ java_library(
 def scala_repositories():
   native.new_http_archive(
     name = "scala",
-    strip_prefix = "scala-2.12.4-bin-17496bd",
-    sha256 = "325c851f4de289f27544ff0bae2c888dd3e49345795fde0240ef17b7e304d852",
-    url = "http://www.scala-lang.org/files/archive/nightly/2.12.x/scala-2.12.4-bin-17496bd.tgz",
+    strip_prefix = "scala-2.12.3",
+    sha256 = "2b796ab773fbedcc734ba881a6486d54180b699ade8ba7493e91912044267c8c",
+    url = "https://downloads.lightbend.com/scala/2.12.3/scala-2.12.3.tgz",
     build_file_content = SCALA_BUILD_FILE,
   )
 
