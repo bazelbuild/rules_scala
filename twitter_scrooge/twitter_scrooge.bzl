@@ -9,7 +9,7 @@ load("//scala:scala.bzl",
 def twitter_scrooge():
   native.maven_server(
     name = "twitter_scrooge_maven_server",
-    url = "http://mirror.bazel.build/repo1.maven.org/maven2/",
+    url = "http://repo1.maven.org/maven2/",
   )
 
   native.maven_jar(
