@@ -204,7 +204,10 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
 """.format(
         out=ctx.outputs.jar.path,
         manifest=ctx.outputs.manifest.path,
-        scala_opts=",".join(ctx.attr.scalacopts),
+        # always append -YdisableFlatCpCaching, workaround for
+        # https://github.com/bazelbuild/rules_scala/issues/305
+        # remove once we upgrade to Scala 2.12.4
+        scala_opts=",".join(ctx.attr.scalacopts + ["-YdisableFlatCpCaching"]),
         print_compile_time=ctx.attr.print_compile_time,
         plugin_arg=plugin_arg,
         cp=compiler_classpath,
