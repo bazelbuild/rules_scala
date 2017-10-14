@@ -389,15 +389,20 @@ def _write_launcher(ctx, rjars, main_class, jvm_flags, args="", wrapper_preamble
     javabin = "%s/%s" % (runfiles_root, ctx.executable._java.short_path)
     template = ctx.attr._java_stub_template.files.to_list()[0]
 
+    exec_str = ""
+    if wrapper_preamble == "":
+      exec_str = "exec "
+
     wrapper = ctx.new_file(ctx.label.name + "_wrapper.sh")
     ctx.file_action(
         output = wrapper,
         content = """#!/bin/bash
 {preamble}
 
-{javabin} "$@" {args}
+{exec_str}{javabin} "$@" {args}
 """.format(
             preamble=wrapper_preamble,
+            exec_str=exec_str,
             javabin=javabin,
             args=args,
         ),
