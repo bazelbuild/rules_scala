@@ -15,6 +15,7 @@
 """Rules for supporting the Scala language."""
 
 load("//specs2:specs2_junit.bzl", "specs2_junit_dependencies")
+load(":scala_cross_version.bzl", "scala_version", "scala_mvn_artifact")
 _jar_filetype = FileType([".jar"])
 _java_filetype = FileType([".java"])
 _scala_filetype = FileType([".scala"])
@@ -976,17 +977,6 @@ scala_repl = rule(
   executable=True,
   fragments = ["java"]
 )
-
-def scala_version():
-  """return the scala version for use in maven coordinates"""
-  return "2.11"
-
-def scala_mvn_artifact(artifact):
-  gav = artifact.split(":")
-  groupid = gav[0]
-  artifactid = gav[1]
-  version = gav[2]
-  return "%s:%s_%s:%s" % (groupid, artifactid, scala_version(), version)
 
 SCALA_BUILD_FILE = """
 # scala.BUILD

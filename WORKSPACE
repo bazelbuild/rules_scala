@@ -23,8 +23,8 @@ specs2_junit_repositories()
 # test adding a scala jar:
 maven_jar(
   name = "com_twitter__scalding_date",
-  artifact = scala_mvn_artifact("com.twitter:scalding-date:0.16.0-RC4"),
-  sha1 = "659eb2d42945dea37b310d96af4e12bf83f54d14"
+  artifact = scala_mvn_artifact("com.twitter:scalding-date:0.17.0"),
+  sha1 = "420fb0c4f737a24b851c4316ee0362095710caa5"
 )
 
 # For testing that we don't include sources jars to the classpath
