@@ -4,7 +4,8 @@ load("//scala:scala.bzl",
   "scala_mvn_artifact",
   "scala_library",
   "write_manifest",
-  "collect_srcjars")
+  "collect_srcjars",
+  "collect_jars")
 
 def twitter_scrooge():
   native.maven_server(
@@ -177,7 +178,7 @@ def _gen_scrooge_srcjar_impl(ctx):
     arguments=["--jvm_flag=%s" % flag for flag in ctx.attr.jvm_flags] + ["@" + argfile.path],
   )
 
-  deps_jars = _collect_jars(ctx.attr.deps)
+  deps_jars = collect_jars(ctx.attr.deps)
 
   scalaattr = struct(
       outputs = None,
@@ -199,22 +200,6 @@ def _gen_scrooge_srcjar_impl(ctx):
       srcjars=srcjarsattr,
       scrooge_srcjar=struct(transitive_owned_srcs = transitive_owned_srcs + immediate_thrift_srcs),
     )],
-  )
-
-# TODO(twigg): Use the one in scala.bzl?
-def _collect_jars(targets):
-  compile_jars = depset()
-  transitive_runtime_jars = depset()
-
-  for target in targets:
-    if java_common.provider in target:
-      java_provider = target[java_common.provider]
-      compile_jars += java_provider.compile_jars
-      transitive_runtime_jars += java_provider.transitive_runtime_jars
-
-  return struct(
-    compile_jars = compile_jars,
-    transitive_runtime_jars = transitive_runtime_jars,
   )
 
 scrooge_scala_srcjar = rule(

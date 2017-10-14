@@ -21,6 +21,8 @@ object ResourcesStripScalaLib {
 
   def getData = get("/data/more.txt")
 
+  def getGeneratedHello = get("/src/main/resources/scala/test/generated-hello.txt")
+
   private def get(s: String): List[String] =
     scala.io.Source
       .fromInputStream(getClass.getResourceAsStream(s))
