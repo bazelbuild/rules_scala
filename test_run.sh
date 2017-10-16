@@ -728,6 +728,23 @@ revert_change() {
   mv $1/$2.bak $1/$2
 }
 
+test_intellij_aspect() {
+  intellij_git_tag=$1
+  rules_scala_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+  if [[ "$runner" == "run_test_ci" ]]; then
+    # ci: intellij is checked out with full git history in `.travis.yaml`
+    cd intellij
+  else
+    # local: update or checkout a sibling dir.
+    cd "${rules_scala_dir}/../"
+    test -d "intellij/.git" || git clone git@github.com:bazelbuild/intellij.git
+    cd intellij && git fetch && git pull
+  fi
+  git checkout "${intellij_git_tag}"
+  bazel test --test_output=errors --incompatible_disallow_set_constructor=false --override_repository io_bazel_rules_scala=${rules_scala_dir} //aspect/testing/tests/src/com/google/idea/blaze/aspect/scala/...
+}
+
 if [ "$1" != "ci" ]; then
   runner="run_test_local"
 else
@@ -808,3 +825,4 @@ $runner test_scala_library_expect_failure_on_missing_direct_deps_warn_mode_java
 $runner test_scala_library_expect_better_failure_message_on_missing_transitive_dependency_labels_from_other_jvm_rules
 $runner test_scala_import_expect_failure_on_missing_direct_deps_warn_mode
 $runner bazel build "test_expect_failure/missing_direct_deps/internal_deps/... --strict_java_deps=warn"
+$runner test_intellij_aspect master
