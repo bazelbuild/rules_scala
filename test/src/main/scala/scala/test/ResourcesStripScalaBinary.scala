@@ -19,5 +19,6 @@ object ResourcesStripScalaBinary {
     ResourcesStripScalaLib.getGreetings foreach println
     ResourcesStripScalaLib.getFarewells foreach println
     ResourcesStripScalaLib.getData foreach println
+    ResourcesStripScalaLib.getGeneratedHello foreach println
   }
 }

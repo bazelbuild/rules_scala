@@ -1,4 +1,5 @@
 load("//specs2:specs2.bzl", "specs2_repositories", "specs2_dependencies", "specs2_version")
+load("//scala:scala_cross_version.bzl", "scala_mvn_artifact")
 load("//junit:junit.bzl", "junit_repositories")
   
 def specs2_junit_repositories():
@@ -7,7 +8,7 @@ def specs2_junit_repositories():
   # Aditional dependencies for specs2 junit runner
   native.maven_jar(
       name = "io_bazel_rules_scala_org_specs2_specs2_junit_2_12",
-      artifact = "org.specs2:specs2-junit_2.12:" + specs2_version(),
+      artifact = scala_mvn_artifact("org.specs2:specs2-junit:" + specs2_version()),
       sha1 = "aa6af850ccd428673add3840652cdd8e82791391",
   )
   native.bind(name = 'io_bazel_rules_scala/dependency/specs2/specs2_junit', actual = '@io_bazel_rules_scala_org_specs2_specs2_junit_2_12//jar')

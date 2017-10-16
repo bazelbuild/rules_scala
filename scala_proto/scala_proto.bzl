@@ -1,5 +1,8 @@
 load("//scala:scala.bzl",
-  "scala_library")
+  "scala_mvn_artifact",
+  "scala_library",
+  "collect_jars",
+  "create_java_provider")
 
 def scala_proto_repositories():
     native.maven_server(
@@ -21,7 +24,7 @@ def scala_proto_repositories():
 
     native.maven_jar(
         name = "scala_proto_rules_scalapb_plugin",
-        artifact = "com.trueaccord.scalapb:compilerplugin_2.12:0.6.5",
+        artifact = scala_mvn_artifact("com.trueaccord.scalapb:compilerplugin:0.6.5"),
         sha1 = "d119bb24e976dacae8f55a678a027d59bc50ffac",
         server = "scala_proto_deps_maven_server",
     )
@@ -33,7 +36,7 @@ def scala_proto_repositories():
 
     native.maven_jar(
         name = "scala_proto_rules_protoc_bridge",
-        artifact = "com.trueaccord.scalapb:protoc-bridge_2.12:0.3.0-M1",
+        artifact = scala_mvn_artifact("com.trueaccord.scalapb:protoc-bridge:0.3.0-M1"),
         sha1 = "1de84a8176cf0192b68b2873364e26cb4da61a7a",
         server = "scala_proto_deps_maven_server",
     )
@@ -45,7 +48,7 @@ def scala_proto_repositories():
 
     native.maven_jar(
         name = "scala_proto_rules_scalapbc",
-        artifact = "com.trueaccord.scalapb:scalapbc_2.12:0.6.5",
+        artifact = scala_mvn_artifact("com.trueaccord.scalapb:scalapbc:0.6.5"),
         sha1 = "7dd00d1d5b03be9879194bf917738d69b0126fab",
         server = "scala_proto_deps_maven_server",
     )
@@ -57,7 +60,7 @@ def scala_proto_repositories():
 
     native.maven_jar(
         name = "scala_proto_rules_scalapb_runtime",
-        artifact = "com.trueaccord.scalapb:scalapb-runtime_2.12:0.6.5",
+        artifact = scala_mvn_artifact("com.trueaccord.scalapb:scalapb-runtime:0.6.5"),
         sha1 = "5375ad64f0cc26b8e8a9377811f9b97645d24bac",
         server = "scala_proto_deps_maven_server",
     )
@@ -69,7 +72,7 @@ def scala_proto_repositories():
 
     native.maven_jar(
         name = "scala_proto_rules_scalapb_runtime_grpc",
-        artifact = "com.trueaccord.scalapb:scalapb-runtime-grpc_2.12:0.6.5",
+        artifact = scala_mvn_artifact("com.trueaccord.scalapb:scalapb-runtime-grpc:0.6.5"),
         sha1 = "64885c5d96be6ecdfccdb27ca2bdef3ed9ce9fb4",
         server = "scala_proto_deps_maven_server",
     )
@@ -81,7 +84,7 @@ def scala_proto_repositories():
 
     native.maven_jar(
         name = "scala_proto_rules_scalapb_lenses",
-        artifact = "com.trueaccord.lenses:lenses_2.12:0.4.12",
+        artifact = scala_mvn_artifact("com.trueaccord.lenses:lenses:0.4.12"),
         sha1 = "d97d2958814bcfe2f19e1ed2f0f03fd9da5a3961",
         server = "scala_proto_deps_maven_server",
     )
@@ -93,7 +96,7 @@ def scala_proto_repositories():
 
     native.maven_jar(
         name = "scala_proto_rules_scalapb_fastparse",
-        artifact = "com.lihaoyi:fastparse_2.12:0.4.4",
+        artifact = scala_mvn_artifact("com.lihaoyi:fastparse:0.4.4"),
         sha1 = "aaf2048f9c6223220eac28c9b6a442f27ba83c55",
         server = "scala_proto_deps_maven_server",
     )
@@ -308,12 +311,26 @@ def scala_proto_repositories():
     )
 
 def _colon_paths(data):
-  return ':'.join([f.path for f in data])
+  return ':'.join(["{root},{path}".format(root=f.owner.workspace_root, path=f.path) for f in data])
 
 def _gen_proto_srcjar_impl(ctx):
     acc_imports = depset()
+
+    proto_deps, java_proto_lib_deps = [], []
     for target in ctx.attr.deps:
-        acc_imports += target.proto.transitive_sources
+        if hasattr(target, 'proto'):
+            proto_deps.append(target)
+            acc_imports += target.proto.transitive_sources
+        else:
+            java_proto_lib_deps.append(target)
+
+    if not ctx.attr.with_java and len(java_proto_lib_deps) > 0:
+        fail("cannot have java_proto_library dependencies with with_java is False")
+
+    if ctx.attr.with_java and len(java_proto_lib_deps) == 0:
+        fail("must have a java_proto_library dependency if with_java is True")
+
+    deps_jars = collect_jars(java_proto_lib_deps)
 
     # Command line args to worker cannot be empty so using padding
     flags = ["-"]
@@ -345,7 +362,15 @@ def _gen_proto_srcjar_impl(ctx):
     srcjarsattr = struct(
         srcjar = ctx.outputs.srcjar,
     )
+    scalaattr = struct(
+      outputs = None,
+      compile_jars =  deps_jars.compile_jars,
+      transitive_runtime_jars = deps_jars.transitive_runtime_jars,
+    )
+    java_provider = create_java_provider(ctx, scalaattr, depset())
     return struct(
+        scala = scalaattr,
+        providers = [java_provider],
         srcjars=srcjarsattr,
         extra_information=[struct(
           srcjars=srcjarsattr,
@@ -357,7 +382,7 @@ scalapb_proto_srcjar = rule(
     attrs={
         "deps": attr.label_list(
             mandatory=True,
-            allow_rules=["proto_library"]
+            allow_rules=["proto_library", "java_proto_library"]
         ),
         "with_grpc": attr.bool(default=False),
         "with_java": attr.bool(default=False),
@@ -414,7 +439,7 @@ Example:
 
 Args:
     name: A unique name for this rule
-    deps: Proto library targets that this rule depends on (must be of type proto_library)
+    deps: Proto library or java proto library (if with_java is True) targets that this rule depends on
     with_grpc: Enables generation of grpc service bindings for services defined in deps
     with_java: Enables generation of converters to and from java protobuf bindings
     with_flat_package: When true, ScalaPB will not append the protofile base name to the package name
@@ -446,19 +471,9 @@ def scalapb_proto_library(
 
     external_deps = list(SCALAPB_DEPS + GRPC_DEPS if (with_grpc) else SCALAPB_DEPS)
 
-    if with_java:
-        java_proto_lib = name + "_java_lib"
-        native.java_proto_library(
-            name = java_proto_lib,
-            deps = deps,
-            visibility = visibility,
-        )
-        external_deps.append(java_proto_lib)
-
     scala_library(
         name = name,
-        srcs = [srcjar],
-        deps = external_deps,
+        deps = [srcjar] + external_deps,
         exports = external_deps,
         visibility = visibility,
     )

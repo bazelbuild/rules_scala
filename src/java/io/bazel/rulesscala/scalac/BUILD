@@ -4,6 +4,7 @@ java_binary(
         "CompileOptions.java",
         "ScalaCInvoker.java",
         "ScalacProcessor.java",
+        "Resource.java",
     ],
     main_class = "io.bazel.rulesscala.scalac.ScalaCInvoker",
     # this probably should be set globally for the entire rules_scala
