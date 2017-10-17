@@ -742,7 +742,7 @@ test_intellij_aspect() {
     cd intellij && git fetch && git pull
   fi
   git checkout "${intellij_git_tag}"
-  bazel test --test_output=errors --incompatible_disallow_set_constructor=false --override_repository io_bazel_rules_scala=${rules_scala_dir} //aspect/testing/tests/src/com/google/idea/blaze/aspect/scala/...
+  bazel test --test_output=errors --incompatible_disallow_set_constructor=false --override_repository io_bazel_rules_scala="${rules_scala_dir}" //aspect/testing/tests/src/com/google/idea/blaze/aspect/scala/...
 }
 
 if [ "$1" != "ci" ]; then
