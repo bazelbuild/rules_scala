@@ -208,7 +208,9 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
         manifest=ctx.outputs.manifest.path,
         # always append -YdisableFlatCpCaching, workaround for
         # https://github.com/bazelbuild/rules_scala/issues/305
-        # remove once we upgrade to Scala 2.12.4
+        # ~remove once we upgrade to Scala 2.12.4~
+        # ^^ turns out that 2.12.4 didn't fix the issue, see:
+        # https://github.com/bazelbuild/rules_scala/pull/310#issuecomment-337466097
         scala_opts=",".join(ctx.attr.scalacopts + ["-YdisableFlatCpCaching"]),
         print_compile_time=ctx.attr.print_compile_time,
         plugin_arg=plugin_arg,
@@ -1023,9 +1025,9 @@ java_library(
 def scala_repositories():
   native.new_http_archive(
     name = "scala",
-    strip_prefix = "scala-2.12.3",
-    sha256 = "2b796ab773fbedcc734ba881a6486d54180b699ade8ba7493e91912044267c8c",
-    url = "https://downloads.lightbend.com/scala/2.12.3/scala-2.12.3.tgz",
+    strip_prefix = "scala-2.12.4",
+    sha256 = "9554a0ca31aa8701863e881281b1772370a87e993ce785bb24505f2431292a21",
+    url = "https://downloads.lightbend.com/scala/2.12.4/scala-2.12.4.tgz",
     build_file_content = SCALA_BUILD_FILE,
   )
 
