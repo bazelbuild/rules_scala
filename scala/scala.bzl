@@ -432,9 +432,10 @@ def collect_srcjars(targets):
             srcjars += [target.srcjars.srcjar]
     return srcjars
 
-def add_labels_of_jars_to(jars2labels, dependency, all_jars):
+def add_labels_of_jars_to(jars2labels, dependencies, all_jars):
   for jar in all_jars:
-    add_label_of_jar_to(jars2labels, dependency, jar)
+    for dependency in dependencies:
+      add_label_of_jar_to(jars2labels, dependency, jar)
 
 
 def add_label_of_jar_to(jars2labels, dependency, jar):
@@ -512,7 +513,7 @@ def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
         runtime_jars += filter_not_sources(dep_target.files)
         transitive_compile_jars += filter_not_sources(dep_target.files)
 
-    add_labels_of_jars_to(jars2labels, dep_target, transitive_compile_jars)
+    add_labels_of_jars_to(jars2labels, [dep_target], transitive_compile_jars)
 
   return struct(compile_jars = compile_jars,
     transitive_runtime_jars = runtime_jars,
