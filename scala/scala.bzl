@@ -432,9 +432,10 @@ def collect_srcjars(targets):
             srcjars += [target.srcjars.srcjar]
     return srcjars
 
-def add_labels_of_jars_to(jars2labels, dependency, all_jars):
+def add_labels_of_jars_to(jars2labels, dependencies, all_jars):
   for jar in all_jars:
-    add_label_of_jar_to(jars2labels, dependency, jar)
+    for dependency in dependencies:
+      add_label_of_jar_to(jars2labels, dependency, jar)
 
 
 def add_label_of_jar_to(jars2labels, dependency, jar):
@@ -512,7 +513,7 @@ def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
         runtime_jars += filter_not_sources(dep_target.files)
         transitive_compile_jars += filter_not_sources(dep_target.files)
 
-    add_labels_of_jars_to(jars2labels, dep_target, transitive_compile_jars)
+    add_labels_of_jars_to(jars2labels, [dep_target], transitive_compile_jars)
 
   return struct(compile_jars = compile_jars,
     transitive_runtime_jars = runtime_jars,
@@ -777,7 +778,7 @@ def _scala_test_impl(ctx):
       jars.transitive_compile_jars, jars.jars2labels)
     # _scalatest is an http_jar, so its compile jar is run through ijar
     # however, contains macros, so need to handle separately
-    scalatest_jars = collect_jars([ctx.attr._scalatest]).transitive_runtime_jars
+    scalatest_jars = collect_jars(ctx.attr._scalatest).transitive_runtime_jars
     cjars += scalatest_jars
     transitive_rjars += scalatest_jars
 
@@ -863,6 +864,7 @@ _test_resolve_deps = {
   "_scala_toolchain" : attr.label_list(default=[
     Label("//external:io_bazel_rules_scala/dependency/scala/scala_library"),
     Label("//external:io_bazel_rules_scala/dependency/scalatest/scalatest"),
+    Label("//external:io_bazel_rules_scala/dependency/scalatest/scalactic"),
   ], allow_files=False),
 }
 
@@ -960,7 +962,12 @@ scala_test = rule(
       "suites": attr.string_list(),
       "colors": attr.bool(default=True),
       "full_stacktraces": attr.bool(default=True),
-      "_scalatest": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scalatest/scalatest"), allow_files=True),
+      "_scalatest": attr.label_list(
+          default=[
+              Label("//external:io_bazel_rules_scala/dependency/scalatest/scalatest"),
+              Label("//external:io_bazel_rules_scala/dependency/scalatest/scalactic")
+          ],
+          allow_files=True),
       "_scalatest_runner": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/scala_test:runner.jar"), allow_files=True),
       "_scalatest_reporter": attr.label(default=Label("//scala/support:test_reporter")),
       } + _launcher_template + _implicit_deps + _common_attrs + _test_resolve_deps,
@@ -1023,8 +1030,14 @@ def scala_repositories():
   # scalatest has macros, note http_jar is invoking ijar
   native.http_jar(
     name = "scalatest",
-    url = "http://mirror.bazel.build/oss.sonatype.org/content/groups/public/org/scalatest/scalatest_2.11/2.2.6/scalatest_2.11-2.2.6.jar",
-    sha256 = "f198967436a5e7a69cfd182902adcfbcb9f2e41b349e1a5c8881a2407f615962",
+    url = "http://oss.sonatype.org/content/groups/public/org/scalatest/scalatest_2.11/3.0.4/scalatest_2.11-3.0.4.jar",
+    sha256 = "840d3909935581f505d15019e77982d66f979ac0da255c8f731077aa24c71335",
+  )
+
+  native.http_jar(
+    name = "scalactic",
+    url = "http://oss.sonatype.org/content/groups/public/org/scalactic/scalactic_2.11/3.0.4/scalactic_2.11-3.0.4.jar",
+    sha256 = "6d2b32b5839deae3398f34dd371b1921ad9ae2e1d5e35d91839d4acc8ba61a03",
   )
 
   native.maven_server(
@@ -1063,6 +1076,8 @@ def scala_repositories():
   native.bind(name = "io_bazel_rules_scala/dependency/scala/scala_xml", actual = "@scala//:scala-xml")
 
   native.bind(name = "io_bazel_rules_scala/dependency/scalatest/scalatest", actual = "@scalatest//jar")
+
+  native.bind(name = "io_bazel_rules_scala/dependency/scalatest/scalactic", actual = "@scalactic//jar")
 
 def _sanitize_string_for_usage(s):
     res_array = []

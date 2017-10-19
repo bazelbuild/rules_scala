@@ -29,6 +29,7 @@ def _rule_impl(ctx):
             "//test/aspect:scala_test",
             "@scala//:scala-library",
             "@scalatest//jar:jar",
+            "@scalactic//jar:jar",
         ],
         "scala_junit_test" : [
             "//test/aspect:scala_junit_test",
