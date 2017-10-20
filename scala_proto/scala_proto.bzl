@@ -316,21 +316,18 @@ def _colon_paths(data):
 def _gen_proto_srcjar_impl(ctx):
     acc_imports = depset()
 
-    proto_deps, java_proto_lib_deps = [], []
+    proto_deps, jvm_deps = [], []
     for target in ctx.attr.deps:
         if hasattr(target, 'proto'):
             proto_deps.append(target)
             acc_imports += target.proto.transitive_sources
         else:
-            java_proto_lib_deps.append(target)
+            jvm_deps.append(target)
 
-    if not ctx.attr.with_java and len(java_proto_lib_deps) > 0:
-        fail("cannot have java_proto_library dependencies with with_java is False")
+    if ctx.attr.with_java and len(jvm_deps) == 0:
+        fail("must have at leat one jvm dependency if with_java is True")
 
-    if ctx.attr.with_java and len(java_proto_lib_deps) == 0:
-        fail("must have a java_proto_library dependency if with_java is True")
-
-    deps_jars = collect_jars(java_proto_lib_deps)
+    deps_jars = collect_jars(jvm_deps)
 
     # Command line args to worker cannot be empty so using padding
     flags = ["-"]
@@ -382,7 +379,7 @@ scalapb_proto_srcjar = rule(
     attrs={
         "deps": attr.label_list(
             mandatory=True,
-            allow_rules=["proto_library", "java_proto_library"]
+            allow_rules=["proto_library", "java_proto_library", "scala_library"]
         ),
         "with_grpc": attr.bool(default=False),
         "with_java": attr.bool(default=False),

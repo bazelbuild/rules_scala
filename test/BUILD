@@ -448,3 +448,9 @@ scala_binary(
     main_class = "test.proto.TestServer",
     deps = [":lib_with_scala_proto_dep"]
 )
+
+scalapb_proto_library(
+    name = "test_proto_scala_dep",
+    deps = ["//test/proto:test2", ":HelloLib"],
+    visibility = ["//visibility:public"],
+)
