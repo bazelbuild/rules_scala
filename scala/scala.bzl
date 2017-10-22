@@ -314,6 +314,7 @@ def try_to_compile_java_jar(ctx,
                 exports = [],
                 java_toolchain = ctx.attr._java_toolchain,
                 host_javabase = ctx.attr._host_javabase,
+                strict_deps = ctx.fragments.java.strict_java_deps,
     )
     return struct(jar = full_java_jar, ijar = provider.compile_jars.to_list().pop())
 
