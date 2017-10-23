@@ -330,7 +330,7 @@ def _gen_proto_srcjar_impl(ctx):
             jvm_deps.append(target)
 
     if ctx.attr.with_java and len(jvm_deps) == 0:
-        fail("must have at leat one jvm dependency if with_java is True")
+        fail("must have at least one jvm dependency if with_java is True")
 
     deps_jars = collect_jars(jvm_deps)
 
@@ -384,7 +384,7 @@ scalapb_proto_srcjar = rule(
     attrs={
         "deps": attr.label_list(
             mandatory=True,
-            allow_rules=["proto_library", "java_proto_library", "scala_library"]
+            allow_rules=["proto_library", "java_proto_library", "java_library", "scala_library"]
         ),
         "with_grpc": attr.bool(default=False),
         "with_java": attr.bool(default=False),
