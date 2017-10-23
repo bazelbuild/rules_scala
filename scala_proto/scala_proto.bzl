@@ -310,8 +310,13 @@ def scala_proto_repositories():
         actual = '@scala_proto_rules_netty_handler_proxy//jar'
     )
 
+def _root_path(f):
+    if f.is_source:
+        return f.owner.workspace_root
+    return '/'.join([f.root.path, f.owner.workspace_root])
+
 def _colon_paths(data):
-  return ':'.join(["{root},{path}".format(root=f.owner.workspace_root, path=f.path) for f in data])
+    return ':'.join(["{root},{path}".format(root=_root_path(f), path=f.path) for f in data])
 
 def _gen_proto_srcjar_impl(ctx):
     acc_imports = depset()
