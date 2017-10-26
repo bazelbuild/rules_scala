@@ -1,5 +1,6 @@
 package(default_visibility = ["//visibility:public"])
 load("//scala:scala.bzl", "scala_library", "scala_test", "scala_binary")
+load(":custom-jvm-rule.bzl", "custom_jvm")
 
 scala_library(
     name="transitive_dependency_user",
@@ -30,6 +31,19 @@ scala_library(
     srcs=[
         "C.scala",
         ],
+)
+
+scala_library(
+    name="dependent_on_some_java_provider",
+    srcs=[
+        "HasCustomJavaProviderDependency.scala",
+        ],
+    deps = ["direct_java_provider_dependency"],    
+)
+
+custom_jvm(
+    name="direct_java_provider_dependency",
+    deps = ["transitive_dependency"],
 )
 
 scala_binary(
