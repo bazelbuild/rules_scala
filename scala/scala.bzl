@@ -283,6 +283,24 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
     return java_jar
 
 
+def _interim_java_provider_for_java_compilation(scala_output):
+    # This is needed because Bazel >=0.7.0 requires ctx.actions and a Java
+    # toolchain. Fortunately, the same change that added this requirement also
+    # added this field to the Java provider so we can use it to test which
+    # Bazel version we are running under.
+    test_provider = java_common.create_provider()
+    if hasattr(test_provider, "full_compile_jars"):
+      return java_common.create_provider(
+          use_ijar = False,
+          compile_time_jars = [scala_output],
+          runtime_jars = [],
+      )
+    else:
+      return java_common.create_provider(
+          compile_time_jars = [scala_output],
+          runtime_jars = [],
+      )
+
 def try_to_compile_java_jar(ctx,
                             scala_output,
                             all_srcjars,
@@ -293,10 +311,7 @@ def try_to_compile_java_jar(ctx,
 
     providers_of_dependencies = collect_java_providers_of(ctx.attr.deps)
     providers_of_dependencies += collect_java_providers_of(implicit_junit_deps_needed_for_java_compilation)
-    scala_sources_java_provider = java_common.create_provider(
-        compile_time_jars = [scala_output],
-        runtime_jars = [],
-    )
+    scala_sources_java_provider = _interim_java_provider_for_java_compilation(scala_output)
     providers_of_dependencies += [scala_sources_java_provider]
 
     full_java_jar = ctx.actions.declare_file(ctx.label.name + "_java.jar")
@@ -583,8 +598,8 @@ def _collect_jars_from_common_ctx(ctx, extra_deps = [], extra_runtime_deps = [])
 def _format_full_jars_for_intellij_plugin(full_jars):
     return [struct (class_jar = jar, ijar = None) for jar in full_jars]
 
-def create_java_provider(ctx, scalaattr, transitive_compile_time_jars):
-    # This is needed because Bazel >=0.6.0 requires ctx.actions and a Java
+def create_java_provider(scalaattr, transitive_compile_time_jars):
+    # This is needed because Bazel >=0.7.0 requires ctx.actions and a Java
     # toolchain. Fortunately, the same change that added this requirement also
     # added this field to the Java provider so we can use it to test which
     # Bazel version we are running under.
@@ -592,8 +607,7 @@ def create_java_provider(ctx, scalaattr, transitive_compile_time_jars):
 
     if hasattr(test_provider, "full_compile_jars"):
       return java_common.create_provider(
-          ctx.actions,
-          java_toolchain = ctx.attr._java_toolchain,
+          use_ijar = False,
           compile_time_jars = scalaattr.compile_jars,
           runtime_jars = scalaattr.transitive_runtime_jars,
           transitive_compile_time_jars = transitive_compile_time_jars,
@@ -658,7 +672,7 @@ def _lib(ctx, non_macro_lib):
         transitive_exports = [] #needed by intellij plugin
     )
 
-    java_provider = create_java_provider(ctx, scalaattr, jars.transitive_compile_jars)
+    java_provider = create_java_provider(scalaattr, jars.transitive_compile_jars)
 
     return struct(
         files = depset([ctx.outputs.jar]),  # Here is the default output
@@ -722,7 +736,7 @@ def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2l
       transitive_exports = [] #needed by intellij plugin
   )
 
-  java_provider = create_java_provider(ctx, scalaattr, transitive_compile_time_jars)
+  java_provider = create_java_provider(scalaattr, transitive_compile_time_jars)
 
   return struct(
       files=depset([ctx.outputs.executable]),
