@@ -598,7 +598,7 @@ def _collect_jars_from_common_ctx(ctx, extra_deps = [], extra_runtime_deps = [])
 def _format_full_jars_for_intellij_plugin(full_jars):
     return [struct (class_jar = jar, ijar = None) for jar in full_jars]
 
-def create_java_provider(ctx, scalaattr, transitive_compile_time_jars):
+def create_java_provider(scalaattr, transitive_compile_time_jars):
     # This is needed because Bazel >=0.7.0 requires ctx.actions and a Java
     # toolchain. Fortunately, the same change that added this requirement also
     # added this field to the Java provider so we can use it to test which
@@ -672,7 +672,7 @@ def _lib(ctx, non_macro_lib):
         transitive_exports = [] #needed by intellij plugin
     )
 
-    java_provider = create_java_provider(ctx, scalaattr, jars.transitive_compile_jars)
+    java_provider = create_java_provider(scalaattr, jars.transitive_compile_jars)
 
     return struct(
         files = depset([ctx.outputs.jar]),  # Here is the default output
@@ -736,7 +736,7 @@ def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2l
       transitive_exports = [] #needed by intellij plugin
   )
 
-  java_provider = create_java_provider(ctx, scalaattr, transitive_compile_time_jars)
+  java_provider = create_java_provider(scalaattr, transitive_compile_time_jars)
 
   return struct(
       files=depset([ctx.outputs.executable]),

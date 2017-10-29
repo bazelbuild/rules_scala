@@ -369,7 +369,7 @@ def _gen_proto_srcjar_impl(ctx):
       compile_jars =  deps_jars.compile_jars,
       transitive_runtime_jars = deps_jars.transitive_runtime_jars,
     )
-    java_provider = create_java_provider(ctx, scalaattr, depset())
+    java_provider = create_java_provider(scalaattr, depset())
     return struct(
         scala = scalaattr,
         providers = [java_provider],
