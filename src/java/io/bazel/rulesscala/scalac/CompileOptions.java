@@ -13,9 +13,6 @@ public class CompileOptions {
   final public String classpath;
   final public String[] files;
   final public String[] sourceJars;
-  final public boolean iJarEnabled;
-  final public String ijarOutput;
-  final public String ijarCmdPath;
   final public String[] javaFiles;
   final public Map<String, Resource> resourceFiles;
   final public String resourceStripPrefix;
@@ -41,15 +38,7 @@ public class CompileOptions {
     javaFiles = getCommaList(argMap, "JavaFiles");
 
     sourceJars = getCommaList(argMap, "SourceJars");
-    iJarEnabled = booleanGetOrFalse(argMap, "EnableIjar");
-    if(iJarEnabled) {
-     ijarOutput = getOrError(argMap, "IjarOutput", "Missing required arg ijarOutput when ijar enabled");
-     ijarCmdPath = getOrError(argMap, "IjarCmdPath", "Missing required arg ijarCmdPath when ijar enabled");
-    }
-    else {
-      ijarOutput = null;
-      ijarCmdPath = null;
-    }
+
     resourceFiles = getResources(argMap);
     resourceStripPrefix = getOrEmpty(argMap, "ResourceStripPrefix");
     resourceJars = getCommaList(argMap, "ResourceJars");

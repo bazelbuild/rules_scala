@@ -369,7 +369,7 @@ def _gen_proto_srcjar_impl(ctx):
       compile_jars =  deps_jars.compile_jars,
       transitive_runtime_jars = deps_jars.transitive_runtime_jars,
     )
-    java_provider = create_java_provider(scalaattr, depset())
+    java_provider = create_java_provider(ctx, scalaattr, depset(), build_ijar = False)
     return struct(
         scala = scalaattr,
         providers = [java_provider],
@@ -396,6 +396,7 @@ scalapb_proto_srcjar = rule(
           default=Label("//src/scala/scripts:scalapb_generator"),
           allow_files=True
         ),
+        "_java_toolchain": attr.label(default = Label("@bazel_tools//tools/jdk:current_java_toolchain")),
     },
     outputs={
       "srcjar": "lib%{name}.srcjar",

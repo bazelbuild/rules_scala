@@ -80,11 +80,6 @@ def _add_resources_cmd(ctx):
 
 def _build_nosrc_jar(ctx, buildijar):
     resources = _add_resources_cmd(ctx)
-    ijar_cmd = ""
-    if buildijar:
-        ijar_cmd = "\ncp {jar_output} {ijar_output}\n".format(
-          jar_output=ctx.outputs.jar.path,
-          ijar_output=ctx.outputs.ijar.path)
 
     # this ensures the file is not empty
     resources += "META-INF/MANIFEST.MF=%s\n" % ctx.outputs.manifest.path
@@ -94,7 +89,7 @@ def _build_nosrc_jar(ctx, buildijar):
     cmd = """
 rm -f {jar_output}
 {zipper} c {jar_output} @{path}
-""" + ijar_cmd
+"""
 
     cmd = cmd.format(
         path = zipper_arg_path.path,
@@ -103,8 +98,6 @@ rm -f {jar_output}
         )
 
     outs = [ctx.outputs.jar]
-    if buildijar:
-        outs.extend([ctx.outputs.ijar])
 
     inputs = ctx.files.resources + [
         ctx.outputs.manifest,
@@ -137,12 +130,6 @@ def _collect_plugin_paths(plugins):
 
 
 def _compile(ctx, cjars, dep_srcjars, buildijar, transitive_compile_jars, labels, implicit_junit_deps_needed_for_java_compilation):
-    ijar_output_path = ""
-    ijar_cmd_path = ""
-    if buildijar:
-        ijar_output_path = ctx.outputs.ijar.path
-        ijar_cmd_path = ctx.executable._ijar.path
-
     java_srcs = _java_filetype.filter(ctx.files.srcs)
     sources = _scala_filetype.filter(ctx.files.srcs) + java_srcs
     srcjars = _srcjar_filetype.filter(ctx.files.srcs)
@@ -186,10 +173,7 @@ CurrentTarget: {current_target}
 
     scalac_args = """
 Classpath: {cp}
-EnableIjar: {enableijar}
 Files: {files}
-IjarCmdPath: {ijar_cmd_path}
-IjarOutput: {ijar_out}
 JarOutput: {out}
 JavaFiles: {java_files}
 Manifest: {manifest}
@@ -211,9 +195,6 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
         plugin_arg=plugin_arg,
         cp=compiler_classpath,
         files=",".join([f.path for f in sources]),
-        enableijar=buildijar,
-        ijar_out=ijar_output_path,
-        ijar_cmd_path=ijar_cmd_path,
         srcjars=",".join([f.path for f in all_srcjars]),
         java_files=",".join([f.path for f in java_srcs]),
         resource_src=",".join([f.path for f in ctx.files.resources]),
@@ -233,8 +214,6 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
     ctx.file_action(output=argfile, content=scalac_args + optional_scalac_args)
 
     outs = [ctx.outputs.jar]
-    if buildijar:
-        outs.extend([ctx.outputs.ijar])
     # _java_toolchain added manually since _java doesn't currently setup runfiles
     # _scalac, as a java_binary, should already have it in its runfiles; however,
     # adding does ensure _java not orphaned if _scalac ever was not a java_binary
@@ -249,7 +228,6 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
            ctx.files.resource_jars +
            ctx.files._java_toolchain +
            [ctx.outputs.manifest,
-            ctx.executable._ijar,
             ctx.executable._java,
             argfile])
     ctx.action(
@@ -271,38 +249,16 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
         arguments=["--jvm_flag=%s" % flag for flag in ctx.attr.scalac_jvm_flags] + ["@" + argfile.path],
       )
 
-    if buildijar:
-        scala_output = ctx.outputs.ijar
-    else:
-        scala_output = ctx.outputs.jar
     java_jar = try_to_compile_java_jar(ctx,
-                                       scala_output,
+                                       buildijar,
                                        all_srcjars,
                                        java_srcs,
                                        implicit_junit_deps_needed_for_java_compilation)
     return java_jar
 
 
-def _interim_java_provider_for_java_compilation(scala_output):
-    # This is needed because Bazel >=0.7.0 requires ctx.actions and a Java
-    # toolchain. Fortunately, the same change that added this requirement also
-    # added this field to the Java provider so we can use it to test which
-    # Bazel version we are running under.
-    test_provider = java_common.create_provider()
-    if hasattr(test_provider, "full_compile_jars"):
-      return java_common.create_provider(
-          use_ijar = False,
-          compile_time_jars = [scala_output],
-          runtime_jars = [],
-      )
-    else:
-      return java_common.create_provider(
-          compile_time_jars = [scala_output],
-          runtime_jars = [],
-      )
-
 def try_to_compile_java_jar(ctx,
-                            scala_output,
+                            buildijar,
                             all_srcjars,
                             java_srcs,
                             implicit_junit_deps_needed_for_java_compilation):
@@ -311,7 +267,14 @@ def try_to_compile_java_jar(ctx,
 
     providers_of_dependencies = collect_java_providers_of(ctx.attr.deps)
     providers_of_dependencies += collect_java_providers_of(implicit_junit_deps_needed_for_java_compilation)
-    scala_sources_java_provider = _interim_java_provider_for_java_compilation(scala_output)
+    scala_sources_java_provider = java_common.create_provider(
+        ctx.actions,
+        #TODO use_ijar = False is a problem since we will trigger java builds for internal details of scala bits
+        use_ijar = False,
+        java_toolchain = ctx.attr._java_toolchain,
+        compile_time_jars = [ctx.outputs.jar],
+        runtime_jars = [],
+    )
     providers_of_dependencies += [scala_sources_java_provider]
 
     full_java_jar = ctx.actions.declare_file(ctx.label.name + "_java.jar")
@@ -478,10 +441,6 @@ def label_already_exists(jars2labels, jar):
 def provider_of_dependency_contains_label_of(dependency, jar):
   return hasattr(dependency, "jars_to_labels") and jar.path in dependency.jars_to_labels
 
-def dep_target_contains_ijar(dep_target):
-  return (hasattr(dep_target, 'scala') and hasattr(dep_target.scala, 'outputs') and
-          hasattr(dep_target.scala.outputs, 'ijar') and dep_target.scala.outputs.ijar)
-
 # When import mavan_jar's for scala macros we have to use the jar:file requirement
 # since bazel 0.6.0 this brings in the source jar too
 # the scala compiler thinks a source jar can look like a package space
@@ -511,28 +470,33 @@ def _collect_runtime_jars(dep_targets):
 
 def _collect_jars_when_dependency_analyzer_is_off(dep_targets):
   compile_jars = depset()
+  full_compile_jars = depset()
   runtime_jars = depset()
 
   for dep_target in dep_targets:
     if java_common.provider in dep_target:
         java_provider = dep_target[java_common.provider]
         compile_jars += java_provider.compile_jars
+        full_compile_jars += java_provider.full_compile_jars
         runtime_jars += java_provider.transitive_runtime_jars
     else:
         # support http_file pointed at a jar. http_jar uses ijar,
         # which breaks scala macros
         compile_jars += filter_not_sources(dep_target.files)
+        full_compile_jars += filter_not_sources(dep_target.files)
         runtime_jars += filter_not_sources(dep_target.files)
 
   return struct(compile_jars = compile_jars,
       transitive_runtime_jars = runtime_jars,
       jars2labels = {},
-      transitive_compile_jars = depset())
+      transitive_compile_jars = depset(),
+      full_compile_jars = full_compile_jars)
 
 def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
   transitive_compile_jars = depset()
   jars2labels = {}
   compile_jars = depset()
+  full_compile_jars = depset()
   runtime_jars = depset()
 
   for dep_target in dep_targets:
@@ -542,6 +506,7 @@ def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
     if java_common.provider in dep_target:
         java_provider = dep_target[java_common.provider]
         current_dep_compile_jars = java_provider.compile_jars
+        full_compile_jars += java_provider.compile_jars
         current_dep_transitive_compile_jars = java_provider.transitive_compile_time_jars + java_provider.compile_jars
         runtime_jars += java_provider.transitive_runtime_jars
     else:
@@ -549,6 +514,7 @@ def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
         # which breaks scala macros
         current_dep_compile_jars = filter_not_sources(dep_target.files)
         runtime_jars += filter_not_sources(dep_target.files)
+        full_compile_jars += filter_not_sources(dep_target.files)
         current_dep_transitive_compile_jars = filter_not_sources(dep_target.files)
 
     compile_jars += current_dep_compile_jars
@@ -558,7 +524,8 @@ def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
   return struct(compile_jars = compile_jars,
     transitive_runtime_jars = runtime_jars,
     jars2labels = jars2labels,
-    transitive_compile_jars = transitive_compile_jars)
+    transitive_compile_jars = transitive_compile_jars,
+    full_compile_jars = full_compile_jars)
 
 def collect_jars(dep_targets, dependency_analyzer_is_off = True):
     """Compute the runtime and compile-time dependencies from the given targets"""  # noqa
@@ -598,28 +565,16 @@ def _collect_jars_from_common_ctx(ctx, extra_deps = [], extra_runtime_deps = [])
 def _format_full_jars_for_intellij_plugin(full_jars):
     return [struct (class_jar = jar, ijar = None) for jar in full_jars]
 
-def create_java_provider(scalaattr, transitive_compile_time_jars):
-    # This is needed because Bazel >=0.7.0 requires ctx.actions and a Java
-    # toolchain. Fortunately, the same change that added this requirement also
-    # added this field to the Java provider so we can use it to test which
-    # Bazel version we are running under.
-    test_provider = java_common.create_provider()
-
-    if hasattr(test_provider, "full_compile_jars"):
-      return java_common.create_provider(
-          use_ijar = False,
-          compile_time_jars = scalaattr.compile_jars,
-          runtime_jars = scalaattr.transitive_runtime_jars,
-          transitive_compile_time_jars = transitive_compile_time_jars,
-          transitive_runtime_jars = scalaattr.transitive_runtime_jars,
-      )
-    else:
-      return java_common.create_provider(
-          compile_time_jars = scalaattr.compile_jars,
-          runtime_jars = scalaattr.transitive_runtime_jars,
-          transitive_compile_time_jars = transitive_compile_time_jars,
-          transitive_runtime_jars = scalaattr.transitive_runtime_jars,
-      )
+def create_java_provider(ctx, scalaattr, transitive_compile_time_jars, build_ijar):
+    return java_common.create_provider(
+        ctx.actions,
+        use_ijar = build_ijar,
+        java_toolchain = ctx.attr._java_toolchain,
+        compile_time_jars = scalaattr.compile_jars,
+        runtime_jars = scalaattr.transitive_runtime_jars,
+        transitive_compile_time_jars = transitive_compile_time_jars,
+        transitive_runtime_jars = scalaattr.transitive_runtime_jars,
+    )
 
 def _lib(ctx, non_macro_lib):
     # Build up information from dependency-like attributes
@@ -671,9 +626,22 @@ def _lib(ctx, non_macro_lib):
         transitive_runtime_jars = transitive_rjars,
         transitive_exports = [] #needed by intellij plugin
     )
+    java_provider = java_common.create_provider(
+                            ctx.actions,
+                            use_ijar = non_macro_lib,
+                            java_toolchain = ctx.attr._java_toolchain,
+#                            compile_time_jars = outputs.full_jars, #error since provider doesn't propagate exports
 
-    java_provider = create_java_provider(scalaattr, jars.transitive_compile_jars)
+#                            compile_time_jars = outputs.full_jars + exports_jars.compile_jars.to_list(),  #error since provider ijars existing ijars (foo-ijar-ijar.jar)
 
+# If passing full compile jars of the exports it fails since we generate outputs for a different target
+#Output artifact 'external/com_twitter__scalding_date/jar/scalding-date_2.11-0.17.0-ijar.jar' not under package directory 'test' for target '//test:jar_export'.
+# ERROR: Analysis of target '//test:jar_export' failed; build aborted: Analysis of target '//test:jar_export' failed; build aborted.
+                            compile_time_jars = outputs.full_jars + exports_jars.full_compile_jars.to_list(),
+                            runtime_jars = scalaattr.transitive_runtime_jars,
+                            transitive_compile_time_jars = jars.transitive_compile_jars,
+                            transitive_runtime_jars = scalaattr.transitive_runtime_jars,
+                        )
     return struct(
         files = depset([ctx.outputs.jar]),  # Here is the default output
         scala = scalaattr,
@@ -709,7 +677,8 @@ def _scala_macro_library_impl(ctx):
 # Common code shared by all scala binary implementations.
 def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2labels, implicit_junit_deps_needed_for_java_compilation = []):
   write_manifest(ctx)
-  outputs = _compile_or_empty(ctx, cjars, [], False, transitive_compile_time_jars, jars2labels, implicit_junit_deps_needed_for_java_compilation)  # no need to build an ijar for an executable
+  build_ijar = False # no need to build an ijar for an executable
+  outputs = _compile_or_empty(ctx, cjars, [], build_ijar, transitive_compile_time_jars, jars2labels, implicit_junit_deps_needed_for_java_compilation)
   rjars += outputs.full_jars
 
   _build_deployable(ctx, list(rjars))
@@ -736,7 +705,7 @@ def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2l
       transitive_exports = [] #needed by intellij plugin
   )
 
-  java_provider = create_java_provider(scalaattr, transitive_compile_time_jars)
+  java_provider = create_java_provider(ctx, scalaattr, transitive_compile_time_jars, build_ijar)
 
   return struct(
       files=depset([ctx.outputs.executable]),
@@ -877,7 +846,6 @@ _launcher_template = {
 
 _implicit_deps = {
   "_singlejar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:singlejar"), allow_files=True),
-  "_ijar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:ijar"), allow_files=True),
   "_scalac": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/scalac"), allow_files=True),
   "_scalalib": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_library"), allow_files=True),
   "_scalacompiler": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_compiler"), allow_files=True),
@@ -948,7 +916,7 @@ common_outputs = {
 }
 
 library_outputs = common_outputs + {
-  "ijar": "%{name}_ijar.jar",
+  "ijar": "%{name}-ijar.jar",
 }
 
 scala_library = rule(

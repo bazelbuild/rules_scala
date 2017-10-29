@@ -171,7 +171,7 @@ test_scala_library_expect_failure_on_missing_direct_java() {
 }
 
 test_scala_library_expect_better_failure_message_on_missing_transitive_dependency_labels_from_other_jvm_rules() {
-  transitive_target='.*transitive_dependency_ijar.jar'
+  transitive_target='.*transitive_dependency-ijar.jar'
   direct_target='//test_expect_failure/missing_direct_deps/internal_deps:direct_java_provider_dependency'
   test_target='//test_expect_failure/missing_direct_deps/internal_deps:dependent_on_some_java_provider'
 
