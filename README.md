@@ -395,7 +395,7 @@ of a series of independent files in a larger target into smaller ones. This lets
 and also build the indvidual targets in parallel. Downstream targets should not be aware of its presence.
 
 <a name="scala_test_suite"></a>
-## scala_test_suite
+## scala\_test_suite
 
 The scala test suite allows you to define a glob or series of targets to generate sub
 scala tests for. The outer target defines a native test suite to run all the inner tests. This allows splitting up
@@ -469,7 +469,7 @@ thrift_library(name, srcs, deps, absolute_prefix, absolute_prefixes)
 </table>
 
 <a name="scalapb_proto_library"></a>
-## scalapb_proto_library
+## scalapb\_proto_library
 
 You first need to add the following to your WORKSPACE file:
 
