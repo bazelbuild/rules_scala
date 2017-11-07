@@ -43,7 +43,7 @@ class PrefixSuffixTestDiscoveringSuite(testClass: Class[Any], builder: RunnerBui
 
 object PrefixSuffixTestDiscoveringSuite {
 
-  private def discoverClasses(): Array[Class[_]] = {
+  private[rulesscala] def discoverClasses(): Array[Class[_]] = {
 
     val archives = archivesPath.split(',')
     val classes = archives.flatMap(discoverClassesIn)
