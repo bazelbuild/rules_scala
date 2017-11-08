@@ -839,7 +839,7 @@ def _scala_test_impl(ctx):
 
 def _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, archives):
     serialized_archives = _serialize_archives_short_path(archives)
-    return struct(testSuiteFlag = "-Dbazel.test_suite=io.bazel.rulesscala.test_discovery.DiscoveredTestSuite",
+    return struct(testSuiteFlag = "-Dbazel.test_suite=%s" % ctx.attr.discover_suite,
     archiveFlag = "-Dbazel.discover.classes.archives.file.paths=%s" % serialized_archives,
     prefixesFlag = "-Dbazel.discover.classes.prefixes=%s" % ",".join(ctx.attr.prefixes),
     suffixesFlag = "-Dbazel.discover.classes.suffixes=%s" % ",".join(ctx.attr.suffixes),
@@ -1165,6 +1165,7 @@ scala_junit_test = rule(
       "prefixes": attr.string_list(default=[]),
       "suffixes": attr.string_list(default=[]),
       "suite": attr.label(default=Label("//src/java/io/bazel/rulesscala/test_discovery:test_discovery")),
+      "discover_suite": attr.string(default="io.bazel.rulesscala.test_discovery.DiscoveredTestSuite"),
       "print_discovered_classes": attr.bool(default=False, mandatory=False),
       "_junit": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/junit/junit")),
       "_hamcrest": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/hamcrest/hamcrest_core")),
@@ -1180,4 +1181,5 @@ def scala_specs2_junit_test(name, **kwargs):
    name = name,
    deps = specs2_junit_dependencies() + kwargs.pop("deps",[]),
    suite = Label("//src/java/io/bazel/rulesscala/specs2:specs2_test_discovery"),
+   discover_suite = "io.bazel.rulesscala.specs2.Specs2DiscoveredTestSuite",
    **kwargs)
