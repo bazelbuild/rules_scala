@@ -6,8 +6,12 @@ import scala.test.junit.support.JUnitCompileTimeDep
 class JunitSpecs2Test extends SpecWithJUnit {
 
   "specs2 tests" should {
-    "run smoothly in bazel" >> {
+    "run smoothly in bazel" in {
       println(JUnitCompileTimeDep.hello)
+      success
+    }
+
+    "not run smoothly in bazel" in {
       success
     }
   }

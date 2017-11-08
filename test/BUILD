@@ -393,6 +393,15 @@ scala_junit_test(
     suffixes = ["Test"],
 )
 
+scala_specs2_junit_test(
+    name = "JunitSpecs2Test",
+    size = "small",
+    srcs = ["src/main/scala/scala/test/junit/specs2/Specs2Tests.scala"],
+    deps = [":JUnitCompileTimeDep"],
+    print_discovered_classes = True,
+    suffixes = ["Test"],
+)
+
 scala_library(
     name = "filesWithUtf8",
     srcs = ["src/main/scala/scala/test/utf8/JavaClassWithUtf8.java",
