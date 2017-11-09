@@ -457,26 +457,20 @@ scala_specs2_junit_test_test_filter(){
     --test_output=streamed \
     '--test_filter=scala.test.junit.specs2.JunitSpecs2Test#specs2 tests should::run smoothly in bazel' \
     test:JunitSpecs2Test)
-  local expected=(
-      "+ run smoothly in bazel")
-  local unexpected=(
-      "+ not run smoothly in bazel")
-  for method in "${expected[@]}"; do
-    if ! grep "$method" <<<$output; then
-      echo "output:"
-      echo "$output"
-      echo "Expected $method in output, but was not found."
-      exit 1
-    fi
-  done
-  for method in "${unexpected[@]}"; do
-    if grep "$method" <<<$output; then
-      echo "output:"
-      echo "$output"
-      echo "Not expecting $method in output, but was found."
-      exit 1
-    fi
-  done
+  local expected="+ run smoothly in bazel"
+  local unexpected="+ not run smoothly in bazel"
+  if ! grep "$expected" <<<$output; then
+    echo "output:"
+    echo "$output"
+    echo "Expected $method in output, but was not found."
+    exit 1
+  fi
+  if grep "$unexpected" <<<$output; then
+    echo "output:"
+    echo "$output"
+    echo "Not expecting $method in output, but was found."
+    exit 1
+  fi
 }
 
 
