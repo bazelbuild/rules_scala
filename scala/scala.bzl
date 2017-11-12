@@ -594,8 +594,8 @@ def _collect_jars_from_common_ctx(ctx, extra_deps = [], extra_runtime_deps = [])
 
     return struct(compile_jars = cjars, transitive_runtime_jars = transitive_rjars, jars2labels=jars2labels, transitive_compile_jars = transitive_compile_jars)
 
-def _format_full_jars_for_intellij_plugin(full_jars):
-    return [struct (class_jar = jar, ijar = None) for jar in full_jars]
+def _format_full_jars_for_intellij_plugin(full_jars, ijar):
+    return [struct (class_jar = jar, ijar = ijar) for jar in full_jars]
 
 def create_java_provider(scalaattr, transitive_compile_time_jars):
     # This is needed because Bazel >=0.7.0 requires ctx.actions and a Java
@@ -657,10 +657,9 @@ def _lib(ctx, non_macro_lib):
 
 
     rule_outputs = struct(
-        ijar = outputs.ijar,
         class_jar = outputs.class_jar,
         deploy_jar = ctx.outputs.deploy_jar,
-        jars = _format_full_jars_for_intellij_plugin(outputs.full_jars)
+        jars = _format_full_jars_for_intellij_plugin(outputs.full_jars, outputs.ijar)
     )
     # Note that, internally, rules only care about compile_jars and transitive_runtime_jars
     # in a similar manner as the java_library and JavaProvider
@@ -725,7 +724,7 @@ def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2l
       ijar=outputs.class_jar,
       class_jar=outputs.class_jar,
       deploy_jar=ctx.outputs.deploy_jar,
-      jars = _format_full_jars_for_intellij_plugin(outputs.full_jars)
+      jars = _format_full_jars_for_intellij_plugin(outputs.full_jars, outputs.class_jar)
   )
 
   scalaattr = struct(
