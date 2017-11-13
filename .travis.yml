@@ -5,7 +5,10 @@ sudo: required
 osx_image: xcode8
 # Not technically required but suppresses 'Ruby' in Job status message.
 language: java
-
+addons:
+  apt:
+    packages:
+    - nginx
 os:
   - linux
   - osx
@@ -19,12 +22,17 @@ before_install:
   - |
     if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
       OS=darwin
+      sudo brew install nginx
     else
       sysctl kernel.unprivileged_userns_clone=1
       sudo apt-get update -q
-      sudo apt-get install libxml2-utils -y
+      sudo apt-get install libxml2-utils nginx -y
       OS=linux
     fi
+    sudo mkdir -p /webdav/bazel-cache/ac
+    sudo mkdir -p /webdav/bazel-cache/cas
+    sudo chmod a+rwX /webdav/bazel-cache/cas /webdav/bazel-cache/ac
+    nginx -c `pwd`/nginx.conf &
     if [[ $V =~ .*rc[0-9]+.* ]]; then
       PRE_RC=$(expr "$V" : '\([0-9.]*\)rc.*')
       RC_PRC=$(expr "$V" : '[0-9.]*\(rc.*\)')
