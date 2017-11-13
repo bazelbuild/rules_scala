@@ -552,6 +552,9 @@ fi
 
 $runner bazel build test/...
 $runner bazel test test/...
+bazel clean
+$runner bazel build test/...
+$runner bazel test test/...
 $runner bazel test third_party/...
 $runner bazel build "test/... --strict_java_deps=ERROR"
 $runner bazel test "test/... --strict_java_deps=ERROR"
@@ -562,7 +565,6 @@ $runner bazel run test:MixJavaScalaLibBinary
 $runner bazel run test:MixJavaScalaSrcjarLibBinary
 $runner bazel run test:ScalaBinary
 $runner bazel run test:ScalaLibBinary
-ls -R  /webdav
 $runner test_disappearing_class
 $runner find -L ./bazel-testlogs -iname "*.xml"
 $runner xmllint_test
