@@ -5,17 +5,13 @@ sudo: required
 osx_image: xcode8
 # Not technically required but suppresses 'Ruby' in Job status message.
 language: java
-addons:
-  apt:
-    packages:
-    - nginx
 os:
   - linux
-  - osx
+  # - osx
 
 env:
   # we want to test the most recent few releases
-  - V=0.6.0
+  # - V=0.6.0
   - V=0.7.0
 
 before_install:

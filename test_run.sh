@@ -562,6 +562,7 @@ $runner bazel run test:MixJavaScalaLibBinary
 $runner bazel run test:MixJavaScalaSrcjarLibBinary
 $runner bazel run test:ScalaBinary
 $runner bazel run test:ScalaLibBinary
+ls -R  /webdav
 $runner test_disappearing_class
 $runner find -L ./bazel-testlogs -iname "*.xml"
 $runner xmllint_test
