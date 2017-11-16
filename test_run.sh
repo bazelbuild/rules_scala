@@ -825,4 +825,4 @@ $runner test_scala_library_expect_failure_on_missing_direct_deps_warn_mode_java
 $runner test_scala_library_expect_better_failure_message_on_missing_transitive_dependency_labels_from_other_jvm_rules
 $runner test_scala_import_expect_failure_on_missing_direct_deps_warn_mode
 $runner bazel build "test_expect_failure/missing_direct_deps/internal_deps/... --strict_java_deps=warn"
-$runner test_intellij_aspect master
+$runner test_intellij_aspect master # TODO(https://github.com/bazelbuild/intellij/issues/146): add test of release tag when fixed.
