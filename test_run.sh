@@ -729,10 +729,11 @@ revert_change() {
 }
 
 test_intellij_aspect() {
-  intellij_git_tag=$1
-  rules_scala_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+  local test_env=$1
+  local intellij_git_tag=$2
+  local rules_scala_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
-  if [[ "$runner" == "run_test_ci" ]]; then
+  if [[ "${test_env}" == "ci" ]]; then
     # ci: intellij is checked out with full git history in `.travis.yaml`
     cd intellij
   else
@@ -745,11 +746,12 @@ test_intellij_aspect() {
   bazel test --test_output=errors --override_repository io_bazel_rules_scala="${rules_scala_dir}" //aspect/testing/tests/src/com/google/idea/blaze/aspect/scala/...
 }
 
-if [ "$1" != "ci" ]; then
-  runner="run_test_local"
-else
-  runner="run_test_ci"
+test_env="${1:-local}"
+if [[ "${test_env}" != "ci" && "${test_env}" != "local" ]]; then
+  echo -e "${RED}test_env must be either 'local' or 'ci'"
+  exit 1
 fi
+runner="run_test_${test_env}"
 
 test_scala_import_expect_failure_on_missing_direct_deps_warn_mode() {
   dependency_target1='//test_expect_failure/scala_import:cats'
@@ -825,4 +827,4 @@ $runner test_scala_library_expect_failure_on_missing_direct_deps_warn_mode_java
 $runner test_scala_library_expect_better_failure_message_on_missing_transitive_dependency_labels_from_other_jvm_rules
 $runner test_scala_import_expect_failure_on_missing_direct_deps_warn_mode
 $runner bazel build "test_expect_failure/missing_direct_deps/internal_deps/... --strict_java_deps=warn"
-$runner test_intellij_aspect master # TODO(https://github.com/bazelbuild/intellij/issues/146): add test of release tag when fixed.
+$runner test_intellij_aspect "${test_env}" master # TODO(https://github.com/bazelbuild/intellij/issues/146): add test of release tag when fixed.
