@@ -1,12 +1,16 @@
 def _scala_import_impl(ctx):
-    target_data = _code_jars_and_intellij_metadata_from(ctx.attr.jar)
+    target_data = _code_jars_and_intellij_metadata_from(ctx.attr.jars)
     (code_jars, intellij_metadata) = (target_data.code_jars, target_data.intellij_metadata)
     jars2labels = _add_labels_of_current_code_jars(code_jars, ctx.label)
     code_jars_depset = depset(code_jars)
     transitive_runtime_jars = _collect_runtime(ctx.attr.runtime_deps)
     jars = _collect(ctx.attr.deps, jars2labels)
     return struct(
-        scala = intellij_metadata,
+        scala = struct(
+          outputs = struct (
+              jars = intellij_metadata
+          ),
+        ),
         jars_to_labels = jars2labels,
         providers = [
             _create_provider(code_jars_depset, transitive_runtime_jars, jars)
@@ -36,18 +40,19 @@ def _add_labels_of_current_code_jars(code_jars, label):
     jars2labels[jar.path] = label
   return jars2labels
 
-def _code_jars_and_intellij_metadata_from(jar):
-  if (jar):
-    code_jars = _filter_out_non_code_jars(jar.files)
-    intellij_metadata = struct(
-      outputs = struct(
-        ijar = None,
-        class_jar = code_jars[0],
-      ),
-    )
-  else:
-    code_jars = []
-    intellij_metadata = None
+def _code_jars_and_intellij_metadata_from(jars):
+  code_jars = []
+  intellij_metadata = []
+  for jar in jars:
+    current_jar_code_jars = _filter_out_non_code_jars(jar.files)
+    code_jars += current_jar_code_jars
+    for current_class_jar in current_jar_code_jars:
+      intellij_metadata.append(struct(
+           ijar = None,
+           class_jar = current_class_jar,
+       )
+     )
+  print(intellij_metadata)
   return struct(code_jars = code_jars, intellij_metadata = intellij_metadata)
 
 def _filter_out_non_code_jars(files):
@@ -85,7 +90,7 @@ def _collect_runtime(runtime_deps):
 scala_import = rule(
   implementation=_scala_import_impl,
   attrs={
-      "jar": attr.label(),
+      "jars": attr.label_list(),
       "deps": attr.label_list(),
       "runtime_deps": attr.label_list()
       },
