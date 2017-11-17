@@ -160,6 +160,14 @@ scala_library(
 )
 
 scala_library(
+    name = "ResourcesOnlyLib",
+    resources = [
+        "//test/data:bar.txt",
+        "//test/src/main/resources/scala/test:welcomes",
+    ],
+)
+
+scala_library(
     name = "ResourcesStripScalaLib",
     srcs = ["src/main/scala/scala/test/ResourcesStripScalaLib.scala"],
     resources = [
@@ -176,7 +184,7 @@ scala_binary(
     name = "ScalaLibBinary",
     srcs = ["src/main/scala/scala/test/ScalaLibBinary.scala"],
     main_class = "scala.test.ScalaLibBinary",
-    deps = ["ScalaLibResources"],
+    deps = ["ScalaLibResources", "ResourcesOnlyLib"],
 )
 
 scala_binary(

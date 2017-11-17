@@ -6,12 +6,13 @@ import org.scalatest._
 
 
 class TestResourceJars extends FlatSpec {
-  "this jar" should "contain resources from its resource jar dependency" in {
+  "this jar" should "contain resources from its resource jar dependencies" in {
     val expectedSubstrings = Map(
       "byes" -> "later",
       "hellos" -> "Bonjour",
       "more-byes" -> "more see ya",
-      "more-hellos" -> "More Hello"
+      "more-hellos" -> "More Hello",
+      "welcomes" -> "Bienvenido"
     )
     expectedSubstrings.foreach {
       case (resource_name, substring) => {
