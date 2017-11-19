@@ -13,13 +13,21 @@ scala_library(
 
 filegroup(
    name="resource-fg",
-   srcs=["resource.txt"]
+   srcs=glob(["**/*.txt"])
 )
 
 scala_specs2_junit_test(
     name = "TestScalaLibOnlyResources",
     srcs = ["ScalaLibOnlyResourcesTest.scala"],
     deps = [":noSrcsWithDirectFileResources"],
+    size = "small",
+    suffixes = ["Test"],
+)
+
+scala_specs2_junit_test(
+    name = "TestScalaLibOnlyFilegroupResources",
+    srcs = ["ScalaLibOnlyResourcesFilegroupTest.scala"],
+    deps = [":noSrcsWithFilegroupResources"],
     size = "small",
     suffixes = ["Test"],
 )
