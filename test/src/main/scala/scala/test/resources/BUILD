@@ -31,3 +31,11 @@ scala_specs2_junit_test(
     size = "small",
     suffixes = ["Test"],
 )
+
+scala_specs2_junit_test(
+    name = "TestScalaLibResourcesFromExternalDep",
+    srcs = ["ScalaLibResourcesFromExternalDepTest.scala"],
+    resources = ["@test_new_local_repo//:data"],
+    size = "small",
+    suffixes = ["Test"],
+)
