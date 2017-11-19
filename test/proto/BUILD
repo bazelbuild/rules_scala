@@ -30,12 +30,12 @@ scalapb_proto_library(
 
 java_proto_library(
     name = "test_proto_java_lib",
-    deps = [":test2", "//test/proto2:test"],
+    deps = ["//test/proto2:test"],
 )
 
 scalapb_proto_library(
     name = "test_proto_java_conversions",
-    deps = [":test2", "//test/proto2:test", ":test_proto_java_lib"],
+    deps = [":test2", ":test_proto_java_lib"],
     with_java = True,
     with_flat_package = True,
     visibility = ["//visibility:public"],
