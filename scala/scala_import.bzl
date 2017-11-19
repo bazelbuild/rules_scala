@@ -4,7 +4,8 @@
 def _scala_import_impl(ctx):
     target_data = _code_jars_and_intellij_metadata_from(ctx.attr.jars)
     (current_target_compile_jars, intellij_metadata) = (target_data.code_jars, target_data.intellij_metadata)
-    jars2labels = _add_labels_of_current_code_jars(current_target_compile_jars, ctx.label)
+    current_jars_and_exports = depset(current_target_compile_jars) + _collect_exports(ctx.attr.exports)
+    jars2labels = _add_labels_of_current_code_jars(current_jars_and_exports, ctx.label)
     transitive_runtime_jars = _collect_runtime(ctx.attr.runtime_deps)
     jars = _collect(ctx.attr.deps, jars2labels)
     return struct(
@@ -15,7 +16,7 @@ def _scala_import_impl(ctx):
         ),
         jars_to_labels = jars2labels,
         providers = [
-            _create_provider(depset(current_target_compile_jars), transitive_runtime_jars, jars)
+            _create_provider(current_jars_and_exports, transitive_runtime_jars, jars)
         ],
     )
 def _create_provider(current_target_compile_jars, transitive_runtime_jars, jars):
@@ -89,12 +90,21 @@ def _collect_runtime(runtime_deps):
 
   return runtime_jars
 
+def _collect_exports(exports):
+  exported_jars = depset()
+
+  for dep_target in exports:
+      java_provider = dep_target[java_common.provider]
+      exported_jars += java_provider.compile_jars
+
+  return exported_jars
 
 scala_import = rule(
   implementation=_scala_import_impl,
   attrs={
       "jars": attr.label_list(),
       "deps": attr.label_list(),
-      "runtime_deps": attr.label_list()
+      "runtime_deps": attr.label_list(),
+      "exports": attr.label_list()
       },
 )

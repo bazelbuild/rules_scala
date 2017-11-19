@@ -48,3 +48,18 @@ scala_specs2_junit_test(
     size = "small",
     suffixes = ["Test"],
 )
+
+#Exports
+scala_import(
+  name = "guava_and_commons_lang_as_exports",
+  exports = [":guava_and_commons_lang"],
+)
+
+scala_specs2_junit_test(
+    name = "scala_import_exports_targets",
+    srcs = ["ScalaImportExposesJarsTest.scala"],
+    deps = [":guava_and_commons_lang_as_exports"],
+    size = "small",
+    suffixes = ["Test"],
+)
+
