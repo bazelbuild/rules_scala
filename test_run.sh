@@ -74,6 +74,7 @@ test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message() {
   test_target=$2
   strict_deps_mode=$3
   operator=${4:-"eq"}
+  additional_expected_message=${5:-""}
 
   if [ "${operator}" = "eq" ]; then
     error_message="bazel build of scala_library with missing direct deps should have failed."
@@ -96,6 +97,13 @@ test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message() {
   if [ $? -ne 0 ]; then
     echo "'bazel build ${test_target}' should have logged \"${expected_message}\"."
         exit 1
+  fi
+  if [ "${additional_expected_message}" != "" ]; then
+    echo ${output} | grep "$additional_expected_message"
+    if [ $? -ne 0 ]; then
+      echo "'bazel build ${test_target}' should have logged \"${additional_expected_message}\"."
+          exit 1
+    fi
   fi
 
   set -e
@@ -550,6 +558,17 @@ else
   runner="run_test_ci"
 fi
 
+test_scala_library_expect_failure_on_missing_direct_deps_warn_mode2() {
+  dependency_target1='//test_expect_failure/scala_import:cats'
+  dependency_target2='//test_expect_failure/scala_import:guava'
+  test_target='test_expect_failure/scala_import:scala_import_propagates_compile_deps'
+
+  local expected_message1="buildozer 'add deps $dependency_target1' //$test_target"
+  local expected_message2="buildozer 'add deps $dependency_target2' //$test_target"
+
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message1}" ${test_target} "--strict_java_deps=warn" "ne" "${expected_message2}"
+}
+
 $runner bazel build test/...
 $runner bazel test test/...
 $runner bazel test third_party/...
@@ -604,3 +623,4 @@ $runner test_scala_library_expect_failure_on_missing_direct_java
 $runner bazel run test:test_scala_proto_server
 $runner test_scala_library_expect_failure_on_missing_direct_deps_warn_mode_java
 $runner test_scala_library_expect_better_failure_message_on_missing_transitive_dependency_labels_from_other_jvm_rules
+$runner test_scala_library_expect_failure_on_missing_direct_deps_warn_mode2
