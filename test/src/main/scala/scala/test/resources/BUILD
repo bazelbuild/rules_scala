@@ -1,5 +1,5 @@
 
-load("//scala:scala.bzl", "scala_library")
+load("//scala:scala.bzl", "scala_library", "scala_specs2_junit_test")
 
 scala_library(
    name = "noSrcsWithDirectFileResources",
@@ -14,4 +14,12 @@ scala_library(
 filegroup(
    name="resource-fg",
    srcs=["resource.txt"]
+)
+
+scala_specs2_junit_test(
+    name = "TestScalaLibOnlyResources",
+    srcs = ["ScalaLibOnlyResourcesTest.scala"],
+    deps = [":noSrcsWithDirectFileResources"],
+    size = "small",
+    suffixes = ["Test"],
 )
