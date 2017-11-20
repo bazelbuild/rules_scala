@@ -37,14 +37,17 @@ class Specs2ClassRunner(testClass: Class[_], pattern: Pattern)
         pattern.matcher(testCase).matches
       })
 
+  private def toDisplayName(d: Description) = d.getMethodName.split("::").reverse.headOption.getOrElse(d.getMethodName)
+
   override def runWithEnv(n: RunNotifier, env: Env): Action[Stats] = {
-    val fragments = filtered(pattern, this.getDescription.getChildren.asScala.toList)
-      .map(d => d.getMethodName.split("::").reverse.headOption.getOrElse(d.getMethodName))
-      .mkString(",")
+    val examples = filtered(pattern, this.getDescription.getChildren.asScala.toList).map(toDisplayName) match {
+      case Nil => None
+      case xs => Some(xs.mkString(","))
+    }
 
     // todo escape fragment if needed (e.g. contains + or other regex-specific characters)
 
-    val newArgs = Arguments(select = Select(_ex = Some(fragments)) , commandLine = CommandLine.create(testClass.getName))
+    val newArgs = Arguments(select = Select(_ex = examples) , commandLine = CommandLine.create(testClass.getName))
     val newEnv = env.copy(arguments overrideWith newArgs)
 
     super.runWithEnv(n, newEnv)

@@ -15,6 +15,19 @@ class JunitSpecs2Test extends SpecWithJUnit {
       success
     }
   }
-  
-
 }
+
+class JunitSpecs2AnotherTest extends SpecWithJUnit {
+
+  "other specs2 tests" should {
+    "run from another test" in {
+      println(JUnitCompileTimeDep.hello)
+      success
+    }
+
+    "run from another test 2" in {
+      success
+    }
+  }
+}
+
