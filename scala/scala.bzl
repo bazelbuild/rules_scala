@@ -89,7 +89,7 @@ def _build_nosrc_jar(ctx, buildijar):
     # this ensures the file is not empty
     resources += "META-INF/MANIFEST.MF=%s\n" % ctx.outputs.manifest.path
 
-    zipper_arg_path = ctx.actions.declare_file("%s_zipper_args" % ctx.outputs.jar.short_path)
+    zipper_arg_path = ctx.actions.declare_file("%s_zipper_args" % ctx.label.name)
     ctx.file_action(zipper_arg_path, resources)
     cmd = """
 rm -f {jar_output}
