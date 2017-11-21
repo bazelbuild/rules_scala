@@ -1,5 +1,5 @@
 
-load("//scala:scala.bzl", "scala_library", "scala_specs2_junit_test")
+load("//scala:scala.bzl", "scala_library", "scala_specs2_junit_test", "scala_test",)
 
 scala_library(
    name = "noSrcsWithDirectFileResources",
@@ -38,4 +38,11 @@ scala_specs2_junit_test(
     resources = ["@test_new_local_repo//:data"],
     size = "small",
     suffixes = ["Test"],
+)
+
+scala_test(
+    name = "TestScalaLibResourcesFromExternalScalaTest",
+    srcs = ["ScalaLibResourcesFromExternalScalaTest.scala"],
+    resources = ["@test_new_local_repo//:data"],
+    size = "small",
 )

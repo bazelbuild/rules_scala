@@ -6,12 +6,7 @@ class ScalaLibResourcesFromExternalDepTest extends SpecWithJUnit {
 
   "Scala library depending on resources from external resource-only jar" should {
     "allow to load resources" >> {
-      get("/external/new_local_repo/resource.txt") must beEqualTo("A resource\n")
-
-      // All the below fail too
-      //get("external/new_local_repo/resource.txt") must beEqualTo("A resource\n")
-      //get("/resource.txt") must beEqualTo("A resource\n")
-      //get("resource.txt") must beEqualTo("A resource\n")
+      get("/external/test_new_local_repo/resource.txt") must beEqualTo("A resource\n")
     }
   }
 

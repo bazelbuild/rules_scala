@@ -299,6 +299,11 @@ class ScalacProcessor implements Processor {
         dstr = resource.destination;
       }
       if (dstr.charAt(0) == '/') dstr = dstr.substring(1);
+      if (dstr.startsWith("../")) {
+        // external repositories are positioned with a leading ../
+        // rename the path to external
+        dstr = "external" + dstr.substring(2);
+      }
       Path target = dest.resolve(dstr);
       File tfile = target.getParent().toFile();
       tfile.mkdirs();
