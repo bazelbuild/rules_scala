@@ -39,7 +39,7 @@ import scala.annotation.tailrec
 class DiscoveredTestSuite
 
 class PrefixSuffixTestDiscoveringSuite(testClass: Class[Any], builder: RunnerBuilder)
-  extends Suite(new FilteredRunnerBuilder(builder), PrefixSuffixTestDiscoveringSuite.discoverClasses())
+  extends Suite(new FilteredRunnerBuilder(builder, JUnitFilteringRunnerBuilder.f), PrefixSuffixTestDiscoveringSuite.discoverClasses())
 
 object PrefixSuffixTestDiscoveringSuite {
 
