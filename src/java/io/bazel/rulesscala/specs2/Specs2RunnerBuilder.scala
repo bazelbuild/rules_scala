@@ -27,11 +27,11 @@ class Specs2RunnerBuilder(builder: RunnerBuilder) extends FilteredRunnerBuilder(
   }
 }
 
-class Specs2ClassRunner(testClass: Class[_], pattern: Pattern)
+class Specs2ClassRunner(testClass: Class[_], testFilter: Pattern)
   extends org.specs2.runner.JUnitRunner(testClass) {
 
-  private def filtered(pattern: Pattern, children: List[Description]): List[Description] =
-    children.flatMap { c => c :: filtered(pattern, c.getChildren.asScala.toList) }
+  private def specs2ExamplesMatching(pattern: Pattern, children: List[Description]): List[Description] =
+    children.flatMap { c => c :: specs2ExamplesMatching(pattern, c.getChildren.asScala.toList) }
       .filter(d => {
         val testCase = d.getClassName + "#" + d.getMethodName
         pattern.matcher(testCase).matches
@@ -39,17 +39,23 @@ class Specs2ClassRunner(testClass: Class[_], pattern: Pattern)
 
   private def toDisplayName(d: Description) = d.getMethodName.split("::").reverse.headOption.getOrElse(d.getMethodName)
 
+  def translate(junitDescription: Description, using: Pattern): Option[String] =
+    specs2ExamplesMatching(testFilter, this.getDescription.getChildren.asScala.toList)
+      .map(toDisplayName)
+      .mkString(",")
+      .toOption
+
   override def runWithEnv(n: RunNotifier, env: Env): Action[Stats] = {
-    val examples = filtered(pattern, this.getDescription.getChildren.asScala.toList).map(toDisplayName) match {
-      case Nil => None
-      case xs => Some(xs.mkString(","))
-    }
+    val specs2MatchedExamples = translate(junitDescription = this.getDescription, using = testFilter)
 
     // todo escape fragment if needed (e.g. contains + or other regex-specific characters)
-
-    val newArgs = Arguments(select = Select(_ex = examples) , commandLine = CommandLine.create(testClass.getName))
+    val newArgs = Arguments(select = Select(_ex = specs2MatchedExamples) , commandLine = CommandLine.create(testClass.getName))
     val newEnv = env.copy(arguments overrideWith newArgs)
 
     super.runWithEnv(n, newEnv)
+  }
+
+  private implicit class `Empty String to Option`(s: String) {
+    def toOption: Option[String] = if (s.isEmpty) None else Some(s)
   }
 }

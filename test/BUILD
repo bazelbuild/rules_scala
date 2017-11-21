@@ -301,6 +301,7 @@ scala_specs2_junit_test(
     srcs = ["src/main/scala/scala/test/junit/specs2/Specs2Tests.scala"],
     deps = [":JUnitCompileTimeDep"],
     size = "small",
+    print_discovered_classes = True,
     suffixes = ["Test"],
 )
 
@@ -389,15 +390,6 @@ scala_junit_test(
     name = "JunitFilterTest",
     size = "small",
     srcs = ["src/main/scala/scala/test/junit/FilterTest.scala"],
-    print_discovered_classes = True,
-    suffixes = ["Test"],
-)
-
-scala_specs2_junit_test(
-    name = "JunitSpecs2Test",
-    size = "small",
-    srcs = ["src/main/scala/scala/test/junit/specs2/Specs2Tests.scala"],
-    deps = [":JUnitCompileTimeDep"],
     print_discovered_classes = True,
     suffixes = ["Test"],
 )

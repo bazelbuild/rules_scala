@@ -20,7 +20,7 @@ class FilteredRunnerBuilder(builder: RunnerBuilder) extends RunnerBuilder {
       case Some(pattern) => {
         runner match {
           // Regular JUnit tests.
-          case _: BlockJUnit4ClassRunner => new FilteredClassRunner(testClass, pattern)
+          case _: BlockJUnit4ClassRunner => new FilteredJUnitClassRunner(testClass, pattern)
           case _ => runnerFilter(runner, testClass, pattern)
         }
       }
@@ -29,7 +29,7 @@ class FilteredRunnerBuilder(builder: RunnerBuilder) extends RunnerBuilder {
   }
 
   // For scala_junit_tests.
-  class FilteredClassRunner(testClass: Class[_], pattern: Pattern)
+  class FilteredJUnitClassRunner(testClass: Class[_], pattern: Pattern)
       extends BlockJUnit4ClassRunner(testClass) {
     override def getChildren: java.util.List[FrameworkMethod] =
       super
