@@ -456,7 +456,7 @@ scala_specs2_junit_test_test_filter_whole_spec(){
     --nocache_test_results \
     --test_output=streamed \
     '--test_filter=scala.test.junit.specs2.JunitSpecs2Test#' \
-    test:JunitSpecs2Test)
+    test:Specs2Tests)
   local expected=(
       "+ run smoothly in bazel"
       "+ not run smoothly in bazel")
@@ -485,7 +485,7 @@ scala_specs2_junit_test_test_filter_one_test(){
     --nocache_test_results \
     --test_output=streamed \
     '--test_filter=scala.test.junit.specs2.JunitSpecs2Test#specs2 tests should::run smoothly in bazel' \
-    test:JunitSpecs2Test)
+    test:Specs2Tests)
   local expected="+ run smoothly in bazel"
   local unexpected="+ not run smoothly in bazel"
   if ! grep "$expected" <<<$output; then
@@ -507,7 +507,7 @@ scala_specs2_junit_test_test_filter_exact_match(){
     --nocache_test_results \
     --test_output=streamed \
     '--test_filter=scala.test.junit.specs2.JunitSpecs2AnotherTest#other specs2 tests should::run from another test' \
-    test:JunitSpecs2Test)
+    test:Specs2Tests)
   local expected="+ run from another test"
   local unexpected="+ run from another test 2"
   if ! grep "$expected" <<<$output; then
