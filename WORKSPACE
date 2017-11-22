@@ -1,69 +1,81 @@
 workspace(name = "io_bazel_rules_scala")
 
 
+new_http_archive(
+  name = "scala",
+  strip_prefix = "scala-2.11.11",
+  sha256 = "12037ca64c68468e717e950f47fc77d5ceae5e74e3bdca56f6d02fd5bfd6900b",
+  url = "https://downloads.lightbend.com/scala/2.11.11/scala-2.11.11.tgz",
+  build_file_content = """
+# scala.BUILD
+java_import(
+    name = "scala-xml",
+    jars = ["lib/scala-xml_2.11-1.0.5.jar"],
+    visibility = ["//visibility:public"],
+)
+java_import(
+    name = "scala-parser-combinators",
+    jars = ["lib/scala-parser-combinators_2.11-1.0.4.jar"],
+    visibility = ["//visibility:public"],
+)
+java_import(
+    name = "scala-library",
+    jars = ["lib/scala-library.jar"],
+    visibility = ["//visibility:public"],
+)
+java_import(
+    name = "scala-compiler",
+    jars = ["lib/scala-compiler.jar"],
+    visibility = ["//visibility:public"],
+)
+java_import(
+    name = "scala-reflect",
+    jars = ["lib/scala-reflect.jar"],
+    visibility = ["//visibility:public"],
+)
+""",
+)
 
-load("//scala:scala.bzl", "scala_repositories", "scala_mvn_artifact")
-scala_repositories()
+# scalatest has macros, note http_jar is invoking ijar
+http_jar(
+  name = "scalatest",
+  url = "https://mirror.bazel.build/oss.sonatype.org/content/groups/public/org/scalatest/scalatest_2.11/2.2.6/scalatest_2.11-2.2.6.jar",
+  sha256 = "f198967436a5e7a69cfd182902adcfbcb9f2e41b349e1a5c8881a2407f615962",
+)
 
-load("//twitter_scrooge:twitter_scrooge.bzl", "twitter_scrooge", "scrooge_scala_library")
-twitter_scrooge()
+maven_server(
+  name = "scalac_deps_maven_server",
+  url = "https://mirror.bazel.build/repo1.maven.org/maven2/",
+)
 
-load("//tut_rule:tut.bzl", "tut_repositories")
-tut_repositories()
-
-load("//jmh:jmh.bzl", "jmh_repositories")
-jmh_repositories()
-
-load("//scala_proto:scala_proto.bzl", "scala_proto_repositories")
-scala_proto_repositories()
-
-load("//specs2:specs2_junit.bzl","specs2_junit_repositories")
-specs2_junit_repositories()
-
-# test adding a scala jar:
 maven_jar(
-  name = "com_twitter__scalding_date",
-  artifact = scala_mvn_artifact("com.twitter:scalding-date:0.17.0"),
-  sha1 = "420fb0c4f737a24b851c4316ee0362095710caa5"
+  name = "scalac_rules_protobuf_java",
+  artifact = "com.google.protobuf:protobuf-java:3.1.0",
+  sha1 = "e13484d9da178399d32d2d27ee21a77cfb4b7873",
+  server = "scalac_deps_maven_server",
 )
 
-# For testing that we don't include sources jars to the classpath
-maven_jar(
-  name = "org_typelevel__cats_core",
-  artifact = scala_mvn_artifact("org.typelevel:cats-core:0.9.0"),
-  sha1 = "b2f8629c6ec834d8b6321288c9fe77823f1e1314"
+# Template for binary launcher
+BAZEL_JAVA_LAUNCHER_VERSION = "0.4.5"
+http_file(
+  name = "java_stub_template",
+  url = ("https://raw.githubusercontent.com/bazelbuild/bazel/" +
+         BAZEL_JAVA_LAUNCHER_VERSION +
+         "/src/main/java/com/google/devtools/build/lib/bazel/rules/java/" +
+         "java_stub_template.txt"),
+  sha256 = "f09d06d55cd25168427a323eb29d32beca0ded43bec80d76fc6acd8199a24489",
 )
 
+bind(name = "io_bazel_rules_scala/dependency/com_google_protobuf/protobuf_java", actual = "@scalac_rules_protobuf_java//jar")
 
-# test of a plugin
-maven_jar(
-  name = "org_psywerx_hairyfotr__linter",
-  artifact = scala_mvn_artifact("org.psywerx.hairyfotr:linter:0.1.13"),
-  sha1 = "e5b3e2753d0817b622c32aedcb888bcf39e275b4")
+bind(name = "io_bazel_rules_scala/dependency/scala/parser_combinators", actual = "@scala//:scala-parser-combinators")
 
-# test of strict deps (scalac plugin UT + E2E)
-maven_jar(
-    name = "com_google_guava_guava_21_0",
-    artifact = "com.google.guava:guava:21.0",
-    sha1 = "3a3d111be1be1b745edfa7d91678a12d7ed38709"
-)
+bind(name = "io_bazel_rules_scala/dependency/scala/scala_compiler", actual = "@scala//:scala-compiler")
 
-maven_jar(
-    name = "org_apache_commons_commons_lang_3_5",
-    artifact = "org.apache.commons:commons-lang3:3.5",
-    sha1 = "6c6c702c89bfff3cd9e80b04d668c5e190d588c6"
-)
+bind(name = "io_bazel_rules_scala/dependency/scala/scala_library", actual = "@scala//:scala-library")
 
-http_archive(
-    name = "com_google_protobuf",
-    urls = ["https://github.com/google/protobuf/archive/b04e5cba356212e4e8c66c61bbe0c3a20537c5b9.zip"],
-    strip_prefix = "protobuf-b04e5cba356212e4e8c66c61bbe0c3a20537c5b9",
-    sha256 = "cf4a434ac3a83040e9f65be92e153d00d075d8cd25e3f6c6d8670879f5796aa0",
-)
+bind(name = "io_bazel_rules_scala/dependency/scala/scala_reflect", actual = "@scala//:scala-reflect")
 
-http_archive(
-    name = "com_google_protobuf_java",
-    urls = ["https://github.com/google/protobuf/archive/b04e5cba356212e4e8c66c61bbe0c3a20537c5b9.zip"],
-    strip_prefix = "protobuf-b04e5cba356212e4e8c66c61bbe0c3a20537c5b9",
-    sha256 = "cf4a434ac3a83040e9f65be92e153d00d075d8cd25e3f6c6d8670879f5796aa0",
-)
+bind(name = "io_bazel_rules_scala/dependency/scala/scala_xml", actual = "@scala//:scala-xml")
+
+bind(name = "io_bazel_rules_scala/dependency/scalatest/scalatest", actual = "@scalatest//jar")
