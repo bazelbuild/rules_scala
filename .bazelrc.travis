@@ -19,9 +19,9 @@ build --verbose_failures
 # runs stuff in a container, and since Travis already runs its script
 # in a container (unless you require sudo in your .travis.yml) this
 # fails to run tests.
-build --strategy=Scalac=worker --strategy=ScroogeRule=worker --worker_max_instances=3 --experimental_remote_spawn_cache --remote_rest_cache=http://localhost:8888/bazel-cache
+build --worker_max_instances=3 --experimental_remote_spawn_cache --remote_rest_cache=http://localhost:8888/bazel-cache
 #test --test_strategy=standalone
-test --experimental_remote_spawn_cache --remote_rest_cache=http://localhost:8888/bazel-cache  --strategy=Scalac=worker --strategy=ScroogeRule=worker
+test --experimental_remote_spawn_cache --remote_rest_cache=http://localhost:8888/bazel-cache
 
 # Below this line, .travis.yml will cat the default bazelrc.
 # This is needed so Bazel starts with the base workspace in its
