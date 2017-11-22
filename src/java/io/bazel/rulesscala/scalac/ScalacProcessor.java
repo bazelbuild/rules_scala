@@ -298,10 +298,16 @@ class ScalacProcessor implements Processor {
       } else {
         dstr = resource.destination;
       }
-      if (dstr.charAt(0) == '/') dstr = dstr.substring(1);
+      if (dstr.charAt(0) == '/') {
+        // we don't want to copy to an absolute destination
+        dstr = dstr.substring(1);
+      }
       if (dstr.startsWith("../")) {
-        // external repositories are positioned with a leading ../
-        // rename the path to external
+        // paths to external repositories, for some reason, start with a leading ../
+        // we don't want to copy the resource out of our temporary directory, so
+        // instead we replace ../ with external/
+        // since "external" is a bit of reserved directory in bazel for these kinds
+        // of purposes, we don't expect a collision in the paths.
         dstr = "external" + dstr.substring(2);
       }
       Path target = dest.resolve(dstr);
