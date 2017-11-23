@@ -839,7 +839,7 @@ def _scala_test_impl(ctx):
 
 def _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, archives):
     serialized_archives = _serialize_archives_short_path(archives)
-    return struct(testSuiteFlag = "-Dbazel.test_suite=io.bazel.rulesscala.test_discovery.DiscoveredTestSuite",
+    return struct(testSuiteFlag = "-Dbazel.test_suite=%s" % ctx.attr.suite_class,
     archiveFlag = "-Dbazel.discover.classes.archives.file.paths=%s" % serialized_archives,
     prefixesFlag = "-Dbazel.discover.classes.prefixes=%s" % ",".join(ctx.attr.prefixes),
     suffixesFlag = "-Dbazel.discover.classes.suffixes=%s" % ",".join(ctx.attr.suffixes),
@@ -854,7 +854,7 @@ def _scala_junit_test_impl(ctx):
     if (not(ctx.attr.prefixes) and not(ctx.attr.suffixes)):
       fail("Setting at least one of the attributes ('prefixes','suffixes') is required")
     jars = _collect_jars_from_common_ctx(ctx,
-        extra_deps = [ctx.attr._junit, ctx.attr._hamcrest, ctx.attr._suite, ctx.attr._bazel_test_runner],
+        extra_deps = [ctx.attr._junit, ctx.attr._hamcrest, ctx.attr.suite_label, ctx.attr._bazel_test_runner],
     )
     (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
     implicit_junit_deps_needed_for_java_compilation = [ctx.attr._junit, ctx.attr._hamcrest]
@@ -1164,10 +1164,11 @@ scala_junit_test = rule(
   attrs= _launcher_template + _implicit_deps + _common_attrs + _junit_resolve_deps + {
       "prefixes": attr.string_list(default=[]),
       "suffixes": attr.string_list(default=[]),
+      "suite_label": attr.label(default=Label("//src/java/io/bazel/rulesscala/test_discovery:test_discovery")),
+      "suite_class": attr.string(default="io.bazel.rulesscala.test_discovery.DiscoveredTestSuite"),
       "print_discovered_classes": attr.bool(default=False, mandatory=False),
       "_junit": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/junit/junit")),
       "_hamcrest": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/hamcrest/hamcrest_core")),
-      "_suite": attr.label(default=Label("//src/java/io/bazel/rulesscala/test_discovery:test_discovery")),
       "_bazel_test_runner": attr.label(default=Label("@bazel_tools//tools/jdk:TestRunner_deploy.jar"), allow_files=True),
       },
   outputs= common_outputs,
@@ -1179,4 +1180,6 @@ def scala_specs2_junit_test(name, **kwargs):
   scala_junit_test(
    name = name,
    deps = specs2_junit_dependencies() + kwargs.pop("deps",[]),
+   suite_label = Label("//src/java/io/bazel/rulesscala/specs2:specs2_test_discovery"),
+   suite_class = "io.bazel.rulesscala.specs2.Specs2DiscoveredTestSuite",
    **kwargs)

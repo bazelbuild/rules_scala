@@ -301,6 +301,7 @@ scala_specs2_junit_test(
     srcs = ["src/main/scala/scala/test/junit/specs2/Specs2Tests.scala"],
     deps = [":JUnitCompileTimeDep"],
     size = "small",
+    print_discovered_classes = True,
     suffixes = ["Test"],
 )
 
