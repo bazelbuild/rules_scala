@@ -1,6 +1,7 @@
 # This is from Bazel's former travis setup, to avoid blowing up the RAM usage.
 startup --host_jvm_args=-Xmx2500m
 startup --host_jvm_args=-Xms2500m
+startup --host_jvm_args=-Dbazel.DigestFunction=sha256
 # startup --batch # we actually start many bazels in the test script, we don't want batch
 test --ram_utilization_factor=10
 
@@ -13,12 +14,14 @@ build --verbose_failures
 # This is so we use a recent enough GCC when building.
 # build --crosstool_top //tools/custom_crosstool:CROSSTOOL
 
+
 # This is so we don't use sandboxed execution. Sandboxed execution
 # runs stuff in a container, and since Travis already runs its script
 # in a container (unless you require sudo in your .travis.yml) this
 # fails to run tests.
-build --strategy=Scalac=worker --strategy=ScroogeRule=worker --worker_max_instances=3
+build --strategy=Scalac=worker --strategy=ScroogeRule=worker --worker_max_instances=3 --experimental_remote_spawn_cache --remote_rest_cache=http://localhost:8888/bazel-cache
 #test --test_strategy=standalone
+test --experimental_remote_spawn_cache --remote_rest_cache=http://localhost:8888/bazel-cache  --strategy=Scalac=worker --strategy=ScroogeRule=worker
 
 # Below this line, .travis.yml will cat the default bazelrc.
 # This is needed so Bazel starts with the base workspace in its
