@@ -89,7 +89,7 @@ def _build_nosrc_jar(ctx, buildijar):
     # this ensures the file is not empty
     resources += "META-INF/MANIFEST.MF=%s\n" % ctx.outputs.manifest.path
 
-    zipper_arg_path = ctx.actions.declare_file("%s_zipper_args" % ctx.outputs.jar.path)
+    zipper_arg_path = ctx.actions.declare_file("%s_zipper_args" % ctx.label.name)
     ctx.file_action(zipper_arg_path, resources)
     cmd = """
 rm -f {jar_output}
@@ -182,7 +182,6 @@ CurrentTarget: {current_target}
     plugin_arg = ",".join(list(plugins))
 
     compiler_classpath = ":".join([j.path for j in compiler_classpath_jars])
-
 
     scalac_args = """
 Classpath: {cp}

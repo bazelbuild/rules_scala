@@ -67,3 +67,16 @@ http_archive(
     strip_prefix = "protobuf-b04e5cba356212e4e8c66c61bbe0c3a20537c5b9",
     sha256 = "cf4a434ac3a83040e9f65be92e153d00d075d8cd25e3f6c6d8670879f5796aa0",
 )
+
+new_local_repository(
+    name = "test_new_local_repo",
+    path = "third_party/test/new_local_repo",
+    build_file_content = 
+"""
+filegroup(
+    name = "data",
+    srcs = glob(["**/*.txt"]),
+    visibility = ["//visibility:public"],
+)
+"""
+)

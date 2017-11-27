@@ -1,5 +1,5 @@
 
-load("//scala:scala.bzl", "scala_library", "scala_specs2_junit_test")
+load("//scala:scala.bzl", "scala_library", "scala_specs2_junit_test", "scala_test",)
 
 scala_library(
    name = "noSrcsWithDirectFileResources",
@@ -13,7 +13,7 @@ scala_library(
 
 filegroup(
    name="resource-fg",
-   srcs=["resource.txt"]
+   srcs=glob(["**/*.txt"])
 )
 
 scala_specs2_junit_test(
@@ -22,4 +22,27 @@ scala_specs2_junit_test(
     deps = [":noSrcsWithDirectFileResources"],
     size = "small",
     suffixes = ["Test"],
+)
+
+scala_specs2_junit_test(
+    name = "TestScalaLibOnlyFilegroupResources",
+    srcs = ["ScalaLibOnlyResourcesFilegroupTest.scala"],
+    deps = [":noSrcsWithFilegroupResources"],
+    size = "small",
+    suffixes = ["Test"],
+)
+
+scala_specs2_junit_test(
+    name = "TestScalaLibResourcesFromExternalDep",
+    srcs = ["ScalaLibResourcesFromExternalDepTest.scala"],
+    resources = ["@test_new_local_repo//:data"],
+    size = "small",
+    suffixes = ["Test"],
+)
+
+scala_test(
+    name = "TestScalaLibResourcesFromExternalScalaTest",
+    srcs = ["ScalaLibResourcesFromExternalScalaTest.scala"],
+    resources = ["@test_new_local_repo//:data"],
+    size = "small",
 )
