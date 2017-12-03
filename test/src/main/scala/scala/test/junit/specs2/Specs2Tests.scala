@@ -31,3 +31,16 @@ class JunitSpecs2AnotherTest extends SpecWithJUnit {
   }
 }
 
+class JunitSpec2RegexTest extends SpecWithJUnit {
+
+  "tests with unsafe characters" should {
+    "2 + 2 != 5" in {
+      2 + 2 must be_!=(5)
+    }
+
+    "work escaped (with regex)" in {
+      success
+    }
+  }
+}
+
