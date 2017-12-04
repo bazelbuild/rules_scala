@@ -85,16 +85,13 @@ class Specs2ClassRunner(testClass: Class[_], testFilter: Pattern)
     testFilter.matcher(testCase).matches
   }
 
-  private def specs2ExamplesMatching(testFilter: Pattern, junitDescription: Description): Option[String] =
+  private def specs2ExamplesMatching(testFilter: Pattern, junitDescription: Description): List[String] =
     flattenDescription(junitDescription)
       .filter(matching(testFilter))
       .map(toDisplayName)
-      .map(_.toQuotedRegex)
-      .mkString("(", "|", ")") // creates a regex alternation (this|that)
-      .toOption
 
   override def runWithEnv(n: RunNotifier, env: Env): Action[Stats] = {
-    val specs2MatchedExamplesRegex = specs2ExamplesMatching(testFilter, getDescription)
+    val specs2MatchedExamplesRegex = specs2ExamplesMatching(testFilter, getDescription).toRegexAlternation
 
     val newArgs = Arguments(select = Select(_ex = specs2MatchedExamplesRegex), commandLine = CommandLine.create(testClass.getName))
     val newEnv = env.copy(arguments overrideWith newArgs)
@@ -105,5 +102,10 @@ class Specs2ClassRunner(testClass: Class[_], testFilter: Pattern)
   private implicit class `Empty String to Option`(s: String) {
     def toOption: Option[String] = if (s.isEmpty) None else Some(s)
     def toQuotedRegex: String = if (s.isEmpty) s else Pattern.quote(s)
+  }
+  private implicit class `Collection Regex Extensions`(coll: List[String]) {
+    def toRegexAlternation: Option[String] =
+      if (coll.isEmpty) None
+      else Some(coll.map(_.toQuotedRegex).mkString("(", "|", ")"))
   }
 }
