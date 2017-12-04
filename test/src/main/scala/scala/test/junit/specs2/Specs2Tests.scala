@@ -29,6 +29,12 @@ class JunitSpecs2AnotherTest extends SpecWithJUnit {
       success
     }
   }
+
+  "unrelated test" should {
+    "not run" in {
+      success
+    }
+  }
 }
 
 class JunitSpec2RegexTest extends SpecWithJUnit {

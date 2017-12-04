@@ -90,13 +90,13 @@ class Specs2ClassRunner(testClass: Class[_], testFilter: Pattern)
       .filter(matching(testFilter))
       .map(toDisplayName)
       .map(_.toQuotedRegex)
-      .mkString(",")
+      .mkString("(", "|", ")") // creates a regex alternation (this|that)
       .toOption
 
   override def runWithEnv(n: RunNotifier, env: Env): Action[Stats] = {
-    val specs2MatchedExamples = specs2ExamplesMatching(testFilter, getDescription)
+    val specs2MatchedExamplesRegex = specs2ExamplesMatching(testFilter, getDescription)
 
-    val newArgs = Arguments(select = Select(_ex = specs2MatchedExamples), commandLine = CommandLine.create(testClass.getName))
+    val newArgs = Arguments(select = Select(_ex = specs2MatchedExamplesRegex), commandLine = CommandLine.create(testClass.getName))
     val newEnv = env.copy(arguments overrideWith newArgs)
 
     super.runWithEnv(n, newEnv)

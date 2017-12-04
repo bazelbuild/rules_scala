@@ -576,6 +576,35 @@ scala_specs2_junit_test_test_filter_exact_match_escaped_and_sanitized(){
   fi
 }
 
+scala_specs2_junit_test_test_filter_match_multiple_methods(){
+  local output=$(bazel test \
+    --nocache_test_results \
+    --test_output=streamed \
+    '--test_filter=scala.test.junit.specs2.JunitSpecs2AnotherTest#other specs2 tests should::(\Qrun from another test\E|\Qrun from another test 2\E)$' \
+    test:Specs2Tests)
+  local expected=(
+      "+ run from another test"
+      "+ run from another test 2")
+  local unexpected=(
+      "+ not run")
+  for method in "${expected[@]}"; do
+    if ! grep "$method" <<<$output; then
+      echo "output:"
+      echo "$output"
+      echo "Expected $method in output, but was not found."
+      exit 1
+    fi
+  done
+  for method in "${unexpected[@]}"; do
+    if grep "$method" <<<$output; then
+      echo "output:"
+      echo "$output"
+      echo "Not expecting $method in output, but was found."
+      exit 1
+    fi
+  done
+}
+
 scalac_jvm_flags_are_configured(){
   action_should_fail build //test_expect_failure/compilers_jvm_flags:can_configure_jvm_flags_for_scalac
 }
@@ -725,6 +754,7 @@ $runner scala_specs2_junit_test_test_filter_whole_spec
 $runner scala_specs2_junit_test_test_filter_exact_match
 $runner scala_specs2_junit_test_test_filter_exact_match_unsafe_characters
 $runner scala_specs2_junit_test_test_filter_exact_match_escaped_and_sanitized
+$runner scala_specs2_junit_test_test_filter_match_multiple_methods
 $runner scalac_jvm_flags_are_configured
 $runner javac_jvm_flags_are_configured
 $runner javac_jvm_flags_via_javacopts_are_configured
