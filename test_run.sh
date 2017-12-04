@@ -492,7 +492,7 @@ scala_specs2_junit_test_test_filter_one_test(){
   local output=$(bazel test \
     --nocache_test_results \
     --test_output=streamed \
-    '--test_filter=scala.test.junit.specs2.JunitSpecs2Test#specs2 tests should::run smoothly in bazel' \
+    '--test_filter=scala.test.junit.specs2.JunitSpecs2Test#specs2 tests should::run smoothly in bazel$' \
     test:Specs2Tests)
   local expected="+ run smoothly in bazel"
   local unexpected="+ not run smoothly in bazel"
@@ -514,7 +514,7 @@ scala_specs2_junit_test_test_filter_exact_match(){
   local output=$(bazel test \
     --nocache_test_results \
     --test_output=streamed \
-    '--test_filter=scala.test.junit.specs2.JunitSpecs2AnotherTest#other specs2 tests should::run from another test' \
+    '--test_filter=scala.test.junit.specs2.JunitSpecs2AnotherTest#other specs2 tests should::run from another test$' \
     test:Specs2Tests)
   local expected="+ run from another test"
   local unexpected="+ run from another test 2"
@@ -530,6 +530,79 @@ scala_specs2_junit_test_test_filter_exact_match(){
     echo "Not expecting $method in output, but was found."
     exit 1
   fi
+}
+
+scala_specs2_junit_test_test_filter_exact_match_unsafe_characters(){
+  local output=$(bazel test \
+    --nocache_test_results \
+    --test_output=streamed \
+    '--test_filter=scala.test.junit.specs2.JunitSpec2RegexTest#\Qtests with unsafe characters should::2 + 2 != 5\E$' \
+    test:Specs2Tests)
+  local expected="+ 2 + 2 != 5"
+  local unexpected="+ work escaped (with regex)"
+  if ! grep "$expected" <<<$output; then
+    echo "output:"
+    echo "$output"
+    echo "Expected $method in output, but was not found."
+    exit 1
+  fi
+  if grep "$unexpected" <<<$output; then
+    echo "output:"
+    echo "$output"
+    echo "Not expecting $method in output, but was found."
+    exit 1
+  fi
+}
+
+scala_specs2_junit_test_test_filter_exact_match_escaped_and_sanitized(){
+  local output=$(bazel test \
+    --nocache_test_results \
+    --test_output=streamed \
+    '--test_filter=scala.test.junit.specs2.JunitSpec2RegexTest#\Qtests with unsafe characters should::work escaped [with regex]\E$' \
+    test:Specs2Tests)
+  local expected="+ work escaped (with regex)"
+  local unexpected="+ 2 + 2 != 5"
+  if ! grep "$expected" <<<$output; then
+    echo "output:"
+    echo "$output"
+    echo "Expected $method in output, but was not found."
+    exit 1
+  fi
+  if grep "$unexpected" <<<$output; then
+    echo "output:"
+    echo "$output"
+    echo "Not expecting $method in output, but was found."
+    exit 1
+  fi
+}
+
+scala_specs2_junit_test_test_filter_match_multiple_methods(){
+  local output=$(bazel test \
+    --nocache_test_results \
+    --test_output=streamed \
+    '--test_filter=scala.test.junit.specs2.JunitSpecs2AnotherTest#other specs2 tests should::(\Qrun from another test\E|\Qrun from another test 2\E)$' \
+    test:Specs2Tests)
+  local expected=(
+      "+ run from another test"
+      "+ run from another test 2")
+  local unexpected=(
+      "+ not run")
+  for method in "${expected[@]}"; do
+    if ! grep "$method" <<<$output; then
+      echo "output:"
+      echo "$output"
+      echo "Expected $method in output, but was not found."
+      exit 1
+    fi
+  done
+  for method in "${unexpected[@]}"; do
+    if grep "$method" <<<$output; then
+      echo "output:"
+      echo "$output"
+      echo "Not expecting $method in output, but was found."
+      exit 1
+    fi
+  done
 }
 
 scalac_jvm_flags_are_configured(){
@@ -679,6 +752,9 @@ $runner scala_junit_test_test_filter
 $runner scala_specs2_junit_test_test_filter_one_test
 $runner scala_specs2_junit_test_test_filter_whole_spec
 $runner scala_specs2_junit_test_test_filter_exact_match
+$runner scala_specs2_junit_test_test_filter_exact_match_unsafe_characters
+$runner scala_specs2_junit_test_test_filter_exact_match_escaped_and_sanitized
+$runner scala_specs2_junit_test_test_filter_match_multiple_methods
 $runner scalac_jvm_flags_are_configured
 $runner javac_jvm_flags_are_configured
 $runner javac_jvm_flags_via_javacopts_are_configured

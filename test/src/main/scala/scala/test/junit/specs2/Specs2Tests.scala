@@ -29,5 +29,24 @@ class JunitSpecs2AnotherTest extends SpecWithJUnit {
       success
     }
   }
+
+  "unrelated test" should {
+    "not run" in {
+      success
+    }
+  }
+}
+
+class JunitSpec2RegexTest extends SpecWithJUnit {
+
+  "tests with unsafe characters" should {
+    "2 + 2 != 5" in {
+      2 + 2 must be_!=(5)
+    }
+
+    "work escaped (with regex)" in {
+      success
+    }
+  }
 }
 
