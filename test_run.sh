@@ -74,6 +74,7 @@ test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message() {
   test_target=$2
   strict_deps_mode=$3
   operator=${4:-"eq"}
+  additional_expected_message=${5:-""}
 
   if [ "${operator}" = "eq" ]; then
     error_message="bazel build of scala_library with missing direct deps should have failed."
@@ -96,6 +97,13 @@ test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message() {
   if [ $? -ne 0 ]; then
     echo "'bazel build ${test_target}' should have logged \"${expected_message}\"."
         exit 1
+  fi
+  if [ "${additional_expected_message}" != "" ]; then
+    echo ${output} | grep "$additional_expected_message"
+    if [ $? -ne 0 ]; then
+      echo "'bazel build ${test_target}' should have logged \"${additional_expected_message}\"."
+          exit 1
+    fi
   fi
 
   set -e
@@ -168,6 +176,25 @@ test_scala_library_expect_failure_on_missing_direct_java() {
   expected_message="$dependency_target[ \t]*to[ \t]*$test_target"
 
   test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" $test_target "--strict_java_deps=error"
+}
+
+test_scala_library_expect_better_failure_message_on_missing_transitive_dependency_labels_from_other_jvm_rules() {
+  transitive_target='.*transitive_dependency_ijar.jar'
+  direct_target='//test_expect_failure/missing_direct_deps/internal_deps:direct_java_provider_dependency'
+  test_target='//test_expect_failure/missing_direct_deps/internal_deps:dependent_on_some_java_provider'
+
+  expected_message="Unknown label of file $transitive_target which came from $direct_target"
+
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" $test_target "--strict_java_deps=error"
+}
+
+test_scala_library_expect_failure_on_missing_direct_deps_warn_mode_java() {
+  dependency_target='//test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency'
+  test_target='//test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency_java_user'
+
+  local expected_message="buildozer 'add deps $dependency_target ' $test_target"
+
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target} "--strict_java_deps=warn" "ne"
 }
 
 test_scala_library_expect_failure_on_missing_direct_deps_off_mode() {
@@ -432,6 +459,152 @@ scala_junit_test_test_filter(){
   done
 }
 
+scala_specs2_junit_test_test_filter_whole_spec(){
+  local output=$(bazel test \
+    --nocache_test_results \
+    --test_output=streamed \
+    '--test_filter=scala.test.junit.specs2.JunitSpecs2Test#' \
+    test:Specs2Tests)
+  local expected=(
+      "+ run smoothly in bazel"
+      "+ not run smoothly in bazel")
+  local unexpected=(
+      "+ run from another test")
+  for method in "${expected[@]}"; do
+    if ! grep "$method" <<<$output; then
+      echo "output:"
+      echo "$output"
+      echo "Expected $method in output, but was not found."
+      exit 1
+    fi
+  done
+  for method in "${unexpected[@]}"; do
+    if grep "$method" <<<$output; then
+      echo "output:"
+      echo "$output"
+      echo "Not expecting $method in output, but was found."
+      exit 1
+    fi
+  done
+}
+
+scala_specs2_junit_test_test_filter_one_test(){
+  local output=$(bazel test \
+    --nocache_test_results \
+    --test_output=streamed \
+    '--test_filter=scala.test.junit.specs2.JunitSpecs2Test#specs2 tests should::run smoothly in bazel$' \
+    test:Specs2Tests)
+  local expected="+ run smoothly in bazel"
+  local unexpected="+ not run smoothly in bazel"
+  if ! grep "$expected" <<<$output; then
+    echo "output:"
+    echo "$output"
+    echo "Expected $method in output, but was not found."
+    exit 1
+  fi
+  if grep "$unexpected" <<<$output; then
+    echo "output:"
+    echo "$output"
+    echo "Not expecting $method in output, but was found."
+    exit 1
+  fi
+}
+
+scala_specs2_junit_test_test_filter_exact_match(){
+  local output=$(bazel test \
+    --nocache_test_results \
+    --test_output=streamed \
+    '--test_filter=scala.test.junit.specs2.JunitSpecs2AnotherTest#other specs2 tests should::run from another test$' \
+    test:Specs2Tests)
+  local expected="+ run from another test"
+  local unexpected="+ run from another test 2"
+  if ! grep "$expected" <<<$output; then
+    echo "output:"
+    echo "$output"
+    echo "Expected $method in output, but was not found."
+    exit 1
+  fi
+  if grep "$unexpected" <<<$output; then
+    echo "output:"
+    echo "$output"
+    echo "Not expecting $method in output, but was found."
+    exit 1
+  fi
+}
+
+scala_specs2_junit_test_test_filter_exact_match_unsafe_characters(){
+  local output=$(bazel test \
+    --nocache_test_results \
+    --test_output=streamed \
+    '--test_filter=scala.test.junit.specs2.JunitSpec2RegexTest#\Qtests with unsafe characters should::2 + 2 != 5\E$' \
+    test:Specs2Tests)
+  local expected="+ 2 + 2 != 5"
+  local unexpected="+ work escaped (with regex)"
+  if ! grep "$expected" <<<$output; then
+    echo "output:"
+    echo "$output"
+    echo "Expected $method in output, but was not found."
+    exit 1
+  fi
+  if grep "$unexpected" <<<$output; then
+    echo "output:"
+    echo "$output"
+    echo "Not expecting $method in output, but was found."
+    exit 1
+  fi
+}
+
+scala_specs2_junit_test_test_filter_exact_match_escaped_and_sanitized(){
+  local output=$(bazel test \
+    --nocache_test_results \
+    --test_output=streamed \
+    '--test_filter=scala.test.junit.specs2.JunitSpec2RegexTest#\Qtests with unsafe characters should::work escaped [with regex]\E$' \
+    test:Specs2Tests)
+  local expected="+ work escaped (with regex)"
+  local unexpected="+ 2 + 2 != 5"
+  if ! grep "$expected" <<<$output; then
+    echo "output:"
+    echo "$output"
+    echo "Expected $method in output, but was not found."
+    exit 1
+  fi
+  if grep "$unexpected" <<<$output; then
+    echo "output:"
+    echo "$output"
+    echo "Not expecting $method in output, but was found."
+    exit 1
+  fi
+}
+
+scala_specs2_junit_test_test_filter_match_multiple_methods(){
+  local output=$(bazel test \
+    --nocache_test_results \
+    --test_output=streamed \
+    '--test_filter=scala.test.junit.specs2.JunitSpecs2AnotherTest#other specs2 tests should::(\Qrun from another test\E|\Qrun from another test 2\E)$' \
+    test:Specs2Tests)
+  local expected=(
+      "+ run from another test"
+      "+ run from another test 2")
+  local unexpected=(
+      "+ not run")
+  for method in "${expected[@]}"; do
+    if ! grep "$method" <<<$output; then
+      echo "output:"
+      echo "$output"
+      echo "Expected $method in output, but was not found."
+      exit 1
+    fi
+  done
+  for method in "${unexpected[@]}"; do
+    if grep "$method" <<<$output; then
+      echo "output:"
+      echo "$output"
+      echo "Not expecting $method in output, but was found."
+      exit 1
+    fi
+  done
+}
+
 scalac_jvm_flags_are_configured(){
   action_should_fail build //test_expect_failure/compilers_jvm_flags:can_configure_jvm_flags_for_scalac
 }
@@ -531,6 +704,17 @@ else
   runner="run_test_ci"
 fi
 
+test_scala_library_expect_failure_on_missing_direct_deps_warn_mode2() {
+  dependency_target1='//test_expect_failure/scala_import:cats'
+  dependency_target2='//test_expect_failure/scala_import:guava'
+  test_target='test_expect_failure/scala_import:scala_import_propagates_compile_deps'
+
+  local expected_message1="buildozer 'add deps $dependency_target1' //$test_target"
+  local expected_message2="buildozer 'add deps $dependency_target2' //$test_target"
+
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message1}" ${test_target} "--strict_java_deps=warn" "ne" "${expected_message2}"
+}
+
 $runner bazel build test/...
 $runner bazel test test/...
 $runner bazel test third_party/...
@@ -566,6 +750,12 @@ $runner scala_library_jar_without_srcs_must_include_filegroup_resources
 $runner bazel run test/src/main/scala/scala/test/large_classpath:largeClasspath
 $runner scala_test_test_filters
 $runner scala_junit_test_test_filter
+$runner scala_specs2_junit_test_test_filter_one_test
+$runner scala_specs2_junit_test_test_filter_whole_spec
+$runner scala_specs2_junit_test_test_filter_exact_match
+$runner scala_specs2_junit_test_test_filter_exact_match_unsafe_characters
+$runner scala_specs2_junit_test_test_filter_exact_match_escaped_and_sanitized
+$runner scala_specs2_junit_test_test_filter_match_multiple_methods
 $runner scalac_jvm_flags_are_configured
 $runner javac_jvm_flags_are_configured
 $runner javac_jvm_flags_via_javacopts_are_configured
@@ -584,3 +774,6 @@ $runner test_scala_library_expect_no_recompilation_on_internal_change_of_java_de
 $runner test_scala_library_expect_no_java_recompilation_on_internal_change_of_scala_sibling
 $runner test_scala_library_expect_failure_on_missing_direct_java
 $runner bazel run test:test_scala_proto_server
+$runner test_scala_library_expect_failure_on_missing_direct_deps_warn_mode_java
+$runner test_scala_library_expect_better_failure_message_on_missing_transitive_dependency_labels_from_other_jvm_rules
+$runner test_scala_library_expect_failure_on_missing_direct_deps_warn_mode2

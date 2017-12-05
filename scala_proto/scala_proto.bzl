@@ -310,27 +310,29 @@ def scala_proto_repositories():
         actual = '@scala_proto_rules_netty_handler_proxy//jar'
     )
 
+def _root_path(f):
+    if f.is_source:
+        return f.owner.workspace_root
+    return '/'.join([f.root.path, f.owner.workspace_root])
+
 def _colon_paths(data):
-  return ':'.join(["{root},{path}".format(root=f.owner.workspace_root, path=f.path) for f in data])
+    return ':'.join(["{root},{path}".format(root=_root_path(f), path=f.path) for f in data])
 
 def _gen_proto_srcjar_impl(ctx):
     acc_imports = depset()
 
-    proto_deps, java_proto_lib_deps = [], []
+    proto_deps, jvm_deps = [], []
     for target in ctx.attr.deps:
         if hasattr(target, 'proto'):
             proto_deps.append(target)
             acc_imports += target.proto.transitive_sources
         else:
-            java_proto_lib_deps.append(target)
+            jvm_deps.append(target)
 
-    if not ctx.attr.with_java and len(java_proto_lib_deps) > 0:
-        fail("cannot have java_proto_library dependencies with with_java is False")
+    if ctx.attr.with_java and len(jvm_deps) == 0:
+        fail("must have at least one jvm dependency if with_java is True")
 
-    if ctx.attr.with_java and len(java_proto_lib_deps) == 0:
-        fail("must have a java_proto_library dependency if with_java is True")
-
-    deps_jars = collect_jars(java_proto_lib_deps)
+    deps_jars = collect_jars(jvm_deps)
 
     # Command line args to worker cannot be empty so using padding
     flags = ["-"]
@@ -367,7 +369,7 @@ def _gen_proto_srcjar_impl(ctx):
       compile_jars =  deps_jars.compile_jars,
       transitive_runtime_jars = deps_jars.transitive_runtime_jars,
     )
-    java_provider = create_java_provider(ctx, scalaattr, depset())
+    java_provider = create_java_provider(scalaattr, depset())
     return struct(
         scala = scalaattr,
         providers = [java_provider],
@@ -382,7 +384,7 @@ scalapb_proto_srcjar = rule(
     attrs={
         "deps": attr.label_list(
             mandatory=True,
-            allow_rules=["proto_library", "java_proto_library"]
+            allow_rules=["proto_library", "java_proto_library", "java_library", "scala_library"]
         ),
         "with_grpc": attr.bool(default=False),
         "with_java": attr.bool(default=False),
