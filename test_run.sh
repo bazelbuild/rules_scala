@@ -704,7 +704,7 @@ else
   runner="run_test_ci"
 fi
 
-test_scala_library_expect_failure_on_missing_direct_deps_warn_mode2() {
+test_scala_import_expect_failure_on_missing_direct_deps_warn_mode() {
   dependency_target1='//test_expect_failure/scala_import:cats'
   dependency_target2='//test_expect_failure/scala_import:guava'
   test_target='test_expect_failure/scala_import:scala_import_propagates_compile_deps'
@@ -775,4 +775,5 @@ $runner test_scala_library_expect_failure_on_missing_direct_java
 $runner bazel run test:test_scala_proto_server
 $runner test_scala_library_expect_failure_on_missing_direct_deps_warn_mode_java
 $runner test_scala_library_expect_better_failure_message_on_missing_transitive_dependency_labels_from_other_jvm_rules
-$runner test_scala_library_expect_failure_on_missing_direct_deps_warn_mode2
+$runner test_scala_import_expect_failure_on_missing_direct_deps_warn_mode
+$runner bazel build "test_expect_failure/missing_direct_deps/internal_deps/... --strict_java_deps=warn"
