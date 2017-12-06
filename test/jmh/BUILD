@@ -20,9 +20,8 @@ scala_library(
     visibility = ["//visibility:public"],
 )
 
-# Disable the jmh test due to https://github.com/bazelbuild/rules_scala/issues/295
-# scala_benchmark_jmh(
-#     name = "test_benchmark",
-#     srcs = ["TestBenchmark.scala"],
-#     deps = [":add_numbers"],
-# )
+scala_benchmark_jmh(
+    name = "test_benchmark",
+    srcs = ["TestBenchmark.scala"],
+    deps = [":add_numbers"],
+)

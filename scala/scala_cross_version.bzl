@@ -18,7 +18,7 @@ resolution."""
 
 def scala_version():
   """return the scala version for use in maven coordinates"""
-  return "2.12"
+  return "2.11"
 
 def scala_mvn_artifact(artifact):
   gav = artifact.split(":")
