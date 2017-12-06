@@ -12,8 +12,8 @@ os:
 
 env:
   # we want to test the most recent few releases
-  - V=0.6.0
   - V=0.7.0
+  - V=0.8.1
 
 before_install:
   - |
