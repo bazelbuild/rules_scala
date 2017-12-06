@@ -95,7 +95,7 @@ def _collect_exports(exports):
 
   for dep_target in exports:
       java_provider = dep_target[java_common.provider]
-      exported_jars += java_provider.compile_jars
+      exported_jars += java_provider.full_compile_jars
 
   return exported_jars
 
