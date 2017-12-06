@@ -541,7 +541,7 @@ def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
     if java_common.provider in dep_target:
         java_provider = dep_target[java_common.provider]
         current_dep_compile_jars = java_provider.compile_jars
-        current_dep_transitive_compile_jars = java_provider.transitive_compile_time_jars + java_provider.compile_jars
+        current_dep_transitive_compile_jars = java_provider.transitive_compile_time_jars
         runtime_jars += java_provider.transitive_runtime_jars
     else:
         # support http_file pointed at a jar. http_jar uses ijar,
@@ -609,7 +609,7 @@ def create_java_provider(scalaattr, transitive_compile_time_jars):
           use_ijar = False,
           compile_time_jars = scalaattr.compile_jars,
           runtime_jars = scalaattr.transitive_runtime_jars,
-          transitive_compile_time_jars = transitive_compile_time_jars,
+          transitive_compile_time_jars = transitive_compile_time_jars + scalaattr.compile_jars,
           transitive_runtime_jars = scalaattr.transitive_runtime_jars,
       )
     else:
