@@ -27,6 +27,17 @@ scala_import(
 )
 
 scala_import(
+  name = "indirection_for_transitive_compile_deps_scala_library",
+  jars = [],
+  deps = [":bar"]
+)
+
+scala_library(
+    name = "bar",
+    srcs = ["Bar.scala"]
+)
+
+scala_import(
   name = "commons_lang_as_imported_jar_cats_and_guava_as_compile_deps",
   jars = ["@org_apache_commons_commons_lang_3_5//jar:file"],
   deps = [":guava", ":indirection_for_transitive_compile_deps"]
@@ -35,7 +46,7 @@ scala_import(
 scala_specs2_junit_test(
     name = "scala_import_propagates_compile_deps",
     srcs = ["ScalaImportPropagatesCompileDepsTest.scala"],
-    deps = [":commons_lang_as_imported_jar_cats_and_guava_as_compile_deps"],
+    deps = [":commons_lang_as_imported_jar_cats_and_guava_as_compile_deps", ":indirection_for_transitive_compile_deps_scala_library"],
     size = "small",
     suffixes = ["Test"],
 )

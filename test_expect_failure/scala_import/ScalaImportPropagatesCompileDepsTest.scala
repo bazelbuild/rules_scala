@@ -11,6 +11,7 @@ class ScalaImportPropagatesCompileDepsTest extends SpecificationWithJUnit {
       println(classOf[Cache[String, String]])
       println(classOf[ArrayUtils])
       println(classOf[cats.Applicative[Any]])
+      println(classOf[Bar])
       success
     }
   }

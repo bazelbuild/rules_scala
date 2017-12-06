@@ -68,7 +68,7 @@ def _collect(deps, jars2labels):
 
   for dep_target in deps:
       java_provider = dep_target[java_common.provider]
-      transitive_compile_jars += java_provider.transitive_compile_time_jars
+      transitive_compile_jars += java_provider.transitive_compile_time_jars + java_provider.compile_jars
       runtime_jars += java_provider.transitive_runtime_jars
       _transitively_accumulate_labels(dep_target, java_provider,jars2labels)
 
