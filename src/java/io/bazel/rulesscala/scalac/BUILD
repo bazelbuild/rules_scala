@@ -7,12 +7,6 @@ java_binary(
         "Resource.java",
     ],
     main_class = "io.bazel.rulesscala.scalac.ScalaCInvoker",
-    # this probably should be set globally for the entire rules_scala
-    # but I don't know how to do it
-    javacopts = [
-    "-source 1.8",
-    "-target 1.8"
-    ],
     visibility = ["//visibility:public"],
     deps = [
         "//src/java/com/google/devtools/build/lib:worker",
