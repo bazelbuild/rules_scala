@@ -137,9 +137,6 @@ object BenchmarkGenerator {
         val generator = new JMHGenerator
 
         collectClassesFromJar(benchmarkJarPath).foreach { path =>
-          // this would fail due to https://github.com/bazelbuild/rules_scala/issues/295
-          // let's throw a useful message instead
-          sys.error("jmh in rules_scala doesn't work with Java 8 bytecode: https://github.com/bazelbuild/rules_scala/issues/295")
           source.processClass(Files.newInputStream(path))
         }
         generator.generate(source, destination)

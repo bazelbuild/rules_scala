@@ -205,12 +205,7 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
 """.format(
         out=ctx.outputs.jar.path,
         manifest=ctx.outputs.manifest.path,
-        # always append -YdisableFlatCpCaching, workaround for
-        # https://github.com/bazelbuild/rules_scala/issues/305
-        # ~remove once we upgrade to Scala 2.12.4~
-        # ^^ turns out that 2.12.4 didn't fix the issue, see:
-        # https://github.com/bazelbuild/rules_scala/pull/310#issuecomment-337466097
-        scala_opts=",".join(ctx.attr.scalacopts + ["-YdisableFlatCpCaching"]),
+        scala_opts=",".join(ctx.attr.scalacopts),
         print_compile_time=ctx.attr.print_compile_time,
         plugin_arg=plugin_arg,
         cp=compiler_classpath,
@@ -1022,13 +1017,13 @@ SCALA_BUILD_FILE = """
 # scala.BUILD
 java_import(
     name = "scala-xml",
-    jars = ["lib/scala-xml_2.12-1.0.6.jar"],
+    jars = ["lib/scala-xml_2.11-1.0.5.jar"],
     visibility = ["//visibility:public"],
 )
 
 java_import(
     name = "scala-parser-combinators",
-    jars = ["lib/scala-parser-combinators_2.12-1.0.6.jar"],
+    jars = ["lib/scala-parser-combinators_2.11-1.0.4.jar"],
     visibility = ["//visibility:public"],
 )
 
@@ -1049,35 +1044,22 @@ java_import(
     jars = ["lib/scala-reflect.jar"],
     visibility = ["//visibility:public"],
 )
-
-java_library(
-    name = "transitive_scalatest",
-    exports = ["@scalatest//jar", "@scalactic//jar"],
-    visibility = ["//visibility:public"],
-)
 """
 
 def scala_repositories():
   native.new_http_archive(
     name = "scala",
-    strip_prefix = "scala-2.12.4",
-    sha256 = "9554a0ca31aa8701863e881281b1772370a87e993ce785bb24505f2431292a21",
-    url = "https://downloads.lightbend.com/scala/2.12.4/scala-2.12.4.tgz",
+    strip_prefix = "scala-2.11.11",
+    sha256 = "12037ca64c68468e717e950f47fc77d5ceae5e74e3bdca56f6d02fd5bfd6900b",
+    url = "https://downloads.lightbend.com/scala/2.11.11/scala-2.11.11.tgz",
     build_file_content = SCALA_BUILD_FILE,
   )
 
   # scalatest has macros, note http_jar is invoking ijar
   native.http_jar(
     name = "scalatest",
-    url = "http://oss.sonatype.org/content/groups/public/org/scalatest/scalatest_2.12/3.0.3/scalatest_2.12-3.0.3.jar",
-    sha256 = "353f7c2bdde22c4286ee6a3ae0e425a9463b102f4c4cf76055a24f4666996762",
-  )
-
-  # scalatest has macros, note http_jar is invoking ijar
-  native.http_jar(
-    name = "scalactic",
-    url = "https://oss.sonatype.org/content/groups/public/org/scalactic/scalactic_2.12/3.0.3/scalactic_2.12-3.0.3.jar",
-    sha256 = "245ad1baab6661aee70c137c5e1625771c2624596b349b305801d94618673292",
+    url = "https://mirror.bazel.build/oss.sonatype.org/content/groups/public/org/scalatest/scalatest_2.11/2.2.6/scalatest_2.11-2.2.6.jar",
+    sha256 = "f198967436a5e7a69cfd182902adcfbcb9f2e41b349e1a5c8881a2407f615962",
   )
 
   native.maven_server(
@@ -1115,7 +1097,7 @@ def scala_repositories():
 
   native.bind(name = "io_bazel_rules_scala/dependency/scala/scala_xml", actual = "@scala//:scala-xml")
 
-  native.bind(name = "io_bazel_rules_scala/dependency/scalatest/scalatest", actual = "@scala//:transitive_scalatest")
+  native.bind(name = "io_bazel_rules_scala/dependency/scalatest/scalatest", actual = "@scalatest//jar")
 
 def _sanitize_string_for_usage(s):
     res_array = []
