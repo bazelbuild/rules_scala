@@ -89,7 +89,7 @@ def _build_nosrc_jar(ctx, buildijar):
     # this ensures the file is not empty
     resources += "META-INF/MANIFEST.MF=%s\n" % ctx.outputs.manifest.path
 
-    zipper_arg_path = ctx.actions.declare_file("%s_zipper_args" % ctx.outputs.jar.path)
+    zipper_arg_path = ctx.actions.declare_file("%s_zipper_args" % ctx.label.name)
     ctx.file_action(zipper_arg_path, resources)
     cmd = """
 rm -f {jar_output}
@@ -182,7 +182,6 @@ CurrentTarget: {current_target}
     plugin_arg = ",".join(list(plugins))
 
     compiler_classpath = ":".join([j.path for j in compiler_classpath_jars])
-
 
     scalac_args = """
 Classpath: {cp}
@@ -288,6 +287,24 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
     return java_jar
 
 
+def _interim_java_provider_for_java_compilation(scala_output):
+    # This is needed because Bazel >=0.7.0 requires ctx.actions and a Java
+    # toolchain. Fortunately, the same change that added this requirement also
+    # added this field to the Java provider so we can use it to test which
+    # Bazel version we are running under.
+    test_provider = java_common.create_provider()
+    if hasattr(test_provider, "full_compile_jars"):
+      return java_common.create_provider(
+          use_ijar = False,
+          compile_time_jars = [scala_output],
+          runtime_jars = [],
+      )
+    else:
+      return java_common.create_provider(
+          compile_time_jars = [scala_output],
+          runtime_jars = [],
+      )
+
 def try_to_compile_java_jar(ctx,
                             scala_output,
                             all_srcjars,
@@ -298,10 +315,7 @@ def try_to_compile_java_jar(ctx,
 
     providers_of_dependencies = collect_java_providers_of(ctx.attr.deps)
     providers_of_dependencies += collect_java_providers_of(implicit_junit_deps_needed_for_java_compilation)
-    scala_sources_java_provider = java_common.create_provider(
-        compile_time_jars = [scala_output],
-        runtime_jars = [],
-    )
+    scala_sources_java_provider = _interim_java_provider_for_java_compilation(scala_output)
     providers_of_dependencies += [scala_sources_java_provider]
 
     full_java_jar = ctx.actions.declare_file(ctx.label.name + "_java.jar")
@@ -319,6 +333,7 @@ def try_to_compile_java_jar(ctx,
                 exports = [],
                 java_toolchain = ctx.attr._java_toolchain,
                 host_javabase = ctx.attr._host_javabase,
+                strict_deps = ctx.fragments.java.strict_java_deps,
     )
     return struct(jar = full_java_jar, ijar = provider.compile_jars.to_list().pop())
 
@@ -437,12 +452,17 @@ def collect_srcjars(targets):
             srcjars += [target.srcjars.srcjar]
     return srcjars
 
-def add_labels_of_jars_to(jars2labels, dependency, all_jars):
+def add_labels_of_jars_to(jars2labels, dependency, all_jars, direct_jars):
+  for jar in direct_jars:
+    add_label_of_direct_jar_to(jars2labels, dependency, jar)
   for jar in all_jars:
-    add_label_of_jar_to(jars2labels, dependency, jar)
+    add_label_of_indirect_jar_to(jars2labels, dependency, jar)
 
 
-def add_label_of_jar_to(jars2labels, dependency, jar):
+def add_label_of_direct_jar_to(jars2labels, dependency, jar):
+  jars2labels[jar.path] = dependency.label
+
+def add_label_of_indirect_jar_to(jars2labels, dependency, jar):
  if label_already_exists(jars2labels, jar):
    return
 
@@ -451,8 +471,10 @@ def add_label_of_jar_to(jars2labels, dependency, jar):
  if provider_of_dependency_contains_label_of(dependency, jar):
    jars2labels[jar.path] = dependency.jars_to_labels[jar.path]
  else:
-   jars2labels[jar.path] = dependency.label
-
+   jars2labels[jar.path] = "Unknown label of file {jar_path} which came from {dependency_label}".format(
+       jar_path = jar.path,
+       dependency_label = dependency.label
+   )
 
 def label_already_exists(jars2labels, jar):
   return jar.path in jars2labels
@@ -477,6 +499,19 @@ def not_sources_jar(name):
 
 def filter_not_sources(deps):
   return depset([dep for dep in deps.to_list() if not_sources_jar(dep.basename) ])
+
+def _collect_runtime_jars(dep_targets):
+  runtime_jars = depset()
+
+  for dep_target in dep_targets:
+    if java_common.provider in dep_target:
+        runtime_jars += dep_target[java_common.provider].transitive_runtime_jars
+    else:
+        # support http_file pointed at a jar. http_jar uses ijar,
+        # which breaks scala macros
+        runtime_jars += filter_not_sources(dep_target.files)
+
+  return runtime_jars
 
 def _collect_jars_when_dependency_analyzer_is_off(dep_targets):
   compile_jars = depset()
@@ -505,19 +540,24 @@ def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
   runtime_jars = depset()
 
   for dep_target in dep_targets:
+    current_dep_compile_jars = depset()
+    current_dep_transitive_compile_jars = depset()
+
     if java_common.provider in dep_target:
         java_provider = dep_target[java_common.provider]
-        compile_jars += java_provider.compile_jars
-        transitive_compile_jars += java_provider.transitive_compile_time_jars + java_provider.compile_jars
+        current_dep_compile_jars = java_provider.compile_jars
+        current_dep_transitive_compile_jars = java_provider.transitive_compile_time_jars + java_provider.compile_jars
         runtime_jars += java_provider.transitive_runtime_jars
     else:
         # support http_file pointed at a jar. http_jar uses ijar,
         # which breaks scala macros
-        compile_jars += filter_not_sources(dep_target.files)
+        current_dep_compile_jars = filter_not_sources(dep_target.files)
         runtime_jars += filter_not_sources(dep_target.files)
-        transitive_compile_jars += filter_not_sources(dep_target.files)
+        current_dep_transitive_compile_jars = filter_not_sources(dep_target.files)
 
-    add_labels_of_jars_to(jars2labels, dep_target, transitive_compile_jars)
+    compile_jars += current_dep_compile_jars
+    transitive_compile_jars += current_dep_transitive_compile_jars
+    add_labels_of_jars_to(jars2labels, dep_target, current_dep_transitive_compile_jars, current_dep_compile_jars)
 
   return struct(compile_jars = compile_jars,
     transitive_runtime_jars = runtime_jars,
@@ -555,19 +595,15 @@ def _collect_jars_from_common_ctx(ctx, extra_deps = [], extra_runtime_deps = [])
     deps_jars = collect_jars(ctx.attr.deps + auto_deps + extra_deps, dependency_analyzer_is_off)
     (cjars, transitive_rjars, jars2labels, transitive_compile_jars) = (deps_jars.compile_jars, deps_jars.transitive_runtime_jars, deps_jars.jars2labels, deps_jars.transitive_compile_jars)
 
-    runtime_dep_jars =  collect_jars(ctx.attr.runtime_deps + extra_runtime_deps, dependency_analyzer_is_off)
-    transitive_rjars += runtime_dep_jars.transitive_runtime_jars
-
-    if not dependency_analyzer_is_off:
-      jars2labels.update(runtime_dep_jars.jars2labels)
+    transitive_rjars += _collect_runtime_jars(ctx.attr.runtime_deps + extra_runtime_deps)
 
     return struct(compile_jars = cjars, transitive_runtime_jars = transitive_rjars, jars2labels=jars2labels, transitive_compile_jars = transitive_compile_jars)
 
 def _format_full_jars_for_intellij_plugin(full_jars):
     return [struct (class_jar = jar, ijar = None) for jar in full_jars]
 
-def create_java_provider(ctx, scalaattr, transitive_compile_time_jars):
-    # This is needed because Bazel >=0.6.0 requires ctx.actions and a Java
+def create_java_provider(scalaattr, transitive_compile_time_jars):
+    # This is needed because Bazel >=0.7.0 requires ctx.actions and a Java
     # toolchain. Fortunately, the same change that added this requirement also
     # added this field to the Java provider so we can use it to test which
     # Bazel version we are running under.
@@ -575,8 +611,7 @@ def create_java_provider(ctx, scalaattr, transitive_compile_time_jars):
 
     if hasattr(test_provider, "full_compile_jars"):
       return java_common.create_provider(
-          ctx.actions,
-          java_toolchain = ctx.attr._java_toolchain,
+          use_ijar = False,
           compile_time_jars = scalaattr.compile_jars,
           runtime_jars = scalaattr.transitive_runtime_jars,
           transitive_compile_time_jars = transitive_compile_time_jars,
@@ -641,7 +676,7 @@ def _lib(ctx, non_macro_lib):
         transitive_exports = [] #needed by intellij plugin
     )
 
-    java_provider = create_java_provider(ctx, scalaattr, jars.transitive_compile_jars)
+    java_provider = create_java_provider(scalaattr, jars.transitive_compile_jars)
 
     return struct(
         files = depset([ctx.outputs.jar]),  # Here is the default output
@@ -705,7 +740,7 @@ def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2l
       transitive_exports = [] #needed by intellij plugin
   )
 
-  java_provider = create_java_provider(ctx, scalaattr, transitive_compile_time_jars)
+  java_provider = create_java_provider(scalaattr, transitive_compile_time_jars)
 
   return struct(
       files=depset([ctx.outputs.executable]),
@@ -788,7 +823,7 @@ def _scala_test_impl(ctx):
 
     if is_dependency_analyzer_on(ctx):
       transitive_compile_jars += scalatest_jars
-      add_labels_of_jars_to(jars_to_labels, ctx.attr._scalatest, scalatest_jars)
+      add_labels_of_jars_to(jars_to_labels, ctx.attr._scalatest, scalatest_jars, scalatest_jars)
 
     args = " ".join([
         "-R \"{path}\"".format(path=ctx.outputs.jar.short_path),
@@ -808,7 +843,7 @@ def _scala_test_impl(ctx):
 
 def _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, archives):
     serialized_archives = _serialize_archives_short_path(archives)
-    return struct(testSuiteFlag = "-Dbazel.test_suite=io.bazel.rulesscala.test_discovery.DiscoveredTestSuite",
+    return struct(testSuiteFlag = "-Dbazel.test_suite=%s" % ctx.attr.suite_class,
     archiveFlag = "-Dbazel.discover.classes.archives.file.paths=%s" % serialized_archives,
     prefixesFlag = "-Dbazel.discover.classes.prefixes=%s" % ",".join(ctx.attr.prefixes),
     suffixesFlag = "-Dbazel.discover.classes.suffixes=%s" % ",".join(ctx.attr.suffixes),
@@ -823,7 +858,7 @@ def _scala_junit_test_impl(ctx):
     if (not(ctx.attr.prefixes) and not(ctx.attr.suffixes)):
       fail("Setting at least one of the attributes ('prefixes','suffixes') is required")
     jars = _collect_jars_from_common_ctx(ctx,
-        extra_deps = [ctx.attr._junit, ctx.attr._hamcrest, ctx.attr._suite, ctx.attr._bazel_test_runner],
+        extra_deps = [ctx.attr._junit, ctx.attr._hamcrest, ctx.attr.suite_label, ctx.attr._bazel_test_runner],
     )
     (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
     implicit_junit_deps_needed_for_java_compilation = [ctx.attr._junit, ctx.attr._hamcrest]
@@ -1047,7 +1082,7 @@ def scala_repositories():
 
   native.maven_server(
     name = "scalac_deps_maven_server",
-    url = "http://mirror.bazel.build/repo1.maven.org/maven2/",
+    url = "https://mirror.bazel.build/repo1.maven.org/maven2/",
   )
 
   native.maven_jar(
@@ -1146,10 +1181,11 @@ scala_junit_test = rule(
   attrs= _launcher_template + _implicit_deps + _common_attrs + _junit_resolve_deps + {
       "prefixes": attr.string_list(default=[]),
       "suffixes": attr.string_list(default=[]),
+      "suite_label": attr.label(default=Label("//src/java/io/bazel/rulesscala/test_discovery:test_discovery")),
+      "suite_class": attr.string(default="io.bazel.rulesscala.test_discovery.DiscoveredTestSuite"),
       "print_discovered_classes": attr.bool(default=False, mandatory=False),
       "_junit": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/junit/junit")),
       "_hamcrest": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/hamcrest/hamcrest_core")),
-      "_suite": attr.label(default=Label("//src/java/io/bazel/rulesscala/test_discovery:test_discovery")),
       "_bazel_test_runner": attr.label(default=Label("@bazel_tools//tools/jdk:TestRunner_deploy.jar"), allow_files=True),
       },
   outputs= common_outputs,
@@ -1161,4 +1197,6 @@ def scala_specs2_junit_test(name, **kwargs):
   scala_junit_test(
    name = name,
    deps = specs2_junit_dependencies() + kwargs.pop("deps",[]),
+   suite_label = Label("//src/java/io/bazel/rulesscala/specs2:specs2_test_discovery"),
+   suite_class = "io.bazel.rulesscala.specs2.Specs2DiscoveredTestSuite",
    **kwargs)
