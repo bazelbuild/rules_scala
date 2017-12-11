@@ -80,3 +80,6 @@ filegroup(
 )
 """
 )
+
+load("//scala:scala.bzl", "register_scala_toolchains")
+register_scala_toolchains()

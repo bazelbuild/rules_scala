@@ -16,6 +16,8 @@
 
 load("//specs2:specs2_junit.bzl", "specs2_junit_dependencies")
 load(":scala_cross_version.bzl", "scala_version", "scala_mvn_artifact")
+load("@io_bazel_rules_scala//scala:scala_toolchain.bzl", "scala_toolchain")
+
 _jar_filetype = FileType([".jar"])
 _java_filetype = FileType([".java"])
 _scala_filetype = FileType([".scala"])
@@ -183,6 +185,9 @@ CurrentTarget: {current_target}
 
     compiler_classpath = ":".join([j.path for j in compiler_classpath_jars])
 
+    toolchain = ctx.toolchains['@io_bazel_rules_scala//scala:scala_toolchain.bzl']
+    scalacopts = ctx.attr.scalacopts + toolchain.scalacopts
+
     scalac_args = """
 Classpath: {cp}
 EnableIjar: {enableijar}
@@ -205,7 +210,7 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
 """.format(
         out=ctx.outputs.jar.path,
         manifest=ctx.outputs.manifest.path,
-        scala_opts=",".join(ctx.attr.scalacopts),
+        scala_opts=",".join(scalacopts),
         print_compile_time=ctx.attr.print_compile_time,
         plugin_arg=plugin_arg,
         cp=compiler_classpath,
@@ -955,7 +960,8 @@ scala_library = rule(
   attrs={
       } + _implicit_deps + _common_attrs + library_attrs + _resolve_deps,
   outputs=library_outputs,
-  fragments = ["java"]
+  fragments = ["java"],
+  toolchains = ['@io_bazel_rules_scala//scala:scala_toolchain.bzl']
 )
 
 # the scala compiler plugin used for dependency analysis is compiled using `scala_library`.
@@ -965,7 +971,8 @@ scala_library_for_plugin_bootstrapping = rule(
   implementation=_scala_library_impl,
   attrs= _implicit_deps + library_attrs + _resolve_deps + _common_attrs_for_plugin_bootstrapping,
   outputs=library_outputs,
-  fragments = ["java"]
+  fragments = ["java"],
+  toolchains = ['@io_bazel_rules_scala//scala:scala_toolchain.bzl']
 )
 
 scala_macro_library = rule(
@@ -975,7 +982,8 @@ scala_macro_library = rule(
       "exports": attr.label_list(allow_files=False),
       } + _implicit_deps + _common_attrs + _resolve_deps,
   outputs= common_outputs,
-  fragments = ["java"]
+  fragments = ["java"],
+  toolchains = ['@io_bazel_rules_scala//scala:scala_toolchain.bzl']
 )
 
 scala_binary = rule(
@@ -985,7 +993,8 @@ scala_binary = rule(
       } + _launcher_template + _implicit_deps + _common_attrs + _resolve_deps,
   outputs= common_outputs,
   executable=True,
-  fragments = ["java"]
+  fragments = ["java"],
+  toolchains = ['@io_bazel_rules_scala//scala:scala_toolchain.bzl']
 )
 
 scala_test = rule(
@@ -1002,7 +1011,8 @@ scala_test = rule(
   outputs= common_outputs,
   executable=True,
   test=True,
-  fragments = ["java"]
+  fragments = ["java"],
+  toolchains = ['@io_bazel_rules_scala//scala:scala_toolchain.bzl']
 )
 
 scala_repl = rule(
@@ -1010,7 +1020,8 @@ scala_repl = rule(
   attrs= _launcher_template + _implicit_deps + _common_attrs + _resolve_deps,
   outputs= common_outputs,
   executable=True,
-  fragments = ["java"]
+  fragments = ["java"],
+  toolchains = ['@io_bazel_rules_scala//scala:scala_toolchain.bzl']
 )
 
 SCALA_BUILD_FILE = """
@@ -1172,7 +1183,9 @@ scala_junit_test = rule(
       },
   outputs= common_outputs,
   test=True,
-  fragments = ["java"]
+  fragments = ["java"],
+  toolchains = ['@io_bazel_rules_scala//scala:scala_toolchain.bzl']
+
 )
 
 def scala_specs2_junit_test(name, **kwargs):
@@ -1182,3 +1195,6 @@ def scala_specs2_junit_test(name, **kwargs):
    suite_label = Label("//src/java/io/bazel/rulesscala/specs2:specs2_test_discovery"),
    suite_class = "io.bazel.rulesscala.specs2.Specs2DiscoveredTestSuite",
    **kwargs)
+
+def register_scala_toolchains():
+  native.register_toolchains("@io_bazel_rules_scala//scala:scala_toolchain")
