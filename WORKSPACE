@@ -83,3 +83,16 @@ filegroup(
 
 load("//scala:scala.bzl", "register_scala_toolchains")
 register_scala_toolchains()
+
+
+build_bazel_integration_test_version="55a6a70dbcc2cc7699ee715746fb1452788f8d3c" # update this as needed
+
+http_archive(
+             name = "build_bazel_integration_test",
+             url = "https://github.com/bazelbuild/bazel-integration-testing/archive/%s.zip"%build_bazel_integration_test_version,
+             type = "zip",
+             strip_prefix= "bazel-integration-testing-%s" % build_bazel_integration_test_version
+             )
+
+load("@build_bazel_integration_test//tools:bazel_java_integration_test.bzl","bazel_java_integration_test_deps")
+bazel_java_integration_test_deps()
