@@ -1,8 +1,8 @@
 package test_expect_failure.scalacopts_from_toolchain
 
-class HelloWorld(name:String){
+class ClassWithUnused(name:String){
   def talk():String = {
-    val a = "dsdssd"
+    val unusedValue = "I am not used :-("
     s"hello $name"
   }
 }
