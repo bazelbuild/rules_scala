@@ -185,7 +185,7 @@ CurrentTarget: {current_target}
 
     compiler_classpath = ":".join([j.path for j in compiler_classpath_jars])
 
-    toolchain = ctx.toolchains['@io_bazel_rules_scala//scala:scala_toolchain.bzl']
+    toolchain = ctx.toolchains['@io_bazel_rules_scala//scala:scala_toolchain_type']
     scalacopts = ctx.attr.scalacopts + toolchain.scalacopts
 
     scalac_args = """
@@ -961,7 +961,7 @@ scala_library = rule(
       } + _implicit_deps + _common_attrs + library_attrs + _resolve_deps,
   outputs=library_outputs,
   fragments = ["java"],
-  toolchains = ['@io_bazel_rules_scala//scala:scala_toolchain.bzl']
+ toolchains = ['@io_bazel_rules_scala//scala:scala_toolchain_type']
 )
 
 # the scala compiler plugin used for dependency analysis is compiled using `scala_library`.
@@ -972,7 +972,7 @@ scala_library_for_plugin_bootstrapping = rule(
   attrs= _implicit_deps + library_attrs + _resolve_deps + _common_attrs_for_plugin_bootstrapping,
   outputs=library_outputs,
   fragments = ["java"],
-  toolchains = ['@io_bazel_rules_scala//scala:scala_toolchain.bzl']
+ toolchains = ['@io_bazel_rules_scala//scala:scala_toolchain_type']
 )
 
 scala_macro_library = rule(
@@ -983,7 +983,7 @@ scala_macro_library = rule(
       } + _implicit_deps + _common_attrs + _resolve_deps,
   outputs= common_outputs,
   fragments = ["java"],
-  toolchains = ['@io_bazel_rules_scala//scala:scala_toolchain.bzl']
+ toolchains = ['@io_bazel_rules_scala//scala:scala_toolchain_type']
 )
 
 scala_binary = rule(
@@ -994,7 +994,7 @@ scala_binary = rule(
   outputs= common_outputs,
   executable=True,
   fragments = ["java"],
-  toolchains = ['@io_bazel_rules_scala//scala:scala_toolchain.bzl']
+ toolchains = ['@io_bazel_rules_scala//scala:scala_toolchain_type']
 )
 
 scala_test = rule(
@@ -1012,7 +1012,7 @@ scala_test = rule(
   executable=True,
   test=True,
   fragments = ["java"],
-  toolchains = ['@io_bazel_rules_scala//scala:scala_toolchain.bzl']
+ toolchains = ['@io_bazel_rules_scala//scala:scala_toolchain_type']
 )
 
 scala_repl = rule(
@@ -1021,7 +1021,7 @@ scala_repl = rule(
   outputs= common_outputs,
   executable=True,
   fragments = ["java"],
-  toolchains = ['@io_bazel_rules_scala//scala:scala_toolchain.bzl']
+ toolchains = ['@io_bazel_rules_scala//scala:scala_toolchain_type']
 )
 
 SCALA_BUILD_FILE = """
@@ -1184,8 +1184,7 @@ scala_junit_test = rule(
   outputs= common_outputs,
   test=True,
   fragments = ["java"],
-  toolchains = ['@io_bazel_rules_scala//scala:scala_toolchain.bzl']
-
+  toolchains = ['@io_bazel_rules_scala//scala:scala_toolchain_type']
 )
 
 def scala_specs2_junit_test(name, **kwargs):
