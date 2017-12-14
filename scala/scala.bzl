@@ -186,7 +186,7 @@ CurrentTarget: {current_target}
     compiler_classpath = ":".join([j.path for j in compiler_classpath_jars])
 
     toolchain = ctx.toolchains['@io_bazel_rules_scala//scala:scala_toolchain_type']
-    scalacopts = ctx.attr.scalacopts + toolchain.scalacopts
+    scalacopts = toolchain.scalacopts + ctx.attr.scalacopts
 
     scalac_args = """
 Classpath: {cp}
