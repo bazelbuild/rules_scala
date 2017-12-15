@@ -6,10 +6,12 @@ def _scala_import_impl(ctx):
     (current_target_compile_jars, intellij_metadata) = (target_data.code_jars, target_data.intellij_metadata)
     current_jars = depset(current_target_compile_jars)
     exports = _collect(ctx.attr.exports)
-    jars2labels = _add_labels_of_current_code_jars(current_jars + exports.compile_jars , ctx.label)
     transitive_runtime_jars = _collect_runtime(ctx.attr.runtime_deps)
     jars = _collect(ctx.attr.deps)
+    jars2labels = {}
     _collect_labels(ctx.attr.deps, jars2labels)
+    _collect_labels(ctx.attr.exports, jars2labels) #untested
+    _add_labels_of_current_code_jars(current_jars + exports.compile_jars , ctx.label, jars2labels) #last to override the label of the export compile jars to the current target
     return struct(
         scala = struct(
           outputs = struct (
@@ -38,11 +40,9 @@ def _create_provider(current_target_compile_jars, transitive_runtime_jars, jars,
           transitive_runtime_jars = transitive_runtime_jars + jars.transitive_runtime_jars + current_target_compile_jars,
       )
 
-def _add_labels_of_current_code_jars(code_jars, label):
-  jars2labels = {}
+def _add_labels_of_current_code_jars(code_jars, label, jars2labels):
   for jar in code_jars:
     jars2labels[jar.path] = label
-  return jars2labels
 
 def _code_jars_and_intellij_metadata_from(jars):
   code_jars = []
