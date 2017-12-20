@@ -734,7 +734,7 @@ test_intellij_aspect() {
   local rules_scala_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
   if [[ "${test_env}" == "ci" ]]; then
-    # ci: intellij is checked out with full git history in `.travis.yaml`
+    # ci: intellij is checked out in `.travis.yaml`
     cd intellij
   else
     # local: update or checkout a sibling dir.
