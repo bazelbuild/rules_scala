@@ -16,8 +16,8 @@ object ScalaPBWorker extends GenericWorker(new ScalaPBGenerator) {
   override protected def setupOutput(ps: PrintStream): Unit = {
     System.setOut(ps)
     System.setErr(ps)
-    Console.setErr(ps)
-    Console.setOut(ps)
+    Console.withErr(ps)
+    Console.withOut(ps)
   }
 
   def main(args: Array[String]) {
@@ -34,7 +34,7 @@ class ScalaPBGenerator extends Processor {
   def deleteDir(path: Path): Unit =
     try DeleteRecursively.run(path)
     catch {
-      case _: Exception => ()
+      case e: Exception => sys.error(s"Problem while deleting path [$path], e.getMessage= ${e.getMessage}")
     }
 
   def processRequest(args: java.util.List[String]) {

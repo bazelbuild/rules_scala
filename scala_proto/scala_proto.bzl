@@ -318,9 +318,6 @@ def _root_path(f):
 def _colon_paths(data):
     return ':'.join(["{root},{path}".format(root=_root_path(f), path=f.path) for f in data])
 
-def _contain_java(flags):
-  return "java_conversions" in flags
-
 def _gen_proto_srcjar_impl(ctx):
     acc_imports = depset()
 
@@ -332,7 +329,7 @@ def _gen_proto_srcjar_impl(ctx):
         else:
             jvm_deps.append(target)
 
-    if _contain_java(ctx.attr.flags) and len(jvm_deps) == 0:
+    if "java_conversions" in ctx.attr.flags and len(jvm_deps) == 0:
         fail("must have at least one jvm dependency if with_java is True (java_conversions is turned on)")
 
     deps_jars = collect_jars(jvm_deps)
