@@ -93,7 +93,9 @@ class Specs2ClassRunner(testClass: Class[_], testFilter: Pattern)
   override def runWithEnv(n: RunNotifier, env: Env): Action[Stats] = {
     val specs2MatchedExamplesRegex = specs2ExamplesMatching(testFilter, getDescription).toRegexAlternation
 
-    val newArgs = Arguments(select = Select(_ex = specs2MatchedExamplesRegex), commandLine = CommandLine.create(testClass.getName))
+    val newArgs = Arguments(
+      select = Select(_ex = specs2MatchedExamplesRegex),
+      commandLine = CommandLine.create(testClass.getName :: junitXmlCmdLineParameters:_*))
     val newEnv = env.copy(arguments overrideWith newArgs)
 
     super.runWithEnv(n, newEnv)
@@ -108,4 +110,7 @@ class Specs2ClassRunner(testClass: Class[_], testFilter: Pattern)
       if (coll.isEmpty) None
       else Some(coll.map(_.toQuotedRegex).mkString("(", "|", ")"))
   }
+
+  val specs2JunitXmlOutputDir = System.getenv("TEST_UNDECLARED_OUTPUTS_DIR")
+  val junitXmlCmdLineParameters = List("console", "junitxml", "junit.outdir", specs2JunitXmlOutputDir)
 }
