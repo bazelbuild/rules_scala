@@ -53,9 +53,10 @@ class Specs2ClassRunner(testClass: Class[_], testFilter: Pattern)
       .find(sanitize(_) == desc)
       .getOrElse(desc)
 
-  private def toDisplayName(description: Description) = description.getMethodName.split("::").reverse.headOption
-    .map(specs2Description)
-    .getOrElse("")
+  private def toDisplayName(description: Description): Option[String] = for {
+      name <- Option(description.getMethodName)
+      desc <- name.split("::").reverse.headOption
+    } yield specs2Description(desc)
 
   /**
     * Turns a JUnit description structure into a flat list:
@@ -88,7 +89,7 @@ class Specs2ClassRunner(testClass: Class[_], testFilter: Pattern)
   private def specs2ExamplesMatching(testFilter: Pattern, junitDescription: Description): List[String] =
     flattenDescription(junitDescription)
       .filter(matching(testFilter))
-      .map(toDisplayName)
+      .flatMap(toDisplayName)
 
   override def runWithEnv(n: RunNotifier, env: Env): Action[Stats] = {
     val specs2MatchedExamplesRegex = specs2ExamplesMatching(testFilter, getDescription).toRegexAlternation

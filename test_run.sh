@@ -459,6 +459,36 @@ scala_junit_test_test_filter(){
   done
 }
 
+scala_specs2_junit_test_test_filter_everything(){
+  local output=$(bazel test \
+    --nocache_test_results \
+    --test_output=streamed \
+    '--test_filter=.*' \
+    test:Specs2Tests)
+  local expected=(
+    "[info] JunitSpec2RegexTest"
+    "[info] JunitSpecs2AnotherTest"
+    "[info] JunitSpecs2Test")
+  local unexpected=(
+      "[info] UnrelatedTest")
+  for method in "${expected[@]}"; do
+    if ! grep "$method" <<<$output; then
+      echo "output:"
+      echo "$output"
+      echo "Expected $method in output, but was not found."
+      exit 1
+    fi
+  done
+  for method in "${unexpected[@]}"; do
+    if grep "$method" <<<$output; then
+      echo "output:"
+      echo "$output"
+      echo "Not expecting $method in output, but was found."
+      exit 1
+    fi
+  done
+}
+
 scala_specs2_junit_test_test_filter_whole_spec(){
   local output=$(bazel test \
     --nocache_test_results \
@@ -749,6 +779,7 @@ $runner scala_library_jar_without_srcs_must_include_filegroup_resources
 $runner bazel run test/src/main/scala/scala/test/large_classpath:largeClasspath
 $runner scala_test_test_filters
 $runner scala_junit_test_test_filter
+$runner scala_specs2_junit_test_test_filter_everything
 $runner scala_specs2_junit_test_test_filter_one_test
 $runner scala_specs2_junit_test_test_filter_whole_spec
 $runner scala_specs2_junit_test_test_filter_exact_match
