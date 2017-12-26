@@ -237,79 +237,7 @@ test_multi_service_manifest() {
   exit $RESPONSE_CODE
 }
 
-NC='\033[0m'
-GREEN='\033[0;32m'
-RED='\033[0;31m'
-TIMOUT=60
 
-run_test_ci() {
-  # spawns the test to new process
-  local TEST_ARG=$@
-  local log_file=output_$$.log
-  echo "running test $TEST_ARG"
-  $TEST_ARG &>$log_file &
-  local test_pid=$!
-  SECONDS=0
-  test_pulse_printer $! $TIMOUT $TEST_ARG &
-  local pulse_printer_pid=$!
-  local result
-
-  {
-    wait $test_pid 2>/dev/null
-    result=$?
-    kill $pulse_printer_pid && wait $pulse_printer_pid 2>/dev/null || true
-  } || return 1
-
-  DURATION=$SECONDS
-  if [ $result -eq 0 ]; then
-    echo -e "\n${GREEN}Test \"$TEST_ARG\" successful ($DURATION sec) $NC"
-  else
-    echo -e "\nLog:\n"
-    cat $log_file
-    echo -e "\n${RED}Test \"$TEST_ARG\" failed $NC ($DURATION sec) $NC"
-  fi
-  return $result
-}
-
-test_pulse_printer() {
-  # makes sure something is printed to stdout while test is running
-  local test_pid=$1
-  shift
-  local timeout=$1 # in minutes
-  shift
-  local count=0
-
-  # clear the line
-  echo -e "\n"
-
-  while [ $count -lt $timeout ]; do
-    count=$(($count + 1))
-    echo -ne "Still running: \"$@\"\r"
-    sleep 60
-  done
-
-  echo -e "\n${RED}Timeout (${timeout} minutes) reached. Terminating \"$@\"${NC}\n"
-  kill -9 $test_pid
-}
-
-run_test_local() {
-  # runs the tests locally
-  set +e
-  SECONDS=0
-  TEST_ARG=$@
-  echo "running test $TEST_ARG"
-  RES=$($TEST_ARG 2>&1)
-  RESPONSE_CODE=$?
-  DURATION=$SECONDS
-  if [ $RESPONSE_CODE -eq 0 ]; then
-    echo -e "${GREEN} Test \"$TEST_ARG\" successful ($DURATION sec) $NC"
-  else
-    echo -e "\nLog:\n"
-    echo "$RES"
-    echo -e "${RED} Test \"$TEST_ARG\" failed $NC ($DURATION sec) $NC"
-    exit $RESPONSE_CODE
-  fi
-}
 
 action_should_fail() {
   # runs the tests locally
@@ -728,31 +656,6 @@ revert_change() {
   mv $1/$2.bak $1/$2
 }
 
-test_intellij_aspect() {
-  local test_env=$1
-  local intellij_git_tag=$2
-  local rules_scala_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-
-  if [[ "${test_env}" == "ci" ]]; then
-    # ci: intellij is checked out in `.travis.yaml`
-    cd intellij
-  else
-    # local: update or checkout a sibling dir.
-    cd "${rules_scala_dir}/../"
-    test -d "intellij/.git" || git clone git@github.com:bazelbuild/intellij.git
-    cd intellij && git fetch && git pull
-  fi
-  git checkout "${intellij_git_tag}"
-  bazel test --test_output=errors --override_repository io_bazel_rules_scala="${rules_scala_dir}" //aspect/testing/tests/src/com/google/idea/blaze/aspect/scala/...
-}
-
-test_env="${1:-local}"
-if [[ "${test_env}" != "ci" && "${test_env}" != "local" ]]; then
-  echo -e "${RED}test_env must be either 'local' or 'ci'"
-  exit 1
-fi
-runner="run_test_${test_env}"
-
 test_scala_import_expect_failure_on_missing_direct_deps_warn_mode() {
   dependency_target1='//test_expect_failure/scala_import:cats'
   dependency_target2='//test_expect_failure/scala_import:guava'
@@ -763,6 +666,11 @@ test_scala_import_expect_failure_on_missing_direct_deps_warn_mode() {
 
   test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message1}" ${test_target} "--strict_java_deps=warn" "ne" "${expected_message2}"
 }
+
+dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+# shellcheck source=./test_runner.sh
+. "${dir}"/test_runner.sh
+runner=$(get_test_runner "${1:-local}")
 
 $runner bazel build test/...
 $runner bazel test test/...
@@ -827,4 +735,3 @@ $runner test_scala_library_expect_failure_on_missing_direct_deps_warn_mode_java
 $runner test_scala_library_expect_better_failure_message_on_missing_transitive_dependency_labels_from_other_jvm_rules
 $runner test_scala_import_expect_failure_on_missing_direct_deps_warn_mode
 $runner bazel build "test_expect_failure/missing_direct_deps/internal_deps/... --strict_java_deps=warn"
-$runner test_intellij_aspect "${test_env}" master # TODO(https://github.com/bazelbuild/intellij/issues/146): add test of release tag when fixed.
