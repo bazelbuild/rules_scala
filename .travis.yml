@@ -39,7 +39,6 @@ before_install:
     ./install.sh --user
     rm -f install.sh
   - cat .bazelrc.travis >> .bazelrc
-  - git clone --depth 1 https://github.com/bazelbuild/intellij.git
 
 script:
   - bash $TEST_SCRIPT ci

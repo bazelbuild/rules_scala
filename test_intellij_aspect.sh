@@ -11,7 +11,7 @@ test_intellij_aspect() {
   local -r rules_scala_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
   if [[ "${test_env}" == "ci" ]]; then
-    # ci: intellij is checked out in `.travis.yaml`
+    git clone --depth 1 https://github.com/bazelbuild/intellij.git
     cd intellij || exit 1
   else
     # local: update or checkout a sibling dir.
