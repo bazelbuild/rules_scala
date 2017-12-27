@@ -570,7 +570,7 @@ Note: Currently strict-deps is protected by a feature toggle but we're strongly 
 ## Building from source
 Test & Build:
 ```
-bash test_run.sh
+bash test_all.sh
 ```
 This doesn't currently pass on OS X (see #136 for details) and so you can also use:
 
