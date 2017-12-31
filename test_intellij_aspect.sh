@@ -20,7 +20,7 @@ test_intellij_aspect() {
     cd intellij && git fetch && git pull
   fi
   git checkout "${intellij_git_tag}"
-  bazel test --test_output=errors --override_repository io_bazel_rules_scala="${rules_scala_dir}" //aspect/testing/tests/src/com/google/idea/blaze/aspect/scala/...
+  bazel test --test_output=errors --override_repository io_bazel_rules_scala="${rules_scala_dir}"  --experimental_extra_toolchains=@io_bazel_rules_scala//scala:scala_toolchain //aspect/testing/tests/src/com/google/idea/blaze/aspect/scala/...
 }
 
 dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
