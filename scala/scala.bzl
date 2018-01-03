@@ -928,7 +928,8 @@ _common_attrs_for_plugin_bootstrapping = {
   "print_compile_time": attr.bool(default=False, mandatory=False),
 }
 
-_common_attrs = dict(_common_attrs_for_plugin_bootstrapping)
+_common_attrs = {}
+_common_attrs.update(_common_attrs_for_plugin_bootstrapping)
 _common_attrs.update({
   # using stricts scala deps is done by using command line flag called 'strict_java_deps'
   # switching mode to "on" means that ANY API change in a target's transitive dependencies will trigger a recompilation of that target,
@@ -947,7 +948,8 @@ common_outputs = {
   "manifest": "%{name}_MANIFEST.MF",
 }
 
-library_outputs = dict(common_outputs)
+library_outputs = {}
+library_outputs.update(common_outputs)
 library_outputs.update({
   "ijar": "%{name}_ijar.jar",
 })
