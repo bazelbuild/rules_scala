@@ -72,10 +72,17 @@ class ScalacProcessor implements Processor {
        * Copy the resources
        */
       copyResources(ops.resourceFiles, ops.resourceStripPrefix, tmpPath);
+
       /**
        * Extract and copy resources from resource jars
        */
       copyResourceJars(ops.resourceJars, tmpPath);
+
+      /**
+       * Copy classpath resources to root of jar
+       */
+      copyClasspathResources(ops.classpathResourceFiles, tmpPath);
+
       /**
        * Now build the output jar
        */
@@ -281,6 +288,7 @@ class ScalacProcessor implements Processor {
       });
     }
   }
+
   private static void copyResources(
       Map<String, Resource> resources,
       String resourceStripPrefix,
@@ -323,6 +331,26 @@ class ScalacProcessor implements Processor {
       Files.copy(source, target);
     }
   }
+
+  private static void copyClasspathResources(
+    String[] classpathResourceFiles,
+    Path dest
+  ) throws IOException {
+    for(String s : classpathResourceFiles) {
+      Path source = Paths.get(s);
+      Path target = dest.resolve(source.getFileName());
+
+      if(Files.exists(target)) {
+        throw new RuntimeException(
+          "Classpath resource file " + source.getFileName()
+          + "has a namespace conflict with another file: " + target.getFileName()
+        );
+      } else {
+        Files.copy(source, target);
+      }
+    }
+  }
+
   private static String getResourcePath(
       Path source,
       String resourceStripPrefix) throws RuntimeException {

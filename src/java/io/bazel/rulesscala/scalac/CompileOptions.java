@@ -20,6 +20,7 @@ public class CompileOptions {
   final public Map<String, Resource> resourceFiles;
   final public String resourceStripPrefix;
   final public String[] resourceJars;
+  final public String[] classpathResourceFiles;
   final public String[] directJars;
   final public String[] indirectJars;
   final public String[] indirectTargets;
@@ -54,6 +55,7 @@ public class CompileOptions {
     resourceFiles = getResources(argMap);
     resourceStripPrefix = getOrEmpty(argMap, "ResourceStripPrefix");
     resourceJars = getCommaList(argMap, "ResourceJars");
+    classpathResourceFiles = getCommaList(argMap, "ClasspathResourceSrcs");
 
     directJars = getCommaList(argMap, "DirectJars");
     indirectJars = getCommaList(argMap, "IndirectJars");
