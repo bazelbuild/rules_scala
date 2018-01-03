@@ -14,8 +14,6 @@ env:
   # we want to test the most recent few releases
   - V=0.7.0 TEST_SCRIPT=test_rules_scala.sh
   - V=0.7.0 TEST_SCRIPT=test_intellij_aspect.sh
-  - V=0.8.1 TEST_SCRIPT=test_rules_scala.sh
-  - V=0.8.1 TEST_SCRIPT=test_intellij_aspect.sh
   - V=0.9.0 TEST_SCRIPT=test_rules_scala.sh
   - V=0.9.0 TEST_SCRIPT=test_intellij_aspect.sh
 
