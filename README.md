@@ -36,6 +36,10 @@ http_archive(
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
 scala_repositories()
 ```
+To use a particular tag, use the tagged number in `tag = ` and omit the `commit` attribute.
+Note that these plugins are still evolving quickly, as is bazel, so you may need to select
+the version most appropriate for you.
+
 In addition, you **must** register `scala_toolchain` - To register default empty toolcahin simply add those lines to `WORKSPACE` file:
 ```python
 
