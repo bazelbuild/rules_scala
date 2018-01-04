@@ -43,13 +43,6 @@ load("@io_bazel_rules_scala/scala:toolchains.bzl", "scala_register_toolchains")
 scala_register_toolchains()
 ```
 [read more here](#scala_toolchain)
-# register default scala toolchain
-load("@io_bazel_rules_scala/scala:toolchains.bzl", "scala_register_toolchains")
-scala_register_toolchains()
-```
-To use a particular tag, use the tagged number in `tag = ` and omit the `commit` attribute.
-Note that these plugins are still evolving quickly, as is bazel, so you may need to select
-the version most appropriate for you.
 
 Then in your BUILD file just add the following so the rules will be available:
 ```python
