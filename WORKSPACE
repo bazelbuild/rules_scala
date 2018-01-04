@@ -81,5 +81,5 @@ filegroup(
 """
 )
 
-# we load toolchain that fails the build on unused warnings
-register_toolchains("//test_expect_failure/scalacopts_from_toolchain:failing_scala_toolchain")
+load("@io_bazel_rules_scala//scala:toolchains.bzl","scala_register_toolchains")
+scala_register_toolchains()

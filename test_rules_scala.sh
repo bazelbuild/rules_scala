@@ -668,7 +668,7 @@ test_scala_import_expect_failure_on_missing_direct_deps_warn_mode() {
 }
 
 test_scalaopts_from_scala_toolchain() {
-  action_should_fail build test_expect_failure/scalacopts_from_toolchain:failing_build
+  action_should_fail build --extra_toolchains="//test_expect_failure/scalacopts_from_toolchain:failing_scala_toolchain" //test_expect_failure/scalacopts_from_toolchain:failing_build
 }
 
 dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
