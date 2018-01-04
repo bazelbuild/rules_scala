@@ -667,6 +667,10 @@ test_scala_import_expect_failure_on_missing_direct_deps_warn_mode() {
   test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message1}" ${test_target} "--strict_java_deps=warn" "ne" "${expected_message2}"
 }
 
+test_scalaopts_from_scala_toolchain() {
+  action_should_fail build --extra_toolchains="//test_expect_failure/scalacopts_from_toolchain:failing_scala_toolchain" //test_expect_failure/scalacopts_from_toolchain:failing_build
+}
+
 dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 # shellcheck source=./test_runner.sh
 . "${dir}"/test_runner.sh
@@ -735,3 +739,4 @@ $runner test_scala_library_expect_failure_on_missing_direct_deps_warn_mode_java
 $runner test_scala_library_expect_better_failure_message_on_missing_transitive_dependency_labels_from_other_jvm_rules
 $runner test_scala_import_expect_failure_on_missing_direct_deps_warn_mode
 $runner bazel build "test_expect_failure/missing_direct_deps/internal_deps/... --strict_java_deps=warn"
+$runner test_scalaopts_from_scala_toolchain
