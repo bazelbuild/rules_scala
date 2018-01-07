@@ -374,7 +374,7 @@ using the `scalatest` library. It may depend on `scala_library`,
 `scala_macro_library` and `java_library` rules.
 
 A `scala_test` by default runs all tests in a given target.
-For backwards compatiblity it accepts a `suites` attribute which
+For backwards compatibility it accepts a `suites` attribute which
 is ignored due to the ease with which that field is not correctly
 populated and tests are not run.
 
@@ -384,7 +384,7 @@ populated and tests are not run.
 ```python
 scala_repl(name, deps, scalacopts, jvm_flags, scalac_jvm_flags, javac_jvm_flags)
 ```
-A scala repl allows you to add library dependendencies (not currently `scala_binary` targets)
+A scala repl allows you to add library dependencies (not currently `scala_binary` targets)
 to generate a script to run which starts a REPL.
 Since `bazel run` closes stdin, it cannot be used to start the REPL. Instead,
 you use `bazel build` to build the script, then run that script as normal to start a REPL
@@ -400,7 +400,7 @@ bazel-bin/test/HelloLibRepl
 The scala library suite allows you to define a glob or series of targets to generate sub
 scala libraries for. The outer target will export all of the inner targets. This allows splitting up
 of a series of independent files in a larger target into smaller ones. This lets us cache outputs better
-and also build the indvidual targets in parallel. Downstream targets should not be aware of its presence.
+and also build the individual targets in parallel. Downstream targets should not be aware of its presence.
 
 <a name="scala_test_suite"></a>
 ## scala\_test_suite
@@ -408,7 +408,7 @@ and also build the indvidual targets in parallel. Downstream targets should not 
 The scala test suite allows you to define a glob or series of targets to generate sub
 scala tests for. The outer target defines a native test suite to run all the inner tests. This allows splitting up
 of a series of independent tests from one target into several. This lets us cache outputs better
-and also build and test the indvidual targets in parallel.
+and also build and test the individual targets in parallel.
 
 <a name="thrift_library"></a>
 ## thrift_library
@@ -593,7 +593,7 @@ In your workspace file add the following lines:
 
 
 ## [Experimental] Using strict-deps
-Bazel pushes towards explicit and minimial dependencies to keep BUILD file higene and allow for targets to refactor their dependencies without fear of downstream breaking.
+Bazel pushes towards explicit and minimal dependencies to keep BUILD file hygiene and allow for targets to refactor their dependencies without fear of downstream breaking.
 Currently rules_scala does this at the cost of having cryptic `scalac` errors when one mistakenly depends on a transitive dependency or, as more often the case for some, a transitive dependency is needed to [please scalac](https://github.com/scalacenter/advisoryboard/blob/master/proposals/009-improve-direct-dependency-experience.md) itself.
 To learn more about the motivation of strict-deps itself you can visit this Bazel blog [post](https://blog.bazel.build/2017/06/28/sjd-unused_deps.html) on the subject.
 
