@@ -889,7 +889,7 @@ _implicit_deps = {
   "_java": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:java"), allow_files=True),
   "_zipper": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/zip:zipper"), allow_files=True),
   "_java_toolchain": attr.label(default = Label("@bazel_tools//tools/jdk:current_java_toolchain")),
-  "_host_javabase": attr.label(default = Label("//tools/defaults:jdk"))
+  "_host_javabase": attr.label(default = Label("@bazel_tools//tools/jdk:current_java_runtime"))
 }
 
 # Single dep to allow IDEs to pickup all the implicit dependencies.
@@ -1234,4 +1234,3 @@ def scala_specs2_junit_test(name, **kwargs):
    suite_label = Label("//src/java/io/bazel/rulesscala/specs2:specs2_test_discovery"),
    suite_class = "io.bazel.rulesscala.specs2.Specs2DiscoveredTestSuite",
    **kwargs)
-
