@@ -138,6 +138,9 @@ def _collect_plugin_paths(plugins):
     return paths
 
 
+def _expand_location(ctx, flags):
+  return [ctx.expand_location(f, ctx.attr.data) for f in flags]
+
 def _compile(ctx, cjars, dep_srcjars, buildijar, transitive_compile_jars, labels, implicit_junit_deps_needed_for_java_compilation):
     ijar_output_path = ""
     ijar_cmd_path = ""
@@ -272,7 +275,7 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
         # be correctly handled since the executable is a jvm app that will
         # consume the flags on startup.
 
-        arguments=["--jvm_flag=%s" % flag for flag in ctx.attr.scalac_jvm_flags] + ["@" + argfile.path],
+        arguments=["--jvm_flag=%s" % f for f in _expand_location(ctx, ctx.attr.scalac_jvm_flags)] + ["@" + argfile.path],
       )
 
     if buildijar:
@@ -325,7 +328,7 @@ def try_to_compile_java_jar(ctx,
                 source_jars = all_srcjars.to_list(),
                 source_files = java_srcs,
                 output = full_java_jar,
-                javac_opts = ctx.attr.javacopts + ctx.attr.javac_jvm_flags,
+                javac_opts = _expand_location(ctx, ctx.attr.javacopts + ctx.attr.javac_jvm_flags),
                 deps = providers_of_dependencies,
                 #exports can be empty since the manually created provider exposes exports
                 #needs to be empty since we want the provider.compile_jars to only contain the sources ijar
