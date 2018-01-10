@@ -43,7 +43,7 @@ the version most appropriate for you.
 In addition, you **must** register `scala_toolchain` - To register default empty toolcahin simply add those lines to `WORKSPACE` file:
 ```python
 
-load("@io_bazel_rules_scala/scala:toolchains.bzl", "scala_register_toolchains")
+load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_toolchains")
 scala_register_toolchains()
 ```
 [read more here](#scala_toolchain)
@@ -562,7 +562,7 @@ In your workspace file add the following lines:
   ```python
   # WORKSPACE
   # register default scala toolchain
-  load("@io_bazel_rules_scala/scala:toolchains.bzl", "scala_register_toolchains")
+  load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_toolchains")
   scala_register_toolchains()
   ```
 #### B) Defining your own scala_toolchain requires 2 steps:
