@@ -575,6 +575,36 @@ javac_jvm_flags_via_javacopts_are_configured(){
   action_should_fail build //test_expect_failure/compilers_jvm_flags:can_configure_jvm_flags_for_javac_via_javacopts
 }
 
+scalac_jvm_flags_are_expanded(){
+  RES=$(bazel build --verbose_failures //test_expect_failure/compilers_jvm_flags:can_expand_jvm_flags_for_scalac 2>&1)
+  RESPONSE_CODE=$?
+  echo $RES | grep -- "--jvm_flag=test_expect_failure/compilers_jvm_flags/args.txt"
+  if [[ $RESPONSE_CODE -eq 0 ||  $? -ne 0 ]]; then
+    echo 'bazel build should have expanded $(location :args.txt)'
+    exit 1
+  fi
+}
+
+javac_jvm_flags_are_expanded(){
+  RES=$(bazel build --verbose_failures //test_expect_failure/compilers_jvm_flags:can_expand_jvm_flags_for_javac 2>&1)
+  RESPONSE_CODE=$?
+  echo $RES | grep "invalid flag: test_expect_failure/compilers_jvm_flags/args.txt"
+  if [[ $RESPONSE_CODE -eq 0 ||  $? -ne 0 ]]; then
+    echo 'bazel build should have expanded $(location :args.txt)'
+    exit 1
+  fi
+}
+
+javac_jvm_flags_via_javacopts_are_expanded(){
+  RES=$(bazel build --verbose_failures //test_expect_failure/compilers_jvm_flags:can_expand_jvm_flags_for_javac_via_javacopts 2>&1)
+  RESPONSE_CODE=$?
+  echo $RES | grep "invalid flag: test_expect_failure/compilers_jvm_flags/args.txt"
+  if [[ $RESPONSE_CODE -eq 0 ||  $? -ne 0 ]]; then
+    echo 'bazel build should have expanded $(location :args.txt)'
+    exit 1
+  fi
+}
+
 revert_internal_change() {
   sed -i.bak "s/println(\"altered\")/println(\"orig\")/" $no_recompilation_path/C.scala
   rm $no_recompilation_path/C.scala.bak
@@ -720,6 +750,9 @@ $runner scala_specs2_junit_test_test_filter_match_multiple_methods
 $runner scalac_jvm_flags_are_configured
 $runner javac_jvm_flags_are_configured
 $runner javac_jvm_flags_via_javacopts_are_configured
+$runner scalac_jvm_flags_are_expanded
+$runner javac_jvm_flags_are_expanded
+$runner javac_jvm_flags_via_javacopts_are_expanded
 $runner test_scala_library_expect_failure_on_missing_direct_internal_deps
 $runner test_scala_library_expect_failure_on_missing_direct_external_deps_jar
 $runner test_scala_library_expect_failure_on_missing_direct_external_deps_file_group
