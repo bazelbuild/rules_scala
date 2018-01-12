@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -247,6 +248,13 @@ class ScalacProcessor implements Processor {
       System.err.println("Compiler runtime: " + (stop - start) + "ms.");
     }
 
+    try {
+      PrintWriter writer = new PrintWriter(ops.statsfile, "UTF-8");
+      writer.println(Long.toString(stop - start));
+      writer.close();
+    } catch (Throwable ex) {
+      throw new RuntimeException("YOLO", ex);
+    }
 
     ConsoleReporter reporter = (ConsoleReporter) reporterField.get(comp);
 

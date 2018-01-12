@@ -191,6 +191,8 @@ CurrentTarget: {current_target}
     toolchain = ctx.toolchains['@io_bazel_rules_scala//scala:toolchain_type']
     scalacopts = toolchain.scalacopts + ctx.attr.scalacopts
 
+    statsfile = ctx.new_file(ctx.outputs.jar, "%s.statsfile" % ctx.label.name)
+
     scalac_args = """
 Classpath: {cp}
 EnableIjar: {enableijar}
@@ -210,6 +212,7 @@ ResourceStripPrefix: {resource_strip_prefix}
 ScalacOpts: {scala_opts}
 SourceJars: {srcjars}
 DependencyAnalyzerMode: {dependency_analyzer_mode}
+StatsfileOutput: {statsfile_output}
 """.format(
         out=ctx.outputs.jar.path,
         manifest=ctx.outputs.manifest.path,
@@ -231,15 +234,16 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
         resource_strip_prefix=ctx.attr.resource_strip_prefix,
         resource_jars=",".join([f.path for f in ctx.files.resource_jars]),
         dependency_analyzer_mode = dependency_analyzer_mode,
+        statsfile_output = statsfile.path
         )
     argfile = ctx.new_file(
       ctx.outputs.jar,
       "%s_worker_input" % ctx.label.name
     )
 
-    ctx.file_action(output=argfile, content=scalac_args + optional_scalac_args)
+    ctx.file_action(output=argfile, content=scalac_args + optional_scalac_args)    
 
-    outs = [ctx.outputs.jar]
+    outs = [ctx.outputs.jar, statsfile]
     if buildijar:
         outs.extend([ctx.outputs.ijar])
     # _java_toolchain added manually since _java doesn't currently setup runfiles
