@@ -459,7 +459,7 @@ def scalapb_proto_library(
     scala_proto_srcjar(
         name = srcjar,
         flags = flags,
-        generator = "//src/scala/scripts:scalapb_generator",
+        generator = "@io_bazel_rules_scala//src/scala/scripts:scalapb_generator",
         deps = deps,
         visibility = visibility,
     )
