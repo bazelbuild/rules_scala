@@ -50,7 +50,7 @@ class JUnitXmlReporter extends Reporter {
   // Records events in 'events' set.  Generates xml from events upon receipt
   // of SuiteCompleted or SuiteAborted events.
   //
-  def apply(event: Event) {
+  def apply(event: Event): Unit = {
     events += event
 
     event match {
@@ -500,7 +500,7 @@ class JUnitXmlReporter extends Reporter {
   //
   // Throws an exception if an unexpected Event is encountered.
   //
-  def unexpected(event: Event) {
+  def unexpected(event: Event): Unit = {
     throw new RuntimeException("unexpected event [" + event + "]")
   }
 
