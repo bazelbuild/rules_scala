@@ -253,6 +253,24 @@ action_should_fail() {
   fi
 }
 
+action_should_fail_with_message() {
+  set +e
+  MSG=$1
+  TEST_ARG=${@:2}
+  RES=$(bazel $TEST_ARG 2>&1)
+  RESPONSE_CODE=$?
+  echo $RES | grep -- "$MSG"
+  GREP_RES=$?
+  if [ $RESPONSE_CODE -eq 0 ]; then
+    echo -e "${RED} \"bazel $TEST_ARG\" should have failed but passed. $NC"
+    exit 1
+  elif [ $GREP_RES -ne 0 ]; then
+    echo -e "${RED} \"bazel $TEST_ARG\" should have failed with message \"$MSG\" but did not. $NC"
+  else
+    exit 0
+  fi
+}
+
 xmllint_test() {
   find -L ./bazel-testlogs -iname "*.xml" | xargs -n1 xmllint > /dev/null
 }
@@ -576,33 +594,21 @@ javac_jvm_flags_via_javacopts_are_configured(){
 }
 
 scalac_jvm_flags_are_expanded(){
-  RES=$(bazel build --verbose_failures //test_expect_failure/compilers_jvm_flags:can_expand_jvm_flags_for_scalac 2>&1)
-  RESPONSE_CODE=$?
-  echo $RES | grep -- "--jvm_flag=test_expect_failure/compilers_jvm_flags/args.txt"
-  if [[ $RESPONSE_CODE -eq 0 ||  $? -ne 0 ]]; then
-    echo 'bazel build should have expanded $(location :args.txt)'
-    exit 1
-  fi
+  action_should_fail_with_message \
+    "--jvm_flag=test_expect_failure/compilers_jvm_flags/args.txt" \
+    build --verbose_failures //test_expect_failure/compilers_jvm_flags:can_expand_jvm_flags_for_scalac
 }
 
 javac_jvm_flags_are_expanded(){
-  RES=$(bazel build --verbose_failures //test_expect_failure/compilers_jvm_flags:can_expand_jvm_flags_for_javac 2>&1)
-  RESPONSE_CODE=$?
-  echo $RES | grep "invalid flag: test_expect_failure/compilers_jvm_flags/args.txt"
-  if [[ $RESPONSE_CODE -eq 0 ||  $? -ne 0 ]]; then
-    echo 'bazel build should have expanded $(location :args.txt)'
-    exit 1
-  fi
+  action_should_fail_with_message \
+    "invalid flag: test_expect_failure/compilers_jvm_flags/args.txt" \
+    build --verbose_failures //test_expect_failure/compilers_jvm_flags:can_expand_jvm_flags_for_javac
 }
 
 javac_jvm_flags_via_javacopts_are_expanded(){
-  RES=$(bazel build --verbose_failures //test_expect_failure/compilers_jvm_flags:can_expand_jvm_flags_for_javac_via_javacopts 2>&1)
-  RESPONSE_CODE=$?
-  echo $RES | grep "invalid flag: test_expect_failure/compilers_jvm_flags/args.txt"
-  if [[ $RESPONSE_CODE -eq 0 ||  $? -ne 0 ]]; then
-    echo 'bazel build should have expanded $(location :args.txt)'
-    exit 1
-  fi
+  action_should_fail_with_message \
+    "invalid flag: test_expect_failure/compilers_jvm_flags/args.txt" \
+    build --verbose_failures //test_expect_failure/compilers_jvm_flags:can_expand_jvm_flags_for_javac_via_javacopts
 }
 
 revert_internal_change() {
