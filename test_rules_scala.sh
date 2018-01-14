@@ -253,6 +253,24 @@ action_should_fail() {
   fi
 }
 
+action_should_fail_with_message() {
+  set +e
+  MSG=$1
+  TEST_ARG=${@:2}
+  RES=$(bazel $TEST_ARG 2>&1)
+  RESPONSE_CODE=$?
+  echo $RES | grep -- "$MSG"
+  GREP_RES=$?
+  if [ $RESPONSE_CODE -eq 0 ]; then
+    echo -e "${RED} \"bazel $TEST_ARG\" should have failed but passed. $NC"
+    exit 1
+  elif [ $GREP_RES -ne 0 ]; then
+    echo -e "${RED} \"bazel $TEST_ARG\" should have failed with message \"$MSG\" but did not. $NC"
+  else
+    exit 0
+  fi
+}
+
 xmllint_test() {
   find -L ./bazel-testlogs -iname "*.xml" | xargs -n1 xmllint > /dev/null
 }
@@ -575,6 +593,24 @@ javac_jvm_flags_via_javacopts_are_configured(){
   action_should_fail build //test_expect_failure/compilers_jvm_flags:can_configure_jvm_flags_for_javac_via_javacopts
 }
 
+scalac_jvm_flags_are_expanded(){
+  action_should_fail_with_message \
+    "--jvm_flag=test_expect_failure/compilers_jvm_flags/args.txt" \
+    build --verbose_failures //test_expect_failure/compilers_jvm_flags:can_expand_jvm_flags_for_scalac
+}
+
+javac_jvm_flags_are_expanded(){
+  action_should_fail_with_message \
+    "invalid flag: test_expect_failure/compilers_jvm_flags/args.txt" \
+    build --verbose_failures //test_expect_failure/compilers_jvm_flags:can_expand_jvm_flags_for_javac
+}
+
+javac_jvm_flags_via_javacopts_are_expanded(){
+  action_should_fail_with_message \
+    "invalid flag: test_expect_failure/compilers_jvm_flags/args.txt" \
+    build --verbose_failures //test_expect_failure/compilers_jvm_flags:can_expand_jvm_flags_for_javac_via_javacopts
+}
+
 revert_internal_change() {
   sed -i.bak "s/println(\"altered\")/println(\"orig\")/" $no_recompilation_path/C.scala
   rm $no_recompilation_path/C.scala.bak
@@ -720,6 +756,9 @@ $runner scala_specs2_junit_test_test_filter_match_multiple_methods
 $runner scalac_jvm_flags_are_configured
 $runner javac_jvm_flags_are_configured
 $runner javac_jvm_flags_via_javacopts_are_configured
+$runner scalac_jvm_flags_are_expanded
+$runner javac_jvm_flags_are_expanded
+$runner javac_jvm_flags_via_javacopts_are_expanded
 $runner test_scala_library_expect_failure_on_missing_direct_internal_deps
 $runner test_scala_library_expect_failure_on_missing_direct_external_deps_jar
 $runner test_scala_library_expect_failure_on_missing_direct_external_deps_file_group
