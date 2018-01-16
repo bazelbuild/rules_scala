@@ -16,6 +16,8 @@
 
 load("//specs2:specs2_junit.bzl", "specs2_junit_dependencies")
 load(":scala_cross_version.bzl", "scala_version", "scala_mvn_artifact")
+load("@io_bazel_rules_scala//scala:scala_toolchain.bzl", "scala_toolchain")
+
 _jar_filetype = FileType([".jar"])
 _java_filetype = FileType([".java"])
 _scala_filetype = FileType([".scala"])
@@ -136,6 +138,9 @@ def _collect_plugin_paths(plugins):
     return paths
 
 
+def _expand_location(ctx, flags):
+  return [ctx.expand_location(f, ctx.attr.data) for f in flags]
+
 def _compile(ctx, cjars, dep_srcjars, buildijar, transitive_compile_jars, labels, implicit_junit_deps_needed_for_java_compilation):
     ijar_output_path = ""
     ijar_cmd_path = ""
@@ -183,6 +188,9 @@ CurrentTarget: {current_target}
 
     compiler_classpath = ":".join([j.path for j in compiler_classpath_jars])
 
+    toolchain = ctx.toolchains['@io_bazel_rules_scala//scala:toolchain_type']
+    scalacopts = toolchain.scalacopts + ctx.attr.scalacopts
+
     scalac_args = """
 Classpath: {cp}
 EnableIjar: {enableijar}
@@ -205,6 +213,7 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
 """.format(
         out=ctx.outputs.jar.path,
         manifest=ctx.outputs.manifest.path,
+        scala_opts=",".join(scalacopts),
         # always append -YdisableFlatCpCaching, workaround for
         # https://github.com/bazelbuild/rules_scala/issues/305
         # ~remove once we upgrade to Scala 2.12.4~
@@ -272,7 +281,7 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
         # be correctly handled since the executable is a jvm app that will
         # consume the flags on startup.
 
-        arguments=["--jvm_flag=%s" % flag for flag in ctx.attr.scalac_jvm_flags] + ["@" + argfile.path],
+        arguments=["--jvm_flag=%s" % f for f in _expand_location(ctx, ctx.attr.scalac_jvm_flags)] + ["@" + argfile.path],
       )
 
     if buildijar:
@@ -325,7 +334,7 @@ def try_to_compile_java_jar(ctx,
                 source_jars = all_srcjars.to_list(),
                 source_files = java_srcs,
                 output = full_java_jar,
-                javac_opts = ctx.attr.javacopts + ctx.attr.javac_jvm_flags,
+                javac_opts = _expand_location(ctx, ctx.attr.javacopts + ctx.attr.javac_jvm_flags),
                 deps = providers_of_dependencies,
                 #exports can be empty since the manually created provider exposes exports
                 #needs to be empty since we want the provider.compile_jars to only contain the sources ijar
@@ -546,7 +555,7 @@ def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
     if java_common.provider in dep_target:
         java_provider = dep_target[java_common.provider]
         current_dep_compile_jars = java_provider.compile_jars
-        current_dep_transitive_compile_jars = java_provider.transitive_compile_time_jars + java_provider.compile_jars
+        current_dep_transitive_compile_jars = java_provider.transitive_compile_time_jars
         runtime_jars += java_provider.transitive_runtime_jars
     else:
         # support http_file pointed at a jar. http_jar uses ijar,
@@ -614,7 +623,7 @@ def create_java_provider(scalaattr, transitive_compile_time_jars):
           use_ijar = False,
           compile_time_jars = scalaattr.compile_jars,
           runtime_jars = scalaattr.transitive_runtime_jars,
-          transitive_compile_time_jars = transitive_compile_time_jars,
+          transitive_compile_time_jars = transitive_compile_time_jars + scalaattr.compile_jars,
           transitive_runtime_jars = scalaattr.transitive_runtime_jars,
       )
     else:
@@ -889,7 +898,7 @@ _implicit_deps = {
   "_java": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:java"), allow_files=True),
   "_zipper": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/zip:zipper"), allow_files=True),
   "_java_toolchain": attr.label(default = Label("@bazel_tools//tools/jdk:current_java_toolchain")),
-  "_host_javabase": attr.label(default = Label("//tools/defaults:jdk"))
+  "_host_javabase": attr.label(default = Label("@bazel_tools//tools/jdk:current_java_runtime"))
 }
 
 # Single dep to allow IDEs to pickup all the implicit dependencies.
@@ -933,12 +942,14 @@ _common_attrs_for_plugin_bootstrapping = {
   "print_compile_time": attr.bool(default=False, mandatory=False),
 }
 
-_common_attrs = _common_attrs_for_plugin_bootstrapping + {
+_common_attrs = {}
+_common_attrs.update(_common_attrs_for_plugin_bootstrapping)
+_common_attrs.update({
   # using stricts scala deps is done by using command line flag called 'strict_java_deps'
   # switching mode to "on" means that ANY API change in a target's transitive dependencies will trigger a recompilation of that target,
   # on the other hand any internal change (i.e. on code that ijar omits) WON’T trigger recompilation by transitive dependencies
   "_dependency_analyzer_plugin": attr.label(default=Label("@io_bazel_rules_scala//third_party/plugin/src/main:dependency_analyzer"), allow_files=_jar_filetype, mandatory=False),
-}
+})
 
 library_attrs = {
   "main_class": attr.string(),
@@ -951,71 +962,108 @@ common_outputs = {
   "manifest": "%{name}_MANIFEST.MF",
 }
 
-library_outputs = common_outputs + {
+library_outputs = {}
+library_outputs.update(common_outputs)
+library_outputs.update({
   "ijar": "%{name}_ijar.jar",
-}
+})
 
+_scala_library_attrs = {}
+_scala_library_attrs.update(_implicit_deps)
+_scala_library_attrs.update(_common_attrs)
+_scala_library_attrs.update(library_attrs)
+_scala_library_attrs.update(_resolve_deps)
 scala_library = rule(
   implementation=_scala_library_impl,
-  attrs={
-      } + _implicit_deps + _common_attrs + library_attrs + _resolve_deps,
+  attrs=_scala_library_attrs,
   outputs=library_outputs,
-  fragments = ["java"]
+  fragments = ["java"],
+  toolchains = ['@io_bazel_rules_scala//scala:toolchain_type'],
 )
 
 # the scala compiler plugin used for dependency analysis is compiled using `scala_library`.
 # in order to avoid cyclic dependencies `scala_library_for_plugin_bootstrapping` was created for this purpose,
 # which does not contain plugin related attributes, and thus avoids the cyclic dependency issue
+_scala_library_for_plugin_bootstrapping_attrs = {}
+_scala_library_for_plugin_bootstrapping_attrs.update(_implicit_deps)
+_scala_library_for_plugin_bootstrapping_attrs.update(library_attrs)
+_scala_library_for_plugin_bootstrapping_attrs.update(_resolve_deps)
+_scala_library_for_plugin_bootstrapping_attrs.update(_common_attrs_for_plugin_bootstrapping)
 scala_library_for_plugin_bootstrapping = rule(
   implementation=_scala_library_impl,
-  attrs= _implicit_deps + library_attrs + _resolve_deps + _common_attrs_for_plugin_bootstrapping,
+  attrs= _scala_library_for_plugin_bootstrapping_attrs,
   outputs=library_outputs,
-  fragments = ["java"]
+  fragments = ["java"],
+  toolchains = ['@io_bazel_rules_scala//scala:toolchain_type'],
 )
 
+_scala_macro_library_attrs = {
+    "main_class": attr.string(),
+    "exports": attr.label_list(allow_files=False),
+}
+_scala_macro_library_attrs.update(_implicit_deps)
+_scala_macro_library_attrs.update(_common_attrs)
+_scala_macro_library_attrs.update(library_attrs)
+_scala_macro_library_attrs.update(_resolve_deps)
 scala_macro_library = rule(
   implementation=_scala_macro_library_impl,
-  attrs={
-      "main_class": attr.string(),
-      "exports": attr.label_list(allow_files=False),
-      } + _implicit_deps + _common_attrs + _resolve_deps,
+  attrs= _scala_macro_library_attrs,
   outputs= common_outputs,
-  fragments = ["java"]
+  fragments = ["java"],
+  toolchains = ['@io_bazel_rules_scala//scala:toolchain_type'],
 )
 
+_scala_binary_attrs = {
+    "main_class": attr.string(mandatory=True),
+}
+_scala_binary_attrs.update(_launcher_template)
+_scala_binary_attrs.update(_implicit_deps)
+_scala_binary_attrs.update(_common_attrs)
+_scala_binary_attrs.update(_resolve_deps)
 scala_binary = rule(
   implementation=_scala_binary_impl,
-  attrs={
-      "main_class": attr.string(mandatory=True),
-      } + _launcher_template + _implicit_deps + _common_attrs + _resolve_deps,
+  attrs= _scala_binary_attrs,
   outputs= common_outputs,
   executable=True,
-  fragments = ["java"]
+  fragments = ["java"],
+  toolchains = ['@io_bazel_rules_scala//scala:toolchain_type'],
 )
 
+_scala_test_attrs = {
+    "main_class": attr.string(default="io.bazel.rulesscala.scala_test.Runner"),
+    "suites": attr.string_list(),
+    "colors": attr.bool(default=True),
+    "full_stacktraces": attr.bool(default=True),
+    "_scalatest": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scalatest/scalatest"), allow_files=True),
+    "_scalatest_runner": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/scala_test:runner.jar"), allow_files=True),
+    "_scalatest_reporter": attr.label(default=Label("//scala/support:test_reporter")),
+}
+_scala_test_attrs.update(_launcher_template)
+_scala_test_attrs.update(_implicit_deps)
+_scala_test_attrs.update(_common_attrs)
+_scala_test_attrs.update(_test_resolve_deps)
 scala_test = rule(
   implementation=_scala_test_impl,
-  attrs={
-      "main_class": attr.string(default="io.bazel.rulesscala.scala_test.Runner"),
-      "suites": attr.string_list(),
-      "colors": attr.bool(default=True),
-      "full_stacktraces": attr.bool(default=True),
-      "_scalatest": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scalatest/scalatest"), allow_files=True),
-      "_scalatest_runner": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/scala_test:runner.jar"), allow_files=True),
-      "_scalatest_reporter": attr.label(default=Label("//scala/support:test_reporter")),
-      } + _launcher_template + _implicit_deps + _common_attrs + _test_resolve_deps,
+  attrs= _scala_test_attrs,
   outputs= common_outputs,
   executable=True,
   test=True,
-  fragments = ["java"]
+  fragments = ["java"],
+  toolchains = ['@io_bazel_rules_scala//scala:toolchain_type'],
 )
 
+_scala_repl_attrs = {}
+_scala_repl_attrs.update(_launcher_template)
+_scala_repl_attrs.update(_implicit_deps)
+_scala_repl_attrs.update(_common_attrs)
+_scala_repl_attrs.update(_resolve_deps)
 scala_repl = rule(
   implementation=_scala_repl_impl,
-  attrs= _launcher_template + _implicit_deps + _common_attrs + _resolve_deps,
+  attrs= _scala_repl_attrs,
   outputs= common_outputs,
   executable=True,
-  fragments = ["java"]
+  fragments = ["java"],
+  toolchains = ['@io_bazel_rules_scala//scala:toolchain_type'],
 )
 
 SCALA_BUILD_FILE = """
@@ -1094,12 +1142,14 @@ def scala_repositories():
 
   # Template for binary launcher
   BAZEL_JAVA_LAUNCHER_VERSION = "0.4.5"
+  java_stub_template_url = ("raw.githubusercontent.com/bazelbuild/bazel/" +
+                            BAZEL_JAVA_LAUNCHER_VERSION +
+                            "/src/main/java/com/google/devtools/build/lib/bazel/rules/java/" +
+                            "java_stub_template.txt")
   native.http_file(
     name = "java_stub_template",
-    url = ("https://raw.githubusercontent.com/bazelbuild/bazel/" +
-           BAZEL_JAVA_LAUNCHER_VERSION +
-           "/src/main/java/com/google/devtools/build/lib/bazel/rules/java/" +
-           "java_stub_template.txt"),
+    urls = ["https://mirror.bazel.build/%s" % java_stub_template_url,
+            "https://%s" % java_stub_template_url],
     sha256 = "f09d06d55cd25168427a323eb29d32beca0ded43bec80d76fc6acd8199a24489",
   )
 
@@ -1176,21 +1226,27 @@ def scala_library_suite(name,
         ts.append(n)
     scala_library(name = name, deps = ts, exports = exports + ts, visibility = visibility)
 
+_scala_junit_test_attrs = {
+    "prefixes": attr.string_list(default=[]),
+    "suffixes": attr.string_list(default=[]),
+    "suite_label": attr.label(default=Label("//src/java/io/bazel/rulesscala/test_discovery:test_discovery")),
+    "suite_class": attr.string(default="io.bazel.rulesscala.test_discovery.DiscoveredTestSuite"),
+    "print_discovered_classes": attr.bool(default=False, mandatory=False),
+    "_junit": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/junit/junit")),
+    "_hamcrest": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/hamcrest/hamcrest_core")),
+    "_bazel_test_runner": attr.label(default=Label("@bazel_tools//tools/jdk:TestRunner_deploy.jar"), allow_files=True),
+}
+_scala_junit_test_attrs.update(_launcher_template)
+_scala_junit_test_attrs.update(_implicit_deps)
+_scala_junit_test_attrs.update(_common_attrs)
+_scala_junit_test_attrs.update(_junit_resolve_deps)
 scala_junit_test = rule(
   implementation=_scala_junit_test_impl,
-  attrs= _launcher_template + _implicit_deps + _common_attrs + _junit_resolve_deps + {
-      "prefixes": attr.string_list(default=[]),
-      "suffixes": attr.string_list(default=[]),
-      "suite_label": attr.label(default=Label("//src/java/io/bazel/rulesscala/test_discovery:test_discovery")),
-      "suite_class": attr.string(default="io.bazel.rulesscala.test_discovery.DiscoveredTestSuite"),
-      "print_discovered_classes": attr.bool(default=False, mandatory=False),
-      "_junit": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/junit/junit")),
-      "_hamcrest": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/hamcrest/hamcrest_core")),
-      "_bazel_test_runner": attr.label(default=Label("@bazel_tools//tools/jdk:TestRunner_deploy.jar"), allow_files=True),
-      },
+  attrs= _scala_junit_test_attrs,
   outputs= common_outputs,
   test=True,
-  fragments = ["java"]
+  fragments = ["java"],
+  toolchains = ['@io_bazel_rules_scala//scala:toolchain_type']
 )
 
 def scala_specs2_junit_test(name, **kwargs):

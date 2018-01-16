@@ -72,3 +72,25 @@ scala_binary(
         ],
     deps = ["direct_binary_dependency"],
 )
+
+java_library(
+    name="java_library_dependent_on_some_java_provider",
+    srcs=[
+        "JavaLibraryHasCustomJavaProviderDependency.java",
+        ],
+    deps = ["direct_java_provider_dependency"],
+)
+
+java_library(
+    name="java_library_dependent_on_java_library",
+    srcs=[
+        "JavaLibraryHasCustomJavaProviderDependency.java",
+        ],
+    deps = ["direct_java_library_dependency"],
+)
+
+java_library(
+    name="direct_java_library_dependency",
+    srcs = ["Placeholder.java"],
+    deps = ["transitive_dependency"],
+)

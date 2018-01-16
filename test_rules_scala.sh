@@ -237,79 +237,7 @@ test_multi_service_manifest() {
   exit $RESPONSE_CODE
 }
 
-NC='\033[0m'
-GREEN='\033[0;32m'
-RED='\033[0;31m'
-TIMOUT=60
 
-run_test_ci() {
-  # spawns the test to new process
-  local TEST_ARG=$@
-  local log_file=output_$$.log
-  echo "running test $TEST_ARG"
-  $TEST_ARG &>$log_file &
-  local test_pid=$!
-  SECONDS=0
-  test_pulse_printer $! $TIMOUT $TEST_ARG &
-  local pulse_printer_pid=$!
-  local result
-
-  {
-    wait $test_pid 2>/dev/null
-    result=$?
-    kill $pulse_printer_pid && wait $pulse_printer_pid 2>/dev/null || true
-  } || return 1
-
-  DURATION=$SECONDS
-  if [ $result -eq 0 ]; then
-    echo -e "\n${GREEN}Test \"$TEST_ARG\" successful ($DURATION sec) $NC"
-  else
-    echo -e "\nLog:\n"
-    cat $log_file
-    echo -e "\n${RED}Test \"$TEST_ARG\" failed $NC ($DURATION sec) $NC"
-  fi
-  return $result
-}
-
-test_pulse_printer() {
-  # makes sure something is printed to stdout while test is running
-  local test_pid=$1
-  shift
-  local timeout=$1 # in minutes
-  shift
-  local count=0
-
-  # clear the line
-  echo -e "\n"
-
-  while [ $count -lt $timeout ]; do
-    count=$(($count + 1))
-    echo -ne "Still running: \"$@\"\r"
-    sleep 60
-  done
-
-  echo -e "\n${RED}Timeout (${timeout} minutes) reached. Terminating \"$@\"${NC}\n"
-  kill -9 $test_pid
-}
-
-run_test_local() {
-  # runs the tests locally
-  set +e
-  SECONDS=0
-  TEST_ARG=$@
-  echo "running test $TEST_ARG"
-  RES=$($TEST_ARG 2>&1)
-  RESPONSE_CODE=$?
-  DURATION=$SECONDS
-  if [ $RESPONSE_CODE -eq 0 ]; then
-    echo -e "${GREEN} Test \"$TEST_ARG\" successful ($DURATION sec) $NC"
-  else
-    echo -e "\nLog:\n"
-    echo "$RES"
-    echo -e "${RED} Test \"$TEST_ARG\" failed $NC ($DURATION sec) $NC"
-    exit $RESPONSE_CODE
-  fi
-}
 
 action_should_fail() {
   # runs the tests locally
@@ -320,6 +248,24 @@ action_should_fail() {
   if [ $RESPONSE_CODE -eq 0 ]; then
     echo -e "${RED} \"bazel $TEST_ARG\" should have failed but passed. $NC"
     exit -1
+  else
+    exit 0
+  fi
+}
+
+action_should_fail_with_message() {
+  set +e
+  MSG=$1
+  TEST_ARG=${@:2}
+  RES=$(bazel $TEST_ARG 2>&1)
+  RESPONSE_CODE=$?
+  echo $RES | grep -- "$MSG"
+  GREP_RES=$?
+  if [ $RESPONSE_CODE -eq 0 ]; then
+    echo -e "${RED} \"bazel $TEST_ARG\" should have failed but passed. $NC"
+    exit 1
+  elif [ $GREP_RES -ne 0 ]; then
+    echo -e "${RED} \"bazel $TEST_ARG\" should have failed with message \"$MSG\" but did not. $NC"
   else
     exit 0
   fi
@@ -441,6 +387,36 @@ scala_junit_test_test_filter(){
       "scala.test.junit.ThirdFilterTest#method1"
       "scala.test.junit.ThirdFilterTest#method2"
       "scala.test.junit.ThirdFilterTest#method3")
+  for method in "${expected[@]}"; do
+    if ! grep "$method" <<<$output; then
+      echo "output:"
+      echo "$output"
+      echo "Expected $method in output, but was not found."
+      exit 1
+    fi
+  done
+  for method in "${unexpected[@]}"; do
+    if grep "$method" <<<$output; then
+      echo "output:"
+      echo "$output"
+      echo "Not expecting $method in output, but was found."
+      exit 1
+    fi
+  done
+}
+
+scala_specs2_junit_test_test_filter_everything(){
+  local output=$(bazel test \
+    --nocache_test_results \
+    --test_output=streamed \
+    '--test_filter=.*' \
+    test:Specs2Tests)
+  local expected=(
+    "[info] JunitSpec2RegexTest"
+    "[info] JunitSpecs2AnotherTest"
+    "[info] JunitSpecs2Test")
+  local unexpected=(
+      "[info] UnrelatedTest")
   for method in "${expected[@]}"; do
     if ! grep "$method" <<<$output; then
       echo "output:"
@@ -617,6 +593,24 @@ javac_jvm_flags_via_javacopts_are_configured(){
   action_should_fail build //test_expect_failure/compilers_jvm_flags:can_configure_jvm_flags_for_javac_via_javacopts
 }
 
+scalac_jvm_flags_are_expanded(){
+  action_should_fail_with_message \
+    "--jvm_flag=test_expect_failure/compilers_jvm_flags/args.txt" \
+    build --verbose_failures //test_expect_failure/compilers_jvm_flags:can_expand_jvm_flags_for_scalac
+}
+
+javac_jvm_flags_are_expanded(){
+  action_should_fail_with_message \
+    "invalid flag: test_expect_failure/compilers_jvm_flags/args.txt" \
+    build --verbose_failures //test_expect_failure/compilers_jvm_flags:can_expand_jvm_flags_for_javac
+}
+
+javac_jvm_flags_via_javacopts_are_expanded(){
+  action_should_fail_with_message \
+    "invalid flag: test_expect_failure/compilers_jvm_flags/args.txt" \
+    build --verbose_failures //test_expect_failure/compilers_jvm_flags:can_expand_jvm_flags_for_javac_via_javacopts
+}
+
 revert_internal_change() {
   sed -i.bak "s/println(\"altered\")/println(\"orig\")/" $no_recompilation_path/C.scala
   rm $no_recompilation_path/C.scala.bak
@@ -698,13 +692,7 @@ revert_change() {
   mv $1/$2.bak $1/$2
 }
 
-if [ "$1" != "ci" ]; then
-  runner="run_test_local"
-else
-  runner="run_test_ci"
-fi
-
-test_scala_library_expect_failure_on_missing_direct_deps_warn_mode2() {
+test_scala_import_expect_failure_on_missing_direct_deps_warn_mode() {
   dependency_target1='//test_expect_failure/scala_import:cats'
   dependency_target2='//test_expect_failure/scala_import:guava'
   test_target='test_expect_failure/scala_import:scala_import_propagates_compile_deps'
@@ -714,6 +702,15 @@ test_scala_library_expect_failure_on_missing_direct_deps_warn_mode2() {
 
   test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message1}" ${test_target} "--strict_java_deps=warn" "ne" "${expected_message2}"
 }
+
+test_scalaopts_from_scala_toolchain() {
+  action_should_fail build --extra_toolchains="//test_expect_failure/scalacopts_from_toolchain:failing_scala_toolchain" //test_expect_failure/scalacopts_from_toolchain:failing_build
+}
+
+dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+# shellcheck source=./test_runner.sh
+. "${dir}"/test_runner.sh
+runner=$(get_test_runner "${1:-local}")
 
 $runner bazel build test/...
 $runner bazel test test/...
@@ -750,6 +747,7 @@ $runner scala_library_jar_without_srcs_must_include_filegroup_resources
 $runner bazel run test/src/main/scala/scala/test/large_classpath:largeClasspath
 $runner scala_test_test_filters
 $runner scala_junit_test_test_filter
+$runner scala_specs2_junit_test_test_filter_everything
 $runner scala_specs2_junit_test_test_filter_one_test
 $runner scala_specs2_junit_test_test_filter_whole_spec
 $runner scala_specs2_junit_test_test_filter_exact_match
@@ -759,6 +757,9 @@ $runner scala_specs2_junit_test_test_filter_match_multiple_methods
 $runner scalac_jvm_flags_are_configured
 $runner javac_jvm_flags_are_configured
 $runner javac_jvm_flags_via_javacopts_are_configured
+$runner scalac_jvm_flags_are_expanded
+$runner javac_jvm_flags_are_expanded
+$runner javac_jvm_flags_via_javacopts_are_expanded
 $runner test_scala_library_expect_failure_on_missing_direct_internal_deps
 $runner test_scala_library_expect_failure_on_missing_direct_external_deps_jar
 $runner test_scala_library_expect_failure_on_missing_direct_external_deps_file_group
@@ -776,4 +777,6 @@ $runner test_scala_library_expect_failure_on_missing_direct_java
 $runner bazel run test:test_scala_proto_server
 $runner test_scala_library_expect_failure_on_missing_direct_deps_warn_mode_java
 $runner test_scala_library_expect_better_failure_message_on_missing_transitive_dependency_labels_from_other_jvm_rules
-$runner test_scala_library_expect_failure_on_missing_direct_deps_warn_mode2
+$runner test_scala_import_expect_failure_on_missing_direct_deps_warn_mode
+$runner bazel build "test_expect_failure/missing_direct_deps/internal_deps/... --strict_java_deps=warn"
+$runner test_scalaopts_from_scala_toolchain
