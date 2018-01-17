@@ -114,7 +114,6 @@ object BenchmarkGenerator {
 
   private def constructJar(output: Path, fileDir: Path): Unit = {
     val creator = new JarCreator(output.toAbsolutePath.toFile.toString)
-    creator.setNormalize(true)
     creator.addDirectory(fileDir.toFile)
     creator.execute
   }
