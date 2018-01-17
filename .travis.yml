@@ -12,8 +12,10 @@ os:
 
 env:
   # we want to test the most recent few releases
-  - V=0.6.0
-  - V=0.7.0
+  - V=0.7.0 TEST_SCRIPT=test_rules_scala.sh
+  - V=0.7.0 TEST_SCRIPT=test_intellij_aspect.sh
+  - V=0.9.0 TEST_SCRIPT=test_rules_scala.sh
+  - V=0.9.0 TEST_SCRIPT=test_intellij_aspect.sh
 
 before_install:
   - |
@@ -39,5 +41,5 @@ before_install:
   - cat .bazelrc.travis >> .bazelrc
 
 script:
-  - bash test_run.sh ci
+  - bash $TEST_SCRIPT ci
 

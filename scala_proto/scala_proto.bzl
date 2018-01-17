@@ -329,31 +329,21 @@ def _gen_proto_srcjar_impl(ctx):
         else:
             jvm_deps.append(target)
 
-    if ctx.attr.with_java and len(jvm_deps) == 0:
-        fail("must have at least one jvm dependency if with_java is True")
+    if "java_conversions" in ctx.attr.flags and len(jvm_deps) == 0:
+        fail("must have at least one jvm dependency if with_java is True (java_conversions is turned on)")
 
     deps_jars = collect_jars(jvm_deps)
-
-    # Command line args to worker cannot be empty so using padding
-    flags = ["-"]
-    if ctx.attr.with_grpc:
-        flags.append("grpc")
-    if ctx.attr.with_java:
-        flags.append("java_conversions")
-    if ctx.attr.with_flat_package:
-        flags.append("flat_package")
-    if ctx.attr.with_single_line_to_string:
-        flags.append("single_line_to_string")
 
     worker_content = "{output}\n{paths}\n{flags_arg}".format(
         output = ctx.outputs.srcjar.path,
         paths = _colon_paths(acc_imports),
-        flags_arg = ",".join(flags),
+        # Command line args to worker cannot be empty so using padding
+        flags_arg = "-" + ",".join(ctx.attr.flags),
     )
     argfile = ctx.new_file(ctx.outputs.srcjar, "%s_worker_input" % ctx.label.name)
     ctx.file_action(output=argfile, content=worker_content)
     ctx.action(
-        executable = ctx.executable._pluck_scalapb_scala,
+        executable = ctx.executable.generator,
         inputs = list(acc_imports) + [argfile],
         outputs = [ctx.outputs.srcjar],
         mnemonic="ProtoScalaPBRule",
@@ -379,21 +369,17 @@ def _gen_proto_srcjar_impl(ctx):
         )],
     )
 
-scalapb_proto_srcjar = rule(
+scala_proto_srcjar = rule(
     _gen_proto_srcjar_impl,
     attrs={
         "deps": attr.label_list(
             mandatory=True,
             allow_rules=["proto_library", "java_proto_library", "java_library", "scala_library"]
         ),
-        "with_grpc": attr.bool(default=False),
-        "with_java": attr.bool(default=False),
-        "with_flat_package": attr.bool(default=False),
-        "with_single_line_to_string": attr.bool(default=False),
-        "_pluck_scalapb_scala": attr.label(
+        "flags": attr.string_list(default=[]),
+        "generator": attr.label(
           executable=True,
           cfg="host",
-          default=Label("//src/scala/scripts:scalapb_generator"),
           allow_files=True
         ),
     },
@@ -461,12 +447,19 @@ def scalapb_proto_library(
         visibility = None):
 
     srcjar = name + '_srcjar'
-    scalapb_proto_srcjar(
+    flags = []
+    if with_grpc:
+        flags.append("grpc")
+    if with_java:
+        flags.append("java_conversions")
+    if with_flat_package:
+        flags.append("flat_package")
+    if with_single_line_to_string:
+        flags.append("single_line_to_string")
+    scala_proto_srcjar(
         name = srcjar,
-        with_grpc = with_grpc,
-        with_java = with_java,
-        with_flat_package = with_flat_package,
-        with_single_line_to_string = with_single_line_to_string,
+        flags = flags,
+        generator = "@io_bazel_rules_scala//src/scala/scripts:scalapb_generator",
         deps = deps,
         visibility = visibility,
     )
