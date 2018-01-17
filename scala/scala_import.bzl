@@ -87,9 +87,9 @@ def _collect_labels(deps, jars2labels):
 def _transitively_accumulate_labels(dep_target, java_provider, jars2labels):
   if hasattr(dep_target, "jars_to_labels"):
     jars2labels.update(dep_target.jars_to_labels)
-  else:  #untested, left for semi working backward compatibility with java_library and java_import
-    for jar in java_provider.compile_jars:
-      jars2labels[jar.path] = dep_target.label
+  #scala_library doesn't add labels to the direct dependency itself
+  for jar in java_provider.compile_jars:
+    jars2labels[jar.path] = dep_target.label
 
 def _collect_runtime(runtime_deps):
   runtime_jars = depset()

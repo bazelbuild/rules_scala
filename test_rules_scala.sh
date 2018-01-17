@@ -707,6 +707,14 @@ test_scalaopts_from_scala_toolchain() {
   action_should_fail build --extra_toolchains="//test_expect_failure/scalacopts_from_toolchain:failing_scala_toolchain" //test_expect_failure/scalacopts_from_toolchain:failing_build
 }
 
+test_scala_import_library_passes_labels_of_direct_deps() {
+  dependency_target='//test_expect_failure/scala_import:root_for_scala_import_passes_labels_of_direct_deps'
+  test_target='test_expect_failure/scala_import:leaf_for_scala_import_passes_labels_of_direct_deps'
+
+  test_scala_library_expect_failure_on_missing_direct_deps $dependency_target $test_target
+}
+
+
 dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 # shellcheck source=./test_runner.sh
 . "${dir}"/test_runner.sh
@@ -780,3 +788,5 @@ $runner test_scala_library_expect_better_failure_message_on_missing_transitive_d
 $runner test_scala_import_expect_failure_on_missing_direct_deps_warn_mode
 $runner bazel build "test_expect_failure/missing_direct_deps/internal_deps/... --strict_java_deps=warn"
 $runner test_scalaopts_from_scala_toolchain
+$runner test_scala_import_library_passes_labels_of_direct_deps
+
