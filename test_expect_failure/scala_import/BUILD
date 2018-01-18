@@ -39,3 +39,21 @@ scala_specs2_junit_test(
     size = "small",
     suffixes = ["Test"],
 )
+
+scala_library(
+    name = "leaf_for_scala_import_passes_labels_of_direct_deps",
+    deps = [":middle_for_scala_import_passes_labels_of_direct_deps"],
+    srcs = ["LeafScalaImportPassesLabelsDirectDeps.scala"]
+)
+
+scala_import(
+  name = "middle_for_scala_import_passes_labels_of_direct_deps",
+  jars = [],
+  deps = [":root_for_scala_import_passes_labels_of_direct_deps"]
+)
+
+scala_library(
+    name = "root_for_scala_import_passes_labels_of_direct_deps",
+    srcs = ["RootScalaImportPassesLabelsDirectDeps.scala"]
+)
+
