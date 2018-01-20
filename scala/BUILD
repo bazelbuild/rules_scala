@@ -9,7 +9,6 @@ toolchain_type(
 scala_toolchain(
       name = 'default_toolchain_impl',
       scalacopts = [],
-      worker = "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac",
       library = "//external:io_bazel_rules_scala/dependency/scala/scala_library",
       compiler = "//external:io_bazel_rules_scala/dependency/scala/scala_compiler",
       reflect = "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",

@@ -262,7 +262,7 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
     ctx.action(
         inputs=ins,
         outputs=outs,
-        executable=toolchain.worker,
+        executable=ctx.executable._scalac,
         mnemonic="Scalac",
         progress_message="scala %s" % ctx.label,
         execution_requirements={"supports-workers": "1"},
@@ -887,6 +887,7 @@ _launcher_template = {
 _implicit_deps = {
   "_singlejar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:singlejar"), allow_files=True),
   "_ijar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:ijar"), allow_files=True),
+  "_scalac": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/scalac"), allow_files=True),
   "_java": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:java"), allow_files=True),
   "_zipper": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/zip:zipper"), allow_files=True),
   "_java_toolchain": attr.label(default = Label("@bazel_tools//tools/jdk:current_java_toolchain")),
