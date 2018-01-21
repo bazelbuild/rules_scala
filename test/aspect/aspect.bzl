@@ -45,8 +45,6 @@ def _rule_impl(ctx):
             "@io_bazel_rules_scala//specs2:specs2",
             "@scala//:scala-xml",
             "@scala//:scala-parser-combinators",
-            "@scala//:scala-library",
-            "@scala//:scala-reflect",
             # From specs2/specs2_junit.bzl:specs2_junit_dependencies()
             "@io_bazel_rules_scala_org_specs2_specs2_junit_2_11//jar:jar",
         ],
