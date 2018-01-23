@@ -96,7 +96,7 @@ def _build_nosrc_jar(ctx, buildijar):
     cmd = """
 rm -f {jar_output}
 {zipper} c {jar_output} @{path}
-echo 0 > {statsfile}
+touch {statsfile}
 """ + ijar_cmd
 
     cmd = cmd.format(

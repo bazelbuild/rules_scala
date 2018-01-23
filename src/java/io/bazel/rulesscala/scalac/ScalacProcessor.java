@@ -9,7 +9,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -249,11 +248,11 @@ class ScalacProcessor implements Processor {
     }
 
     try {
-      PrintWriter writer = new PrintWriter(ops.statsfile, "UTF-8");
-      writer.println(Long.toString(stop - start));
-      writer.close();
-    } catch (Throwable ex) {
-      throw new RuntimeException("YOLO", ex);
+      Files.write(Paths.get(ops.statsfile), Arrays.asList(
+        "build_time=" + Long.toString(stop - start)));
+    } catch (IOException ex) {
+        throw new RuntimeException(
+            "Unable to write statsfile to " + ops.statsfile, ex);
     }
 
     ConsoleReporter reporter = (ConsoleReporter) reporterField.get(comp);
