@@ -455,3 +455,8 @@ scalapb_proto_library(
     deps = ["//test/proto:test2", ":HelloLib"],
     visibility = ["//visibility:public"],
 )
+
+load(":check_statsfile.bzl", "check_statsfile")
+
+check_statsfile("ScalaBinary")
+check_statsfile("ScalaLibBinary")

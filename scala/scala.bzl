@@ -96,15 +96,18 @@ def _build_nosrc_jar(ctx, buildijar):
     cmd = """
 rm -f {jar_output}
 {zipper} c {jar_output} @{path}
+# ensures that empty src targets still emit a statsfile
+touch {statsfile}
 """ + ijar_cmd
 
     cmd = cmd.format(
         path = zipper_arg_path.path,
         jar_output=ctx.outputs.jar.path,
         zipper=ctx.executable._zipper.path,
+        statsfile=ctx.outputs.statsfile.path,
         )
 
-    outs = [ctx.outputs.jar]
+    outs = [ctx.outputs.jar, ctx.outputs.statsfile]
     if buildijar:
         outs.extend([ctx.outputs.ijar])
 
@@ -189,7 +192,7 @@ CurrentTarget: {current_target}
     compiler_classpath = ":".join([j.path for j in compiler_classpath_jars])
 
     toolchain = ctx.toolchains['@io_bazel_rules_scala//scala:toolchain_type']
-    scalacopts = toolchain.scalacopts + ctx.attr.scalacopts
+    scalacopts = toolchain.scalacopts + ctx.attr.scalacopts    
 
     scalac_args = """
 Classpath: {cp}
@@ -210,6 +213,7 @@ ResourceStripPrefix: {resource_strip_prefix}
 ScalacOpts: {scala_opts}
 SourceJars: {srcjars}
 DependencyAnalyzerMode: {dependency_analyzer_mode}
+StatsfileOutput: {statsfile_output}
 """.format(
         out=ctx.outputs.jar.path,
         manifest=ctx.outputs.manifest.path,
@@ -231,6 +235,7 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
         resource_strip_prefix=ctx.attr.resource_strip_prefix,
         resource_jars=",".join([f.path for f in ctx.files.resource_jars]),
         dependency_analyzer_mode = dependency_analyzer_mode,
+        statsfile_output = ctx.outputs.statsfile.path
         )
     argfile = ctx.new_file(
       ctx.outputs.jar,
@@ -239,7 +244,7 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
 
     ctx.file_action(output=argfile, content=scalac_args + optional_scalac_args)
 
-    outs = [ctx.outputs.jar]
+    outs = [ctx.outputs.jar, ctx.outputs.statsfile]
     if buildijar:
         outs.extend([ctx.outputs.ijar])
     # _java_toolchain added manually since _java doesn't currently setup runfiles
@@ -954,6 +959,7 @@ common_outputs = {
   "jar": "%{name}.jar",
   "deploy_jar": "%{name}_deploy.jar",
   "manifest": "%{name}_MANIFEST.MF",
+  "statsfile": "%{name}.statsfile",
 }
 
 library_outputs = {}
