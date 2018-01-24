@@ -599,7 +599,8 @@ def _collect_jars_from_common_ctx(ctx, extra_deps = [], extra_runtime_deps = [])
     dependency_analyzer_is_off = is_dependency_analyzer_off(ctx)
 
     # Get jars from deps
-    auto_deps = [ctx.attr._scalalib, ctx.attr._scalareflect]
+    toolchain = ctx.toolchains['@io_bazel_rules_scala//scala:toolchain_type']
+    auto_deps = [toolchain.library, toolchain.reflect]
     deps_jars = collect_jars(ctx.attr.deps + auto_deps + extra_deps, dependency_analyzer_is_off)
     (cjars, transitive_rjars, jars2labels, transitive_compile_jars) = (deps_jars.compile_jars, deps_jars.transitive_runtime_jars, deps_jars.jars2labels, deps_jars.transitive_compile_jars)
 
@@ -773,7 +774,8 @@ def _scala_binary_impl(ctx):
 
 def _scala_repl_impl(ctx):
   # need scala-compiler for MainGenericRunner below
-  jars = _collect_jars_from_common_ctx(ctx, extra_runtime_deps = [ctx.attr._scalacompiler])
+  toolchain = ctx.toolchains['@io_bazel_rules_scala//scala:toolchain_type']
+  jars = _collect_jars_from_common_ctx(ctx, extra_runtime_deps = [toolchain.compiler])
   (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
 
   out = _scala_binary_common(ctx, cjars, transitive_rjars, jars.transitive_compile_jars, jars.jars2labels)
@@ -891,9 +893,6 @@ _implicit_deps = {
   "_singlejar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:singlejar"), allow_files=True),
   "_ijar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:ijar"), allow_files=True),
   "_scalac": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/scalac"), allow_files=True),
-  "_scalalib": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_library"), allow_files=True),
-  "_scalacompiler": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_compiler"), allow_files=True),
-  "_scalareflect": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_reflect"), allow_files=True),
   "_java": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:java"), allow_files=True),
   "_zipper": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/zip:zipper"), allow_files=True),
   "_java_toolchain": attr.label(default = Label("@bazel_tools//tools/jdk:current_java_toolchain")),
