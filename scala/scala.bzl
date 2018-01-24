@@ -96,6 +96,7 @@ def _build_nosrc_jar(ctx, buildijar):
     cmd = """
 rm -f {jar_output}
 {zipper} c {jar_output} @{path}
+# ensures that empty src targets still emit a statsfile
 touch {statsfile}
 """ + ijar_cmd
 
