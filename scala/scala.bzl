@@ -667,13 +667,12 @@ def _lib(ctx, non_macro_lib):
     next_cjars += exports_jars.compile_jars
     transitive_rjars += exports_jars.transitive_runtime_jars
 
-
-
     rule_outputs = struct(
         ijar = outputs.ijar,
         class_jar = outputs.class_jar,
         deploy_jar = ctx.outputs.deploy_jar,
-        jars = _format_full_jars_for_intellij_plugin(outputs.full_jars)
+        jars = _format_full_jars_for_intellij_plugin(outputs.full_jars),
+        statsfile = ctx.outputs.statsfile,
     )
     # Note that, internally, rules only care about compile_jars and transitive_runtime_jars
     # in a similar manner as the java_library and JavaProvider
@@ -738,7 +737,8 @@ def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2l
       ijar=outputs.class_jar,
       class_jar=outputs.class_jar,
       deploy_jar=ctx.outputs.deploy_jar,
-      jars = _format_full_jars_for_intellij_plugin(outputs.full_jars)
+      jars = _format_full_jars_for_intellij_plugin(outputs.full_jars),
+      statsfile = ctx.outputs.statsfile,
   )
 
   scalaattr = struct(
