@@ -114,7 +114,7 @@ def _collect_exports(exports):
 scala_import = rule(
   implementation=_scala_import_impl,
   attrs={
-      "jars": attr.label_list(), #current hidden assumption is that these point to full, not ijar'd jars
+      "jars": attr.label_list(allow_files=True), #current hidden assumption is that these point to full, not ijar'd jars
       "deps": attr.label_list(),
       "runtime_deps": attr.label_list(),
       "exports": attr.label_list()

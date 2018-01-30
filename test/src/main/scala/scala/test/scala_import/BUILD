@@ -7,6 +7,14 @@ scala_import(
   jars = ["@com_google_guava_guava_21_0//jar:file", "@org_apache_commons_commons_lang_3_5//jar:file"],
 )
 
+# Jars as files
+scala_import(
+  name = "relate",
+  jars = [
+   "relate_2.11-2.1.1.jar",
+  ],
+)
+
 scala_specs2_junit_test(
     name = "scala_import_exposes_jars",
     srcs = ["ScalaImportExposesJarsTest.scala"],
