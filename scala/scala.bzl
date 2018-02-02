@@ -247,9 +247,6 @@ StatsfileOutput: {statsfile_output}
     outs = [ctx.outputs.jar, ctx.outputs.statsfile]
     if buildijar:
         outs.extend([ctx.outputs.ijar])
-    # _java_toolchain added manually since _java doesn't currently setup runfiles
-    # _scalac, as a java_binary, should already have it in its runfiles; however,
-    # adding does ensure _java not orphaned if _scalac ever was not a java_binary
     ins = (list(compiler_classpath_jars) +
            list(dep_srcjars) +
            list(srcjars) +
@@ -259,10 +256,9 @@ StatsfileOutput: {statsfile_output}
            dependency_analyzer_plugin_jars +
            ctx.files.resources +
            ctx.files.resource_jars +
-           ctx.files._java_toolchain +
+           ctx.files._java_runtime +
            [ctx.outputs.manifest,
             ctx.executable._ijar,
-            ctx.executable._java,
             argfile])
     ctx.action(
         inputs=ins,
@@ -409,13 +405,34 @@ def write_manifest(ctx):
         output=ctx.outputs.manifest,
         content=manifest)
 
+def _path_is_absolute(path):
+    # Returns true for absolute path in Linux/Mac (i.e., '/') or Windows (i.e.,
+    # 'X:\' or 'X:/' where 'X' is a letter), false otherwise.
+    if len(path) >= 1 and path[0] == "/":
+        return True
+    if len(path) >= 3 \
+            and path[0].isalpha() \
+            and path[1] == ":" \
+            and (path[2] == "/" or path[2] == "\\"):
+        return True
+
+    return False
+
 def _write_launcher(ctx, rjars, main_class, jvm_flags, args="", wrapper_preamble=""):
     runfiles_root = "${TEST_SRCDIR}/%s" % ctx.workspace_name
     # RUNPATH is defined here:
     # https://github.com/bazelbuild/bazel/blob/0.4.5/src/main/java/com/google/devtools/build/lib/bazel/rules/java/java_stub_template.txt#L227
     classpath = ":".join(["${RUNPATH}%s" % (j.short_path) for j in rjars])
     jvm_flags = " ".join([ctx.expand_location(f, ctx.attr.data) for f in jvm_flags])
-    javabin = "%s/%s" % (runfiles_root, ctx.executable._java.short_path)
+    # TODO: Replace the following if/else with just .java_executable_runfiles_path
+    # when that becomes generally available in Bazel (submitted in
+    # https://github.com/bazelbuild/bazel/commit/f2075d27ca124156fcd7c01242c552175c0cf145).
+    java_path = str(ctx.attr._java_runtime[java_common.JavaRuntimeInfo].java_executable_exec_path)
+    if _path_is_absolute(java_path):
+      javabin = java_path
+    else:
+      javabin = "%s/%s" % (runfiles_root, java_path)
+
     template = ctx.attr._java_stub_template.files.to_list()[0]
 
     exec_str = ""
@@ -728,10 +745,8 @@ def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2l
 
   java_wrapper = ctx.new_file(ctx.label.name + "_wrapper.sh")
 
-  # _java_toolchain added manually since _java doesn't currently setup runfiles
   runfiles = ctx.runfiles(
-      files = list(rjars) + [ctx.outputs.executable, java_wrapper] + ctx.files._java_toolchain,
-      transitive_files = _get_runfiles(ctx.attr._java),
+      files = list(rjars) + [ctx.outputs.executable, java_wrapper] + ctx.files._java_runtime,
       collect_data = True)
 
   rule_outputs = struct(
@@ -894,10 +909,10 @@ _implicit_deps = {
   "_scalalib": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_library"), allow_files=True),
   "_scalacompiler": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_compiler"), allow_files=True),
   "_scalareflect": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_reflect"), allow_files=True),
-  "_java": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:java"), allow_files=True),
   "_zipper": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/zip:zipper"), allow_files=True),
   "_java_toolchain": attr.label(default = Label("@bazel_tools//tools/jdk:current_java_toolchain")),
-  "_host_javabase": attr.label(default = Label("@bazel_tools//tools/jdk:current_java_runtime"))
+  "_host_javabase": attr.label(default = Label("@bazel_tools//tools/jdk:current_java_runtime"), cfg="host"),
+  "_java_runtime": attr.label(default = Label("@bazel_tools//tools/jdk:current_java_runtime"))
 }
 
 # Single dep to allow IDEs to pickup all the implicit dependencies.
