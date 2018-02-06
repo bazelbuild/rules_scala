@@ -625,7 +625,7 @@ def _collect_jars_from_common_ctx(ctx, extra_deps = [], extra_runtime_deps = [])
     return struct(compile_jars = cjars, transitive_runtime_jars = transitive_rjars, jars2labels=jars2labels, transitive_compile_jars = transitive_compile_jars)
 
 def _format_full_jars_for_intellij_plugin(full_jars):
-    return [struct (class_jar = jar, ijar = None) for jar in full_jars]
+    return [struct (class_jar = jar, ijar = None, source_jar = None, source_jars = []) for jar in full_jars]
 
 def create_java_provider(scalaattr, transitive_compile_time_jars):
     # This is needed because Bazel >=0.7.0 requires ctx.actions and a Java
