@@ -54,6 +54,8 @@ def _code_jars_and_intellij_metadata_from(jars):
       intellij_metadata.append(struct(
            ijar = None,
            class_jar = current_class_jar,
+           source_jar = None,
+           source_jars = [],
        )
      )
   return struct(code_jars = code_jars, intellij_metadata = intellij_metadata)
