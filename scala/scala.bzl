@@ -189,7 +189,8 @@ CurrentTarget: {current_target}
 
     plugin_arg = ",".join(list(plugins))
 
-    compiler_classpath = ":".join([j.path for j in compiler_classpath_jars])
+    separator = ctx.configuration.host_path_separator
+    compiler_classpath = separator.join([j.path for j in compiler_classpath_jars])
 
     toolchain = ctx.toolchains['@io_bazel_rules_scala//scala:toolchain_type']
     scalacopts = toolchain.scalacopts + ctx.attr.scalacopts    
