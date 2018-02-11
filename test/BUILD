@@ -14,6 +14,9 @@ load("//scala:scala.bzl",
 load("//scala_proto:scala_proto.bzl",
     "scalapb_proto_library")
 
+load("//scala:scala_android.bzl",
+    "scala_android_library")
+
 # The examples below show how to combine Scala and Java rules.
 # ScalaBinary is the Scala equivalent of JavaBinary.
 
@@ -454,6 +457,20 @@ scalapb_proto_library(
     name = "test_proto_scala_dep",
     deps = ["//test/proto:test2", ":HelloLib"],
     visibility = ["//visibility:public"],
+)
+
+scala_android_library(
+    name = "ScalaAndroidLibrary",
+    srcs = glob(["ScalaAndroidLibrary.scala"]),
+    resource_files = glob([]),
+    visibility = ["//visibility:public"],
+)
+
+android_binary(
+    name = "ScalaAndroidBinary",
+    deps = [":ScalaAndroidLibrary"],
+    manifest = "ScalaAndroidManifest.xml",
+    custom_package = "rules_scala.test",
 )
 
 load(":check_statsfile.bzl", "check_statsfile")

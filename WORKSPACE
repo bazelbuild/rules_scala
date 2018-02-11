@@ -20,6 +20,9 @@ scala_proto_repositories()
 load("//specs2:specs2_junit.bzl","specs2_junit_repositories")
 specs2_junit_repositories()
 
+load("//scala:scala_android.bzl", "scala_android_repositories")
+scala_android_repositories()
+
 # test adding a scala jar:
 maven_jar(
   name = "com_twitter__scalding_date",
@@ -32,6 +35,14 @@ maven_jar(
   name = "org_typelevel__cats_core",
   artifact = scala_mvn_artifact("org.typelevel:cats-core:0.9.0"),
   sha1 = "b2f8629c6ec834d8b6321288c9fe77823f1e1314"
+)
+
+# For testing creating an android jar:
+android_sdk_repository(
+  name = "androidsdk",
+  api_level = 26,
+  build_tools_version = "26.0.1",
+  path = "/usr/local/android-sdk"
 )
 
 
@@ -71,7 +82,7 @@ http_archive(
 new_local_repository(
     name = "test_new_local_repo",
     path = "third_party/test/new_local_repo",
-    build_file_content = 
+    build_file_content =
 """
 filegroup(
     name = "data",

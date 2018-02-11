@@ -715,7 +715,6 @@ test_scala_import_library_passes_labels_of_direct_deps() {
   test_scala_library_expect_failure_on_missing_direct_deps $dependency_target $test_target
 }
 
-
 dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 # shellcheck source=./test_runner.sh
 . "${dir}"/test_runner.sh
