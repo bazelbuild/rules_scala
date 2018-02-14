@@ -12,8 +12,8 @@ def scala_proto_repositories():
 
     native.maven_jar(
         name = "scala_proto_rules_protoc_jar",
-        artifact = "com.github.os72:protoc-jar:3.2.0",
-        sha1 = "7c06b12068193bd2080caf45580b0a00d2a31638",
+        artifact = "com.github.os72:protoc-jar:3.5.0",
+        sha1 = "8e984359154a9ee3d1f3525529dd3f985f277ce6",
         server = "scala_proto_deps_maven_server",
     )
 
@@ -24,8 +24,8 @@ def scala_proto_repositories():
 
     native.maven_jar(
         name = "scala_proto_rules_scalapb_plugin",
-        artifact = scala_mvn_artifact("com.trueaccord.scalapb:compilerplugin:0.6.5"),
-        sha1 = "290094c632c95b36b6f66d7dbfdc15242b9a247f",
+        artifact = scala_mvn_artifact("com.trueaccord.scalapb:compilerplugin:0.6.7"),
+        sha1 = "7842555b0b5542086e8d305d6fe192517e4e2f00",
         server = "scala_proto_deps_maven_server",
     )
 
@@ -48,8 +48,8 @@ def scala_proto_repositories():
 
     native.maven_jar(
         name = "scala_proto_rules_scalapbc",
-        artifact = scala_mvn_artifact("com.trueaccord.scalapb:scalapbc:0.6.5"),
-        sha1 = "b204d6d56a042b973af5b6fe28f81ece232d1fe4",
+        artifact = scala_mvn_artifact("com.trueaccord.scalapb:scalapbc:0.6.7"),
+        sha1 = "61ad90558110d5e6e47fce57bd3efa7f38b5a346",
         server = "scala_proto_deps_maven_server",
     )
 
@@ -60,8 +60,8 @@ def scala_proto_repositories():
 
     native.maven_jar(
         name = "scala_proto_rules_scalapb_runtime",
-        artifact = scala_mvn_artifact("com.trueaccord.scalapb:scalapb-runtime:0.6.5"),
-        sha1 = "ac9287ff48c632df525773570ee4842e3ddf40e9",
+        artifact = scala_mvn_artifact("com.trueaccord.scalapb:scalapb-runtime:0.6.7"),
+        sha1 = "efe84a4e6570c095f4ae4defab4fea33ac0317d4",
         server = "scala_proto_deps_maven_server",
     )
 
@@ -72,8 +72,8 @@ def scala_proto_repositories():
 
     native.maven_jar(
         name = "scala_proto_rules_scalapb_runtime_grpc",
-        artifact = scala_mvn_artifact("com.trueaccord.scalapb:scalapb-runtime-grpc:0.6.5"),
-        sha1 = "9dc3374001f4190548db36a7dc87bd4f9bca6f9c",
+        artifact = scala_mvn_artifact("com.trueaccord.scalapb:scalapb-runtime-grpc:0.6.7"),
+        sha1 = "c98a02462c5962f8116ed6ed4f208dc3258eb96d",
         server = "scala_proto_deps_maven_server",
     )
 
