@@ -816,9 +816,8 @@ def _scala_test_impl(ctx):
     cjars += scalatest_jars
     transitive_rjars += scalatest_jars
 
-    if is_dependency_analyzer_on(ctx):
-      transitive_compile_jars += scalatest_jars
-      add_labels_of_jars_to(jars_to_labels, ctx.attr._scalatest, scalatest_jars, scalatest_jars)
+    transitive_compile_jars += scalatest_jars
+    add_labels_of_jars_to(jars_to_labels, ctx.attr._scalatest, scalatest_jars, scalatest_jars)
 
     args = " ".join([
         "-R \"{path}\"".format(path=ctx.outputs.jar.short_path),
