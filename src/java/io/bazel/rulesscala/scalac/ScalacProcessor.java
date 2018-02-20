@@ -247,6 +247,13 @@ class ScalacProcessor implements Processor {
       System.err.println("Compiler runtime: " + (stop - start) + "ms.");
     }
 
+    try {
+      Files.write(Paths.get(ops.statsfile), Arrays.asList(
+        "build_time=" + Long.toString(stop - start)));
+    } catch (IOException ex) {
+        throw new RuntimeException(
+            "Unable to write statsfile to " + ops.statsfile, ex);
+    }
 
     ConsoleReporter reporter = (ConsoleReporter) reporterField.get(comp);
 
