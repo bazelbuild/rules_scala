@@ -52,7 +52,7 @@ public class JarHelper {
   protected final String jarFile;
 
   // The properties to describe how to create the Jar
-  protected boolean normalize = true;
+  protected boolean normalize;
   protected int storageMethod = JarEntry.DEFLATED;
   protected boolean verbose = false;
 

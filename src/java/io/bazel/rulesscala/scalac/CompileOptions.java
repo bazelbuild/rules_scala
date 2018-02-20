@@ -25,7 +25,6 @@ public class CompileOptions {
   final public String[] indirectTargets;
   final public String dependencyAnalyzerMode;
   final public String currentTarget;
-  final public String statsfile;
 
   public CompileOptions(List<String> args) {
     Map<String, String> argMap = buildArgMap(args);
@@ -61,8 +60,6 @@ public class CompileOptions {
 
     dependencyAnalyzerMode = getOrElse(argMap, "DependencyAnalyzerMode", "off");
     currentTarget = getOrElse(argMap, "CurrentTarget", "NA");
-
-    statsfile = getOrError(argMap, "StatsfileOutput", "Missing required arg StatsfileOutput");
   }
 
   private static Map<String, Resource> getResources(Map<String, String> args) {

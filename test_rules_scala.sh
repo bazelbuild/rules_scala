@@ -26,14 +26,13 @@ echo "$_md5_util"
 }
 
 non_deploy_jar_md5_sum() {
-  find bazel-bin/test -name "*.jar" ! -name "*_deploy.jar" | xargs -n 1 -P 5 $(md5_util) | sort
+  find bazel-bin/test -name "*.jar" ! -name "*_deploy.jar" | $(md5_util)
 }
 
 test_build_is_identical() {
   bazel build test/...
   non_deploy_jar_md5_sum > hash1
   bazel clean
-  sleep 2 # to make sure that if timestamps slip in we get different ones
   bazel build test/...
   non_deploy_jar_md5_sum > hash2
   diff hash1 hash2
@@ -729,7 +728,6 @@ $runner bazel test "test/... --strict_java_deps=ERROR"
 $runner bazel run test/src/main/scala/scala/test/twitter_scrooge:justscrooges
 $runner bazel run test:JavaBinary
 $runner bazel run test:JavaBinary2
-$runner bazel run test:JavaOnlySources
 $runner bazel run test:MixJavaScalaLibBinary
 $runner bazel run test:MixJavaScalaSrcjarLibBinary
 $runner bazel run test:ScalaBinary
@@ -737,10 +735,13 @@ $runner bazel run test:ScalaLibBinary
 $runner test_disappearing_class
 $runner find -L ./bazel-testlogs -iname "*.xml"
 $runner xmllint_test
+$runner test_build_is_identical
 $runner test_transitive_deps
 $runner test_scala_library_suite
 $runner test_repl
-$runner test_benchmark_jmh
+$runner bazel run test:JavaOnlySources
+# Disable the jmh test due to https://github.com/bazelbuild/rules_scala/issues/295
+# $runner test_benchmark_jmh
 $runner multiple_junit_suffixes
 $runner multiple_junit_prefixes
 $runner test_scala_junit_test_can_fail
@@ -789,7 +790,3 @@ $runner bazel build "test_expect_failure/missing_direct_deps/internal_deps/... -
 $runner test_scalaopts_from_scala_toolchain
 $runner test_scala_import_library_passes_labels_of_direct_deps
 
-# This test is last since it compares the current outputs to new ones to make sure they're identical
-# If it runs before some of the above (like jmh) the "current" output in CI might be too close in time to the "new" one
-# The test also adds sleep by itself but it's best if it's last
-$runner test_build_is_identical

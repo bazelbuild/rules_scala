@@ -5,7 +5,6 @@ scala_library(
     name = "specs2_test_discovery",
     srcs = [
         "Specs2RunnerBuilder.scala",
-        "package.scala",
     ],
     visibility = ["//visibility:public"],
     deps = ["//src/java/io/bazel/rulesscala/test_discovery:test_discovery",
