@@ -327,6 +327,7 @@ def _gen_proto_srcjar_impl(ctx):
         if hasattr(target, 'proto'):
             proto_deps.append(target)
             acc_imports += target.proto.transitive_sources
+            #inline this if after 0.12.0 is the oldest supported version
             if hasattr(target.proto, 'transitive_proto_path_flags'):
               transitive_proto_path_flags += target.proto.transitive_proto_path_flags
         else:
