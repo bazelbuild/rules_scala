@@ -130,7 +130,7 @@ class Compiler {
           skipIncludes = false,
           documentCache
         )
-        parser.logger.setLevel(Level.OFF) // scrooge warns on file names with "/"
+        parser.logger.setUseParentHandlers(false) // scrooge warns on file names with "/"
         val doc = parser.parseFile(inputFile).mapNamespaces(namespaceMappings.toMap)
 
         if (verbose) println("+ Compiling %s".format(inputFile))
