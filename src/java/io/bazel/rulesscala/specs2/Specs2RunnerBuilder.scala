@@ -2,18 +2,20 @@ package io.bazel.rulesscala.specs2
 
 import java.util.regex.Pattern
 
+import io.bazel.rulesscala.test_discovery._
 import io.bazel.rulesscala.test_discovery.FilteredRunnerBuilder.FilteringRunnerBuilder
-import io.bazel.rulesscala.test_discovery.{FilteredRunnerBuilder, JUnitFilteringRunnerBuilder, PrefixSuffixTestDiscoveringSuite}
 import org.junit.runner.notification.RunNotifier
 import org.junit.runner.{Description, RunWith}
 import org.junit.runners.Suite
 import org.junit.runners.model.RunnerBuilder
+import org.specs2.concurrent.ExecutionEnv
 import org.specs2.control.Action
 import org.specs2.main.{Arguments, CommandLine, Select}
 import org.specs2.specification.core.Env
 import org.specs2.specification.process.Stats
 
 import scala.collection.JavaConverters._
+import scala.util.Try
 
 @RunWith(classOf[Specs2PrefixSuffixTestDiscoveringSuite])
 class Specs2DiscoveredTestSuite
@@ -42,21 +44,24 @@ class Specs2ClassRunner(testClass: Class[_], testFilter: Pattern)
   }
 
   /**
-    * Retrieves an original (unsanitized) text of an example fragment,
+    * Retrieves an original (un-sanitized) text of an example fragment,
     * used later as a regex string for specs2 matching.
     *
     * This is done by matching the actual (sanitized) string with the sanitized version
     * of the original example text.
     */
-  private def specs2Description(desc: String): String = this.specStructure.examples
+  private def specs2Description(desc: String)(implicit ee: ExecutionEnv): String =
+    Try { allDescriptions[specs2_v4].fragmentDescriptions(specStructure)(ee) }
+      .getOrElse(allDescriptions[specs2_v3].fragmentDescriptions(specStructure))
+      .keys
       .map(fragment => fragment.description.show)
       .find(sanitize(_) == desc)
       .getOrElse(desc)
 
-  private def toDisplayName(description: Description): Option[String] = for {
-      name <- Option(description.getMethodName)
-      desc <- name.split("::").reverse.headOption
-    } yield specs2Description(desc)
+  private def toDisplayName(description: Description)(implicit ee: ExecutionEnv): Option[String] = for {
+    name <- Option(description.getMethodName)
+    desc <- name.split("::").reverse.headOption
+  } yield specs2Description(desc)
 
   /**
     * Turns a JUnit description structure into a flat list:
@@ -86,12 +91,13 @@ class Specs2ClassRunner(testClass: Class[_], testFilter: Pattern)
     testFilter.matcher(testCase).matches
   }
 
-  private def specs2ExamplesMatching(testFilter: Pattern, junitDescription: Description): List[String] =
+  private def specs2ExamplesMatching(testFilter: Pattern, junitDescription: Description)(implicit ee: ExecutionEnv): List[String] =
     flattenDescription(junitDescription)
       .filter(matching(testFilter))
-      .flatMap(toDisplayName)
+      .flatMap(toDisplayName(_))
 
   override def runWithEnv(n: RunNotifier, env: Env): Action[Stats] = {
+    implicit val ee = env.executionEnv
     val specs2MatchedExamplesRegex = specs2ExamplesMatching(testFilter, getDescription).toRegexAlternation
 
     val newArgs = Arguments(select = Select(_ex = specs2MatchedExamplesRegex), commandLine = CommandLine.create(testClass.getName))

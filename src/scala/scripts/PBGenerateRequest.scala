@@ -31,11 +31,15 @@ object PBGenerateRequest {
       case s if s.charAt(0) == '-' => Some(s.tail) //drop padding character
       case other => sys.error(s"expected a padding character of - (dash), but found: $other")
     }
-
+    val transitiveProtoPathFlags = args.get(3) match {
+      case "-" => Nil
+      case s if s.charAt(0) == '-' => s.tail.split(':').toList //drop padding character
+      case other => sys.error(s"expected a padding character of - (dash), but found: $other")
+    }
     val tmp = Paths.get(Option(System.getProperty("java.io.tmpdir")).getOrElse("/tmp"))
     val scalaPBOutput = Files.createTempDirectory(tmp, "bazelscalapb")
     val flagPrefix = flagOpt.fold("")(_ + ":")
-    val scalaPBArgs = s"--scala_out=$flagPrefix$scalaPBOutput" :: (imports ++ protoFiles)
+    val scalaPBArgs = s"--scala_out=$flagPrefix$scalaPBOutput" :: (transitiveProtoPathFlags ++ imports ++ protoFiles)
     new PBGenerateRequest(jarOutput, scalaPBOutput, scalaPBArgs)
   }
 }
