@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package demo; // Requried to generate valid code.
+
+message ZipCode {
+  string code = 1;
+}
