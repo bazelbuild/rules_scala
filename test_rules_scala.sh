@@ -612,6 +612,13 @@ javac_jvm_flags_via_javacopts_are_expanded(){
     build --verbose_failures //test_expect_failure/compilers_jvm_flags:can_expand_jvm_flags_for_javac_via_javacopts
 }
 
+java_toolchain_javacopts_are_used(){
+  action_should_fail_with_message \
+    "invalid flag: -InvalidFlag" \
+    build --java_toolchain=//test_expect_failure/compilers_javac_opts:a_java_toolchain \
+      --verbose_failures //test_expect_failure/compilers_javac_opts:can_configure_jvm_flags_for_javac_via_javacopts
+}
+
 revert_internal_change() {
   sed -i.bak "s/println(\"altered\")/println(\"orig\")/" $no_recompilation_path/C.scala
   rm $no_recompilation_path/C.scala.bak
@@ -788,6 +795,7 @@ $runner test_scala_import_expect_failure_on_missing_direct_deps_warn_mode
 $runner bazel build "test_expect_failure/missing_direct_deps/internal_deps/... --strict_java_deps=warn"
 $runner test_scalaopts_from_scala_toolchain
 $runner test_scala_import_library_passes_labels_of_direct_deps
+$runner java_toolchain_javacopts_are_used
 
 # This test is last since it compares the current outputs to new ones to make sure they're identical
 # If it runs before some of the above (like jmh) the "current" output in CI might be too close in time to the "new" one
