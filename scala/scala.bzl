@@ -330,7 +330,7 @@ def try_to_compile_java_jar(ctx,
                 source_jars = all_srcjars.to_list(),
                 source_files = java_srcs,
                 output = full_java_jar,
-                javac_opts = _expand_location(ctx, ctx.attr.javacopts + ctx.attr.javac_jvm_flags),
+                javac_opts = _expand_location(ctx, ctx.attr.javacopts + ctx.attr.javac_jvm_flags + java_common.default_javac_opts(ctx, java_toolchain_attr = "_java_toolchain")),
                 deps = providers_of_dependencies,
                 #exports can be empty since the manually created provider exposes exports
                 #needs to be empty since we want the provider.compile_jars to only contain the sources ijar
