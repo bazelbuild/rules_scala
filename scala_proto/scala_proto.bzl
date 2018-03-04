@@ -320,7 +320,7 @@ def _colon_paths(data):
 
 def _gen_proto_srcjar_impl(ctx):
     acc_imports = depset()
-    transitive_proto_path_flags = depset()
+    transitive_proto_paths = depset()
 
     proto_deps, jvm_deps = [], []
     for target in ctx.attr.deps:
@@ -328,8 +328,8 @@ def _gen_proto_srcjar_impl(ctx):
             proto_deps.append(target)
             acc_imports += target.proto.transitive_sources
             #inline this if after 0.12.0 is the oldest supported version
-            if hasattr(target.proto, 'transitive_proto_path_flags'):
-              transitive_proto_path_flags += target.proto.transitive_proto_path_flags
+            if hasattr(target.proto, 'transitive_proto_path'):
+              transitive_proto_paths += target.proto.transitive_proto_path
         else:
             jvm_deps.append(target)
 
@@ -344,7 +344,7 @@ def _gen_proto_srcjar_impl(ctx):
         # Command line args to worker cannot be empty so using padding
         flags_arg = "-" + ",".join(ctx.attr.flags),
         # Command line args to worker cannot be empty so using padding
-        packages = "-" + ":".join(transitive_proto_path_flags.to_list())
+        packages = "-" + ":".join(transitive_proto_paths.to_list())
     )
     argfile = ctx.new_file(ctx.outputs.srcjar, "%s_worker_input" % ctx.label.name)
     ctx.file_action(output=argfile, content=worker_content)

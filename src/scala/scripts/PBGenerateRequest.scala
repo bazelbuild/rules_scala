@@ -5,6 +5,7 @@ import java.nio.file.{Files, Path, Paths}
 class PBGenerateRequest(val jarOutput: String, val scalaPBOutput: Path, val scalaPBArgs: List[String])
 
 object PBGenerateRequest {
+
   def from(args: java.util.List[String]): PBGenerateRequest = {
     val jarOutput = args.get(0)
     val parsedProtoFiles = args.get(1).split(':').toList.map { rootAndFile =>
@@ -31,15 +32,20 @@ object PBGenerateRequest {
       case s if s.charAt(0) == '-' => Some(s.tail) //drop padding character
       case other => sys.error(s"expected a padding character of - (dash), but found: $other")
     }
-    val transitiveProtoPathFlags = args.get(3) match {
+    val transitiveProtoPaths = args.get(3) match {
       case "-" => Nil
       case s if s.charAt(0) == '-' => s.tail.split(':').toList //drop padding character
       case other => sys.error(s"expected a padding character of - (dash), but found: $other")
     }
+
     val tmp = Paths.get(Option(System.getProperty("java.io.tmpdir")).getOrElse("/tmp"))
     val scalaPBOutput = Files.createTempDirectory(tmp, "bazelscalapb")
     val flagPrefix = flagOpt.fold("")(_ + ":")
-    val scalaPBArgs = s"--scala_out=$flagPrefix$scalaPBOutput" :: (transitiveProtoPathFlags ++ imports ++ protoFiles)
+    val scalaPBArgs = s"--scala_out=$flagPrefix$scalaPBOutput" :: (padWithProtoPathPrefix(transitiveProtoPaths) ++ imports ++ protoFiles)
     new PBGenerateRequest(jarOutput, scalaPBOutput, scalaPBArgs)
   }
+
+  private def padWithProtoPathPrefix(transitiveProtoPathFlags: List[String]) =
+    transitiveProtoPathFlags.map("--proto_path="+_)
+
 }
