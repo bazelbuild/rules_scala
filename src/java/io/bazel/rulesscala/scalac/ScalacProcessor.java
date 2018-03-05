@@ -81,7 +81,7 @@ class ScalacProcessor implements Processor {
       /**
        * Copy classpath resources to root of jar
        */
-      copyClasspathResources(ops.classpathResourceFiles, tmpPath);
+      copyClasspathResourcesToRoot(ops.classpathResourceFiles, tmpPath);
 
       /**
        * Now build the output jar
@@ -332,7 +332,7 @@ class ScalacProcessor implements Processor {
     }
   }
 
-  private static void copyClasspathResources(
+  private static void copyClasspathResourcesToRoot(
     String[] classpathResourceFiles,
     Path dest
   ) throws IOException {
@@ -341,9 +341,9 @@ class ScalacProcessor implements Processor {
       Path target = dest.resolve(source.getFileName());
 
       if(Files.exists(target)) {
-        throw new RuntimeException(
+        System.err.println(
           "Classpath resource file " + source.getFileName()
-          + "has a namespace conflict with another file: " + target.getFileName()
+          + " has a namespace conflict with another file: " + target.getFileName()
         );
       } else {
         Files.copy(source, target);
