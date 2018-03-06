@@ -54,6 +54,8 @@ def _code_jars_and_intellij_metadata_from(jars):
       intellij_metadata.append(struct(
            ijar = None,
            class_jar = current_class_jar,
+           source_jar = None,
+           source_jars = [],
        )
      )
   return struct(code_jars = code_jars, intellij_metadata = intellij_metadata)
@@ -112,7 +114,7 @@ def _collect_exports(exports):
 scala_import = rule(
   implementation=_scala_import_impl,
   attrs={
-      "jars": attr.label_list(), #current hidden assumption is that these point to full, not ijar'd jars
+      "jars": attr.label_list(allow_files=True), #current hidden assumption is that these point to full, not ijar'd jars
       "deps": attr.label_list(),
       "runtime_deps": attr.label_list(),
       "exports": attr.label_list()

@@ -314,14 +314,14 @@ scala_specs2_junit_test(
 ) for binary in [
     "JavaBinary",
     "JavaBinary2",
+    "JavaOnlySources",
+    "MixJavaScalaLibBinary",
+    "MixJavaScalaSrcjarLibBinary",
     "ScalaBinary",
     "ScalaLibBinary",
     "ResourcesStripScalaBinary",
-    "MixJavaScalaLibBinary",
-    "JavaOnlySources",
     "ScalaBinary_dependent_on_binary_with_java"
 ]]
-
 # Make sure scala_binary works in genrule environment
 genrule(
     name = "ScalaBinaryInGenrule",
@@ -455,3 +455,8 @@ scalapb_proto_library(
     deps = ["//test/proto:test2", ":HelloLib"],
     visibility = ["//visibility:public"],
 )
+
+load(":check_statsfile.bzl", "check_statsfile")
+
+check_statsfile("ScalaBinary")
+check_statsfile("ScalaLibBinary")

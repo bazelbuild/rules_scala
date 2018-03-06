@@ -1,0 +1,17 @@
+---
+platforms:
+  ubuntu1404:
+    build_targets:
+    - "//test/..."
+    test_targets:
+    - "//test/..."
+  ubuntu1604:
+    build_targets:
+    - "//test/..."
+    test_targets:
+    - "//test/..."
+  macos:
+    build_targets:
+    - "//test/..."
+    test_targets:
+    - "//test/..."
