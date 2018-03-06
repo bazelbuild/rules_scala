@@ -43,12 +43,22 @@ object TestUtil {
   /** Evaluate using global instance instead of toolbox because toolbox seems
     * to fail to typecheck code that comes from external dependencies. */
   private def eval(code: String, compileOptions: String = ""): StoreReporter = {
+    import scala.reflect.runtime.currentMirror
+    import scala.tools.reflect.ToolBox
+
+
+
     // TODO: Optimize and cache global.
     val options = CommandLineParser.tokenize(compileOptions)
     val reporter = new StoreReporter()
     val settings = new Settings(println)
     val _ = new CompilerCommand(options, settings)
     settings.outputDirs.setSingleOutput(new VirtualDirectory("(memory)", None))
+
+//    val _compiler =currentMirror.mkToolBox(options = options.mkString(" "))
+//    val tree = _compiler.parse(code)
+//    _compiler.compile(tree)
+
     val global = new Global(settings, reporter)
     val run = new global.Run
     val toCompile = new BatchSourceFile("<wrapper-init>", code)
