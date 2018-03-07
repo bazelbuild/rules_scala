@@ -14,17 +14,18 @@ object TestUtil {
 
   final val defaultTarget = "//..."
 
-  def run(code: String, withDirect: Seq[String] = Seq.empty, withIndirect: Map[String, String] = Map.empty): Seq[String] = {
+  def run(code: String, withDirect: Map[String, String] = Map.empty, withIndirect: Map[String, String] = Map.empty): Seq[String] = {
     val compileOptions = Seq(
-      constructParam("direct-jars", withDirect),
+      constructParam("direct-jars", withDirect.keys),
+      constructParam("direct-targets", withDirect.values),
       constructParam("indirect-jars", withIndirect.keys),
       constructParam("indirect-targets", withIndirect.values),
       constructParam("current-target", Seq(defaultTarget))
     ).mkString(" ")
 
-    val extraClasspath = withDirect ++ withIndirect.keys
+    val extraClasspath = withDirect.keys ++ withIndirect.keys
 
-    val reporter: StoreReporter = runCompilation(code, compileOptions, extraClasspath)
+    val reporter: StoreReporter = runCompilation(code, compileOptions, extraClasspath.toSeq)
     reporter.infos.collect({ case msg if msg.severity == reporter.ERROR => msg.msg }).toSeq
   }
 

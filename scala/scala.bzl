@@ -171,17 +171,20 @@ def _compile(ctx, cjars, dep_srcjars, buildijar, transitive_compile_jars, labels
         compiler_classpath_jars = transitive_compile_jars
 
         direct_jars = ",".join([j.path for j in cjars])
+        direct_targets = ",".join([labels[j.path] for j in cjars])
         indirect_jars = ",".join([j.path for j in transitive_compile_jars])
         indirect_targets = ",".join([labels[j.path] for j in transitive_compile_jars])
         current_target = str(ctx.label)
 
         optional_scalac_args = """
 DirectJars: {direct_jars}
+DirectTargets: {direct_targets}
 IndirectJars: {indirect_jars}
 IndirectTargets: {indirect_targets}
 CurrentTarget: {current_target}
         """.format(
               direct_jars=direct_jars,
+              direct_targets=direct_targets,
               indirect_jars=indirect_jars,
               indirect_targets=indirect_targets,
               current_target = current_target
@@ -193,7 +196,7 @@ CurrentTarget: {current_target}
     compiler_classpath = separator.join([j.path for j in compiler_classpath_jars])
 
     toolchain = ctx.toolchains['@io_bazel_rules_scala//scala:toolchain_type']
-    scalacopts = toolchain.scalacopts + ctx.attr.scalacopts    
+    scalacopts = toolchain.scalacopts + ctx.attr.scalacopts
 
     scalac_args = """
 Classpath: {cp}

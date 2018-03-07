@@ -45,9 +45,11 @@ class DependencyAnalyzerTest {
       """.stripMargin
     val commonsTarget = "commonsTarget"
 
-    val direct = Seq(apacheCommonsClasspath)
+    val direct = Map(apacheCommonsClasspath -> commonsTarget)
     val indirect = Map(apacheCommonsClasspath -> commonsTarget)
-    run(testCode, withDirect = direct, withIndirect = indirect).noErrorOn(commonsTarget)
+    val foo = run(testCode, withDirect = direct, withIndirect = indirect)
+    println(foo)
+    foo.noErrorOn(commonsTarget)
   }
 
 

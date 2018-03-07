@@ -196,13 +196,15 @@ class ScalacProcessor implements Processor {
     String[] pluginParams;
 
     if (isModeEnabled(ops.dependencyAnalyzerMode)) {
-      String[] targets = encodeBazelTargets(ops.indirectTargets);
+      String[] indirectTargets = encodeBazelTargets(ops.indirectTargets);
+      String[] directTargets = encodeBazelTargets(ops.directTargets);
       String currentTarget = encodeBazelTarget(ops.currentTarget);
 
       String[] pluginParamsInUse = {
               "-P:dependency-analyzer:direct-jars:" + String.join(":", ops.directJars),
+              "-P:dependency-analyzer:direct-targets:" + String.join(":", directTargets),
               "-P:dependency-analyzer:indirect-jars:" + String.join(":", ops.indirectJars),
-              "-P:dependency-analyzer:indirect-targets:" + String.join(":", targets),
+              "-P:dependency-analyzer:indirect-targets:" + String.join(":", indirectTargets),
               "-P:dependency-analyzer:mode:" + ops.dependencyAnalyzerMode,
               "-P:dependency-analyzer:current-target:" + currentTarget,
       };

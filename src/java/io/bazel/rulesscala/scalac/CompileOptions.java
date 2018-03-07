@@ -21,6 +21,7 @@ public class CompileOptions {
   final public String resourceStripPrefix;
   final public String[] resourceJars;
   final public String[] directJars;
+  final public String[] directTargets;
   final public String[] indirectJars;
   final public String[] indirectTargets;
   final public String dependencyAnalyzerMode;
@@ -56,6 +57,7 @@ public class CompileOptions {
     resourceJars = getCommaList(argMap, "ResourceJars");
 
     directJars = getCommaList(argMap, "DirectJars");
+    directTargets = getCommaList(argMap, "DirectTargets");
     indirectJars = getCommaList(argMap, "IndirectJars");
     indirectTargets = getCommaList(argMap, "IndirectTargets");
 
