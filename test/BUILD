@@ -307,10 +307,10 @@ scala_specs2_junit_test(
 
 # Make sure scala_binary works in test environment
 [sh_test(
-    name = "Run" + binary,
+    name = "Run" + "".join([c if c.isalnum() else "_" for c in binary]),
     srcs = ["test_binary.sh"],
     args = ["$(location %s)" % binary],
-    data = [":%s" % binary],
+    data = [binary if ":" in binary else ":%s" % binary],
 ) for binary in [
     "JavaBinary",
     "JavaBinary2",
@@ -320,8 +320,10 @@ scala_specs2_junit_test(
     "ScalaBinary",
     "ScalaLibBinary",
     "ResourcesStripScalaBinary",
-    "ScalaBinary_dependent_on_binary_with_java"
+    "ScalaBinary_dependent_on_binary_with_java",
+    "//test/src/main/scala/scala/test/classpath_resources:classpath_resource",
 ]]
+
 # Make sure scala_binary works in genrule environment
 genrule(
     name = "ScalaBinaryInGenrule",
