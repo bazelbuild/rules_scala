@@ -9,16 +9,24 @@ scala_import(
 
 # Jars as files
 scala_import(
-  name = "relate",
-  jars = [
-   "relate_2.11-2.1.1.jar",
-  ],
+    name = "relate",
+    jars = [
+      "relate_2.11-2.1.1.jar",
+    ],
 )
 
 scala_specs2_junit_test(
     name = "scala_import_exposes_jars",
     srcs = ["ScalaImportExposesJarsTest.scala"],
     deps = [":guava_and_commons_lang"],
+    size = "small",
+    suffixes = ["Test"],
+)
+
+scala_specs2_junit_test(
+    name = "scala_import_exposes_file_jars",
+    srcs = ["ScalaImportExposesFileJarsTest.scala"],
+    deps = [":relate"],
     size = "small",
     suffixes = ["Test"],
 )
