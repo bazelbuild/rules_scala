@@ -50,6 +50,22 @@ class DependencyAnalyzerTest {
     run(testCode, withDirect = direct, withIndirect = indirect).noErrorOn(commonsTarget)
   }
 
+  @Test
+  def `error on indirect dependency target expressed as classOf`(): Unit = {
+    val testCode =
+      """
+        |import org.apache.commons.lang3.ArrayUtils
+        |object A {
+        |	def foo = {
+        |		println(classOf[ArrayUtils])
+        |	}
+        |}
+      """.stripMargin
+    val commonsTarget = "//commons:Target".encode()
+    val indirect = Map(apacheCommonsClasspath -> commonsTarget)
+    run(testCode, withIndirect = indirect).expectErrorOn(indirect(apacheCommonsClasspath).decoded)
+  }
+
 
   implicit class `nice errors on sequence of strings`(infos: Seq[String]) {
 
