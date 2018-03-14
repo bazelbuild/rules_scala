@@ -1150,6 +1150,15 @@ def scala_repositories():
     server = "scalac_deps_maven_server",
   )
 
+  # used by ScalacProcessor
+  native.maven_jar(
+      name = "scalac_rules_commons_io",
+      artifact = "commons-io:commons-io:2.6",
+      sha1 = "815893df5f31da2ece4040fe0a12fd44b577afaf",
+      # bazel maven mirror doesn't have the commons_io artifact
+#      server = "scalac_deps_maven_server",
+    )
+
   # Template for binary launcher
   BAZEL_JAVA_LAUNCHER_VERSION = "0.4.5"
   java_stub_template_url = ("raw.githubusercontent.com/bazelbuild/bazel/" +
@@ -1164,6 +1173,8 @@ def scala_repositories():
   )
 
   native.bind(name = "io_bazel_rules_scala/dependency/com_google_protobuf/protobuf_java", actual = "@scalac_rules_protobuf_java//jar")
+
+  native.bind(name = "io_bazel_rules_scala/dependency/commons_io/commons_io", actual = "@scalac_rules_commons_io//jar")
 
   native.bind(name = "io_bazel_rules_scala/dependency/scala/parser_combinators", actual = "@scala//:scala-parser-combinators")
 

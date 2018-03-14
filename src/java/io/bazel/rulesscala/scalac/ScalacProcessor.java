@@ -4,11 +4,7 @@ import io.bazel.rulesscala.jar.JarCreator;
 import io.bazel.rulesscala.worker.GenericWorker;
 import io.bazel.rulesscala.worker.Processor;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -21,6 +17,8 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+
+import org.apache.commons.io.IOUtils;
 import scala.tools.nsc.Driver;
 import scala.tools.nsc.MainClass;
 import scala.tools.nsc.reporters.ConsoleReporter;
@@ -166,10 +164,8 @@ class ScalacProcessor implements Processor {
       outputPaths.add(f);
 
       InputStream is = jar.getInputStream(file); // get the input stream
-      FileOutputStream fos = new FileOutputStream(f);
-      while (is.available() > 0) {  // write contents of 'is' to 'fos'
-        fos.write(is.read());
-      }
+      OutputStream fos = new FileOutputStream(f);
+      IOUtils.copy(is, fos);
       fos.close();
       is.close();
     }
