@@ -14,26 +14,25 @@
 
 package io.bazel.rulesscala.jar;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Enumeration;
+import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.zip.CRC32;
-import java.util.zip.ZipException;
 
 /**
  * A simple helper class for creating Jar files. All Jar entries are sorted alphabetically. Allows
  * normalization of Jar entries by setting the timestamp of non-.class files to the DOS epoch.
  * Timestamps of .class files are set to the DOS epoch + 2 seconds (The zip timestamp granularity)
- * Adjusting the timestamp for .class files is neccessary since otherwise javac will recompile java
+ * Adjusting the timestamp for .class files is necessary since otherwise javac will recompile java
  * files if both the java file and its .class file are present.
  */
 public class JarHelper {
@@ -42,37 +41,43 @@ public class JarHelper {
   public static final String MANIFEST_NAME = JarFile.MANIFEST_NAME;
   public static final String SERVICES_DIR = "META-INF/services/";
 
+  /** Normalize timestamps. */
+  public static final long DEFAULT_TIMESTAMP =
+          LocalDateTime.of(2010, 1, 1, 0, 0, 0)
+                  .atZone(ZoneId.systemDefault())
+                  .toInstant()
+                  .toEpochMilli();
+  // These attributes are used by JavaBuilder, Turbine, and ijar.
+  // They must all be kept in sync.
+  public static final Attributes.Name TARGET_LABEL = new Attributes.Name("Target-Label");
+  public static final Attributes.Name INJECTING_RULE_KIND =
+          new Attributes.Name("Injecting-Rule-Kind");
+
   public static final long DOS_EPOCH_IN_JAVA_TIME = 315561600000L;
 
   // ZIP timestamps have a resolution of 2 seconds.
   // see http://www.info-zip.org/FAQ.html#limits
   public static final long MINIMUM_TIMESTAMP_INCREMENT = 2000L;
 
-  // The name of the Jar file we want to create
-  protected final String jarFile;
+  // The path to the Jar we want to create
+  protected final Path jarPath;
 
   // The properties to describe how to create the Jar
-  protected boolean normalize = true;
+  protected boolean normalize;
   protected int storageMethod = JarEntry.DEFLATED;
   protected boolean verbose = false;
 
   // The state needed to create the Jar
   protected final Set<String> names = new HashSet<>();
-  protected JarOutputStream out;
 
-  public JarHelper(String filename) {
-    jarFile = filename;
-  }
-
-  public static boolean isJar(File file) {
-    return file.getName().endsWith(".jar") && (file.isFile());
+  public JarHelper(Path path) {
+    jarPath = path;
   }
 
   /**
    * Enables or disables the Jar entry normalization.
    *
-   * @param normalize If true the timestamps of Jar entries will be set to the
-   *        DOS epoch.
+   * @param normalize If true the timestamps of Jar entries will be set to the DOS epoch.
    */
   public void setNormalize(boolean normalize) {
     this.normalize = normalize;
@@ -97,27 +102,26 @@ public class JarHelper {
   }
 
   /**
-   * Returns the normalized timestamp for a jar entry based on its name.
-   * This is necessary since javac will, when loading a class X, prefer a
-   * source file to a class file, if both files have the same timestamp.
-   * Therefore, we need to adjust the timestamp for class files to slightly
+   * Returns the normalized timestamp for a jar entry based on its name. This is necessary since
+   * javac will, when loading a class X, prefer a source file to a class file, if both files have
+   * the same timestamp. Therefore, we need to adjust the timestamp for class files to slightly
    * after the normalized time.
-   * @param name The name of the file for which we should return the
-   *     normalized timestamp.
+   *
+   * @param name The name of the file for which we should return the normalized timestamp.
    * @return the time for a new Jar file entry in milliseconds since the epoch.
    */
   private long normalizedTimestamp(String name) {
     if (name.endsWith(".class")) {
-      return DOS_EPOCH_IN_JAVA_TIME + MINIMUM_TIMESTAMP_INCREMENT;
+      return DEFAULT_TIMESTAMP + MINIMUM_TIMESTAMP_INCREMENT;
     } else {
-      return DOS_EPOCH_IN_JAVA_TIME;
+      return DEFAULT_TIMESTAMP;
     }
   }
 
   /**
-   * Returns the time for a new Jar file entry in milliseconds since the epoch.
-   * Uses {@link JarCreator#DOS_EPOCH_IN_JAVA_TIME} for normalized entries,
-   * {@link System#currentTimeMillis()} otherwise.
+   * Returns the time for a new Jar file entry in milliseconds since the epoch. Uses {@link
+   * JarCreator#DEFAULT_TIMESTAMP} for normalized entries, {@link System#currentTimeMillis()}
+   * otherwise.
    *
    * @param filename The name of the file for which we are entering the time
    * @return the time for a new Jar file entry in milliseconds since the epoch.
@@ -127,8 +131,8 @@ public class JarHelper {
   }
 
   /**
-   * Writes an entry with specific contents to the jar. Directory entries must
-   * include the trailing '/'.
+   * Writes an entry with specific contents to the jar. Directory entries must include the trailing
+   * '/'.
    */
   protected void writeEntry(JarOutputStream out, String name, byte[] content) throws IOException {
     if (names.add(name)) {
@@ -156,13 +160,13 @@ public class JarHelper {
   }
 
   /**
-   * Writes a standard Java manifest entry into the JarOutputStream. This
-   * includes the directory entry for the "META-INF" directory
+   * Writes a standard Java manifest entry into the JarOutputStream. This includes the directory
+   * entry for the "META-INF" directory
    *
    * @param content the Manifest content to write to the manifest entry.
    * @throws IOException
    */
-  protected void writeManifestEntry(byte[] content) throws IOException {
+  protected void writeManifestEntry(JarOutputStream out, byte[] content) throws IOException {
     int oldStorageMethod = storageMethod;
     // Do not compress small manifest files, the compressed one is frequently
     // larger than the original. The threshold of 256 bytes is somewhat arbitrary.
@@ -170,98 +174,61 @@ public class JarHelper {
       storageMethod = JarEntry.STORED;
     }
     try {
-      writeEntry(out, MANIFEST_DIR, new byte[]{});
+      writeEntry(out, MANIFEST_DIR, new byte[] {});
       writeEntry(out, MANIFEST_NAME, content);
     } finally {
       storageMethod = oldStorageMethod;
     }
   }
 
-  protected boolean ignoreFileName(String name) {
-    return false;
-  }
-
   /**
-   * This copies the contents of jarFile into out
-   * This is a static method to make it clear what is mutated (and it
-   * was written by someone who really likes to minimize state changes).
+   * Copies file or directory entries from the file system into the jar. Directory entries will be
+   * detected and their names automatically '/' suffixed.
    */
-  private void copyJar(JarFile nameJf, Set<String> names, JarOutputStream out) throws IOException {
-    byte[] buffer = new byte[2048];
-    for (Enumeration<JarEntry> e = nameJf.entries(); e.hasMoreElements();) {
-      JarEntry existing = e.nextElement();
-      String name = existing.getName();
-      if (!(ignoreFileName(name) || names.contains(name))) {
-        JarEntry outEntry = new JarEntry(name);
-        outEntry.setTime(existing.getTime());
-        outEntry.setSize(existing.getSize());
-        out.putNextEntry(outEntry);
-        InputStream in = nameJf.getInputStream(existing);
-        while (0 < in.available()) {
-          int read = in.read(buffer);
-          out.write(buffer, 0, read);
-        }
-        in.close();
-        out.closeEntry();
-        names.add(name);
-      }
-    }
-  }
-
-  /**
-   * Copies file or directory entries from the file system into the jar.
-   * Directory entries will be detected and their names automatically '/'
-   * suffixed.
-   */
-  protected void copyEntry(String name, File file) throws IOException {
+  protected void copyEntry(JarOutputStream out, String name, Path path) throws IOException {
     if (!names.contains(name)) {
-      if (!file.exists()) {
-        throw new FileNotFoundException(file.getAbsolutePath() + " (No such file or directory)");
+      if (!Files.exists(path)) {
+        throw new FileNotFoundException(path.toAbsolutePath() + " (No such file or directory)");
       }
-      boolean isDirectory = file.isDirectory();
+      boolean isDirectory = Files.isDirectory(path);
       if (isDirectory && !name.endsWith("/")) {
-        name = name + '/';  // always normalize directory names before checking set
+        name = name + '/'; // always normalize directory names before checking set
       }
       if (names.add(name)) {
         if (verbose) {
-          System.err.println("adding " + file);
+          System.err.println("adding " + path);
         }
         // Create a new entry
-        if (JarHelper.isJar(file)) {
-          JarFile nameJf = new JarFile(file);
-          copyJar(nameJf, names, out);
-        }
-        else {
-          long size = isDirectory ? 0 : file.length();
-          JarEntry outEntry = new JarEntry(name);
-          long newtime = normalize ? normalizedTimestamp(name) : file.lastModified();
-          outEntry.setTime(newtime);
-          outEntry.setSize(size);
-          if (size == 0L) {
-            outEntry.setMethod(JarEntry.STORED);
-            outEntry.setCrc(0);
+        long size = isDirectory ? 0 : Files.size(path);
+        JarEntry outEntry = new JarEntry(name);
+        long newtime =
+                normalize ? normalizedTimestamp(name) : Files.getLastModifiedTime(path).toMillis();
+        outEntry.setTime(newtime);
+        outEntry.setSize(size);
+        if (size == 0L) {
+          outEntry.setMethod(JarEntry.STORED);
+          outEntry.setCrc(0);
+          out.putNextEntry(outEntry);
+        } else {
+          outEntry.setMethod(storageMethod);
+          if (storageMethod == JarEntry.STORED) {
+            // ZipFile requires us to calculate the CRC-32 for any STORED entry.
+            // It would be nicer to do this via DigestInputStream, but
+            // the architecture of ZipOutputStream requires us to know the CRC-32
+            // before we write the data to the stream.
+            byte[] bytes = Files.readAllBytes(path);
+            CRC32 crc = new CRC32();
+            crc.update(bytes);
+            outEntry.setCrc(crc.getValue());
             out.putNextEntry(outEntry);
+            out.write(bytes);
           } else {
-            outEntry.setMethod(storageMethod);
-            if (storageMethod == JarEntry.STORED) {
-              outEntry.setCrc(hashFile(file));
-            }
             out.putNextEntry(outEntry);
-            Files.copy(file.toPath(), out);
+            Files.copy(path, out);
           }
-          out.closeEntry();
         }
+        out.closeEntry();
       }
     }
-  }
-  protected long hashFile(File f) throws IOException {
-    FileInputStream fis = new FileInputStream(f);
-    CRC32 crc = new CRC32();
-    byte[] buffer = new byte[65536];
-    int bytesRead;
-    while((bytesRead = fis.read(buffer)) != -1) {
-        crc.update(buffer, 0, bytesRead);
-    }
-    return crc.getValue();
   }
 }
