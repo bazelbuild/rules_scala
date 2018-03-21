@@ -435,7 +435,9 @@ def _write_launcher(ctx, rjars, main_class, jvm_flags, args="", wrapper_preamble
     # when that becomes generally available in Bazel (submitted in
     # https://github.com/bazelbuild/bazel/commit/f2075d27ca124156fcd7c01242c552175c0cf145).
     if hasattr(ctx.attr._java_runtime[java_common.JavaRuntimeInfo], "java_executable_runfiles_path"):
-      javabin = str(ctx.attr._java_runtime[java_common.JavaRuntimeInfo].java_executable_runfiles_path)
+      java_path = str(ctx.attr._java_runtime[java_common.JavaRuntimeInfo].java_executable_runfiles_path)
+
+      javabin = "%s/%s" % (runfiles_root, java_path)
     else:
       java_path = str(ctx.attr._java_runtime[java_common.JavaRuntimeInfo].java_executable_exec_path)
 
