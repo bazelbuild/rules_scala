@@ -66,15 +66,15 @@ def _scala_construct_runtime_classpath(deps):
   java_targets = [d.java for d in deps if hasattr(d, "java")]
   files = []
   for scala in scala_targets:
-    files += list(scala.transitive_runtime_jars)
+    files.append(scala.transitive_runtime_jars)
   for java in java_targets:
-    files += list(java.transitive_runtime_deps)
-  return files
+    files.append(java.transitive_runtime_deps)
+  return depset(transitive = files)
 
 def _scala_generate_benchmark(ctx):
   class_jar = ctx.attr.src.scala.outputs.class_jar
-  classpath = _scala_construct_runtime_classpath([ctx.attr.src])
-  ctx.action(
+  classpath = _scala_construct_runtime_classpath([ctx.attr.src]).to_list()
+  ctx.actions.run(
       outputs = [ctx.outputs.src_jar, ctx.outputs.resource_jar],
       inputs = [class_jar] + classpath,
       executable = ctx.executable._generator,
