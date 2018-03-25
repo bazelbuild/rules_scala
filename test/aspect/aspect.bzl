@@ -65,7 +65,7 @@ def _rule_impl(ctx):
             """.format(name=target.label.name,
                        expected=', '.join(expected),
                        visited=', '.join(visited))
-    ctx.file_action(
+    ctx.actions.write(
         output = ctx.outputs.executable,
         content = content,
     )

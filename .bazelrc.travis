@@ -9,6 +9,7 @@ build --local_resources 2048,.5,1.0
 
 # This is so we understand failures better
 build --verbose_failures
+build --all_incompatible_changes
 
 # This is so we use a recent enough GCC when building.
 # build --crosstool_top //tools/custom_crosstool:CROSSTOOL
