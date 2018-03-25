@@ -319,20 +319,21 @@ def _colon_paths(data):
     return ':'.join(["{root},{path}".format(root=_root_path(f), path=f.path) for f in data])
 
 def _gen_proto_srcjar_impl(ctx):
-    acc_imports = depset()
+    acc_imports = []
     transitive_proto_paths = depset()
 
     proto_deps, jvm_deps = [], []
     for target in ctx.attr.deps:
         if hasattr(target, 'proto'):
             proto_deps.append(target)
-            acc_imports += target.proto.transitive_sources
+            acc_imports.append(target.proto.transitive_sources)
             #inline this if after 0.12.0 is the oldest supported version
             if hasattr(target.proto, 'transitive_proto_path'):
               transitive_proto_paths += target.proto.transitive_proto_path
         else:
             jvm_deps.append(target)
 
+    acc_imports = depset(transitive = acc_imports)
     if "java_conversions" in ctx.attr.flags and len(jvm_deps) == 0:
         fail("must have at least one jvm dependency if with_java is True (java_conversions is turned on)")
 
@@ -340,17 +341,17 @@ def _gen_proto_srcjar_impl(ctx):
 
     worker_content = "{output}\n{paths}\n{flags_arg}\n{packages}".format(
         output = ctx.outputs.srcjar.path,
-        paths = _colon_paths(acc_imports),
+        paths = _colon_paths(acc_imports.to_list()),
         # Command line args to worker cannot be empty so using padding
         flags_arg = "-" + ",".join(ctx.attr.flags),
         # Command line args to worker cannot be empty so using padding
         packages = "-" + ":".join(transitive_proto_paths.to_list())
     )
-    argfile = ctx.new_file(ctx.outputs.srcjar, "%s_worker_input" % ctx.label.name)
-    ctx.file_action(output=argfile, content=worker_content)
-    ctx.action(
+    argfile = ctx.actions.declare_file("%s_worker_input" % ctx.label.name, sibling = ctx.outputs.srcjar)
+    ctx.actions.write(output=argfile, content=worker_content)
+    ctx.actions.run(
         executable = ctx.executable.generator,
-        inputs = list(acc_imports) + [argfile],
+        inputs = depset([argfile], transitive = [acc_imports]),
         outputs = [ctx.outputs.srcjar],
         mnemonic="ProtoScalaPBRule",
         progress_message = "creating scalapb files %s" % ctx.label,
