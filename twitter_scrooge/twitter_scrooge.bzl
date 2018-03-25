@@ -1,11 +1,11 @@
-_jar_filetype = FileType([".jar"])
-
 load("//scala:scala.bzl",
   "scala_mvn_artifact",
   "scala_library",
   "write_manifest",
   "collect_srcjars",
   "collect_jars")
+
+_jar_filetype = FileType([".jar"])
 
 def twitter_scrooge():
   native.maven_server(
@@ -55,53 +55,54 @@ def twitter_scrooge():
   native.bind(name = 'io_bazel_rules_scala/dependency/thrift/util_logging', actual = '@util_logging//jar')
 
 def _collect_transitive_srcs(targets):
-  r = depset()
+  r = []
   for target in targets:
     if hasattr(target, "thrift"):
-      r += target.thrift.transitive_srcs
-  return r
+      r.append(target.thrift.transitive_srcs)
+  return depset(transitive = r)
 
 def _collect_owned_srcs(targets):
-  r = depset()
+  r = []
   for _target in targets:
     if hasattr(_target, "extra_information"):
       for target in _target.extra_information:
         if hasattr(target, "scrooge_srcjar"):
-          r += target.scrooge_srcjar.transitive_owned_srcs
-  return r
+          r.append(target.scrooge_srcjar.transitive_owned_srcs)
+  return depset(transitive = r)
 
 def _collect_external_jars(targets):
-  r = depset()
+  r = []
   for target in targets:
     if hasattr(target, "thrift"):
       thrift = target.thrift
       if hasattr(thrift, "external_jars"):
         for jar in thrift.external_jars:
-          r += _jar_filetype.filter(jar.files)
-      r += _jar_filetype.filter(thrift.transitive_external_jars)
-  return r
+          r.append(depset(_jar_filetype.filter(jar.files)))
+      r.append(depset(_jar_filetype.filter(thrift.transitive_external_jars)))
+  return depset(transitive = r)
 
 def collect_extra_srcjars(targets):
-  srcjars = depset()
+  srcjar = []
+  srcjars = []
   for target in targets:
     if hasattr(target, "extra_information"):
       for _target in target.extra_information:
-        srcjars += [_target.srcjars.srcjar]
-        srcjars += _target.srcjars.transitive_srcjars
-  return srcjars
+        srcjar.append(_target.srcjars.srcjar)
+        srcjars.append(_target.srcjars.transitive_srcjars)
+  return depset(srcjar, transitive = srcjars)
 
 def _collect_immediate_srcs(targets):
-  r = depset()
+  r = []
   for target in targets:
     if hasattr(target, "thrift"):
-      r += [target.thrift.srcs]
-  return r
+      r.append(depset([target.thrift.srcs]))
+  return depset(transitive = r)
 
 def _assert_set_is_subset(want, have):
-  missing = depset()
+  missing = []
   for e in want:
     if e not in have:
-      missing += [e]
+      missing.append(e)
   if len(missing) > 0:
     fail('scrooge_srcjar target must depend on scrooge_srcjar targets sufficient to ' +
          'cover the transitive graph of thrift files. Uncovered sources: ' + str(missing))
@@ -109,17 +110,25 @@ def _assert_set_is_subset(want, have):
 def _colon_paths(data):
   return ':'.join([f.path for f in data])
 
+def _list_to_map(items):
+  map_result = {}
+  for item in items:
+    map_result[item] = None
+  return map_result
+
 def _gen_scrooge_srcjar_impl(ctx):
-  remote_jars = depset()
+  remote_jars = []
   for target in ctx.attr.remote_jars:
-    remote_jars += _jar_filetype.filter(target.files)
+    remote_jars.append(_jar_filetype.filter(target.files))
+  # deduplicate these
+  remote_jars = depset(transitive = remote_jars).to_list()
 
   # These are JARs that are declared externally and only have Thrift files
   # in them.
-  external_jars = _collect_external_jars(ctx.attr.deps)
+  external_jars = _collect_external_jars(ctx.attr.deps).to_list()
 
   # These are the thrift sources whose generated code we will "own" as a target
-  immediate_thrift_srcs = _collect_immediate_srcs(ctx.attr.deps)
+  immediate_thrift_srcs = _collect_immediate_srcs(ctx.attr.deps).to_list()
 
   # This is the set of sources which is covered by any scala_library
   # or scala_scrooge_gen targets that are depended on by this. This is
@@ -130,16 +139,16 @@ def _gen_scrooge_srcjar_impl(ctx):
   # These are the thrift sources in the dependency graph. They are necessary
   # to generate the code, but are not "owned" by this target and will not
   # be in the resultant source jar
-  transitive_thrift_srcs = transitive_owned_srcs + _collect_transitive_srcs(ctx.attr.deps)
+  transitive_thrift_srcs = depset(transitive = [transitive_owned_srcs, _collect_transitive_srcs(ctx.attr.deps)]).to_list()
 
-  only_transitive_thrift_srcs = depset()
+  only_transitive_thrift_srcs = []
   for src in transitive_thrift_srcs:
-    if src not in immediate_thrift_srcs:
-      only_transitive_thrift_srcs += [src]
+    if src not in _list_to_map(immediate_thrift_srcs):
+      only_transitive_thrift_srcs.append(src)
 
   # We want to ensure that the thrift sources which we do not own (but need
   # in order to generate code) have targets which will compile them.
-  _assert_set_is_subset(only_transitive_thrift_srcs, transitive_owned_srcs)
+  _assert_set_is_subset(_list_to_map(only_transitive_thrift_srcs), _list_to_map(transitive_owned_srcs.to_list()))
 
   # bazel worker arguments cannot be empty so we pad to ensure non-empty
   # and drop it off on the other side
@@ -153,14 +162,14 @@ def _gen_scrooge_srcjar_impl(ctx):
               '--with-finagle' if ctx.attr.with_finagle else '',
           ]))
 
-  argfile = ctx.new_file(ctx.outputs.srcjar, "%s_worker_input" % ctx.label.name)
-  ctx.file_action(output=argfile, content=worker_content)
-  ctx.action(
+  argfile = ctx.actions.declare_file("%s_worker_input" % ctx.label.name, sibling = ctx.outputs.srcjar)
+  ctx.actions.write(output=argfile, content=worker_content)
+  ctx.actions.run(
     executable = ctx.executable._pluck_scrooge_scala,
-    inputs = list(remote_jars) +
-        list(only_transitive_thrift_srcs) +
-        list(external_jars) +
-        list(immediate_thrift_srcs) +
+    inputs = remote_jars +
+        only_transitive_thrift_srcs +
+        external_jars +
+        immediate_thrift_srcs +
         [argfile],
     outputs = [ctx.outputs.srcjar],
     mnemonic="ScroogeRule",
@@ -186,7 +195,7 @@ def _gen_scrooge_srcjar_impl(ctx):
       transitive_runtime_jars = deps_jars.transitive_runtime_jars,
   )
 
-  transitive_srcjars = collect_srcjars(ctx.attr.deps) + collect_extra_srcjars(ctx.attr.deps)
+  transitive_srcjars = depset(transitive = [collect_srcjars(ctx.attr.deps), collect_extra_srcjars(ctx.attr.deps)])
 
   srcjarsattr = struct(
     srcjar = ctx.outputs.srcjar,
@@ -198,7 +207,7 @@ def _gen_scrooge_srcjar_impl(ctx):
     srcjars=srcjarsattr,
     extra_information=[struct(
       srcjars=srcjarsattr,
-      scrooge_srcjar=struct(transitive_owned_srcs = transitive_owned_srcs + immediate_thrift_srcs),
+      scrooge_srcjar=struct(transitive_owned_srcs = depset(immediate_thrift_srcs, transitive = [transitive_owned_srcs])),
     )],
   )
 
