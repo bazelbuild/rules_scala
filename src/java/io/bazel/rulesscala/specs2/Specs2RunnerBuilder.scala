@@ -1,11 +1,12 @@
 package io.bazel.rulesscala.specs2
 
+import java.util
 import java.util.regex.Pattern
 
 import io.bazel.rulesscala.test_discovery._
 import io.bazel.rulesscala.test_discovery.FilteredRunnerBuilder.FilteringRunnerBuilder
 import org.junit.runner.notification.RunNotifier
-import org.junit.runner.{Description, RunWith}
+import org.junit.runner.{Description, RunWith, Runner}
 import org.junit.runners.Suite
 import org.junit.runners.model.RunnerBuilder
 import org.specs2.concurrent.ExecutionEnv
@@ -14,27 +15,48 @@ import org.specs2.main.{Arguments, CommandLine, Select}
 import org.specs2.specification.core.Env
 import org.specs2.specification.process.Stats
 
+import scala.language.reflectiveCalls
 import scala.collection.JavaConverters._
 import scala.util.Try
 
 @RunWith(classOf[Specs2PrefixSuffixTestDiscoveringSuite])
 class Specs2DiscoveredTestSuite
 
-class Specs2PrefixSuffixTestDiscoveringSuite(testClass: Class[Any], builder: RunnerBuilder)
+object FilteringBuilder {
+  def apply(): FilteringRunnerBuilder  =
+    Specs2FilteringRunnerBuilder.f orElse JUnitFilteringRunnerBuilder.f
+}
+
+class Specs2PrefixSuffixTestDiscoveringSuite(suite: Class[Any], runnerBuilder: RunnerBuilder)
   extends Suite(
-    new FilteredRunnerBuilder(builder,
-      Specs2FilteringRunnerBuilder.f.orElse(JUnitFilteringRunnerBuilder.f)),
-    PrefixSuffixTestDiscoveringSuite.discoverClasses())
+    new FilteredRunnerBuilder(runnerBuilder, FilteringBuilder()),
+    PrefixSuffixTestDiscoveringSuite.discoverClasses()) {
+
+  override def getName: String = "Aggregate Specs2 Test Suite"
+
+  override def getChildren: util.List[Runner] =
+    super.getChildren.asScala
+      .collect {
+        case r: FilteredSpecs2ClassRunner if r.matchesFilter => Some(r)
+        case _: FilteredSpecs2ClassRunner => None
+        case other => Some(other)
+      }.flatten.asJava
+}
 
 object Specs2FilteringRunnerBuilder {
   val f: FilteringRunnerBuilder = {
     case (_: org.specs2.runner.JUnitRunner, testClass: Class[_], pattern: Pattern) =>
-      new Specs2ClassRunner(testClass, pattern)
+      new FilteredSpecs2ClassRunner(testClass, pattern)
   }
 }
 
-class Specs2ClassRunner(testClass: Class[_], testFilter: Pattern)
+class FilteredSpecs2ClassRunner(testClass: Class[_], testFilter: Pattern)
   extends org.specs2.runner.JUnitRunner(testClass) {
+
+  def matchesFilter: Boolean = {
+    val fqn = testClass.getName + "#"
+    testFilter.matcher(fqn).matches()
+  }
 
   /** Taken from specs2: replaces () with [] because it cause display issues in JUnit plugins */
   private def sanitize(testName: String) = {
