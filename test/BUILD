@@ -381,6 +381,14 @@ scala_junit_test(
 )
 
 scala_junit_test(
+    name = "JunitCustomRunner",
+    srcs = ["src/main/scala/scala/test/junit/JunitCustomRunnerTest.scala",
+            "src/main/scala/scala/test/junit/JunitCustomRunner.java"],
+    size = "small",
+    suffixes = ["Test"],
+)
+
+scala_junit_test(
     name = "JunitIncludesClassesWithRunWith",
     srcs = ["src/main/scala/scala/test/junit/JunitIncludesRunWith.scala"],
     size = "small",

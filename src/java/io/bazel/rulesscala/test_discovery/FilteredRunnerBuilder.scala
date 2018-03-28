@@ -1,7 +1,6 @@
 package io.bazel.rulesscala.test_discovery
 
 import java.lang.annotation.Annotation
-import java.lang.reflect.Field
 import java.util
 import java.util.regex.Pattern
 
@@ -49,7 +48,7 @@ object JUnitFilteringRunnerBuilder {
   }
 
   private def hackRunner(runner: BlockJUnit4ClassRunner, testClass: Class[_], pattern: Pattern) = {
-    ReflectionUtils.getAllFields(runner.getClass)
+    allFieldsOf(runner.getClass)
       .find(f => f.getName == "testClass" || f.getName == "fTestClass")
       .foreach(field => {
         field.setAccessible(true)
@@ -58,21 +57,11 @@ object JUnitFilteringRunnerBuilder {
     runner
   }
 
-  private object ReflectionUtils {
-    def getAllFields(clazz: Class[_]): Seq[Field] = {
-      def getAllTypes(clazz: Class[_]) = {
-        var types = Seq.empty[Class[_]]
-        var c = clazz
-        while (c != null) {
-          types :+= c
-          c = c.getSuperclass
-        }
-        types
-      }
-
-      getAllTypes(clazz)
-        .map(_.getDeclaredFields)
-        .flatMap(_.toSeq)
+  private def allFieldsOf(clazz: Class[_]) = {
+    def supers(cl: Class[_]): List[Class[_]] = {
+      if (cl == null) Nil else cl :: supers(cl.getSuperclass)
     }
+
+    supers(clazz).flatMap(_.getDeclaredFields)
   }
 }
