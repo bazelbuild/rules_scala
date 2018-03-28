@@ -55,7 +55,8 @@ class FilteredSpecs2ClassRunner(testClass: Class[_], testFilter: Pattern)
 
   def matchesFilter: Boolean = {
     val fqn = testClass.getName + "#"
-    testFilter.matcher(fqn).matches()
+    val matcher = testFilter.matcher(fqn)
+    matcher.matches() || matcher.hitEnd()
   }
 
   /** Taken from specs2: replaces () with [] because it cause display issues in JUnit plugins */
