@@ -13,15 +13,12 @@ class FilteredRunnerBuilder(builder: RunnerBuilder, filteringRunnerBuilder: Filt
   // Defined by --test_filter bazel flag.
   private val maybePattern = sys.env.get("TESTBRIDGE_TEST_ONLY").map(Pattern.compile)
 
-  def runnerFilter(runner: Runner, testClass: Class[_], pattern: Pattern): Runner = runner
-
   override def runnerForClass(testClass: Class[_]): Runner = {
     val runner = builder.runnerForClass(testClass)
     maybePattern.flatMap(pattern =>
       filteringRunnerBuilder.lift((runner, testClass, pattern))
     ).getOrElse(runner)
   }
-
 }
 
 object FilteredRunnerBuilder {
