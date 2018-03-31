@@ -78,7 +78,7 @@ def _scala_generate_benchmark(ctx):
       outputs = [ctx.outputs.src_jar, ctx.outputs.resource_jar],
       inputs = [class_jar] + classpath,
       executable = ctx.executable._generator,
-      arguments = [f.path for f in [class_jar, ctx.outputs.src_jar, ctx.outputs.resource_jar] + classpath],
+      arguments = [ctx.attr.generator_type] + [f.path for f in [class_jar, ctx.outputs.src_jar, ctx.outputs.resource_jar] + classpath],
       progress_message = "Generating benchmark code for %s" % ctx.label,
   )
 
@@ -86,6 +86,7 @@ scala_generate_benchmark = rule(
     implementation = _scala_generate_benchmark,
     attrs = {
         "src": attr.label(allow_single_file=True, mandatory=True),
+        "generator_type": attr.string(default='reflection', mandatory=False),
         "_generator": attr.label(executable=True, cfg="host", default=Label("//src/scala/io/bazel/rules_scala/jmh_support:benchmark_generator"))
     },
     outputs = {
@@ -98,6 +99,7 @@ def scala_benchmark_jmh(**kw):
   name = kw["name"]
   deps = kw.get("deps", [])
   srcs = kw["srcs"]
+  generator_type = kw.get("generator_type", "reflection")
   lib = "%s_generator" % name
   scalacopts = kw.get("scalacopts", [])
   main_class = kw.get("main_class", "org.openjdk.jmh.Main")
@@ -115,7 +117,7 @@ def scala_benchmark_jmh(**kw):
   )
 
   codegen = name + "_codegen"
-  scala_generate_benchmark(name=codegen, src=lib)
+  scala_generate_benchmark(name=codegen, src=lib, generator_type=generator_type)
   compiled_lib = name + "_compiled_benchmark_lib"
   scala_library(
       name = compiled_lib,
