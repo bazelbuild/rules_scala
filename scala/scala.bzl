@@ -433,8 +433,6 @@ def _write_java_wrapper(ctx, args="", wrapper_preamble=""):
        to stand in for the java command."""
 
     runfiles_root = _runfiles_root(ctx)
-    # RUNPATH is defined here:
-    # https://github.com/bazelbuild/bazel/blob/0.4.5/src/main/java/com/google/devtools/build/lib/bazel/rules/java/java_stub_template.txt#L227
     # TODO: Replace the following if/else with just .java_executable_runfiles_path
     # when that becomes generally available in Bazel (submitted in
     # https://github.com/bazelbuild/bazel/commit/f2075d27ca124156fcd7c01242c552175c0cf145).
@@ -473,6 +471,8 @@ def _write_java_wrapper(ctx, args="", wrapper_preamble=""):
 
 def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper):
     template = ctx.attr._java_stub_template.files.to_list()[0]
+    # RUNPATH is defined here:
+    # https://github.com/bazelbuild/bazel/blob/0.4.5/src/main/java/com/google/devtools/build/lib/bazel/rules/java/java_stub_template.txt#L227
     classpath = ":".join(["${RUNPATH}%s" % (j.short_path) for j in rjars])
     jvm_flags = " ".join([ctx.expand_location(f, ctx.attr.data) for f in jvm_flags])
     ctx.template_action(
