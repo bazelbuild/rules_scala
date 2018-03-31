@@ -2,6 +2,8 @@
 
 _thrift_filetype = FileType([".thrift"])
 
+ThriftInfo = provider(fields=["srcs", "transitive_srcs", "external_jars", "transitive_external_jars"])
+
 def _common_prefix(strings):
   pref = None
   for s in strings:
@@ -87,30 +89,29 @@ rm {out}.contents
     jarfiles.append(depset(jar.files))
   transitive_external_jars = depset(transitive = jarfiles)
 
-  return struct(
-    thrift = struct(
-      srcs = ctx.outputs.libarchive,
-      transitive_srcs = transitive_srcs,
-      external_jars = ctx.attr.external_jars,
-      transitive_external_jars = transitive_external_jars,
-    ),
-  )
-
-def _collect_thrift_attr_depsets(targets, attr):
-  ds = []
-  for target in targets:
-    ds.append(getattr(target.thrift, attr))
-  return ds
+  return [
+      ThriftInfo(
+        srcs = ctx.outputs.libarchive,
+        transitive_srcs = transitive_srcs,
+        external_jars = ctx.attr.external_jars,
+        transitive_external_jars = transitive_external_jars,
+      )]
 
 def _collect_thrift_srcs(targets):
-  return _collect_thrift_attr_depsets(targets, "transitive_srcs")
+  ds = []
+  for target in targets:
+    ds.append(target[ThriftInfo].transitive_srcs)
+  return ds
 
 def _collect_thrift_external_jars(targets):
-  return _collect_thrift_attr_depsets(targets, "transitive_external_jars")
+  ds = []
+  for target in targets:
+    ds.append(target[ThriftInfo].transitive_external_jars)
+  return ds
 
 def _valid_thrift_deps(targets):
   for target in targets:
-    if not hasattr(target, "thrift"):
+    if not target[ThriftInfo]:
       fail("thrift_library can only depend on thrift_library", target)
 
 # Some notes on the raison d'etre of thrift_library vs. code gen specific
