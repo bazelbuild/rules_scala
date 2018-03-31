@@ -92,7 +92,7 @@ def _build_nosrc_jar(ctx, buildijar):
     resources += "META-INF/MANIFEST.MF=%s\n" % ctx.outputs.manifest.path
 
     zipper_arg_path = ctx.actions.declare_file("%s_zipper_args" % ctx.label.name)
-    ctx.file_action(zipper_arg_path, resources)
+    ctx.actions.write(zipper_arg_path, resources)
     cmd = """
 rm -f {jar_output}
 {zipper} c {jar_output} @{path}
@@ -117,7 +117,7 @@ touch {statsfile}
         zipper_arg_path
       ]
 
-    ctx.action(
+    ctx.actions.run_shell(
         inputs=inputs,
         outputs=outs,
         command=cmd,
@@ -243,12 +243,12 @@ StatsfileOutput: {statsfile_output}
         dependency_analyzer_mode = dependency_analyzer_mode,
         statsfile_output = ctx.outputs.statsfile.path
         )
-    argfile = ctx.new_file(
-      ctx.outputs.jar,
-      "%s_worker_input" % ctx.label.name
+    argfile = ctx.actions.declare_file(
+      "%s_worker_input" % ctx.label.name,
+      sibling = ctx.outputs.jar
     )
 
-    ctx.file_action(output=argfile, content=scalac_args + optional_scalac_args)
+    ctx.actions.write(output=argfile, content=scalac_args + optional_scalac_args)
 
     outs = [ctx.outputs.jar, ctx.outputs.statsfile]
     if buildijar:
@@ -394,7 +394,7 @@ def _build_deployable(ctx, jars):
     if getattr(ctx.attr, "main_class", ""):
         args.extend(["--main_class", ctx.attr.main_class])
     args.extend(["--output", ctx.outputs.deploy_jar.path])
-    ctx.action(
+    ctx.actions.run(
         inputs=list(jars),
         outputs=[ctx.outputs.deploy_jar],
         executable=ctx.executable._singlejar,
@@ -408,7 +408,7 @@ def write_manifest(ctx):
     if getattr(ctx.attr, "main_class", ""):
         manifest += "Main-Class: %s\n" % ctx.attr.main_class
 
-    ctx.file_action(
+    ctx.actions.write(
         output=ctx.outputs.manifest,
         content=manifest)
 
