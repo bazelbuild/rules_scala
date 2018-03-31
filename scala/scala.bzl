@@ -267,7 +267,7 @@ StatsfileOutput: {statsfile_output}
            [ctx.outputs.manifest,
             ctx.executable._ijar,
             argfile])
-    ctx.action(
+    ctx.actions.run(
         inputs=ins,
         outputs=outs,
         executable=ctx.executable._scalac,
