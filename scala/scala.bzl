@@ -444,8 +444,8 @@ def _write_java_wrapper(ctx, args="", wrapper_preamble=""):
     if wrapper_preamble == "":
       exec_str = "exec "
 
-    wrapper = ctx.new_file(ctx.label.name + "_wrapper.sh")
-    ctx.file_action(
+    wrapper = ctx.actions.declare_file(ctx.label.name + "_wrapper.sh")
+    ctx.actions.write(
         output = wrapper,
         content = """#!/bin/bash
 {preamble}
@@ -457,6 +457,7 @@ def _write_java_wrapper(ctx, args="", wrapper_preamble=""):
             javabin=javabin,
             args=args,
         ),
+        is_executable = True
     )
     return wrapper
 
@@ -466,7 +467,7 @@ def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper):
     # https://github.com/bazelbuild/bazel/blob/0.4.5/src/main/java/com/google/devtools/build/lib/bazel/rules/java/java_stub_template.txt#L227
     classpath = ":".join(["${RUNPATH}%s" % (j.short_path) for j in rjars])
     jvm_flags = " ".join([ctx.expand_location(f, ctx.attr.data) for f in jvm_flags])
-    ctx.template_action(
+    ctx.actions.expand_template(
         template = template,
         output = ctx.outputs.executable,
         substitutions = {
@@ -479,7 +480,7 @@ def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper):
             "%set_jacoco_metadata%": "",
             "%workspace_prefix%": ctx.workspace_name + "/",
         },
-        executable = True,
+        is_executable = True,
     )
 
 def collect_srcjars(targets):
