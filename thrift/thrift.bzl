@@ -111,7 +111,7 @@ def _collect_thrift_external_jars(targets):
 
 def _valid_thrift_deps(targets):
   for target in targets:
-    if not target[ThriftInfo]:
+    if not ThriftInfo in target:
       fail("thrift_library can only depend on thrift_library", target)
 
 # Some notes on the raison d'etre of thrift_library vs. code gen specific

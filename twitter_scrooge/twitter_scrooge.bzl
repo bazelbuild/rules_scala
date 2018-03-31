@@ -78,9 +78,9 @@ def _collect_external_jars(targets):
     if ThriftInfo in target:
       thrift = target[ThriftInfo]
       for jar in thrift.external_jars:
-        r.append(depset(_jar_filetype.filter(jar.files)))
-      r.append(depset(_jar_filetype.filter(thrift.transitive_external_jars)))
-  return depset(transitive = r)
+        r.extend(_jar_filetype.filter(jar.files))
+      r.extend(_jar_filetype.filter(thrift.transitive_external_jars))
+  return depset(r)
 
 def collect_extra_srcjars(targets):
   srcjar = []
