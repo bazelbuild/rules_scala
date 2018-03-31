@@ -196,7 +196,7 @@ CurrentTarget: {current_target}
     compiler_classpath = separator.join([j.path for j in compiler_classpath_jars])
 
     toolchain = ctx.toolchains['@io_bazel_rules_scala//scala:toolchain_type']
-    scalacopts = toolchain.scalacopts + ctx.attr.scalacopts    
+    scalacopts = toolchain.scalacopts + ctx.attr.scalacopts
 
     scalac_args = """
 Classpath: {cp}
@@ -432,21 +432,12 @@ def _write_java_wrapper(ctx, args="", wrapper_preamble=""):
     """This creates a wrapper that sets up the correct path
        to stand in for the java command."""
 
-    runfiles_root = _runfiles_root(ctx)
-    # TODO: Replace the following if/else with just .java_executable_runfiles_path
-    # when that becomes generally available in Bazel (submitted in
-    # https://github.com/bazelbuild/bazel/commit/f2075d27ca124156fcd7c01242c552175c0cf145).
-    if hasattr(ctx.attr._java_runtime[java_common.JavaRuntimeInfo], "java_executable_runfiles_path"):
-      java_path = str(ctx.attr._java_runtime[java_common.JavaRuntimeInfo].java_executable_runfiles_path)
-
-      javabin = "%s/%s" % (runfiles_root, java_path)
+    java_path = str(ctx.attr._java_runtime[java_common.JavaRuntimeInfo].java_executable_runfiles_path)
+    if _path_is_absolute(java_path):
+      javabin = java_path
     else:
-      java_path = str(ctx.attr._java_runtime[java_common.JavaRuntimeInfo].java_executable_exec_path)
-
-      if _path_is_absolute(java_path):
-        javabin = java_path
-      else:
-        javabin = "%s/%s" % (runfiles_root, java_path)
+      runfiles_root = _runfiles_root(ctx)
+      javabin = "%s/%s" % (runfiles_root, java_path)
 
 
     exec_str = ""
