@@ -44,10 +44,10 @@ private[rulesscala] class FilteredTestClass(testClass: Class[_], pattern: Patter
 object JUnitFilteringRunnerBuilder {
   val f: FilteringRunnerBuilder = {
     case (runner: BlockJUnit4ClassRunner, testClass: Class[_], pattern: Pattern) =>
-      hackRunner(runner, testClass, pattern)
+      replaceRunnerTestClass(runner, testClass, pattern)
   }
 
-  private def hackRunner(runner: BlockJUnit4ClassRunner, testClass: Class[_], pattern: Pattern) = {
+  private def replaceRunnerTestClass(runner: BlockJUnit4ClassRunner, testClass: Class[_], pattern: Pattern) = {
     allFieldsOf(runner.getClass)
       .find(f => f.getName == "testClass" || f.getName == "fTestClass")
       .foreach(field => {
