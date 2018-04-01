@@ -25,19 +25,6 @@ _srcjar_filetype = FileType([".srcjar"])
 # TODO is there a way to derive this from the above?
 _scala_srcjar_filetype = FileType([".scala", ".srcjar", ".java"])
 
-def _get_runfiles(target):
-    runfiles = depset()
-    runfiles += target.data_runfiles.files
-    runfiles += target.default_runfiles.files
-    return runfiles
-
-def _get_all_runfiles(targets):
-    runfiles = depset()
-    for target in targets:
-      runfiles += _get_runfiles(target)
-    return runfiles
-
-
 def _adjust_resources_path_by_strip_prefix(path, resource_strip_prefix):
     if not path.startswith(resource_strip_prefix):
       fail("Resource file %s is not under the specified prefix to strip" % path)
