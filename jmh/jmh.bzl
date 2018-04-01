@@ -3,8 +3,8 @@ load("//scala:scala.bzl", "scala_binary", "scala_library")
 def jmh_repositories():
   native.maven_jar(
       name = "io_bazel_rules_scala_org_openjdk_jmh_jmh_core",
-      artifact = "org.openjdk.jmh:jmh-core:1.17.4",
-      sha1 = "126d989b196070a8b3653b5389e602a48fe6bb2f",
+      artifact = "org.openjdk.jmh:jmh-core:1.20",
+      sha1 = "5f9f9839bda2332e9acd06ce31ad94afa7d6d447",
   )
   native.bind(
       name = 'io_bazel_rules_scala/dependency/jmh/jmh_core',
@@ -12,8 +12,8 @@ def jmh_repositories():
   )
   native.maven_jar(
       name = "io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_asm",
-      artifact = "org.openjdk.jmh:jmh-generator-asm:1.17.4",
-      sha1 = "c85c3d8cfa194872b260e89770d41e2084ce2cb6",
+      artifact = "org.openjdk.jmh:jmh-generator-asm:1.20",
+      sha1 = "3c43040e08ae68905657a375e669f11a7352f9db",
   )
   native.bind(
       name = 'io_bazel_rules_scala/dependency/jmh/jmh_generator_asm',
@@ -21,8 +21,8 @@ def jmh_repositories():
   )
   native.maven_jar(
        name = "io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_reflection",
-       artifact = "org.openjdk.jmh:jmh-generator-reflection:1.17.4",
-       sha1 = "f75a7823c9fcf03feed6d74aa44ea61fc70a8439",
+       artifact = "org.openjdk.jmh:jmh-generator-reflection:1.20",
+       sha1 = "f2154437b42426a48d5dac0b3df59002f86aed26",
   )
   native.bind(
        name = 'io_bazel_rules_scala/dependency/jmh/jmh_generator_reflection',
@@ -30,8 +30,8 @@ def jmh_repositories():
   )
   native.maven_jar(
       name = "io_bazel_rules_scala_org_ows2_asm_asm",
-      artifact = "org.ow2.asm:asm:5.0.4",
-      sha1 = "0da08b8cce7bbf903602a25a3a163ae252435795",
+      artifact = "org.ow2.asm:asm:6.1.1",
+      sha1 = "264754515362d92acd39e8d40395f6b8dee7bc08",
   )
   native.bind(
       name = "io_bazel_rules_scala/dependency/jmh/org_ows2_asm_asm",
@@ -78,7 +78,7 @@ def _scala_generate_benchmark(ctx):
       outputs = [ctx.outputs.src_jar, ctx.outputs.resource_jar],
       inputs = depset([class_jar], transitive = [classpath]),
       executable = ctx.executable._generator,
-      arguments = [f.path for f in [class_jar, ctx.outputs.src_jar, ctx.outputs.resource_jar] + classpath.to_list()],
+      arguments = [ctx.attr.generator_type] + [f.path for f in [class_jar, ctx.outputs.src_jar, ctx.outputs.resource_jar] + classpath.to_list()],
       progress_message = "Generating benchmark code for %s" % ctx.label,
   )
 
@@ -86,6 +86,7 @@ scala_generate_benchmark = rule(
     implementation = _scala_generate_benchmark,
     attrs = {
         "src": attr.label(allow_single_file=True, mandatory=True),
+        "generator_type": attr.string(default='reflection', mandatory=False),
         "_generator": attr.label(executable=True, cfg="host", default=Label("//src/scala/io/bazel/rules_scala/jmh_support:benchmark_generator"))
     },
     outputs = {
@@ -98,6 +99,7 @@ def scala_benchmark_jmh(**kw):
   name = kw["name"]
   deps = kw.get("deps", [])
   srcs = kw["srcs"]
+  generator_type = kw.get("generator_type", "reflection")
   lib = "%s_generator" % name
   scalacopts = kw.get("scalacopts", [])
   main_class = kw.get("main_class", "org.openjdk.jmh.Main")
@@ -115,7 +117,7 @@ def scala_benchmark_jmh(**kw):
   )
 
   codegen = name + "_codegen"
-  scala_generate_benchmark(name=codegen, src=lib)
+  scala_generate_benchmark(name=codegen, src=lib, generator_type=generator_type)
   compiled_lib = name + "_compiled_benchmark_lib"
   scala_library(
       name = compiled_lib,
