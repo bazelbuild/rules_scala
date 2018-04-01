@@ -623,9 +623,6 @@ def _collect_jars_from_common_ctx(ctx, extra_deps = [], extra_runtime_deps = [])
 
     return struct(compile_jars = cjars, transitive_runtime_jars = transitive_rjars, jars2labels=jars2labels, transitive_compile_jars = transitive_compile_jars)
 
-def _format_full_jars_for_intellij_plugin(full_jars):
-    return [struct (class_jar = jar, ijar = None, source_jar = None, source_jars = []) for jar in full_jars]
-
 def create_java_provider(scalaattr, transitive_compile_time_jars):
     # This is needed because Bazel >=0.7.0 requires ctx.actions and a Java
     # toolchain. Fortunately, the same change that added this requirement also
@@ -648,6 +645,39 @@ def create_java_provider(scalaattr, transitive_compile_time_jars):
           transitive_compile_time_jars = transitive_compile_time_jars,
           transitive_runtime_jars = scalaattr.transitive_runtime_jars,
       )
+
+# TODO: this should really be a bazel provider, but we are using old-style rule outputs
+# we need to document better what the intellij dependencies on this code actually are
+def create_scala_provider(
+    ijar,
+    class_jar,
+    compile_jars,
+    transitive_runtime_jars,
+    deploy_jar,
+    full_jars,
+    statsfile):
+
+    formatted_for_intellij = [struct(
+        class_jar = jar,
+        ijar = None,
+        source_jar = None,
+        source_jars = []) for jar in full_jars]
+
+    rule_outputs = struct(
+        ijar = ijar,
+        class_jar = class_jar,
+        deploy_jar = deploy_jar,
+        jars = formatted_for_intellij,
+        statsfile = statsfile,
+    )
+    # Note that, internally, rules only care about compile_jars and transitive_runtime_jars
+    # in a similar manner as the java_library and JavaProvider
+    return struct(
+        outputs = rule_outputs,
+        compile_jars = compile_jars,
+        transitive_runtime_jars = transitive_runtime_jars,
+        transitive_exports = [] #needed by intellij plugin
+    )
 
 def _lib(ctx, non_macro_lib):
     # Build up information from dependency-like attributes
@@ -683,21 +713,14 @@ def _lib(ctx, non_macro_lib):
     next_cjars += exports_jars.compile_jars
     transitive_rjars += exports_jars.transitive_runtime_jars
 
-    rule_outputs = struct(
+    scalaattr = create_scala_provider(
         ijar = outputs.ijar,
         class_jar = outputs.class_jar,
-        deploy_jar = ctx.outputs.deploy_jar,
-        jars = _format_full_jars_for_intellij_plugin(outputs.full_jars),
-        statsfile = ctx.outputs.statsfile,
-    )
-    # Note that, internally, rules only care about compile_jars and transitive_runtime_jars
-    # in a similar manner as the java_library and JavaProvider
-    scalaattr = struct(
-        outputs = rule_outputs,
         compile_jars = next_cjars,
         transitive_runtime_jars = transitive_rjars,
-        transitive_exports = [] #needed by intellij plugin
-    )
+        deploy_jar = ctx.outputs.deploy_jar,
+        full_jars = outputs.full_jars,
+        statsfile = ctx.outputs.statsfile)
 
     java_provider = create_java_provider(scalaattr, jars.transitive_compile_jars)
 
@@ -746,20 +769,14 @@ def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2l
       files = rjars_list + [ctx.outputs.executable, java_wrapper] + ctx.files._java_runtime,
       collect_data = True)
 
-  rule_outputs = struct(
-      ijar=outputs.class_jar,
-      class_jar=outputs.class_jar,
-      deploy_jar=ctx.outputs.deploy_jar,
-      jars = _format_full_jars_for_intellij_plugin(outputs.full_jars),
-      statsfile = ctx.outputs.statsfile,
-  )
-
-  scalaattr = struct(
-      outputs = rule_outputs,
+  scalaattr = create_scala_provider(
+      ijar = outputs.class_jar, # we aren't using ijar here
+      class_jar = outputs.class_jar,
       compile_jars = depset(outputs.ijars),
       transitive_runtime_jars = rjars,
-      transitive_exports = [] #needed by intellij plugin
-  )
+      deploy_jar = ctx.outputs.deploy_jar,
+      full_jars = outputs.full_jars,
+      statsfile = ctx.outputs.statsfile)
 
   java_provider = create_java_provider(scalaattr, transitive_compile_time_jars)
 
@@ -868,11 +885,12 @@ def _scala_test_impl(ctx):
 
 def _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, archives):
     serialized_archives = _serialize_archives_short_path(archives)
-    return struct(testSuiteFlag = "-Dbazel.test_suite=%s" % ctx.attr.suite_class,
-    archiveFlag = "-Dbazel.discover.classes.archives.file.paths=%s" % serialized_archives,
-    prefixesFlag = "-Dbazel.discover.classes.prefixes=%s" % ",".join(ctx.attr.prefixes),
-    suffixesFlag = "-Dbazel.discover.classes.suffixes=%s" % ",".join(ctx.attr.suffixes),
-    printFlag = "-Dbazel.discover.classes.print.discovered=%s" % ctx.attr.print_discovered_classes)
+    return struct(
+        testSuiteFlag = "-Dbazel.test_suite=%s" % ctx.attr.suite_class,
+        archiveFlag = "-Dbazel.discover.classes.archives.file.paths=%s" % serialized_archives,
+        prefixesFlag = "-Dbazel.discover.classes.prefixes=%s" % ",".join(ctx.attr.prefixes),
+        suffixesFlag = "-Dbazel.discover.classes.suffixes=%s" % ",".join(ctx.attr.suffixes),
+        printFlag = "-Dbazel.discover.classes.print.discovered=%s" % ctx.attr.print_discovered_classes)
 
 def _serialize_archives_short_path(archives):
   archives_short_path = ""
