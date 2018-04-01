@@ -382,10 +382,10 @@ scala_junit_test(
 
 scala_junit_test(
     name = "JunitCustomRunner",
-    srcs = ["src/main/scala/scala/test/junit/JunitCustomRunnerTest.scala",
-            "src/main/scala/scala/test/junit/JunitCustomRunner.java"],
+    srcs = ["src/main/scala/scala/test/junit/JunitCustomRunnerTest.scala"],
     size = "small",
     suffixes = ["Test"],
+    deps = [":customJunitRunner"]
 )
 
 scala_junit_test(
@@ -408,7 +408,13 @@ scala_library(
     name = "filesWithUtf8",
     srcs = ["src/main/scala/scala/test/utf8/JavaClassWithUtf8.java",
             "src/main/scala/scala/test/utf8/ScalaClassWithUtf8.scala"]
-    )
+)
+
+scala_library(
+    name = "customJunitRunner",
+    srcs = ["src/main/scala/scala/test/junit/JunitCustomRunner.java"],
+    deps = ["//external:io_bazel_rules_scala/dependency/junit/junit"]
+)
 
 # make sure making a fat jar strips signatures
 java_import(
