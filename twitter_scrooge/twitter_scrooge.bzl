@@ -5,6 +5,8 @@ load("//scala:scala.bzl",
   "collect_srcjars",
   "collect_jars")
 
+load("//thrift:thrift.bzl", "ThriftInfo")
+
 _jar_filetype = FileType([".jar"])
 
 def twitter_scrooge():
@@ -57,8 +59,8 @@ def twitter_scrooge():
 def _collect_transitive_srcs(targets):
   r = []
   for target in targets:
-    if hasattr(target, "thrift"):
-      r.append(target.thrift.transitive_srcs)
+    if ThriftInfo in target:
+      r.append(target[ThriftInfo].transitive_srcs)
   return depset(transitive = r)
 
 def _collect_owned_srcs(targets):
@@ -73,13 +75,12 @@ def _collect_owned_srcs(targets):
 def _collect_external_jars(targets):
   r = []
   for target in targets:
-    if hasattr(target, "thrift"):
-      thrift = target.thrift
-      if hasattr(thrift, "external_jars"):
-        for jar in thrift.external_jars:
-          r.append(depset(_jar_filetype.filter(jar.files)))
-      r.append(depset(_jar_filetype.filter(thrift.transitive_external_jars)))
-  return depset(transitive = r)
+    if ThriftInfo in target:
+      thrift = target[ThriftInfo]
+      for jar in thrift.external_jars:
+        r.extend(_jar_filetype.filter(jar.files))
+      r.extend(_jar_filetype.filter(thrift.transitive_external_jars))
+  return depset(r)
 
 def collect_extra_srcjars(targets):
   srcjar = []
@@ -92,11 +93,11 @@ def collect_extra_srcjars(targets):
   return depset(srcjar, transitive = srcjars)
 
 def _collect_immediate_srcs(targets):
-  r = []
+  srcs = []
   for target in targets:
-    if hasattr(target, "thrift"):
-      r.append(depset([target.thrift.srcs]))
-  return depset(transitive = r)
+    if ThriftInfo in target:
+      srcs.append(target[ThriftInfo].srcs)
+  return depset(srcs)
 
 def _assert_set_is_subset(want, have):
   missing = []
