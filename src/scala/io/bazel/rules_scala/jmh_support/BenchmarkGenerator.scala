@@ -4,15 +4,15 @@ import java.net.URLClassLoader
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
-
-import org.openjdk.jmh.generators.core.{ BenchmarkGenerator => JMHGenerator, FileSystemDestination }
+import org.openjdk.jmh.generators.core.{FileSystemDestination, GeneratorSource, BenchmarkGenerator => JMHGenerator}
 import org.openjdk.jmh.generators.asm.ASMGeneratorSource
-import org.openjdk.jmh.runner.{ Runner, RunnerException }
-import org.openjdk.jmh.runner.options.{ Options, OptionsBuilder }
-
+import org.openjdk.jmh.generators.reflection.RFGeneratorSource
+import org.openjdk.jmh.runner.{Runner, RunnerException}
+import org.openjdk.jmh.runner.options.{Options, OptionsBuilder}
 import java.net.URI
+
 import scala.collection.JavaConverters._
-import java.nio.file.{Files, FileSystems, Path}
+import java.nio.file.{FileSystems, Files, Path, Paths}
 
 import io.bazel.rulesscala.jar.JarCreator
 
@@ -27,7 +27,14 @@ import io.bazel.rulesscala.jar.JarCreator
  */
 object BenchmarkGenerator {
 
-  case class BenchmarkGeneratorArgs(
+  private sealed trait GeneratorType
+
+  private case object ReflectionGenerator extends GeneratorType
+
+  private case object AsmGenerator extends GeneratorType
+
+  private case class BenchmarkGeneratorArgs(
+    generatorType: GeneratorType,
     inputJar: Path,
     resultSourceJar: Path,
     resultResourceJar: Path,
@@ -37,6 +44,7 @@ object BenchmarkGenerator {
   def main(argv: Array[String]): Unit = {
     val args = parseArgs(argv)
     generateJmhBenchmark(
+      args.generatorType,
       args.resultSourceJar,
       args.resultResourceJar,
       args.inputJar,
@@ -47,17 +55,18 @@ object BenchmarkGenerator {
   private def parseArgs(argv: Array[String]): BenchmarkGeneratorArgs = {
     if (argv.length < 3) {
       System.err.println(
-        "Usage: BenchmarkGenerator INPUT_JAR RESULT_JAR RESOURCE_JAR [CLASSPATH_ELEMENT] [CLASSPATH_ELEMENT...]"
+        "Usage: BenchmarkGenerator GENERATOR_TYPE INPUT_JAR RESULT_JAR RESOURCE_JAR [CLASSPATH_ELEMENT] [CLASSPATH_ELEMENT...]"
       )
       System.exit(1)
     }
     val fs = FileSystems.getDefault
 
     BenchmarkGeneratorArgs(
-      fs.getPath(argv(0)),
+      parseGeneratorType(argv(0)),
       fs.getPath(argv(1)),
       fs.getPath(argv(2)),
-      argv.slice(3, argv.length).map { s => fs.getPath(s) }.toList
+      fs.getPath(argv(3)),
+      argv.slice(4, argv.length).map { s => fs.getPath(s) }.toList
     )
   }
 
@@ -88,13 +97,13 @@ object BenchmarkGenerator {
   }
 
   // Courtesy of Doug Tangren (https://groups.google.com/forum/#!topic/simple-build-tool/CYeLHcJjHyA)
-  private def withClassLoader[A](cp: Seq[Path])(f: => A): A = {
+  private def withClassLoader[A](cp: Seq[Path])(f: ClassLoader => A): A = {
     val originalLoader = Thread.currentThread.getContextClassLoader
     val jmhLoader = classOf[JMHGenerator].getClassLoader
     val classLoader = new URLClassLoader(cp.map(_.toUri.toURL).toArray, jmhLoader)
     try {
       Thread.currentThread.setContextClassLoader(classLoader)
-      f
+      f(classLoader)
     } finally {
       Thread.currentThread.setContextClassLoader(originalLoader)
     }
@@ -119,6 +128,7 @@ object BenchmarkGenerator {
   }
 
   private def generateJmhBenchmark(
+    generatorType: GeneratorType,
     sourceJarOut: Path,
     resourceJarOut: Path,
     benchmarkJarPath: Path,
@@ -131,17 +141,26 @@ object BenchmarkGenerator {
       tmpResourceDir.toFile.mkdir()
       tmpSourceDir.toFile.mkdir()
 
-      withClassLoader(benchmarkJarPath :: classpath) {
-        val source = new ASMGeneratorSource
-        val destination = new FileSystemDestination(tmpResourceDir.toFile, tmpSourceDir.toFile)
-        val generator = new JMHGenerator
+      withClassLoader(benchmarkJarPath :: classpath) { isolatedClassLoader =>
 
-        collectClassesFromJar(benchmarkJarPath).foreach { path =>
-          // this would fail due to https://github.com/bazelbuild/rules_scala/issues/295
-          // let's throw a useful message instead
-          sys.error("jmh in rules_scala doesn't work with Java 8 bytecode: https://github.com/bazelbuild/rules_scala/issues/295")
-          source.processClass(Files.newInputStream(path))
+        val source: GeneratorSource = generatorType match {
+          case AsmGenerator =>
+            val generatorSource = new ASMGeneratorSource
+            generatorSource.processClasses(collectClassesFromJar(benchmarkJarPath).map(_.toFile).asJavaCollection)
+            generatorSource
+
+          case ReflectionGenerator =>
+            val generatorSource = new RFGeneratorSource
+            generatorSource.processClasses(
+              collectClassesFromJar(benchmarkJarPath)
+                .flatMap(classByPath(_, isolatedClassLoader))
+                .asJavaCollection
+            )
+            generatorSource
         }
+
+        val generator = new JMHGenerator
+        val destination = new FileSystemDestination(tmpResourceDir.toFile, tmpSourceDir.toFile)
         generator.generate(source, destination)
         generator.complete(source, destination)
         if (destination.hasErrors) {
@@ -153,6 +172,39 @@ object BenchmarkGenerator {
       }
       constructJar(sourceJarOut, tmpSourceDir)
       constructJar(resourceJarOut, tmpResourceDir)
+    }
+  }
+
+  private def classByPath(path: Path, cl: ClassLoader): Option[Class[_]] = {
+    val separator = path.getFileSystem.getSeparator
+    var s = path.toString
+      .stripPrefix(separator)
+      .stripSuffix(".class")
+      .replace(separator, ".")
+
+    var index = -1
+    do {
+      s = s.substring(index + 1)
+      try {
+        return Some(Class.forName(s, false, cl))
+      } catch {
+        case _: ClassNotFoundException =>
+          // ignore and try next one
+          index = s.indexOf('.')
+      }
+    } while (index != -1)
+
+    log(s"Failed to find class for path $path")
+    None
+  }
+
+  private def parseGeneratorType(s: String): GeneratorType = {
+    if ("asm".equalsIgnoreCase(s)) {
+      AsmGenerator
+    } else if ("reflection".equalsIgnoreCase(s)) {
+      ReflectionGenerator
+    } else {
+      throw new IllegalArgumentException(s"unknown generator_type: $s")
     }
   }
 
