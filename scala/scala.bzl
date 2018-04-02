@@ -79,7 +79,7 @@ def _build_nosrc_jar(ctx, buildijar):
     resources += "META-INF/MANIFEST.MF=%s\n" % ctx.outputs.manifest.path
 
     zipper_arg_path = ctx.actions.declare_file("%s_zipper_args" % ctx.label.name)
-    ctx.file_action(zipper_arg_path, resources)
+    ctx.actions.write(zipper_arg_path, resources)
     cmd = """
 rm -f {jar_output}
 {zipper} c {jar_output} @{path}
@@ -104,7 +104,7 @@ touch {statsfile}
         zipper_arg_path
       ]
 
-    ctx.action(
+    ctx.actions.run_shell(
         inputs=inputs,
         outputs=outs,
         command=cmd,
@@ -230,12 +230,12 @@ StatsfileOutput: {statsfile_output}
         dependency_analyzer_mode = dependency_analyzer_mode,
         statsfile_output = ctx.outputs.statsfile.path
         )
-    argfile = ctx.new_file(
-      ctx.outputs.jar,
-      "%s_worker_input" % ctx.label.name
+    argfile = ctx.actions.declare_file(
+      "%s_worker_input" % ctx.label.name,
+      sibling = ctx.outputs.jar
     )
 
-    ctx.file_action(output=argfile, content=scalac_args + optional_scalac_args)
+    ctx.actions.write(output=argfile, content=scalac_args + optional_scalac_args)
 
     outs = [ctx.outputs.jar, ctx.outputs.statsfile]
     if buildijar:
@@ -254,7 +254,7 @@ StatsfileOutput: {statsfile_output}
            [ctx.outputs.manifest,
             ctx.executable._ijar,
             argfile])
-    ctx.action(
+    ctx.actions.run(
         inputs=ins,
         outputs=outs,
         executable=ctx.executable._scalac,
@@ -381,7 +381,7 @@ def _build_deployable(ctx, jars):
     if getattr(ctx.attr, "main_class", ""):
         args.extend(["--main_class", ctx.attr.main_class])
     args.extend(["--output", ctx.outputs.deploy_jar.path])
-    ctx.action(
+    ctx.actions.run(
         inputs=list(jars),
         outputs=[ctx.outputs.deploy_jar],
         executable=ctx.executable._singlejar,
@@ -395,7 +395,7 @@ def write_manifest(ctx):
     if getattr(ctx.attr, "main_class", ""):
         manifest += "Main-Class: %s\n" % ctx.attr.main_class
 
-    ctx.file_action(
+    ctx.actions.write(
         output=ctx.outputs.manifest,
         content=manifest)
 
@@ -431,8 +431,8 @@ def _write_java_wrapper(ctx, args="", wrapper_preamble=""):
     if wrapper_preamble == "":
       exec_str = "exec "
 
-    wrapper = ctx.new_file(ctx.label.name + "_wrapper.sh")
-    ctx.file_action(
+    wrapper = ctx.actions.declare_file(ctx.label.name + "_wrapper.sh")
+    ctx.actions.write(
         output = wrapper,
         content = """#!/bin/bash
 {preamble}
@@ -444,6 +444,7 @@ def _write_java_wrapper(ctx, args="", wrapper_preamble=""):
             javabin=javabin,
             args=args,
         ),
+        is_executable = True
     )
     return wrapper
 
@@ -453,7 +454,7 @@ def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper):
     # https://github.com/bazelbuild/bazel/blob/0.4.5/src/main/java/com/google/devtools/build/lib/bazel/rules/java/java_stub_template.txt#L227
     classpath = ":".join(["${RUNPATH}%s" % (j.short_path) for j in rjars])
     jvm_flags = " ".join([ctx.expand_location(f, ctx.attr.data) for f in jvm_flags])
-    ctx.template_action(
+    ctx.actions.expand_template(
         template = template,
         output = ctx.outputs.executable,
         substitutions = {
@@ -466,7 +467,7 @@ def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper):
             "%set_jacoco_metadata%": "",
             "%workspace_prefix%": ctx.workspace_name + "/",
         },
-        executable = True,
+        is_executable = True,
     )
 
 def collect_srcjars(targets):
