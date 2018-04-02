@@ -22,7 +22,6 @@ import java.io.PrintWriter
 import java.net.InetAddress
 import java.net.UnknownHostException
 import java.text.SimpleDateFormat
-import java.util.Enumeration
 import java.util.Properties
 import scala.collection.mutable.ListBuffer
 import scala.xml
@@ -360,10 +359,10 @@ class JUnitXmlReporter extends Reporter {
     "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" + withCDATA
   }
 
-  def xmlify(suites: Iterable[Testsuite]): scala.xml.Elem =
+  private def xmlify(suites: Iterable[Testsuite]): scala.xml.Elem =
     <testsuites> { suites.map(xmlify) } </testsuites>
 
-  def xmlify(testsuite: Testsuite): scala.xml.Elem =
+  private def xmlify(testsuite: Testsuite): scala.xml.Elem =
       <testsuite
         errors    = { "" + testsuite.errors         }
         failures  = { "" + testsuite.failures       }

@@ -96,15 +96,18 @@ def _build_nosrc_jar(ctx, buildijar):
     cmd = """
 rm -f {jar_output}
 {zipper} c {jar_output} @{path}
+# ensures that empty src targets still emit a statsfile
+touch {statsfile}
 """ + ijar_cmd
 
     cmd = cmd.format(
         path = zipper_arg_path.path,
         jar_output=ctx.outputs.jar.path,
         zipper=ctx.executable._zipper.path,
+        statsfile=ctx.outputs.statsfile.path,
         )
 
-    outs = [ctx.outputs.jar]
+    outs = [ctx.outputs.jar, ctx.outputs.statsfile]
     if buildijar:
         outs.extend([ctx.outputs.ijar])
 
@@ -186,7 +189,8 @@ CurrentTarget: {current_target}
 
     plugin_arg = ",".join(list(plugins))
 
-    compiler_classpath = ":".join([j.path for j in compiler_classpath_jars])
+    separator = ctx.configuration.host_path_separator
+    compiler_classpath = separator.join([j.path for j in compiler_classpath_jars])
 
     toolchain = ctx.toolchains['@io_bazel_rules_scala//scala:toolchain_type']
         # always append -YdisableFlatCpCaching, workaround for
@@ -215,6 +219,7 @@ ResourceStripPrefix: {resource_strip_prefix}
 ScalacOpts: {scala_opts}
 SourceJars: {srcjars}
 DependencyAnalyzerMode: {dependency_analyzer_mode}
+StatsfileOutput: {statsfile_output}
 """.format(
         out=ctx.outputs.jar.path,
         manifest=ctx.outputs.manifest.path,
@@ -236,6 +241,7 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
         resource_strip_prefix=ctx.attr.resource_strip_prefix,
         resource_jars=",".join([f.path for f in ctx.files.resource_jars]),
         dependency_analyzer_mode = dependency_analyzer_mode,
+        statsfile_output = ctx.outputs.statsfile.path
         )
     argfile = ctx.new_file(
       ctx.outputs.jar,
@@ -244,12 +250,9 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
 
     ctx.file_action(output=argfile, content=scalac_args + optional_scalac_args)
 
-    outs = [ctx.outputs.jar]
+    outs = [ctx.outputs.jar, ctx.outputs.statsfile]
     if buildijar:
         outs.extend([ctx.outputs.ijar])
-    # _java_toolchain added manually since _java doesn't currently setup runfiles
-    # _scalac, as a java_binary, should already have it in its runfiles; however,
-    # adding does ensure _java not orphaned if _scalac ever was not a java_binary
     ins = (list(compiler_classpath_jars) +
            list(dep_srcjars) +
            list(srcjars) +
@@ -259,10 +262,9 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
            dependency_analyzer_plugin_jars +
            ctx.files.resources +
            ctx.files.resource_jars +
-           ctx.files._java_toolchain +
+           ctx.files._java_runtime +
            [ctx.outputs.manifest,
             ctx.executable._ijar,
-            ctx.executable._java,
             argfile])
     ctx.action(
         inputs=ins,
@@ -333,7 +335,7 @@ def try_to_compile_java_jar(ctx,
                 source_jars = all_srcjars.to_list(),
                 source_files = java_srcs,
                 output = full_java_jar,
-                javac_opts = _expand_location(ctx, ctx.attr.javacopts + ctx.attr.javac_jvm_flags),
+                javac_opts = _expand_location(ctx, ctx.attr.javacopts + ctx.attr.javac_jvm_flags + java_common.default_javac_opts(ctx, java_toolchain_attr = "_java_toolchain")),
                 deps = providers_of_dependencies,
                 #exports can be empty since the manually created provider exposes exports
                 #needs to be empty since we want the provider.compile_jars to only contain the sources ijar
@@ -409,13 +411,34 @@ def write_manifest(ctx):
         output=ctx.outputs.manifest,
         content=manifest)
 
+def _path_is_absolute(path):
+    # Returns true for absolute path in Linux/Mac (i.e., '/') or Windows (i.e.,
+    # 'X:\' or 'X:/' where 'X' is a letter), false otherwise.
+    if len(path) >= 1 and path[0] == "/":
+        return True
+    if len(path) >= 3 \
+            and path[0].isalpha() \
+            and path[1] == ":" \
+            and (path[2] == "/" or path[2] == "\\"):
+        return True
+
+    return False
+
 def _write_launcher(ctx, rjars, main_class, jvm_flags, args="", wrapper_preamble=""):
     runfiles_root = "${TEST_SRCDIR}/%s" % ctx.workspace_name
     # RUNPATH is defined here:
     # https://github.com/bazelbuild/bazel/blob/0.4.5/src/main/java/com/google/devtools/build/lib/bazel/rules/java/java_stub_template.txt#L227
     classpath = ":".join(["${RUNPATH}%s" % (j.short_path) for j in rjars])
     jvm_flags = " ".join([ctx.expand_location(f, ctx.attr.data) for f in jvm_flags])
-    javabin = "%s/%s" % (runfiles_root, ctx.executable._java.short_path)
+    # TODO: Replace the following if/else with just .java_executable_runfiles_path
+    # when that becomes generally available in Bazel (submitted in
+    # https://github.com/bazelbuild/bazel/commit/f2075d27ca124156fcd7c01242c552175c0cf145).
+    java_path = str(ctx.attr._java_runtime[java_common.JavaRuntimeInfo].java_executable_exec_path)
+    if _path_is_absolute(java_path):
+      javabin = java_path
+    else:
+      javabin = "%s/%s" % (runfiles_root, java_path)
+
     template = ctx.attr._java_stub_template.files.to_list()[0]
 
     exec_str = ""
@@ -608,7 +631,7 @@ def _collect_jars_from_common_ctx(ctx, extra_deps = [], extra_runtime_deps = [])
     return struct(compile_jars = cjars, transitive_runtime_jars = transitive_rjars, jars2labels=jars2labels, transitive_compile_jars = transitive_compile_jars)
 
 def _format_full_jars_for_intellij_plugin(full_jars):
-    return [struct (class_jar = jar, ijar = None) for jar in full_jars]
+    return [struct (class_jar = jar, ijar = None, source_jar = None, source_jars = []) for jar in full_jars]
 
 def create_java_provider(scalaattr, transitive_compile_time_jars):
     # This is needed because Bazel >=0.7.0 requires ctx.actions and a Java
@@ -667,13 +690,12 @@ def _lib(ctx, non_macro_lib):
     next_cjars += exports_jars.compile_jars
     transitive_rjars += exports_jars.transitive_runtime_jars
 
-
-
     rule_outputs = struct(
         ijar = outputs.ijar,
         class_jar = outputs.class_jar,
         deploy_jar = ctx.outputs.deploy_jar,
-        jars = _format_full_jars_for_intellij_plugin(outputs.full_jars)
+        jars = _format_full_jars_for_intellij_plugin(outputs.full_jars),
+        statsfile = ctx.outputs.statsfile,
     )
     # Note that, internally, rules only care about compile_jars and transitive_runtime_jars
     # in a similar manner as the java_library and JavaProvider
@@ -728,17 +750,16 @@ def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2l
 
   java_wrapper = ctx.new_file(ctx.label.name + "_wrapper.sh")
 
-  # _java_toolchain added manually since _java doesn't currently setup runfiles
   runfiles = ctx.runfiles(
-      files = list(rjars) + [ctx.outputs.executable, java_wrapper] + ctx.files._java_toolchain,
-      transitive_files = _get_runfiles(ctx.attr._java),
+      files = list(rjars) + [ctx.outputs.executable, java_wrapper] + ctx.files._java_runtime,
       collect_data = True)
 
   rule_outputs = struct(
       ijar=outputs.class_jar,
       class_jar=outputs.class_jar,
       deploy_jar=ctx.outputs.deploy_jar,
-      jars = _format_full_jars_for_intellij_plugin(outputs.full_jars)
+      jars = _format_full_jars_for_intellij_plugin(outputs.full_jars),
+      statsfile = ctx.outputs.statsfile,
   )
 
   scalaattr = struct(
@@ -894,10 +915,10 @@ _implicit_deps = {
   "_scalalib": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_library"), allow_files=True),
   "_scalacompiler": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_compiler"), allow_files=True),
   "_scalareflect": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_reflect"), allow_files=True),
-  "_java": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:java"), allow_files=True),
   "_zipper": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/zip:zipper"), allow_files=True),
   "_java_toolchain": attr.label(default = Label("@bazel_tools//tools/jdk:current_java_toolchain")),
-  "_host_javabase": attr.label(default = Label("@bazel_tools//tools/jdk:current_java_runtime"))
+  "_host_javabase": attr.label(default = Label("@bazel_tools//tools/jdk:current_java_runtime"), cfg="host"),
+  "_java_runtime": attr.label(default = Label("@bazel_tools//tools/jdk:current_java_runtime"))
 }
 
 # Single dep to allow IDEs to pickup all the implicit dependencies.
@@ -959,6 +980,7 @@ common_outputs = {
   "jar": "%{name}.jar",
   "deploy_jar": "%{name}_deploy.jar",
   "manifest": "%{name}_MANIFEST.MF",
+  "statsfile": "%{name}.statsfile",
 }
 
 library_outputs = {}
