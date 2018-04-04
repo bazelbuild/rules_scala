@@ -42,11 +42,11 @@ maven_jar(
   sha1 = "e5b3e2753d0817b622c32aedcb888bcf39e275b4")
 
 # test of strict deps (scalac plugin UT + E2E)
-maven_jar(
-    name = "com_google_guava_guava_21_0",
-    artifact = "com.google.guava:guava:21.0",
-    sha1 = "3a3d111be1be1b745edfa7d91678a12d7ed38709"
-)
+#maven_jar(
+#    name = "com_google_guava_guava_21_0",
+#    artifact = "com.google.guava:guava:21.0",
+#    sha1 = "3a3d111be1be1b745edfa7d91678a12d7ed38709"
+#)
 
 maven_jar(
     name = "org_apache_commons_commons_lang_3_5",
@@ -83,3 +83,14 @@ filegroup(
 
 load("@io_bazel_rules_scala//scala:toolchains.bzl","scala_register_toolchains")
 scala_register_toolchains()
+
+load("//scala:scala_maven_import_external.bzl", "java_import_external")
+java_import_external(
+    name = "com_google_guava_guava_21_0",
+    licenses = ["notice"],  # Apache 2.0
+    jar_urls = [
+        "https://mirror.bazel.build/repo1.maven.org/maven2/com/google/guava/guava/21.0/guava-21.0.jar",
+        "https://repo1.maven.org/maven2/com/google/guava/guava/21.0/guava-21.0.jar",
+    ],
+    jar_sha256 = "972139718abc8a4893fa78cba8cf7b2c903f35c97aaf44fa3031b0669948b480",
+)

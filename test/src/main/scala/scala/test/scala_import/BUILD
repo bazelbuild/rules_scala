@@ -4,7 +4,7 @@ load("//scala:scala_import.bzl", "scala_import")
 #Many jars
 scala_import(
   name = "guava_and_commons_lang",
-  jars = ["@com_google_guava_guava_21_0//jar:file", "@org_apache_commons_commons_lang_3_5//jar:file"],
+  jars = ["@com_google_guava_guava_21_0//:file", "@org_apache_commons_commons_lang_3_5//jar:file"],
 )
 
 # Jars as files
@@ -67,7 +67,7 @@ scala_specs2_junit_test(
 
 java_import(
   name = "guava_and_commons_lang_java_import",
-  jars = ["@com_google_guava_guava_21_0//jar:file", "@org_apache_commons_commons_lang_3_5//jar:file"],
+  jars = ["@com_google_guava_guava_21_0//:file", "@org_apache_commons_commons_lang_3_5//jar:file"],
 )
 
 #Exports
