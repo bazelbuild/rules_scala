@@ -1,4 +1,5 @@
 load("//scala:scala.bzl", "scala_binary")
+load("//scala:scala_cross_version.bzl", "scala_mvn_artifact")
 
 def tut_repositories():
   native.maven_server(
@@ -8,7 +9,7 @@ def tut_repositories():
 
   native.maven_jar(
     name = "io_bazel_rules_scala_org_tpolecat_tut_core",
-    artifact = "org.tpolecat:tut-core_2.11:0.4.8",
+    artifact = scala_mvn_artifact("org.tpolecat:tut-core:0.4.8"),
     sha1 = "fc723eb822494580cc05d6b3b3a6039d2280a5a0",
     server = "tut_repositories_maven_server",
   )

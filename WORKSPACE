@@ -23,8 +23,8 @@ specs2_junit_repositories()
 # test adding a scala jar:
 maven_jar(
   name = "com_twitter__scalding_date",
-  artifact = scala_mvn_artifact("com.twitter:scalding-date:0.16.0-RC4"),
-  sha1 = "659eb2d42945dea37b310d96af4e12bf83f54d14"
+  artifact = scala_mvn_artifact("com.twitter:scalding-date:0.17.0"),
+  sha1 = "420fb0c4f737a24b851c4316ee0362095710caa5"
 )
 
 # For testing that we don't include sources jars to the classpath
@@ -56,14 +56,30 @@ maven_jar(
 
 http_archive(
     name = "com_google_protobuf",
-    urls = ["https://github.com/google/protobuf/archive/b4b0e304be5a68de3d0ee1af9b286f958750f5e4.zip"],
-    strip_prefix = "protobuf-b4b0e304be5a68de3d0ee1af9b286f958750f5e4",
-    sha256 = "ff771a662fb6bd4d3cc209bcccedef3e93980a49f71df1e987f6afa3bcdcba3a",
+    urls = ["https://github.com/google/protobuf/archive/b04e5cba356212e4e8c66c61bbe0c3a20537c5b9.zip"],
+    strip_prefix = "protobuf-b04e5cba356212e4e8c66c61bbe0c3a20537c5b9",
+    sha256 = "cf4a434ac3a83040e9f65be92e153d00d075d8cd25e3f6c6d8670879f5796aa0",
 )
 
 http_archive(
     name = "com_google_protobuf_java",
-    urls = ["https://github.com/google/protobuf/archive/b4b0e304be5a68de3d0ee1af9b286f958750f5e4.zip"],
-    strip_prefix = "protobuf-b4b0e304be5a68de3d0ee1af9b286f958750f5e4",
-    sha256 = "ff771a662fb6bd4d3cc209bcccedef3e93980a49f71df1e987f6afa3bcdcba3a",
+    urls = ["https://github.com/google/protobuf/archive/b04e5cba356212e4e8c66c61bbe0c3a20537c5b9.zip"],
+    strip_prefix = "protobuf-b04e5cba356212e4e8c66c61bbe0c3a20537c5b9",
+    sha256 = "cf4a434ac3a83040e9f65be92e153d00d075d8cd25e3f6c6d8670879f5796aa0",
 )
+
+new_local_repository(
+    name = "test_new_local_repo",
+    path = "third_party/test/new_local_repo",
+    build_file_content = 
+"""
+filegroup(
+    name = "data",
+    srcs = glob(["**/*.txt"]),
+    visibility = ["//visibility:public"],
+)
+"""
+)
+
+load("@io_bazel_rules_scala//scala:toolchains.bzl","scala_register_toolchains")
+scala_register_toolchains()

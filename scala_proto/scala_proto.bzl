@@ -1,4 +1,5 @@
 load("//scala:scala.bzl",
+  "scala_mvn_artifact",
   "scala_library",
   "collect_jars",
   "create_java_provider")
@@ -23,7 +24,7 @@ def scala_proto_repositories():
 
     native.maven_jar(
         name = "scala_proto_rules_scalapb_plugin",
-        artifact = "com.trueaccord.scalapb:compilerplugin_2.11:0.6.5",
+        artifact = scala_mvn_artifact("com.trueaccord.scalapb:compilerplugin:0.6.5"),
         sha1 = "290094c632c95b36b6f66d7dbfdc15242b9a247f",
         server = "scala_proto_deps_maven_server",
     )
@@ -35,7 +36,7 @@ def scala_proto_repositories():
 
     native.maven_jar(
         name = "scala_proto_rules_protoc_bridge",
-        artifact = "com.trueaccord.scalapb:protoc-bridge_2.11:0.3.0-M1",
+        artifact = scala_mvn_artifact("com.trueaccord.scalapb:protoc-bridge:0.3.0-M1"),
         sha1 = "73d38f045ea8f09cc1264991d1064add6eac9e00",
         server = "scala_proto_deps_maven_server",
     )
@@ -47,7 +48,7 @@ def scala_proto_repositories():
 
     native.maven_jar(
         name = "scala_proto_rules_scalapbc",
-        artifact = "com.trueaccord.scalapb:scalapbc_2.11:0.6.5",
+        artifact = scala_mvn_artifact("com.trueaccord.scalapb:scalapbc:0.6.5"),
         sha1 = "b204d6d56a042b973af5b6fe28f81ece232d1fe4",
         server = "scala_proto_deps_maven_server",
     )
@@ -59,7 +60,7 @@ def scala_proto_repositories():
 
     native.maven_jar(
         name = "scala_proto_rules_scalapb_runtime",
-        artifact = "com.trueaccord.scalapb:scalapb-runtime_2.11:0.6.5",
+        artifact = scala_mvn_artifact("com.trueaccord.scalapb:scalapb-runtime:0.6.5"),
         sha1 = "ac9287ff48c632df525773570ee4842e3ddf40e9",
         server = "scala_proto_deps_maven_server",
     )
@@ -71,7 +72,7 @@ def scala_proto_repositories():
 
     native.maven_jar(
         name = "scala_proto_rules_scalapb_runtime_grpc",
-        artifact = "com.trueaccord.scalapb:scalapb-runtime-grpc_2.11:0.6.5",
+        artifact = scala_mvn_artifact("com.trueaccord.scalapb:scalapb-runtime-grpc:0.6.5"),
         sha1 = "9dc3374001f4190548db36a7dc87bd4f9bca6f9c",
         server = "scala_proto_deps_maven_server",
     )
@@ -83,7 +84,7 @@ def scala_proto_repositories():
 
     native.maven_jar(
         name = "scala_proto_rules_scalapb_lenses",
-        artifact = "com.trueaccord.lenses:lenses_2.11:0.4.12",
+        artifact = scala_mvn_artifact("com.trueaccord.lenses:lenses:0.4.12"),
         sha1 = "c5fbf5b872ce99d9a16d3392ccc0d15a0e43d823",
         server = "scala_proto_deps_maven_server",
     )
@@ -95,7 +96,7 @@ def scala_proto_repositories():
 
     native.maven_jar(
         name = "scala_proto_rules_scalapb_fastparse",
-        artifact = "com.lihaoyi:fastparse_2.11:0.4.4",
+        artifact = scala_mvn_artifact("com.lihaoyi:fastparse:0.4.4"),
         sha1 = "f065fe0afe6fd2b4557d985c37362c36f08f9947",
         server = "scala_proto_deps_maven_server",
     )
@@ -309,49 +310,48 @@ def scala_proto_repositories():
         actual = '@scala_proto_rules_netty_handler_proxy//jar'
     )
 
+def _root_path(f):
+    if f.is_source:
+        return f.owner.workspace_root
+    return '/'.join([f.root.path, f.owner.workspace_root])
+
 def _colon_paths(data):
-  return ':'.join(["{root},{path}".format(root=f.owner.workspace_root, path=f.path) for f in data])
+    return ':'.join(["{root},{path}".format(root=_root_path(f), path=f.path) for f in data])
 
 def _gen_proto_srcjar_impl(ctx):
-    acc_imports = depset()
+    acc_imports = []
+    transitive_proto_paths = depset()
 
-    proto_deps, java_proto_lib_deps = [], []
+    proto_deps, jvm_deps = [], []
     for target in ctx.attr.deps:
         if hasattr(target, 'proto'):
             proto_deps.append(target)
-            acc_imports += target.proto.transitive_sources
+            acc_imports.append(target.proto.transitive_sources)
+            #inline this if after 0.12.0 is the oldest supported version
+            if hasattr(target.proto, 'transitive_proto_path'):
+              transitive_proto_paths += target.proto.transitive_proto_path
         else:
-            java_proto_lib_deps.append(target)
+            jvm_deps.append(target)
 
-    if not ctx.attr.with_java and len(java_proto_lib_deps) > 0:
-        fail("cannot have java_proto_library dependencies with with_java is False")
+    acc_imports = depset(transitive = acc_imports)
+    if "java_conversions" in ctx.attr.flags and len(jvm_deps) == 0:
+        fail("must have at least one jvm dependency if with_java is True (java_conversions is turned on)")
 
-    if ctx.attr.with_java and len(java_proto_lib_deps) == 0:
-        fail("must have a java_proto_library dependency if with_java is True")
+    deps_jars = collect_jars(jvm_deps)
 
-    deps_jars = collect_jars(java_proto_lib_deps)
-
-    # Command line args to worker cannot be empty so using padding
-    flags = ["-"]
-    if ctx.attr.with_grpc:
-        flags.append("grpc")
-    if ctx.attr.with_java:
-        flags.append("java_conversions")
-    if ctx.attr.with_flat_package:
-        flags.append("flat_package")
-    if ctx.attr.with_single_line_to_string:
-        flags.append("single_line_to_string")
-
-    worker_content = "{output}\n{paths}\n{flags_arg}".format(
+    worker_content = "{output}\n{paths}\n{flags_arg}\n{packages}".format(
         output = ctx.outputs.srcjar.path,
-        paths = _colon_paths(acc_imports),
-        flags_arg = ",".join(flags),
+        paths = _colon_paths(acc_imports.to_list()),
+        # Command line args to worker cannot be empty so using padding
+        flags_arg = "-" + ",".join(ctx.attr.flags),
+        # Command line args to worker cannot be empty so using padding
+        packages = "-" + ":".join(transitive_proto_paths.to_list())
     )
-    argfile = ctx.new_file(ctx.outputs.srcjar, "%s_worker_input" % ctx.label.name)
-    ctx.file_action(output=argfile, content=worker_content)
-    ctx.action(
-        executable = ctx.executable._pluck_scalapb_scala,
-        inputs = list(acc_imports) + [argfile],
+    argfile = ctx.actions.declare_file("%s_worker_input" % ctx.label.name, sibling = ctx.outputs.srcjar)
+    ctx.actions.write(output=argfile, content=worker_content)
+    ctx.actions.run(
+        executable = ctx.executable.generator,
+        inputs = depset([argfile], transitive = [acc_imports]),
         outputs = [ctx.outputs.srcjar],
         mnemonic="ProtoScalaPBRule",
         progress_message = "creating scalapb files %s" % ctx.label,
@@ -366,7 +366,7 @@ def _gen_proto_srcjar_impl(ctx):
       compile_jars =  deps_jars.compile_jars,
       transitive_runtime_jars = deps_jars.transitive_runtime_jars,
     )
-    java_provider = create_java_provider(ctx, scalaattr, depset())
+    java_provider = create_java_provider(scalaattr, depset())
     return struct(
         scala = scalaattr,
         providers = [java_provider],
@@ -376,21 +376,17 @@ def _gen_proto_srcjar_impl(ctx):
         )],
     )
 
-scalapb_proto_srcjar = rule(
+scala_proto_srcjar = rule(
     _gen_proto_srcjar_impl,
     attrs={
         "deps": attr.label_list(
             mandatory=True,
-            allow_rules=["proto_library", "java_proto_library"]
+            allow_rules=["proto_library", "java_proto_library", "java_library", "scala_library"]
         ),
-        "with_grpc": attr.bool(default=False),
-        "with_java": attr.bool(default=False),
-        "with_flat_package": attr.bool(default=False),
-        "with_single_line_to_string": attr.bool(default=False),
-        "_pluck_scalapb_scala": attr.label(
+        "flags": attr.string_list(default=[]),
+        "generator": attr.label(
           executable=True,
           cfg="host",
-          default=Label("//src/scala/scripts:scalapb_generator"),
           allow_files=True
         ),
     },
@@ -458,12 +454,19 @@ def scalapb_proto_library(
         visibility = None):
 
     srcjar = name + '_srcjar'
-    scalapb_proto_srcjar(
+    flags = []
+    if with_grpc:
+        flags.append("grpc")
+    if with_java:
+        flags.append("java_conversions")
+    if with_flat_package:
+        flags.append("flat_package")
+    if with_single_line_to_string:
+        flags.append("single_line_to_string")
+    scala_proto_srcjar(
         name = srcjar,
-        with_grpc = with_grpc,
-        with_java = with_java,
-        with_flat_package = with_flat_package,
-        with_single_line_to_string = with_single_line_to_string,
+        flags = flags,
+        generator = "@io_bazel_rules_scala//src/scala/scripts:scalapb_generator",
         deps = deps,
         visibility = visibility,
     )

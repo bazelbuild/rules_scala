@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package demo; // Requried to generate valid code.
+
+import "zip_code.proto";
+
+message Address {
+  string city = 1;
+  ZipCode zip_code = 2;
+}

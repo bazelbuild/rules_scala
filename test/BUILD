@@ -301,24 +301,27 @@ scala_specs2_junit_test(
     srcs = ["src/main/scala/scala/test/junit/specs2/Specs2Tests.scala"],
     deps = [":JUnitCompileTimeDep"],
     size = "small",
+    print_discovered_classes = True,
     suffixes = ["Test"],
 )
 
 # Make sure scala_binary works in test environment
 [sh_test(
-    name = "Run" + binary,
+    name = "Run" + "".join([c if c.isalnum() else "_" for c in binary]),
     srcs = ["test_binary.sh"],
     args = ["$(location %s)" % binary],
-    data = [":%s" % binary],
+    data = [binary if ":" in binary else ":%s" % binary],
 ) for binary in [
     "JavaBinary",
     "JavaBinary2",
+    "JavaOnlySources",
+    "MixJavaScalaLibBinary",
+    "MixJavaScalaSrcjarLibBinary",
     "ScalaBinary",
     "ScalaLibBinary",
     "ResourcesStripScalaBinary",
-    "MixJavaScalaLibBinary",
-    "JavaOnlySources",
-    "ScalaBinary_dependent_on_binary_with_java"
+    "ScalaBinary_dependent_on_binary_with_java",
+    "//test/src/main/scala/scala/test/classpath_resources:classpath_resource",
 ]]
 
 # Make sure scala_binary works in genrule environment
@@ -448,3 +451,14 @@ scala_binary(
     main_class = "test.proto.TestServer",
     deps = [":lib_with_scala_proto_dep"]
 )
+
+scalapb_proto_library(
+    name = "test_proto_scala_dep",
+    deps = ["//test/proto:test2", ":HelloLib"],
+    visibility = ["//visibility:public"],
+)
+
+load(":check_statsfile.bzl", "check_statsfile")
+
+check_statsfile("ScalaBinary")
+check_statsfile("ScalaLibBinary")

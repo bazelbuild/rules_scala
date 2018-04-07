@@ -42,11 +42,7 @@ def _rule_impl(ctx):
             "@io_bazel_rules_scala_junit_junit//jar:jar",
             "@io_bazel_rules_scala_org_hamcrest_hamcrest_core//jar:jar",
             # From specs2/specs2.bzl:specs2_dependencies()
-            "@io_bazel_rules_scala_org_specs2_specs2_core//jar:jar",
-            "@io_bazel_rules_scala_org_specs2_specs2_common//jar:jar",
-            "@io_bazel_rules_scala_org_specs2_specs2_matcher//jar:jar",
-            "@io_bazel_rules_scala_org_scalaz_scalaz_effect//jar:jar",
-            "@io_bazel_rules_scala_org_scalaz_scalaz_core//jar:jar",
+            "@io_bazel_rules_scala//specs2:specs2",
             "@scala//:scala-xml",
             "@scala//:scala-parser-combinators",
             "@scala//:scala-library",

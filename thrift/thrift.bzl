@@ -2,6 +2,14 @@
 
 _thrift_filetype = FileType([".thrift"])
 
+ThriftInfo = provider(
+    fields=[
+        "srcs", # The source files in this rule
+        "transitive_srcs", # the transitive version of the above
+        "external_jars", # external jars of thrift files
+        "transitive_external_jars" # transitive version of the above
+    ])
+
 def _common_prefix(strings):
   pref = None
   for s in strings:
@@ -47,7 +55,7 @@ def _thrift_library_impl(ctx):
 
   if len(src_paths) > 0:
     zipper_arg_path = ctx.actions.declare_file("%s_zipper_args" % ctx.outputs.libarchive.path)
-    ctx.file_action(zipper_arg_path, zipper_args)
+    ctx.actions.write(zipper_arg_path, zipper_args)
     _valid_thrift_deps(ctx.attr.deps)
     # We move the files and touch them so that the output file is a purely deterministic
     # product of the _content_ of the inputs
@@ -59,7 +67,7 @@ rm -f {out}
     cmd = cmd.format(out=ctx.outputs.libarchive.path,
                      path=zipper_arg_path.path,
                      zipper=ctx.executable._zipper.path)
-    ctx.action(
+    ctx.actions.run_shell(
       inputs = ctx.files.srcs + [ctx.executable._zipper, zipper_arg_path],
       outputs = [ctx.outputs.libarchive],
       command = cmd,
@@ -67,7 +75,7 @@ rm -f {out}
     )
   else:
     # we still have to create the output we declared
-    ctx.action(
+    ctx.actions.run_shell(
       inputs = [ctx.executable._zipper],
       outputs = [ctx.outputs.libarchive],
       command = """
@@ -81,36 +89,35 @@ rm {out}.contents
     )
 
 
-  transitive_srcs = _collect_thrift_srcs(ctx.attr.deps)
-  transitive_srcs += [ctx.outputs.libarchive]
-  transitive_external_jars = _collect_thrift_external_jars(ctx.attr.deps)
+  transitive_srcs = depset([ctx.outputs.libarchive], transitive = _collect_thrift_srcs(ctx.attr.deps))
+  jarfiles = _collect_thrift_external_jars(ctx.attr.deps)
   for jar in ctx.attr.external_jars:
-    transitive_external_jars += jar.files
+    jarfiles.append(depset(jar.files))
+  transitive_external_jars = depset(transitive = jarfiles)
 
-  return struct(
-    thrift = struct(
-      srcs = ctx.outputs.libarchive,
-      transitive_srcs = transitive_srcs,
-      external_jars = ctx.attr.external_jars,
-      transitive_external_jars = transitive_external_jars,
-    ),
-  )
-
-def _collect_thrift_attr(targets, attr):
-  s = depset()
-  for target in targets:
-    s += getattr(target.thrift, attr)
-  return s
+  return [
+      ThriftInfo(
+        srcs = ctx.outputs.libarchive,
+        transitive_srcs = transitive_srcs,
+        external_jars = ctx.attr.external_jars,
+        transitive_external_jars = transitive_external_jars,
+      )]
 
 def _collect_thrift_srcs(targets):
-  return _collect_thrift_attr(targets, "transitive_srcs")
+  ds = []
+  for target in targets:
+    ds.append(target[ThriftInfo].transitive_srcs)
+  return ds
 
 def _collect_thrift_external_jars(targets):
-  return _collect_thrift_attr(targets, "transitive_external_jars")
+  ds = []
+  for target in targets:
+    ds.append(target[ThriftInfo].transitive_external_jars)
+  return ds
 
 def _valid_thrift_deps(targets):
   for target in targets:
-    if not hasattr(target, "thrift"):
+    if not ThriftInfo in target:
       fail("thrift_library can only depend on thrift_library", target)
 
 # Some notes on the raison d'etre of thrift_library vs. code gen specific

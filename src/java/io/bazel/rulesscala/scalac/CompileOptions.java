@@ -20,11 +20,13 @@ public class CompileOptions {
   final public Map<String, Resource> resourceFiles;
   final public String resourceStripPrefix;
   final public String[] resourceJars;
+  final public String[] classpathResourceFiles;
   final public String[] directJars;
   final public String[] indirectJars;
   final public String[] indirectTargets;
   final public String dependencyAnalyzerMode;
   final public String currentTarget;
+  final public String statsfile;
 
   public CompileOptions(List<String> args) {
     Map<String, String> argMap = buildArgMap(args);
@@ -53,6 +55,7 @@ public class CompileOptions {
     resourceFiles = getResources(argMap);
     resourceStripPrefix = getOrEmpty(argMap, "ResourceStripPrefix");
     resourceJars = getCommaList(argMap, "ResourceJars");
+    classpathResourceFiles = getCommaList(argMap, "ClasspathResourceSrcs");
 
     directJars = getCommaList(argMap, "DirectJars");
     indirectJars = getCommaList(argMap, "IndirectJars");
@@ -60,6 +63,8 @@ public class CompileOptions {
 
     dependencyAnalyzerMode = getOrElse(argMap, "DependencyAnalyzerMode", "off");
     currentTarget = getOrElse(argMap, "CurrentTarget", "NA");
+
+    statsfile = getOrError(argMap, "StatsfileOutput", "Missing required arg StatsfileOutput");
   }
 
   private static Map<String, Resource> getResources(Map<String, String> args) {

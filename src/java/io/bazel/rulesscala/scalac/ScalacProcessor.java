@@ -4,11 +4,7 @@ import io.bazel.rulesscala.jar.JarCreator;
 import io.bazel.rulesscala.worker.GenericWorker;
 import io.bazel.rulesscala.worker.Processor;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -21,6 +17,8 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+
+import org.apache.commons.io.IOUtils;
 import scala.tools.nsc.Driver;
 import scala.tools.nsc.MainClass;
 import scala.tools.nsc.reporters.ConsoleReporter;
@@ -72,10 +70,17 @@ class ScalacProcessor implements Processor {
        * Copy the resources
        */
       copyResources(ops.resourceFiles, ops.resourceStripPrefix, tmpPath);
+
       /**
        * Extract and copy resources from resource jars
        */
       copyResourceJars(ops.resourceJars, tmpPath);
+
+      /**
+       * Copy classpath resources to root of jar
+       */
+      copyClasspathResourcesToRoot(ops.classpathResourceFiles, tmpPath);
+
       /**
        * Now build the output jar
        */
@@ -159,10 +164,8 @@ class ScalacProcessor implements Processor {
       outputPaths.add(f);
 
       InputStream is = jar.getInputStream(file); // get the input stream
-      FileOutputStream fos = new FileOutputStream(f);
-      while (is.available() > 0) {  // write contents of 'is' to 'fos'
-        fos.write(is.read());
-      }
+      OutputStream fos = new FileOutputStream(f);
+      IOUtils.copy(is, fos);
       fos.close();
       is.close();
     }
@@ -247,6 +250,13 @@ class ScalacProcessor implements Processor {
       System.err.println("Compiler runtime: " + (stop - start) + "ms.");
     }
 
+    try {
+      Files.write(Paths.get(ops.statsfile), Arrays.asList(
+        "build_time=" + Long.toString(stop - start)));
+    } catch (IOException ex) {
+        throw new RuntimeException(
+            "Unable to write statsfile to " + ops.statsfile, ex);
+    }
 
     ConsoleReporter reporter = (ConsoleReporter) reporterField.get(comp);
 
@@ -274,6 +284,7 @@ class ScalacProcessor implements Processor {
       });
     }
   }
+
   private static void copyResources(
       Map<String, Resource> resources,
       String resourceStripPrefix,
@@ -298,13 +309,44 @@ class ScalacProcessor implements Processor {
       } else {
         dstr = resource.destination;
       }
-      if (dstr.charAt(0) == '/') dstr = dstr.substring(1);
+      if (dstr.charAt(0) == '/') {
+        // we don't want to copy to an absolute destination
+        dstr = dstr.substring(1);
+      }
+      if (dstr.startsWith("../")) {
+        // paths to external repositories, for some reason, start with a leading ../
+        // we don't want to copy the resource out of our temporary directory, so
+        // instead we replace ../ with external/
+        // since "external" is a bit of reserved directory in bazel for these kinds
+        // of purposes, we don't expect a collision in the paths.
+        dstr = "external" + dstr.substring(2);
+      }
       Path target = dest.resolve(dstr);
       File tfile = target.getParent().toFile();
       tfile.mkdirs();
       Files.copy(source, target);
     }
   }
+
+  private static void copyClasspathResourcesToRoot(
+    String[] classpathResourceFiles,
+    Path dest
+  ) throws IOException {
+    for(String s : classpathResourceFiles) {
+      Path source = Paths.get(s);
+      Path target = dest.resolve(source.getFileName());
+
+      if(Files.exists(target)) {
+        System.err.println(
+          "Classpath resource file " + source.getFileName()
+          + " has a namespace conflict with another file: " + target.getFileName()
+        );
+      } else {
+        Files.copy(source, target);
+      }
+    }
+  }
+
   private static String getResourcePath(
       Path source,
       String resourceStripPrefix) throws RuntimeException {
