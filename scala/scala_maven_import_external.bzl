@@ -187,7 +187,9 @@ def _java_import_external(repository_ctx):
       not repository_ctx.attr.neverlink):
     fail("Only use generated_linkable_rule_name if neverlink is set")
   name = repository_ctx.attr.generated_rule_name or repository_ctx.name
-  urls = repository_ctx.attr.jar_urls
+  server_urls = repository_ctx.attr.server_urls
+  artifact = repository_ctx.attr.artifact
+  urls = _convert_to_url(artifact, server_urls)
   sha = repository_ctx.attr.jar_sha256
   path = repository_ctx.name + ".jar"
   for url in urls:
@@ -257,6 +259,28 @@ def _java_import_external(repository_ctx):
       "",
   ]))
 
+def _convert_to_url(artifact, server_urls):
+    parts = artifact.split(":")
+    group_id_part = parts[0].replace(".","/")
+    artifact_id = parts[1]
+    version = parts[2]
+    packaging = "jar"
+    classifier_part = ""
+    if len(parts) == 4:
+      packaging = parts[2]
+      version = parts[3]
+    elif len(parts) == 5:
+      packaging = parts[2]
+      classifier_part = "-"+parts[3]
+      version = parts[4]
+
+    final_name = artifact_id + "-" + version + classifier_part + "." + packaging
+    url_suffix = group_id_part+"/"+artifact_id + "/" + version + "/" + final_name
+    urls = []
+    for server_url in server_urls:
+      urls.append(server_url + url_suffix)
+    return urls
+
 def _make_java_import(name, path, srcpath, attrs, props):
   lines = [
       "scala_import(",
@@ -279,7 +303,8 @@ java_import_external = repository_rule(
     implementation=_java_import_external,
     attrs={
         "licenses": attr.string_list(mandatory=True, allow_empty=False),
-        "jar_urls": attr.string_list(mandatory=True, allow_empty=False),
+        "artifact": attr.string(mandatory=True),
+        "server_urls": attr.string_list(mandatory=True, allow_empty=False),
         "jar_sha256": attr.string(mandatory=True),
         "srcjar_urls": attr.string_list(),
         "srcjar_sha256": attr.string(),
