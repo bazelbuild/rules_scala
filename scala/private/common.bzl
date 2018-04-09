@@ -1,3 +1,5 @@
+load("@io_bazel_rules_scala//scala:providers.bzl", "JarsToLabels")
+
 def write_manifest(ctx):
     # TODO(bazel-team): I don't think this classpath is what you want
     manifest = "Class-Path: \n"
@@ -104,7 +106,7 @@ def _add_label_of_indirect_jar_to(jars2labels, dependency, jar):
  # skylark exposes only labels of direct dependencies.
  # to get labels of indirect dependencies we collect them from the providers transitively
  if _provider_of_dependency_contains_label_of(dependency, jar):
-     jars2labels[jar.path] = dependency.jars_to_labels[jar.path]
+     jars2labels[jar.path] = dependency[JarsToLabels].lookup[jar.path]
  else:
      jars2labels[jar.path] = "Unknown label of file {jar_path} which came from {dependency_label}".format(
          jar_path = jar.path,
@@ -115,7 +117,7 @@ def _label_already_exists(jars2labels, jar):
   return jar.path in jars2labels
 
 def _provider_of_dependency_contains_label_of(dependency, jar):
-  return hasattr(dependency, "jars_to_labels") and jar.path in dependency.jars_to_labels
+  return JarsToLabels in dependency and jar.path in dependency[JarsToLabels].lookup
 
 def create_java_provider(scalaattr, transitive_compile_time_jars):
     # This is needed because Bazel >=0.7.0 requires ctx.actions and a Java
