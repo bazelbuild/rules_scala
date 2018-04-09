@@ -84,8 +84,8 @@ filegroup(
 load("@io_bazel_rules_scala//scala:toolchains.bzl","scala_register_toolchains")
 scala_register_toolchains()
 
-load("//scala:scala_maven_import_external.bzl", "java_import_external")
-java_import_external(
+load("//scala:scala_maven_import_external.bzl", "scala_maven_import_external")
+scala_maven_import_external(
     name = "com_google_guava_guava_21_0",
     licenses = ["notice"],  # Apache 2.0
     artifact = "com.google.guava:guava:21.0",

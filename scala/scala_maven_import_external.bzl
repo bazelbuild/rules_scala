@@ -283,7 +283,7 @@ def _make_java_import(name, path, srcpath, attrs, props):
   lines.append("")
   return lines
 
-java_import_external = repository_rule(
+scala_maven_import_external = repository_rule(
     implementation=_java_import_external,
     attrs={
         "licenses": attr.string_list(mandatory=True, allow_empty=False),
