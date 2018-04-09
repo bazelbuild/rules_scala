@@ -228,23 +228,7 @@ def _java_import_external(repository_ctx):
   repository_ctx.download(urls, path, sha)
   if srcurls:
     repository_ctx.download(srcurls, srcpath, srcsha)
-
-  filegroup_lines = [
-        "filegroup(",
-        "    name ='file',",
-        "    srcs = [",
-        "         %s," % repr(path),
-    ]
-  if srcpath:
-    filegroup_lines.append("    %s," % repr(srcpath))
-  filegroup_lines.append("        ],")
-
-  filegroup_lines.append("        visibility = ['//visibility:public'],")
-  filegroup_lines.append(")")
-  filegroup_lines.append("")
-
-  repository_ctx.file("BUILD", "\n".join(lines)  + '\n'.join(filegroup_lines))
-
+  repository_ctx.file("BUILD", "\n".join(lines))
   repository_ctx.file("jar/BUILD", "\n".join([
       _HEADER,
       "",
