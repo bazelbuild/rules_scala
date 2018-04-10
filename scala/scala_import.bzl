@@ -1,9 +1,4 @@
-JarsToLabels = provider(
-    doc = 'provider mapping jar files to the labels associated with those jars',
-    fields = {
-        'lookup' : 'dictionary with jar files as keys and labels as values',
-    },
-)
+load(":providers.bzl", "JarsToLabels")
 
 def _scala_import_impl(ctx):
 

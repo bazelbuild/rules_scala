@@ -30,3 +30,10 @@ def create_scala_provider(
         transitive_runtime_jars = transitive_runtime_jars,
         transitive_exports = [] #needed by intellij plugin
     )
+
+JarsToLabels = provider(
+    doc = 'provides a mapping from jar files to defining labels for improved end user experience',
+    fields = {
+        'lookup' : 'dictionary with jar files as keys and labels as values',
+    },
+)
