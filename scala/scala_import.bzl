@@ -1,10 +1,13 @@
 load(":providers.bzl", "JarsToLabels")
 
-def _scala_import_impl(ctx):
+# Note to future authors:
+#
+# Tread lightly when modifying this code! IntelliJ support needs
+# to be tested manually: manually [re-]import an intellij project
+# and ensure imports are resolved (not red) and clickable
+#
 
-    # Tread lightly when modifying this code! IntelliJ support needs
-    # to be tested manually: manually [re-]import an intellij project
-    # and ensure imports are resolved (not red) and clickable
+def _scala_import_impl(ctx):
 
     direct_binary_jars = []
     for jar in ctx.attr.jars:
@@ -12,22 +15,19 @@ def _scala_import_impl(ctx):
             if not file.basename.endswith("-sources.jar"):
                 direct_binary_jars += [file]
 
+    return [
+        _scala_import_java_info(ctx, direct_binary_jars),
+        _scala_import_jars_to_labels(ctx, direct_binary_jars),
+    ]
 
-    s_deps = java_common.merge([
-        entry[JavaInfo]
-        for entry in ctx.attr.deps
-        if JavaInfo in entry])
+def _scala_import_java_info(ctx, direct_binary_jars):
+    # merge all deps, exports, and runtime deps into single JavaInfo instances
 
-    s_exports = java_common.merge([
-        entry[JavaInfo]
-        for entry in ctx.attr.exports
-        if JavaInfo in entry])
+    s_deps = java_common.merge(_collect(JavaInfo, ctx.attr.deps))
+    s_exports = java_common.merge(_collect(JavaInfo, ctx.attr.exports))
+    s_runtime_deps = java_common.merge(_collect(JavaInfo, ctx.attr.runtime_deps))
 
-    s_runtime_deps = java_common.merge([
-        entry[JavaInfo]
-        for entry in ctx.attr.runtime_deps
-        if JavaInfo in entry])
-
+    # build up our final JavaInfo provider
 
     compile_time_jars = depset(
         direct = direct_binary_jars,
@@ -47,6 +47,16 @@ def _scala_import_impl(ctx):
             s_exports.transitive_runtime_jars,
             s_runtime_deps.transitive_runtime_jars])
 
+    return java_common.create_provider(
+        ctx.actions,
+        use_ijar = False,
+        compile_time_jars = compile_time_jars,
+        transitive_compile_time_jars = transitive_compile_time_jars,
+        transitive_runtime_jars = transitive_runtime_jars)
+
+def _scala_import_jars_to_labels(ctx, direct_binary_jars):
+    # build up JarsToLabels
+    # note: consider moving this to an aspect
 
     lookup = {}
     for jar in direct_binary_jars:
@@ -66,23 +76,23 @@ def _scala_import_impl(ctx):
         if JarsToLabels in entry:
             lookup.update(entry[JarsToLabels].lookup)
 
+    return JarsToLabels(lookup = lookup)
+
+# Filters an iterable for entries that contain a particular
+# index and returns a collection of the indexed values.
+def _collect(index, iterable):
     return [
-        JarsToLabels(lookup = lookup),
-        java_common.create_provider(
-            ctx.actions,
-            use_ijar = False,
-            compile_time_jars = compile_time_jars,
-            transitive_compile_time_jars = transitive_compile_time_jars,
-            transitive_runtime_jars = transitive_runtime_jars
-        ),
+        entry[index]
+        for entry in iterable
+        if index in entry
     ]
 
 scala_import = rule(
-  implementation=_scala_import_impl,
-  attrs={
-      "jars": attr.label_list(allow_files=True), #current hidden assumption is that these point to full, not ijar'd jars
-      "deps": attr.label_list(),
-      "runtime_deps": attr.label_list(),
-      "exports": attr.label_list()
-      },
+    implementation = _scala_import_impl,
+    attrs = {
+        "jars": attr.label_list(allow_files=True), #current hidden assumption is that these point to full, not ijar'd jars
+        "deps": attr.label_list(),
+        "runtime_deps": attr.label_list(),
+        "exports": attr.label_list()
+    },
 )
