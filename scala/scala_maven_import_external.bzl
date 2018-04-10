@@ -262,8 +262,14 @@ def _convert_to_url(artifact, server_urls):
     url_suffix = group_id_part+"/"+artifact_id + "/" + version + "/" + final_name
     urls = []
     for server_url in server_urls:
-      urls.append(server_url + url_suffix)
+      urls.append(_concat_with_needed_slash(server_url, url_suffix))
     return urls
+
+def _concat_with_needed_slash(server_url, url_suffix):
+    if server_url.endsWith("/"):
+        server_url + url_suffix
+    else:
+        server_url + "/" + url_suffix
 
 def _make_java_import(name, path, srcpath, attrs, props):
   lines = [
