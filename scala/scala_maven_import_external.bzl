@@ -20,7 +20,6 @@ obtained from web servers.
 
 This solution offers high availability, low latency, and repository
 scalability at the cost of simplicity. Tooling can be used to generate
-the WORKSPACE definitions from Maven metadata.
 
 The default target in this BUILD file will always have the same name as
 the repository itself. This means that other Bazel rules can depend on
@@ -266,7 +265,7 @@ def _convert_to_url(artifact, server_urls):
     return urls
 
 def _concat_with_needed_slash(server_url, url_suffix):
-    if server_url.endsWith("/"):
+    if server_url.endswith("/"):
         server_url + url_suffix
     else:
         server_url + "/" + url_suffix
