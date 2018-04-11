@@ -265,10 +265,10 @@ def _convert_to_url(artifact, server_urls):
     return urls
 
 def _concat_with_needed_slash(server_url, url_suffix):
-    if server_url.endswith("/"):
-        server_url + url_suffix
-    else:
-        server_url + "/" + url_suffix
+  if server_url.endswith("/"):
+    return server_url + url_suffix
+  else:
+    return server_url + "/" + url_suffix
 
 def _make_java_import(name, path, srcpath, attrs, props):
   lines = [
