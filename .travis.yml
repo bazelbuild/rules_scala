@@ -6,6 +6,10 @@ osx_image: xcode8
 # Not technically required but suppresses 'Ruby' in Job status message.
 language: java
 
+cache:
+    directories:
+     - .bazel_cache
+
 os:
   - linux
   - osx
@@ -14,6 +18,7 @@ env:
   # we want to test the last release
   - V=0.11.1 TEST_SCRIPT=test_rules_scala.sh
   - V=0.11.1 TEST_SCRIPT=test_intellij_aspect.sh
+  - V=0.11.1 TEST_SCRIPT=test_reproducibility.sh
 
 before_install:
   - |
@@ -40,4 +45,3 @@ before_install:
 
 script:
   - bash $TEST_SCRIPT ci
-
