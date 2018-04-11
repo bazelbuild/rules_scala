@@ -84,11 +84,19 @@ filegroup(
 load("@io_bazel_rules_scala//scala:toolchains.bzl","scala_register_toolchains")
 scala_register_toolchains()
 
-load("//scala:scala_maven_import_external.bzl", "scala_maven_import_external")
+load("//scala:scala_maven_import_external.bzl", "scala_maven_import_external", "java_import_external")
 scala_maven_import_external(
     name = "com_google_guava_guava_21_0",
     licenses = ["notice"],  # Apache 2.0
     artifact = "com.google.guava:guava:21.0",
     server_urls = ["https://mirror.bazel.build/repo1.maven.org/maven2"],
     jar_sha256 = "972139718abc8a4893fa78cba8cf7b2c903f35c97aaf44fa3031b0669948b480",
+)
+
+# for regression testing purposes
+java_import_external(
+    name = "org_apache_commons_commons_lang_3_5_without_file",
+    licenses = ["notice"],  # Apache 2.0
+    jar_urls = ["http://central.maven.org/maven2/org/apache/commons/commons-lang3/3.5/commons-lang3-3.5.jar"],
+    jar_sha256 = "8ac96fc686512d777fca85e144f196cd7cfe0c0aec23127229497d1a38ff651c",
 )
