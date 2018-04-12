@@ -93,7 +93,11 @@ scala_maven_import_external(
     jar_sha256 = "972139718abc8a4893fa78cba8cf7b2c903f35c97aaf44fa3031b0669948b480",
 )
 
-# for regression testing purposes
+# bazel's java_import_external has been altered in rules_scala to be a macro based on jvm_import_external
+# in order to allow for other jvm-language imports (e.g. scala_import)
+# the 3rd-party dependency below is using the java_import_external macro
+# in order to make sure no regression with the original java_import_external
+load("//scala:scala_maven_import_external.bzl", "java_import_external")
 java_import_external(
     name = "org_apache_commons_commons_lang_3_5_without_file",
     licenses = ["notice"],  # Apache 2.0
