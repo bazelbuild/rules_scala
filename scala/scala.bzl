@@ -113,23 +113,26 @@ touch {statsfile}
 
 
 def _collect_plugin_paths(plugins):
-    paths = depset()
+    paths = []
     for p in plugins:
         if hasattr(p, "path"):
-            paths += [p.path]
+            paths.append(p)
         elif hasattr(p, "scala"):
-            paths += [p.scala.outputs.jar.path]
+            paths.append(p.scala.outputs.jar)
         elif hasattr(p, "java"):
-            paths += [j.class_jar.path for j in p.java.outputs.jars]
+            paths.extend([j.class_jar for j in p.java.outputs.jars])
         # support http_file pointed at a jar. http_jar uses ijar,
         # which breaks scala macros
         elif hasattr(p, "files"):
-            paths += [f.path for f in p.files if not_sources_jar(f.basename) ]
-    return paths
+            paths.extend([f for f in p.files if not_sources_jar(f.basename)])
+    return depset(paths)
 
 
 def _expand_location(ctx, flags):
   return [ctx.expand_location(f, ctx.attr.data) for f in flags]
+
+def _sort_join_path(args, sep=","):
+    return sep.join(sorted([f.path for f in args]))
 
 def _compile(ctx, cjars, dep_srcjars, buildijar, transitive_compile_jars, labels, implicit_junit_deps_needed_for_java_compilation):
     ijar_output_path = ""
@@ -141,7 +144,7 @@ def _compile(ctx, cjars, dep_srcjars, buildijar, transitive_compile_jars, labels
     java_srcs = _java_filetype.filter(ctx.files.srcs)
     sources = _scala_filetype.filter(ctx.files.srcs) + java_srcs
     srcjars = _srcjar_filetype.filter(ctx.files.srcs)
-    all_srcjars = depset(srcjars + list(dep_srcjars))
+    all_srcjars = depset(srcjars, transitive = [dep_srcjars])
     # look for any plugins:
     plugins = _collect_plugin_paths(ctx.attr.plugins)
     dependency_analyzer_plugin_jars = []
@@ -177,10 +180,10 @@ CurrentTarget: {current_target}
               current_target = current_target
               )
 
-    plugin_arg = ",".join(list(plugins))
+    plugin_arg = _sort_join_path(plugins.to_list())
 
     separator = ctx.configuration.host_path_separator
-    compiler_classpath = separator.join([j.path for j in compiler_classpath_jars])
+    compiler_classpath = _sort_join_path(compiler_classpath_jars.to_list(), separator)
 
     toolchain = ctx.toolchains['@io_bazel_rules_scala//scala:toolchain_type']
     scalacopts = toolchain.scalacopts + ctx.attr.scalacopts
@@ -213,20 +216,21 @@ StatsfileOutput: {statsfile_output}
         print_compile_time=ctx.attr.print_compile_time,
         plugin_arg=plugin_arg,
         cp=compiler_classpath,
-        classpath_resource_src=",".join([f.path for f in classpath_resources]),
-        files=",".join([f.path for f in sources]),
+        classpath_resource_src=_sort_join_path(classpath_resources),
+        files=_sort_join_path(sources),
         enableijar=buildijar,
         ijar_out=ijar_output_path,
         ijar_cmd_path=ijar_cmd_path,
-        srcjars=",".join([f.path for f in all_srcjars]),
-        java_files=",".join([f.path for f in java_srcs]),
+        srcjars=_sort_join_path(all_srcjars.to_list()),
+        java_files=_sort_join_path(java_srcs),
+        # the resource paths need to be aligned in order
         resource_src=",".join([f.path for f in ctx.files.resources]),
         resource_short_paths=",".join([f.short_path for f in ctx.files.resources]),
         resource_dest=",".join(
           [_adjust_resources_path_by_default_prefixes(f.short_path)[1] for f in ctx.files.resources]
           ),
         resource_strip_prefix=ctx.attr.resource_strip_prefix,
-        resource_jars=",".join([f.path for f in ctx.files.resource_jars]),
+        resource_jars=_sort_join_path(ctx.files.resource_jars),
         dependency_analyzer_mode = dependency_analyzer_mode,
         statsfile_output = ctx.outputs.statsfile.path
         )
@@ -240,8 +244,8 @@ StatsfileOutput: {statsfile_output}
     outs = [ctx.outputs.jar, ctx.outputs.statsfile]
     if buildijar:
         outs.extend([ctx.outputs.ijar])
-    ins = (list(compiler_classpath_jars) +
-           list(dep_srcjars) +
+    ins = (compiler_classpath_jars.to_list() +
+           dep_srcjars.to_list() +
            list(srcjars) +
            list(sources) +
            ctx.files.srcs +
@@ -344,7 +348,7 @@ def collect_java_providers_of(deps):
 
 def _compile_or_empty(ctx, jars, srcjars, buildijar, transitive_compile_jars, jars2labels, implicit_junit_deps_needed_for_java_compilation):
     # We assume that if a srcjar is present, it is not empty
-    if len(ctx.files.srcs) + len(srcjars) == 0:
+    if len(ctx.files.srcs) + len(srcjars.to_list()) == 0:
         _build_nosrc_jar(ctx, buildijar)
         #  no need to build ijar when empty
         return struct(ijar=ctx.outputs.jar,
@@ -372,17 +376,17 @@ def _compile_or_empty(ctx, jars, srcjars, buildijar, transitive_compile_jars, ja
                       full_jars=full_jars,
                       ijars=ijars)
 
-def _build_deployable(ctx, jars):
+def _build_deployable(ctx, jars_list):
     # This calls bazels singlejar utility.
     # For a full list of available command line options see:
     # https://github.com/bazelbuild/bazel/blob/master/src/java_tools/singlejar/java/com/google/devtools/build/singlejar/SingleJar.java#L311
     args = ["--normalize", "--sources"]
-    args.extend([j.path for j in jars])
+    args.extend([j.path for j in jars_list])
     if getattr(ctx.attr, "main_class", ""):
         args.extend(["--main_class", ctx.attr.main_class])
     args.extend(["--output", ctx.outputs.deploy_jar.path])
     ctx.actions.run(
-        inputs=list(jars),
+        inputs=jars_list,
         outputs=[ctx.outputs.deploy_jar],
         executable=ctx.executable._singlejar,
         mnemonic="ScalaDeployJar",
@@ -452,7 +456,7 @@ def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper):
     template = ctx.attr._java_stub_template.files.to_list()[0]
     # RUNPATH is defined here:
     # https://github.com/bazelbuild/bazel/blob/0.4.5/src/main/java/com/google/devtools/build/lib/bazel/rules/java/java_stub_template.txt#L227
-    classpath = ":".join(["${RUNPATH}%s" % (j.short_path) for j in rjars])
+    classpath = ":".join(["${RUNPATH}%s" % (j.short_path) for j in sorted(rjars.to_list())])
     jvm_flags = " ".join([ctx.expand_location(f, ctx.attr.data) for f in jvm_flags])
     ctx.actions.expand_template(
         template = template,
@@ -471,11 +475,11 @@ def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper):
     )
 
 def collect_srcjars(targets):
-    srcjars = depset()
+    srcjars = []
     for target in targets:
         if hasattr(target, "srcjars"):
-            srcjars += [target.srcjars.srcjar]
-    return srcjars
+            srcjars.append(target.srcjars.srcjar)
+    return depset(srcjars)
 
 def add_labels_of_jars_to(jars2labels, dependency, all_jars, direct_jars):
   for jar in direct_jars:
@@ -526,35 +530,35 @@ def filter_not_sources(deps):
   return depset([dep for dep in deps.to_list() if not_sources_jar(dep.basename) ])
 
 def _collect_runtime_jars(dep_targets):
-  runtime_jars = depset()
+  runtime_jars = []
 
   for dep_target in dep_targets:
     if java_common.provider in dep_target:
-        runtime_jars += dep_target[java_common.provider].transitive_runtime_jars
+        runtime_jars.append(dep_target[java_common.provider].transitive_runtime_jars)
     else:
         # support http_file pointed at a jar. http_jar uses ijar,
         # which breaks scala macros
-        runtime_jars += filter_not_sources(dep_target.files)
+        runtime_jars.append(filter_not_sources(dep_target.files))
 
   return runtime_jars
 
 def _collect_jars_when_dependency_analyzer_is_off(dep_targets):
-  compile_jars = depset()
-  runtime_jars = depset()
+  compile_jars = []
+  runtime_jars = []
 
   for dep_target in dep_targets:
     if java_common.provider in dep_target:
         java_provider = dep_target[java_common.provider]
-        compile_jars += java_provider.compile_jars
-        runtime_jars += java_provider.transitive_runtime_jars
+        compile_jars.append(java_provider.compile_jars)
+        runtime_jars.append(java_provider.transitive_runtime_jars)
     else:
         # support http_file pointed at a jar. http_jar uses ijar,
         # which breaks scala macros
-        compile_jars += filter_not_sources(dep_target.files)
-        runtime_jars += filter_not_sources(dep_target.files)
+        compile_jars.append(filter_not_sources(dep_target.files))
+        runtime_jars.append(filter_not_sources(dep_target.files))
 
-  return struct(compile_jars = compile_jars,
-      transitive_runtime_jars = runtime_jars,
+  return struct(compile_jars = depset(transitive = compile_jars),
+      transitive_runtime_jars = depset(transitive = runtime_jars),
       jars2labels = {},
       transitive_compile_jars = depset())
 
@@ -620,7 +624,7 @@ def _collect_jars_from_common_ctx(ctx, extra_deps = [], extra_runtime_deps = [])
     deps_jars = collect_jars(ctx.attr.deps + auto_deps + extra_deps, dependency_analyzer_is_off)
     (cjars, transitive_rjars, jars2labels, transitive_compile_jars) = (deps_jars.compile_jars, deps_jars.transitive_runtime_jars, deps_jars.jars2labels, deps_jars.transitive_compile_jars)
 
-    transitive_rjars += _collect_runtime_jars(ctx.attr.runtime_deps + extra_runtime_deps)
+    transitive_rjars = depset(transitive = [transitive_rjars] + _collect_runtime_jars(ctx.attr.runtime_deps + extra_runtime_deps))
 
     return struct(compile_jars = cjars, transitive_runtime_jars = transitive_rjars, jars2labels=jars2labels, transitive_compile_jars = transitive_compile_jars)
 
@@ -636,7 +640,7 @@ def create_java_provider(scalaattr, transitive_compile_time_jars):
           use_ijar = False,
           compile_time_jars = scalaattr.compile_jars,
           runtime_jars = scalaattr.transitive_runtime_jars,
-          transitive_compile_time_jars = transitive_compile_time_jars + scalaattr.compile_jars,
+          transitive_compile_time_jars = depset(transitive = [transitive_compile_time_jars, scalaattr.compile_jars]),
           transitive_runtime_jars = scalaattr.transitive_runtime_jars,
       )
     else:
@@ -692,14 +696,9 @@ def _lib(ctx, non_macro_lib):
     write_manifest(ctx)
     outputs = _compile_or_empty(ctx, cjars, srcjars, non_macro_lib, jars.transitive_compile_jars, jars.jars2labels, [])
 
-    transitive_rjars += outputs.full_jars
+    transitive_rjars = depset(outputs.full_jars, transitive = [transitive_rjars])
 
-    _build_deployable(ctx, transitive_rjars)
-
-    # Now, need to setup providers for dependents
-    # Notice that transitive_rjars just carries over from dependency analysis
-    # but cjars 'resets' between cjars and next_cjars
-    next_cjars = depset(outputs.ijars)  # use ijar, if available, for future compiles
+    _build_deployable(ctx, transitive_rjars.to_list())
 
     # Using transitive_files since transitive_rjars a depset and avoiding linearization
     runfiles = ctx.runfiles(
@@ -711,13 +710,12 @@ def _lib(ctx, non_macro_lib):
     # Since after, will not show up in deploy_jar or old jars runfiles
     # Notice that compile_jars is intentionally transitive for exports
     exports_jars = collect_jars(ctx.attr.exports)
-    next_cjars += exports_jars.compile_jars
-    transitive_rjars += exports_jars.transitive_runtime_jars
+    transitive_rjars = depset(transitive = [transitive_rjars, exports_jars.transitive_runtime_jars])
 
     scalaattr = create_scala_provider(
         ijar = outputs.ijar,
         class_jar = outputs.class_jar,
-        compile_jars = next_cjars,
+        compile_jars = depset(outputs.ijars, transitive = [exports_jars.compile_jars]),
         transitive_runtime_jars = transitive_rjars,
         deploy_jar = ctx.outputs.deploy_jar,
         full_jars = outputs.full_jars,
@@ -760,14 +758,13 @@ def _scala_macro_library_impl(ctx):
 # Common code shared by all scala binary implementations.
 def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2labels, java_wrapper, implicit_junit_deps_needed_for_java_compilation = []):
   write_manifest(ctx)
-  outputs = _compile_or_empty(ctx, cjars, [], False, transitive_compile_time_jars, jars2labels, implicit_junit_deps_needed_for_java_compilation)  # no need to build an ijar for an executable
-  rjars += outputs.full_jars
+  outputs = _compile_or_empty(ctx, cjars, depset(), False, transitive_compile_time_jars, jars2labels, implicit_junit_deps_needed_for_java_compilation)  # no need to build an ijar for an executable
+  rjars = depset(outputs.full_jars, transitive = [rjars])
 
-  rjars_list = list(rjars)
-  _build_deployable(ctx, rjars_list)
+  _build_deployable(ctx, rjars.to_list())
 
   runfiles = ctx.runfiles(
-      files = rjars_list + [ctx.outputs.executable, java_wrapper] + ctx.files._java_runtime,
+      transitive_files = depset([ctx.outputs.executable, java_wrapper] + ctx.files._java_runtime, transitive = [rjars]),
       collect_data = True)
 
   scalaattr = create_scala_provider(
@@ -860,8 +857,8 @@ def _scala_test_impl(ctx):
     # _scalatest is an http_jar, so its compile jar is run through ijar
     # however, contains macros, so need to handle separately
     scalatest_jars = collect_jars([ctx.attr._scalatest]).transitive_runtime_jars
-    cjars += scalatest_jars
-    transitive_rjars += scalatest_jars
+    cjars = depset(transitive = [cjars, scalatest_jars])
+    transitive_rjars = depset(transitive = [transitive_rjars, scalatest_jars])
 
     if is_dependency_analyzer_on(ctx):
       transitive_compile_jars += scalatest_jars
@@ -1206,7 +1203,8 @@ def scala_repositories():
 
 def _sanitize_string_for_usage(s):
     res_array = []
-    for c in s:
+    for idx in range(len(s)):
+        c = s[idx]
         if c.isalnum() or c == ".":
             res_array.append(c)
         else:
