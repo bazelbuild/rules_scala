@@ -10,12 +10,19 @@ load(":providers.bzl", "JarsToLabels")
 def _scala_import_impl(ctx):
 
     direct_binary_jars = []
+    all_jar_files = []
     for jar in ctx.attr.jars:
         for file in jar.files:
+            all_jar_files.append(file)
             if not file.basename.endswith("-sources.jar"):
                 direct_binary_jars += [file]
 
+    default_info = DefaultInfo(
+        files = depset(all_jar_files)
+    )
+
     return [
+        default_info,
         _scala_import_java_info(ctx, direct_binary_jars),
         _scala_import_jars_to_labels(ctx, direct_binary_jars),
     ]
