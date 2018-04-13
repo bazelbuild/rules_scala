@@ -126,14 +126,14 @@ test_scala_binary_expect_failure_on_missing_direct_deps_located_in_dependency_wh
 }
 
 test_scala_library_expect_failure_on_missing_direct_external_deps_jar() {
-  dependenecy_target='@com_google_guava_guava_21_0//jar:jar'
+  dependenecy_target='@com_google_guava_guava_21_0//:com_google_guava_guava_21_0'
   test_target='test_expect_failure/missing_direct_deps/external_deps:transitive_external_dependency_user'
 
   test_scala_library_expect_failure_on_missing_direct_deps $dependenecy_target $test_target
 }
 
 test_scala_library_expect_failure_on_missing_direct_external_deps_file_group() {
-  dependenecy_target='@com_google_guava_guava_21_0//jar:file'
+  dependenecy_target='@com_google_guava_guava_21_0_with_file//jar:file'
   test_target='test_expect_failure/missing_direct_deps/external_deps:transitive_external_dependency_user_file_group'
 
   test_scala_library_expect_failure_on_missing_direct_deps $dependenecy_target $test_target

@@ -11,7 +11,7 @@ scala_import(
 
 scala_import(
   name = "guava",
-  jars = ["@com_google_guava_guava_21_0//jar:file"],
+  jars = ["@com_google_guava_guava_21_0_with_file//jar:file"],
   deps = [":dummy_dependency_to_trigger_create_provider_transitive_compile_jar_usage"] 
 )
 
