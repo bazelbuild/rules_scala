@@ -131,8 +131,8 @@ def _collect_plugin_paths(plugins):
 def _expand_location(ctx, flags):
   return [ctx.expand_location(f, ctx.attr.data) for f in flags]
 
-def _sort_join_path(args, sep=","):
-    return sep.join(sorted([f.path for f in args]))
+def _join_path(args, sep=","):
+    return sep.join([f.path for f in args])
 
 def _compile(ctx, cjars, dep_srcjars, buildijar, transitive_compile_jars, labels, implicit_junit_deps_needed_for_java_compilation):
     ijar_output_path = ""
@@ -159,13 +159,14 @@ def _compile(ctx, cjars, dep_srcjars, buildijar, transitive_compile_jars, labels
     # "off" mode is used as a feature toggle, that preserves original behaviour
         dependency_analyzer_mode = ctx.fragments.java.strict_java_deps
         dep_plugin = ctx.attr._dependency_analyzer_plugin
-        plugins += [f.path for f in dep_plugin.files]
+        plugins = depset(transitive = [plugins, dep_plugin.files])
         dependency_analyzer_plugin_jars = ctx.files._dependency_analyzer_plugin
         compiler_classpath_jars = transitive_compile_jars
 
-        direct_jars = ",".join([j.path for j in cjars])
-        indirect_jars = ",".join([j.path for j in transitive_compile_jars])
-        indirect_targets = ",".join([labels[j.path] for j in transitive_compile_jars])
+        direct_jars = _join_path(cjars.to_list())
+        transitive_cjars_list = transitive_compile_jars.to_list()
+        indirect_jars = _join_path(transitive_cjars_list)
+        indirect_targets = ",".join([labels[j.path] for j in transitive_cjars_list])
         current_target = str(ctx.label)
 
         optional_scalac_args = """
@@ -180,10 +181,10 @@ CurrentTarget: {current_target}
               current_target = current_target
               )
 
-    plugin_arg = _sort_join_path(plugins.to_list())
+    plugin_arg = _join_path(plugins.to_list())
 
     separator = ctx.configuration.host_path_separator
-    compiler_classpath = _sort_join_path(compiler_classpath_jars.to_list(), separator)
+    compiler_classpath = _join_path(compiler_classpath_jars.to_list(), separator)
 
     toolchain = ctx.toolchains['@io_bazel_rules_scala//scala:toolchain_type']
     scalacopts = toolchain.scalacopts + ctx.attr.scalacopts
@@ -216,13 +217,13 @@ StatsfileOutput: {statsfile_output}
         print_compile_time=ctx.attr.print_compile_time,
         plugin_arg=plugin_arg,
         cp=compiler_classpath,
-        classpath_resource_src=_sort_join_path(classpath_resources),
-        files=_sort_join_path(sources),
+        classpath_resource_src=_join_path(classpath_resources),
+        files=_join_path(sources),
         enableijar=buildijar,
         ijar_out=ijar_output_path,
         ijar_cmd_path=ijar_cmd_path,
-        srcjars=_sort_join_path(all_srcjars.to_list()),
-        java_files=_sort_join_path(java_srcs),
+        srcjars=_join_path(all_srcjars.to_list()),
+        java_files=_join_path(java_srcs),
         # the resource paths need to be aligned in order
         resource_src=",".join([f.path for f in ctx.files.resources]),
         resource_short_paths=",".join([f.short_path for f in ctx.files.resources]),
@@ -230,7 +231,7 @@ StatsfileOutput: {statsfile_output}
           [_adjust_resources_path_by_default_prefixes(f.short_path)[1] for f in ctx.files.resources]
           ),
         resource_strip_prefix=ctx.attr.resource_strip_prefix,
-        resource_jars=_sort_join_path(ctx.files.resource_jars),
+        resource_jars=_join_path(ctx.files.resource_jars),
         dependency_analyzer_mode = dependency_analyzer_mode,
         statsfile_output = ctx.outputs.statsfile.path
         )
@@ -456,7 +457,7 @@ def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper):
     template = ctx.attr._java_stub_template.files.to_list()[0]
     # RUNPATH is defined here:
     # https://github.com/bazelbuild/bazel/blob/0.4.5/src/main/java/com/google/devtools/build/lib/bazel/rules/java/java_stub_template.txt#L227
-    classpath = ":".join(["${RUNPATH}%s" % (j.short_path) for j in sorted(rjars.to_list())])
+    classpath = ":".join(["${RUNPATH}%s" % (j.short_path) for j in rjars.to_list()])
     jvm_flags = " ".join([ctx.expand_location(f, ctx.attr.data) for f in jvm_flags])
     ctx.actions.expand_template(
         template = template,
@@ -563,35 +564,35 @@ def _collect_jars_when_dependency_analyzer_is_off(dep_targets):
       transitive_compile_jars = depset())
 
 def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
-  transitive_compile_jars = depset()
+  transitive_compile_jars = []
   jars2labels = {}
-  compile_jars = depset()
-  runtime_jars = depset()
+  compile_jars = []
+  runtime_jars = []
 
   for dep_target in dep_targets:
-    current_dep_compile_jars = depset()
-    current_dep_transitive_compile_jars = depset()
+    current_dep_compile_jars = None
+    current_dep_transitive_compile_jars = None
 
     if java_common.provider in dep_target:
         java_provider = dep_target[java_common.provider]
         current_dep_compile_jars = java_provider.compile_jars
         current_dep_transitive_compile_jars = java_provider.transitive_compile_time_jars
-        runtime_jars += java_provider.transitive_runtime_jars
+        runtime_jars.append(java_provider.transitive_runtime_jars)
     else:
         # support http_file pointed at a jar. http_jar uses ijar,
         # which breaks scala macros
         current_dep_compile_jars = filter_not_sources(dep_target.files)
-        runtime_jars += filter_not_sources(dep_target.files)
         current_dep_transitive_compile_jars = filter_not_sources(dep_target.files)
+        runtime_jars.append(filter_not_sources(dep_target.files))
 
-    compile_jars += current_dep_compile_jars
-    transitive_compile_jars += current_dep_transitive_compile_jars
-    add_labels_of_jars_to(jars2labels, dep_target, current_dep_transitive_compile_jars, current_dep_compile_jars)
+    compile_jars.append(current_dep_compile_jars)
+    transitive_compile_jars.append(current_dep_transitive_compile_jars)
+    add_labels_of_jars_to(jars2labels, dep_target, current_dep_transitive_compile_jars.to_list(), current_dep_compile_jars.to_list())
 
-  return struct(compile_jars = compile_jars,
-    transitive_runtime_jars = runtime_jars,
+  return struct(compile_jars = depset(transitive = compile_jars),
+    transitive_runtime_jars = depset(transitive = runtime_jars),
     jars2labels = jars2labels,
-    transitive_compile_jars = transitive_compile_jars)
+    transitive_compile_jars = depset(transitive = transitive_compile_jars))
 
 def collect_jars(dep_targets, dependency_analyzer_is_off = True):
     """Compute the runtime and compile-time dependencies from the given targets"""  # noqa
@@ -861,8 +862,9 @@ def _scala_test_impl(ctx):
     transitive_rjars = depset(transitive = [transitive_rjars, scalatest_jars])
 
     if is_dependency_analyzer_on(ctx):
-      transitive_compile_jars += scalatest_jars
-      add_labels_of_jars_to(jars_to_labels, ctx.attr._scalatest, scalatest_jars, scalatest_jars)
+      transitive_compile_jars = depset(transitive = [scalatest_jars, transitive_compile_jars])
+      scalatest_jars_list = scalatest_jars.to_list()
+      add_labels_of_jars_to(jars_to_labels, ctx.attr._scalatest, scalatest_jars_list, scalatest_jars_list)
 
     args = " ".join([
         "-R \"{path}\"".format(path=ctx.outputs.jar.short_path),
