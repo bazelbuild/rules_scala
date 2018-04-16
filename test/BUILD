@@ -307,7 +307,7 @@ scala_specs2_junit_test(
 
 # Make sure scala_binary works in test environment
 [sh_test(
-    name = "Run" + "".join([c if c.isalnum() else "_" for c in binary]),
+    name = "Run" + "".join([binary[idx] if binary[idx].isalnum() else "_" for idx in range(len(binary))]),
     srcs = ["test_binary.sh"],
     args = ["$(location %s)" % binary],
     data = [binary if ":" in binary else ":%s" % binary],
