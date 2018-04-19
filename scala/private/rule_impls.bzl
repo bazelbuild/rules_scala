@@ -471,10 +471,6 @@ def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper):
         is_executable = True,
     )
 
-def dep_target_contains_ijar(dep_target):
-  return (hasattr(dep_target, 'scala') and hasattr(dep_target.scala, 'outputs') and
-          hasattr(dep_target.scala.outputs, 'ijar') and dep_target.scala.outputs.ijar)
-
 def _collect_runtime_jars(dep_targets):
   runtime_jars = []
 
