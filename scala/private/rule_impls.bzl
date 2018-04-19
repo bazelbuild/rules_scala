@@ -14,11 +14,10 @@
 
 """Rules for supporting the Scala language."""
 load("@io_bazel_rules_scala//scala:scala_toolchain.bzl", "scala_toolchain")
-
+load("@io_bazel_rules_scala//scala:providers.bzl", "create_scala_provider")
 load(":common.bzl",
      "add_labels_of_jars_to",
      "create_java_provider",
-     "create_scala_provider",
      "collect_jars",
      "collect_srcjars",
      "filter_not_sources",
