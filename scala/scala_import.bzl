@@ -12,7 +12,7 @@ def _scala_import_impl(ctx):
     direct_binary_jars = []
     all_jar_files = []
     for jar in ctx.attr.jars:
-        for file in jar.files:
+        for file in jar.files.to_list():
             all_jar_files.append(file)
             if not file.basename.endswith("-sources.jar"):
                 direct_binary_jars += [file]
@@ -78,7 +78,7 @@ def _scala_import_jars_to_labels(ctx, direct_binary_jars):
 
     for entry in ctx.attr.exports:
         if JavaInfo in entry:
-            for jar in entry[JavaInfo].compile_jars:
+            for jar in entry[JavaInfo].compile_jars.to_list():
                 lookup[jar.path] = entry.label
         if JarsToLabels in entry:
             lookup.update(entry[JarsToLabels].lookup)
