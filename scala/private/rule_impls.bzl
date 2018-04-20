@@ -122,6 +122,8 @@ def _collect_plugin_paths(plugins):
     for p in plugins:
         if hasattr(p, "path"):
             paths.append(p)
+        elif p[JavaInfo] and p[JavaInfo].full_compile_jars:
+            paths.extend(p[JavaInfo].full_compile_jars.to_list())
         elif hasattr(p, "scala"):
             paths.append(p.scala.outputs.jar)
         elif hasattr(p, "java"):

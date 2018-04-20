@@ -21,15 +21,61 @@ def _scala_import_impl(ctx):
         files = depset(all_jar_files)
     )
 
-    return [
-        default_info,
-        _scala_import_java_info(ctx, direct_binary_jars),
-        _scala_import_jars_to_labels(ctx, direct_binary_jars),
-    ]
+    source_jar = None
+    if (ctx.attr.srcjar):
+      source_jar = ctx.file.srcjar
 
-def _scala_import_java_info(ctx, direct_binary_jars):
-    # merge all deps, exports, and runtime deps into single JavaInfo instances
+    return struct(
+        scala =  _create_intellij_provider(direct_binary_jars, source_jar),
+        providers = [
+            default_info,
+            _scala_import_java_info(ctx, direct_binary_jars, source_jar),
+            _scala_import_jars_to_labels(ctx, direct_binary_jars),
+        ]
+    )
 
+# The IntelliJ plugin currently does not support JavaInfo. It has its own
+# provider. We build that provider and return it in addition to JavaInfo.
+# From reading the IntelliJ plugin code, best I can tell it expects a provider
+# that looks like this.
+# {
+#   scala: {
+#     annotation_processing: {
+#       # see https://docs.bazel.build/versions/master/skylark/lib/java_annotation_processing.html
+#     },
+#     outputs: {
+#       # see https://docs.bazel.build/versions/master/skylark/lib/java_output_jars.html
+#       jdeps: <file>
+#       jars: [
+#         {
+#           # see https://docs.bazel.build/versions/master/skylark/lib/java_output.html
+#           class_jar: <file>,
+#           ijar: <file>
+#           source_jar: <file>
+#           source_jars: [<file>...]
+#         }
+#       ]
+#     }
+#   },
+# }
+def _create_intellij_provider(jars, source_jar):
+    return struct(
+        # TODO: should we support annotation_processing and jdeps?
+        outputs = struct(
+            jars = [_create_intellij_output(jar, source_jar) for jar in jars]
+        )
+    )
+
+def _create_intellij_output(class_jar, source_jar):
+    source_jars = [source_jar] if source_jar else []
+    return struct(
+        class_jar = class_jar,
+        ijar = None,
+        source_jar = source_jar,
+        source_jars = source_jars,
+    )
+
+def _scala_import_java_info(ctx, direct_binary_jars, source_jar = None):
     s_deps = java_common.merge(_collect(JavaInfo, ctx.attr.deps))
     s_exports = java_common.merge(_collect(JavaInfo, ctx.attr.exports))
     s_runtime_deps = java_common.merge(_collect(JavaInfo, ctx.attr.runtime_deps))
@@ -54,12 +100,15 @@ def _scala_import_java_info(ctx, direct_binary_jars):
             s_exports.transitive_runtime_jars,
             s_runtime_deps.transitive_runtime_jars])
 
+    source_jars = [source_jar] if source_jar else []
+
     return java_common.create_provider(
         ctx.actions,
         use_ijar = False,
         compile_time_jars = compile_time_jars,
         transitive_compile_time_jars = transitive_compile_time_jars,
-        transitive_runtime_jars = transitive_runtime_jars)
+        transitive_runtime_jars = transitive_runtime_jars,
+        source_jars = source_jars)
 
 def _scala_import_jars_to_labels(ctx, direct_binary_jars):
     # build up JarsToLabels
@@ -98,8 +147,9 @@ scala_import = rule(
     implementation = _scala_import_impl,
     attrs = {
         "jars": attr.label_list(allow_files=True), #current hidden assumption is that these point to full, not ijar'd jars
+        "srcjar": attr.label(allow_single_file=True),
         "deps": attr.label_list(),
         "runtime_deps": attr.label_list(),
-        "exports": attr.label_list()
+        "exports": attr.label_list(),
     },
 )
