@@ -85,8 +85,8 @@ class ScalacProcessor implements Processor {
        * Now build the output jar
        */
       String[] jarCreatorArgs = {
-//        "-m",
-//        ops.manifestPath,
+        "-m",
+        ops.manifestPath,
         outputPath.toString(),
         tmpPath.toString()
       };

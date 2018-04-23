@@ -159,6 +159,10 @@ public class JarCreator extends JarHelper {
     }
   }
 
+  public void addJar(Path path) {
+    jarEntries.put(path.toAbsolutePath().toString(), path.toAbsolutePath());
+  }
+
   /**
    * Adds a collection of entries to the jar, each with a given source path, and with the resulting
    * file in the root of the jar.
@@ -249,23 +253,42 @@ public class JarCreator extends JarHelper {
     }
   }
 
-  /** A simple way to create Jar file using the JarCreator class. */
-  public static void main(String[] args) {
+  public static void buildJar(String[] args) throws IOException {
     if (args.length < 1) {
-      System.err.println("usage: CreateJar output [root directories]");
+      System.err.println("usage: CreateJar [-m manifest] output [root directories]");
       System.exit(1);
     }
-    String output = args[0];
-    JarCreator createJar = new JarCreator(output);
-    for (int i = 1; i < args.length; i++) {
-      createJar.addDirectory(args[i]);
+
+    int idx = 0;
+    String manifestFile = null;
+    if (args[0].equals("-m")) {
+      manifestFile = args[1];
+      idx = 2;
     }
-    createJar.setCompression(true);
+    String output = args[idx];
+    JarCreator createJar = new JarCreator(output);
+    createJar.setManifestFile(manifestFile);
+    for (int i = (idx+1); i < args.length; i++) {
+      String thisName = args[i];
+      Path f = Paths.get(thisName);
+      if (JarHelper.isJar(f)) {
+        createJar.addJar(f);
+      }
+      else {
+        createJar.addDirectory(f);
+      }
+    }
     createJar.setNormalize(true);
+    createJar.setCompression(true);
     createJar.setVerbose(true);
+    createJar.execute();
+  }
+
+  /** A simple way to create Jar file using the JarCreator class. */
+  public static void main(String[] args) {
     long start = System.currentTimeMillis();
     try {
-      createJar.execute();
+      buildJar(args);
     } catch (IOException e) {
       e.printStackTrace();
       System.exit(1);

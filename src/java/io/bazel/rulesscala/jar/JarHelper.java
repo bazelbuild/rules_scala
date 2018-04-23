@@ -74,6 +74,10 @@ public class JarHelper {
     jarPath = path;
   }
 
+  public static boolean isJar(Path path) {
+    return path.getFileName().endsWith(".jar") && (Files.isRegularFile(path));
+  }
+
   /**
    * Enables or disables the Jar entry normalization.
    *
