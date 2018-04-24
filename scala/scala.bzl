@@ -17,6 +17,7 @@
 load("//specs2:specs2_junit.bzl", "specs2_junit_dependencies")
 load(":scala_cross_version.bzl", "scala_version", "scala_mvn_artifact")
 load("@io_bazel_rules_scala//scala:scala_toolchain.bzl", "scala_toolchain")
+load(":providers.bzl", "JarsToLabels")
 
 _jar_filetype = FileType([".jar"])
 _java_filetype = FileType([".java"])
@@ -499,7 +500,7 @@ def add_label_of_indirect_jar_to(jars2labels, dependency, jar):
  # skylark exposes only labels of direct dependencies.
  # to get labels of indirect dependencies we collect them from the providers transitively
  if provider_of_dependency_contains_label_of(dependency, jar):
-   jars2labels[jar.path] = dependency.jars_to_labels[jar.path]
+   jars2labels[jar.path] = dependency[JarsToLabels].lookup[jar.path]
  else:
    jars2labels[jar.path] = "Unknown label of file {jar_path} which came from {dependency_label}".format(
        jar_path = jar.path,
@@ -510,7 +511,7 @@ def label_already_exists(jars2labels, jar):
   return jar.path in jars2labels
 
 def provider_of_dependency_contains_label_of(dependency, jar):
-  return hasattr(dependency, "jars_to_labels") and jar.path in dependency.jars_to_labels
+  return JarsToLabels in dependency and jar.path in dependency[JarsToLabels].lookup
 
 def dep_target_contains_ijar(dep_target):
   return (hasattr(dep_target, 'scala') and hasattr(dep_target.scala, 'outputs') and
@@ -727,7 +728,9 @@ def _lib(ctx, non_macro_lib):
     return struct(
         files = depset([ctx.outputs.jar]),  # Here is the default output
         scala = scalaattr,
-        providers = [java_provider],
+        providers = [
+            JarsToLabels(lookup = jars.jars2labels),
+            java_provider],
         runfiles = runfiles,
         # This is a free monoid given to the graph for the purpose of
         # extensibility. This is necessary when one wants to create
@@ -739,7 +742,6 @@ def _lib(ctx, non_macro_lib):
         # this information through, and it is up to the new_targets
         # to filter and make sense of this information.
         extra_information=_collect_extra_information(ctx.attr.deps),
-        jars_to_labels = jars.jars2labels,
       )
 
 
@@ -781,10 +783,11 @@ def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2l
 
   return struct(
       files=depset([ctx.outputs.executable]),
-      providers = [java_provider],
+      providers = [
+          JarsToLabels(lookup = jars2labels),
+          java_provider],
       scala = scalaattr,
       transitive_rjars = rjars, #calling rules need this for the classpath in the launcher
-      jars_to_labels = jars2labels,
       runfiles=runfiles)
 
 def _scala_binary_impl(ctx):
