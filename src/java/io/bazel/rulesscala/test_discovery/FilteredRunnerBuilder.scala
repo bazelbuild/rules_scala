@@ -42,6 +42,9 @@ private[rulesscala] class FilteredTestClass(testClass: Class[_], pattern: Patter
 }
 
 object JUnitFilteringRunnerBuilder {
+  private final val TestClassFieldPreJUnit4_12 = "fTestClass"
+  private final val TestClassField = "testClass"
+
   val f: FilteringRunnerBuilder = {
     case (runner: BlockJUnit4ClassRunner, testClass: Class[_], pattern: Pattern) =>
       replaceRunnerTestClass(runner, testClass, pattern)
@@ -49,7 +52,7 @@ object JUnitFilteringRunnerBuilder {
 
   private def replaceRunnerTestClass(runner: BlockJUnit4ClassRunner, testClass: Class[_], pattern: Pattern) = {
     allFieldsOf(runner.getClass)
-      .find(f => f.getName == "testClass" || f.getName == "fTestClass")
+      .find(f => f.getName == TestClassField || f.getName == TestClassFieldPreJUnit4_12)
       .foreach(field => {
         field.setAccessible(true)
         field.set(runner, new FilteredTestClass(testClass, pattern))
