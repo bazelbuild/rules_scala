@@ -280,7 +280,6 @@ public class JarCreator extends JarHelper {
     }
     createJar.setNormalize(true);
     createJar.setCompression(true);
-    createJar.setVerbose(true);
     createJar.execute();
   }
 

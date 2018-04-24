@@ -63,7 +63,7 @@ public class JarHelper {
   protected final Path jarPath;
 
   // The properties to describe how to create the Jar
-  protected boolean normalize;
+  protected boolean normalize = true;
   protected int storageMethod = JarEntry.DEFLATED;
   protected boolean verbose = false;
 
