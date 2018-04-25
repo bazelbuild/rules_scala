@@ -90,7 +90,7 @@ class ScalacProcessor implements Processor {
         outputPath.toString(),
         tmpPath.toString()
       };
-      JarCreator.buildJar(jarCreatorArgs);
+      JarCreator.main(jarCreatorArgs);
 
       /**
        * Now build the output ijar
