@@ -101,15 +101,6 @@ def _collect_runtime(runtime_deps):
 
   return depset(transitive = jar_deps)
 
-def _collect_exports(exports):
-  exported_jars = depset()
-
-  for dep_target in exports:
-      java_provider = dep_target[java_common.provider]
-      exported_jars += java_provider.full_compile_jars
-
-  return exported_jars
-
 scala_import = rule(
   implementation=_scala_import_impl,
   attrs={
