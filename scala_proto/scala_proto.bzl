@@ -1,8 +1,15 @@
 load("//scala:scala.bzl",
-  "scala_mvn_artifact",
-  "scala_library",
-  "collect_jars",
-  "create_java_provider")
+     "scala_library",
+)
+
+load("//scala:scala_cross_version.bzl",
+     "scala_mvn_artifact",
+)
+
+load("//scala/private:common.bzl",
+     "collect_jars",
+     "create_java_provider",
+)
 
 def scala_proto_repositories():
     native.maven_server(

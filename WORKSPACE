@@ -2,7 +2,7 @@ workspace(name = "io_bazel_rules_scala")
 
 
 
-load("//scala:scala.bzl", "scala_repositories", "scala_mvn_artifact")
+load("//scala:scala.bzl", "scala_repositories")
 scala_repositories()
 
 load("//twitter_scrooge:twitter_scrooge.bzl", "twitter_scrooge", "scrooge_scala_library")
@@ -19,6 +19,8 @@ scala_proto_repositories()
 
 load("//specs2:specs2_junit.bzl","specs2_junit_repositories")
 specs2_junit_repositories()
+
+load("//scala:scala_cross_version.bzl", "scala_mvn_artifact")
 
 # test adding a scala jar:
 maven_jar(

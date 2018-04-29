@@ -1,9 +1,16 @@
 load("//scala:scala.bzl",
-  "scala_mvn_artifact",
-  "scala_library",
+     "scala_library",
+)
+
+load("//scala:scala_cross_version.bzl",
+     "scala_mvn_artifact",
+)
+
+load("//scala/private:common.bzl",
   "write_manifest",
   "collect_srcjars",
-  "collect_jars")
+  "collect_jars"
+)
 
 load("//thrift:thrift.bzl", "ThriftInfo")
 
