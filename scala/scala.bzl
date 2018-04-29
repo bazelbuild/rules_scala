@@ -7,10 +7,10 @@ load("@io_bazel_rules_scala//scala/private:rule_impls.bzl",
      "scala_junit_test_impl",
 )
 
-load("//specs2:specs2_junit.bzl", "specs2_junit_dependencies")
-load(":scala_cross_version.bzl", "scala_version", "scala_mvn_artifact")
-load("@io_bazel_rules_scala//scala:scala_toolchain.bzl", "scala_toolchain")
-load(":providers.bzl", "JarsToLabels")
+load(
+    "@io_bazel_rules_scala//specs2:specs2_junit.bzl",
+    "specs2_junit_dependencies",
+)
 
 _jar_filetype = FileType([".jar"])
 
