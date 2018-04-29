@@ -14,7 +14,7 @@
 
 """Rules for supporting the Scala language."""
 load("@io_bazel_rules_scala//scala:scala_toolchain.bzl", "scala_toolchain")
-load("@io_bazel_rules_scala//scala:providers.bzl", "create_scala_provider")
+load("@io_bazel_rules_scala//scala:providers.bzl", "create_scala_provider", "JarsToLabels")
 load(":common.bzl",
      "add_labels_of_jars_to",
      "create_java_provider",
@@ -122,12 +122,14 @@ def _collect_plugin_paths(plugins):
     for p in plugins:
         if hasattr(p, "path"):
             paths.append(p)
+        elif p[JavaInfo] and p[JavaInfo].full_compile_jars:
+            paths.extend(p[JavaInfo].full_compile_jars.to_list())
         elif hasattr(p, "scala"):
             paths.append(p.scala.outputs.jar)
         elif hasattr(p, "java"):
             paths.extend([j.class_jar for j in p.java.outputs.jars])
-        # support http_file pointed at a jar. http_jar uses ijar,
-        # which breaks scala macros
+            # support http_file pointed at a jar. http_jar uses ijar,
+            # which breaks scala macros
         elif hasattr(p, "files"):
             paths.extend([f for f in p.files if not_sources_jar(f.basename)])
     return depset(paths)
@@ -606,10 +608,11 @@ def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2l
 
   return struct(
       files=depset([ctx.outputs.executable]),
-      providers = [java_provider],
+      providers = [
+          JarsToLabels(lookup = jars2labels),
+          java_provider],
       scala = scalaattr,
-      transitive_rjars = rjars, #calling rules need this for the classpath in the launcher
-      jars_to_labels = jars2labels,
+      transitive_rjars = rjars, #calling rules need this for the classpath in the launcher      
       runfiles=runfiles)
 
 def scala_binary_impl(ctx):

@@ -1,112 +1,155 @@
-#intellij part is tested manually, tread lightly when changing there
-#if you change make sure to manually re-import an intellij project and see imports
-#are resolved (not red) and clickable
+load(":providers.bzl", "JarsToLabels")
+
+# Note to future authors:
+#
+# Tread lightly when modifying this code! IntelliJ support needs
+# to be tested manually: manually [re-]import an intellij project
+# and ensure imports are resolved (not red) and clickable
+#
+
 def _scala_import_impl(ctx):
-    target_data = _code_jars_and_intellij_metadata_from(ctx.attr.jars)
-    (current_target_compile_jars, intellij_metadata) = (target_data.code_jars, target_data.intellij_metadata)
-    current_jars = depset(current_target_compile_jars)
-    exports = _collect(ctx.attr.exports)
-    transitive_runtime_jars = _collect_runtime(ctx.attr.runtime_deps)
-    jars = _collect(ctx.attr.deps)
-    jars2labels = {}
-    _collect_labels(ctx.attr.deps, jars2labels)
-    _collect_labels(ctx.attr.exports, jars2labels) #untested
-    _add_labels_of_current_code_jars(depset(transitive=[current_jars, exports.compile_jars]), ctx.label, jars2labels) #last to override the label of the export compile jars to the current target
-    return struct(
-        scala = struct(
-          outputs = struct (
-              jars = intellij_metadata
-          ),
-        ),
-        jars_to_labels = jars2labels,
-        providers = [
-            _create_provider(current_jars, transitive_runtime_jars, jars, exports)
-        ],
+
+    direct_binary_jars = []
+    all_jar_files = []
+    for jar in ctx.attr.jars:
+        for file in jar.files.to_list():
+            all_jar_files.append(file)
+            if not file.basename.endswith("-sources.jar"):
+                direct_binary_jars += [file]
+
+    default_info = DefaultInfo(
+        files = depset(all_jar_files)
     )
-def _create_provider(current_target_compile_jars, transitive_runtime_jars, jars, exports):
-  test_provider = java_common.create_provider()
-  if hasattr(test_provider, "full_compile_jars"):
-      return java_common.create_provider(
-          use_ijar = False,
-          compile_time_jars = depset(transitive = [current_target_compile_jars, exports.compile_jars]),
-          transitive_compile_time_jars = depset(transitive = [jars.transitive_compile_jars, current_target_compile_jars, exports.transitive_compile_jars]) ,
-          transitive_runtime_jars = depset(transitive = [transitive_runtime_jars, jars.transitive_runtime_jars, current_target_compile_jars, exports.transitive_runtime_jars]) ,
-      )
-  else:
-      return java_common.create_provider(
-          compile_time_jars = current_target_compile_jars,
-          runtime_jars = transitive_runtime_jars + jars.transitive_runtime_jars,
-          transitive_compile_time_jars = jars.transitive_compile_jars + current_target_compile_jars,
-          transitive_runtime_jars = transitive_runtime_jars + jars.transitive_runtime_jars + current_target_compile_jars,
-      )
 
-def _add_labels_of_current_code_jars(code_jars, label, jars2labels):
-  for jar in code_jars.to_list():
-    jars2labels[jar.path] = label
+    source_jar = None
+    if (ctx.attr.srcjar):
+      source_jar = ctx.file.srcjar
 
-def _code_jars_and_intellij_metadata_from(jars):
-  code_jars = []
-  intellij_metadata = []
-  for jar in jars:
-    current_jar_code_jars = _filter_out_non_code_jars(jar.files)
-    code_jars += current_jar_code_jars
-    for current_class_jar in current_jar_code_jars: #intellij, untested
-      intellij_metadata.append(struct(
-           ijar = None,
-           class_jar = current_class_jar,
-           source_jar = None,
-           source_jars = [],
-       )
-     )
-  return struct(code_jars = code_jars, intellij_metadata = intellij_metadata)
+    return struct(
+        scala =  _create_intellij_provider(direct_binary_jars, source_jar),
+        providers = [
+            default_info,
+            _scala_import_java_info(ctx, direct_binary_jars, source_jar),
+            _scala_import_jars_to_labels(ctx, direct_binary_jars),
+        ]
+    )
 
-def _filter_out_non_code_jars(files):
-  return [file for file in files.to_list() if not _is_source_jar(file)]
+# The IntelliJ plugin currently does not support JavaInfo. It has its own
+# provider. We build that provider and return it in addition to JavaInfo.
+# From reading the IntelliJ plugin code, best I can tell it expects a provider
+# that looks like this.
+# {
+#   scala: {
+#     annotation_processing: {
+#       # see https://docs.bazel.build/versions/master/skylark/lib/java_annotation_processing.html
+#     },
+#     outputs: {
+#       # see https://docs.bazel.build/versions/master/skylark/lib/java_output_jars.html
+#       jdeps: <file>
+#       jars: [
+#         {
+#           # see https://docs.bazel.build/versions/master/skylark/lib/java_output.html
+#           class_jar: <file>,
+#           ijar: <file>
+#           source_jar: <file>
+#           source_jars: [<file>...]
+#         }
+#       ]
+#     }
+#   },
+# }
+def _create_intellij_provider(jars, source_jar):
+    return struct(
+        # TODO: should we support annotation_processing and jdeps?
+        outputs = struct(
+            jars = [_create_intellij_output(jar, source_jar) for jar in jars]
+        )
+    )
 
-def _is_source_jar(file):
-  return file.basename.endswith("-sources.jar")
+def _create_intellij_output(class_jar, source_jar):
+    source_jars = [source_jar] if source_jar else []
+    return struct(
+        class_jar = class_jar,
+        ijar = None,
+        source_jar = source_jar,
+        source_jars = source_jars,
+    )
 
-def _collect(deps):
-  transitive_compile_jars = []
-  runtime_jars = []
-  compile_jars = []
+def _scala_import_java_info(ctx, direct_binary_jars, source_jar = None):
+    s_deps = java_common.merge(_collect(JavaInfo, ctx.attr.deps))
+    s_exports = java_common.merge(_collect(JavaInfo, ctx.attr.exports))
+    s_runtime_deps = java_common.merge(_collect(JavaInfo, ctx.attr.runtime_deps))
 
-  for dep_target in deps:
-      java_provider = dep_target[java_common.provider]
-      compile_jars.append(java_provider.compile_jars)
-      transitive_compile_jars.append(java_provider.transitive_compile_time_jars)
-      runtime_jars.append(java_provider.transitive_runtime_jars)
+    # build up our final JavaInfo provider
 
-  return struct(transitive_runtime_jars = depset(transitive = runtime_jars),
-                transitive_compile_jars = depset(transitive = transitive_compile_jars),
-                compile_jars = depset(transitive = compile_jars))
+    compile_time_jars = depset(
+        direct = direct_binary_jars,
+        transitive = [
+            s_exports.transitive_compile_time_jars])
 
-def _collect_labels(deps, jars2labels):
-  for dep_target in deps:
-      java_provider = dep_target[java_common.provider]
-      _transitively_accumulate_labels(dep_target, java_provider,jars2labels)
+    transitive_compile_time_jars = depset(
+        transitive = [
+            compile_time_jars,
+            s_deps.transitive_compile_time_jars,
+            s_exports.transitive_compile_time_jars])
 
-def _transitively_accumulate_labels(dep_target, java_provider, jars2labels):
-  if hasattr(dep_target, "jars_to_labels"):
-    jars2labels.update(dep_target.jars_to_labels)
-  #scala_library doesn't add labels to the direct dependency itself
-  for jar in java_provider.compile_jars.to_list():
-    jars2labels[jar.path] = dep_target.label
+    transitive_runtime_jars = depset(
+        transitive = [
+            compile_time_jars,
+            s_deps.transitive_runtime_jars,
+            s_exports.transitive_runtime_jars,
+            s_runtime_deps.transitive_runtime_jars])
 
-def _collect_runtime(runtime_deps):
-  jar_deps = []
-  for dep_target in runtime_deps:
-      java_provider = dep_target[java_common.provider]
-      jar_deps.append(java_provider.transitive_runtime_jars)
+    source_jars = [source_jar] if source_jar else []
 
-  return depset(transitive = jar_deps)
+    return java_common.create_provider(
+        ctx.actions,
+        use_ijar = False,
+        compile_time_jars = compile_time_jars,
+        transitive_compile_time_jars = transitive_compile_time_jars,
+        transitive_runtime_jars = transitive_runtime_jars,
+        source_jars = source_jars)
+
+def _scala_import_jars_to_labels(ctx, direct_binary_jars):
+    # build up JarsToLabels
+    # note: consider moving this to an aspect
+
+    lookup = {}
+    for jar in direct_binary_jars:
+        lookup[jar.path] = ctx.label
+
+    for entry in ctx.attr.deps:
+        if JavaInfo in entry:
+            for jar in entry[JavaInfo].compile_jars:
+                lookup[jar.path] = entry.label
+        if JarsToLabels in entry:
+            lookup.update(entry[JarsToLabels].lookup)
+
+    for entry in ctx.attr.exports:
+        if JavaInfo in entry:
+            for jar in entry[JavaInfo].compile_jars.to_list():
+                lookup[jar.path] = entry.label
+        if JarsToLabels in entry:
+            lookup.update(entry[JarsToLabels].lookup)
+
+    return JarsToLabels(lookup = lookup)
+
+# Filters an iterable for entries that contain a particular
+# index and returns a collection of the indexed values.
+def _collect(index, iterable):
+    return [
+        entry[index]
+        for entry in iterable
+        if index in entry
+    ]
 
 scala_import = rule(
-  implementation=_scala_import_impl,
-  attrs={
-      "jars": attr.label_list(allow_files=True), #current hidden assumption is that these point to full, not ijar'd jars
-      "deps": attr.label_list(),
-      "runtime_deps": attr.label_list(),
-      "exports": attr.label_list()
-      },
+    implementation = _scala_import_impl,
+    attrs = {
+        "jars": attr.label_list(allow_files=True), #current hidden assumption is that these point to full, not ijar'd jars
+        "srcjar": attr.label(allow_single_file=True),
+        "deps": attr.label_list(),
+        "runtime_deps": attr.label_list(),
+        "exports": attr.label_list(),
+    },
 )

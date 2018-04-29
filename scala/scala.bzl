@@ -9,7 +9,7 @@ load("@io_bazel_rules_scala//scala/private:rule_impls.bzl",
 
 load(
     "@io_bazel_rules_scala//specs2:specs2_junit.bzl",
-    "specs2_junit_dependencies"
+    "specs2_junit_dependencies",
 )
 
 _jar_filetype = FileType([".jar"])
