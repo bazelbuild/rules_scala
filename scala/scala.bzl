@@ -1,15 +1,15 @@
 load("@io_bazel_rules_scala//scala/private:rule_impls.bzl",
-     "scala_library_impl",
-     "scala_macro_library_impl",
-     "scala_binary_impl",
-     "scala_test_impl",
-     "scala_repl_impl",
-     "scala_junit_test_impl",
+     _scala_library_impl = "scala_library_impl",
+     _scala_macro_library_impl = "scala_macro_library_impl",
+     _scala_binary_impl = "scala_binary_impl",
+     _scala_test_impl = "scala_test_impl",
+     _scala_repl_impl = "scala_repl_impl",
+     _scala_junit_test_impl = "scala_junit_test_impl",
 )
 
 load(
     "@io_bazel_rules_scala//specs2:specs2_junit.bzl",
-    "specs2_junit_dependencies"
+    _specs2_junit_dependencies = "specs2_junit_dependencies"
 )
 
 _jar_filetype = FileType([".jar"])
@@ -81,33 +81,34 @@ _common_attrs.update({
   "_dependency_analyzer_plugin": attr.label(default=Label("@io_bazel_rules_scala//third_party/plugin/src/main:dependency_analyzer"), allow_files=_jar_filetype, mandatory=False),
 })
 
-library_attrs = {
+_library_attrs = {
   "main_class": attr.string(),
   "exports": attr.label_list(allow_files=False),
 }
 
-common_outputs = {
+_common_outputs = {
   "jar": "%{name}.jar",
   "deploy_jar": "%{name}_deploy.jar",
   "manifest": "%{name}_MANIFEST.MF",
   "statsfile": "%{name}.statsfile",
 }
 
-library_outputs = {}
-library_outputs.update(common_outputs)
-library_outputs.update({
+_library_outputs = {}
+_library_outputs.update(_common_outputs)
+_library_outputs.update({
   "ijar": "%{name}_ijar.jar",
 })
 
 _scala_library_attrs = {}
 _scala_library_attrs.update(_implicit_deps)
 _scala_library_attrs.update(_common_attrs)
-_scala_library_attrs.update(library_attrs)
+_scala_library_attrs.update(_library_attrs)
 _scala_library_attrs.update(_resolve_deps)
+
 scala_library = rule(
-  implementation=scala_library_impl,
-  attrs=_scala_library_attrs,
-  outputs=library_outputs,
+  implementation =_scala_library_impl,
+  attrs = _scala_library_attrs,
+  outputs = _library_outputs,
   fragments = ["java"],
   toolchains = ['@io_bazel_rules_scala//scala:toolchain_type'],
 )
@@ -117,13 +118,13 @@ scala_library = rule(
 # which does not contain plugin related attributes, and thus avoids the cyclic dependency issue
 _scala_library_for_plugin_bootstrapping_attrs = {}
 _scala_library_for_plugin_bootstrapping_attrs.update(_implicit_deps)
-_scala_library_for_plugin_bootstrapping_attrs.update(library_attrs)
+_scala_library_for_plugin_bootstrapping_attrs.update(_library_attrs)
 _scala_library_for_plugin_bootstrapping_attrs.update(_resolve_deps)
 _scala_library_for_plugin_bootstrapping_attrs.update(_common_attrs_for_plugin_bootstrapping)
 scala_library_for_plugin_bootstrapping = rule(
-  implementation=scala_library_impl,
-  attrs= _scala_library_for_plugin_bootstrapping_attrs,
-  outputs=library_outputs,
+  implementation = _scala_library_impl,
+  attrs = _scala_library_for_plugin_bootstrapping_attrs,
+  outputs = _library_outputs,
   fragments = ["java"],
   toolchains = ['@io_bazel_rules_scala//scala:toolchain_type'],
 )
@@ -134,12 +135,12 @@ _scala_macro_library_attrs = {
 }
 _scala_macro_library_attrs.update(_implicit_deps)
 _scala_macro_library_attrs.update(_common_attrs)
-_scala_macro_library_attrs.update(library_attrs)
+_scala_macro_library_attrs.update(_library_attrs)
 _scala_macro_library_attrs.update(_resolve_deps)
 scala_macro_library = rule(
-  implementation=scala_macro_library_impl,
-  attrs= _scala_macro_library_attrs,
-  outputs= common_outputs,
+  implementation = _scala_macro_library_impl,
+  attrs = _scala_macro_library_attrs,
+  outputs = _common_outputs,
   fragments = ["java"],
   toolchains = ['@io_bazel_rules_scala//scala:toolchain_type'],
 )
@@ -153,10 +154,10 @@ _scala_binary_attrs.update(_implicit_deps)
 _scala_binary_attrs.update(_common_attrs)
 _scala_binary_attrs.update(_resolve_deps)
 scala_binary = rule(
-  implementation=scala_binary_impl,
+  implementation = _scala_binary_impl,
   attrs= _scala_binary_attrs,
-  outputs= common_outputs,
-  executable=True,
+  outputs = _common_outputs,
+  executable = True,
   fragments = ["java"],
   toolchains = ['@io_bazel_rules_scala//scala:toolchain_type'],
 )
@@ -175,11 +176,11 @@ _scala_test_attrs.update(_implicit_deps)
 _scala_test_attrs.update(_common_attrs)
 _scala_test_attrs.update(_test_resolve_deps)
 scala_test = rule(
-  implementation=scala_test_impl,
-  attrs= _scala_test_attrs,
-  outputs= common_outputs,
-  executable=True,
-  test=True,
+  implementation =_scala_test_impl,
+  attrs = _scala_test_attrs,
+  outputs = _common_outputs,
+  executable = True,
+  test = True,
   fragments = ["java"],
   toolchains = ['@io_bazel_rules_scala//scala:toolchain_type'],
 )
@@ -190,15 +191,15 @@ _scala_repl_attrs.update(_implicit_deps)
 _scala_repl_attrs.update(_common_attrs)
 _scala_repl_attrs.update(_resolve_deps)
 scala_repl = rule(
-  implementation=scala_repl_impl,
-  attrs= _scala_repl_attrs,
-  outputs= common_outputs,
-  executable=True,
+  implementation =_scala_repl_impl,
+  attrs = _scala_repl_attrs,
+  outputs = _common_outputs,
+  executable = True,
   fragments = ["java"],
   toolchains = ['@io_bazel_rules_scala//scala:toolchain_type'],
 )
 
-SCALA_BUILD_FILE = """
+_SCALA_BUILD_FILE = """
 # scala.BUILD
 java_import(
     name = "scala-xml",
@@ -237,7 +238,7 @@ def scala_repositories():
     strip_prefix = "scala-2.11.11",
     sha256 = "12037ca64c68468e717e950f47fc77d5ceae5e74e3bdca56f6d02fd5bfd6900b",
     url = "https://downloads.lightbend.com/scala/2.11.11/scala-2.11.11.tgz",
-    build_file_content = SCALA_BUILD_FILE,
+    build_file_content = _SCALA_BUILD_FILE,
   )
 
   # scalatest has macros, note http_jar is invoking ijar
@@ -372,10 +373,10 @@ _scala_junit_test_attrs.update(_implicit_deps)
 _scala_junit_test_attrs.update(_common_attrs)
 _scala_junit_test_attrs.update(_junit_resolve_deps)
 scala_junit_test = rule(
-  implementation=scala_junit_test_impl,
-  attrs= _scala_junit_test_attrs,
-  outputs= common_outputs,
-  test=True,
+  implementation = _scala_junit_test_impl,
+  attrs = _scala_junit_test_attrs,
+  outputs = _common_outputs,
+  test = True,
   fragments = ["java"],
   toolchains = ['@io_bazel_rules_scala//scala:toolchain_type']
 )
@@ -383,7 +384,7 @@ scala_junit_test = rule(
 def scala_specs2_junit_test(name, **kwargs):
   scala_junit_test(
    name = name,
-   deps = specs2_junit_dependencies() + kwargs.pop("deps",[]),
+   deps = _specs2_junit_dependencies() + kwargs.pop("deps",[]),
    suite_label = Label("//src/java/io/bazel/rulesscala/specs2:specs2_test_discovery"),
    suite_class = "io.bazel.rulesscala.specs2.Specs2DiscoveredTestSuite",
    **kwargs)
