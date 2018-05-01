@@ -390,6 +390,8 @@ def _build_deployable(ctx, jars_list):
     args.extend([j.path for j in jars_list])
     if getattr(ctx.attr, "main_class", ""):
         args.extend(["--main_class", ctx.attr.main_class])
+    if "main_class" in ctx.var:
+        args.extend(["--main_class", ctx.var["main_class"]])
     args.extend(["--output", ctx.outputs.deploy_jar.path])
     ctx.actions.run(
         inputs=jars_list,
