@@ -329,10 +329,9 @@ def _gen_proto_srcjar_impl(ctx):
     acc_imports = []
     transitive_proto_paths = []
 
-    proto_deps, jvm_deps = [], []
+    jvm_deps = []
     for target in ctx.attr.deps:
         if hasattr(target, 'proto'):
-            proto_deps.append(target)
             acc_imports.append(target.proto.transitive_sources)
             #inline this if after 0.12.0 is the oldest supported version
             if hasattr(target.proto, 'transitive_proto_path'):
