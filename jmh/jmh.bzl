@@ -56,11 +56,6 @@ def jmh_repositories():
       actual = '@io_bazel_rules_scala_org_apache_commons_commons_math3//jar',
   )
 
-jmh_benchmark_generator_tool = Label("//src/scala/io/bazel/rules_scala/jmh_support:benchmark_generator")
-jdk_tool = Label("//tools/defaults:jdk")
-jar_tool = Label("@local_jdk//:jar")
-jar_creator_tool = Label("//src/java/io/bazel/rulesscala/jar:binary")
-
 def _scala_construct_runtime_classpath(deps):
   scala_targets = [d.scala for d in deps if hasattr(d, "scala")]
   java_targets = [d.java for d in deps if hasattr(d, "java")]
