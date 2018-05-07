@@ -1,16 +1,25 @@
 ---
 platforms:
   ubuntu1404:
+    shell_commands:
+    # Disable local disk caching on CI.
+    - rm -f tools/bazel.rc
     build_targets:
     - "//test/..."
     test_targets:
     - "//test/..."
   ubuntu1604:
+    shell_commands:
+    # Disable local disk caching on CI.
+    - rm -f tools/bazel.rc
     build_targets:
     - "//test/..."
     test_targets:
     - "//test/..."
   macos:
+    shell_commands:
+    # Disable local disk caching on CI.
+    - rm -f tools/bazel.rc
     build_targets:
     - "//test/..."
     test_targets:
