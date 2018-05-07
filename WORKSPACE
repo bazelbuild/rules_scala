@@ -105,4 +105,6 @@ java_import_external(
     licenses = ["notice"],  # Apache 2.0
     jar_urls = ["http://central.maven.org/maven2/org/apache/commons/commons-lang3/3.5/commons-lang3-3.5.jar"],
     jar_sha256 = "8ac96fc686512d777fca85e144f196cd7cfe0c0aec23127229497d1a38ff651c",
+    neverlink = True,
+    generated_linkable_rule_name="linkable_org_apache_commons_commons_lang_3_5_without_file",
 )
