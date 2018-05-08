@@ -24,7 +24,7 @@ you must have bazel 0.5.3 or later and add the following to your WORKSPACE file:
 
 ```python
 
-rules_scala_version="98dc457356c60b23ccbbdcbf73acfad9e15e8b07" # update this as needed
+rules_scala_version="63eab9f4d80612e918ba954211f377cc83d27a07" # update this as needed
 
 http_archive(
              name = "io_bazel_rules_scala",
