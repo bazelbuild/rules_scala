@@ -14,6 +14,8 @@ load("//scala:scala.bzl",
 load("//scala_proto:scala_proto.bzl",
     "scalapb_proto_library")
 
+load("@build_bazel_integration_testing//tools:bazel_java_integration_test.bzl", "bazel_java_integration_test")
+
 # The examples below show how to combine Scala and Java rules.
 # ScalaBinary is the Scala equivalent of JavaBinary.
 
@@ -364,12 +366,29 @@ scala_junit_test(
     print_discovered_classes = True
 )
 
-scala_junit_test(
-    name = "JunitFiltersClassesWithoutTests",
-    srcs = ["src/main/scala/scala/test/junit/JunitNoTests.scala"],
-    size = "small",
-    suffixes = ["Test"],
-    print_discovered_classes = True
+scala_library(
+    name = "rules_scala_it_junit",
+    srcs = ["src/main/scala/scala/test/junit/RulesScalaIntegrationTests.scala"],
+
+    deps = [
+            "@junit_4_11//jar",
+            "@build_bazel_integration_testing//java/build/bazel/tests/integration:workspace_driver",
+            "@build_bazel_integration_testing//java/build/bazel/tests/integration:integration",
+            ],
+    testonly = 1
+)
+
+bazel_java_integration_test (
+    name = "RulesScalaIntegrationTests",
+    versions = ["0.12.0"],
+    test_class = "scala.test.junit.RulesScalaIntegrationTests",
+    srcs = [],
+    runtime_deps = [":rules_scala_it_junit"],
+    external_deps = [
+        "@integration_test_ext",
+    ],
+    tags = ["IT"],
+
 )
 
 scala_junit_test(

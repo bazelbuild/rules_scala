@@ -95,6 +95,14 @@ scala_maven_import_external(
     jar_sha256 = "972139718abc8a4893fa78cba8cf7b2c903f35c97aaf44fa3031b0669948b480",
 )
 
+scala_maven_import_external(
+    name = "junit_4_11",
+    licenses = ["restricted"],  # Eclipse Public License - v 1.0
+    artifact = "junit:junit:4.11",
+    server_urls = ["http://central.maven.org/maven2"],
+    jar_sha256 = "90a8e1603eeca48e7e879f3afbc9560715322985f39a274f6f6070b43f9d06fe",
+)
+
 # bazel's java_import_external has been altered in rules_scala to be a macro based on jvm_import_external
 # in order to allow for other jvm-language imports (e.g. scala_import)
 # the 3rd-party dependency below is using the java_import_external macro
@@ -107,4 +115,39 @@ java_import_external(
     jar_sha256 = "8ac96fc686512d777fca85e144f196cd7cfe0c0aec23127229497d1a38ff651c",
     neverlink = True,
     generated_linkable_rule_name="linkable_org_apache_commons_commons_lang_3_5_without_file",
+)
+
+build_bazel_integration_testing_version="36ffe6fe0f4bb727c1fe34209a8d6fd33d8d0d8e" # update this as needed
+http_archive(
+    name = "build_bazel_integration_testing",
+    url = "https://github.com/bazelbuild/bazel-integration-testing/archive/%s.zip"%build_bazel_integration_testing_version,
+    strip_prefix = "bazel-integration-testing-" + build_bazel_integration_testing_version,
+)
+load("@build_bazel_integration_testing//tools:repositories.bzl", "bazel_binaries")
+bazel_binaries(versions = ["0.12.0"])
+load("@build_bazel_integration_testing//tools:bazel_java_integration_test.bzl", "bazel_java_integration_test_deps")
+bazel_java_integration_test_deps()
+
+load("@build_bazel_integration_testing//tools:import.bzl", "bazel_external_dependency_archive")
+BAZEL_JAVA_LAUNCHER_VERSION = "0.4.5"
+java_stub_template_url = ("raw.githubusercontent.com/bazelbuild/bazel/" +
+                          BAZEL_JAVA_LAUNCHER_VERSION +
+                          "/src/main/java/com/google/devtools/build/lib/bazel/rules/java/" +
+                          "java_stub_template.txt")
+
+rules_scala_version = "a8ef632b1b020cdf2c215ecd9fcfa84bc435efcb"
+bazel_external_dependency_archive(
+    name = "integration_test_ext",
+    srcs = {
+        "fe61287087b471a74c81625d9d341224fb5ffc6c9358e51c7368182b7b6f112c": [
+             "https://github.com/bazelbuild/rules_scala/archive/%s.zip" % rules_scala_version,
+         ],
+        "f09d06d55cd25168427a323eb29d32beca0ded43bec80d76fc6acd8199a24489": [
+            "https://mirror.bazel.build/%s" % java_stub_template_url,
+            "https://%s" % java_stub_template_url
+        ],
+         "12037ca64c68468e717e950f47fc77d5ceae5e74e3bdca56f6d02fd5bfd6900b": [
+            "https://downloads.lightbend.com/scala/2.11.11/scala-2.11.11.tgz"
+          ],
+    },
 )

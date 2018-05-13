@@ -301,10 +301,6 @@ test_junit_test_must_have_prefix_or_suffix() {
   action_should_fail test test_expect_failure/scala_junit_test:no_prefix_or_suffix
 }
 
-test_junit_test_errors_when_no_tests_found() {
-  action_should_fail test test_expect_failure/scala_junit_test:no_tests_found
-}
-
 test_resources() {
   RESOURCE_NAME="resource.txt"
   TARGET=$1
@@ -750,7 +746,6 @@ $runner junit_generates_xml_logs
 $runner scala_library_jar_without_srcs_must_fail_on_mismatching_resource_strip_prefix
 $runner multiple_junit_patterns
 $runner test_junit_test_must_have_prefix_or_suffix
-$runner test_junit_test_errors_when_no_tests_found
 $runner scala_library_jar_without_srcs_must_include_direct_file_resources
 $runner scala_library_jar_without_srcs_must_include_filegroup_resources
 $runner bazel run test/src/main/scala/scala/test/large_classpath:largeClasspath
