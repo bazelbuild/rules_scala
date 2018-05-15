@@ -34,6 +34,15 @@ class Specs2PrefixSuffixTestDiscoveringSuite(suite: Class[Any], runnerBuilder: R
 
   override def getName: String = "Aggregate Specs2 Test Suite"
 
+  override def getDescription: Description = {
+    lazy val emptySuiteDescription = {
+      val description = Description.createSuiteDescription(getName)
+      description.addChild(Description.EMPTY)
+      description
+    }
+    Try(super.getDescription).getOrElse(emptySuiteDescription)
+  }
+
   override def getChildren: util.List[Runner] =
     super.getChildren.asScala
       .collect {

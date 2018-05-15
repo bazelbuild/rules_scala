@@ -50,3 +50,10 @@ class JunitSpec2RegexTest extends SpecWithJUnit {
   }
 }
 
+class FailingTest extends SpecWithJUnit {
+
+  val boom: String = { throw new Exception("Boom") }
+
+  "some test" >> { boom must beEmpty }
+}
+

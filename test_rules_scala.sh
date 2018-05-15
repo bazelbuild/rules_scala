@@ -46,6 +46,32 @@ test_scala_library_suite() {
   action_should_fail build test_expect_failure/scala_library_suite:library_suite_dep_on_children
 }
 
+test_expect_failure_with_message() {
+  set +e
+
+  expected_message=$1
+  test_filter=$2
+  test_command=$3
+
+  command="bazel test --nocache_test_results --test_output=streamed ${test_filter} ${test_command}"
+  output=$(${command} 2>&1)
+
+  echo ${output} | grep "$expected_message"
+  if [ $? -ne 0 ]; then
+    echo "'bazel test ${test_command}' should have logged \"${expected_message}\"."
+        exit 1
+  fi
+  if [ "${additional_expected_message}" != "" ]; then
+    echo ${output} | grep "$additional_expected_message"
+    if [ $? -ne 0 ]; then
+      echo "'bazel test ${test_command}' should have logged \"${additional_expected_message}\"."
+          exit 1
+    fi
+  fi
+
+  set -e
+}
+
 test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message() {
   set +e
 
@@ -571,6 +597,15 @@ scala_specs2_junit_test_test_filter_match_multiple_methods(){
   done
 }
 
+
+scala_specs2_exception_in_initializer(){
+  expected_message="Exception in thread \"main\" org.specs2.control.UserException: cannot create an instance for class scala.test.junit.specs2.FailingTest"
+  test_filter="--test_filter=scala.test.junit.specs2.FailingTest#"
+  test_command="test:Specs2Tests"
+
+  test_expect_failure_with_message "$expected_message" $test_filter $test_command
+}
+
 scalac_jvm_flags_are_configured(){
   action_should_fail build //test_expect_failure/compilers_jvm_flags:can_configure_jvm_flags_for_scalac
 }
@@ -775,6 +810,7 @@ $runner scala_specs2_junit_test_test_filter_exact_match
 $runner scala_specs2_junit_test_test_filter_exact_match_unsafe_characters
 $runner scala_specs2_junit_test_test_filter_exact_match_escaped_and_sanitized
 $runner scala_specs2_junit_test_test_filter_match_multiple_methods
+$runner scala_specs2_exception_in_initializer
 $runner scalac_jvm_flags_are_configured
 $runner javac_jvm_flags_are_configured
 $runner javac_jvm_flags_via_javacopts_are_configured
