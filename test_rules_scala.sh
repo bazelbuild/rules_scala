@@ -384,6 +384,14 @@ scala_junit_test_test_filter(){
   done
 }
 
+scala_junit_test_test_filter_custom_runner(){
+  bazel test \
+    --nocache_test_results \
+    --test_output=streamed \
+    '--test_filter=scala.test.junit.JunitCustomRunnerTest#' \
+    test:JunitCustomRunner
+}
+
 scala_specs2_junit_test_test_filter_everything(){
   local output=$(bazel test \
     --nocache_test_results \
@@ -756,6 +764,7 @@ $runner scala_library_jar_without_srcs_must_include_filegroup_resources
 $runner bazel run test/src/main/scala/scala/test/large_classpath:largeClasspath
 $runner scala_test_test_filters
 $runner scala_junit_test_test_filter
+$runner scala_junit_test_test_filter_custom_runner
 $runner scala_specs2_junit_test_test_filter_everything
 $runner scala_specs2_junit_test_test_filter_one_test
 $runner scala_specs2_junit_test_test_filter_whole_spec
