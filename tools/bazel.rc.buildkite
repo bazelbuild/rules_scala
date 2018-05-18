@@ -1,0 +1,1 @@
+build --strategy=Scalac=worker --strategy=ScroogeRule=worker --worker_max_instances=3

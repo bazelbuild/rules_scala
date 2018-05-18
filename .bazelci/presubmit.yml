@@ -3,7 +3,7 @@ platforms:
   ubuntu1404:
     shell_commands:
     # Disable local disk caching on CI.
-    - rm -f tools/bazel.rc
+    - mv tools/bazel.rc.buildkite tools/bazel.rc
     build_targets:
     - "//test/..."
     test_targets:
@@ -11,7 +11,7 @@ platforms:
   ubuntu1604:
     shell_commands:
     # Disable local disk caching on CI.
-    - rm -f tools/bazel.rc
+    - mv tools/bazel.rc.buildkite tools/bazel.rc
     build_targets:
     - "//test/..."
     test_targets:
@@ -19,7 +19,7 @@ platforms:
   macos:
     shell_commands:
     # Disable local disk caching on CI.
-    - rm -f tools/bazel.rc
+    - mv tools/bazel.rc.buildkite tools/bazel.rc
     build_targets:
     - "//test/..."
     test_targets:
