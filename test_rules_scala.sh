@@ -805,3 +805,4 @@ $runner test_scala_import_library_passes_labels_of_direct_deps
 $runner java_toolchain_javacopts_are_used
 $runner bazel run test/src/main/scala/scala/test/classpath_resources:classpath_resource
 $runner test_scala_classpath_resources_expect_warning_on_namespace_conflict
+$runner bazel build //test_expect_failure/proto_source_root/... --strict_proto_deps=off

@@ -351,7 +351,7 @@ def _gen_proto_srcjar_impl(ctx):
         # Command line args to worker cannot be empty so using padding
         flags_arg = "-" + ",".join(ctx.attr.flags),
         # Command line args to worker cannot be empty so using padding
-        packages = "-" + ":".join(transitive_proto_paths)
+        packages = "-" + ":".join(depset(transitive = transitive_proto_paths).to_list())
     )
     argfile = ctx.actions.declare_file("%s_worker_input" % ctx.label.name, sibling = ctx.outputs.srcjar)
     ctx.actions.write(output=argfile, content=worker_content)
