@@ -296,22 +296,11 @@ StatsfileOutput: {statsfile_output}
 
 
 def _interim_java_provider_for_java_compilation(scala_output):
-    # This is needed because Bazel >=0.7.0 requires ctx.actions and a Java
-    # toolchain. Fortunately, the same change that added this requirement also
-    # added this field to the Java provider so we can use it to test which
-    # Bazel version we are running under.
-    test_provider = java_common.create_provider()
-    if hasattr(test_provider, "full_compile_jars"):
-      return java_common.create_provider(
-          use_ijar = False,
-          compile_time_jars = [scala_output],
-          runtime_jars = [],
-      )
-    else:
-      return java_common.create_provider(
-          compile_time_jars = [scala_output],
-          runtime_jars = [],
-      )
+    return java_common.create_provider(
+        use_ijar = False,
+        compile_time_jars = [scala_output],
+        runtime_jars = [],
+    )
 
 def try_to_compile_java_jar(ctx,
                             scala_output,
@@ -348,8 +337,8 @@ def try_to_compile_java_jar(ctx,
 def collect_java_providers_of(deps):
     providers = []
     for dep in deps:
-        if java_common.provider in dep:
-          providers.append(dep[java_common.provider])
+        if JavaInfo in dep:
+          providers.append(dep[JavaInfo])
     return providers
 
 def _compile_or_empty(ctx, jars, srcjars, buildijar, transitive_compile_jars, jars2labels, implicit_junit_deps_needed_for_java_compilation):
@@ -474,8 +463,8 @@ def _collect_runtime_jars(dep_targets):
   runtime_jars = []
 
   for dep_target in dep_targets:
-    if java_common.provider in dep_target:
-        runtime_jars.append(dep_target[java_common.provider].transitive_runtime_jars)
+    if JavaInfo in dep_target:
+        runtime_jars.append(dep_target[JavaInfo].transitive_runtime_jars)
     else:
         # support http_file pointed at a jar. http_jar uses ijar,
         # which breaks scala macros

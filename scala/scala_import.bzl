@@ -24,20 +24,11 @@ def _scala_import_impl(ctx):
         ],
     )
 def _create_provider(current_target_compile_jars, transitive_runtime_jars, jars, exports):
-  test_provider = java_common.create_provider()
-  if hasattr(test_provider, "full_compile_jars"):
-      return java_common.create_provider(
-          use_ijar = False,
-          compile_time_jars = depset(transitive = [current_target_compile_jars, exports.compile_jars]),
-          transitive_compile_time_jars = depset(transitive = [jars.transitive_compile_jars, current_target_compile_jars, exports.transitive_compile_jars]) ,
-          transitive_runtime_jars = depset(transitive = [transitive_runtime_jars, jars.transitive_runtime_jars, current_target_compile_jars, exports.transitive_runtime_jars]) ,
-      )
-  else:
-      return java_common.create_provider(
-          compile_time_jars = current_target_compile_jars,
-          runtime_jars = transitive_runtime_jars + jars.transitive_runtime_jars,
-          transitive_compile_time_jars = jars.transitive_compile_jars + current_target_compile_jars,
-          transitive_runtime_jars = transitive_runtime_jars + jars.transitive_runtime_jars + current_target_compile_jars,
+    return java_common.create_provider(
+        use_ijar = False,
+        compile_time_jars = depset(transitive = [current_target_compile_jars, exports.compile_jars]),
+        transitive_compile_time_jars = depset(transitive = [jars.transitive_compile_jars, current_target_compile_jars, exports.transitive_compile_jars]) ,
+        transitive_runtime_jars = depset(transitive = [transitive_runtime_jars, jars.transitive_runtime_jars, current_target_compile_jars, exports.transitive_runtime_jars]) ,
       )
 
 def _add_labels_of_current_code_jars(code_jars, label, jars2labels):
@@ -66,13 +57,14 @@ def _filter_out_non_code_jars(files):
 def _is_source_jar(file):
   return file.basename.endswith("-sources.jar")
 
+# TODO: it seems this could be reworked to use java_common.merge
 def _collect(deps):
   transitive_compile_jars = []
   runtime_jars = []
   compile_jars = []
 
   for dep_target in deps:
-      java_provider = dep_target[java_common.provider]
+      java_provider = dep_target[JavaInfo]
       compile_jars.append(java_provider.compile_jars)
       transitive_compile_jars.append(java_provider.transitive_compile_time_jars)
       runtime_jars.append(java_provider.transitive_runtime_jars)
@@ -83,7 +75,7 @@ def _collect(deps):
 
 def _collect_labels(deps, jars2labels):
   for dep_target in deps:
-      java_provider = dep_target[java_common.provider]
+      java_provider = dep_target[JavaInfo]
       _transitively_accumulate_labels(dep_target, java_provider,jars2labels)
 
 def _transitively_accumulate_labels(dep_target, java_provider, jars2labels):
@@ -96,7 +88,7 @@ def _transitively_accumulate_labels(dep_target, java_provider, jars2labels):
 def _collect_runtime(runtime_deps):
   jar_deps = []
   for dep_target in runtime_deps:
-      java_provider = dep_target[java_common.provider]
+      java_provider = dep_target[JavaInfo]
       jar_deps.append(java_provider.transitive_runtime_jars)
 
   return depset(transitive = jar_deps)
