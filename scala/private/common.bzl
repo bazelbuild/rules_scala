@@ -28,8 +28,8 @@ def _collect_jars_when_dependency_analyzer_is_off(dep_targets):
   runtime_jars = []
 
   for dep_target in dep_targets:
-    if java_common.provider in dep_target:
-        java_provider = dep_target[java_common.provider]
+    if JavaInfo in dep_target:
+        java_provider = dep_target[JavaInfo]
         compile_jars.append(java_provider.compile_jars)
         runtime_jars.append(java_provider.transitive_runtime_jars)
     else:
@@ -53,8 +53,8 @@ def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
     current_dep_compile_jars = None
     current_dep_transitive_compile_jars = None
 
-    if java_common.provider in dep_target:
-        java_provider = dep_target[java_common.provider]
+    if JavaInfo in dep_target:
+        java_provider = dep_target[JavaInfo]
         current_dep_compile_jars = java_provider.compile_jars
         current_dep_transitive_compile_jars = java_provider.transitive_compile_time_jars
         runtime_jars.append(java_provider.transitive_runtime_jars)
@@ -117,25 +117,12 @@ def _label_already_exists(jars2labels, jar):
 def _provider_of_dependency_contains_label_of(dependency, jar):
   return hasattr(dependency, "jars_to_labels") and jar.path in dependency.jars_to_labels
 
+# TODO this seems to have limited value now that JavaInfo has everything
 def create_java_provider(scalaattr, transitive_compile_time_jars):
-    # This is needed because Bazel >=0.7.0 requires ctx.actions and a Java
-    # toolchain. Fortunately, the same change that added this requirement also
-    # added this field to the Java provider so we can use it to test which
-    # Bazel version we are running under.
-    test_provider = java_common.create_provider()
-
-    if hasattr(test_provider, "full_compile_jars"):
-      return java_common.create_provider(
-          use_ijar = False,
-          compile_time_jars = scalaattr.compile_jars,
-          runtime_jars = scalaattr.transitive_runtime_jars,
-          transitive_compile_time_jars = depset(transitive = [transitive_compile_time_jars, scalaattr.compile_jars]),
-          transitive_runtime_jars = scalaattr.transitive_runtime_jars,
-      )
-    else:
-      return java_common.create_provider(
-          compile_time_jars = scalaattr.compile_jars,
-          runtime_jars = scalaattr.transitive_runtime_jars,
-          transitive_compile_time_jars = transitive_compile_time_jars,
-          transitive_runtime_jars = scalaattr.transitive_runtime_jars,
-      )
+    return java_common.create_provider(
+        use_ijar = False,
+        compile_time_jars = scalaattr.compile_jars,
+        runtime_jars = scalaattr.transitive_runtime_jars,
+        transitive_compile_time_jars = depset(transitive = [transitive_compile_time_jars, scalaattr.compile_jars]),
+        transitive_runtime_jars = scalaattr.transitive_runtime_jars,
+    )
