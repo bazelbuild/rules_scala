@@ -598,10 +598,9 @@ scala_specs2_junit_test_test_filter_match_multiple_methods(){
 }
 
 
-scala_specs2_exception_in_initializer(){
-  expected_message="Exception in thread \"main\" org.specs2.control.UserException: cannot create an instance for class scala.test.junit.specs2.FailingTest"
-  test_filter="--test_filter=scala.test.junit.specs2.FailingTest#"
-  test_command="test:Specs2Tests"
+scala_specs2_exception_in_initializer_without_filter(){
+  expected_message="org.specs2.control.UserException: cannot create an instance for class scala.test.junit.specs2.FailingTest"
+  test_command="test_expect_failure/scala_junit_test:specs2_failing_test"
 
   test_expect_failure_with_message "$expected_message" $test_filter $test_command
 }
@@ -810,7 +809,7 @@ $runner scala_specs2_junit_test_test_filter_exact_match
 $runner scala_specs2_junit_test_test_filter_exact_match_unsafe_characters
 $runner scala_specs2_junit_test_test_filter_exact_match_escaped_and_sanitized
 $runner scala_specs2_junit_test_test_filter_match_multiple_methods
-$runner scala_specs2_exception_in_initializer
+$runner scala_specs2_exception_in_initializer_without_filter
 $runner scalac_jvm_flags_are_configured
 $runner javac_jvm_flags_are_configured
 $runner javac_jvm_flags_via_javacopts_are_configured

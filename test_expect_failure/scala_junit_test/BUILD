@@ -1,4 +1,4 @@
-load("//scala:scala.bzl", "scala_junit_test")
+load("//scala:scala.bzl", "scala_junit_test", "scala_specs2_junit_test")
 
 scala_junit_test(
     name = "failing_test",
@@ -15,5 +15,12 @@ scala_junit_test(
     name = "no_tests_found",
     srcs = ["JunitTest.scala"],
     suffixes = ["DoesNotMatch"],
+    size = "small",
+)
+
+scala_specs2_junit_test(
+    name = "specs2_failing_test",
+    srcs = ["specs2/FailingTest.scala"],
+    suffixes = ["Test"],
     size = "small",
 )
