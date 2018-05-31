@@ -11,8 +11,8 @@ def write_manifest(ctx):
 def collect_srcjars(targets):
     srcjars = []
     for target in targets:
-        if hasattr(target, "srcjars"):
-            srcjars.append(target.srcjars.srcjar)
+        if JavaInfo in target:
+          srcjars.extend(target[JavaInfo].source_jars)
     return depset(srcjars)
 
 def collect_jars(dep_targets, dependency_analyzer_is_off = True):

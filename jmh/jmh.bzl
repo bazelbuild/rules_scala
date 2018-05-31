@@ -1,4 +1,5 @@
 load("//scala:scala.bzl", "scala_binary", "scala_library")
+load("//scala:providers.bzl", "ScalaInfo")
 
 def jmh_repositories():
   native.maven_jar(
@@ -60,14 +61,14 @@ def _scala_construct_runtime_classpath(deps):
   scala_targets = [d.scala for d in deps if hasattr(d, "scala")]
   java_targets = [d.java for d in deps if hasattr(d, "java")]
   files = []
-  for scala in scala_targets:
-    files.append(scala.transitive_runtime_jars)
-  for java in java_targets:
-    files.append(java.transitive_runtime_deps)
+  for target in deps:
+    if JavaInfo in target:
+      files.append(target[JavaInfo].transitive_runtime_jars)
   return depset(transitive = files)
 
 def _scala_generate_benchmark(ctx):
-  class_jar = ctx.attr.src.scala.outputs.class_jar
+  print(ctx.attr.src[JavaInfo])
+  class_jar = ctx.attr.src[JavaInfo].compile_jars.to_list()[0] # TODO, this is not right, should be a single class_jar, but maybe should rework that.
   classpath = _scala_construct_runtime_classpath([ctx.attr.src])
   ctx.actions.run(
       outputs = [ctx.outputs.src_jar, ctx.outputs.resource_jar],

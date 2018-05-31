@@ -1,32 +1,27 @@
-# TODO: this should really be a bazel provider, but we are using old-style rule outputs
-# we need to document better what the intellij dependencies on this code actually are
-def create_scala_provider(
-        ijar,
-        class_jar,
-        compile_jars,
-        transitive_runtime_jars,
-        deploy_jar,
-        full_jars,
-        statsfile):
+ScalaInfo = provider(
+    fields = [
+        "statsfile"
+    ])
 
-    formatted_for_intellij = [struct(
-        class_jar = jar,
-        ijar = None,
-        source_jar = None,
-        source_jars = []) for jar in full_jars]
+JarToLabel = provider(
+    fields = [
+        "jars_to_labels"
+    ])
 
-    rule_outputs = struct(
-        ijar = ijar,
-        class_jar = class_jar,
-        deploy_jar = deploy_jar,
-        jars = formatted_for_intellij,
-        statsfile = statsfile,
-    )
-    # Note that, internally, rules only care about compile_jars and transitive_runtime_jars
-    # in a similar manner as the java_library and JavaProvider
-    return struct(
-        outputs = rule_outputs,
-        compile_jars = compile_jars,
-        transitive_runtime_jars = transitive_runtime_jars,
-        transitive_exports = [] #needed by intellij plugin
-    )
+ExtraInformation = provider(
+    fields = [
+        "transitive_extra_information"
+    ])
+
+def collect_transitive_extra_info(targs):
+  extras = []
+  for targ in targs:
+    print(targ)
+    if ExtraInformation in targ:
+      print(targ[ExtraInformation])
+      extras.append(targ[ExtraInformation].transitive_extra_information)
+    else:
+      print(str(targ) + " does not have ExtraInformation")
+      if JavaInfo in targ:
+        print("but does have JavaInfo")
+  return depset(transitive = extras)

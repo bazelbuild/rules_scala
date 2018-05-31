@@ -14,7 +14,7 @@
 
 """Rules for supporting the Scala language."""
 load("@io_bazel_rules_scala//scala:scala_toolchain.bzl", "scala_toolchain")
-load("@io_bazel_rules_scala//scala:providers.bzl", "create_scala_provider")
+load("@io_bazel_rules_scala//scala:providers.bzl", "ScalaInfo", "JarToLabel", "ExtraInformation", "collect_transitive_extra_info")
 load(":common.bzl",
      "add_labels_of_jars_to",
      "create_java_provider",
@@ -527,42 +527,22 @@ def _lib(ctx, non_macro_lib):
     exports_jars = collect_jars(ctx.attr.exports)
     transitive_rjars = depset(transitive = [transitive_rjars, exports_jars.transitive_runtime_jars])
 
-    scalaattr = create_scala_provider(
-        ijar = outputs.ijar,
-        class_jar = outputs.class_jar,
-        compile_jars = depset(outputs.ijars, transitive = [exports_jars.compile_jars]),
+    scala_provider = ScalaInfo(statsfile = ctx.outputs.statsfile)
+    java_provider = java_common.create_provider(
+        use_ijar = False,
+        compile_time_jars = depset(outputs.ijars, transitive = [exports_jars.compile_jars]),
+        runtime_jars = transitive_rjars,
+        transitive_compile_time_jars = depset(outputs.ijars, transitive = [jars.transitive_compile_jars, exports_jars.compile_jars]),
         transitive_runtime_jars = transitive_rjars,
-        deploy_jar = ctx.outputs.deploy_jar,
-        full_jars = outputs.full_jars,
-        statsfile = ctx.outputs.statsfile)
-
-    java_provider = create_java_provider(scalaattr, jars.transitive_compile_jars)
-
-    return struct(
+    )
+    jars2lab = JarToLabel(jars_to_labels = jars.jars2labels)
+    default_info = DefaultInfo(
         files = depset([ctx.outputs.jar]),  # Here is the default output
-        scala = scalaattr,
-        providers = [java_provider],
-        runfiles = runfiles,
-        # This is a free monoid given to the graph for the purpose of
-        # extensibility. This is necessary when one wants to create
-        # new targets which want to leverage a scala_library. For example,
-        # new_target1 -> scala_library -> new_target2. There might be
-        # information that new_target2 needs to get from new_target1,
-        # but we do not want to have to change scala_library to pass
-        # this information through. extra_information allows passing
-        # this information through, and it is up to the new_targets
-        # to filter and make sense of this information.
-        extra_information=_collect_extra_information(ctx.attr.deps),
-        jars_to_labels = jars.jars2labels,
-      )
+        runfiles = runfiles)
+    extras = ExtraInformation(transitive_extra_information = collect_transitive_extra_info(ctx.attr.deps))
+    print("in scala rule: " + str(ctx.label) + " extras: " + str(extras))
 
-
-def _collect_extra_information(targets):
-  r = []
-  for target in targets:
-    if hasattr(target, "extra_information"):
-      r.extend(target.extra_information)
-  return r
+    return [scala_provider, java_provider, jars2lab, default_info, extras]
 
 def scala_library_impl(ctx):
   return _lib(ctx, True)
@@ -582,39 +562,40 @@ def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2l
       transitive_files = depset([ctx.outputs.executable, java_wrapper] + ctx.files._java_runtime, transitive = [rjars]),
       collect_data = True)
 
-  scalaattr = create_scala_provider(
-      ijar = outputs.class_jar, # we aren't using ijar here
-      class_jar = outputs.class_jar,
-      compile_jars = depset(outputs.ijars),
-      transitive_runtime_jars = rjars,
-      deploy_jar = ctx.outputs.deploy_jar,
-      full_jars = outputs.full_jars,
-      statsfile = ctx.outputs.statsfile)
+  default_info = DefaultInfo(
+      files = depset([ctx.outputs.executable]),  # Here is the default output
+      runfiles = runfiles)
 
-  java_provider = create_java_provider(scalaattr, transitive_compile_time_jars)
+  scala_provider = ScalaInfo(statsfile = ctx.outputs.statsfile)
 
-  return struct(
-      files=depset([ctx.outputs.executable]),
-      providers = [java_provider],
-      scala = scalaattr,
-      transitive_rjars = rjars, #calling rules need this for the classpath in the launcher
-      jars_to_labels = jars2labels,
-      runfiles=runfiles)
+  java_provider = java_common.create_provider(
+        use_ijar = False,
+        compile_time_jars = depset(outputs.ijars),
+        runtime_jars = rjars,
+        transitive_compile_time_jars = depset(outputs.ijars, transitive = [transitive_compile_time_jars]),
+        transitive_runtime_jars = rjars,
+    )
+  jars2lab = JarToLabel(jars_to_labels = jars2labels)
+
+  return struct(java_provider = java_provider,
+                outputs = outputs,
+                transitive_runtime_jars = rjars,
+                all_providers = [scala_provider, java_provider, jars2lab, default_info])
 
 def scala_binary_impl(ctx):
   jars = _collect_jars_from_common_ctx(ctx)
   (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
 
   wrapper = _write_java_wrapper(ctx, "", "")
-  out = _scala_binary_common(ctx, cjars, transitive_rjars, jars.transitive_compile_jars, jars.jars2labels, wrapper)
+  bin_res = _scala_binary_common(ctx, cjars, transitive_rjars, jars.transitive_compile_jars, jars.jars2labels, wrapper)
   _write_executable(
       ctx = ctx,
-      rjars = out.transitive_rjars,
+      rjars = bin_res.transitive_runtime_jars,
       main_class = ctx.attr.main_class,
       jvm_flags = ctx.attr.jvm_flags,
       wrapper = wrapper
   )
-  return out
+  return bin_res.all_providers
 
 def scala_repl_impl(ctx):
   # need scala-compiler for MainGenericRunner below
@@ -637,16 +618,16 @@ function finish() {
 trap finish EXIT
 """)
 
-  out = _scala_binary_common(ctx, cjars, transitive_rjars, jars.transitive_compile_jars, jars.jars2labels, wrapper)
+  bin_res = _scala_binary_common(ctx, cjars, transitive_rjars, jars.transitive_compile_jars, jars.jars2labels, wrapper)
   _write_executable(
       ctx = ctx,
-      rjars = out.transitive_rjars,
+      rjars = bin_res.transitive_runtime_jars,
       main_class = "scala.tools.nsc.MainGenericRunner",
       jvm_flags = ["-Dscala.usejavacp=true"] + ctx.attr.jvm_flags,
       wrapper = wrapper
   )
 
-  return out
+  return bin_res.all_providers
 
 def _scala_test_flags(ctx):
     # output report test duration
@@ -687,15 +668,15 @@ def scala_test_impl(ctx):
     ])
     # main_class almost has to be "org.scalatest.tools.Runner" due to args....
     wrapper = _write_java_wrapper(ctx, args, "")
-    out = _scala_binary_common(ctx, cjars, transitive_rjars, transitive_compile_jars, jars_to_labels, wrapper)
+    bin_res = _scala_binary_common(ctx, cjars, transitive_rjars, transitive_compile_jars, jars_to_labels, wrapper)
     _write_executable(
         ctx = ctx,
-        rjars = out.transitive_rjars,
+        rjars = bin_res.transitive_runtime_jars,
         main_class = ctx.attr.main_class,
         jvm_flags = ctx.attr.jvm_flags,
         wrapper = wrapper
     )
-    return out
+    return bin_res.all_providers
 
 def _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, archives):
     serialized_archives = _serialize_archives_short_path(archives)
@@ -708,7 +689,7 @@ def _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, archives):
 
 def _serialize_archives_short_path(archives):
   archives_short_path = ""
-  for archive in archives: archives_short_path += archive.class_jar.short_path + ","
+  for archive in archives: archives_short_path += archive.short_path + ","
   return archives_short_path[:-1] #remove redundant comma
 
 def scala_junit_test_impl(ctx):
@@ -721,16 +702,16 @@ def scala_junit_test_impl(ctx):
     implicit_junit_deps_needed_for_java_compilation = [ctx.attr._junit, ctx.attr._hamcrest]
 
     wrapper = _write_java_wrapper(ctx, "", "")
-    out =  _scala_binary_common(ctx, cjars, transitive_rjars, jars.transitive_compile_jars, jars.jars2labels, wrapper, implicit_junit_deps_needed_for_java_compilation)
-    test_suite = _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, out.scala.outputs.jars)
+    bin_res =  _scala_binary_common(ctx, cjars, transitive_rjars, jars.transitive_compile_jars, jars.jars2labels, wrapper, implicit_junit_deps_needed_for_java_compilation)
+    test_suite = _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, bin_res.outputs.full_jars)
     launcherJvmFlags = ["-ea", test_suite.archiveFlag, test_suite.prefixesFlag, test_suite.suffixesFlag, test_suite.printFlag, test_suite.testSuiteFlag]
     _write_executable(
         ctx = ctx,
-        rjars = out.transitive_rjars,
+        rjars = bin_res.transitive_runtime_jars,
         main_class = "com.google.testing.junit.runner.BazelTestRunner",
         jvm_flags = launcherJvmFlags + ctx.attr.jvm_flags,
         wrapper = wrapper
     )
 
-    return out
+    return bin_res.all_providers
 

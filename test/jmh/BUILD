@@ -20,8 +20,8 @@ scala_library(
     visibility = ["//visibility:public"],
 )
 
-scala_benchmark_jmh(
-    name = "test_benchmark",
-    srcs = ["TestBenchmark.scala"],
-    deps = [":add_numbers"],
-)
+# scala_benchmark_jmh(
+#     name = "test_benchmark",
+#     srcs = ["TestBenchmark.scala"],
+#     deps = [":add_numbers"],
+# )

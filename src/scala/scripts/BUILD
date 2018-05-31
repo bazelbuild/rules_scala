@@ -6,6 +6,7 @@ scala_library(
     visibility = ["//visibility:public"],
     deps = [
         "//external:io_bazel_rules_scala/dependency/thrift/scrooge_generator",
+        "//src/java/com/google/devtools/build/lib:worker",
         "//src/java/io/bazel/rulesscala/io_utils",
         "//src/java/io/bazel/rulesscala/jar",
         "//src/java/io/bazel/rulesscala/worker",
