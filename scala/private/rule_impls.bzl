@@ -594,7 +594,6 @@ def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2l
   java_provider = create_java_provider(scalaattr, transitive_compile_time_jars)
 
   return struct(
-      files=depset([ctx.outputs.executable]),
       providers = [java_provider],
       scala = scalaattr,
       transitive_rjars = rjars, #calling rules need this for the classpath in the launcher
