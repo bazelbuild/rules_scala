@@ -761,6 +761,34 @@ test_scala_classpath_resources_expect_warning_on_namespace_conflict() {
   fi
 }
 
+scala_binary_common_jar_is_exposed_in_build_event_protocol() {
+  local target=$1
+  set +e
+  bazel build test:$target --build_event_text_file=$target_bes.txt
+  cat $target_bes.txt | grep "test/$target.jar"
+  if [ $? -ne 0 ]; then
+    echo "test/$target.jar was not found in build event protocol:"
+    cat $target_bes.txt
+    rm $target_bes.txt
+    exit 1
+  fi
+
+  rm $target_bes.txt
+  set -e
+}
+
+scala_binary_jar_is_exposed_in_build_event_protocol() {
+  scala_binary_common_jar_is_exposed_in_build_event_protocol ScalaLibBinary
+}
+
+scala_test_jar_is_exposed_in_build_event_protocol() {
+  scala_binary_common_jar_is_exposed_in_build_event_protocol HelloLibTest
+}
+
+scala_junit_test_jar_is_exposed_in_build_event_protocol() {
+  scala_binary_common_jar_is_exposed_in_build_event_protocol JunitTestWithDeps
+}
+
 dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 # shellcheck source=./test_runner.sh
 . "${dir}"/test_runner.sh
@@ -841,3 +869,6 @@ $runner java_toolchain_javacopts_are_used
 $runner bazel run test/src/main/scala/scala/test/classpath_resources:classpath_resource
 $runner test_scala_classpath_resources_expect_warning_on_namespace_conflict
 $runner bazel build //test_expect_failure/proto_source_root/... --strict_proto_deps=off
+$runner scala_binary_jar_is_exposed_in_build_event_protocol
+$runner scala_test_jar_is_exposed_in_build_event_protocol
+$runner scala_junit_test_jar_is_exposed_in_build_event_protocol
