@@ -24,12 +24,11 @@ def _scala_import_impl(ctx):
         ],
     )
 def _create_provider(current_target_compile_jars, transitive_runtime_jars, jars, exports):
-    return java_common.create_provider(
+    return JavaInfo(
         use_ijar = False,
-        compile_time_jars = depset(transitive = [current_target_compile_jars, exports.compile_jars]),
-        transitive_compile_time_jars = depset(transitive = [jars.transitive_compile_jars, current_target_compile_jars, exports.transitive_compile_jars]) ,
-        transitive_runtime_jars = depset(transitive = [transitive_runtime_jars, jars.transitive_runtime_jars, current_target_compile_jars, exports.transitive_runtime_jars]) ,
-      )
+        dpes = depset(transitive = [jars.transitive_compile_jars, current_target_compile_jars, exports.transitive_compile_jars, exports.compile_jars]),
+        runtime_deps = depset(transitive = [transitive_runtime_jars, jars.transitive_runtime_jars, current_target_compile_jars, exports.transitive_runtime_jars]),
+    )
 
 def _add_labels_of_current_code_jars(code_jars, label, jars2labels):
   for jar in code_jars.to_list():
