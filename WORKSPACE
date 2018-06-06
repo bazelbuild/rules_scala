@@ -108,3 +108,9 @@ java_import_external(
     neverlink = True,
     generated_linkable_rule_name="linkable_org_apache_commons_commons_lang_3_5_without_file",
 )
+
+## Linting
+
+load("//private:format.bzl", "format_repositories")
+
+format_repositories()
