@@ -2,7 +2,7 @@ load("//scala:scala.bzl",
      "scala_library",
 )
 
-load("//scala:providers.bzl",
+load("@io_bazel_rules_scala//scala:providers.bzl",
      "ExtraInformation",
      "collect_transitive_extra_info",
 )
@@ -78,12 +78,16 @@ def _collect_transitive_thrift_srcs(targets):
   for target in targets:
     if ThriftInfo in target:
       r.append(target[ThriftInfo].transitive_srcs)
+    elif hasattr(target, "transitive_srcs"):
+      r.append(target.transitive_srcs)
   return depset(transitive = r)
 
 def _collect_owned_thrift(targets):
   r = []
   for _target in targets:
-    if TwitterScroogeInfo in _target:
+    if hasattr(_target, "transitive_owned_thrifts"):
+      r.append(_target.transitive_owned_thrifts)
+    elif TwitterScroogeInfo in _target:
       r.append(_target[TwitterScroogeInfo].transitive_owned_thrifts)
   return depset(transitive = r)
 
@@ -130,10 +134,11 @@ def _gen_scrooge_srcjar_impl(ctx):
   remote_jars = depset(transitive = remote_jars).to_list()
 
   trans_extra_info = collect_transitive_extra_info(ctx.attr.deps)
-  print("extra info: " + str(ctx.label))
-  print(trans_extra_info)
   trans_extra_info_list = trans_extra_info.to_list()
-  transitive_scrooges = [t[TwitterScroogeInfo] for t in trans_extra_info_list if TwitterScroogeInfo in t]
+  transitive_scrooges = []
+  for t in trans_extra_info_list:
+    if hasattr(t, "transitive_owned_thrifts"):
+      transitive_scrooges.append(t)
 
   # These are the thrift sources whose generated code we will "own" as a target
   owned_thrifts = _collect_immediate_thrifts(ctx.attr.deps)
@@ -153,7 +158,6 @@ def _gen_scrooge_srcjar_impl(ctx):
   # are owned.
   transitive_thrift_srcs = _collect_transitive_thrift_srcs(ctx.attr.deps)
 
-  print(transitive_owned_thrifts)
   only_transitive_thrift_srcs = []
   owned_thrifts_list = owned_thrifts.to_list()
   owned_thrifts_map = _list_to_map(owned_thrifts_list)
@@ -230,7 +234,6 @@ def _gen_scrooge_srcjar_impl(ctx):
       transitive_owned_thrifts = transitive_owned_thrifts
   )
   extra_info = ExtraInformation(transitive_extra_information = depset([scrooge_info], transitive = [trans_extra_info]))
-  print("extra in scrooge: " + str(extra_info))
   return [extra_info, scrooge_info, java_info]
 
 scrooge_scala_srcjar = rule(

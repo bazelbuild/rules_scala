@@ -540,7 +540,6 @@ def _lib(ctx, non_macro_lib):
         files = depset([ctx.outputs.jar]),  # Here is the default output
         runfiles = runfiles)
     extras = ExtraInformation(transitive_extra_information = collect_transitive_extra_info(ctx.attr.deps))
-    print("in scala rule: " + str(ctx.label) + " extras: " + str(extras))
 
     return [scala_provider, java_provider, jars2lab, default_info, extras]
 

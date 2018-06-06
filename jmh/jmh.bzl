@@ -1,5 +1,5 @@
-load("//scala:scala.bzl", "scala_binary", "scala_library")
-load("//scala:providers.bzl", "ScalaInfo")
+load("@io_bazel_rules_scala//scala:scala.bzl", "scala_binary", "scala_library")
+load("@io_bazel_rules_scala//scala:providers.bzl", "ScalaInfo")
 
 def jmh_repositories():
   native.maven_jar(
