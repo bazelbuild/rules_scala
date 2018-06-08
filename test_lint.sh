@@ -2,4 +2,4 @@
 
 set -eou pipefail
 
-./lint.sh check
+FMT_SKYLINT=false ./lint.sh check

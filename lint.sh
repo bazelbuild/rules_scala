@@ -96,7 +96,7 @@ set -eou pipefail
 # foo = rule(
 #     attrs = {
 #         "hello": attr.string(),
-#     }, 
+#     },
 #     implementation = _impl,
 # )
 # ```
@@ -143,10 +143,12 @@ function format_py_like() {
   local STYLE=$(cat)
   local OUTPUT
 
-  OUTPUT=$(find "$BASE" -name "$PATTERN" -exec "$BAZEL_BIN/external/com_github_google_yapf/yapf/yapf" \
-    $YAPF_OPTIONS \
-    "--style=$STYLE" \
-    {} \;)
+  OUTPUT=$(find "$BASE" \
+                -not \( -path $BASE/.git -prune \) \
+                -name "$PATTERN" -exec "$BAZEL_BIN/external/com_github_google_yapf/yapf/yapf" \
+                $YAPF_OPTIONS \
+                "--style=$STYLE" \
+                {} \;)
   if [ $? != 0 ]; then
     return 1
   fi
@@ -188,17 +190,23 @@ function format_bazel() {
   else
     BUILDIFIER=$BAZEL_OUTPUT_BASE/external/io_bazel_buildifier_linux/file/downloaded
   fi
-  
+
   ERRORS=0
-  $BUILDIFIER -mode=$BUILDIFIER_MODE $(find "$BASE" -name BUILD -type f)
+  $BUILDIFIER -mode=$BUILDIFIER_MODE $(
+      find "$BASE" \
+           -not \( -path $BASE/.git -prune \) \
+           -name BUILD -type f)
   ERRORS=$((ERRORS+$?))
-  $BUILDIFIER -mode=$BUILDIFIER_MODE $(find "$BASE" -name WORKSPACE -type f)
+  $BUILDIFIER -mode=$BUILDIFIER_MODE $(
+      find "$BASE" \
+           -not \( -path $BASE/.git -prune \) \
+           -name WORKSPACE -type f)
   ERRORS=$((ERRORS+$?))
 
   # (buildifier cannot format *.bzl files)
-  if [ "$MODE" = "check" ] && ! $BUILDIFIER -mode=check $(find "$BASE" -name "*.bzl" -type f) >/dev/null; then
+  if [ "$MODE" = "check" ] && ! $BUILDIFIER -mode=check $(find "$BASE" -not \( -path $BASE/.git -prune \) -name "*.bzl" -type f) >/dev/null; then
     echo "*.bzl BUILDIFIER ERRORS:"
-    for f in $(find "$BASE" -name "*.bzl" -type f); do
+    for f in $(find "$BASE" -not \( -path $BASE/.git -prune \) -name "*.bzl" -type f); do
       OUTPUT=$($BUILDIFIER -mode=diff $f)
       if [ ! -z "$OUTPUT" ]; then
         echo "$f"
@@ -218,7 +226,11 @@ function format_bazel() {
 function format_java() {
   local OUTPUT
 
-  OUTPUT=$("$BAZEL_BIN/private/java_format" $JAVA_OPTIONS $(find "$BASE" -name "*.java" -type f))
+  OUTPUT=$("$BAZEL_BIN/private/java_format" $JAVA_OPTIONS $(
+               find "$BASE" \
+                    -not \( -path $BASE/.git -prune \) \
+                    -name "*.java" -type f))
+
   if [ "$MODE" = "check" ] && [ ! -z "$OUTPUT" ]; then
     echo "$OUTPUT"
     return 1
@@ -229,9 +241,13 @@ function format_java() {
 function skylint() {
   local OUTPUT
 
-  OUTPUT=$(find "$BASE" -type f -name "*.bzl" -exec \
-    "$BAZEL_BIN/external/io_bazel/src/tools/skylark/java/com/google/devtools/skylark/skylint/Skylint" \
-    {} \;)
+  OUTPUT=$(
+      find "$BASE" \
+           -not \( -path $BASE/.git -prune \) \
+           -type f -name "*.bzl" -exec \
+           "$BAZEL_BIN/external/io_bazel/src/tools/skylark/java/com/google/devtools/skylark/skylint/Skylint" \
+           {} \;
+        )
   if [ "$MODE" = "check" ] && [ ! -z "$OUTPUT" ]; then
     echo "$OUTPUT"
     return 1
