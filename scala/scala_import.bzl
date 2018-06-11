@@ -4,20 +4,15 @@
 def _scala_import_impl(ctx):
     target_data = _code_jars_and_intellij_metadata_from(ctx.attr.jars)
     (current_target_compile_jars, intellij_metadata) = (target_data.code_jars, target_data.intellij_metadata)
-
     current_jars = depset(current_target_compile_jars)
-
     exports = _collect(ctx.attr.exports)
-
     transitive_runtime_jars = _collect_runtime(ctx.attr.runtime_deps)
-
     jars = _collect(ctx.attr.deps)
-
     jars2labels = {}
-
     _collect_labels(ctx.attr.deps, jars2labels)
     _collect_labels(ctx.attr.exports, jars2labels) #untested
     _add_labels_of_current_code_jars(depset(transitive=[current_jars, exports.compile_jars]), ctx.label, jars2labels) #last to override the label of the export compile jars to the current target
+
     return struct(
         scala = struct(
           outputs = struct (
@@ -29,12 +24,14 @@ def _scala_import_impl(ctx):
             _create_provider(current_jars, transitive_runtime_jars, jars, exports)
         ],
     )
+
 def _create_provider(current_target_compile_jars, transitive_runtime_jars, jars, exports):
-    return JavaInfo(
+    return java_common.create_provider(
         use_ijar = False,
-        deps = depset(transitive = [jars.transitive_compile_jars, current_target_compile_jars, exports.transitive_compile_jars, exports.compile_jars]),
-        runtime_deps = depset(transitive = [transitive_runtime_jars, jars.transitive_runtime_jars, current_target_compile_jars, exports.transitive_runtime_jars]),
-    )
+        compile_time_jars = depset(transitive = [current_target_compile_jars, exports.compile_jars]),
+        transitive_compile_time_jars = depset(transitive = [jars.transitive_compile_jars, current_target_compile_jars, exports.transitive_compile_jars]) ,
+        transitive_runtime_jars = depset(transitive = [transitive_runtime_jars, jars.transitive_runtime_jars, current_target_compile_jars, exports.transitive_runtime_jars]) ,
+      )
 
 def _add_labels_of_current_code_jars(code_jars, label, jars2labels):
   for jar in code_jars.to_list():
@@ -62,26 +59,29 @@ def _filter_out_non_code_jars(files):
 def _is_source_jar(file):
   return file.basename.endswith("-sources.jar")
 
-# TODO: it seems this could be reworked to use java_common.merge
 def _collect(deps):
-  transitive_compile_jars = []
-  runtime_jars = []
-  compile_jars = []
+  provider = _merge_providers(deps)
 
+  return struct(transitive_runtime_jars = depset(transitive = [provider.transitive_runtime_jars]),
+                transitive_compile_jars = depset(transitive = [provider.transitive_compile_time_jars]),
+                compile_jars = depset(transitive = [provider.compile_jars]))
+
+
+def _collect_runtime(runtime_deps):
+  provider = _merge_providers(runtime_deps)
+  return depset(transitive = [provider.transitive_runtime_jars])
+
+def _merge_providers(deps):
+  infos = []
   for dep_target in deps:
-      java_provider = dep_target[JavaInfo]
-      compile_jars.append(java_provider.compile_jars)
-      transitive_compile_jars.append(java_provider.transitive_compile_time_jars)
-      runtime_jars.append(java_provider.transitive_runtime_jars)
+    infos.append(dep_target[JavaInfo])
 
-  return struct(transitive_runtime_jars = depset(transitive = runtime_jars),
-                transitive_compile_jars = depset(transitive = transitive_compile_jars),
-                compile_jars = depset(transitive = compile_jars))
+  return java_common.merge(infos)
 
 def _collect_labels(deps, jars2labels):
   for dep_target in deps:
       java_provider = dep_target[JavaInfo]
-      _transitively_accumulate_labels(dep_target, java_provider,jars2labels)
+      _transitively_accumulate_labels(dep_target, java_provider, jars2labels)
 
 def _transitively_accumulate_labels(dep_target, java_provider, jars2labels):
   if hasattr(dep_target, "jars_to_labels"):
@@ -89,14 +89,6 @@ def _transitively_accumulate_labels(dep_target, java_provider, jars2labels):
   #scala_library doesn't add labels to the direct dependency itself
   for jar in java_provider.compile_jars.to_list():
     jars2labels[jar.path] = dep_target.label
-
-def _collect_runtime(runtime_deps):
-  jar_deps = []
-  for dep_target in runtime_deps:
-      java_provider = dep_target[JavaInfo]
-      jar_deps.append(java_provider.transitive_runtime_jars)
-
-  return depset(transitive = jar_deps)
 
 scala_import = rule(
   implementation=_scala_import_impl,
