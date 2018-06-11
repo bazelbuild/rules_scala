@@ -14,33 +14,32 @@
 
 package io.bazel.rulesscala.scalac;
 
-import java.io.PrintStream;
 import io.bazel.rulesscala.worker.GenericWorker;
+import java.io.PrintStream;
 import scala.Console$;
 
 /**
- * This is our entry point to producing a scala target
- * this can act as one of Bazel's persistant workers.
+ * This is our entry point to producing a scala target this can act as one of Bazel's persistant
+ * workers.
  */
 public class ScalaCInvoker extends GenericWorker {
   public ScalaCInvoker() {
     super(new ScalacProcessor());
   }
 
-  @Override protected void setupOutput(PrintStream ps) {
+  @Override
+  protected void setupOutput(PrintStream ps) {
     System.setOut(ps);
     System.setErr(ps);
     Console$.MODULE$.setErrDirect(ps);
     Console$.MODULE$.setOutDirect(ps);
   }
 
-
   public static void main(String[] args) {
     try {
       GenericWorker w = new ScalaCInvoker();
       w.run(args);
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       ex.printStackTrace();
       System.exit(1);
     }

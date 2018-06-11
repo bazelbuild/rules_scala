@@ -2,7 +2,7 @@ load("//scala:scala.bzl", "scala_library")
 
 scala_library(
     name = "a",
-    srcs = ["A.scala"]
+    srcs = ["A.scala"],
 )
 
 scala_library(
@@ -17,7 +17,7 @@ scala_library(
 
 scala_library(
     name = "d",
-    deps = [":c"],
     srcs = ["D.scala"],
     tags = ["manual"],
+    deps = [":c"],
 )
