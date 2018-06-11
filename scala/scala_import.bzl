@@ -4,11 +4,17 @@
 def _scala_import_impl(ctx):
     target_data = _code_jars_and_intellij_metadata_from(ctx.attr.jars)
     (current_target_compile_jars, intellij_metadata) = (target_data.code_jars, target_data.intellij_metadata)
+
     current_jars = depset(current_target_compile_jars)
+
     exports = _collect(ctx.attr.exports)
+
     transitive_runtime_jars = _collect_runtime(ctx.attr.runtime_deps)
+
     jars = _collect(ctx.attr.deps)
+
     jars2labels = {}
+
     _collect_labels(ctx.attr.deps, jars2labels)
     _collect_labels(ctx.attr.exports, jars2labels) #untested
     _add_labels_of_current_code_jars(depset(transitive=[current_jars, exports.compile_jars]), ctx.label, jars2labels) #last to override the label of the export compile jars to the current target
@@ -26,7 +32,7 @@ def _scala_import_impl(ctx):
 def _create_provider(current_target_compile_jars, transitive_runtime_jars, jars, exports):
     return JavaInfo(
         use_ijar = False,
-        dpes = depset(transitive = [jars.transitive_compile_jars, current_target_compile_jars, exports.transitive_compile_jars, exports.compile_jars]),
+        deps = depset(transitive = [jars.transitive_compile_jars, current_target_compile_jars, exports.transitive_compile_jars, exports.compile_jars]),
         runtime_deps = depset(transitive = [transitive_runtime_jars, jars.transitive_runtime_jars, current_target_compile_jars, exports.transitive_runtime_jars]),
     )
 
