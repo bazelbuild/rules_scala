@@ -16,6 +16,7 @@ os:
 
 env:
   # we want to test the last release
+  - V=0.13.0 TEST_SCRIPT=test_lint.sh
   - V=0.13.0 TEST_SCRIPT=test_rules_scala.sh
   - V=0.13.0 TEST_SCRIPT=test_intellij_aspect.sh
   - V=0.13.0 TEST_SCRIPT=test_reproducibility.sh

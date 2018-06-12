@@ -15,9 +15,15 @@ scala_library(
 scala_library(
     name = "add_numbers",
     srcs = ["AddNumbers.scala"],
-    deps = [":scala_type", ":java_type"],
-    exports = [":scala_type", ":java_type"],
     visibility = ["//visibility:public"],
+    exports = [
+        ":java_type",
+        ":scala_type",
+    ],
+    deps = [
+        ":java_type",
+        ":scala_type",
+    ],
 )
 
 scala_benchmark_jmh(

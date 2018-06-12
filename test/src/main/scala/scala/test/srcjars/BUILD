@@ -5,15 +5,15 @@ load("//scala:scala.bzl", "scala_library")
 # and use_source_jar should depend on that internally
 
 scala_library(
-  name = "source_jar",
-  # SourceJar1.jar was created by:
-  # jar -cfM test/src/main/scala/scala/test/srcjars/SourceJar1.srcjar \
-  # test/src/main/scala/scala/test/srcjars/SourceJar1.scala
-  srcs = ["SourceJar1.srcjar"],
+    name = "source_jar",
+    # SourceJar1.jar was created by:
+    # jar -cfM test/src/main/scala/scala/test/srcjars/SourceJar1.srcjar \
+    # test/src/main/scala/scala/test/srcjars/SourceJar1.scala
+    srcs = ["SourceJar1.srcjar"],
 )
 
 scala_library(
-  name = "use_source_jar",
-  srcs = ["SourceJar2.scala"],
-  deps = [":source_jar"],
+    name = "use_source_jar",
+    srcs = ["SourceJar2.scala"],
+    deps = [":source_jar"],
 )
