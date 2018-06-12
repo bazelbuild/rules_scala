@@ -6,6 +6,12 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
+java_import(
+    name = "barejar_java_import",
+    jars = ["bare-thrift.jar"],
+    visibility = ["//visibility:public"],
+)
+
 thrift_library(
     name = "bare_jar_thrifts",
     external_jars = [":barejar"],

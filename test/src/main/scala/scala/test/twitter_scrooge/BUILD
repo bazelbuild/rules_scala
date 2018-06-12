@@ -90,6 +90,17 @@ scrooge_scala_library(
     ],
 )
 
+scrooge_scala_library(
+    name = "thrift_with_remote_jar",
+    remote_jars = [
+        "//test/src/main/scala/scala/test/twitter_scrooge/thrift/bare_jar_thrifts:barejar_java_import",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//test/src/main/scala/scala/test/twitter_scrooge/thrift/bare_jar_thrifts/bare_jar_2",
+    ],
+)
+
 scala_library(
     name = "justscrooge1",
     srcs = ["JustScrooge1.scala"],

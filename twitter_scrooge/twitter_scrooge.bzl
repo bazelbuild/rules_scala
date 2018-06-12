@@ -127,7 +127,7 @@ def _assert_set_is_subset(want, have):
         str(missing))
 
 def _colon_paths(data):
-  return ':'.join([f.path for f in data])
+  return ':'.join([f.path for f in sorted(data)])
 
 def _list_to_map(items):
   map_result = {}
@@ -138,7 +138,8 @@ def _list_to_map(items):
 def _gen_scrooge_srcjar_impl(ctx):
   remote_jars = []
   for target in ctx.attr.remote_jars:
-    remote_jars.append(_jar_filetype.filter(target.files))
+    remote_jars.append(depset(_jar_filetype.filter(target.files)))
+
   # deduplicate these
   remote_jars = depset(transitive = remote_jars).to_list()
 
