@@ -99,10 +99,9 @@ _junit_resolve_deps = {
 
 # Common attributes reused across multiple rules.
 _common_attrs_for_plugin_bootstrapping = {
-    "srcs": attr.label_list(
-        allow_files = FileType([".scala", ".srcjar", ".java"])),
+    "srcs": attr.label_list(allow_files = [".scala", ".srcjar", ".java"]),
     "deps": attr.label_list(),
-    "plugins": attr.label_list(allow_files = FileType([".jar"])),
+    "plugins": attr.label_list(allow_files = [".jar"]),
     "runtime_deps": attr.label_list(),
     "data": attr.label_list(allow_files = True, cfg = "data"),
     "resources": attr.label_list(allow_files = True),
@@ -126,7 +125,7 @@ _common_attrs.update({
         default = Label(
             "@io_bazel_rules_scala//third_party/plugin/src/main:dependency_analyzer"
         ),
-        allow_files = FileType([".jar"]),
+        allow_files = [".jar"],
         mandatory = False),
 })
 

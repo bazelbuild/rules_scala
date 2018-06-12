@@ -25,7 +25,6 @@ load(
     "write_manifest",
 )
 
-_jar_filetype = FileType([".jar"])
 _java_filetype = FileType([".java"])
 _scala_filetype = FileType([".scala"])
 _srcjar_filetype = FileType([".srcjar"])
