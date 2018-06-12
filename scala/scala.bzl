@@ -12,8 +12,6 @@ load(
     "@io_bazel_rules_scala//specs2:specs2_junit.bzl",
     _specs2_junit_dependencies = "specs2_junit_dependencies")
 
-_jar_filetype = FileType([".jar"])
-
 _launcher_template = {
     "_java_stub_template": attr.label(
         default = Label("@java_stub_template//file")),
@@ -128,7 +126,7 @@ _common_attrs.update({
         default = Label(
             "@io_bazel_rules_scala//third_party/plugin/src/main:dependency_analyzer"
         ),
-        allow_files = _jar_filetype,
+        allow_files = FileType([".jar"]),
         mandatory = False),
 })
 
