@@ -323,7 +323,9 @@ def _root_path(f):
     return '/'.join([f.root.path, f.owner.workspace_root])
 
 def _colon_paths(data):
-    return ':'.join(["{root},{path}".format(root=_root_path(f), path=f.path) for f in data])
+    if type(data) != "list":
+        data = data.to_list()
+    return ':'.join(["{root},{path}".format(root=_root_path(f), path=f.path) for f in sorted(data)])
 
 def _gen_proto_srcjar_impl(ctx):
     acc_imports = []
@@ -351,7 +353,7 @@ def _gen_proto_srcjar_impl(ctx):
         # Command line args to worker cannot be empty so using padding
         flags_arg = "-" + ",".join(ctx.attr.flags),
         # Command line args to worker cannot be empty so using padding
-        packages = "-" + ":".join(depset(transitive = transitive_proto_paths).to_list())
+        packages = "-" + ":".join(sorted(depset(transitive = transitive_proto_paths).to_list()))
     )
     argfile = ctx.actions.declare_file("%s_worker_input" % ctx.label.name, sibling = ctx.outputs.srcjar)
     ctx.actions.write(output=argfile, content=worker_content)

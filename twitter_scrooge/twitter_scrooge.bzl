@@ -116,7 +116,7 @@ def _assert_set_is_subset(want, have):
          'cover the transitive graph of thrift files. Uncovered sources: ' + str(missing))
 
 def _colon_paths(data):
-  return ':'.join([f.path for f in data])
+  return ':'.join([f.path for f in sorted(data)])
 
 def _list_to_map(items):
   map_result = {}
