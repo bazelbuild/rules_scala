@@ -323,8 +323,6 @@ def _root_path(f):
     return '/'.join([f.root.path, f.owner.workspace_root])
 
 def _colon_paths(data):
-    if type(data) != "list":
-        data = data.to_list()
     return ':'.join(["{root},{path}".format(root=_root_path(f), path=f.path) for f in sorted(data)])
 
 def _gen_proto_srcjar_impl(ctx):
