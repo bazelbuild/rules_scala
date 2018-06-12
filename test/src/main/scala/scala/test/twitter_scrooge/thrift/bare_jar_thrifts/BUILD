@@ -12,7 +12,6 @@ java_import(
     visibility = ["//visibility:public"],
 )
 
-
 thrift_library(
     name = "bare_jar_thrifts",
     external_jars = [":barejar"],

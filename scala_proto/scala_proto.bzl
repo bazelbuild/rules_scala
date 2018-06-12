@@ -306,7 +306,8 @@ def _root_path(f):
 
 def _colon_paths(data):
   return ':'.join([
-      "{root},{path}".format(root = _root_path(f), path = f.path) for f in sorted(data)
+      "{root},{path}".format(root = _root_path(f), path = f.path)
+      for f in sorted(data)
   ])
 
 def _gen_proto_srcjar_impl(ctx):
