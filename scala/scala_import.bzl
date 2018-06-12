@@ -8,9 +8,8 @@ def _scala_import_impl(ctx):
     exports = _collect(ctx.attr.exports)
     transitive_runtime_jars = _collect_runtime(ctx.attr.runtime_deps)
     jars = _collect(ctx.attr.deps)
-    jars2labels = {}
-    _collect_labels(ctx.attr.deps, jars2labels)
-    _collect_labels(ctx.attr.exports, jars2labels) #untested
+
+    jars2labels = _collect_jar_labels(ctx)
     _add_labels_of_current_code_jars(depset(transitive=[current_jars, exports.compile_jars]), ctx.label, jars2labels) #last to override the label of the export compile jars to the current target
 
     return struct(
@@ -32,6 +31,11 @@ def _create_provider(current_target_compile_jars, transitive_runtime_jars, jars,
         transitive_compile_time_jars = depset(transitive = [jars.transitive_compile_jars, current_target_compile_jars, exports.transitive_compile_jars]) ,
         transitive_runtime_jars = depset(transitive = [transitive_runtime_jars, jars.transitive_runtime_jars, current_target_compile_jars, exports.transitive_runtime_jars]) ,
       )
+
+def _collect_jar_labels(ctx):
+  jars2labels = {}
+  _collect_labels(ctx.attr.deps, jars2labels)
+  _collect_labels(ctx.attr.exports, jars2labels) #untested
 
 def _add_labels_of_current_code_jars(code_jars, label, jars2labels):
   for jar in code_jars.to_list():
