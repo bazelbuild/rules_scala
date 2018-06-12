@@ -43,15 +43,15 @@ public class JarHelper {
 
   /** Normalize timestamps. */
   public static final long DEFAULT_TIMESTAMP =
-          LocalDateTime.of(2010, 1, 1, 0, 0, 0)
-                  .atZone(ZoneId.systemDefault())
-                  .toInstant()
-                  .toEpochMilli();
+      LocalDateTime.of(2010, 1, 1, 0, 0, 0)
+          .atZone(ZoneId.systemDefault())
+          .toInstant()
+          .toEpochMilli();
   // These attributes are used by JavaBuilder, Turbine, and ijar.
   // They must all be kept in sync.
   public static final Attributes.Name TARGET_LABEL = new Attributes.Name("Target-Label");
   public static final Attributes.Name INJECTING_RULE_KIND =
-          new Attributes.Name("Injecting-Rule-Kind");
+      new Attributes.Name("Injecting-Rule-Kind");
 
   public static final long DOS_EPOCH_IN_JAVA_TIME = 315561600000L;
 
@@ -206,7 +206,7 @@ public class JarHelper {
         long size = isDirectory ? 0 : Files.size(path);
         JarEntry outEntry = new JarEntry(name);
         long newtime =
-                normalize ? normalizedTimestamp(name) : Files.getLastModifiedTime(path).toMillis();
+            normalize ? normalizedTimestamp(name) : Files.getLastModifiedTime(path).toMillis();
         outEntry.setTime(newtime);
         outEntry.setSize(size);
         if (size == 0L) {

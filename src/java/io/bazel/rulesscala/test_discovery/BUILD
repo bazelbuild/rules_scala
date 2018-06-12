@@ -7,6 +7,5 @@ scala_library(
         "FilteredRunnerBuilder.scala",
     ],
     visibility = ["//visibility:public"],
-    deps = ["//external:io_bazel_rules_scala/dependency/junit/junit"]
-            
+    deps = ["//external:io_bazel_rules_scala/dependency/junit/junit"],
 )

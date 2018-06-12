@@ -628,3 +628,7 @@ bazel test //test/...
 ```
 Note `bazel test //...` will not work since we have a sub-folder on the root folder which is meant to be used in a failure scenario in the integration tests.
 Similarly to only build you should use `bazel build //src/...` due to that folder.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for more info.

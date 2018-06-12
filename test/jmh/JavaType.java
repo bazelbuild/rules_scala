@@ -1,5 +1,5 @@
 package foo;
 
 public class JavaType {
-    public int i = 0;
+  public int i = 0;
 }

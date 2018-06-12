@@ -28,3 +28,15 @@ the one above, the
 
 ### Working with Intellij bazel plugin
 For your convenience, you can use [this](scripts/ij.bazelproject) .bazelproject file when you setup the bazel plugin in Intellij
+
+### Formatting Fixes
+Code formatting is checked as part of the CI pipeline. To check/fix formatting
+you can use the `lint.sh` script:
+
+```
+./ling.sh check # check formatting
+./lint.sh fix   # fix formatting
+```
+
+Note that Skylint failures are ignored and that the fix
+command will modify your files in place.

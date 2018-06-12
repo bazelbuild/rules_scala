@@ -6,7 +6,6 @@ scala_library(
     deps = [":class_provider"],
 )
 
-
 scala_library(
     name = "class_provider",
     srcs = ["ClassProvider.scala"],

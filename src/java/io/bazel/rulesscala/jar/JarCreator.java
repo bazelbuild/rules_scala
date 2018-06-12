@@ -69,9 +69,9 @@ public class JarCreator extends JarHelper {
     if (entryName.startsWith("/")) {
       entryName = entryName.substring(1);
     } else if (entryName.length() >= 3
-            && Character.isLetter(entryName.charAt(0))
-            && entryName.charAt(1) == ':'
-            && (entryName.charAt(2) == '\\' || entryName.charAt(2) == '/')) {
+        && Character.isLetter(entryName.charAt(0))
+        && entryName.charAt(1) == ':'
+        && (entryName.charAt(2) == '\\' || entryName.charAt(2) == '/')) {
       // Windows absolute path, e.g. "D:\foo" or "e:/blah".
       // Windows paths are case-insensitive, and support both backslashes and forward slashes.
       entryName = entryName.substring(3);
@@ -116,44 +116,44 @@ public class JarCreator extends JarHelper {
     }
     try {
       Files.walkFileTree(
-              directory,
-              new SimpleFileVisitor<Path>() {
+          directory,
+          new SimpleFileVisitor<Path>() {
 
-                @Override
-                public FileVisitResult preVisitDirectory(Path path, BasicFileAttributes attrs)
-                        throws IOException {
-                  if (!path.equals(directory)) {
-                    // For consistency with legacy behaviour, include entries for directories except for
-                    // the root.
-                    addEntry(path, /* isDirectory= */ true);
-                  }
-                  return FileVisitResult.CONTINUE;
-                }
+            @Override
+            public FileVisitResult preVisitDirectory(Path path, BasicFileAttributes attrs)
+                throws IOException {
+              if (!path.equals(directory)) {
+                // For consistency with legacy behaviour, include entries for directories except for
+                // the root.
+                addEntry(path, /* isDirectory= */ true);
+              }
+              return FileVisitResult.CONTINUE;
+            }
 
-                @Override
-                public FileVisitResult visitFile(Path path, BasicFileAttributes attrs)
-                        throws IOException {
-                  addEntry(path, /* isDirectory= */ false);
-                  return FileVisitResult.CONTINUE;
-                }
+            @Override
+            public FileVisitResult visitFile(Path path, BasicFileAttributes attrs)
+                throws IOException {
+              addEntry(path, /* isDirectory= */ false);
+              return FileVisitResult.CONTINUE;
+            }
 
-                void addEntry(Path path, boolean isDirectory) {
-                  StringBuilder sb = new StringBuilder();
-                  boolean first = true;
-                  for (Path entry : directory.relativize(path)) {
-                    if (!first) {
-                      // use `/` as the directory separator for jar paths, even on Windows
-                      sb.append('/');
-                    }
-                    sb.append(entry.getFileName());
-                    first = false;
-                  }
-                  if (isDirectory) {
-                    sb.append('/');
-                  }
-                  jarEntries.put(sb.toString(), path);
+            void addEntry(Path path, boolean isDirectory) {
+              StringBuilder sb = new StringBuilder();
+              boolean first = true;
+              for (Path entry : directory.relativize(path)) {
+                if (!first) {
+                  // use `/` as the directory separator for jar paths, even on Windows
+                  sb.append('/');
                 }
-              });
+                sb.append(entry.getFileName());
+                first = false;
+              }
+              if (isDirectory) {
+                sb.append('/');
+              }
+              jarEntries.put(sb.toString(), path);
+            }
+          });
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
@@ -241,8 +241,8 @@ public class JarCreator extends JarHelper {
    */
   public void execute() throws IOException {
     try (OutputStream os = Files.newOutputStream(jarPath);
-         BufferedOutputStream bos = new BufferedOutputStream(os);
-         JarOutputStream out = new JarOutputStream(bos)) {
+        BufferedOutputStream bos = new BufferedOutputStream(os);
+        JarOutputStream out = new JarOutputStream(bos)) {
 
       // Create the manifest entry in the Jar file
       writeManifestEntry(out, manifestContent());
@@ -268,13 +268,12 @@ public class JarCreator extends JarHelper {
     String output = args[idx];
     JarCreator createJar = new JarCreator(output);
     createJar.setManifestFile(manifestFile);
-    for (int i = (idx+1); i < args.length; i++) {
+    for (int i = (idx + 1); i < args.length; i++) {
       String thisName = args[i];
       Path f = Paths.get(thisName);
       if (JarHelper.isJar(f)) {
         createJar.addJar(f);
-      }
-      else {
+      } else {
         createJar.addDirectory(f);
       }
     }

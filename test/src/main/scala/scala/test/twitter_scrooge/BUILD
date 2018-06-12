@@ -2,179 +2,180 @@ load("//scala:scala.bzl", "scala_binary", "scala_library")
 load("//twitter_scrooge:twitter_scrooge.bzl", "scrooge_scala_library")
 
 scrooge_scala_library(
-  name = "scrooge1",
-  deps = [
-    "//test/src/main/scala/scala/test/twitter_scrooge/thrift",
-    ":scrooge2_a",
-    ":scrooge2_b",
-    ":scrooge3",
-  ],
-  visibility = ["//visibility:public"],
-)
-
-scrooge_scala_library(
-  name = "scrooge2_a",
-  deps = [
-    "//test/src/main/scala/scala/test/twitter_scrooge/thrift/thrift2:thrift2_a",
-    ":scrooge3",
-  ],
-  visibility = ["//visibility:public"],
-)
-
-scrooge_scala_library(
-  name = "scrooge2_b",
-  deps = [
-    "//test/src/main/scala/scala/test/twitter_scrooge/thrift/thrift2:thrift2_b",
-    ":scrooge3",
-  ],
-  visibility = ["//visibility:public"],
-)
-
-scrooge_scala_library(
-  name = "scrooge3",
-  deps = ["//test/src/main/scala/scala/test/twitter_scrooge/thrift/thrift2/thrift3"],
-  visibility = ["//visibility:public"],
-)
-
-scrooge_scala_library(
-  name = "scrooge2",
-  deps = [
-    "//test/src/main/scala/scala/test/twitter_scrooge/thrift/thrift2:thrift2_a",
-    "//test/src/main/scala/scala/test/twitter_scrooge/thrift/thrift2:thrift2_b",
-    ":scrooge3",
-  ],
-  visibility = ["//visibility:public"],
-)
-
-scrooge_scala_library(
-  name = "scrooge4",
-  deps = [
-    "//test/src/main/scala/scala/test/twitter_scrooge/thrift/thrift2/thrift4:thrift4",
-    ":scrooge2"
+    name = "scrooge1",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":scrooge2_a",
+        ":scrooge2_b",
+        ":scrooge3",
+        "//test/src/main/scala/scala/test/twitter_scrooge/thrift",
     ],
-  visibility = ["//visibility:public"],
 )
+
 scrooge_scala_library(
-  name = "scrooge4a",
-  deps = [
-    "//test/src/main/scala/scala/test/twitter_scrooge/thrift/thrift2/thrift4:thrift4a",
-    ":scrooge4"
+    name = "scrooge2_a",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":scrooge3",
+        "//test/src/main/scala/scala/test/twitter_scrooge/thrift/thrift2:thrift2_a",
     ],
-  visibility = ["//visibility:public"],
 )
 
 scrooge_scala_library(
-  name = "scroogebarejar1",
-  deps = [
-    "//test/src/main/scala/scala/test/twitter_scrooge/thrift/bare_jar_thrifts/bare_jar_1",
-  ],
-  visibility = ["//visibility:public"],
+    name = "scrooge2_b",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":scrooge3",
+        "//test/src/main/scala/scala/test/twitter_scrooge/thrift/thrift2:thrift2_b",
+    ],
 )
 
 scrooge_scala_library(
-  name = "scroogebarejar2",
-  deps = [
-    "//test/src/main/scala/scala/test/twitter_scrooge/thrift/bare_jar_thrifts/bare_jar_2",
-  ],
-  visibility = ["//visibility:public"],
+    name = "scrooge3",
+    visibility = ["//visibility:public"],
+    deps = ["//test/src/main/scala/scala/test/twitter_scrooge/thrift/thrift2/thrift3"],
 )
 
 scrooge_scala_library(
-  name = "bare_thrift_scrooge",
-  deps = [
-    "//test/src/main/scala/scala/test/twitter_scrooge/thrift/bare_jar_thrifts",
-    ":scroogebarejar1",
-    ":scroogebarejar2",
-  ],
-  visibility = ["//visibility:public"],
+    name = "scrooge2",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":scrooge3",
+        "//test/src/main/scala/scala/test/twitter_scrooge/thrift/thrift2:thrift2_a",
+        "//test/src/main/scala/scala/test/twitter_scrooge/thrift/thrift2:thrift2_b",
+    ],
+)
+
+scrooge_scala_library(
+    name = "scrooge4",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":scrooge2",
+        "//test/src/main/scala/scala/test/twitter_scrooge/thrift/thrift2/thrift4",
+    ],
+)
+
+scrooge_scala_library(
+    name = "scrooge4a",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":scrooge4",
+        "//test/src/main/scala/scala/test/twitter_scrooge/thrift/thrift2/thrift4:thrift4a",
+    ],
+)
+
+scrooge_scala_library(
+    name = "scroogebarejar1",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//test/src/main/scala/scala/test/twitter_scrooge/thrift/bare_jar_thrifts/bare_jar_1",
+    ],
+)
+
+scrooge_scala_library(
+    name = "scroogebarejar2",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//test/src/main/scala/scala/test/twitter_scrooge/thrift/bare_jar_thrifts/bare_jar_2",
+    ],
+)
+
+scrooge_scala_library(
+    name = "bare_thrift_scrooge",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":scroogebarejar1",
+        ":scroogebarejar2",
+        "//test/src/main/scala/scala/test/twitter_scrooge/thrift/bare_jar_thrifts",
+    ],
 )
 
 scala_library(
-  name = "justscrooge1",
-  srcs = ["JustScrooge1.scala"],
-  deps = [":scrooge1"],
-  exports = [":scrooge1"]
+    name = "justscrooge1",
+    srcs = ["JustScrooge1.scala"],
+    exports = [":scrooge1"],
+    deps = [":scrooge1"],
 )
 
 scala_library(
-  name = "justscrooge2a",
-  srcs = ["JustScrooge2a.scala"],
-  deps = [":scrooge2_a"],
+    name = "justscrooge2a",
+    srcs = ["JustScrooge2a.scala"],
+    deps = [":scrooge2_a"],
 )
 
 scala_library(
-  name = "justscrooge2b",
-  srcs = ["JustScrooge2b.scala"],
-  deps = [":scrooge2_b"],
+    name = "justscrooge2b",
+    srcs = ["JustScrooge2b.scala"],
+    deps = [":scrooge2_b"],
 )
 
 scala_library(
-  name = "justscrooge3",
-  srcs = ["JustScrooge3.scala"],
-  deps = [":scrooge3"],
-  exports = [":scrooge3"],
+    name = "justscrooge3",
+    srcs = ["JustScrooge3.scala"],
+    exports = [":scrooge3"],
+    deps = [":scrooge3"],
 )
 
 scala_library(
-  name = "scrooge2_both",
-  srcs = ["Scrooge2.scala"],
-  deps = [":scrooge2"],
+    name = "scrooge2_both",
+    srcs = ["Scrooge2.scala"],
+    deps = [":scrooge2"],
 )
 
 scala_library(
-  name = "mixed",
-  srcs = ["Mixed.scala"],
-  deps = [
-    ":justscrooge1",
-    ":justscrooge2a",
-    ":justscrooge2b",
-    ":justscrooge3",
-  ],
+    name = "mixed",
+    srcs = ["Mixed.scala"],
+    deps = [
+        ":justscrooge1",
+        ":justscrooge2a",
+        ":justscrooge2b",
+        ":justscrooge3",
+    ],
 )
 
 scala_library(
-  name = "twodeep",
-  srcs = ["Twodeep.scala"],
-  deps = [":justscrooge3"],
+    name = "twodeep",
+    srcs = ["Twodeep.scala"],
+    deps = [":justscrooge3"],
 )
 
 scala_binary(
-  name = "twodeep_binary",
-  deps = [":twodeep"],
-  main_class = "scala.test.twitter_scrooge.Twodeep",
+    name = "twodeep_binary",
+    main_class = "scala.test.twitter_scrooge.Twodeep",
+    deps = [":twodeep"],
 )
 
 scala_binary(
-  name = "justscrooge2b_binary",
-  deps = [":justscrooge2b"],
-  main_class = "scala.test.twitter_scrooge.JustScrooge2b"
+    name = "justscrooge2b_binary",
+    main_class = "scala.test.twitter_scrooge.JustScrooge2b",
+    deps = [":justscrooge2b"],
 )
 
 scala_library(
-  name = "allscrooges",
-  exports = [
-    ":scrooge1",
-    ":scrooge2_a",
-    ":scrooge2_b",
-    ":scrooge3",
-  ],
+    name = "allscrooges",
+    exports = [
+        ":scrooge1",
+        ":scrooge2_a",
+        ":scrooge2_b",
+        ":scrooge3",
+    ],
 )
 
 scala_binary(
     name = "justscrooges",
     srcs = ["JustScrooge1.scala"],
-    deps = [":allscrooges"],
     main_class = "scala.test.twitter_scrooge.JustScrooge1",
+    deps = [":allscrooges"],
 )
 
 scala_library(
-  name = "barethriftslib",
-  srcs = ["BareThrifts.scala"],
-  deps = [":bare_thrift_scrooge"],
+    name = "barethriftslib",
+    srcs = ["BareThrifts.scala"],
+    deps = [":bare_thrift_scrooge"],
 )
 
 scala_binary(
-  name = "barethrifts",
-  deps = [":bare_thrift_scrooge"],
-  main_class = "scala.test.twitter_scrooge.BareThrifts",
+    name = "barethrifts",
+    main_class = "scala.test.twitter_scrooge.BareThrifts",
+    deps = [":bare_thrift_scrooge"],
 )

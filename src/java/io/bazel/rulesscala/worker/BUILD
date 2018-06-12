@@ -1,10 +1,11 @@
-java_library(name = "worker",
-  srcs = [
-      "Processor.java",
-      "GenericWorker.java",
-      ],
-  deps = [
-    "//src/java/com/google/devtools/build/lib:worker",
-  ],
-  visibility = ["//visibility:public"],
+java_library(
+    name = "worker",
+    srcs = [
+        "GenericWorker.java",
+        "Processor.java",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//src/java/com/google/devtools/build/lib:worker",
+    ],
 )
