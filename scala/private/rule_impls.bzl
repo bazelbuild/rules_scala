@@ -614,7 +614,7 @@ def _scala_binary_common(ctx,
   java_provider = create_java_provider(scalaattr, transitive_compile_time_jars)
 
   return struct(
-      files=depset([ctx.outputs.executable, ctx.outputs.jar]),
+      files = depset([ctx.outputs.executable, ctx.outputs.jar]),
       providers = [java_provider],
       scala = scalaattr,
       transitive_rjars =
