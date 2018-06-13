@@ -14,7 +14,7 @@
 
 """Rules for supporting the Scala language."""
 load("@io_bazel_rules_scala//scala:scala_toolchain.bzl", "scala_toolchain")
-load("@io_bazel_rules_scala//scala:providers.bzl", "create_scala_provider")
+load("@io_bazel_rules_scala//scala:providers.bzl", "create_scala_provider", _ScalaWorker = "ScalaWorker")
 load(":common.bzl",
      "add_labels_of_jars_to",
      "create_java_provider",
@@ -264,10 +264,13 @@ StatsfileOutput: {statsfile_output}
            [ctx.outputs.manifest,
             ctx.executable._ijar,
             argfile])
+    worker = ctx.attr.scalaworker[_ScalaWorker]
+    _, _, input_manifests = ctx.resolve_command(tools = [worker.scalac])
     ctx.actions.run(
         inputs=ins,
         outputs=outs,
-        executable=ctx.executable._scalac,
+        executable=worker.scalac.files_to_run.executable,
+        input_manifests=input_manifests,
         mnemonic="Scalac",
         progress_message="scala %s" % ctx.label,
         execution_requirements={"supports-workers": "1"},
@@ -502,7 +505,7 @@ def _collect_jars_from_common_ctx(ctx, extra_deps = [], extra_runtime_deps = [])
     dependency_analyzer_is_off = is_dependency_analyzer_off(ctx)
 
     # Get jars from deps
-    auto_deps = [ctx.attr._scalalib, ctx.attr._scalareflect]
+    auto_deps = [ctx.attr.scalaworker[_ScalaWorker].scalalib, ctx.attr._scalareflect]
     deps_jars = collect_jars(ctx.attr.deps + auto_deps + extra_deps, dependency_analyzer_is_off)
     (cjars, transitive_rjars, jars2labels, transitive_compile_jars) = (deps_jars.compile_jars, deps_jars.transitive_runtime_jars, deps_jars.jars2labels, deps_jars.transitive_compile_jars)
 

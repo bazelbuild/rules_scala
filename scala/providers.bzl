@@ -30,3 +30,26 @@ def create_scala_provider(
         transitive_runtime_jars = transitive_runtime_jars,
         transitive_exports = [] #needed by intellij plugin
     )
+
+
+ScalaWorker = provider(
+    doc = "ScalaWorker",
+    fields = [
+        "scalac",
+        "scalalib"
+    ]
+)
+
+def _declare_scala_worker(ctx):
+    return [ScalaWorker(
+        scalac = ctx.attr.scalac,
+        scalalib = ctx.attr.scalalib
+    )]
+
+declare_scala_worker = rule(
+    implementation = _declare_scala_worker,
+    attrs = {
+        "scalac": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/scalac"), allow_files=True),
+        "scalalib": attr.label(default=Label("@scala_2_12//:scala-library"), allow_files=True),
+    }
+)

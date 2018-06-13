@@ -7,6 +7,10 @@ load("@io_bazel_rules_scala//scala/private:rule_impls.bzl",
      _scala_junit_test_impl = "scala_junit_test_impl",
 )
 
+load("@io_bazel_rules_scala//scala:providers.bzl",
+     _ScalaWorker = "ScalaWorker",
+)
+
 load(
     "@io_bazel_rules_scala//specs2:specs2_junit.bzl",
     _specs2_junit_dependencies = "specs2_junit_dependencies"
@@ -22,14 +26,19 @@ _implicit_deps = {
   "_singlejar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:singlejar"), allow_files=True),
   "_ijar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:ijar"), allow_files=True),
   "_scalac": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/scalac"), allow_files=True),
-  "_scalalib": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_library"), allow_files=True),
+  "_scalalib": attr.label(default=Label("@scala_2_12//:scala-library"), allow_files=True),
   "_scalacompiler": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_compiler"), allow_files=True),
   "_scalareflect": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_reflect"), allow_files=True),
   "_zipper": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/zip:zipper"), allow_files=True),
   "_java_toolchain": attr.label(default = Label("@bazel_tools//tools/jdk:current_java_toolchain")),
   "_host_javabase": attr.label(default = Label("@bazel_tools//tools/jdk:current_java_runtime"), cfg="host"),
-  "_java_runtime": attr.label(default = Label("@bazel_tools//tools/jdk:current_java_runtime"))
+  "_java_runtime": attr.label(default = Label("@bazel_tools//tools/jdk:current_java_runtime")),
 }
+
+scala_deps = {
+  "scalaworker": attr.label(default=Label("@scala//:worker"), providers=[_ScalaWorker])
+}
+
 
 # Single dep to allow IDEs to pickup all the implicit dependencies.
 _resolve_deps = {
@@ -101,6 +110,7 @@ _library_outputs.update({
 
 _scala_library_attrs = {}
 _scala_library_attrs.update(_implicit_deps)
+_scala_library_attrs.update(scala_deps)
 _scala_library_attrs.update(_common_attrs)
 _scala_library_attrs.update(_library_attrs)
 _scala_library_attrs.update(_resolve_deps)
@@ -118,6 +128,7 @@ scala_library = rule(
 # which does not contain plugin related attributes, and thus avoids the cyclic dependency issue
 _scala_library_for_plugin_bootstrapping_attrs = {}
 _scala_library_for_plugin_bootstrapping_attrs.update(_implicit_deps)
+_scala_library_for_plugin_bootstrapping_attrs.update(scala_deps)
 _scala_library_for_plugin_bootstrapping_attrs.update(_library_attrs)
 _scala_library_for_plugin_bootstrapping_attrs.update(_resolve_deps)
 _scala_library_for_plugin_bootstrapping_attrs.update(_common_attrs_for_plugin_bootstrapping)
@@ -201,6 +212,9 @@ scala_repl = rule(
 
 _SCALA_BUILD_FILE = """
 # scala.BUILD
+load("@io_bazel_rules_scala//scala:providers.bzl",
+     _declare_scala_worker = "declare_scala_worker",
+)
 java_import(
     name = "scala-xml",
     jars = ["lib/scala-xml_2.11-1.0.5.jar"],
@@ -230,6 +244,56 @@ java_import(
     jars = ["lib/scala-reflect.jar"],
     visibility = ["//visibility:public"],
 )
+
+_declare_scala_worker(
+    name = "worker",
+    scalac = "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac:scalac",
+    scalalib = "@scala//:scala-library",
+    visibility = ["//visibility:public"],
+)
+"""
+_SCALA_BUILD_FILE_2_12 = """
+# scala.BUILD
+load("@io_bazel_rules_scala//scala:providers.bzl",
+     _declare_scala_worker = "declare_scala_worker",
+)
+
+java_import(
+    name = "scala-xml",
+    jars = ["lib/scala-xml_2.12-1.0.6.jar"],
+    visibility = ["//visibility:public"],
+)
+
+java_import(
+    name = "scala-parser-combinators",
+    jars = ["lib/scala-parser-combinators_2.12-1.0.7.jar"],
+    visibility = ["//visibility:public"],
+)
+
+java_import(
+    name = "scala-library",
+    jars = ["lib/scala-library.jar"],
+    visibility = ["//visibility:public"],
+)
+
+java_import(
+    name = "scala-compiler",
+    jars = ["lib/scala-compiler.jar"],
+    visibility = ["//visibility:public"],
+)
+
+java_import(
+    name = "scala-reflect",
+    jars = ["lib/scala-reflect.jar"],
+    visibility = ["//visibility:public"],
+)
+
+_declare_scala_worker(
+    name = "worker",
+    scalac = "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac:scalac_2_12",
+    scalalib = "@scala_2_12//:scala-library",
+    visibility = ["//visibility:public"],
+)
 """
 
 def scala_repositories():
@@ -239,6 +303,14 @@ def scala_repositories():
     sha256 = "12037ca64c68468e717e950f47fc77d5ceae5e74e3bdca56f6d02fd5bfd6900b",
     url = "https://downloads.lightbend.com/scala/2.11.11/scala-2.11.11.tgz",
     build_file_content = _SCALA_BUILD_FILE,
+  )
+
+  # Johan: temp
+  native.new_http_archive(
+    name = "scala_2_12",
+    strip_prefix = "scala-2.12.5",
+    url = "https://downloads.lightbend.com/scala/2.12.5/scala-2.12.5.tgz",
+    build_file_content = _SCALA_BUILD_FILE_2_12,
   )
 
   # scalatest has macros, note http_jar is invoking ijar
