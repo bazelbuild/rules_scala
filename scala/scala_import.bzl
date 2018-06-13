@@ -31,7 +31,10 @@ def _jars_to_provider(jars):
     if JavaInfo in jar:
       fail("jars must contain only jar files")
 
-    providers.append(_jar_to_provider(jar.files.to_list()[0]))
+    code_jars = _filter_out_non_code_jars(jar.files)
+
+    for code_jar in code_jars:
+      providers.append(_jar_to_provider(code_jar))
 
   return java_common.merge(providers)
 
