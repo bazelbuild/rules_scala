@@ -11,7 +11,7 @@ def _scala_import_impl(ctx):
     exports_provider = _labels_to_provider(ctx.attr.exports)
 
     jars2labels = _collect_jar_labels(ctx)
-    _add_labels_of_current_code_jars(depset(transitive=[jars_provider.full_compile_jars, exports_provider.full_compile_jars]), ctx.label, jars2labels) #last to override the label of the export compile jars to the current target
+    _add_labels_of_current_code_jars(depset(transitive=[jars_provider.compile_jars, exports_provider.compile_jars]), ctx.label, jars2labels) #last to override the label of the export compile jars to the current target
 
     return struct(
         scala = struct(
