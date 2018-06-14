@@ -8,10 +8,11 @@ scala_library(
         "package.scala",
     ],
     visibility = ["//visibility:public"],
-    deps = ["//src/java/io/bazel/rulesscala/test_discovery:test_discovery",
-            "//external:io_bazel_rules_scala/dependency/junit/junit",
-            "//external:io_bazel_rules_scala/dependency/specs2/specs2",
-            "//external:io_bazel_rules_scala/dependency/specs2/specs2_junit",
-            "//external:io_bazel_rules_scala/dependency/scala/scala_xml",
-           ]
+    deps = [
+        "//external:io_bazel_rules_scala/dependency/junit/junit",
+        "//external:io_bazel_rules_scala/dependency/scala/scala_xml",
+        "//external:io_bazel_rules_scala/dependency/specs2/specs2",
+        "//external:io_bazel_rules_scala/dependency/specs2/specs2_junit",
+        "//src/java/io/bazel/rulesscala/test_discovery",
+    ],
 )

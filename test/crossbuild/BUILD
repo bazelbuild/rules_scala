@@ -34,7 +34,7 @@ scala_repl(
 scala_repl(
     name = "repl212",
     deps = [":lib212"],
-    scalaworker = "@scala_2_12//:worker"
+    scalaworker = "@scala_2_12"
 )
 
 # TODO: scalatest not working with 2.12
@@ -53,7 +53,7 @@ scala_binary(
     name = "binary212",
     srcs = ["ScalaBinary.scala"],
     main_class = "scala.test.crossbuild.ScalaBinary",
-    scalaworker = "@scala_2_12//:worker"
+    scalaworker = "@scala_2_12"
 )
 
 scala_macro_library(
@@ -64,7 +64,7 @@ scala_macro_library(
 scala_macro_library(
     name = "macro212",
     srcs = ["MacroTest.scala"],
-    scalaworker = "@scala_2_12//:worker"
+    scalaworker = "@scala_2_12"
 )
 
 # TODO: junit not working with 2.12

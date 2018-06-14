@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """
 'jvm_import_external' offers additional functionality above what maven_jar has to offer.
 In addition to downloading the jars, it allows to define this jar's dependencies.
@@ -72,23 +71,23 @@ def _jvm_import_external(repository_ctx):
     lines.append(repository_ctx.attr.rule_load)
     lines.append("")
   if repository_ctx.attr.default_visibility:
-    lines.append("package(default_visibility = %s)" % (
-        repository_ctx.attr.default_visibility))
+    lines.append("package(default_visibility = %s)" %
+                 (repository_ctx.attr.default_visibility))
     lines.append("")
   lines.append("licenses(%s)" % repr(repository_ctx.attr.licenses))
   lines.append("")
-  lines.extend(_serialize_given_rule_import(
-      repository_ctx.attr.rule_name, name, path, srcpath, repository_ctx.attr, _PASS_PROPS, repository_ctx.attr.additional_rule_attrs))
+  lines.extend(
+      _serialize_given_rule_import(repository_ctx.attr.rule_name, name, path,
+                                   srcpath, repository_ctx.attr, _PASS_PROPS,
+                                   repository_ctx.attr.additional_rule_attrs))
   if (repository_ctx.attr.neverlink and
       repository_ctx.attr.generated_linkable_rule_name):
-    lines.extend(_serialize_given_rule_import(
-        repository_ctx.attr.rule_name, 
-        repository_ctx.attr.generated_linkable_rule_name,
-        path,
-        srcpath,
-        repository_ctx.attr,
-        [p for p in _PASS_PROPS if p != "neverlink"], 
-        repository_ctx.attr.additional_rule_attrs))
+    lines.extend(
+        _serialize_given_rule_import(
+            repository_ctx.attr.rule_name,
+            repository_ctx.attr.generated_linkable_rule_name, path, srcpath,
+            repository_ctx.attr, [p for p in _PASS_PROPS if p != "neverlink"],
+            repository_ctx.attr.additional_rule_attrs))
   extra = repository_ctx.attr.extra_build_file_content
   if extra:
     lines.append(extra)
@@ -101,9 +100,9 @@ def _jvm_import_external(repository_ctx):
   repository_ctx.file("jar/BUILD", "\n".join([
       _HEADER,
       "",
-      "package(default_visibility = %r)" % (
-          repository_ctx.attr.visibility or
-          repository_ctx.attr.default_visibility),
+      "package(default_visibility = %r)" %
+      (repository_ctx.attr.visibility or
+       repository_ctx.attr.default_visibility),
       "",
       "alias(",
       "    name = \"jar\",",
@@ -113,26 +112,26 @@ def _jvm_import_external(repository_ctx):
   ]))
 
 def _convert_to_url(artifact, server_urls):
-    parts = artifact.split(":")
-    group_id_part = parts[0].replace(".","/")
-    artifact_id = parts[1]
-    version = parts[2]
-    packaging = "jar"
-    classifier_part = ""
-    if len(parts) == 4:
-      packaging = parts[2]
-      version = parts[3]
-    elif len(parts) == 5:
-      packaging = parts[2]
-      classifier_part = "-"+parts[3]
-      version = parts[4]
+  parts = artifact.split(":")
+  group_id_part = parts[0].replace(".", "/")
+  artifact_id = parts[1]
+  version = parts[2]
+  packaging = "jar"
+  classifier_part = ""
+  if len(parts) == 4:
+    packaging = parts[2]
+    version = parts[3]
+  elif len(parts) == 5:
+    packaging = parts[2]
+    classifier_part = "-" + parts[3]
+    version = parts[4]
 
-    final_name = artifact_id + "-" + version + classifier_part + "." + packaging
-    url_suffix = group_id_part+"/"+artifact_id + "/" + version + "/" + final_name
-    urls = []
-    for server_url in server_urls:
-      urls.append(_concat_with_needed_slash(server_url, url_suffix))
-    return urls
+  final_name = artifact_id + "-" + version + classifier_part + "." + packaging
+  url_suffix = group_id_part + "/" + artifact_id + "/" + version + "/" + final_name
+  urls = []
+  for server_url in server_urls:
+    urls.append(_concat_with_needed_slash(server_url, url_suffix))
+  return urls
 
 def _concat_with_needed_slash(server_url, url_suffix):
   if server_url.endswith("/"):
@@ -140,7 +139,8 @@ def _concat_with_needed_slash(server_url, url_suffix):
   else:
     return server_url + "/" + url_suffix
 
-def _serialize_given_rule_import(rule_name, name, path, srcpath, attrs, props, additional_rule_attrs):
+def _serialize_given_rule_import(rule_name, name, path, srcpath, attrs, props,
+                                 additional_rule_attrs):
   lines = [
       "%s(" % rule_name,
       "    name = %s," % repr(name),
@@ -161,11 +161,11 @@ def _serialize_given_rule_import(rule_name, name, path, srcpath, attrs, props, a
   return lines
 
 jvm_import_external = repository_rule(
-    implementation=_jvm_import_external,
-    attrs={
-        "rule_name": attr.string(mandatory=True),
-        "licenses": attr.string_list(mandatory=True, allow_empty=False),
-        "jar_urls": attr.string_list(mandatory=True, allow_empty=False),
+    implementation = _jvm_import_external,
+    attrs = {
+        "rule_name": attr.string(mandatory = True),
+        "licenses": attr.string_list(mandatory = True, allow_empty = False),
+        "jar_urls": attr.string_list(mandatory = True, allow_empty = False),
         "jar_sha256": attr.string(),
         "rule_load": attr.string(),
         "additional_rule_attrs": attr.string_dict(),
@@ -178,37 +178,34 @@ jvm_import_external = repository_rule(
         "neverlink": attr.bool(),
         "generated_rule_name": attr.string(),
         "generated_linkable_rule_name": attr.string(),
-        "default_visibility": attr.string_list(default=["//visibility:public"]),
+        "default_visibility": attr.string_list(
+            default = ["//visibility:public"]),
         "extra_build_file_content": attr.string(),
     })
 
-def scala_maven_import_external(artifact,
-                                server_urls,
-                                rule_load = "load(\"@io_bazel_rules_scala//scala:scala_import.bzl\", \"scala_import\")",
-                                **kwargs):
+def scala_maven_import_external(
+    artifact,
+    server_urls,
+    rule_load = "load(\"@io_bazel_rules_scala//scala:scala_import.bzl\", \"scala_import\")",
+    **kwargs):
   jvm_maven_import_external(
-    rule_name = "scala_import",
-    rule_load = rule_load,
-    artifact = artifact,
-    server_urls = server_urls,
-#additional string attributes' values have to be escaped in order to accomodate non-string types
-#    additional_rule_attrs = {"foo": "'bar'"},
-    **kwargs
-  )
+      rule_name = "scala_import",
+      rule_load = rule_load,
+      artifact = artifact,
+      server_urls = server_urls,
+      #additional string attributes' values have to be escaped in order to accomodate non-string types
+      #    additional_rule_attrs = {"foo": "'bar'"},
+      **kwargs)
 
 def jvm_maven_import_external(artifact, server_urls, **kwargs):
   jvm_import_external(
-      jar_urls = _convert_to_url(artifact, server_urls),
-      **kwargs
-  )
+      jar_urls = _convert_to_url(artifact, server_urls), **kwargs)
 
-def scala_import_external(rule_load = "load(\"@io_bazel_rules_scala//scala:scala_import.bzl\", \"scala_import\")",
-                          **kwargs):
+def scala_import_external(
+    rule_load = "load(\"@io_bazel_rules_scala//scala:scala_import.bzl\", \"scala_import\")",
+    **kwargs):
   jvm_import_external(
-      rule_name = "scala_import",
-      rule_load = rule_load,
-      **kwargs
-  )
+      rule_name = "scala_import", rule_load = rule_load, **kwargs)
 
 """Rules for defining external Java dependencies.
 
@@ -365,9 +362,7 @@ attribute. This should be used in rare circumstances when a distributed jar
 will be loaded into a runtime environment where certain dependencies can be
 reasonably expected to already be provided.
 """
+
 def java_import_external(jar_sha256, **kwargs):
   jvm_import_external(
-    rule_name = "java_import",
-    jar_sha256 = jar_sha256,
-    **kwargs
-  )
+      rule_name = "java_import", jar_sha256 = jar_sha256, **kwargs)

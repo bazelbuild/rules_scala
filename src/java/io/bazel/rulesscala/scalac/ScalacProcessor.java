@@ -3,7 +3,6 @@ package io.bazel.rulesscala.scalac;
 import io.bazel.rulesscala.jar.JarCreator;
 import io.bazel.rulesscala.worker.GenericWorker;
 import io.bazel.rulesscala.worker.Processor;
-
 import java.io.*;
 import java.lang.reflect.Field;
 import java.nio.file.FileSystems;
@@ -17,23 +16,20 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-
 import org.apache.commons.io.IOUtils;
 import scala.tools.nsc.Driver;
 import scala.tools.nsc.MainClass;
 import scala.tools.nsc.reporters.ConsoleReporter;
 
 class ScalacProcessor implements Processor {
-  /**
-   * This is the reporter field for scalac, which we want to access
-   */
+  /** This is the reporter field for scalac, which we want to access */
   private static Field reporterField;
+
   static {
     try {
-      reporterField = Driver.class.getDeclaredField("reporter"); //NoSuchFieldException
+      reporterField = Driver.class.getDeclaredField("reporter"); // NoSuchFieldException
       reporterField.setAccessible(true);
-    }
-    catch (NoSuchFieldException ex) {
+    } catch (NoSuchFieldException ex) {
       throw new RuntimeException("could not access reporter field on Driver", ex);
     }
   }
@@ -60,66 +56,52 @@ class ScalacProcessor implements Processor {
       }
 
       /**
-       * Compile scala sources if available (if there are none, we will simply
-       * compile java sources).
+       * Compile scala sources if available (if there are none, we will simply compile java
+       * sources).
        */
       if (scalaSources.length > 0) {
         compileScalaSources(ops, scalaSources, tmpPath);
       }
 
-      /**
-       * Copy the resources
-       */
+      /** Copy the resources */
       copyResources(ops.resourceFiles, ops.resourceStripPrefix, tmpPath);
 
-      /**
-       * Extract and copy resources from resource jars
-       */
+      /** Extract and copy resources from resource jars */
       copyResourceJars(ops.resourceJars, tmpPath);
 
-      /**
-       * Copy classpath resources to root of jar
-       */
+      /** Copy classpath resources to root of jar */
       copyClasspathResourcesToRoot(ops.classpathResourceFiles, tmpPath);
 
-      /**
-       * Now build the output jar
-       */
-      String[] jarCreatorArgs = {
-        "-m",
-        ops.manifestPath,
-        outputPath.toString(),
-        tmpPath.toString()
-      };
+      /** Now build the output jar */
+      String[] jarCreatorArgs = {"-m", ops.manifestPath, outputPath.toString(), tmpPath.toString()};
       JarCreator.main(jarCreatorArgs);
 
-      /**
-       * Now build the output ijar
-       */
-      if(ops.iJarEnabled) {
-        Process iostat = new ProcessBuilder()
-          .command(ops.ijarCmdPath, ops.outputName, ops.ijarOutput)
-          .inheritIO()
-          .start();
+      /** Now build the output ijar */
+      if (ops.iJarEnabled) {
+        Process iostat =
+            new ProcessBuilder()
+                .command(ops.ijarCmdPath, ops.outputName, ops.ijarOutput)
+                .inheritIO()
+                .start();
         int exitCode = iostat.waitFor();
-        if(exitCode != 0) {
+        if (exitCode != 0) {
           throw new RuntimeException("ijar process failed!");
         }
       }
-    }
-    finally {
+    } finally {
       removeTmp(tmpPath);
     }
   }
 
-  private static String[] collectSrcJarSources(String[] files, List<File> scalaJarFiles, List<File> javaJarFiles) {
+  private static String[] collectSrcJarSources(
+      String[] files, List<File> scalaJarFiles, List<File> javaJarFiles) {
     String[] scalaSources = GenericWorker.appendToString(files, scalaJarFiles);
     return GenericWorker.appendToString(scalaSources, javaJarFiles);
   }
 
   private static List<File> filterFilesByExtension(List<File> files, String extension) {
     List<File> filtered = new ArrayList<File>();
-    for (File f: files) {
+    for (File f : files) {
       if (f.toString().endsWith(extension)) {
         filtered.add(f);
       }
@@ -127,12 +109,14 @@ class ScalacProcessor implements Processor {
     return filtered;
   }
 
-  static private String[] sourceExtensions = {".scala", ".java"};
-  static private List<File> extractSourceJars(CompileOptions opts, Path tmpParent) throws IOException {
+  private static String[] sourceExtensions = {".scala", ".java"};
+
+  private static List<File> extractSourceJars(CompileOptions opts, Path tmpParent)
+      throws IOException {
     List<File> sourceFiles = new ArrayList<File>();
 
-    for(String jarPath : opts.sourceJars) {
-      if (jarPath.length() > 0){
+    for (String jarPath : opts.sourceJars) {
+      if (jarPath.length() > 0) {
         Path tmpPath = Files.createTempDirectory(tmpParent, "tmp");
         sourceFiles.addAll(extractJar(jarPath, tmpPath.toString(), sourceExtensions));
       }
@@ -141,9 +125,8 @@ class ScalacProcessor implements Processor {
     return sourceFiles;
   }
 
-  private static List<File> extractJar(String jarPath,
-      String outputFolder,
-      String[] extensions) throws IOException, FileNotFoundException {
+  private static List<File> extractJar(String jarPath, String outputFolder, String[] extensions)
+      throws IOException, FileNotFoundException {
 
     List<File> outputPaths = new ArrayList<File>();
     JarFile jar = new JarFile(jarPath);
@@ -174,7 +157,7 @@ class ScalacProcessor implements Processor {
   }
 
   private static boolean matchesFileExtensions(String fileName, String[] extensions) {
-    for (String e: extensions) {
+    for (String e : extensions) {
       if (fileName.endsWith(e)) {
         return true;
       }
@@ -183,9 +166,7 @@ class ScalacProcessor implements Processor {
   }
 
   private static String[] encodeBazelTargets(String[] targets) {
-    return Arrays.stream(targets)
-            .map(ScalacProcessor::encodeBazelTarget)
-            .toArray(String[]::new);
+    return Arrays.stream(targets).map(ScalacProcessor::encodeBazelTarget).toArray(String[]::new);
   }
 
   private static String encodeBazelTarget(String target) {
@@ -204,11 +185,11 @@ class ScalacProcessor implements Processor {
       String currentTarget = encodeBazelTarget(ops.currentTarget);
 
       String[] pluginParamsInUse = {
-              "-P:dependency-analyzer:direct-jars:" + String.join(":", ops.directJars),
-              "-P:dependency-analyzer:indirect-jars:" + String.join(":", ops.indirectJars),
-              "-P:dependency-analyzer:indirect-targets:" + String.join(":", targets),
-              "-P:dependency-analyzer:mode:" + ops.dependencyAnalyzerMode,
-              "-P:dependency-analyzer:current-target:" + currentTarget,
+        "-P:dependency-analyzer:direct-jars:" + String.join(":", ops.directJars),
+        "-P:dependency-analyzer:indirect-jars:" + String.join(":", ops.indirectJars),
+        "-P:dependency-analyzer:indirect-targets:" + String.join(":", targets),
+        "-P:dependency-analyzer:mode:" + ops.dependencyAnalyzerMode,
+        "-P:dependency-analyzer:current-target:" + currentTarget,
       };
       pluginParams = pluginParamsInUse;
     } else {
@@ -217,23 +198,15 @@ class ScalacProcessor implements Processor {
     return pluginParams;
   }
 
-  private static void compileScalaSources(CompileOptions ops, String[] scalaSources, Path tmpPath) throws IllegalAccessException {
+  private static void compileScalaSources(CompileOptions ops, String[] scalaSources, Path tmpPath)
+      throws IllegalAccessException {
 
     String[] pluginParams = getPluginParamsFrom(ops);
 
-    String[] constParams = {
-      "-classpath",
-      ops.classpath,
-      "-d",
-      tmpPath.toString()
-    };
+    String[] constParams = {"-classpath", ops.classpath, "-d", tmpPath.toString()};
 
-    String[] compilerArgs = GenericWorker.merge(
-      ops.scalaOpts,
-      ops.pluginArgs,
-      constParams,
-      pluginParams,
-      scalaSources);
+    String[] compilerArgs =
+        GenericWorker.merge(ops.scalaOpts, ops.pluginArgs, constParams, pluginParams, scalaSources);
 
     MainClass comp = new MainClass();
     long start = System.currentTimeMillis();
@@ -252,11 +225,10 @@ class ScalacProcessor implements Processor {
     }
 
     try {
-      Files.write(Paths.get(ops.statsfile), Arrays.asList(
-        "build_time=" + Long.toString(stop - start)));
+      Files.write(
+          Paths.get(ops.statsfile), Arrays.asList("build_time=" + Long.toString(stop - start)));
     } catch (IOException ex) {
-        throw new RuntimeException(
-            "Unable to write statsfile to " + ops.statsfile, ex);
+      throw new RuntimeException("Unable to write statsfile to " + ops.statsfile, ex);
     }
 
     ConsoleReporter reporter = (ConsoleReporter) reporterField.get(comp);
@@ -270,42 +242,44 @@ class ScalacProcessor implements Processor {
 
   private static void removeTmp(Path tmp) throws IOException {
     if (tmp != null) {
-      Files.walkFileTree(tmp, new SimpleFileVisitor<Path>() {
-         @Override
-         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-             Files.delete(file);
-             return FileVisitResult.CONTINUE;
-         }
+      Files.walkFileTree(
+          tmp,
+          new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                throws IOException {
+              Files.delete(file);
+              return FileVisitResult.CONTINUE;
+            }
 
-         @Override
-         public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-             Files.delete(dir);
-             return FileVisitResult.CONTINUE;
-         }
-      });
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc)
+                throws IOException {
+              Files.delete(dir);
+              return FileVisitResult.CONTINUE;
+            }
+          });
     }
   }
 
   private static void copyResources(
-      Map<String, Resource> resources,
-      String resourceStripPrefix,
-      Path dest) throws IOException {
-    for(Entry<String, Resource> e : resources.entrySet()) {
+      Map<String, Resource> resources, String resourceStripPrefix, Path dest) throws IOException {
+    for (Entry<String, Resource> e : resources.entrySet()) {
       Path source = Paths.get(e.getKey());
       Resource resource = e.getValue();
       Path shortPath = Paths.get(resource.shortPath);
       String dstr;
       // Check if we need to modify resource destination path
       if (!"".equals(resourceStripPrefix)) {
-  /**
-   * NOTE: We are not using the Resource Hash Value as the destination path
-   * when `resource_strip_prefix` present. The path in the hash value is computed
-   * by the `_adjust_resources_path` in `scala.bzl`. These are the default paths,
-   * ie, path that are automatically computed when there is no `resource_strip_prefix`
-   * present. But when `resource_strip_prefix` is present, we need to strip the prefix
-   * from the Source Path and use that as the new destination path
-   * Refer Bazel -> BazelJavaRuleClasses.java#L227 for details
-   */
+        /**
+         * NOTE: We are not using the Resource Hash Value as the destination path when
+         * `resource_strip_prefix` present. The path in the hash value is computed by the
+         * `_adjust_resources_path` in `scala.bzl`. These are the default paths, ie, path that are
+         * automatically computed when there is no `resource_strip_prefix` present. But when
+         * `resource_strip_prefix` is present, we need to strip the prefix from the Source Path and
+         * use that as the new destination path Refer Bazel -> BazelJavaRuleClasses.java#L227 for
+         * details
+         */
         dstr = getResourcePath(shortPath, resourceStripPrefix);
       } else {
         dstr = resource.destination;
@@ -329,42 +303,42 @@ class ScalacProcessor implements Processor {
     }
   }
 
-  private static void copyClasspathResourcesToRoot(
-    String[] classpathResourceFiles,
-    Path dest
-  ) throws IOException {
-    for(String s : classpathResourceFiles) {
+  private static void copyClasspathResourcesToRoot(String[] classpathResourceFiles, Path dest)
+      throws IOException {
+    for (String s : classpathResourceFiles) {
       Path source = Paths.get(s);
       Path target = dest.resolve(source.getFileName());
 
-      if(Files.exists(target)) {
+      if (Files.exists(target)) {
         System.err.println(
-          "Classpath resource file " + source.getFileName()
-          + " has a namespace conflict with another file: " + target.getFileName()
-        );
+            "Classpath resource file "
+                + source.getFileName()
+                + " has a namespace conflict with another file: "
+                + target.getFileName());
       } else {
         Files.copy(source, target);
       }
     }
   }
 
-  private static String getResourcePath(
-      Path source,
-      String resourceStripPrefix) throws RuntimeException {
+  private static String getResourcePath(Path source, String resourceStripPrefix)
+      throws RuntimeException {
     String sourcePath = source.toString();
     // check if the Resource file is under the specified prefix to strip
     if (!sourcePath.startsWith(resourceStripPrefix)) {
       // Resource File is not under the specified prefix to strip
-      throw new RuntimeException("Resource File "
-        + sourcePath
-        + " is not under the specified strip prefix "
-        + resourceStripPrefix);
+      throw new RuntimeException(
+          "Resource File "
+              + sourcePath
+              + " is not under the specified strip prefix "
+              + resourceStripPrefix);
     }
     String newResPath = sourcePath.substring(resourceStripPrefix.length());
     return newResPath;
   }
+
   private static void copyResourceJars(String[] resourceJars, Path dest) throws IOException {
-    for (String jarPath: resourceJars) {
+    for (String jarPath : resourceJars) {
       extractJar(jarPath, dest.toString(), null);
     }
   }

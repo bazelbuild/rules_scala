@@ -20,13 +20,14 @@ def jmh_repositories():
       actual = '@io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_asm//jar',
   )
   native.maven_jar(
-       name = "io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_reflection",
-       artifact = "org.openjdk.jmh:jmh-generator-reflection:1.20",
-       sha1 = "f2154437b42426a48d5dac0b3df59002f86aed26",
+      name = "io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_reflection",
+      artifact = "org.openjdk.jmh:jmh-generator-reflection:1.20",
+      sha1 = "f2154437b42426a48d5dac0b3df59002f86aed26",
   )
   native.bind(
-       name = 'io_bazel_rules_scala/dependency/jmh/jmh_generator_reflection',
-       actual = '@io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_reflection//jar',
+      name = 'io_bazel_rules_scala/dependency/jmh/jmh_generator_reflection',
+      actual =
+      '@io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_reflection//jar',
   )
   native.maven_jar(
       name = "io_bazel_rules_scala_org_ows2_asm_asm",
@@ -43,7 +44,8 @@ def jmh_repositories():
       sha1 = "cdd846cfc4e0f7eefafc02c0f5dce32b9303aa2a",
   )
   native.bind(
-      name = "io_bazel_rules_scala/dependency/jmh/net_sf_jopt_simple_jopt_simple",
+      name =
+      "io_bazel_rules_scala/dependency/jmh/net_sf_jopt_simple_jopt_simple",
       actual = '@io_bazel_rules_scala_net_sf_jopt_simple_jopt_simple//jar',
   )
   native.maven_jar(
@@ -52,7 +54,8 @@ def jmh_repositories():
       sha1 = "e4ba98f1d4b3c80ec46392f25e094a6a2e58fcbf",
   )
   native.bind(
-      name = "io_bazel_rules_scala/dependency/jmh/org_apache_commons_commons_math3",
+      name =
+      "io_bazel_rules_scala/dependency/jmh/org_apache_commons_commons_math3",
       actual = '@io_bazel_rules_scala_org_apache_commons_commons_math3//jar',
   )
 
@@ -73,16 +76,26 @@ def _scala_generate_benchmark(ctx):
       outputs = [ctx.outputs.src_jar, ctx.outputs.resource_jar],
       inputs = depset([class_jar], transitive = [classpath]),
       executable = ctx.executable._generator,
-      arguments = [ctx.attr.generator_type] + [f.path for f in [class_jar, ctx.outputs.src_jar, ctx.outputs.resource_jar] + classpath.to_list()],
+      arguments = [ctx.attr.generator_type] + [
+          f.path
+          for f in [class_jar, ctx.outputs.src_jar, ctx.outputs.resource_jar] +
+          classpath.to_list()
+      ],
       progress_message = "Generating benchmark code for %s" % ctx.label,
   )
 
 scala_generate_benchmark = rule(
     implementation = _scala_generate_benchmark,
     attrs = {
-        "src": attr.label(allow_single_file=True, mandatory=True),
-        "generator_type": attr.string(default='reflection', mandatory=False),
-        "_generator": attr.label(executable=True, cfg="host", default=Label("//src/scala/io/bazel/rules_scala/jmh_support:benchmark_generator"))
+        "src": attr.label(allow_single_file = True, mandatory = True),
+        "generator_type": attr.string(
+            default = 'reflection', mandatory = False),
+        "_generator": attr.label(
+            executable = True,
+            cfg = "host",
+            default = Label(
+                "//src/scala/io/bazel/rules_scala/jmh_support:benchmark_generator"
+            ))
     },
     outputs = {
         "src_jar": "%{name}.srcjar",
@@ -112,7 +125,8 @@ def scala_benchmark_jmh(**kw):
   )
 
   codegen = name + "_codegen"
-  scala_generate_benchmark(name=codegen, src=lib, generator_type=generator_type)
+  scala_generate_benchmark(
+      name = codegen, src = lib, generator_type = generator_type)
   compiled_lib = name + "_compiled_benchmark_lib"
   scala_library(
       name = compiled_lib,
@@ -124,11 +138,11 @@ def scala_benchmark_jmh(**kw):
       resource_jars = ["%s_resources.jar" % codegen],
   )
   scala_binary(
-     name = name,
-     deps = [
-         "//external:io_bazel_rules_scala/dependency/jmh/net_sf_jopt_simple_jopt_simple",
-         "//external:io_bazel_rules_scala/dependency/jmh/org_apache_commons_commons_math3",
-         compiled_lib,
-    ],
-     main_class = main_class,
+      name = name,
+      deps = [
+          "//external:io_bazel_rules_scala/dependency/jmh/net_sf_jopt_simple_jopt_simple",
+          "//external:io_bazel_rules_scala/dependency/jmh/org_apache_commons_commons_math3",
+          compiled_lib,
+      ],
+      main_class = main_class,
   )

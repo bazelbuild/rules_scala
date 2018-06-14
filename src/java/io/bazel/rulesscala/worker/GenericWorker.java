@@ -1,26 +1,19 @@
 package io.bazel.rulesscala.worker;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import com.google.devtools.build.lib.worker.WorkerProtocol.WorkRequest;
 import com.google.devtools.build.lib.worker.WorkerProtocol.WorkResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.lang.reflect.Field;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.Files;
-import java.util.ArrayList;
+import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.Map;
-import java.util.TreeMap;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class GenericWorker {
-  final protected Processor processor;
+  protected final Processor processor;
 
   public GenericWorker(Processor p) {
     processor = p;
@@ -75,21 +68,22 @@ public class GenericWorker {
     String[] tmp = new String[init.length + rest.size()];
     System.arraycopy(init, 0, tmp, 0, init.length);
     int baseIdx = init.length;
-    for(T t : rest) {
+    for (T t : rest) {
       tmp[baseIdx] = t.toString();
       baseIdx += 1;
     }
     return tmp;
   }
+
   public static String[] merge(String[]... arrays) {
     int totalLength = 0;
-    for(String[] arr:arrays){
+    for (String[] arr : arrays) {
       totalLength += arr.length;
     }
 
     String[] result = new String[totalLength];
     int offset = 0;
-    for(String[] arr:arrays){
+    for (String[] arr : arrays) {
       System.arraycopy(arr, 0, result, offset, arr.length);
       offset += arr.length;
     }
@@ -103,24 +97,19 @@ public class GenericWorker {
     return false;
   }
 
-
   private static List<String> normalize(List<String> args) throws IOException {
     if (args.size() == 1 && args.get(0).startsWith("@")) {
       return Files.readAllLines(Paths.get(args.get(0).substring(1)), UTF_8);
-    }
-    else {
+    } else {
       return args;
     }
   }
 
-  /**
-   * This is expected to be called by a main method
-   */
+  /** This is expected to be called by a main method */
   public void run(String[] argArray) throws Exception {
     if (contains(argArray, "--persistent_worker")) {
       runPersistentWorker();
-    }
-    else {
+    } else {
       List<String> args = Arrays.asList(argArray);
       processor.processRequest(normalize(args));
     }

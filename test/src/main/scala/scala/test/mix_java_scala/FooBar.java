@@ -1,4 +1,3 @@
 package scala.test;
-public class FooBar extends Foo {
 
-}
+public class FooBar extends Foo {}
