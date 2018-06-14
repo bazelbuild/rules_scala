@@ -1,4 +1,4 @@
-package anx
+package scala.test.crossbuild
 import scala.util.{Either, Right}
 
 trait Hello {

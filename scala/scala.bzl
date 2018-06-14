@@ -141,6 +141,7 @@ _scala_macro_library_attrs = {
     "exports": attr.label_list(allow_files=False),
 }
 _scala_macro_library_attrs.update(_implicit_deps)
+_scala_macro_library_attrs.update(scala_deps)
 _scala_macro_library_attrs.update(_common_attrs)
 _scala_macro_library_attrs.update(_library_attrs)
 _scala_macro_library_attrs.update(_resolve_deps)
@@ -158,6 +159,7 @@ _scala_binary_attrs = {
 }
 _scala_binary_attrs.update(_launcher_template)
 _scala_binary_attrs.update(_implicit_deps)
+_scala_binary_attrs.update(scala_deps)
 _scala_binary_attrs.update(_common_attrs)
 _scala_binary_attrs.update(_resolve_deps)
 scala_binary = rule(
@@ -180,6 +182,7 @@ _scala_test_attrs = {
 }
 _scala_test_attrs.update(_launcher_template)
 _scala_test_attrs.update(_implicit_deps)
+_scala_test_attrs.update(scala_deps)
 _scala_test_attrs.update(_common_attrs)
 _scala_test_attrs.update(_test_resolve_deps)
 scala_test = rule(
@@ -439,6 +442,7 @@ _scala_junit_test_attrs = {
 }
 _scala_junit_test_attrs.update(_launcher_template)
 _scala_junit_test_attrs.update(_implicit_deps)
+_scala_junit_test_attrs.update(scala_deps)
 _scala_junit_test_attrs.update(_common_attrs)
 _scala_junit_test_attrs.update(_junit_resolve_deps)
 scala_junit_test = rule(

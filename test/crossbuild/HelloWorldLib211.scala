@@ -1,4 +1,4 @@
-package anx
+package scala.test.crossbuild
 
 trait Hello {
   def hello: String = "hfnos"
