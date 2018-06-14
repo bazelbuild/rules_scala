@@ -72,7 +72,7 @@ load("@io_bazel_rules_scala//scala:providers.bzl",
 )
 
 java_binary(
-    name = "scalac_2_12",
+    name = "scalac_worker",
     srcs = [
         "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac:scalac_files",
     ],
@@ -83,39 +83,46 @@ java_binary(
         "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/jar",
         "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/worker",
         '//external:io_bazel_rules_scala/dependency/commons_io/commons_io',
-        '@scala_2_12//:scala-compiler',
-        '@scala_2_12//:scala-library',
-        '@scala_2_12//:scala-reflect',
+        '@{archive}//:scala-compiler',
+        '@{archive}//:scala-library',
+        '@{archive}//:scala-reflect',
     ],
 )
 
 _declare_scala_worker(
-    name = "worker",
-    scalac = ":scalac_2_12",
-    scalalib = "@scala_2_12//:scala-library",
-    scalareflect = "@scala_2_12//:scala-reflect",
-    scalacompiler = "@scala_2_12//:scala-compiler",
+    name = "{name}",
+    scalac = ":scalac_worker",
+    scalalib = "@{archive}//:scala-library",
+    scalareflect = "@{archive}//:scala-reflect",
+    scalacompiler = "@{archive}//:scala-compiler",
     visibility = ["//visibility:public"],
 )
-    """
+    """.format(
+      archive = ctx.attr.archive,
+      name = ctx.attr.name
+    )
+
     ctx.file("BUILD", contents, False)
 
 
 _generate_scala_build_file = repository_rule(
   implementation = _generate_scala_build_file_impl,
-  attrs = {}
+  attrs = { "archive": attr.string() }
 )
 
 
-def new_scala_repository():
+def new_scala_repository(name, version):
+  archive = "{name}_archive".format(name=name)
   native.new_http_archive(
-    name = "scala_2_12",
-    strip_prefix = "scala-2.12.5",
-    url = "https://downloads.lightbend.com/scala/2.12.5/scala-2.12.5.tgz",
+    name = archive,
+    strip_prefix = "scala-{version}".format(version=version),
+    url = "https://downloads.lightbend.com/scala/{version}/scala-{version}.tgz".format(version=version),
     build_file_content = _SCALA_BUILD_FILE_2_12,
   )
 
   _generate_scala_build_file(
-    name = "scala_2_12_bf",
+    name = name,
+    archive = archive,
     visibility = ["//visibility:public"]
   )
+

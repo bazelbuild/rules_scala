@@ -264,7 +264,8 @@ def scala_repositories():
     build_file_content = _SCALA_BUILD_FILE,
   )
 
-  _new_scala_repository()
+  _new_scala_repository("scala_2_12", "2.12.4")
+  _new_scala_repository("scala_2_11_1", "2.11.1")
 
   # scalatest has macros, note http_jar is invoking ijar
   native.http_jar(
