@@ -36,20 +36,26 @@ ScalaWorker = provider(
     doc = "ScalaWorker",
     fields = [
         "scalac",
-        "scalalib"
+        "scalalib",
+        "scalareflect",
+        "scalacompiler"
     ]
 )
 
 def _declare_scala_worker(ctx):
     return [ScalaWorker(
         scalac = ctx.attr.scalac,
-        scalalib = ctx.attr.scalalib
+        scalalib = ctx.attr.scalalib,
+        scalareflect = ctx.attr.scalareflect,
+        scalacompiler = ctx.attr.scalacompiler,
     )]
 
 declare_scala_worker = rule(
     implementation = _declare_scala_worker,
     attrs = {
         "scalac": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/scalac"), allow_files=True),
-        "scalalib": attr.label(default=Label("@scala_2_12//:scala-library"), allow_files=True),
+        "scalalib": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_library"), allow_files=True),
+        "scalareflect": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_reflect"), allow_files=True),
+        "scalacompiler": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_compiler"), allow_files=True),
     }
 )

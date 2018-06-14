@@ -19,4 +19,5 @@ trap 'finish $?' EXIT
 
 set -x
 
-bazel build //test/crossbuild:hello_world_lib
+bazel build //test/crossbuild:lib
+bazel build //test/crossbuild:repl

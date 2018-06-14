@@ -505,7 +505,8 @@ def _collect_jars_from_common_ctx(ctx, extra_deps = [], extra_runtime_deps = [])
     dependency_analyzer_is_off = is_dependency_analyzer_off(ctx)
 
     # Get jars from deps
-    auto_deps = [ctx.attr.scalaworker[_ScalaWorker].scalalib, ctx.attr._scalareflect]
+    scalaworker = ctx.attr.scalaworker[_ScalaWorker]
+    auto_deps = [scalaworker.scalalib, scalaworker.scalareflect]
     deps_jars = collect_jars(ctx.attr.deps + auto_deps + extra_deps, dependency_analyzer_is_off)
     (cjars, transitive_rjars, jars2labels, transitive_compile_jars) = (deps_jars.compile_jars, deps_jars.transitive_runtime_jars, deps_jars.jars2labels, deps_jars.transitive_compile_jars)
 
@@ -632,7 +633,7 @@ def scala_binary_impl(ctx):
 
 def scala_repl_impl(ctx):
   # need scala-compiler for MainGenericRunner below
-  jars = _collect_jars_from_common_ctx(ctx, extra_runtime_deps = [ctx.attr._scalacompiler])
+  jars = _collect_jars_from_common_ctx(ctx, extra_runtime_deps = [ctx.attr.scalaworker[_ScalaWorker].scalacompiler])
   (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
 
   args = " ".join(ctx.attr.scalacopts)

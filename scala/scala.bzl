@@ -25,10 +25,6 @@ _launcher_template = {
 _implicit_deps = {
   "_singlejar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:singlejar"), allow_files=True),
   "_ijar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:ijar"), allow_files=True),
-  "_scalac": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/scalac"), allow_files=True),
-  "_scalalib": attr.label(default=Label("@scala_2_12//:scala-library"), allow_files=True),
-  "_scalacompiler": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_compiler"), allow_files=True),
-  "_scalareflect": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala/scala_reflect"), allow_files=True),
   "_zipper": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/zip:zipper"), allow_files=True),
   "_java_toolchain": attr.label(default = Label("@bazel_tools//tools/jdk:current_java_toolchain")),
   "_host_javabase": attr.label(default = Label("@bazel_tools//tools/jdk:current_java_runtime"), cfg="host"),
@@ -199,6 +195,7 @@ scala_test = rule(
 _scala_repl_attrs = {}
 _scala_repl_attrs.update(_launcher_template)
 _scala_repl_attrs.update(_implicit_deps)
+_scala_repl_attrs.update(scala_deps)
 _scala_repl_attrs.update(_common_attrs)
 _scala_repl_attrs.update(_resolve_deps)
 scala_repl = rule(
@@ -247,8 +244,6 @@ java_import(
 
 _declare_scala_worker(
     name = "worker",
-    scalac = "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac:scalac",
-    scalalib = "@scala//:scala-library",
     visibility = ["//visibility:public"],
 )
 """
@@ -292,6 +287,8 @@ _declare_scala_worker(
     name = "worker",
     scalac = "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac:scalac_2_12",
     scalalib = "@scala_2_12//:scala-library",
+    scalareflect = "@scala_2_12//:scala-reflect",
+    scalacompiler = "@scala_2_12//:scala-compiler",
     visibility = ["//visibility:public"],
 )
 """
