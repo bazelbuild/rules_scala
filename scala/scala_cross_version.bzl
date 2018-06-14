@@ -74,10 +74,7 @@ load("@io_bazel_rules_scala//scala:providers.bzl",
 java_binary(
     name = "scalac_2_12",
     srcs = [
-        "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac:CompileOptions.java",
-        "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac:ScalaCInvoker.java",
-        "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac:ScalacProcessor.java",
-        "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac:Resource.java",
+        "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac:scalac_files",
     ],
     main_class = "io.bazel.rulesscala.scalac.ScalaCInvoker",
     visibility = ["//visibility:public"],
