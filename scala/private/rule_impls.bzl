@@ -13,7 +13,10 @@
 # limitations under the License.
 """Rules for supporting the Scala language."""
 load("@io_bazel_rules_scala//scala:scala_toolchain.bzl", "scala_toolchain")
-load("@io_bazel_rules_scala//scala:providers.bzl", "create_scala_provider", _ScalaWorker = "ScalaWorker")
+load(
+    "@io_bazel_rules_scala//scala:providers.bzl",
+    "create_scala_provider",
+    _ScalaWorker = "ScalaWorker")
 load(
     ":common.bzl",
     "add_labels_of_jars_to",
@@ -255,8 +258,8 @@ StatsfileOutput: {statsfile_output}
   ctx.actions.run(
       inputs = ins,
       outputs = outs,
-      executable=worker.scalac.files_to_run.executable,
-      input_manifests=input_manifests,
+      executable = worker.scalac.files_to_run.executable,
+      input_manifests = input_manifests,
       mnemonic = "Scalac",
       progress_message = "scala %s" % ctx.label,
       execution_requirements = {"supports-workers": "1"},
@@ -647,7 +650,8 @@ def scala_binary_impl(ctx):
 def scala_repl_impl(ctx):
   # need scala-compiler for MainGenericRunner below
   jars = _collect_jars_from_common_ctx(
-      ctx, extra_runtime_deps = [ctx.attr.scalaworker[_ScalaWorker].scalacompiler])
+      ctx,
+      extra_runtime_deps = [ctx.attr.scalaworker[_ScalaWorker].scalacompiler])
   (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
 
   args = " ".join(ctx.attr.scalacopts)

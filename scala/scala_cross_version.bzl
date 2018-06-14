@@ -63,9 +63,8 @@ java_import(
 )
 """
 
-
 def _generate_scala_build_file_impl(ctx):
-    contents = """
+  contents = """
 load("@io_bazel_rules_scala//scala:providers.bzl",
      _declare_scala_worker = "declare_scala_worker",
 )
@@ -97,31 +96,24 @@ _declare_scala_worker(
     visibility = ["//visibility:public"],
 )
     """.format(
-      archive = ctx.attr.archive,
-      name = ctx.attr.name
-    )
+      archive = ctx.attr.archive, name = ctx.attr.name)
 
-    ctx.file("BUILD", contents, False)
-
+  ctx.file("BUILD", contents, False)
 
 _generate_scala_build_file = repository_rule(
-  implementation = _generate_scala_build_file_impl,
-  attrs = { "archive": attr.string() }
-)
-
+    implementation = _generate_scala_build_file_impl,
+    attrs = {"archive": attr.string()})
 
 def new_scala_repository(name, version):
-  archive = "{name}_archive".format(name=name)
+  archive = "{name}_archive".format(name = name)
   native.new_http_archive(
-    name = archive,
-    strip_prefix = "scala-{version}".format(version=version),
-    url = "https://downloads.lightbend.com/scala/{version}/scala-{version}.tgz".format(version=version),
-    build_file_content = _SCALA_BUILD_FILE_2_12,
+      name = archive,
+      strip_prefix = "scala-{version}".format(version = version),
+      url =
+      "https://downloads.lightbend.com/scala/{version}/scala-{version}.tgz".
+      format(version = version),
+      build_file_content = _SCALA_BUILD_FILE_2_12,
   )
 
   _generate_scala_build_file(
-    name = name,
-    archive = archive,
-    visibility = ["//visibility:public"]
-  )
-
+      name = name, archive = archive, visibility = ["//visibility:public"])

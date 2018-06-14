@@ -8,12 +8,14 @@ load(
     _scala_junit_test_impl = "scala_junit_test_impl",
 )
 
-load("@io_bazel_rules_scala//scala:providers.bzl",
-     _ScalaWorker = "ScalaWorker",
+load(
+    "@io_bazel_rules_scala//scala:providers.bzl",
+    _ScalaWorker = "ScalaWorker",
 )
 
-load("@io_bazel_rules_scala//scala:scala_cross_version.bzl",
-	_new_scala_repository = "new_scala_repository",
+load(
+    "@io_bazel_rules_scala//scala:scala_cross_version.bzl",
+    _new_scala_repository = "new_scala_repository",
 )
 
 load(
@@ -68,9 +70,9 @@ _implicit_deps = {
 }
 
 scala_deps = {
-  "scalaworker": attr.label(default=Label("@scala//:worker"), providers=[_ScalaWorker])
+    "scalaworker": attr.label(
+        default = Label("@scala//:worker"), providers = [_ScalaWorker])
 }
-
 
 # Single dep to allow IDEs to pickup all the implicit dependencies.
 _resolve_deps = {
