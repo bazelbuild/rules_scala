@@ -289,12 +289,11 @@ def scrooge_scala_library(name,
       with_finagle = with_finagle,
   )
 
-  # deps from macro invocation would come via srcjar
-  # however, retained to make dependency analysis via aspects easier
   scala_library(
       name = name,
+      srcs = [srcjar],
       deps = deps + remote_jars + [
-          srcjar, "//external:io_bazel_rules_scala/dependency/thrift/libthrift",
+          "//external:io_bazel_rules_scala/dependency/thrift/libthrift",
           "//external:io_bazel_rules_scala/dependency/thrift/scrooge_core"
       ],
       exports = deps + remote_jars + [

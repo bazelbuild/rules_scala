@@ -562,7 +562,9 @@ def _lib(ctx, non_macro_lib):
       # this information through. extra_information allows passing
       # this information through, and it is up to the new_targets
       # to filter and make sense of this information.
-      extra_information=_collect_extra_information(ctx.attr.deps),
+      # unfortunately, we need to see this for scrooge and protobuf to work,
+      # but those are generating srcjar, so they should really come in via srcs
+      extra_information=_collect_extra_information(ctx.attr.deps + ctx.attr.srcs),
       jars_to_labels = jars.jars2labels,
     )
 
