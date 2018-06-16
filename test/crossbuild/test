@@ -27,6 +27,8 @@ bazel build //test/crossbuild:repl
 bazel build //test/crossbuild:repl212
 
 bazel test //test/crossbuild:test
+bazel test //test/crossbuild:test212
+bazel test //test/crossbuild:test2124
 
 bazel run //test/crossbuild:binary
 bazel run //test/crossbuild:binary212

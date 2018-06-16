@@ -27,7 +27,12 @@ def create_scala_provider(ijar, class_jar, compile_jars,
 
 ScalaWorker = provider(
     doc = "ScalaWorker",
-    fields = ["scalac", "scalalib", "scalareflect", "scalacompiler"])
+    fields = ["scalac",
+              "scalalib",
+              "scalareflect",
+              "scalacompiler",
+              "scalatest",
+              "scalatest_runner"])
 
 def _declare_scala_worker(ctx):
   return [
@@ -36,6 +41,8 @@ def _declare_scala_worker(ctx):
           scalalib = ctx.attr.scalalib,
           scalareflect = ctx.attr.scalareflect,
           scalacompiler = ctx.attr.scalacompiler,
+          scalatest = ctx.attr.scalatest,
+          scalatest_runner = ctx.attr.scalatest_runner,
       )
   ]
 
@@ -61,5 +68,19 @@ declare_scala_worker = rule(
             default = Label(
                 "//external:io_bazel_rules_scala/dependency/scala/scala_compiler"
             ),
+            allow_files = True),
+        "scalaxml": attr.label(
+            default = Label(
+                "//external:io_bazel_rules_scala/dependency/scala/scala_xml"
+            ),
+            allow_files = True),
+        "scalatest": attr.label_list(
+            default = [Label(
+                "//external:io_bazel_rules_scala/dependency/scalatest/scalatest_2_11")],
+            allow_files = True),
+        "scalatest_runner": attr.label(
+            executable = True,
+            cfg = "host",
+            default = Label("//src/java/io/bazel/rulesscala/scala_test:runner_2_11.jar"),
             allow_files = True),
     })

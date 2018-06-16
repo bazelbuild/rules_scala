@@ -19,6 +19,27 @@ java_binary(
     ],
 )
 
+java_binary(
+    name = "scalac_2_12",
+    srcs = [
+        "CompileOptions.java",
+        "Resource.java",
+        "ScalaCInvoker.java",
+        "ScalacProcessor.java",
+    ],
+    main_class = "io.bazel.rulesscala.scalac.ScalaCInvoker",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//external:io_bazel_rules_scala/dependency/commons_io/commons_io",
+        '@scala_2_12//:scala-compiler',
+        '@scala_2_12//:scala-library',
+        '@scala_2_12//:scala-reflect',
+        "//src/java/com/google/devtools/build/lib:worker",
+        "//src/java/io/bazel/rulesscala/jar",
+        "//src/java/io/bazel/rulesscala/worker",
+    ],
+)
+
 filegroup(
   name = "scalac_files",
   srcs = [

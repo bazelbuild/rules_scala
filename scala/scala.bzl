@@ -22,10 +22,17 @@ load(
     "@io_bazel_rules_scala//specs2:specs2_junit.bzl",
     _specs2_junit_dependencies = "specs2_junit_dependencies")
 
+load(
+    "@io_bazel_rules_scala//scala:build_files.bzl",
+    _SCALA_BUILD_FILE_2_11 = "SCALA_BUILD_FILE_2_11",
+    _SCALA_BUILD_FILE_2_12 = "SCALA_BUILD_FILE_2_12",
+)
 _launcher_template = {
     "_java_stub_template": attr.label(
         default = Label("@java_stub_template//file")),
 }
+
+
 
 _implicit_deps = {
     "_singlejar": attr.label(
@@ -37,23 +44,6 @@ _implicit_deps = {
         executable = True,
         cfg = "host",
         default = Label("@bazel_tools//tools/jdk:ijar"),
-        allow_files = True),
-    "_scalac": attr.label(
-        executable = True,
-        cfg = "host",
-        default = Label("//src/java/io/bazel/rulesscala/scalac"),
-        allow_files = True),
-    "_scalalib": attr.label(
-        default = Label(
-            "//external:io_bazel_rules_scala/dependency/scala/scala_library"),
-        allow_files = True),
-    "_scalacompiler": attr.label(
-        default = Label(
-            "//external:io_bazel_rules_scala/dependency/scala/scala_compiler"),
-        allow_files = True),
-    "_scalareflect": attr.label(
-        default = Label(
-            "//external:io_bazel_rules_scala/dependency/scala/scala_reflect"),
         allow_files = True),
     "_zipper": attr.label(
         executable = True,
@@ -71,7 +61,7 @@ _implicit_deps = {
 
 scala_deps = {
     "scalaworker": attr.label(
-        default = Label("@scala//:worker"), providers = [_ScalaWorker])
+        default = Label("@scala"), providers = [_ScalaWorker])
 }
 
 # Single dep to allow IDEs to pickup all the implicit dependencies.
@@ -85,6 +75,7 @@ _resolve_deps = {
         allow_files = False),
 }
 
+# TODO not version specific
 _test_resolve_deps = {
     "_scala_toolchain": attr.label_list(
         default = [
@@ -92,7 +83,7 @@ _test_resolve_deps = {
                 "//external:io_bazel_rules_scala/dependency/scala/scala_library"
             ),
             Label(
-                "//external:io_bazel_rules_scala/dependency/scalatest/scalatest"
+                "//external:io_bazel_rules_scala/dependency/scalatest/scalatest_2_11"
             ),
         ],
         allow_files = False),
@@ -236,17 +227,13 @@ _scala_test_attrs = {
     "suites": attr.string_list(),
     "colors": attr.bool(default = True),
     "full_stacktraces": attr.bool(default = True),
-    "_scalatest": attr.label(
-        default = Label(
-            "//external:io_bazel_rules_scala/dependency/scalatest/scalatest"),
-        allow_files = True),
     "_scalatest_runner": attr.label(
         executable = True,
         cfg = "host",
-        default = Label("//src/java/io/bazel/rulesscala/scala_test:runner.jar"),
+        default = Label("//src/java/io/bazel/rulesscala/scala_test:runner_2_11.jar"),
         allow_files = True),
-    "_scalatest_reporter": attr.label(
-        default = Label("//scala/support:test_reporter")),
+    "scalatest_reporter": attr.label(
+        default = Label("//scala/support:test_reporter_2_11")),
 }
 _scala_test_attrs.update(_launcher_template)
 _scala_test_attrs.update(_implicit_deps)
@@ -278,47 +265,6 @@ scala_repl = rule(
     toolchains = ['@io_bazel_rules_scala//scala:toolchain_type'],
 )
 
-_SCALA_BUILD_FILE = """
-# scala.BUILD
-load("@io_bazel_rules_scala//scala:providers.bzl",
-     _declare_scala_worker = "declare_scala_worker",
-)
-java_import(
-    name = "scala-xml",
-    jars = ["lib/scala-xml_2.11-1.0.5.jar"],
-    visibility = ["//visibility:public"],
-)
-
-java_import(
-    name = "scala-parser-combinators",
-    jars = ["lib/scala-parser-combinators_2.11-1.0.4.jar"],
-    visibility = ["//visibility:public"],
-)
-
-java_import(
-    name = "scala-library",
-    jars = ["lib/scala-library.jar"],
-    visibility = ["//visibility:public"],
-)
-
-java_import(
-    name = "scala-compiler",
-    jars = ["lib/scala-compiler.jar"],
-    visibility = ["//visibility:public"],
-)
-
-java_import(
-    name = "scala-reflect",
-    jars = ["lib/scala-reflect.jar"],
-    visibility = ["//visibility:public"],
-)
-
-_declare_scala_worker(
-    name = "worker",
-    visibility = ["//visibility:public"],
-)
-"""
-
 def scala_repositories():
   native.new_http_archive(
       name = "scala",
@@ -326,19 +272,34 @@ def scala_repositories():
       sha256 =
       "12037ca64c68468e717e950f47fc77d5ceae5e74e3bdca56f6d02fd5bfd6900b",
       url = "https://downloads.lightbend.com/scala/2.11.11/scala-2.11.11.tgz",
-      build_file_content = _SCALA_BUILD_FILE,
+      build_file_content = _SCALA_BUILD_FILE_2_11,
+  )
+  native.new_http_archive(
+      name = "scala_2_12",
+      strip_prefix = "scala-2.12.5",
+      url = "https://downloads.lightbend.com/scala/2.12.5/scala-2.12.5.tgz",
+      build_file_content = _SCALA_BUILD_FILE_2_12,
   )
 
-  _new_scala_repository("scala_2_12", "2.12.4")
+  _new_scala_repository("scala_2_12_4", "2.12.4")
   _new_scala_repository("scala_2_11_1", "2.11.1")
 
   # scalatest has macros, note http_jar is invoking ijar
   native.http_jar(
-      name = "scalatest",
+      name = "scalatest_2_11",
       url =
       "https://mirror.bazel.build/oss.sonatype.org/content/groups/public/org/scalatest/scalatest_2.11/2.2.6/scalatest_2.11-2.2.6.jar",
       sha256 =
       "f198967436a5e7a69cfd182902adcfbcb9f2e41b349e1a5c8881a2407f615962",
+  )
+
+  native.http_jar(
+      name = "scalatest_2_12",
+      url = "http://central.maven.org/maven2/org/scalatest/scalatest_2.12/3.0.1/scalatest_2.12-3.0.1.jar"
+  )
+  native.http_jar(
+      name = "scalactic_2_12",
+      url = "http://central.maven.org/maven2/org/scalactic/scalactic_2.12/3.0.5/scalactic_2.12-3.0.5.jar"
   )
 
   native.maven_server(
@@ -408,8 +369,12 @@ def scala_repositories():
       actual = "@scala//:scala-xml")
 
   native.bind(
-      name = "io_bazel_rules_scala/dependency/scalatest/scalatest",
-      actual = "@scalatest//jar")
+      name = "io_bazel_rules_scala/dependency/scalatest/scalatest_2_11",
+      actual = "@scalatest_2_11//jar")
+
+  native.bind(
+      name = "io_bazel_rules_scala/dependency/scalatest/scalatest_2_12",
+      actual = "@scalatest_2_12//jar")
 
 def _sanitize_string_for_usage(s):
   res_array = []

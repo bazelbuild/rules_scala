@@ -26,7 +26,8 @@ def scala_mvn_artifact(artifact):
   version = gav[2]
   return "%s:%s_%s:%s" % (groupid, artifactid, scala_version(), version)
 
-_SCALA_BUILD_FILE_2_12 = """
+def _generate_scala_worker(version):
+  return """
 # scala.BUILD
 load("@io_bazel_rules_scala//scala:providers.bzl",
      _declare_scala_worker = "declare_scala_worker",
@@ -34,13 +35,13 @@ load("@io_bazel_rules_scala//scala:providers.bzl",
 
 java_import(
     name = "scala-xml",
-    jars = ["lib/scala-xml_2.12-1.0.6.jar"],
+    jars = ["lib/scala-xml_{version}-1.0.6.jar"],
     visibility = ["//visibility:public"],
 )
 
 java_import(
     name = "scala-parser-combinators",
-    jars = ["lib/scala-parser-combinators_2.12-1.0.7.jar"],
+    jars = ["lib/scala-parser-combinators_{version}-1.0.7.jar"],
     visibility = ["//visibility:public"],
 )
 
@@ -61,9 +62,14 @@ java_import(
     jars = ["lib/scala-reflect.jar"],
     visibility = ["//visibility:public"],
 )
-"""
+  """.format(version = version)
 
 def _generate_scala_build_file_impl(ctx):
+  if ctx.attr.version == "2_12": 
+    scalatest = """["@scalatest_{version}//jar", "@scalactic_{version}//jar"]""".format(version = ctx.attr.version)
+  else:
+    scalatest = """["@scalatest_{version}//jar"]""".format(version = ctx.attr.version)
+
   contents = """
 load("@io_bazel_rules_scala//scala:providers.bzl",
      _declare_scala_worker = "declare_scala_worker",
@@ -93,18 +99,21 @@ _declare_scala_worker(
     scalalib = "@{archive}//:scala-library",
     scalareflect = "@{archive}//:scala-reflect",
     scalacompiler = "@{archive}//:scala-compiler",
+    scalatest = {scalatest},
+    scalatest_runner = "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scala_test:runner_{version}.jar",
     visibility = ["//visibility:public"],
 )
     """.format(
-      archive = ctx.attr.archive, name = ctx.attr.name)
+      archive = ctx.attr.archive, name = ctx.attr.name, version = ctx.attr.version, scalatest = scalatest)
 
   ctx.file("BUILD", contents, False)
 
 _generate_scala_build_file = repository_rule(
     implementation = _generate_scala_build_file_impl,
-    attrs = {"archive": attr.string()})
+    attrs = {"archive": attr.string(), "version": attr.string()})
 
 def new_scala_repository(name, version):
+  major_version = version[:version.find(".", 2)]
   archive = "{name}_archive".format(name = name)
   native.new_http_archive(
       name = archive,
@@ -112,8 +121,8 @@ def new_scala_repository(name, version):
       url =
       "https://downloads.lightbend.com/scala/{version}/scala-{version}.tgz".
       format(version = version),
-      build_file_content = _SCALA_BUILD_FILE_2_12,
+      build_file_content = _generate_scala_worker(major_version),
   )
 
   _generate_scala_build_file(
-      name = name, archive = archive, visibility = ["//visibility:public"])
+      name = name, archive = archive, version = major_version.replace(".", "_"), visibility = ["//visibility:public"])

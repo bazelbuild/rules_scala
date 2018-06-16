@@ -699,10 +699,12 @@ def _scala_test_flags(ctx):
 def scala_test_impl(ctx):
   if len(ctx.attr.suites) != 0:
     print("suites attribute is deprecated. All scalatest test suites are run")
+
+  scalaworker = ctx.attr.scalaworker[_ScalaWorker]
   jars = _collect_jars_from_common_ctx(
       ctx,
       extra_runtime_deps = [
-          ctx.attr._scalatest_reporter, ctx.attr._scalatest_runner
+          ctx.attr.scalatest_reporter, scalaworker.scalatest_runner
       ],
   )
   (cjars, transitive_rjars, transitive_compile_jars,
@@ -710,7 +712,7 @@ def scala_test_impl(ctx):
                       jars.transitive_compile_jars, jars.jars2labels)
   # _scalatest is an http_jar, so its compile jar is run through ijar
   # however, contains macros, so need to handle separately
-  scalatest_jars = collect_jars([ctx.attr._scalatest]).transitive_runtime_jars
+  scalatest_jars = collect_jars(scalaworker.scalatest).transitive_runtime_jars
   cjars = depset(transitive = [cjars, scalatest_jars])
   transitive_rjars = depset(transitive = [transitive_rjars, scalatest_jars])
 
@@ -718,7 +720,7 @@ def scala_test_impl(ctx):
     transitive_compile_jars = depset(
         transitive = [scalatest_jars, transitive_compile_jars])
     scalatest_jars_list = scalatest_jars.to_list()
-    add_labels_of_jars_to(jars_to_labels, ctx.attr._scalatest,
+    add_labels_of_jars_to(jars_to_labels, scalaworker.scalatest,
                           scalatest_jars_list, scalatest_jars_list)
 
   args = " ".join([
