@@ -64,11 +64,22 @@ java_import(
 )
   """.format(version = version)
 
-def _generate_scala_build_file_impl(ctx):
-  if ctx.attr.version == "2_12": 
-    scalatest = """["@scalatest_{version}//jar", "@scalactic_{version}//jar"]""".format(version = ctx.attr.version)
+def _generate_scala_build_file_impl(repository_ctx):
+  if repository_ctx.attr.version == "2_12":
+    scalatest = """["@scalatest_{version}//jar", "@scalactic_{version}//jar"]""".format(version = repository_ctx.attr.version)
   else:
-    scalatest = """["@scalatest_{version}//jar"]""".format(version = ctx.attr.version)
+    scalatest = """["@scalatest_{version}//jar"]""".format(version = repository_ctx.attr.version)
+
+  scalac_worker_srcs = [
+      "CompileOptions.java",
+      "ScalaCInvoker.java",
+      "ScalacProcessor.java",
+      "Resource.java",
+  ]
+
+  for src in scalac_worker_srcs:
+    path = Label("@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac:{}".format(src))
+    repository_ctx.symlink(path, "scalac_worker_srcs_symlinked/{}".format(src))
 
   contents = """
 load("@io_bazel_rules_scala//scala:providers.bzl",
@@ -77,9 +88,7 @@ load("@io_bazel_rules_scala//scala:providers.bzl",
 
 java_binary(
     name = "scalac_worker",
-    srcs = [
-        "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac:scalac_files",
-    ],
+    srcs = glob(["scalac_worker_srcs_symlinked/*.java"]),
     main_class = "io.bazel.rulesscala.scalac.ScalaCInvoker",
     visibility = ["//visibility:public"],
     deps = [
@@ -105,9 +114,9 @@ _declare_scala_worker(
     visibility = ["//visibility:public"],
 )
     """.format(
-      archive = ctx.attr.archive, name = ctx.attr.name, version = ctx.attr.version, scalatest = scalatest)
+      archive = repository_ctx.attr.archive, name = repository_ctx.attr.name, version = repository_ctx.attr.version, scalatest = scalatest)
 
-  ctx.file("BUILD", contents, False)
+  repository_ctx.file("BUILD", contents, False)
 
 _generate_scala_build_file = repository_rule(
     implementation = _generate_scala_build_file_impl,
