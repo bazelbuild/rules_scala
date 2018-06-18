@@ -36,6 +36,13 @@ java_import(
 _declare_scala_worker(
     name = "scala",
     visibility = ["//visibility:public"],
+    scalac = "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac:scalac_2_11",
+    scalalib = "//:scala-library",
+    scalareflect = "//:scala-reflect",
+    scalaxml = "//:scala-xml",
+    scalacompiler = "//:scala-compiler",
+    scalatest = ["@scalatest_2_11//jar", "@scalactic_2_11//jar"],
+    scalatest_runner = "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scala_test:runner_2_11.jar",
 )
 """
 
@@ -80,6 +87,7 @@ _declare_scala_worker(
     scalac = "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac:scalac_2_12",
     scalalib = "@scala_2_12//:scala-library",
     scalareflect = "@scala_2_12//:scala-reflect",
+    scalaxml = "//:scala-xml",
     scalacompiler = "@scala_2_12//:scala-compiler",
     scalatest = ["@scalatest_2_12//jar", "@scalactic_2_12//jar"],
     scalatest_runner = "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scala_test:runner_2_12.jar",

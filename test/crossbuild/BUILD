@@ -41,6 +41,7 @@ scala_repl(
 scala_test(
     name = "test",
     srcs = ["Test.scala"],
+    scalatest_reporter = "//scala/support:test_reporter_2_11"
 )
 
 scala_test(

@@ -52,35 +52,26 @@ declare_scala_worker = rule(
         "scalac": attr.label(
             executable = True,
             cfg = "host",
-            default = Label("//src/java/io/bazel/rulesscala/scalac"),
-            allow_files = True),
+            allow_files = True,
+            mandatory = True),
         "scalalib": attr.label(
-            default = Label(
-                "//external:io_bazel_rules_scala/dependency/scala/scala_library"
-            ),
+            mandatory = True,
             allow_files = True),
         "scalareflect": attr.label(
-            default = Label(
-                "//external:io_bazel_rules_scala/dependency/scala/scala_reflect"
-            ),
+            mandatory = True,
             allow_files = True),
         "scalacompiler": attr.label(
-            default = Label(
-                "//external:io_bazel_rules_scala/dependency/scala/scala_compiler"
-            ),
+            mandatory = True,
             allow_files = True),
         "scalaxml": attr.label(
-            default = Label(
-                "//external:io_bazel_rules_scala/dependency/scala/scala_xml"
-            ),
+            mandatory = True,
             allow_files = True),
         "scalatest": attr.label_list(
-            default = [Label(
-                "//external:io_bazel_rules_scala/dependency/scalatest/scalatest_2_11")],
+            mandatory = True,
             allow_files = True),
         "scalatest_runner": attr.label(
             executable = True,
             cfg = "host",
-            default = Label("//src/java/io/bazel/rulesscala/scala_test:runner_2_11.jar"),
+            mandatory = True,
             allow_files = True),
     })

@@ -227,13 +227,7 @@ _scala_test_attrs = {
     "suites": attr.string_list(),
     "colors": attr.bool(default = True),
     "full_stacktraces": attr.bool(default = True),
-    "_scalatest_runner": attr.label(
-        executable = True,
-        cfg = "host",
-        default = Label("//src/java/io/bazel/rulesscala/scala_test:runner_2_11.jar"),
-        allow_files = True),
-    "scalatest_reporter": attr.label(
-        default = Label("//scala/support:test_reporter_2_11")),
+    "scalatest_reporter": attr.label(mandatory = True),
 }
 _scala_test_attrs.update(_launcher_template)
 _scala_test_attrs.update(_implicit_deps)
@@ -287,15 +281,16 @@ def scala_repositories():
   # scalatest has macros, note http_jar is invoking ijar
   native.http_jar(
       name = "scalatest_2_11",
-      url =
-      "https://mirror.bazel.build/oss.sonatype.org/content/groups/public/org/scalatest/scalatest_2.11/2.2.6/scalatest_2.11-2.2.6.jar",
-      sha256 =
-      "f198967436a5e7a69cfd182902adcfbcb9f2e41b349e1a5c8881a2407f615962",
+      url = "http://central.maven.org/maven2/org/scalatest/scalatest_2.11/2.2.6/scalatest_2.11-2.2.6.jar"
+  )
+  native.http_jar(
+      name = "scalactic_2_11",
+      url = "http://central.maven.org/maven2/org/scalactic/scalactic_2.11/3.0.5/scalactic_2.11-3.0.5.jar"
   )
 
   native.http_jar(
       name = "scalatest_2_12",
-      url = "http://central.maven.org/maven2/org/scalatest/scalatest_2.12/3.0.1/scalatest_2.12-3.0.1.jar"
+      url = "http://central.maven.org/maven2/org/scalatest/scalatest_2.12/3.0.5/scalatest_2.12-3.0.5.jar"
   )
   native.http_jar(
       name = "scalactic_2_12",

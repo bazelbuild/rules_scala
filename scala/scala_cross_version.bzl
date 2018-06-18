@@ -98,6 +98,7 @@ _declare_scala_worker(
     scalac = ":scalac_worker",
     scalalib = "@{archive}//:scala-library",
     scalareflect = "@{archive}//:scala-reflect",
+    scalaxml = "@{archive}//:scala-xml",
     scalacompiler = "@{archive}//:scala-compiler",
     scalatest = {scalatest},
     scalatest_runner = "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scala_test:runner_{version}.jar",
