@@ -1117,7 +1117,7 @@ java_import(
 
 java_import(
     name = "scala-parser-combinators",
-    jars = ["lib/scala-parser-combinators_2.12-1.0.6.jar"],
+    jars = ["lib/scala-parser-combinators_2.12-1.0.7.jar"],
     visibility = ["//visibility:public"],
 )
 
@@ -1149,9 +1149,9 @@ java_library(
 def scala_repositories():
   native.new_http_archive(
     name = "scala",
-    strip_prefix = "scala-2.12.3",
-    sha256 = "2b796ab773fbedcc734ba881a6486d54180b699ade8ba7493e91912044267c8c",
-    url = "https://downloads.lightbend.com/scala/2.12.3/scala-2.12.3.tgz",
+    strip_prefix = "scala-2.12.6",
+    sha256 = "1ac7444c5a85ed1ea45db4a268ee9ea43adf80e7f5724222863afb5492883416",
+    url = "https://downloads.lightbend.com/scala/2.12.6/scala-2.12.6.tgz",
     build_file_content = SCALA_BUILD_FILE,
   )
 
