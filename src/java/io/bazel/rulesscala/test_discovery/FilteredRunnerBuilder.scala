@@ -1,13 +1,20 @@
 package io.bazel.rulesscala.test_discovery
 
+import java.lang.annotation.Annotation
+import java.util
 import java.util.regex.Pattern
 
 import io.bazel.rulesscala.test_discovery.FilteredRunnerBuilder.FilteringRunnerBuilder
+import org.junit.Test
 import org.junit.runner.Runner
 import org.junit.runners.BlockJUnit4ClassRunner
-import org.junit.runners.model.{FrameworkMethod, RunnerBuilder}
+import org.junit.runners.model.{FrameworkMethod, RunnerBuilder, TestClass}
 
-import scala.collection.JavaConverters._
+import scala.collection.JavaConversions._
+
+object FilteredRunnerBuilder {
+  type FilteringRunnerBuilder = PartialFunction[(Runner, Class[_], Pattern), Runner]
+}
 
 class FilteredRunnerBuilder(builder: RunnerBuilder, filteringRunnerBuilder: FilteringRunnerBuilder) extends RunnerBuilder {
   // Defined by --test_filter bazel flag.
@@ -21,29 +28,43 @@ class FilteredRunnerBuilder(builder: RunnerBuilder, filteringRunnerBuilder: Filt
   }
 }
 
-object FilteredRunnerBuilder {
-  type FilteringRunnerBuilder = PartialFunction[(Runner, Class[_], Pattern), Runner]
-}
-
-object JUnitFilteringRunnerBuilder {
-  val f: FilteringRunnerBuilder = {
-    case (_: BlockJUnit4ClassRunner, testClass: Class[_], pattern: Pattern) =>
-      new FilteredJUnitClassRunner(testClass, pattern)
+private[rulesscala] class FilteredTestClass(testClass: Class[_], pattern: Pattern) extends TestClass(testClass) {
+  override def getAnnotatedMethods(aClass: Class[_ <: Annotation]): util.List[FrameworkMethod] = {
+    val methods = super.getAnnotatedMethods(aClass)
+    if (aClass == classOf[Test]) methods.filter(method => methodMatchesPattern(method, pattern))
+    else methods
   }
-}
-
-class FilteredJUnitClassRunner(testClass: Class[_], pattern: Pattern)
-  extends BlockJUnit4ClassRunner(testClass) {
-  override def getChildren: java.util.List[FrameworkMethod] =
-    super
-      .getChildren
-      .asScala
-      .filter(method => methodMatchesPattern(method, pattern))
-      .asJava
 
   private def methodMatchesPattern(method: FrameworkMethod, pattern: Pattern): Boolean = {
     val testCase = method.getDeclaringClass.getName + "#" + method.getName
     pattern.matcher(testCase).find
   }
+}
 
+object JUnitFilteringRunnerBuilder {
+  private final val TestClassFieldPreJUnit4_12 = "fTestClass"
+  private final val TestClassField = "testClass"
+
+  val f: FilteringRunnerBuilder = {
+    case (runner: BlockJUnit4ClassRunner, testClass: Class[_], pattern: Pattern) =>
+      replaceRunnerTestClass(runner, testClass, pattern)
+  }
+
+  private def replaceRunnerTestClass(runner: BlockJUnit4ClassRunner, testClass: Class[_], pattern: Pattern) = {
+    allFieldsOf(runner.getClass)
+      .find(f => f.getName == TestClassField || f.getName == TestClassFieldPreJUnit4_12)
+      .foreach(field => {
+        field.setAccessible(true)
+        field.set(runner, new FilteredTestClass(testClass, pattern))
+      })
+    runner
+  }
+
+  private def allFieldsOf(clazz: Class[_]) = {
+    def supers(cl: Class[_]): List[Class[_]] = {
+      if (cl == null) Nil else cl :: supers(cl.getSuperclass)
+    }
+
+    supers(clazz).flatMap(_.getDeclaredFields)
+  }
 }

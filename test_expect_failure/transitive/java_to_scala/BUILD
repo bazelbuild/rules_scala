@@ -2,13 +2,13 @@ load("//scala:scala.bzl", "scala_library", "scala_export_to_java")
 
 scala_library(
     name = "a",
-    srcs = ["A.scala"]
+    srcs = ["A.scala"],
 )
 
 scala_export_to_java(
     name = "b",
     exports = [":a"],
-    runtime_deps = []
+    runtime_deps = [],
 )
 
 java_library(
@@ -20,6 +20,6 @@ java_library(
 java_library(
     name = "d",
     srcs = ["D.java"],
-    deps = [":c"],
     tags = ["manual"],
+    deps = [":c"],
 )

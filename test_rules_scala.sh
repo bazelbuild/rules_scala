@@ -16,28 +16,6 @@ test_disappearing_class() {
   fi
   set -e
 }
-md5_util() {
-if [[ "$OSTYPE" == "darwin"* ]]; then
-   _md5_util="md5"
-else
-   _md5_util="md5sum"
-fi
-echo "$_md5_util"
-}
-
-non_deploy_jar_md5_sum() {
-  find bazel-bin/test -name "*.jar" ! -name "*_deploy.jar" | xargs -n 1 -P 5 $(md5_util) | sort
-}
-
-test_build_is_identical() {
-  bazel build test/...
-  non_deploy_jar_md5_sum > hash1
-  bazel clean
-  sleep 2 # to make sure that if timestamps slip in we get different ones
-  bazel build test/...
-  non_deploy_jar_md5_sum > hash2
-  diff hash1 hash2
-}
 
 test_transitive_deps() {
   set +e
@@ -66,6 +44,32 @@ test_transitive_deps() {
 
 test_scala_library_suite() {
   action_should_fail build test_expect_failure/scala_library_suite:library_suite_dep_on_children
+}
+
+test_expect_failure_with_message() {
+  set +e
+
+  expected_message=$1
+  test_filter=$2
+  test_command=$3
+
+  command="bazel test --nocache_test_results --test_output=streamed ${test_filter} ${test_command}"
+  output=$(${command} 2>&1)
+
+  echo ${output} | grep "$expected_message"
+  if [ $? -ne 0 ]; then
+    echo "'bazel test ${test_command}' should have logged \"${expected_message}\"."
+        exit 1
+  fi
+  if [ "${additional_expected_message}" != "" ]; then
+    echo ${output} | grep "$additional_expected_message"
+    if [ $? -ne 0 ]; then
+      echo "'bazel test ${test_command}' should have logged \"${additional_expected_message}\"."
+          exit 1
+    fi
+  fi
+
+  set -e
 }
 
 test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message() {
@@ -148,14 +152,14 @@ test_scala_binary_expect_failure_on_missing_direct_deps_located_in_dependency_wh
 }
 
 test_scala_library_expect_failure_on_missing_direct_external_deps_jar() {
-  dependenecy_target='@com_google_guava_guava_21_0//jar:jar'
+  dependenecy_target='@com_google_guava_guava_21_0//:com_google_guava_guava_21_0'
   test_target='test_expect_failure/missing_direct_deps/external_deps:transitive_external_dependency_user'
 
   test_scala_library_expect_failure_on_missing_direct_deps $dependenecy_target $test_target
 }
 
 test_scala_library_expect_failure_on_missing_direct_external_deps_file_group() {
-  dependenecy_target='@com_google_guava_guava_21_0//jar:file'
+  dependenecy_target='@com_google_guava_guava_21_0_with_file//jar:file'
   test_target='test_expect_failure/missing_direct_deps/external_deps:transitive_external_dependency_user_file_group'
 
   test_scala_library_expect_failure_on_missing_direct_deps $dependenecy_target $test_target
@@ -172,9 +176,11 @@ test_scala_library_expect_failure_on_missing_direct_deps_warn_mode() {
 
 test_scala_library_expect_failure_on_missing_direct_java() {
   dependency_target='//test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency'
+  #since bazel 0.12.0 the labels are only emmitted if ijar is in play 
+  dependency_file='test_expect_failure/missing_direct_deps/internal_deps/transitive_dependency_ijar.jar'
   test_target='//test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency_java_user'
 
-  expected_message="$dependency_target[ \t]*to[ \t]*$test_target"
+  expected_message="$dependency_file.*$test_target"
 
   test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" $test_target "--strict_java_deps=error"
 }
@@ -191,9 +197,10 @@ test_scala_library_expect_better_failure_message_on_missing_transitive_dependenc
 
 test_scala_library_expect_failure_on_missing_direct_deps_warn_mode_java() {
   dependency_target='//test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency'
+  dependency_file='test_expect_failure/missing_direct_deps/internal_deps/transitive_dependency_ijar.jar'
   test_target='//test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency_java_user'
 
-  local expected_message="buildozer 'add deps $dependency_target ' $test_target"
+  local expected_message="$dependency_file.*$test_target"
 
   test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target} "--strict_java_deps=warn" "ne"
 }
@@ -406,6 +413,14 @@ scala_junit_test_test_filter(){
   done
 }
 
+scala_junit_test_test_filter_custom_runner(){
+  bazel test \
+    --nocache_test_results \
+    --test_output=streamed \
+    '--test_filter=scala.test.junit.JunitCustomRunnerTest#' \
+    test:JunitCustomRunner
+}
+
 scala_specs2_junit_test_test_filter_everything(){
   local output=$(bazel test \
     --nocache_test_results \
@@ -582,6 +597,14 @@ scala_specs2_junit_test_test_filter_match_multiple_methods(){
   done
 }
 
+
+scala_specs2_exception_in_initializer_without_filter(){
+  expected_message="org.specs2.control.UserException: cannot create an instance for class scala.test.junit.specs2.FailingTest"
+  test_command="test_expect_failure/scala_junit_test:specs2_failing_test"
+
+  test_expect_failure_with_message "$expected_message" $test_filter $test_command
+}
+
 scalac_jvm_flags_are_configured(){
   action_should_fail build //test_expect_failure/compilers_jvm_flags:can_configure_jvm_flags_for_scalac
 }
@@ -738,15 +761,45 @@ test_scala_classpath_resources_expect_warning_on_namespace_conflict() {
   fi
 }
 
+scala_binary_common_jar_is_exposed_in_build_event_protocol() {
+  local target=$1
+  set +e
+  bazel build test:$target --build_event_text_file=$target_bes.txt
+  cat $target_bes.txt | grep "test/$target.jar"
+  if [ $? -ne 0 ]; then
+    echo "test/$target.jar was not found in build event protocol:"
+    cat $target_bes.txt
+    rm $target_bes.txt
+    exit 1
+  fi
+
+  rm $target_bes.txt
+  set -e
+}
+
+scala_binary_jar_is_exposed_in_build_event_protocol() {
+  scala_binary_common_jar_is_exposed_in_build_event_protocol ScalaLibBinary
+}
+
+scala_test_jar_is_exposed_in_build_event_protocol() {
+  scala_binary_common_jar_is_exposed_in_build_event_protocol HelloLibTest
+}
+
+scala_junit_test_jar_is_exposed_in_build_event_protocol() {
+  scala_binary_common_jar_is_exposed_in_build_event_protocol JunitTestWithDeps
+}
+
 dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 # shellcheck source=./test_runner.sh
 . "${dir}"/test_runner.sh
 runner=$(get_test_runner "${1:-local}")
 
 $runner bazel build test/...
+$runner bazel build "test/... --all_incompatible_changes"
 $runner bazel test test/...
 $runner bazel test third_party/...
 $runner bazel build "test/... --strict_java_deps=ERROR"
+$runner bazel build "test/... --strict_java_deps=ERROR --all_incompatible_changes"
 $runner bazel test "test/... --strict_java_deps=ERROR"
 $runner bazel run test/src/main/scala/scala/test/twitter_scrooge:justscrooges
 $runner bazel run test:JavaBinary
@@ -776,6 +829,7 @@ $runner scala_library_jar_without_srcs_must_include_filegroup_resources
 $runner bazel run test/src/main/scala/scala/test/large_classpath:largeClasspath
 $runner scala_test_test_filters
 $runner scala_junit_test_test_filter
+$runner scala_junit_test_test_filter_custom_runner
 $runner scala_specs2_junit_test_test_filter_everything
 $runner scala_specs2_junit_test_test_filter_one_test
 $runner scala_specs2_junit_test_test_filter_whole_spec
@@ -783,6 +837,7 @@ $runner scala_specs2_junit_test_test_filter_exact_match
 $runner scala_specs2_junit_test_test_filter_exact_match_unsafe_characters
 $runner scala_specs2_junit_test_test_filter_exact_match_escaped_and_sanitized
 $runner scala_specs2_junit_test_test_filter_match_multiple_methods
+$runner scala_specs2_exception_in_initializer_without_filter
 $runner scalac_jvm_flags_are_configured
 $runner javac_jvm_flags_are_configured
 $runner javac_jvm_flags_via_javacopts_are_configured
@@ -813,8 +868,7 @@ $runner test_scala_import_library_passes_labels_of_direct_deps
 $runner java_toolchain_javacopts_are_used
 $runner bazel run test/src/main/scala/scala/test/classpath_resources:classpath_resource
 $runner test_scala_classpath_resources_expect_warning_on_namespace_conflict
-
-# This test is last since it compares the current outputs to new ones to make sure they're identical
-# If it runs before some of the above (like jmh) the "current" output in CI might be too close in time to the "new" one
-# The test also adds sleep by itself but it's best if it's last
-$runner test_build_is_identical
+$runner bazel build //test_expect_failure/proto_source_root/... --strict_proto_deps=off
+$runner scala_binary_jar_is_exposed_in_build_event_protocol
+$runner scala_test_jar_is_exposed_in_build_event_protocol
+$runner scala_junit_test_jar_is_exposed_in_build_event_protocol

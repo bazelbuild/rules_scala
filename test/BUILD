@@ -1,6 +1,7 @@
 package(default_testonly = 1)
 
-load("//scala:scala.bzl",
+load(
+    "//scala:scala.bzl",
     "scala_binary",
     "scala_library",
     "scala_test",
@@ -9,10 +10,12 @@ load("//scala:scala.bzl",
     "scala_test_suite",
     "scala_library_suite",
     "scala_junit_test",
-    "scala_specs2_junit_test")
-
-load("//scala_proto:scala_proto.bzl",
-    "scalapb_proto_library")
+    "scala_specs2_junit_test",
+)
+load(
+    "//scala_proto:scala_proto.bzl",
+    "scalapb_proto_library",
+)
 
 # The examples below show how to combine Scala and Java rules.
 # ScalaBinary is the Scala equivalent of JavaBinary.
@@ -21,16 +24,16 @@ java_binary(
     name = "JavaBinary",
     srcs = ["JavaBinary.java"],
     main_class = "scala.test.JavaBinary",
-    deps = [
-        ":HelloLib",
-        ":OtherLib",
-        ":Exported",
-        ":Runtime",
-    ],
     runtime_deps = [
         ":OtherJavaLib",
         "@scala//:scala-library",
-    ]
+    ],
+    deps = [
+        ":Exported",
+        ":HelloLib",
+        ":OtherLib",
+        ":Runtime",
+    ],
 )
 
 java_binary(
@@ -38,9 +41,9 @@ java_binary(
     srcs = ["JavaBinary.java"],
     main_class = "scala.test.JavaBinary",
     deps = [
+        ":Exported",
         ":HelloLib",
         ":OtherLib",
-        ":Exported",
         ":Runtime",
     ],
 )
@@ -50,7 +53,10 @@ scala_binary(
     srcs = ["ScalaBinary.scala"],
     main_class = "scala.test.ScalaBinary",
     print_compile_time = True,
-    deps = [":HelloLib", ":MacroTest"],
+    deps = [
+        ":HelloLib",
+        ":MacroTest",
+    ],
 )
 
 scala_library(
@@ -58,16 +64,16 @@ scala_library(
     srcs = ["HelloLib.scala"],
     plugins = ["@org_psywerx_hairyfotr__linter//jar"],
     deps = [
+        "Exported",
+        "MacroTest",
         "OtherJavaLib",
         "OtherLib",
-        "MacroTest",
-        "Exported"
     ],
 )
 
 scala_repl(
     name = "HelloLibRepl",
-    deps = [":HelloLib"]
+    deps = [":HelloLib"],
 )
 
 scala_test(
@@ -83,7 +89,8 @@ scala_test(
 scala_library(
     name = "lib_to_test",
     srcs = ["LibToTest.scala"],
-    deps = [":HelloLibTest"])
+    deps = [":HelloLibTest"],
+)
 
 scala_test_suite(
     name = "HelloLibTestSuite",
@@ -102,7 +109,8 @@ scala_test(
 
 scala_repl(
     name = "HelloLibTestRepl",
-    deps = [":HelloLibTest"])
+    deps = [":HelloLibTest"],
+)
 
 scala_library(
     name = "OtherLib",
@@ -113,7 +121,7 @@ scala_library(
 # Test of library without src
 scala_library(
     name = "ExportOnly",
-    exports = [ "Exported" ],
+    exports = ["Exported"],
 )
 
 scala_library(
@@ -131,12 +139,12 @@ scala_library_suite(
 scala_library(
     name = "ConsumeSuite",
     srcs = ["SuiteUsage.scala"],
-    deps = ["SuiteSrcs"]
+    deps = ["SuiteSrcs"],
 )
 
 scala_macro_library(
-  name = "MacroTest",
-  srcs = ["MacroTest.scala"]
+    name = "MacroTest",
+    srcs = ["MacroTest.scala"],
 )
 
 scala_library(
@@ -156,20 +164,20 @@ scala_library(
         "//test/data:some.txt",
         "//test/src/main/resources/scala/test:byes",
         "//test/src/main/resources/scala/test:hellos",
-        ],
+    ],
 )
 
 scala_library(
     name = "ResourcesStripScalaLib",
     srcs = ["src/main/scala/scala/test/ResourcesStripScalaLib.scala"],
-    resources = [
-        "//test/data:more.txt",
-        "//test/data:foo.txt",
-        "//test/src/main/resources/scala/test:more-hellos",
-        "//test/src/main/resources/scala/test:more-byes",
-        "//test/src/main/resources/scala/test:generated-hello",
-        ],
     resource_strip_prefix = "test/",
+    resources = [
+        "//test/data:foo.txt",
+        "//test/data:more.txt",
+        "//test/src/main/resources/scala/test:generated-hello",
+        "//test/src/main/resources/scala/test:more-byes",
+        "//test/src/main/resources/scala/test:more-hellos",
+    ],
 )
 
 scala_binary(
@@ -190,32 +198,41 @@ scala_binary(
 scala_library(
     name = "lib_to_bin",
     srcs = ["LibToBin.scala"],
-    deps = [":ScalaLibBinary"])
+    deps = [":ScalaLibBinary"],
+)
 
 scala_repl(
     name = "ScalaLibBinaryRepl",
-    deps = [":ScalaLibBinary"])
+    deps = [":ScalaLibBinary"],
+)
 
 scala_repl(
     name = "ResourcesStripScalaBinaryRepl",
-    deps = [":ResourcesStripScalaBinary"])
+    deps = [":ResourcesStripScalaBinary"],
+)
 
 scala_repl(
     name = "ReplWithSources",
-    srcs = ["A.scala"])
+    srcs = ["A.scala"],
+)
 
 scala_library(
-  name = "jar_export",
-  exports = ["@com_twitter__scalding_date//jar"]
+    name = "jar_export",
+    exports = ["@com_twitter__scalding_date//jar"],
 )
 
 #Mix java scala
 scala_library(
     name = "MixJavaScalaLib",
-    srcs = glob(["src/main/scala/scala/test/mix_java_scala/*.scala"]) +
-           glob(["src/main/scala/scala/test/mix_java_scala/*.java"]),
-    jvm_flags = ["-Xms1G", "-Xmx4G"],
+    srcs = glob(["src/main/scala/scala/test/mix_java_scala/*.scala"]) + glob([
+        "src/main/scala/scala/test/mix_java_scala/*.java",
+    ]),
+    jvm_flags = [
+        "-Xms1G",
+        "-Xmx4G",
+    ],
 )
+
 #needed to test java sources are compiled
 scala_binary(
     name = "MixJavaScalaLibBinary",
@@ -228,12 +245,16 @@ scala_binary(
 scala_library(
     name = "MixJavaScalaSrcjarLib",
     srcs = glob([
-      "src/main/scala/scala/test/mix_java_scala/*.scala",
-      # srcjar created with `jar -cfM Baz.srcjar Baz.java`
-      "src/main/scala/scala/test/mix_java_scala/*.srcjar"
+        "src/main/scala/scala/test/mix_java_scala/*.scala",
+        # srcjar created with `jar -cfM Baz.srcjar Baz.java`
+        "src/main/scala/scala/test/mix_java_scala/*.srcjar",
     ]),
-    jvm_flags = ["-Xms1G", "-Xmx4G"],
+    jvm_flags = [
+        "-Xms1G",
+        "-Xmx4G",
+    ],
 )
+
 #needed to test java sources are compiled
 scala_binary(
     name = "MixJavaScalaSrcjarLibBinary",
@@ -252,65 +273,78 @@ scala_library(
     name = "JUnitCompileTimeDep",
     srcs = ["src/main/scala/scala/test/junit/support/JUnitCompileTimeDep.scala"],
 )
+
 scala_library(
     name = "JUnitRuntimeDep",
     srcs = ["src/main/scala/scala/test/junit/support/JUnitRuntimeDep.scala"],
 )
+
 scala_junit_test(
     name = "JunitTestWithDeps",
-    srcs = ["src/main/scala/scala/test/junit/JunitTests.scala"],
-    suffixes = ["Test"],
     size = "small",
-    deps = [":JUnitCompileTimeDep"],
-    runtime_deps = [":JUnitRuntimeDep"],
+    srcs = ["src/main/scala/scala/test/junit/JunitTests.scala"],
     jvm_flags = ["-XX:HeapDumpPath=/some/custom/path"],
+    suffixes = ["Test"],
+    runtime_deps = [":JUnitRuntimeDep"],
+    deps = [":JUnitCompileTimeDep"],
 )
+
 scala_junit_test(
     name = "JunitMultipleSuffixes",
-    srcs = ["src/main/scala/scala/test/junit/JunitMultipleSuffixes.scala"],
     size = "small",
-    suffixes = ["E2E","IT"],
-    print_discovered_classes = True
+    srcs = ["src/main/scala/scala/test/junit/JunitMultipleSuffixes.scala"],
+    print_discovered_classes = True,
+    suffixes = [
+        "E2E",
+        "IT",
+    ],
 )
+
 scala_junit_test(
     name = "JunitMultiplePrefixes",
-    srcs = ["src/main/scala/scala/test/junit/JunitMultiplePrefixes.scala"],
     size = "small",
-    prefixes = ["Test","OtherCustomPrefix"],
-    print_discovered_classes = True
+    srcs = ["src/main/scala/scala/test/junit/JunitMultiplePrefixes.scala"],
+    prefixes = [
+        "Test",
+        "OtherCustomPrefix",
+    ],
+    print_discovered_classes = True,
 )
+
 scala_junit_test(
     name = "JunitPrefixesAndSuffixes",
-    srcs = ["src/main/scala/scala/test/junit/JunitMultipleSuffixes.scala",
-            "src/main/scala/scala/test/junit/JunitMultiplePrefixes.scala"],
     size = "small",
-    suffixes = ["E2E"],
+    srcs = [
+        "src/main/scala/scala/test/junit/JunitMultiplePrefixes.scala",
+        "src/main/scala/scala/test/junit/JunitMultipleSuffixes.scala",
+    ],
     prefixes = ["Test"],
-    print_discovered_classes = True
+    print_discovered_classes = True,
+    suffixes = ["E2E"],
 )
 
 scala_junit_test(
     name = "JunitJavaTest",
+    size = "small",
     srcs = ["src/main/scala/scala/test/junit/JunitJavaTest.java"],
     suffixes = ["Test"],
-    size = "small",
 )
 
 scala_specs2_junit_test(
     name = "Specs2Tests",
-    srcs = ["src/main/scala/scala/test/junit/specs2/Specs2Tests.scala"],
-    deps = [":JUnitCompileTimeDep"],
     size = "small",
+    srcs = ["src/main/scala/scala/test/junit/specs2/Specs2Tests.scala"],
     print_discovered_classes = True,
     suffixes = ["Test"],
+    deps = [":JUnitCompileTimeDep"],
 )
 
 # Make sure scala_binary works in test environment
 [sh_test(
-    name = "Run" + "".join([c if c.isalnum() else "_" for c in binary]),
+    name = "Run" + "".join([binary[idx] if binary[idx].isalnum() else "_" for idx in range(len(binary))]),
     srcs = ["test_binary.sh"],
     args = ["$(location %s)" % binary],
-    data = [binary if ":" in binary else ":%s" % binary],
+    data = [binary if (":" in binary) else (":%s" % binary)],
 ) for binary in [
     "JavaBinary",
     "JavaBinary2",
@@ -327,9 +361,9 @@ scala_specs2_junit_test(
 # Make sure scala_binary works in genrule environment
 genrule(
     name = "ScalaBinaryInGenrule",
-    tools = [":ScalaBinary"],
     outs = ["scala_binary_out.txt"],
     cmd = "$(location :ScalaBinary) > $@",
+    tools = [":ScalaBinary"],
 )
 
 sh_test(
@@ -341,51 +375,59 @@ sh_test(
 
 scala_specs2_junit_test(
     name = "data_location_expansion",
-    srcs = ["src/main/scala/scala/test/location_expansion/LocationExpansionTest.scala"],
     size = "small",
-    suffixes = ["Test"],
+    srcs = ["src/main/scala/scala/test/location_expansion/LocationExpansionTest.scala"],
     data = ["//src/java/com/google/devtools/build/lib:worker"],
     jvm_flags = ["-Dlocation.expanded=$(location //src/java/com/google/devtools/build/lib:worker)"],
+    suffixes = ["Test"],
 )
 
 scala_junit_test(
     name = "JunitFiltersAbstractClassesAndInterfaces",
-    srcs = ["src/main/scala/scala/test/junit/JunitAbstractClassAndInterface.scala"],
     size = "small",
+    srcs = ["src/main/scala/scala/test/junit/JunitAbstractClassAndInterface.scala"],
+    print_discovered_classes = True,
     suffixes = ["Test"],
-    print_discovered_classes = True
 )
 
 scala_junit_test(
     name = "JunitFiltersInnerClasses",
-    srcs = ["src/main/scala/scala/test/junit/JunitInnerClass.scala"],
     size = "small",
+    srcs = ["src/main/scala/scala/test/junit/JunitInnerClass.scala"],
     prefixes = ["Test"],
-    print_discovered_classes = True
+    print_discovered_classes = True,
 )
 
 scala_junit_test(
     name = "JunitFiltersClassesWithoutTests",
-    srcs = ["src/main/scala/scala/test/junit/JunitNoTests.scala"],
     size = "small",
+    srcs = ["src/main/scala/scala/test/junit/JunitNoTests.scala"],
+    print_discovered_classes = True,
     suffixes = ["Test"],
-    print_discovered_classes = True
 )
 
 scala_junit_test(
     name = "JunitIncludesClassesWithTestsFromParent",
-    srcs = ["src/main/scala/scala/test/junit/JunitIncludesTestHierarchies.scala"],
     size = "small",
+    srcs = ["src/main/scala/scala/test/junit/JunitIncludesTestHierarchies.scala"],
+    print_discovered_classes = True,
     suffixes = ["Test"],
-    print_discovered_classes = True
+)
+
+scala_junit_test(
+    name = "JunitCustomRunner",
+    size = "small",
+    srcs = ["src/main/scala/scala/test/junit/JunitCustomRunnerTest.scala"],
+    suffixes = ["Test"],
+    deps = [":customJunitRunner"],
 )
 
 scala_junit_test(
     name = "JunitIncludesClassesWithRunWith",
-    srcs = ["src/main/scala/scala/test/junit/JunitIncludesRunWith.scala"],
     size = "small",
+    srcs = ["src/main/scala/scala/test/junit/JunitIncludesRunWith.scala"],
+    print_discovered_classes = True,
     suffixes = ["Test"],
-    print_discovered_classes = True
 )
 
 scala_junit_test(
@@ -398,39 +440,61 @@ scala_junit_test(
 
 scala_library(
     name = "filesWithUtf8",
-    srcs = ["src/main/scala/scala/test/utf8/JavaClassWithUtf8.java",
-            "src/main/scala/scala/test/utf8/ScalaClassWithUtf8.scala"]
-    )
+    srcs = [
+        "src/main/scala/scala/test/utf8/JavaClassWithUtf8.java",
+        "src/main/scala/scala/test/utf8/ScalaClassWithUtf8.scala",
+    ],
+)
+
+scala_library(
+    name = "customJunitRunner",
+    srcs = ["src/main/scala/scala/test/junit/JunitCustomRunner.java"],
+    deps = ["//external:io_bazel_rules_scala/dependency/junit/junit"],
+)
 
 # make sure making a fat jar strips signatures
 java_import(
     name = "fakejar",
-    jars = ["fake_sig.jar"])
+    jars = ["fake_sig.jar"],
+)
 
 scala_binary(
     name = "ScalaBinary_with_fake",
     srcs = ["ScalaBinary.scala"],
     main_class = "scala.test.ScalaBinary",
-    deps = [":HelloLib", ":MacroTest", ":fakejar"],
+    deps = [
+        ":HelloLib",
+        ":MacroTest",
+        ":fakejar",
+    ],
 )
 
 py_binary(
     name = "jar_lister",
-    srcs = ["jar_lister.py"]
+    srcs = ["jar_lister.py"],
 )
 
 sh_test(
-  name = "no_sig",
-  srcs = ["no_sigs.sh"],
-  args = ["$(location //test:jar_lister)", "$(location //test:ScalaBinary_with_fake_deploy.jar)"],
-  data = [":ScalaBinary_with_fake_deploy.jar", ":jar_lister"],
+    name = "no_sig",
+    srcs = ["no_sigs.sh"],
+    args = [
+        "$(location //test:jar_lister)",
+        "$(location //test:ScalaBinary_with_fake_deploy.jar)",
+    ],
+    data = [
+        ":ScalaBinary_with_fake_deploy.jar",
+        ":jar_lister",
+    ],
 )
 
 scala_binary(
     name = "ScalaBinary_with_service_manifest_srcs",
     srcs = ["A.scala"],
     main_class = "scala.test.A",
-    deps = ["//test/example_jars:example_jar1", "//test/example_jars:example_jar2"]
+    deps = [
+        "//test/example_jars:example_jar1",
+        "//test/example_jars:example_jar2",
+    ],
 )
 
 scala_binary(
@@ -443,22 +507,26 @@ scala_binary(
 scala_library(
     name = "lib_with_scala_proto_dep",
     srcs = ["TestServer.scala"],
-    deps = ["//test/proto:test_proto"]
+    deps = ["//test/proto:test_proto"],
 )
 
 scala_binary(
     name = "test_scala_proto_server",
     main_class = "test.proto.TestServer",
-    deps = [":lib_with_scala_proto_dep"]
+    deps = [":lib_with_scala_proto_dep"],
 )
 
 scalapb_proto_library(
     name = "test_proto_scala_dep",
-    deps = ["//test/proto:test2", ":HelloLib"],
     visibility = ["//visibility:public"],
+    deps = [
+        ":HelloLib",
+        "//test/proto:test2",
+    ],
 )
 
 load(":check_statsfile.bzl", "check_statsfile")
 
 check_statsfile("ScalaBinary")
+
 check_statsfile("ScalaLibBinary")
