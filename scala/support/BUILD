@@ -25,7 +25,7 @@ scala_library(
     visibility = ["//visibility:public"],
     scalaworker = "@scala",
     deps = [
-        "//external:io_bazel_rules_scala/dependency/scala/scala_xml",
+        "@scala_xml_2_11//jar",
         "//external:io_bazel_rules_scala/dependency/scalatest/scalatest_2_11",
     ],
 )
@@ -55,7 +55,7 @@ scala_library(
     visibility = ["//visibility:public"],
     scalaworker = "@scala_2_12",
     deps = [
-        "@scala_2_12//:scala-xml",
+        "@scala_xml_2_12//jar",
         "//external:io_bazel_rules_scala/dependency/scalatest/scalatest_2_12",
     ],
 )

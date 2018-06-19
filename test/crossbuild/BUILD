@@ -15,12 +15,6 @@ scala_library(
 )
 
 scala_library(
-    name = "lib2111",
-    srcs = ["HelloWorldLib211.scala"],
-	scalaworker = "@scala_2_11_1"
-)
-
-scala_library(
     name = "lib212",
     srcs = ["HelloWorldLib212.scala"],
     scalaworker = "@scala_2_12",
@@ -47,12 +41,6 @@ scala_test(
     name = "test212",
     srcs = ["Test.scala"],
     scalaworker = "@scala_2_12",
-)
-
-scala_test(
-    name = "test2124",
-    srcs = ["Test.scala"],
-    scalaworker = "@scala_2_12_4",
 )
 
 scala_binary(

@@ -34,18 +34,6 @@ load("@io_bazel_rules_scala//scala:providers.bzl",
 )
 
 java_import(
-    name = "scala-xml",
-    jars = ["lib/scala-xml_{version}-1.0.6.jar"],
-    visibility = ["//visibility:public"],
-)
-
-java_import(
-    name = "scala-parser-combinators",
-    jars = ["lib/scala-parser-combinators_{version}-1.0.7.jar"],
-    visibility = ["//visibility:public"],
-)
-
-java_import(
     name = "scala-library",
     jars = ["lib/scala-library.jar"],
     visibility = ["//visibility:public"],
@@ -103,7 +91,7 @@ _declare_scala_worker(
     scalac = ":scalac_worker",
     scalalib = "@{archive}//:scala-library",
     scalareflect = "@{archive}//:scala-reflect",
-    scalaxml = "@{archive}//:scala-xml",
+    scalaxml = "@scala_xml_{version_with_underscore}//jar",
     scalacompiler = "@{archive}//:scala-compiler",
     scalatest = ["@scalatest_{version_with_underscore}//jar", "@scalactic_{version_with_underscore}//jar"],
     scalatest_runner = "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scala_test:runner_{major_version}.jar",
@@ -123,7 +111,7 @@ _generate_scala_build_file = repository_rule(
 
 def new_scala_repository(name, version):
   major_version = version[:version.find(".", 2)]
-  archive = "{name}_archive".format(name = name)
+  archive = "{name}_imports".format(name = name)
   native.new_http_archive(
       name = archive,
       strip_prefix = "scala-{version}".format(version = version),
