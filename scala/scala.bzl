@@ -55,7 +55,7 @@ _implicit_deps = {
 }
 
 scala_deps = {
-    "scalaworker": attr.label(default = Label("@scala"), providers = [_ScalaWorker])
+    "scalaworker": attr.label(default = Label("@scala_default"), providers = [_ScalaWorker])
 }
 
 # Single dep to allow IDEs to pickup all the implicit dependencies.
@@ -254,10 +254,14 @@ scala_repl = rule(
     toolchains = ['@io_bazel_rules_scala//scala:toolchain_type'],
 )
 
-def scala_repositories():
-
+def scala_repositories(scala_default = "2.11.11", additional_scala_versions = [("scala_version_label", "2.12.6")]):
+  # required for bootstrapping scalatest_reporter
   _new_scala_repository("scala", "2.11.11")
   _new_scala_repository("scala_2_12", "2.12.5")
+
+  _new_scala_repository("scala_default", scala_default)
+  for scala_version_label, version in additional_scala_versions:
+    _new_scala_repository(scala_version_label, version)
 
   # scalatest has macros, note http_jar is invoking ijar
   native.http_jar(
