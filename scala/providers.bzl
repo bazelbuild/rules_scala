@@ -27,7 +27,8 @@ def create_scala_provider(ijar, class_jar, compile_jars,
 
 ScalaWorker = provider(
     doc = "ScalaWorker",
-    fields = ["scalac",
+    fields = ["major_version",
+              "scalac",
               "scalalib",
               "scalareflect",
               "scalacompiler",
@@ -37,6 +38,7 @@ ScalaWorker = provider(
 def _declare_scala_worker(ctx):
   return [
       ScalaWorker(
+          major_version = ctx.attr.major_version,
           scalac = ctx.attr.scalac,
           scalalib = ctx.attr.scalalib,
           scalareflect = ctx.attr.scalareflect,
@@ -49,6 +51,7 @@ def _declare_scala_worker(ctx):
 declare_scala_worker = rule(
     implementation = _declare_scala_worker,
     attrs = {
+        "major_version": attr.string(mandatory = True),
         "scalac": attr.label(
             executable = True,
             cfg = "host",

@@ -1,5 +1,5 @@
 java_binary(
-    name = "scalac_2_11",
+    name = "scalac_2.11",
     srcs = [
         "CompileOptions.java",
         "Resource.java",
@@ -20,7 +20,7 @@ java_binary(
 )
 
 java_binary(
-    name = "scalac_2_12",
+    name = "scalac_2.12",
     srcs = [
         "CompileOptions.java",
         "Resource.java",

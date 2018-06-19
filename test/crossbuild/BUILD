@@ -41,21 +41,18 @@ scala_repl(
 scala_test(
     name = "test",
     srcs = ["Test.scala"],
-    scalatest_reporter = "//scala/support:test_reporter_2_11"
 )
 
 scala_test(
     name = "test212",
     srcs = ["Test.scala"],
     scalaworker = "@scala_2_12",
-    scalatest_reporter = "//scala/support:test_reporter_2_12"
 )
 
 scala_test(
     name = "test2124",
     srcs = ["Test.scala"],
     scalaworker = "@scala_2_12_4",
-    scalatest_reporter = "//scala/support:test_reporter_2_12"
 )
 
 scala_binary(

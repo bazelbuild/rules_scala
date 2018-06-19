@@ -15,7 +15,7 @@ load(
 
 load(
     "@io_bazel_rules_scala//scala:scala_cross_version.bzl",
-    _new_scala_repository = "new_scala_repository",
+    _new_scala_repository = "new_scala_repository"
 )
 
 load(
@@ -60,8 +60,7 @@ _implicit_deps = {
 }
 
 scala_deps = {
-    "scalaworker": attr.label(
-        default = Label("@scala"), providers = [_ScalaWorker])
+    "scalaworker": attr.label(default = Label("@scala"), providers = [_ScalaWorker])
 }
 
 # Single dep to allow IDEs to pickup all the implicit dependencies.
@@ -227,7 +226,8 @@ _scala_test_attrs = {
     "suites": attr.string_list(),
     "colors": attr.bool(default = True),
     "full_stacktraces": attr.bool(default = True),
-    "scalatest_reporter": attr.label(mandatory = True),
+    "_scalatest_reporter_2_11": attr.label(default = "//scala/support:test_reporter_2.11"),
+    "_scalatest_reporter_2_12": attr.label(default = "//scala/support:test_reporter_2.12"),
 }
 _scala_test_attrs.update(_launcher_template)
 _scala_test_attrs.update(_implicit_deps)

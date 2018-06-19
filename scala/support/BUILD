@@ -1,7 +1,7 @@
 load("//scala:scala.bzl", "scala_library")
 
 scala_library(
-    name = "test_reporter_2_11",
+    name = "test_reporter_2.11",
     srcs = ["JUnitXmlReporter.scala"],
     scalacopts = [
         "-deprecation:true",
@@ -23,6 +23,7 @@ scala_library(
         "-Ypartial-unification",
     ],
     visibility = ["//visibility:public"],
+    scalaworker = "@scala",
     deps = [
         "//external:io_bazel_rules_scala/dependency/scala/scala_xml",
         "//external:io_bazel_rules_scala/dependency/scalatest/scalatest_2_11",
@@ -30,7 +31,7 @@ scala_library(
 )
 
 scala_library(
-    name = "test_reporter_2_12",
+    name = "test_reporter_2.12",
     srcs = ["JUnitXmlReporter.scala"],
     scalacopts = [
         "-deprecation:true",

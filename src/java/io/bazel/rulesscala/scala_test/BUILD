@@ -1,5 +1,5 @@
 java_binary(
-    name = "runner_2_11",
+    name = "runner_2.11",
     srcs = ["Runner.java"],
     visibility = ["//visibility:public"],
     deps = [
@@ -8,7 +8,7 @@ java_binary(
 )
 
 java_binary(
-    name = "runner_2_12",
+    name = "runner_2.12",
     srcs = ["Runner.java"],
     visibility = ["//visibility:public"],
     deps = [

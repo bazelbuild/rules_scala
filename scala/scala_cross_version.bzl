@@ -65,11 +65,6 @@ java_import(
   """.format(version = version)
 
 def _generate_scala_build_file_impl(repository_ctx):
-  if repository_ctx.attr.version == "2_12":
-    scalatest = """["@scalatest_{version}//jar", "@scalactic_{version}//jar"]""".format(version = repository_ctx.attr.version)
-  else:
-    scalatest = """["@scalatest_{version}//jar"]""".format(version = repository_ctx.attr.version)
-
   scalac_worker_srcs = [
       "CompileOptions.java",
       "ScalaCInvoker.java",
@@ -104,23 +99,27 @@ java_binary(
 
 _declare_scala_worker(
     name = "{name}",
+    major_version = "{major_version}",
     scalac = ":scalac_worker",
     scalalib = "@{archive}//:scala-library",
     scalareflect = "@{archive}//:scala-reflect",
     scalaxml = "@{archive}//:scala-xml",
     scalacompiler = "@{archive}//:scala-compiler",
-    scalatest = {scalatest},
-    scalatest_runner = "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scala_test:runner_{version}.jar",
+    scalatest = ["@scalatest_{version_with_underscore}//jar", "@scalactic_{version_with_underscore}//jar"],
+    scalatest_runner = "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scala_test:runner_{major_version}.jar",
     visibility = ["//visibility:public"],
 )
     """.format(
-      archive = repository_ctx.attr.archive, name = repository_ctx.attr.name, version = repository_ctx.attr.version, scalatest = scalatest)
+      archive = repository_ctx.attr.archive,
+      name = repository_ctx.attr.name,
+      major_version = repository_ctx.attr.major_version,
+      version_with_underscore = repository_ctx.attr.major_version.replace(".", "_"))
 
   repository_ctx.file("BUILD", contents, False)
 
 _generate_scala_build_file = repository_rule(
     implementation = _generate_scala_build_file_impl,
-    attrs = {"archive": attr.string(), "version": attr.string()})
+    attrs = {"archive": attr.string(), "major_version": attr.string()})
 
 def new_scala_repository(name, version):
   major_version = version[:version.find(".", 2)]
@@ -135,4 +134,4 @@ def new_scala_repository(name, version):
   )
 
   _generate_scala_build_file(
-      name = name, archive = archive, version = major_version.replace(".", "_"), visibility = ["//visibility:public"])
+      name = name, archive = archive, major_version = major_version, visibility = ["//visibility:public"])

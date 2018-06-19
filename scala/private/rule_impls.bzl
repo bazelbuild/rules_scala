@@ -701,10 +701,16 @@ def scala_test_impl(ctx):
     print("suites attribute is deprecated. All scalatest test suites are run")
 
   scalaworker = ctx.attr.scalaworker[_ScalaWorker]
+
+  if scalaworker.major_version == "2.11":
+    scalatest_reporter = ctx.attr._scalatest_reporter_2_11
+  else:
+    scalatest_reporter = ctx.attr._scalatest_reporter_2_12
+
   jars = _collect_jars_from_common_ctx(
       ctx,
       extra_runtime_deps = [
-          ctx.attr.scalatest_reporter, scalaworker.scalatest_runner
+          scalatest_reporter, scalaworker.scalatest_runner
       ],
   )
   (cjars, transitive_rjars, transitive_compile_jars,
