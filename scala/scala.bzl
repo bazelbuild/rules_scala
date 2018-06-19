@@ -10,7 +10,7 @@ load(
 
 load(
     "@io_bazel_rules_scala//scala:providers.bzl",
-    _ScalaWorker = "ScalaWorker",
+    _ScalacProvider = "ScalacProvider",
 )
 
 load(
@@ -55,7 +55,7 @@ _implicit_deps = {
 }
 
 scala_deps = {
-    "scalaworker": attr.label(default = Label("@scala_default"), providers = [_ScalaWorker])
+    "scalac": attr.label(default = Label("@scala_default"), providers = [_ScalacProvider])
 }
 
 # Single dep to allow IDEs to pickup all the implicit dependencies.

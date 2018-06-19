@@ -25,8 +25,8 @@ def create_scala_provider(ijar, class_jar, compile_jars,
       transitive_exports = []  #needed by intellij plugin
   )
 
-ScalaWorker = provider(
-    doc = "ScalaWorker",
+ScalacProvider = provider(
+    doc = "ScalaProvider",
     fields = ["major_version",
               "scalac",
               "scalalib",
@@ -35,9 +35,9 @@ ScalaWorker = provider(
               "scalatest",
               "scalatest_runner"])
 
-def _declare_scala_worker(ctx):
+def _declare_scalac_provider(ctx):
   return [
-      ScalaWorker(
+      ScalacProvider(
           major_version = ctx.attr.major_version,
           scalac = ctx.attr.scalac,
           scalalib = ctx.attr.scalalib,
@@ -48,8 +48,8 @@ def _declare_scala_worker(ctx):
       )
   ]
 
-declare_scala_worker = rule(
-    implementation = _declare_scala_worker,
+declare_scalac_provider = rule(
+    implementation = _declare_scalac_provider,
     attrs = {
         "major_version": attr.string(mandatory = True),
         "scalac": attr.label(

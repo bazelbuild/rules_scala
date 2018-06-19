@@ -26,11 +26,11 @@ def scala_mvn_artifact(artifact):
   version = gav[2]
   return "%s:%s_%s:%s" % (groupid, artifactid, scala_version(), version)
 
-def _generate_scala_worker(version):
+def _generate_scala_imports(version):
   return """
 # scala.BUILD
 load("@io_bazel_rules_scala//scala:providers.bzl",
-     _declare_scala_worker = "declare_scala_worker",
+     _declare_scalac_provider = "declare_scalac_provider",
 )
 
 java_import(
@@ -52,7 +52,7 @@ java_import(
 )
   """.format(version = version)
 
-def _generate_scala_build_file_impl(repository_ctx):
+def _generate_scalac_build_file_impl(repository_ctx):
   scalac_worker_srcs = [
       "CompileOptions.java",
       "ScalaCInvoker.java",
@@ -66,7 +66,7 @@ def _generate_scala_build_file_impl(repository_ctx):
 
   contents = """
 load("@io_bazel_rules_scala//scala:providers.bzl",
-     _declare_scala_worker = "declare_scala_worker",
+     _declare_scalac_provider = "declare_scalac_provider",
 )
 
 java_binary(
@@ -85,7 +85,7 @@ java_binary(
     ],
 )
 
-_declare_scala_worker(
+_declare_scalac_provider(
     name = "{name}",
     major_version = "{major_version}",
     scalac = ":scalac_worker",
@@ -105,8 +105,8 @@ _declare_scala_worker(
 
   repository_ctx.file("BUILD", contents, False)
 
-_generate_scala_build_file = repository_rule(
-    implementation = _generate_scala_build_file_impl,
+_generate_scalac_build_file = repository_rule(
+    implementation = _generate_scalac_build_file_impl,
     attrs = {"archive": attr.string(), "major_version": attr.string()})
 
 def new_scala_repository(name, version):
@@ -118,8 +118,8 @@ def new_scala_repository(name, version):
       url =
       "https://downloads.lightbend.com/scala/{version}/scala-{version}.tgz".
       format(version = version),
-      build_file_content = _generate_scala_worker(major_version),
+      build_file_content = _generate_scala_imports(major_version),
   )
 
-  _generate_scala_build_file(
+  _generate_scalac_build_file(
       name = name, archive = archive, major_version = major_version, visibility = ["//visibility:public"])
