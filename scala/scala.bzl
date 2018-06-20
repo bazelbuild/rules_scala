@@ -12,10 +12,6 @@ load(
     "@io_bazel_rules_scala//specs2:specs2_junit.bzl",
     _specs2_junit_dependencies = "specs2_junit_dependencies")
 
-load(
-    "@io_bazel_rules_scala//scala:scala_import.bzl",
-    _scala_import = "scala_import")
-
 _launcher_template = {
     "_java_stub_template": attr.label(
         default = Label("@java_stub_template//file")),
