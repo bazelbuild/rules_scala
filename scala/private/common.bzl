@@ -26,15 +26,12 @@ def _collect_jars_when_dependency_analyzer_is_off(dep_targets):
   runtime_jars = []
 
   for dep_target in dep_targets:
+    # we require a JavaInfo for dependencies
+    # must use java_import or scala_import if you have raw files
     if JavaInfo in dep_target:
       java_provider = dep_target[JavaInfo]
       compile_jars.append(java_provider.compile_jars)
       runtime_jars.append(java_provider.transitive_runtime_jars)
-    else:
-      # support http_file pointed at a jar. http_jar uses ijar,
-      # which breaks scala macros
-      compile_jars.append(filter_not_sources(dep_target.files))
-      runtime_jars.append(filter_not_sources(dep_target.files))
 
   return struct(
       compile_jars = depset(transitive = compile_jars),
@@ -52,17 +49,13 @@ def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
     current_dep_compile_jars = None
     current_dep_transitive_compile_jars = None
 
+    # we require a JavaInfo for dependencies
+    # must use java_import or scala_import if you have raw files
     if JavaInfo in dep_target:
       java_provider = dep_target[JavaInfo]
       current_dep_compile_jars = java_provider.compile_jars
       current_dep_transitive_compile_jars = java_provider.transitive_compile_time_jars
       runtime_jars.append(java_provider.transitive_runtime_jars)
-    else:
-      # support http_file pointed at a jar. http_jar uses ijar,
-      # which breaks scala macros
-      current_dep_compile_jars = filter_not_sources(dep_target.files)
-      current_dep_transitive_compile_jars = filter_not_sources(dep_target.files)
-      runtime_jars.append(filter_not_sources(dep_target.files))
 
     compile_jars.append(current_dep_compile_jars)
     transitive_compile_jars.append(current_dep_transitive_compile_jars)

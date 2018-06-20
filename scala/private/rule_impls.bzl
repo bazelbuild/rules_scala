@@ -460,9 +460,7 @@ def _collect_runtime_jars(dep_targets):
     if JavaInfo in dep_target:
       runtime_jars.append(dep_target[JavaInfo].transitive_runtime_jars)
     else:
-      # support http_file pointed at a jar. http_jar uses ijar,
-      # which breaks scala macros
-      runtime_jars.append(filter_not_sources(dep_target.files))
+      fail("we expect JavaInfo for runtime jars: " + str(dep_target))
 
   return runtime_jars
 
