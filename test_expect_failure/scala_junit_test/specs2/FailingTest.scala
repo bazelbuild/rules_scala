@@ -1,4 +1,4 @@
-package scala.test.junit.specs2
+package scalarules.test.junit.specs2
 
 import org.specs2.mutable.SpecWithJUnit
 
