@@ -621,8 +621,8 @@ Test & Build:
 ```
 bash test_all.sh
 ```
-This doesn't currently pass on OS X (see #136 for details) and so you can also use:
 
+You can also use:
 ```
 bazel test //test/...
 ```
