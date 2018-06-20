@@ -102,7 +102,7 @@ _common_attrs_for_plugin_bootstrapping = {
     "srcs": attr.label_list(allow_files = [".scala", ".srcjar", ".java"]),
     "deps": attr.label_list(),
     "plugins": attr.label_list(allow_files = [".jar"]),
-    "runtime_deps": attr.label_list(),
+    "runtime_deps": attr.label_list(providers = [[JavaInfo]]),
     "data": attr.label_list(allow_files = True, cfg = "data"),
     "resources": attr.label_list(allow_files = True),
     "resource_strip_prefix": attr.string(),

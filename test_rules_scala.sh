@@ -159,7 +159,7 @@ test_scala_library_expect_failure_on_missing_direct_external_deps_jar() {
 }
 
 test_scala_library_expect_failure_on_missing_direct_external_deps_file_group() {
-  dependenecy_target='@com_google_guava_guava_21_0_with_file//jar'
+  dependenecy_target='@com_google_guava_guava_21_0_with_file//jar:jar'
   test_target='test_expect_failure/missing_direct_deps/external_deps:transitive_external_dependency_user_file_group'
 
   test_scala_library_expect_failure_on_missing_direct_deps $dependenecy_target $test_target

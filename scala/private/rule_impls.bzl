@@ -457,10 +457,7 @@ def _collect_runtime_jars(dep_targets):
   runtime_jars = []
 
   for dep_target in dep_targets:
-    if JavaInfo in dep_target:
-      runtime_jars.append(dep_target[JavaInfo].transitive_runtime_jars)
-    else:
-      fail("we expect JavaInfo for runtime jars: " + str(dep_target))
+    runtime_jars.append(dep_target[JavaInfo].transitive_runtime_jars)
 
   return runtime_jars
 
