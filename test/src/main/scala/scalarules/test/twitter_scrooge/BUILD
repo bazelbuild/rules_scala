@@ -190,3 +190,13 @@ scala_binary(
     main_class = "scalarules.test.twitter_scrooge.BareThrifts",
     deps = [":bare_thrift_scrooge"],
 )
+
+sh_test(
+    name = "libthrift2_a_not_on_classpath",
+    srcs = ["grep.sh"],
+    args = [
+        "libthrift2_a",
+        "$(location :justscrooges)",
+    ],
+    data = [":justscrooges"],
+)

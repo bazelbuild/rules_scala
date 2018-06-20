@@ -1,4 +1,4 @@
-java_binary(
+java_library(
     name = "runner",
     srcs = ["Runner.java"],
     visibility = ["//visibility:public"],

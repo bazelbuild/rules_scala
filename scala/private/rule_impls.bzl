@@ -457,12 +457,7 @@ def _collect_runtime_jars(dep_targets):
   runtime_jars = []
 
   for dep_target in dep_targets:
-    if JavaInfo in dep_target:
-      runtime_jars.append(dep_target[JavaInfo].transitive_runtime_jars)
-    else:
-      # support http_file pointed at a jar. http_jar uses ijar,
-      # which breaks scala macros
-      runtime_jars.append(filter_not_sources(dep_target.files))
+    runtime_jars.append(dep_target[JavaInfo].transitive_runtime_jars)
 
   return runtime_jars
 
@@ -562,7 +557,9 @@ def _lib(ctx, non_macro_lib):
       # this information through. extra_information allows passing
       # this information through, and it is up to the new_targets
       # to filter and make sense of this information.
-      extra_information=_collect_extra_information(ctx.attr.deps),
+      # unfortunately, we need to see this for scrooge and protobuf to work,
+      # but those are generating srcjar, so they should really come in via srcs
+      extra_information=_collect_extra_information(ctx.attr.deps + ctx.attr.srcs),
       jars_to_labels = jars.jars2labels,
     )
 
