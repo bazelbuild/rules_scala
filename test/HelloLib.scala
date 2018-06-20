@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package scala.test
+package scalarules.test
 
 object HelloLib {
   // This is to check the linter, which will recommend changing this
