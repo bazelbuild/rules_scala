@@ -46,9 +46,6 @@ def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
   runtime_jars = []
 
   for dep_target in dep_targets:
-    current_dep_compile_jars = None
-    current_dep_transitive_compile_jars = None
-
     # we require a JavaInfo for dependencies
     # must use java_import or scala_import if you have raw files
     if JavaInfo in dep_target:
@@ -57,11 +54,11 @@ def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
       current_dep_transitive_compile_jars = java_provider.transitive_compile_time_jars
       runtime_jars.append(java_provider.transitive_runtime_jars)
 
-    compile_jars.append(current_dep_compile_jars)
-    transitive_compile_jars.append(current_dep_transitive_compile_jars)
-    add_labels_of_jars_to(jars2labels, dep_target,
-                          current_dep_transitive_compile_jars.to_list(),
-                          current_dep_compile_jars.to_list())
+      compile_jars.append(current_dep_compile_jars)
+      transitive_compile_jars.append(current_dep_transitive_compile_jars)
+      add_labels_of_jars_to(jars2labels, dep_target,
+                            current_dep_transitive_compile_jars.to_list(),
+                            current_dep_compile_jars.to_list())
 
   return struct(
       compile_jars = depset(transitive = compile_jars),

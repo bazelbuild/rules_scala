@@ -14,8 +14,7 @@ load(
 
 load(
     "@io_bazel_rules_scala//scala:scala_import.bzl",
-    _scala_import = "scala_import"
-)
+    _scala_import = "scala_import")
 
 _launcher_template = {
     "_java_stub_template": attr.label(
@@ -478,7 +477,8 @@ _scala_junit_test_attrs = {
             "//external:io_bazel_rules_scala/dependency/hamcrest/hamcrest_core")
     ),
     "_bazel_test_runner": attr.label(
-        default = Label("@io_bazel_rules_scala//scala:bazel_test_runner_deploy"),
+        default = Label(
+            "@io_bazel_rules_scala//scala:bazel_test_runner_deploy"),
         allow_files = True),
 }
 _scala_junit_test_attrs.update(_launcher_template)
