@@ -32,6 +32,8 @@ def _collect_jars_when_dependency_analyzer_is_off(dep_targets):
       java_provider = dep_target[JavaInfo]
       compile_jars.append(java_provider.compile_jars)
       runtime_jars.append(java_provider.transitive_runtime_jars)
+    else:
+      print("ignored dependency, has no JavaInfo: " + str(dep_target))
 
   return struct(
       compile_jars = depset(transitive = compile_jars),
@@ -59,6 +61,8 @@ def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
       add_labels_of_jars_to(jars2labels, dep_target,
                             current_dep_transitive_compile_jars.to_list(),
                             current_dep_compile_jars.to_list())
+    else:
+      print("ignored dependency, has no JavaInfo: " + str(dep_target))
 
   return struct(
       compile_jars = depset(transitive = compile_jars),
