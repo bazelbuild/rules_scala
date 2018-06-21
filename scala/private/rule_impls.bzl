@@ -243,6 +243,9 @@ StatsfileOutput: {statsfile_output}
   ctx.actions.write(
       output = argfile, content = scalac_args + optional_scalac_args)
 
+  scalac_provider = ctx.attr._scalac[_ScalacProvider]
+  _, _, input_manifests = ctx.resolve_command(tools = [scalac_provider.scalac])
+
   outs = [ctx.outputs.jar, ctx.outputs.statsfile]
   if buildijar:
     outs.extend([ctx.outputs.ijar])
@@ -250,10 +253,7 @@ StatsfileOutput: {statsfile_output}
          list(srcjars) + list(sources) + ctx.files.srcs + ctx.files.plugins +
          dependency_analyzer_plugin_jars + classpath_resources +
          ctx.files.resources + ctx.files.resource_jars + ctx.files._java_runtime
-         + [ctx.outputs.manifest, ctx.executable._ijar, argfile])
-
-  scalac_provider = ctx.attr._scalac[_ScalacProvider]
-  _, _, input_manifests = ctx.resolve_command(tools = [scalac_provider.scalac])
+         + [ctx.outputs.manifest, ctx.executable._ijar, argfile] + [scalac_provider.scalac.files_to_run.runfiles_manifest])
 
   ctx.actions.run(
       inputs = ins,
@@ -498,7 +498,6 @@ def _collect_jars_from_common_ctx(ctx, extra_deps = [],
   auto_deps = [scalac_provider.scalalib, scalac_provider.scalareflect]
   deps_jars = collect_jars(ctx.attr.deps + auto_deps + extra_deps,
                            dependency_analyzer_is_off)
-  print(deps_jars)
   (cjars, transitive_rjars, jars2labels,
    transitive_compile_jars) = (deps_jars.compile_jars,
                                deps_jars.transitive_runtime_jars,
@@ -508,7 +507,6 @@ def _collect_jars_from_common_ctx(ctx, extra_deps = [],
   transitive_rjars = depset(
       transitive = [transitive_rjars] +
       _collect_runtime_jars(ctx.attr.runtime_deps + extra_runtime_deps))
-  print(transitive_rjars)
 
   return struct(
       compile_jars = cjars,

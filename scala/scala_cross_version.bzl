@@ -64,6 +64,7 @@ def _generate_scalac_build_file_impl(repository_ctx):
     path = Label("@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac:{}".format(src))
     repository_ctx.symlink(path, "scalac_worker_srcs_symlinked/{}".format(src))
 
+
   contents = """
 load("@io_bazel_rules_scala//scala:providers.bzl",
      _declare_scalac_provider = "declare_scalac_provider",
@@ -78,7 +79,7 @@ java_binary(
         "@io_bazel_rules_scala//src/java/com/google/devtools/build/lib:worker",
         "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/jar",
         "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/worker",
-        '//external:io_bazel_rules_scala/dependency/commons_io/commons_io',
+        '@scalac_rules_commons_io//jar',
         '@{archive}//:scala-compiler',
         '@{archive}//:scala-library',
         '@{archive}//:scala-reflect',
@@ -88,7 +89,7 @@ java_binary(
 _declare_scalac_provider(
     name = "{name}",
     major_version = "{major_version}",
-    scalac = ":scalac_worker",
+    scalac = "@{name}//:scalac_worker",
     scalalib = "@{archive}//:scala-library",
     scalareflect = "@{archive}//:scala-reflect",
     scalaxml = "@scala_xml_{version_with_underscore}//jar",
