@@ -148,7 +148,10 @@ def _compile(ctx, cjars, dep_srcjars, buildijar, transitive_compile_jars,
   srcjars = _srcjar_filetype.filter(ctx.files.srcs)
   all_srcjars = depset(srcjars, transitive = [dep_srcjars])
   # look for any plugins:
-  plugins = _collect_plugin_paths(ctx.attr.plugins)
+  plugins = ctx.attr.plugins
+  if len(plugins) == 0:
+    plugins = toolchain.plugins
+  plugins = _collect_plugin_paths(plugins)
   dependency_analyzer_plugin_jars = []
   dependency_analyzer_mode = "off"
   compiler_classpath_jars = cjars
@@ -182,7 +185,8 @@ CurrentTarget: {current_target}
         indirect_targets = indirect_targets,
         current_target = current_target)
 
-  plugin_arg = _join_path(plugins.to_list())
+  plugins_list = plugins.to_list()
+  plugin_arg = _join_path(plugins_list)
 
   separator = ctx.configuration.host_path_separator
   compiler_classpath = _join_path(compiler_classpath_jars.to_list(), separator)
@@ -246,7 +250,7 @@ StatsfileOutput: {statsfile_output}
   if buildijar:
     outs.extend([ctx.outputs.ijar])
   ins = (compiler_classpath_jars.to_list() + dep_srcjars.to_list() +
-         list(srcjars) + list(sources) + ctx.files.srcs + ctx.files.plugins +
+         list(srcjars) + list(sources) + ctx.files.srcs + plugins_list +
          dependency_analyzer_plugin_jars + classpath_resources +
          ctx.files.resources + ctx.files.resource_jars + ctx.files._java_runtime
          + [ctx.outputs.manifest, toolchain.ijar, argfile])
