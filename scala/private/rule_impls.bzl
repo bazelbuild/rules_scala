@@ -29,6 +29,9 @@ _java_filetype = FileType([".java"])
 _scala_filetype = FileType([".scala"])
 _srcjar_filetype = FileType([".srcjar"])
 
+def _get_toolchain(ctx):
+  return ctx.toolchains['@io_bazel_rules_scala//scala:toolchain_type']
+
 def _adjust_resources_path_by_strip_prefix(path, resource_strip_prefix):
   if not path.startswith(resource_strip_prefix):
     fail("Resource file %s is not under the specified prefix to strip" % path)
@@ -89,10 +92,11 @@ rm -f {jar_output}
 touch {statsfile}
 """ + ijar_cmd
 
+  zipper = _get_toolchain(ctx).zipper
   cmd = cmd.format(
       path = zipper_arg_path.path,
       jar_output = ctx.outputs.jar.path,
-      zipper = ctx.executable._zipper.path,
+      zipper = zipper.path,
       statsfile = ctx.outputs.statsfile.path,
   )
 
@@ -100,9 +104,7 @@ touch {statsfile}
   if buildijar:
     outs.extend([ctx.outputs.ijar])
 
-  inputs = ctx.files.resources + [
-      ctx.outputs.manifest, ctx.executable._zipper, zipper_arg_path
-  ]
+  inputs = ctx.files.resources + [ctx.outputs.manifest, zipper, zipper_arg_path]
 
   ctx.actions.run_shell(
       inputs = inputs,
@@ -134,11 +136,12 @@ def _join_path(args, sep = ","):
 
 def _compile(ctx, cjars, dep_srcjars, buildijar, transitive_compile_jars,
              labels, implicit_junit_deps_needed_for_java_compilation):
+  toolchain = _get_toolchain(ctx)
   ijar_output_path = ""
   ijar_cmd_path = ""
   if buildijar:
     ijar_output_path = ctx.outputs.ijar.path
-    ijar_cmd_path = ctx.executable._ijar.path
+    ijar_cmd_path = toolchain.ijar.path
 
   java_srcs = _java_filetype.filter(ctx.files.srcs)
   sources = _scala_filetype.filter(ctx.files.srcs) + java_srcs
@@ -184,7 +187,6 @@ CurrentTarget: {current_target}
   separator = ctx.configuration.host_path_separator
   compiler_classpath = _join_path(compiler_classpath_jars.to_list(), separator)
 
-  toolchain = ctx.toolchains['@io_bazel_rules_scala//scala:toolchain_type']
   scalacopts = toolchain.scalacopts + ctx.attr.scalacopts
 
   scalac_args = """
@@ -247,11 +249,16 @@ StatsfileOutput: {statsfile_output}
          list(srcjars) + list(sources) + ctx.files.srcs + ctx.files.plugins +
          dependency_analyzer_plugin_jars + classpath_resources +
          ctx.files.resources + ctx.files.resource_jars + ctx.files._java_runtime
-         + [ctx.outputs.manifest, ctx.executable._ijar, argfile])
+         + [ctx.outputs.manifest, toolchain.ijar, argfile])
+
+  scalac_jvm_flags = ctx.attr.scalac_jvm_flags
+  if len(scalac_jvm_flags) == 0:
+    scalac_jvm_flags = toolchain.scalac_jvm_flags
+
   ctx.actions.run(
       inputs = ins,
       outputs = outs,
-      executable = ctx.executable._scalac,
+      executable = toolchain.scalac,
       mnemonic = "Scalac",
       progress_message = "scala %s" % ctx.label,
       execution_requirements = {"supports-workers": "1"},
@@ -264,8 +271,7 @@ StatsfileOutput: {statsfile_output}
       # be correctly handled since the executable is a jvm app that will
       # consume the flags on startup.
       arguments = [
-          "--jvm_flag=%s" % f
-          for f in _expand_location(ctx, ctx.attr.scalac_jvm_flags)
+          "--jvm_flag=%s" % f for f in _expand_location(ctx, scalac_jvm_flags)
       ] + ["@" + argfile.path],
   )
 
@@ -375,7 +381,7 @@ def _build_deployable(ctx, jars_list):
   ctx.actions.run(
       inputs = jars_list,
       outputs = [ctx.outputs.deploy_jar],
-      executable = ctx.executable._singlejar,
+      executable = _get_toolchain(ctx).singlejar,
       mnemonic = "ScalaDeployJar",
       progress_message = "scala deployable %s" % ctx.label,
       arguments = args)
@@ -480,8 +486,9 @@ def _collect_jars_from_common_ctx(ctx, extra_deps = [],
 
   dependency_analyzer_is_off = is_dependency_analyzer_off(ctx)
 
+  toolchain = _get_toolchain(ctx)
   # Get jars from deps
-  auto_deps = [ctx.attr._scalalib, ctx.attr._scalareflect]
+  auto_deps = toolchain.default_classpath
   deps_jars = collect_jars(ctx.attr.deps + auto_deps + extra_deps,
                            dependency_analyzer_is_off)
   (cjars, transitive_rjars, jars2labels,
@@ -636,9 +643,10 @@ def scala_binary_impl(ctx):
   return out
 
 def scala_repl_impl(ctx):
+  toolchain = _get_toolchain(ctx)
   # need scala-compiler for MainGenericRunner below
   jars = _collect_jars_from_common_ctx(
-      ctx, extra_runtime_deps = [ctx.attr._scalacompiler])
+      ctx, extra_runtime_deps = toolchain.repl_runtime_deps)
   (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
 
   args = " ".join(ctx.attr.scalacopts)

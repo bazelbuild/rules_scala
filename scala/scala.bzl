@@ -17,39 +17,10 @@ _launcher_template = {
         default = Label("@java_stub_template//file")),
 }
 
+# TODO, we should resolve these by ctx.toolchains to find the java toolchain.
+# but I don't know what the toolchain type is for java
+# https://stackoverflow.com/questions/50977784/how-to-resolve-the-java-toolchain-in-bazel
 _implicit_deps = {
-    "_singlejar": attr.label(
-        executable = True,
-        cfg = "host",
-        default = Label("@bazel_tools//tools/jdk:singlejar"),
-        allow_files = True),
-    "_ijar": attr.label(
-        executable = True,
-        cfg = "host",
-        default = Label("@bazel_tools//tools/jdk:ijar"),
-        allow_files = True),
-    "_scalac": attr.label(
-        executable = True,
-        cfg = "host",
-        default = Label("//src/java/io/bazel/rulesscala/scalac"),
-        allow_files = True),
-    "_scalalib": attr.label(
-        default = Label(
-            "//external:io_bazel_rules_scala/dependency/scala/scala_library"),
-        allow_files = True),
-    "_scalacompiler": attr.label(
-        default = Label(
-            "//external:io_bazel_rules_scala/dependency/scala/scala_compiler"),
-        allow_files = True),
-    "_scalareflect": attr.label(
-        default = Label(
-            "//external:io_bazel_rules_scala/dependency/scala/scala_reflect"),
-        allow_files = True),
-    "_zipper": attr.label(
-        executable = True,
-        cfg = "host",
-        default = Label("@bazel_tools//tools/zip:zipper"),
-        allow_files = True),
     "_java_toolchain": attr.label(
         default = Label("@bazel_tools//tools/jdk:current_java_toolchain")),
     "_host_javabase": attr.label(
@@ -60,6 +31,7 @@ _implicit_deps = {
 }
 
 # Single dep to allow IDEs to pickup all the implicit dependencies.
+# these are private deps, but aspects can traverse private deps
 _resolve_deps = {
     "_scala_toolchain": attr.label_list(
         default = [
