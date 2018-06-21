@@ -199,6 +199,7 @@ JavaFiles: {java_files}
 Manifest: {manifest}
 Plugins: {plugin_arg}
 PrintCompileTime: {print_compile_time}
+ExpectJavaOutput: {expect_java_output}
 ResourceDests: {resource_dest}
 ResourceJars: {resource_jars}
 ResourceSrcs: {resource_src}
@@ -213,6 +214,7 @@ StatsfileOutput: {statsfile_output}
       manifest = ctx.outputs.manifest.path,
       scala_opts = ",".join(scalacopts),
       print_compile_time = ctx.attr.print_compile_time,
+      expect_java_output = ctx.attr.expect_java_output,
       plugin_arg = plugin_arg,
       cp = compiler_classpath,
       classpath_resource_src = _join_path(classpath_resources),
@@ -287,7 +289,7 @@ def _interim_java_provider_for_java_compilation(scala_output):
 
 def try_to_compile_java_jar(ctx, scala_output, all_srcjars, java_srcs,
                             implicit_junit_deps_needed_for_java_compilation):
-  if not java_srcs and not all_srcjars:
+  if not java_srcs and (not all_srcjars and ctx.attr.expect_java_output):
     return False
 
   providers_of_dependencies = collect_java_providers_of(ctx.attr.deps)
