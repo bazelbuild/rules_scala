@@ -1,7 +1,7 @@
 load("//scala:scala.bzl", "scala_library")
 
 scala_library(
-    name = "test_reporter_2.11",
+    name = "test_reporter",
     srcs = ["JUnitXmlReporter.scala"],
     scalacopts = [
         "-deprecation:true",
@@ -23,39 +23,8 @@ scala_library(
         "-Ypartial-unification",
     ],
     visibility = ["//visibility:public"],
-    scalac = "@scala",
     deps = [
-        "@scala_xml_2_11//jar",
-        "//external:io_bazel_rules_scala/dependency/scalatest/scalatest_2_11",
-    ],
-)
-
-scala_library(
-    name = "test_reporter_2.12",
-    srcs = ["JUnitXmlReporter.scala"],
-    scalacopts = [
-        "-deprecation:true",
-        "-encoding",
-        "UTF-8",
-        "-feature",
-        "-language:existentials",
-        "-language:higherKinds",
-        "-language:implicitConversions",
-        "-unchecked",
-        "-Xfatal-warnings",
-        "-Xlint",
-        "-Yno-adapted-args",
-        "-Ywarn-dead-code",
-        "-Ywarn-numeric-widen",
-        "-Ywarn-value-discard",
-        "-Xfuture",
-        "-Ywarn-unused-import",
-        "-Ypartial-unification",
-    ],
-    visibility = ["//visibility:public"],
-    scalac = "@scala_2_12",
-    deps = [
-        "@scala_xml_2_12//jar",
-        "//external:io_bazel_rules_scala/dependency/scalatest/scalatest_2_12",
+        "//external:io_bazel_rules_scala/dependency/scala/scala_xml",
+        "//external:io_bazel_rules_scala/dependency/scalatest/scalatest",
     ],
 )

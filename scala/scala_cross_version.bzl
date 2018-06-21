@@ -94,7 +94,7 @@ _declare_scalac_provider(
     scalaxml = "@scala_xml_{version_with_underscore}//jar",
     scalacompiler = "@{archive}//:scala-compiler",
     scalatest = ["@scalatest_{version_with_underscore}//jar", "@scalactic_{version_with_underscore}//jar"],
-    scalatest_runner = "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scala_test:runner_{major_version}.jar",
+    scalatest_runner = "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scala_test:runner.jar",
     visibility = ["//visibility:public"],
 )
     """.format(

@@ -22,6 +22,7 @@ load(
     "@io_bazel_rules_scala//specs2:specs2_junit.bzl",
     _specs2_junit_dependencies = "specs2_junit_dependencies")
 
+
 _launcher_template = {
     "_java_stub_template": attr.label(
         default = Label("@java_stub_template//file")),
@@ -55,7 +56,7 @@ _implicit_deps = {
 }
 
 scala_deps = {
-    "scalac": attr.label(default = Label("@scala_default"), providers = [_ScalacProvider])
+    "_scalac": attr.label(default = Label("@scala_default"), providers = [_ScalacProvider])
 }
 
 # Single dep to allow IDEs to pickup all the implicit dependencies.
@@ -77,7 +78,7 @@ _test_resolve_deps = {
                 "//external:io_bazel_rules_scala/dependency/scala/scala_library"
             ),
             Label(
-                "//external:io_bazel_rules_scala/dependency/scalatest/scalatest_2_11"
+                "//external:io_bazel_rules_scala/dependency/scalatest/scalatest"
             ),
         ],
         allow_files = False),
@@ -221,8 +222,7 @@ _scala_test_attrs = {
     "suites": attr.string_list(),
     "colors": attr.bool(default = True),
     "full_stacktraces": attr.bool(default = True),
-    "_scalatest_reporter_2_11": attr.label(default = "//scala/support:test_reporter_2.11"),
-    "_scalatest_reporter_2_12": attr.label(default = "//scala/support:test_reporter_2.12"),
+    "_scalatest_reporter": attr.label(default = "//scala/support:test_reporter"),
 }
 _scala_test_attrs.update(_launcher_template)
 _scala_test_attrs.update(_implicit_deps)
@@ -254,19 +254,15 @@ scala_repl = rule(
     toolchains = ['@io_bazel_rules_scala//scala:toolchain_type'],
 )
 
-def scala_repositories(scala_default = "2.11.11", additional_scala_versions = [("scala_version_label", "2.12.6")]):
-  # required for bootstrapping scalatest_reporter
-  _new_scala_repository("scala", "2.11.11")
-  _new_scala_repository("scala_2_12", "2.12.5")
+def scala_repositories(scala_default = "2.11.1"):
+  major_version_underscore = scala_default[:scala_default.find(".", 2)].replace(".", "_")
 
   _new_scala_repository("scala_default", scala_default)
-  for scala_version_label, version in additional_scala_versions:
-    _new_scala_repository(scala_version_label, version)
 
   # scalatest has macros, note http_jar is invoking ijar
   native.http_jar(
       name = "scalatest_2_11",
-      url = "http://central.maven.org/maven2/org/scalatest/scalatest_2.11/2.2.6/scalatest_2.11-2.2.6.jar"
+      url = "http://central.maven.org/maven2/org/scalatest/scalatest_2.11/3.0.5/scalatest_2.11-3.0.5.jar"
   )
   native.http_jar(
       name = "scalactic_2_11",
@@ -293,7 +289,6 @@ def scala_repositories(scala_default = "2.11.11", additional_scala_versions = [(
       name = "scala_parser_combinators_2_11",
       url = "http://central.maven.org/maven2/org/scala-lang/modules/scala-parser-combinators_2.11/1.0.4/scala-parser-combinators_2.11-1.0.4.jar"
   )
-
   native.http_jar(
       name = "scala_parser_combinators_2_12",
       url = "http://central.maven.org/maven2/org/scala-lang/modules/scala-parser-combinators_2.12/1.0.4/scala-parser-combinators_2.12-1.0.4.jar"
@@ -346,24 +341,32 @@ def scala_repositories(scala_default = "2.11.11", additional_scala_versions = [(
       actual = "@scalac_rules_commons_io//jar")
 
   native.bind(
+      name = "io_bazel_rules_scala/dependency/scalatest/scalatest",
+      actual = "@scalatest_{}//jar".format(major_version_underscore))
+
+  native.bind(
+      name = "io_bazel_rules_scala/dependency/scalactic/scalactic",
+      actual = "@scalactic_{}//jar".format(major_version_underscore))
+
+  native.bind(
+      name = "io_bazel_rules_scala/dependency/scala/scala_xml",
+      actual = "@scala_xml_{}//jar".format(major_version_underscore))
+
+  native.bind(
+      name = "io_bazel_rules_scala/dependency/scala/parser_combinators",
+      actual = "@scala_parser_combinators_{}//jar".format(major_version_underscore))
+
+  native.bind(
       name = "io_bazel_rules_scala/dependency/scala/scala_compiler",
-      actual = "@scala_imports//:scala-compiler")
+      actual = "@scala_default_imports//:scala-compiler")
 
   native.bind(
       name = "io_bazel_rules_scala/dependency/scala/scala_library",
-      actual = "@scala_imports//:scala-library")
+      actual = "@scala_default_imports//:scala-library")
 
   native.bind(
       name = "io_bazel_rules_scala/dependency/scala/scala_reflect",
-      actual = "@scala_imports//:scala-reflect")
-
-  native.bind(
-      name = "io_bazel_rules_scala/dependency/scalatest/scalatest_2_11",
-      actual = "@scalatest_2_11//jar")
-
-  native.bind(
-      name = "io_bazel_rules_scala/dependency/scalatest/scalatest_2_12",
-      actual = "@scalatest_2_12//jar")
+      actual = "@scala_default_imports//:scala-reflect")
 
 def _sanitize_string_for_usage(s):
   res_array = []

@@ -252,13 +252,13 @@ StatsfileOutput: {statsfile_output}
          ctx.files.resources + ctx.files.resource_jars + ctx.files._java_runtime
          + [ctx.outputs.manifest, ctx.executable._ijar, argfile])
 
-  worker = ctx.attr.scalac[_ScalacProvider]
-  _, _, input_manifests = ctx.resolve_command(tools = [worker.scalac])
+  scalac_provider = ctx.attr._scalac[_ScalacProvider]
+  _, _, input_manifests = ctx.resolve_command(tools = [scalac_provider.scalac])
 
   ctx.actions.run(
       inputs = ins,
       outputs = outs,
-      executable = worker.scalac.files_to_run.executable,
+      executable = scalac_provider.scalac.files_to_run.executable,
       input_manifests = input_manifests,
       mnemonic = "Scalac",
       progress_message = "scala %s" % ctx.label,
@@ -494,10 +494,11 @@ def _collect_jars_from_common_ctx(ctx, extra_deps = [],
   dependency_analyzer_is_off = is_dependency_analyzer_off(ctx)
 
   # Get jars from deps
-  scalac = ctx.attr.scalac[_ScalacProvider]
-  auto_deps = [scalac.scalalib, scalac.scalareflect]
+  scalac_provider = ctx.attr._scalac[_ScalacProvider]
+  auto_deps = [scalac_provider.scalalib, scalac_provider.scalareflect]
   deps_jars = collect_jars(ctx.attr.deps + auto_deps + extra_deps,
                            dependency_analyzer_is_off)
+  print(deps_jars)
   (cjars, transitive_rjars, jars2labels,
    transitive_compile_jars) = (deps_jars.compile_jars,
                                deps_jars.transitive_runtime_jars,
@@ -507,6 +508,7 @@ def _collect_jars_from_common_ctx(ctx, extra_deps = [],
   transitive_rjars = depset(
       transitive = [transitive_rjars] +
       _collect_runtime_jars(ctx.attr.runtime_deps + extra_runtime_deps))
+  print(transitive_rjars)
 
   return struct(
       compile_jars = cjars,
@@ -651,7 +653,7 @@ def scala_repl_impl(ctx):
   # need scala-compiler for MainGenericRunner below
   jars = _collect_jars_from_common_ctx(
       ctx,
-      extra_runtime_deps = [ctx.attr.scalac[_ScalacProvider].scalacompiler])
+      extra_runtime_deps = [ctx.attr._scalac[_ScalacProvider].scalacompiler])
   (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
 
   args = " ".join(ctx.attr.scalacopts)
@@ -700,17 +702,12 @@ def scala_test_impl(ctx):
   if len(ctx.attr.suites) != 0:
     print("suites attribute is deprecated. All scalatest test suites are run")
 
-  scalac = ctx.attr.scalac[_ScalacProvider]
-
-  if scalac.major_version == "2.11":
-    scalatest_reporter = ctx.attr._scalatest_reporter_2_11
-  else:
-    scalatest_reporter = ctx.attr._scalatest_reporter_2_12
+  scalac_provider = ctx.attr._scalac[_ScalacProvider]
 
   jars = _collect_jars_from_common_ctx(
       ctx,
       extra_runtime_deps = [
-          scalatest_reporter, scalac.scalatest_runner
+          ctx.attr._scalatest_reporter, scalac_provider.scalatest_runner
       ],
   )
   (cjars, transitive_rjars, transitive_compile_jars,
@@ -718,7 +715,7 @@ def scala_test_impl(ctx):
                       jars.transitive_compile_jars, jars.jars2labels)
   # _scalatest is an http_jar, so its compile jar is run through ijar
   # however, contains macros, so need to handle separately
-  scalatest_jars = collect_jars(scalac.scalatest).transitive_runtime_jars
+  scalatest_jars = collect_jars(scalac_provider.scalatest).transitive_runtime_jars
   cjars = depset(transitive = [cjars, scalatest_jars])
   transitive_rjars = depset(transitive = [transitive_rjars, scalatest_jars])
 
@@ -726,7 +723,7 @@ def scala_test_impl(ctx):
     transitive_compile_jars = depset(
         transitive = [scalatest_jars, transitive_compile_jars])
     scalatest_jars_list = scalatest_jars.to_list()
-    add_labels_of_jars_to(jars_to_labels, scalac.scalatest,
+    add_labels_of_jars_to(jars_to_labels, scalac_provider.scalatest,
                           scalatest_jars_list, scalatest_jars_list)
 
   args = " ".join([

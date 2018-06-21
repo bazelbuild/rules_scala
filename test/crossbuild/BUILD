@@ -14,33 +14,14 @@ scala_library(
     srcs = ["HelloWorldLib211.scala"],
 )
 
-scala_library(
-    name = "lib212",
-    srcs = ["HelloWorldLib212.scala"],
-    scalac = "@scala_2_12",
-)
-
 scala_repl(
     name = "repl",
     deps = [":lib"],
 )
 
-scala_repl(
-    name = "repl212",
-    deps = [":lib212"],
-    scalac = "@scala_2_12"
-)
-
-# TODO: scalatest not working with 2.12
 scala_test(
     name = "test",
     srcs = ["Test.scala"],
-)
-
-scala_test(
-    name = "test212",
-    srcs = ["Test.scala"],
-    scalac = "@scala_version_label",
 )
 
 scala_binary(
@@ -49,25 +30,11 @@ scala_binary(
     main_class = "scala.test.crossbuild.ScalaBinary",
 )
 
-scala_binary(
-    name = "binary212",
-    srcs = ["ScalaBinary.scala"],
-    main_class = "scala.test.crossbuild.ScalaBinary",
-    scalac = "@scala_2_12"
-)
-
 scala_macro_library(
     name = "macro",
     srcs = ["MacroTest.scala"],
 )
 
-scala_macro_library(
-    name = "macro212",
-    srcs = ["MacroTest.scala"],
-    scalac = "@scala_2_12"
-)
-
-# TODO: junit not working with 2.12
 scala_junit_test(
     name = "junit",
     srcs = ["JunitTests.scala"],

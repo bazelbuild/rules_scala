@@ -20,17 +20,13 @@ trap 'finish $?' EXIT
 set -x
 
 bazel build //test/crossbuild:lib
-bazel build //test/crossbuild:lib212
 
 bazel build //test/crossbuild:repl
 
 bazel test //test/crossbuild:test
-bazel test //test/crossbuild:test212
 
 bazel run //test/crossbuild:binary
-bazel run //test/crossbuild:binary212
 
 bazel build //test/crossbuild:macro
-bazel build //test/crossbuild:macro212
 
 bazel test //test/crossbuild:junit
