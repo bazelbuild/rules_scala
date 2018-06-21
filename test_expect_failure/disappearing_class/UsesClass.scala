@@ -1,4 +1,4 @@
-package scala.test
+package scalarules.test
 
 object UsesClass {
   val x = ClassProvider.dissappearingClassMethod

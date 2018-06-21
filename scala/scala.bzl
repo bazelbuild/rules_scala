@@ -102,7 +102,7 @@ _common_attrs_for_plugin_bootstrapping = {
     "srcs": attr.label_list(allow_files = [".scala", ".srcjar", ".java"]),
     "deps": attr.label_list(),
     "plugins": attr.label_list(allow_files = [".jar"]),
-    "runtime_deps": attr.label_list(),
+    "runtime_deps": attr.label_list(providers = [[JavaInfo]]),
     "data": attr.label_list(allow_files = True, cfg = "data"),
     "resources": attr.label_list(allow_files = True),
     "resource_strip_prefix": attr.string(),
@@ -219,13 +219,10 @@ _scala_test_attrs = {
     "full_stacktraces": attr.bool(default = True),
     "_scalatest": attr.label(
         default = Label(
-            "//external:io_bazel_rules_scala/dependency/scalatest/scalatest"),
-        allow_files = True),
+            "//external:io_bazel_rules_scala/dependency/scalatest/scalatest")),
     "_scalatest_runner": attr.label(
-        executable = True,
         cfg = "host",
-        default = Label("//src/java/io/bazel/rulesscala/scala_test:runner.jar"),
-        allow_files = True),
+        default = Label("//src/java/io/bazel/rulesscala/scala_test:runner")),
     "_scalatest_reporter": attr.label(
         default = Label("//scala/support:test_reporter")),
 }
@@ -476,7 +473,8 @@ _scala_junit_test_attrs = {
             "//external:io_bazel_rules_scala/dependency/hamcrest/hamcrest_core")
     ),
     "_bazel_test_runner": attr.label(
-        default = Label("@bazel_tools//tools/jdk:TestRunner_deploy.jar"),
+        default = Label(
+            "@io_bazel_rules_scala//scala:bazel_test_runner_deploy"),
         allow_files = True),
 }
 _scala_junit_test_attrs.update(_launcher_template)
