@@ -26,7 +26,7 @@ java_binary(
     main_class = "scala.test.JavaBinary",
     runtime_deps = [
         ":OtherJavaLib",
-        "@scala//:scala-library",
+        "//external:io_bazel_rules_scala/dependency/scala/scala_library",
     ],
     deps = [
         ":Exported",

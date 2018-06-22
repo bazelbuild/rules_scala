@@ -23,30 +23,30 @@ def _rule_impl(ctx):
   expected_deps = {
       "scala_library": [
           "//test/aspect:scala_library",
-          "@scala//:scala-library",
+          "@scala_default_imports//:scala-library",
       ],
       "scala_test": [
           "//test/aspect:scala_test",
-          "@scala//:scala-library",
-          "@scalatest//jar:jar",
+          "@scala_default_imports//:scala-library",
+          "@scalatest_2_11//jar:jar",
       ],
       "scala_junit_test": [
           "//test/aspect:scala_junit_test",
-          "@scala//:scala-library",
+          "@scala_default_imports//:scala-library",
           "@io_bazel_rules_scala_junit_junit//jar:jar",
           "@io_bazel_rules_scala_org_hamcrest_hamcrest_core//jar:jar",
       ],
       "scala_specs2_junit_test": [
           "//test/aspect:scala_specs2_junit_test",
-          "@scala//:scala-library",
+          "@scala_default_imports//:scala-library",
           "@io_bazel_rules_scala_junit_junit//jar:jar",
           "@io_bazel_rules_scala_org_hamcrest_hamcrest_core//jar:jar",
           # From specs2/specs2.bzl:specs2_dependencies()
           "@io_bazel_rules_scala//specs2:specs2",
-          "@scala//:scala-xml",
-          "@scala//:scala-parser-combinators",
-          "@scala//:scala-library",
-          "@scala//:scala-reflect",
+          "@scala_xml_2_11//jar:jar",
+          "@scala_parser_combinators_2_11//jar:jar",
+          "@scala_default_imports//:scala-library",
+          "@scala_default_imports//:scala-reflect",
           # From specs2/specs2_junit.bzl:specs2_junit_dependencies()
           "@io_bazel_rules_scala_org_specs2_specs2_junit_2_11//jar:jar",
       ],
