@@ -262,7 +262,7 @@ StatsfileOutput: {statsfile_output}
   ctx.actions.run(
       inputs = ins,
       outputs = outs,
-      executable = toolchain.scalac,
+      executable = ctx.executable.scalac,
       mnemonic = "Scalac",
       progress_message = "scala %s" % ctx.label,
       execution_requirements = {"supports-workers": "1"},

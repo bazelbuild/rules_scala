@@ -21,6 +21,13 @@ _launcher_template = {
 # but I don't know what the toolchain type is for java
 # https://stackoverflow.com/questions/50977784/how-to-resolve-the-java-toolchain-in-bazel
 _implicit_deps = {
+    # TODO: putting this into the toolchain seems to cause it to fail from not finding runfiles
+    'scalac': attr.label(
+        executable = True,
+        cfg = "host",
+        default = Label(
+            "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac"),
+        allow_files = True),
     "_java_toolchain": attr.label(
         default = Label("@bazel_tools//tools/jdk:current_java_toolchain")),
     "_host_javabase": attr.label(
