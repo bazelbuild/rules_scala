@@ -44,7 +44,7 @@ public class CompileOptions {
 
     javaFiles = getCommaList(argMap, "JavaFiles");
 
-    if(!expectJavaOutput && javaFiles.length != 0) {
+    if (!expectJavaOutput && javaFiles.length != 0) {
       throw new RuntimeException("Cannot hava java source files when no expected java output");
     }
 

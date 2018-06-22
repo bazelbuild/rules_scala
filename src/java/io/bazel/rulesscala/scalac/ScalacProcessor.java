@@ -47,8 +47,9 @@ class ScalacProcessor implements Processor {
       List<File> scalaJarFiles = filterFilesByExtension(jarFiles, ".scala");
       List<File> javaJarFiles = filterFilesByExtension(jarFiles, ".java");
 
-      if(!ops.expectJavaOutput && !javaJarFiles.isEmpty()) {
-        throw new RuntimeException("Found java files in source jars but expect Java output is set to false");
+      if (!ops.expectJavaOutput && !javaJarFiles.isEmpty()) {
+        throw new RuntimeException(
+            "Found java files in source jars but expect Java output is set to false");
       }
 
       String[] scalaSources = collectSrcJarSources(ops.files, scalaJarFiles, javaJarFiles);
