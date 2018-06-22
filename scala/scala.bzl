@@ -112,6 +112,7 @@ _common_attrs_for_plugin_bootstrapping = {
     "jvm_flags": attr.string_list(),
     "scalac_jvm_flags": attr.string_list(),
     "javac_jvm_flags": attr.string_list(),
+    "expect_java_output": attr.bool(default = True, mandatory = False),
     "print_compile_time": attr.bool(default = False, mandatory = False),
 }
 

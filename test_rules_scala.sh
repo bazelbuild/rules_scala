@@ -185,6 +185,14 @@ test_scala_library_expect_failure_on_missing_direct_java() {
   test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" $test_target "--strict_java_deps=error"
 }
 
+test_scala_library_expect_failure_on_java_in_src_jar_when_disabled() {
+  test_target='//test_expect_failure/java_in_src_jar_when_disabled:java_source_jar'
+
+  expected_message=".*Found java files in source jars but expect Java output is set to false"
+
+  test_expect_failure_with_message "${expected_message}" $test_target
+}
+
 test_scala_library_expect_better_failure_message_on_missing_transitive_dependency_labels_from_other_jvm_rules() {
   transitive_target='.*transitive_dependency_ijar.jar'
   direct_target='//test_expect_failure/missing_direct_deps/internal_deps:direct_java_provider_dependency'
@@ -858,6 +866,7 @@ $runner test_scala_library_expect_no_recompilation_on_internal_change_of_scala_d
 $runner test_scala_library_expect_no_recompilation_on_internal_change_of_java_dependency
 $runner test_scala_library_expect_no_java_recompilation_on_internal_change_of_scala_sibling
 $runner test_scala_library_expect_failure_on_missing_direct_java
+$runner test_scala_library_expect_failure_on_java_in_src_jar_when_disabled
 $runner bazel run test:test_scala_proto_server
 $runner test_scala_library_expect_failure_on_missing_direct_deps_warn_mode_java
 $runner test_scala_library_expect_better_failure_message_on_missing_transitive_dependency_labels_from_other_jvm_rules

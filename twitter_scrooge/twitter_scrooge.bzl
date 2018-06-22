@@ -302,4 +302,5 @@ def scrooge_scala_library(name,
       ],
       jvm_flags = jvm_flags,
       visibility = visibility,
+      expect_java_output = False,
   )

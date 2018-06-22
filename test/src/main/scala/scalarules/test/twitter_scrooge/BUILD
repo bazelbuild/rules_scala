@@ -200,3 +200,13 @@ sh_test(
     ],
     data = [":justscrooges"],
 )
+
+sh_test(
+    name = "java_jar_not_on_classpath",
+    srcs = ["grep.sh"],
+    args = [
+        "_java.jar",
+        "$(location :justscrooges)",
+    ],
+    data = [":justscrooges"],
+)
