@@ -22,7 +22,7 @@ _launcher_template = {
 # https://stackoverflow.com/questions/50977784/how-to-resolve-the-java-toolchain-in-bazel
 _implicit_deps = {
     # TODO: putting this into the toolchain seems to cause it to fail from not finding runfiles
-    'scalac': attr.label(
+    "_scalac": attr.label(
         executable = True,
         cfg = "host",
         default = Label(
@@ -235,31 +235,33 @@ scala_repl = rule(
 
 _SCALA_BUILD_FILE = """
 # scala.BUILD
-java_import(
+load("@io_bazel_rules_scala//scala:scala_import.bzl", "scala_import")
+
+scala_import(
     name = "scala-xml",
     jars = ["lib/scala-xml_2.11-1.0.5.jar"],
     visibility = ["//visibility:public"],
 )
 
-java_import(
+scala_import(
     name = "scala-parser-combinators",
     jars = ["lib/scala-parser-combinators_2.11-1.0.4.jar"],
     visibility = ["//visibility:public"],
 )
 
-java_import(
+scala_import(
     name = "scala-library",
     jars = ["lib/scala-library.jar"],
     visibility = ["//visibility:public"],
 )
 
-java_import(
+scala_import(
     name = "scala-compiler",
     jars = ["lib/scala-compiler.jar"],
     visibility = ["//visibility:public"],
 )
 
-java_import(
+scala_import(
     name = "scala-reflect",
     jars = ["lib/scala-reflect.jar"],
     visibility = ["//visibility:public"],
