@@ -206,7 +206,7 @@ sh_test(
     srcs = ["grep.sh"],
     args = [
         "_java.jar",
-        "$(location :scrooge4)",
+        "$(location :justscrooges)",
     ],
-    data = [":scrooge4"],
+    data = [":justscrooges"],
 )

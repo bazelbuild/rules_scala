@@ -289,7 +289,7 @@ def _interim_java_provider_for_java_compilation(scala_output):
 
 def try_to_compile_java_jar(ctx, scala_output, all_srcjars, java_srcs,
                             implicit_junit_deps_needed_for_java_compilation):
-  if not java_srcs and (not all_srcjars and ctx.attr.expect_java_output):
+  if not java_srcs and (not (all_srcjars and ctx.attr.expect_java_output)):
     return False
 
   providers_of_dependencies = collect_java_providers_of(ctx.attr.deps)
