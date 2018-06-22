@@ -73,6 +73,10 @@ load("@io_bazel_rules_scala//scala:providers.bzl",
 java_binary(
     name = "scalac_worker",
     srcs = glob(["scalac_worker_srcs_symlinked/*.java"]),
+    javacopts = [
+      "-source 1.8",
+      "-target 1.8"
+    ],
     main_class = "io.bazel.rulesscala.scalac.ScalaCInvoker",
     visibility = ["//visibility:public"],
     deps = [

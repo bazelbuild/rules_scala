@@ -254,10 +254,10 @@ scala_repl = rule(
     toolchains = ['@io_bazel_rules_scala//scala:toolchain_type'],
 )
 
-def scala_repositories(scala_default = "2.11.11"):
-  major_version_underscore = scala_default[:scala_default.find(".", 2)].replace(".", "_")
+def scala_repositories(scala_version = "2.11.11"):
+  major_version_underscore = scala_version[:scala_version.find(".", 2)].replace(".", "_")
 
-  _new_scala_repository("scala_default", scala_default)
+  _new_scala_repository("scala_default", scala_version)
 
   # scalatest has macros, note http_jar is invoking ijar
   native.http_jar(
