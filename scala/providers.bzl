@@ -27,13 +27,10 @@ def create_scala_provider(ijar, class_jar, compile_jars,
 
 ScalacProvider = provider(
     doc = "ScalaProvider",
-    fields = ["major_version",
-              "scalac",
-              "scalalib",
-              "scalareflect",
-              "scalacompiler",
-              "scalatest",
-              "scalatest_runner"])
+    fields = [
+        "major_version", "scalac", "scalalib", "scalareflect", "scalacompiler",
+        "scalatest", "scalatest_runner"
+    ])
 
 def _declare_scalac_provider(ctx):
   return [
@@ -57,21 +54,11 @@ declare_scalac_provider = rule(
             cfg = "host",
             allow_files = True,
             mandatory = True),
-        "scalalib": attr.label(
-            mandatory = True,
-            allow_files = True),
-        "scalareflect": attr.label(
-            mandatory = True,
-            allow_files = True),
-        "scalacompiler": attr.label(
-            mandatory = True,
-            allow_files = True),
-        "scalaxml": attr.label(
-            mandatory = True,
-            allow_files = True),
-        "scalatest": attr.label_list(
-            mandatory = True,
-            allow_files = True),
+        "scalalib": attr.label(mandatory = True, allow_files = True),
+        "scalareflect": attr.label(mandatory = True, allow_files = True),
+        "scalacompiler": attr.label(mandatory = True, allow_files = True),
+        "scalaxml": attr.label(mandatory = True, allow_files = True),
+        "scalatest": attr.label_list(mandatory = True, allow_files = True),
         "scalatest_runner": attr.label(
             executable = True,
             cfg = "host",

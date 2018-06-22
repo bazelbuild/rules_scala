@@ -5,9 +5,8 @@ load(
     "scala_test",
     "scala_binary",
     "scala_macro_library",
-    "scala_junit_test"
+    "scala_junit_test",
 )
-
 
 scala_library(
     name = "lib",
@@ -37,7 +36,7 @@ scala_macro_library(
 
 scala_junit_test(
     name = "junit",
+    size = "small",
     srcs = ["JunitTests.scala"],
     suffixes = ["Test"],
-    size = "small",
 )

@@ -16,7 +16,8 @@ load("//thrift:thrift.bzl", "ThriftInfo")
 _jar_filetype = FileType([".jar"])
 
 def twitter_scrooge(scala_version = "2.11.11"):
-  major_version_underscore = scala_version[:scala_version.find(".", 2)].replace(".", "_")
+  major_version_underscore = scala_version[:scala_version.find(".", 2)].replace(
+      ".", "_")
 
   native.maven_server(
       name = "twitter_scrooge_maven_server",

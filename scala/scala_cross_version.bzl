@@ -61,9 +61,10 @@ def _generate_scalac_build_file_impl(repository_ctx):
   ]
 
   for src in scalac_worker_srcs:
-    path = Label("@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac:{}".format(src))
+    path = Label(
+        "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac:{}".format(
+            src))
     repository_ctx.symlink(path, "scalac_worker_srcs_symlinked/{}".format(src))
-
 
   contents = """
 load("@io_bazel_rules_scala//scala:providers.bzl",
@@ -106,13 +107,17 @@ _declare_scalac_provider(
       archive = repository_ctx.attr.archive,
       name = repository_ctx.attr.name,
       major_version = repository_ctx.attr.major_version,
-      version_with_underscore = repository_ctx.attr.major_version.replace(".", "_"))
+      version_with_underscore = repository_ctx.attr.major_version.replace(
+          ".", "_"))
 
   repository_ctx.file("BUILD", contents, False)
 
 _generate_scalac_build_file = repository_rule(
     implementation = _generate_scalac_build_file_impl,
-    attrs = {"archive": attr.string(), "major_version": attr.string()})
+    attrs = {
+        "archive": attr.string(),
+        "major_version": attr.string()
+    })
 
 def new_scala_repository(name, version):
   major_version = version[:version.find(".", 2)]
@@ -127,4 +132,7 @@ def new_scala_repository(name, version):
   )
 
   _generate_scalac_build_file(
-      name = name, archive = archive, major_version = major_version, visibility = ["//visibility:public"])
+      name = name,
+      archive = archive,
+      major_version = major_version,
+      visibility = ["//visibility:public"])

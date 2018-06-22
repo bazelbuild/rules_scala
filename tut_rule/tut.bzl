@@ -2,7 +2,8 @@ load("//scala:scala.bzl", "scala_binary")
 load("//scala:scala_cross_version.bzl", "scala_mvn_artifact")
 
 def tut_repositories(scala_version = "2.11.11"):
-  major_version_underscore = scala_version[:scala_version.find(".", 2)].replace(".", "_")
+  major_version_underscore = scala_version[:scala_version.find(".", 2)].replace(
+      ".", "_")
   native.maven_server(
       name = "tut_repositories_maven_server",
       url = "https://dl.bintray.com/tpolecat/maven/",
@@ -21,7 +22,8 @@ def tut_repositories(scala_version = "2.11.11"):
   )
   native.bind(
       name = 'io_bazel_rules_scala/dependency/tut/tut_core',
-      actual = '@io_bazel_rules_scala_org_tpolecat_tut_core_{}//jar'.format(major_version_underscore))
+      actual = '@io_bazel_rules_scala_org_tpolecat_tut_core_{}//jar'.format(
+          major_version_underscore))
 
 def scala_tut_doc(**kw):
   name = kw["name"]

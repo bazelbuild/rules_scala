@@ -15,20 +15,16 @@ load(
 
 load(
     "@io_bazel_rules_scala//scala:scala_cross_version.bzl",
-    _new_scala_repository = "new_scala_repository"
-)
+    _new_scala_repository = "new_scala_repository")
 
 load(
     "@io_bazel_rules_scala//specs2:specs2_junit.bzl",
     _specs2_junit_dependencies = "specs2_junit_dependencies")
 
-
 _launcher_template = {
     "_java_stub_template": attr.label(
         default = Label("@java_stub_template//file")),
 }
-
-
 
 _implicit_deps = {
     "_singlejar": attr.label(
@@ -56,7 +52,8 @@ _implicit_deps = {
 }
 
 scala_deps = {
-    "_scalac": attr.label(default = Label("@scala_default"), providers = [_ScalacProvider])
+    "_scalac": attr.label(
+        default = Label("@scala_default"), providers = [_ScalacProvider])
 }
 
 # Single dep to allow IDEs to pickup all the implicit dependencies.
@@ -222,7 +219,8 @@ _scala_test_attrs = {
     "suites": attr.string_list(),
     "colors": attr.bool(default = True),
     "full_stacktraces": attr.bool(default = True),
-    "_scalatest_reporter": attr.label(default = "//scala/support:test_reporter"),
+    "_scalatest_reporter": attr.label(
+        default = "//scala/support:test_reporter"),
 }
 _scala_test_attrs.update(_launcher_template)
 _scala_test_attrs.update(_implicit_deps)
@@ -255,43 +253,52 @@ scala_repl = rule(
 )
 
 def scala_repositories(scala_version = "2.11.11"):
-  major_version_underscore = scala_version[:scala_version.find(".", 2)].replace(".", "_")
+  major_version_underscore = scala_version[:scala_version.find(".", 2)].replace(
+      ".", "_")
 
   _new_scala_repository("scala_default", scala_version)
 
   # scalatest has macros, note http_jar is invoking ijar
   native.http_jar(
       name = "scalatest_2_11",
-      url = "http://central.maven.org/maven2/org/scalatest/scalatest_2.11/3.0.5/scalatest_2.11-3.0.5.jar"
+      url =
+      "http://central.maven.org/maven2/org/scalatest/scalatest_2.11/3.0.5/scalatest_2.11-3.0.5.jar"
   )
   native.http_jar(
       name = "scalactic_2_11",
-      url = "http://central.maven.org/maven2/org/scalactic/scalactic_2.11/3.0.5/scalactic_2.11-3.0.5.jar"
+      url =
+      "http://central.maven.org/maven2/org/scalactic/scalactic_2.11/3.0.5/scalactic_2.11-3.0.5.jar"
   )
 
   native.http_jar(
       name = "scalatest_2_12",
-      url = "http://central.maven.org/maven2/org/scalatest/scalatest_2.12/3.0.5/scalatest_2.12-3.0.5.jar"
+      url =
+      "http://central.maven.org/maven2/org/scalatest/scalatest_2.12/3.0.5/scalatest_2.12-3.0.5.jar"
   )
   native.http_jar(
       name = "scalactic_2_12",
-      url = "http://central.maven.org/maven2/org/scalactic/scalactic_2.12/3.0.5/scalactic_2.12-3.0.5.jar"
+      url =
+      "http://central.maven.org/maven2/org/scalactic/scalactic_2.12/3.0.5/scalactic_2.12-3.0.5.jar"
   )
   native.http_jar(
       name = "scala_xml_2_11",
-      url = "http://central.maven.org/maven2/org/scala-lang/modules/scala-xml_2.11/1.0.5/scala-xml_2.11-1.0.5.jar"
+      url =
+      "http://central.maven.org/maven2/org/scala-lang/modules/scala-xml_2.11/1.0.5/scala-xml_2.11-1.0.5.jar"
   )
   native.http_jar(
       name = "scala_xml_2_12",
-      url = "http://central.maven.org/maven2/org/scala-lang/modules/scala-xml_2.12/1.0.5/scala-xml_2.12-1.0.5.jar"
+      url =
+      "http://central.maven.org/maven2/org/scala-lang/modules/scala-xml_2.12/1.0.5/scala-xml_2.12-1.0.5.jar"
   )
   native.http_jar(
       name = "scala_parser_combinators_2_11",
-      url = "http://central.maven.org/maven2/org/scala-lang/modules/scala-parser-combinators_2.11/1.0.4/scala-parser-combinators_2.11-1.0.4.jar"
+      url =
+      "http://central.maven.org/maven2/org/scala-lang/modules/scala-parser-combinators_2.11/1.0.4/scala-parser-combinators_2.11-1.0.4.jar"
   )
   native.http_jar(
       name = "scala_parser_combinators_2_12",
-      url = "http://central.maven.org/maven2/org/scala-lang/modules/scala-parser-combinators_2.12/1.0.4/scala-parser-combinators_2.12-1.0.4.jar"
+      url =
+      "http://central.maven.org/maven2/org/scala-lang/modules/scala-parser-combinators_2.12/1.0.4/scala-parser-combinators_2.12-1.0.4.jar"
   )
 
   native.maven_server(
@@ -354,7 +361,8 @@ def scala_repositories(scala_version = "2.11.11"):
 
   native.bind(
       name = "io_bazel_rules_scala/dependency/scala/parser_combinators",
-      actual = "@scala_parser_combinators_{}//jar".format(major_version_underscore))
+      actual = "@scala_parser_combinators_{}//jar".format(
+          major_version_underscore))
 
   native.bind(
       name = "io_bazel_rules_scala/dependency/scala/scala_compiler",

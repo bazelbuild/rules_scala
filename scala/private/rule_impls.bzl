@@ -253,7 +253,8 @@ StatsfileOutput: {statsfile_output}
          list(srcjars) + list(sources) + ctx.files.srcs + ctx.files.plugins +
          dependency_analyzer_plugin_jars + classpath_resources +
          ctx.files.resources + ctx.files.resource_jars + ctx.files._java_runtime
-         + [ctx.outputs.manifest, ctx.executable._ijar, argfile] + [scalac_provider.scalac.files_to_run.runfiles_manifest])
+         + [ctx.outputs.manifest, ctx.executable._ijar, argfile
+           ] + [scalac_provider.scalac.files_to_run.runfiles_manifest])
 
   ctx.actions.run(
       inputs = ins,
@@ -713,7 +714,8 @@ def scala_test_impl(ctx):
                       jars.transitive_compile_jars, jars.jars2labels)
   # _scalatest is an http_jar, so its compile jar is run through ijar
   # however, contains macros, so need to handle separately
-  scalatest_jars = collect_jars(scalac_provider.scalatest).transitive_runtime_jars
+  scalatest_jars = collect_jars(
+      scalac_provider.scalatest).transitive_runtime_jars
   cjars = depset(transitive = [cjars, scalatest_jars])
   transitive_rjars = depset(transitive = [transitive_rjars, scalatest_jars])
 
