@@ -24,6 +24,7 @@ load(
     "not_sources_jar",
     "write_manifest",
 )
+load("@io_bazel_rules_scala//scala:jars_to_labels.bzl", "JarsToLabelsInfo")
 
 _java_filetype = FileType([".java"])
 _scala_filetype = FileType([".scala"])
@@ -513,8 +514,8 @@ def _lib(ctx, non_macro_lib):
 
   write_manifest(ctx)
   outputs = _compile_or_empty(ctx, cjars, srcjars, non_macro_lib,
-                              jars.transitive_compile_jars, jars.jars2labels,
-                              [])
+                              jars.transitive_compile_jars,
+                              jars.jars2labels.jars_to_labels, [])
 
   transitive_rjars = depset(outputs.full_jars, transitive = [transitive_rjars])
 
@@ -548,7 +549,7 @@ def _lib(ctx, non_macro_lib):
   return struct(
       files = depset([ctx.outputs.jar]),  # Here is the default output
       scala = scalaattr,
-      providers = [java_provider],
+      providers = [java_provider, jars.jars2labels],
       runfiles = runfiles,
       # This is a free monoid given to the graph for the purpose of
       # extensibility. This is necessary when one wants to create
@@ -562,7 +563,6 @@ def _lib(ctx, non_macro_lib):
       # unfortunately, we need to see this for scrooge and protobuf to work,
       # but those are generating srcjar, so they should really come in via srcs
       extra_information=_collect_extra_information(ctx.attr.deps + ctx.attr.srcs),
-      jars_to_labels = jars.jars2labels,
     )
 
 def _collect_extra_information(targets):
@@ -618,7 +618,7 @@ def _scala_binary_common(ctx,
       scala = scalaattr,
       transitive_rjars =
       rjars,  #calling rules need this for the classpath in the launcher
-      jars_to_labels = jars2labels,
+      jars_to_labels = JarsToLabelsInfo(jars_to_labels = jars2labels),
       runfiles = runfiles)
 
 def scala_binary_impl(ctx):
@@ -627,8 +627,8 @@ def scala_binary_impl(ctx):
 
   wrapper = _write_java_wrapper(ctx, "", "")
   out = _scala_binary_common(ctx, cjars, transitive_rjars,
-                             jars.transitive_compile_jars, jars.jars2labels,
-                             wrapper)
+                             jars.transitive_compile_jars,
+                             jars.jars2labels.jars_to_labels, wrapper)
   _write_executable(
       ctx = ctx,
       rjars = out.transitive_rjars,
@@ -663,8 +663,8 @@ trap finish EXIT
 """)
 
   out = _scala_binary_common(ctx, cjars, transitive_rjars,
-                             jars.transitive_compile_jars, jars.jars2labels,
-                             wrapper)
+                             jars.transitive_compile_jars,
+                             jars.jars2labels.jars_to_labels, wrapper)
   _write_executable(
       ctx = ctx,
       rjars = out.transitive_rjars,
@@ -696,7 +696,8 @@ def scala_test_impl(ctx):
   )
   (cjars, transitive_rjars, transitive_compile_jars,
    jars_to_labels) = (jars.compile_jars, jars.transitive_runtime_jars,
-                      jars.transitive_compile_jars, jars.jars2labels)
+                      jars.transitive_compile_jars,
+                      jars.jars2labels.jars_to_labels)
   # _scalatest is an http_jar, so its compile jar is run through ijar
   # however, contains macros, so need to handle separately
   scalatest_jars = collect_jars([ctx.attr._scalatest]).transitive_runtime_jars
@@ -765,8 +766,8 @@ def scala_junit_test_impl(ctx):
 
   wrapper = _write_java_wrapper(ctx, "", "")
   out = _scala_binary_common(ctx, cjars, transitive_rjars,
-                             jars.transitive_compile_jars, jars.jars2labels,
-                             wrapper,
+                             jars.transitive_compile_jars,
+                             jars.jars2labels.jars_to_labels, wrapper,
                              implicit_junit_deps_needed_for_java_compilation)
   test_suite = _gen_test_suite_flags_based_on_prefixes_and_suffixes(
       ctx, out.scala.outputs.jars)
