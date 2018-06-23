@@ -294,7 +294,7 @@ def scala_repositories():
       strip_prefix = "scala-2.11.11",
       sha256 =
       "12037ca64c68468e717e950f47fc77d5ceae5e74e3bdca56f6d02fd5bfd6900b",
-      url = "https://downloads.lightbend.com/scala/2.11.11/scala-2.11.11.tgz",
+      url = "http://downloads.lightbend.com/scala/2.11.11/scala-2.11.11.tgz",
       build_file_content = _SCALA_BUILD_FILE,
   )
 
