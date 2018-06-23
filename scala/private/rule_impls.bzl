@@ -588,7 +588,8 @@ def _scala_binary_common(ctx,
                          implicit_junit_deps_needed_for_java_compilation = []):
   write_manifest(ctx)
   outputs = _compile_or_empty(ctx, cjars, depset(), False,
-                              transitive_compile_time_jars, jars2labels,
+                              transitive_compile_time_jars,
+                              jars2labels.jars_to_labels,
                               implicit_junit_deps_needed_for_java_compilation
                              )  # no need to build an ijar for an executable
   rjars = depset(outputs.full_jars, transitive = [rjars])
@@ -614,11 +615,10 @@ def _scala_binary_common(ctx,
 
   return struct(
       files = depset([ctx.outputs.executable, ctx.outputs.jar]),
-      providers = [java_provider],
+      providers = [java_provider, jars2labels],
       scala = scalaattr,
       transitive_rjars =
       rjars,  #calling rules need this for the classpath in the launcher
-      jars_to_labels = JarsToLabelsInfo(jars_to_labels = jars2labels),
       runfiles = runfiles)
 
 def scala_binary_impl(ctx):
@@ -627,8 +627,8 @@ def scala_binary_impl(ctx):
 
   wrapper = _write_java_wrapper(ctx, "", "")
   out = _scala_binary_common(ctx, cjars, transitive_rjars,
-                             jars.transitive_compile_jars,
-                             jars.jars2labels.jars_to_labels, wrapper)
+                             jars.transitive_compile_jars, jars.jars2labels,
+                             wrapper)
   _write_executable(
       ctx = ctx,
       rjars = out.transitive_rjars,
@@ -663,8 +663,8 @@ trap finish EXIT
 """)
 
   out = _scala_binary_common(ctx, cjars, transitive_rjars,
-                             jars.transitive_compile_jars,
-                             jars.jars2labels.jars_to_labels, wrapper)
+                             jars.transitive_compile_jars, jars.jars2labels,
+                             wrapper)
   _write_executable(
       ctx = ctx,
       rjars = out.transitive_rjars,
@@ -696,8 +696,7 @@ def scala_test_impl(ctx):
   )
   (cjars, transitive_rjars, transitive_compile_jars,
    jars_to_labels) = (jars.compile_jars, jars.transitive_runtime_jars,
-                      jars.transitive_compile_jars,
-                      jars.jars2labels.jars_to_labels)
+                      jars.transitive_compile_jars, jars.jars2labels)
   # _scalatest is an http_jar, so its compile jar is run through ijar
   # however, contains macros, so need to handle separately
   scalatest_jars = collect_jars([ctx.attr._scalatest]).transitive_runtime_jars
@@ -708,8 +707,10 @@ def scala_test_impl(ctx):
     transitive_compile_jars = depset(
         transitive = [scalatest_jars, transitive_compile_jars])
     scalatest_jars_list = scalatest_jars.to_list()
-    add_labels_of_jars_to(jars_to_labels, ctx.attr._scalatest,
-                          scalatest_jars_list, scalatest_jars_list)
+    j2l = jars_to_labels.jars_to_labels
+    add_labels_of_jars_to(j2l, ctx.attr._scalatest, scalatest_jars_list,
+                          scalatest_jars_list)
+    jars_to_labels = JarsToLabelsInfo(jars_to_labels = j2l)
 
   args = " ".join([
       "-R \"{path}\"".format(path = ctx.outputs.jar.short_path),
@@ -766,8 +767,8 @@ def scala_junit_test_impl(ctx):
 
   wrapper = _write_java_wrapper(ctx, "", "")
   out = _scala_binary_common(ctx, cjars, transitive_rjars,
-                             jars.transitive_compile_jars,
-                             jars.jars2labels.jars_to_labels, wrapper,
+                             jars.transitive_compile_jars, jars.jars2labels,
+                             wrapper,
                              implicit_junit_deps_needed_for_java_compilation)
   test_suite = _gen_test_suite_flags_based_on_prefixes_and_suffixes(
       ctx, out.scala.outputs.jars)
