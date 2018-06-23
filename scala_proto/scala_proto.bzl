@@ -363,8 +363,6 @@ def _gen_proto_srcjar_impl(ctx):
       scala = scalaattr,
       providers = [java_provider],
       srcjars = srcjarsattr,
-      extra_information = [struct(srcjars = srcjarsattr,
-                                 )],
   )
 
 scala_proto_srcjar = rule(
