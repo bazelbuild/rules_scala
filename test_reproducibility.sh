@@ -20,7 +20,7 @@ test_build_is_identical() {
     non_deploy_jar_md5_sum > hash1
     bazel clean
     sleep 2 # to make sure that if timestamps slip in we get different ones
-    bazel build --noexperimental_local_disk_cache test/...
+    bazel build --disk_cache /tmp/$RANDOM test/...
     non_deploy_jar_md5_sum > hash2
     diff hash1 hash2
 }
