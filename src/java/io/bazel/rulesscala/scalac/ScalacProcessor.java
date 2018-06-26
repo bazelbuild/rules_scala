@@ -79,19 +79,6 @@ class ScalacProcessor implements Processor {
       /** Now build the output jar */
       String[] jarCreatorArgs = {"-m", ops.manifestPath, outputPath.toString(), tmpPath.toString()};
       JarCreator.main(jarCreatorArgs);
-
-      /** Now build the output ijar */
-      if (ops.iJarEnabled) {
-        Process iostat =
-            new ProcessBuilder()
-                .command(ops.ijarCmdPath, ops.outputName, ops.ijarOutput)
-                .inheritIO()
-                .start();
-        int exitCode = iostat.waitFor();
-        if (exitCode != 0) {
-          throw new RuntimeException("ijar process failed!");
-        }
-      }
     } finally {
       removeTmp(tmpPath);
     }
