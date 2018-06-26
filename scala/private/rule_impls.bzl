@@ -467,6 +467,8 @@ def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper):
           "%needs_runfiles%": "",
           "%runfiles_manifest_only%": "",
           "%set_jacoco_metadata%": "",
+          "%set_jacoco_main_class%": "",
+          "%set_jacoco_java_runfiles_root%": "",
           "%workspace_prefix%": ctx.workspace_name + "/",
       },
       is_executable = True,
