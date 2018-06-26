@@ -23,3 +23,4 @@ build --strategy=Scalac=worker --strategy=ScroogeRule=worker --worker_max_instan
 # Below this line, .travis.yml will cat the default bazelrc.
 # This is needed so Bazel starts with the base workspace in its
 # package path.
+build --disk_cache=.bazel_cache
