@@ -37,7 +37,6 @@ class ScalacProcessor implements Processor {
   @Override
   public void processRequest(List<String> args) throws Exception {
     Path tmpPath = null;
-    System.out.println(scala.tools.nsc.Properties.versionString());
     try {
       CompileOptions ops = new CompileOptions(args);
 
