@@ -342,7 +342,7 @@ def scala_repositories():
           "https://%s" % java_stub_template_url
       ],
       sha256 =
-      "f09d06d55cd25168427a323eb29d32beca0ded43bec80d76fc6acd8199a24489",
+      "2cbba7c512e400df0e7d4376e667724a38d1155db5baaa81b72ad785c6d761d1",
   )
 
   native.bind(
