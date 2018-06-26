@@ -29,7 +29,6 @@ ScalacProvider = provider(
     doc = "ScalaProvider",
     fields = [
         "scalac", "scalalib", "scalareflect", "scalacompiler",
-        "scalatest", "scalatest_runner"
     ])
 
 def _declare_scalac_provider(ctx):
@@ -39,8 +38,6 @@ def _declare_scalac_provider(ctx):
           scalalib = ctx.attr.scalalib,
           scalareflect = ctx.attr.scalareflect,
           scalacompiler = ctx.attr.scalacompiler,
-          scalatest = ctx.attr.scalatest,
-          scalatest_runner = ctx.attr.scalatest_runner,
       )
   ]
 
@@ -55,11 +52,5 @@ declare_scalac_provider = rule(
         "scalalib": attr.label(mandatory = True, allow_files = True),
         "scalareflect": attr.label(mandatory = True, allow_files = True),
         "scalacompiler": attr.label(mandatory = True, allow_files = True),
-        "scalaxml": attr.label(mandatory = True, allow_files = True),
-        "scalatest": attr.label_list(mandatory = True, allow_files = True),
-        "scalatest_runner": attr.label(
-            executable = True,
-            cfg = "host",
-            mandatory = True,
-            allow_files = True),
+        "scalaxml": attr.label(mandatory = True, allow_files = True)
     })

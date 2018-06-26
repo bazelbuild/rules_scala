@@ -98,8 +98,6 @@ _declare_scalac_provider(
     scalareflect = "@{archive}//:scala-reflect",
     scalaxml = "@scala_xml_{version_underscore}//jar",
     scalacompiler = "@{archive}//:scala-compiler",
-    scalatest = ["@scalatest_{version_underscore}//jar", "@scalactic_{version_underscore}//jar"],
-    scalatest_runner = "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scala_test:runner.jar",
     visibility = ["//visibility:public"],
 )
     """.format(
