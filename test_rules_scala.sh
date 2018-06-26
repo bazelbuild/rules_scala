@@ -803,11 +803,11 @@ dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 runner=$(get_test_runner "${1:-local}")
 
 $runner bazel build test/...
-$runner bazel build "test/... --all_incompatible_changes"
+#$runner bazel build "test/... --all_incompatible_changes"
 $runner bazel test test/...
 $runner bazel test third_party/...
 $runner bazel build "test/... --strict_java_deps=ERROR"
-$runner bazel build "test/... --strict_java_deps=ERROR --all_incompatible_changes"
+#$runner bazel build "test/... --strict_java_deps=ERROR --all_incompatible_changes"
 $runner bazel test "test/... --strict_java_deps=ERROR"
 $runner bazel run test/src/main/scala/scalarules/test/twitter_scrooge:justscrooges
 $runner bazel run test:JavaBinary

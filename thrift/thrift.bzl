@@ -1,7 +1,5 @@
 """Rules for organizing thrift files."""
 
-_thrift_filetype = FileType([".thrift"])
-
 ThriftInfo = provider(fields = [
     "srcs",  # The source files in this rule
     "transitive_srcs",  # the transitive version of the above
@@ -141,7 +139,7 @@ def _valid_thrift_deps(targets):
 thrift_library = rule(
     implementation = _thrift_library_impl,
     attrs = {
-        "srcs": attr.label_list(allow_files = _thrift_filetype),
+        "srcs": attr.label_list(allow_files = [".thrift"]),
         "deps": attr.label_list(),
         #TODO this is not necessarily the best way to do this... the goal
         # is that we want thrifts to be able to be imported via an absolute
