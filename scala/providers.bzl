@@ -28,14 +28,13 @@ def create_scala_provider(ijar, class_jar, compile_jars,
 ScalacProvider = provider(
     doc = "ScalaProvider",
     fields = [
-        "major_version", "scalac", "scalalib", "scalareflect", "scalacompiler",
+        "scalac", "scalalib", "scalareflect", "scalacompiler",
         "scalatest", "scalatest_runner"
     ])
 
 def _declare_scalac_provider(ctx):
   return [
       ScalacProvider(
-          major_version = ctx.attr.major_version,
           scalac = ctx.attr.scalac,
           scalalib = ctx.attr.scalalib,
           scalareflect = ctx.attr.scalareflect,
@@ -48,7 +47,6 @@ def _declare_scalac_provider(ctx):
 declare_scalac_provider = rule(
     implementation = _declare_scalac_provider,
     attrs = {
-        "major_version": attr.string(mandatory = True),
         "scalac": attr.label(
             executable = True,
             cfg = "host",

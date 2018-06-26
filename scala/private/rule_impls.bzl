@@ -723,8 +723,9 @@ def scala_test_impl(ctx):
     transitive_compile_jars = depset(
         transitive = [scalatest_jars, transitive_compile_jars])
     scalatest_jars_list = scalatest_jars.to_list()
-    add_labels_of_jars_to(jars_to_labels, scalac_provider.scalatest,
-                          scalatest_jars_list, scalatest_jars_list)
+    for dep in scalac_provider.scalatest:
+      add_labels_of_jars_to(jars_to_labels, dep,
+                            scalatest_jars_list, scalatest_jars_list)
 
   args = " ".join([
       "-R \"{path}\"".format(path = ctx.outputs.jar.short_path),

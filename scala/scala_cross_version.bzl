@@ -93,22 +93,19 @@ java_binary(
 
 _declare_scalac_provider(
     name = "{name}",
-    major_version = "{major_version}",
     scalac = "@{name}//:scalac_worker",
     scalalib = "@{archive}//:scala-library",
     scalareflect = "@{archive}//:scala-reflect",
-    scalaxml = "@scala_xml_{version_with_underscore}//jar",
+    scalaxml = "@scala_xml_{version_underscore}//jar",
     scalacompiler = "@{archive}//:scala-compiler",
-    scalatest = ["@scalatest_{version_with_underscore}//jar", "@scalactic_{version_with_underscore}//jar"],
+    scalatest = ["@scalatest_{version_underscore}//jar", "@scalactic_{version_underscore}//jar"],
     scalatest_runner = "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scala_test:runner.jar",
     visibility = ["//visibility:public"],
 )
     """.format(
       archive = repository_ctx.attr.archive,
       name = repository_ctx.attr.name,
-      major_version = repository_ctx.attr.major_version,
-      version_with_underscore = repository_ctx.attr.major_version.replace(
-          ".", "_"))
+      version_underscore = repository_ctx.attr.version_underscore)
 
   repository_ctx.file("BUILD", contents, False)
 
@@ -116,7 +113,7 @@ _generate_scalac_build_file = repository_rule(
     implementation = _generate_scalac_build_file_impl,
     attrs = {
         "archive": attr.string(),
-        "major_version": attr.string()
+        "version_underscore": attr.string()
     })
 
 def new_scala_repository(name, version):
@@ -134,5 +131,5 @@ def new_scala_repository(name, version):
   _generate_scalac_build_file(
       name = name,
       archive = archive,
-      major_version = major_version,
+      version_underscore = major_version.replace(".", "_"),
       visibility = ["//visibility:public"])
