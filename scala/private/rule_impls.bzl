@@ -328,10 +328,16 @@ def _compile_or_empty(ctx, jars, srcjars, buildijar, transitive_compile_jars,
         full_jars = [ctx.outputs.jar],
         ijars = [ctx.outputs.jar])
   else:
-    in_srcjars = [f for f in ctx.files.srcs if f.basename.endswith(_srcjar_extension)]
+    in_srcjars = [
+        f for f in ctx.files.srcs if f.basename.endswith(_srcjar_extension)
+    ]
     all_srcjars = depset(in_srcjars, transitive = [srcjars])
-    java_srcs = [f for f in ctx.files.srcs if f.basename.endswith(_java_extension)]
-    sources = [f for f in ctx.files.srcs if f.basename.endswith(_scala_extension)] + java_srcs
+    java_srcs = [
+        f for f in ctx.files.srcs if f.basename.endswith(_java_extension)
+    ]
+    sources = [
+        f for f in ctx.files.srcs if f.basename.endswith(_scala_extension)
+    ] + java_srcs
     _compile_scala(ctx, ctx.outputs.jar, sources, jars, all_srcjars, buildijar,
                    transitive_compile_jars, ctx.attr.resource_strip_prefix,
                    ctx.files.resources, ctx.files.resource_jars, jars2labels,
