@@ -48,10 +48,7 @@ _implicit_deps = {
         default = Label("@bazel_tools//tools/jdk:current_java_runtime"),
         cfg = "host"),
     "_java_runtime": attr.label(
-        default = Label("@bazel_tools//tools/jdk:current_java_runtime"))
-}
-
-scala_deps = {
+        default = Label("@bazel_tools//tools/jdk:current_java_runtime")),
     "_scalac": attr.label(
         default = Label("@scala_default"), providers = [_ScalacProvider])
 }
@@ -147,7 +144,6 @@ _library_outputs.update({
 
 _scala_library_attrs = {}
 _scala_library_attrs.update(_implicit_deps)
-_scala_library_attrs.update(scala_deps)
 _scala_library_attrs.update(_common_attrs)
 _scala_library_attrs.update(_library_attrs)
 _scala_library_attrs.update(_resolve_deps)
@@ -165,7 +161,6 @@ scala_library = rule(
 # which does not contain plugin related attributes, and thus avoids the cyclic dependency issue
 _scala_library_for_plugin_bootstrapping_attrs = {}
 _scala_library_for_plugin_bootstrapping_attrs.update(_implicit_deps)
-_scala_library_for_plugin_bootstrapping_attrs.update(scala_deps)
 _scala_library_for_plugin_bootstrapping_attrs.update(_library_attrs)
 _scala_library_for_plugin_bootstrapping_attrs.update(_resolve_deps)
 _scala_library_for_plugin_bootstrapping_attrs.update(
@@ -183,7 +178,6 @@ _scala_macro_library_attrs = {
     "exports": attr.label_list(allow_files = False),
 }
 _scala_macro_library_attrs.update(_implicit_deps)
-_scala_macro_library_attrs.update(scala_deps)
 _scala_macro_library_attrs.update(_common_attrs)
 _scala_macro_library_attrs.update(_library_attrs)
 _scala_macro_library_attrs.update(_resolve_deps)
@@ -201,7 +195,6 @@ _scala_binary_attrs = {
 }
 _scala_binary_attrs.update(_launcher_template)
 _scala_binary_attrs.update(_implicit_deps)
-_scala_binary_attrs.update(scala_deps)
 _scala_binary_attrs.update(_common_attrs)
 _scala_binary_attrs.update(_resolve_deps)
 scala_binary = rule(
@@ -234,7 +227,6 @@ _scala_test_attrs = {
 }
 _scala_test_attrs.update(_launcher_template)
 _scala_test_attrs.update(_implicit_deps)
-_scala_test_attrs.update(scala_deps)
 _scala_test_attrs.update(_common_attrs)
 _scala_test_attrs.update(_test_resolve_deps)
 scala_test = rule(
@@ -250,7 +242,6 @@ scala_test = rule(
 _scala_repl_attrs = {}
 _scala_repl_attrs.update(_launcher_template)
 _scala_repl_attrs.update(_implicit_deps)
-_scala_repl_attrs.update(scala_deps)
 _scala_repl_attrs.update(_common_attrs)
 _scala_repl_attrs.update(_resolve_deps)
 scala_repl = rule(
@@ -488,7 +479,6 @@ _scala_junit_test_attrs = {
 }
 _scala_junit_test_attrs.update(_launcher_template)
 _scala_junit_test_attrs.update(_implicit_deps)
-_scala_junit_test_attrs.update(scala_deps)
 _scala_junit_test_attrs.update(_common_attrs)
 _scala_junit_test_attrs.update(_junit_resolve_deps)
 scala_junit_test = rule(
