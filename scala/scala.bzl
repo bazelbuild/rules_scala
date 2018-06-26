@@ -329,7 +329,7 @@ def scala_repositories():
   )
 
   # Template for binary launcher
-  BAZEL_JAVA_LAUNCHER_VERSION = "0.4.5"
+  BAZEL_JAVA_LAUNCHER_VERSION = "0.14.1"
   java_stub_template_url = (
       "raw.githubusercontent.com/bazelbuild/bazel/" +
       BAZEL_JAVA_LAUNCHER_VERSION +
