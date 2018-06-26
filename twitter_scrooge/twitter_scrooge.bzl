@@ -212,4 +212,3 @@ scrooge_scala_library = rule(
     },
     provides = [ScroogeInfo],
 )
-

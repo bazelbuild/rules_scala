@@ -284,14 +284,11 @@ public class JarCreator extends JarHelper {
 
   /** A simple way to create Jar file using the JarCreator class. */
   public static void main(String[] args) {
-    long start = System.currentTimeMillis();
     try {
       buildJar(args);
     } catch (IOException e) {
       e.printStackTrace();
       System.exit(1);
     }
-    long stop = System.currentTimeMillis();
-    System.err.println((stop - start) + "ms.");
   }
 }

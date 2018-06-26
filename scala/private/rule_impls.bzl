@@ -132,20 +132,33 @@ def _expand_location(ctx, flags):
 def _join_path(args, sep = ","):
   return sep.join([f.path for f in args])
 
-def _compile(ctx, cjars, dep_srcjars, buildijar, transitive_compile_jars,
-             labels, implicit_junit_deps_needed_for_java_compilation):
+def compile_scala(ctx,
+                  target_label,
+                  output,
+                  manifest,
+                  statsfile,
+                  sources,
+                  cjars,
+                  all_srcjars,
+                  buildijar,
+                  transitive_compile_jars,
+                  plugins,
+                  resource_strip_prefix,
+                  resources,
+                  resource_jars,
+                  labels,
+                  in_scalacopts,
+                  print_compile_time,
+                  expect_java_output,
+                  scalac_jvm_flags = []):
   ijar_output_path = ""
   ijar_cmd_path = ""
   if buildijar:
     ijar_output_path = ctx.outputs.ijar.path
     ijar_cmd_path = ctx.executable._ijar.path
 
-  java_srcs = _java_filetype.filter(ctx.files.srcs)
-  sources = _scala_filetype.filter(ctx.files.srcs) + java_srcs
-  srcjars = _srcjar_filetype.filter(ctx.files.srcs)
-  all_srcjars = depset(srcjars, transitive = [dep_srcjars])
   # look for any plugins:
-  plugins = _collect_plugin_paths(ctx.attr.plugins)
+  plugins = _collect_plugin_paths(plugins)
   dependency_analyzer_plugin_jars = []
   dependency_analyzer_mode = "off"
   compiler_classpath_jars = cjars
@@ -166,7 +179,7 @@ def _compile(ctx, cjars, dep_srcjars, buildijar, transitive_compile_jars,
     transitive_cjars_list = transitive_compile_jars.to_list()
     indirect_jars = _join_path(transitive_cjars_list)
     indirect_targets = ",".join([labels[j.path] for j in transitive_cjars_list])
-    current_target = str(ctx.label)
+    current_target = str(target_label)
 
     optional_scalac_args = """
 DirectJars: {direct_jars}
@@ -179,13 +192,14 @@ CurrentTarget: {current_target}
         indirect_targets = indirect_targets,
         current_target = current_target)
 
-  plugin_arg = _join_path(plugins.to_list())
+  plugins_list = plugins.to_list()
+  plugin_arg = _join_path(plugins_list)
 
   separator = ctx.configuration.host_path_separator
   compiler_classpath = _join_path(compiler_classpath_jars.to_list(), separator)
 
   toolchain = ctx.toolchains['@io_bazel_rules_scala//scala:toolchain_type']
-  scalacopts = toolchain.scalacopts + ctx.attr.scalacopts
+  scalacopts = toolchain.scalacopts + in_scalacopts
 
   scalac_args = """
 Classpath: {cp}
@@ -195,10 +209,10 @@ Files: {files}
 IjarCmdPath: {ijar_cmd_path}
 IjarOutput: {ijar_out}
 JarOutput: {out}
-JavaFiles: {java_files}
 Manifest: {manifest}
 Plugins: {plugin_arg}
 PrintCompileTime: {print_compile_time}
+ExpectJavaOutput: {expect_java_output}
 ResourceDests: {resource_dest}
 ResourceJars: {resource_jars}
 ResourceSrcs: {resource_src}
@@ -209,10 +223,11 @@ SourceJars: {srcjars}
 DependencyAnalyzerMode: {dependency_analyzer_mode}
 StatsfileOutput: {statsfile_output}
 """.format(
-      out = ctx.outputs.jar.path,
-      manifest = ctx.outputs.manifest.path,
+      out = output.path,
+      manifest = manifest.path,
       scala_opts = ",".join(scalacopts),
-      print_compile_time = ctx.attr.print_compile_time,
+      print_compile_time = print_compile_time,
+      expect_java_output = expect_java_output,
       plugin_arg = plugin_arg,
       cp = compiler_classpath,
       classpath_resource_src = _join_path(classpath_resources),
@@ -221,39 +236,36 @@ StatsfileOutput: {statsfile_output}
       ijar_out = ijar_output_path,
       ijar_cmd_path = ijar_cmd_path,
       srcjars = _join_path(all_srcjars.to_list()),
-      java_files = _join_path(java_srcs),
       # the resource paths need to be aligned in order
-      resource_src = ",".join([f.path for f in ctx.files.resources]),
-      resource_short_paths = ",".join(
-          [f.short_path for f in ctx.files.resources]),
+      resource_src = ",".join([f.path for f in resources]),
+      resource_short_paths = ",".join([f.short_path for f in resources]),
       resource_dest = ",".join([
           _adjust_resources_path_by_default_prefixes(f.short_path)[1]
-          for f in ctx.files.resources
+          for f in resources
       ]),
-      resource_strip_prefix = ctx.attr.resource_strip_prefix,
-      resource_jars = _join_path(ctx.files.resource_jars),
+      resource_strip_prefix = resource_strip_prefix,
+      resource_jars = _join_path(resource_jars),
       dependency_analyzer_mode = dependency_analyzer_mode,
-      statsfile_output = ctx.outputs.statsfile.path)
+      statsfile_output = statsfile.path)
   argfile = ctx.actions.declare_file(
-      "%s_worker_input" % ctx.label.name, sibling = ctx.outputs.jar)
+      "%s_scalac_worker_input" % target_label.name, sibling = output)
 
   ctx.actions.write(
       output = argfile, content = scalac_args + optional_scalac_args)
 
-  outs = [ctx.outputs.jar, ctx.outputs.statsfile]
+  outs = [output, statsfile]
   if buildijar:
     outs.extend([ctx.outputs.ijar])
-  ins = (compiler_classpath_jars.to_list() + dep_srcjars.to_list() +
-         list(srcjars) + list(sources) + ctx.files.srcs + ctx.files.plugins +
-         dependency_analyzer_plugin_jars + classpath_resources +
-         ctx.files.resources + ctx.files.resource_jars + ctx.files._java_runtime
-         + [ctx.outputs.manifest, ctx.executable._ijar, argfile])
+  ins = (
+      compiler_classpath_jars.to_list() + all_srcjars.to_list() + list(sources)
+      + plugins_list + dependency_analyzer_plugin_jars + classpath_resources +
+      resources + resource_jars + [manifest, ctx.executable._ijar, argfile])
   ctx.actions.run(
       inputs = ins,
       outputs = outs,
       executable = ctx.executable._scalac,
       mnemonic = "Scalac",
-      progress_message = "scala %s" % ctx.label,
+      progress_message = "scala %s" % target_label,
       execution_requirements = {"supports-workers": "1"},
       #  when we run with a worker, the `@argfile.path` is removed and passed
       #  line by line as arguments in the protobuf. In that case,
@@ -264,19 +276,9 @@ StatsfileOutput: {statsfile_output}
       # be correctly handled since the executable is a jvm app that will
       # consume the flags on startup.
       arguments = [
-          "--jvm_flag=%s" % f
-          for f in _expand_location(ctx, ctx.attr.scalac_jvm_flags)
+          "--jvm_flag=%s" % f for f in _expand_location(ctx, scalac_jvm_flags)
       ] + ["@" + argfile.path],
   )
-
-  if buildijar:
-    scala_output = ctx.outputs.ijar
-  else:
-    scala_output = ctx.outputs.jar
-  java_jar = try_to_compile_java_jar(
-      ctx, scala_output, all_srcjars, java_srcs,
-      implicit_junit_deps_needed_for_java_compilation)
-  return java_jar
 
 def _interim_java_provider_for_java_compilation(scala_output):
   return java_common.create_provider(
@@ -287,7 +289,7 @@ def _interim_java_provider_for_java_compilation(scala_output):
 
 def try_to_compile_java_jar(ctx, scala_output, all_srcjars, java_srcs,
                             implicit_junit_deps_needed_for_java_compilation):
-  if not java_srcs and not all_srcjars:
+  if not java_srcs and (not (all_srcjars and ctx.attr.expect_java_output)):
     return False
 
   providers_of_dependencies = collect_java_providers_of(ctx.attr.deps)
@@ -327,8 +329,8 @@ def collect_java_providers_of(deps):
       providers.append(dep[JavaInfo])
   return providers
 
-def _compile_or_empty(ctx, jars, srcjars, buildijar, transitive_compile_jars,
-                      jars2labels,
+def _compile_or_empty(ctx, manifest, jars, srcjars, buildijar,
+                      transitive_compile_jars, jars2labels,
                       implicit_junit_deps_needed_for_java_compilation):
   # We assume that if a srcjar is present, it is not empty
   if len(ctx.files.srcs) + len(srcjars.to_list()) == 0:
@@ -341,9 +343,26 @@ def _compile_or_empty(ctx, jars, srcjars, buildijar, transitive_compile_jars,
         full_jars = [ctx.outputs.jar],
         ijars = [ctx.outputs.jar])
   else:
-    java_jar = _compile(ctx, jars, srcjars, buildijar, transitive_compile_jars,
-                        jars2labels,
-                        implicit_junit_deps_needed_for_java_compilation)
+    in_srcjars = _srcjar_filetype.filter(ctx.files.srcs)
+    all_srcjars = depset(in_srcjars, transitive = [srcjars])
+    java_srcs = _java_filetype.filter(ctx.files.srcs)
+    sources = _scala_filetype.filter(ctx.files.srcs) + java_srcs
+    compile_scala(ctx, ctx.label, ctx.outputs.jar, manifest,
+                  ctx.outputs.statsfile, sources, jars, all_srcjars, buildijar,
+                  transitive_compile_jars, ctx.attr.plugins,
+                  ctx.attr.resource_strip_prefix, ctx.files.resources,
+                  ctx.files.resource_jars, jars2labels, ctx.attr.scalacopts,
+                  ctx.attr.print_compile_time, ctx.attr.expect_java_output,
+                  ctx.attr.scalac_jvm_flags)
+    # compile the java now
+    if buildijar:
+      scala_output = ctx.outputs.ijar
+    else:
+      scala_output = ctx.outputs.jar
+    java_jar = try_to_compile_java_jar(
+        ctx, scala_output, all_srcjars, java_srcs,
+        implicit_junit_deps_needed_for_java_compilation)
+
     ijar = None
     if buildijar:
       ijar = ctx.outputs.ijar
@@ -457,12 +476,7 @@ def _collect_runtime_jars(dep_targets):
   runtime_jars = []
 
   for dep_target in dep_targets:
-    if JavaInfo in dep_target:
-      runtime_jars.append(dep_target[JavaInfo].transitive_runtime_jars)
-    else:
-      # support http_file pointed at a jar. http_jar uses ijar,
-      # which breaks scala macros
-      runtime_jars.append(filter_not_sources(dep_target.files))
+    runtime_jars.append(dep_target[JavaInfo].transitive_runtime_jars)
 
   return runtime_jars
 
@@ -515,9 +529,9 @@ def _lib(ctx, non_macro_lib):
   (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
 
   write_manifest(ctx)
-  outputs = _compile_or_empty(ctx, cjars, srcjars, non_macro_lib,
-                              jars.transitive_compile_jars, jars.jars2labels,
-                              [])
+  outputs = _compile_or_empty(ctx, ctx.outputs.manifest, cjars, srcjars,
+                              non_macro_lib, jars.transitive_compile_jars,
+                              jars.jars2labels, [])
 
   transitive_rjars = depset(outputs.full_jars, transitive = [transitive_rjars])
 
@@ -562,7 +576,9 @@ def _lib(ctx, non_macro_lib):
       # this information through. extra_information allows passing
       # this information through, and it is up to the new_targets
       # to filter and make sense of this information.
-      extra_information=_collect_extra_information(ctx.attr.deps),
+      # unfortunately, we need to see this for scrooge and protobuf to work,
+      # but those are generating srcjar, so they should really come in via srcs
+      extra_information=_collect_extra_information(ctx.attr.deps + ctx.attr.srcs),
       jars_to_labels = jars.jars2labels,
     )
 
@@ -588,7 +604,7 @@ def _scala_binary_common(ctx,
                          java_wrapper,
                          implicit_junit_deps_needed_for_java_compilation = []):
   write_manifest(ctx)
-  outputs = _compile_or_empty(ctx, cjars, depset(), False,
+  outputs = _compile_or_empty(ctx, ctx.outputs.manifest, cjars, depset(), False,
                               transitive_compile_time_jars, jars2labels,
                               implicit_junit_deps_needed_for_java_compilation
                              )  # no need to build an ijar for an executable

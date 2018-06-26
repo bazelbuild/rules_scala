@@ -102,7 +102,7 @@ _common_attrs_for_plugin_bootstrapping = {
     "srcs": attr.label_list(allow_files = [".scala", ".srcjar", ".java"]),
     "deps": attr.label_list(),
     "plugins": attr.label_list(allow_files = [".jar"]),
-    "runtime_deps": attr.label_list(),
+    "runtime_deps": attr.label_list(providers = [[JavaInfo]]),
     "data": attr.label_list(allow_files = True, cfg = "data"),
     "resources": attr.label_list(allow_files = True),
     "resource_strip_prefix": attr.string(),
@@ -112,6 +112,7 @@ _common_attrs_for_plugin_bootstrapping = {
     "jvm_flags": attr.string_list(),
     "scalac_jvm_flags": attr.string_list(),
     "javac_jvm_flags": attr.string_list(),
+    "expect_java_output": attr.bool(default = True, mandatory = False),
     "print_compile_time": attr.bool(default = False, mandatory = False),
 }
 
@@ -219,13 +220,10 @@ _scala_test_attrs = {
     "full_stacktraces": attr.bool(default = True),
     "_scalatest": attr.label(
         default = Label(
-            "//external:io_bazel_rules_scala/dependency/scalatest/scalatest"),
-        allow_files = True),
+            "//external:io_bazel_rules_scala/dependency/scalatest/scalatest")),
     "_scalatest_runner": attr.label(
-        executable = True,
         cfg = "host",
-        default = Label("//src/java/io/bazel/rulesscala/scala_test:runner.jar"),
-        allow_files = True),
+        default = Label("//src/java/io/bazel/rulesscala/scala_test:runner")),
     "_scalatest_reporter": attr.label(
         default = Label("//scala/support:test_reporter")),
 }
@@ -296,7 +294,7 @@ def scala_repositories():
       strip_prefix = "scala-2.11.11",
       sha256 =
       "12037ca64c68468e717e950f47fc77d5ceae5e74e3bdca56f6d02fd5bfd6900b",
-      url = "https://downloads.lightbend.com/scala/2.11.11/scala-2.11.11.tgz",
+      url = "http://downloads.lightbend.com/scala/2.11.11/scala-2.11.11.tgz",
       build_file_content = _SCALA_BUILD_FILE,
   )
 
@@ -331,7 +329,7 @@ def scala_repositories():
   )
 
   # Template for binary launcher
-  BAZEL_JAVA_LAUNCHER_VERSION = "0.4.5"
+  BAZEL_JAVA_LAUNCHER_VERSION = "0.14.1"
   java_stub_template_url = (
       "raw.githubusercontent.com/bazelbuild/bazel/" +
       BAZEL_JAVA_LAUNCHER_VERSION +
@@ -344,7 +342,7 @@ def scala_repositories():
           "https://%s" % java_stub_template_url
       ],
       sha256 =
-      "f09d06d55cd25168427a323eb29d32beca0ded43bec80d76fc6acd8199a24489",
+      "2cbba7c512e400df0e7d4376e667724a38d1155db5baaa81b72ad785c6d761d1",
   )
 
   native.bind(
@@ -476,7 +474,8 @@ _scala_junit_test_attrs = {
             "//external:io_bazel_rules_scala/dependency/hamcrest/hamcrest_core")
     ),
     "_bazel_test_runner": attr.label(
-        default = Label("@bazel_tools//tools/jdk:TestRunner_deploy.jar"),
+        default = Label(
+            "@io_bazel_rules_scala//scala:bazel_test_runner_deploy"),
         allow_files = True),
 }
 _scala_junit_test_attrs.update(_launcher_template)

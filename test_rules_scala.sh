@@ -5,7 +5,7 @@ set -e
 test_disappearing_class() {
   git checkout test_expect_failure/disappearing_class/ClassProvider.scala
   bazel build test_expect_failure/disappearing_class:uses_class
-  echo -e "package scala.test\n\nobject BackgroundNoise{}" > test_expect_failure/disappearing_class/ClassProvider.scala
+  echo -e "package scalarules.test\n\nobject BackgroundNoise{}" > test_expect_failure/disappearing_class/ClassProvider.scala
   set +e
   bazel build test_expect_failure/disappearing_class:uses_class
   RET=$?
@@ -159,7 +159,7 @@ test_scala_library_expect_failure_on_missing_direct_external_deps_jar() {
 }
 
 test_scala_library_expect_failure_on_missing_direct_external_deps_file_group() {
-  dependenecy_target='@com_google_guava_guava_21_0_with_file//jar:file'
+  dependenecy_target='@com_google_guava_guava_21_0_with_file//jar:jar'
   test_target='test_expect_failure/missing_direct_deps/external_deps:transitive_external_dependency_user_file_group'
 
   test_scala_library_expect_failure_on_missing_direct_deps $dependenecy_target $test_target
@@ -183,6 +183,14 @@ test_scala_library_expect_failure_on_missing_direct_java() {
   expected_message="$dependency_file.*$test_target"
 
   test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" $test_target "--strict_java_deps=error"
+}
+
+test_scala_library_expect_failure_on_java_in_src_jar_when_disabled() {
+  test_target='//test_expect_failure/java_in_src_jar_when_disabled:java_source_jar'
+
+  expected_message=".*Found java files in source jars but expect Java output is set to false"
+
+  test_expect_failure_with_message "${expected_message}" $test_target
 }
 
 test_scala_library_expect_better_failure_message_on_missing_transitive_dependency_labels_from_other_jvm_rules() {
@@ -217,11 +225,11 @@ test_scala_junit_test_can_fail() {
 }
 
 test_repl() {
-  echo "import scala.test._; HelloLib.printMessage(\"foo\")" | bazel-bin/test/HelloLibRepl | grep "foo java" &&
-  echo "import scala.test._; TestUtil.foo" | bazel-bin/test/HelloLibTestRepl | grep "bar" &&
-  echo "import scala.test._; ScalaLibBinary.main(Array())" | bazel-bin/test/ScalaLibBinaryRepl | grep "A hui hou" &&
-  echo "import scala.test._; ResourcesStripScalaBinary.main(Array())" | bazel-bin/test/ResourcesStripScalaBinaryRepl | grep "More Hello"
-  echo "import scala.test._; A.main(Array())" | bazel-bin/test/ReplWithSources | grep "4 8 15"
+  echo "import scalarules.test._; HelloLib.printMessage(\"foo\")" | bazel-bin/test/HelloLibRepl | grep "foo java" &&
+  echo "import scalarules.test._; TestUtil.foo" | bazel-bin/test/HelloLibTestRepl | grep "bar" &&
+  echo "import scalarules.test._; ScalaLibBinary.main(Array())" | bazel-bin/test/ScalaLibBinaryRepl | grep "A hui hou" &&
+  echo "import scalarules.test._; ResourcesStripScalaBinary.main(Array())" | bazel-bin/test/ResourcesStripScalaBinaryRepl | grep "More Hello"
+  echo "import scalarules.test._; A.main(Array())" | bazel-bin/test/ReplWithSources | grep "4 8 15"
 }
 
 test_benchmark_jmh() {
@@ -286,7 +294,7 @@ xmllint_test() {
 multiple_junit_suffixes() {
   bazel test //test:JunitMultipleSuffixes
 
-  matches=$(grep -c -e 'Discovered classes' -e 'scala.test.junit.JunitSuffixIT' -e 'scala.test.junit.JunitSuffixE2E' ./bazel-testlogs/test/JunitMultipleSuffixes/test.log)
+  matches=$(grep -c -e 'Discovered classes' -e 'scalarules.test.junit.JunitSuffixIT' -e 'scalarules.test.junit.JunitSuffixE2E' ./bazel-testlogs/test/JunitMultipleSuffixes/test.log)
   if [ $matches -eq 3 ]; then
     return 0
   else
@@ -297,7 +305,7 @@ multiple_junit_suffixes() {
 multiple_junit_prefixes() {
   bazel test //test:JunitMultiplePrefixes
 
-  matches=$(grep -c -e 'Discovered classes' -e 'scala.test.junit.TestJunitCustomPrefix' -e 'scala.test.junit.OtherCustomPrefixJunit' ./bazel-testlogs/test/JunitMultiplePrefixes/test.log)
+  matches=$(grep -c -e 'Discovered classes' -e 'scalarules.test.junit.TestJunitCustomPrefix' -e 'scalarules.test.junit.OtherCustomPrefixJunit' ./bazel-testlogs/test/JunitMultiplePrefixes/test.log)
   if [ $matches -eq 3 ]; then
     return 0
   else
@@ -307,7 +315,7 @@ multiple_junit_prefixes() {
 
 multiple_junit_patterns() {
   bazel test //test:JunitPrefixesAndSuffixes
-  matches=$(grep -c -e 'Discovered classes' -e 'scala.test.junit.TestJunitCustomPrefix' -e 'scala.test.junit.JunitSuffixE2E' ./bazel-testlogs/test/JunitPrefixesAndSuffixes/test.log)
+  matches=$(grep -c -e 'Discovered classes' -e 'scalarules.test.junit.TestJunitCustomPrefix' -e 'scalarules.test.junit.JunitSuffixE2E' ./bazel-testlogs/test/JunitPrefixesAndSuffixes/test.log)
   if [ $matches -eq 3 ]; then
     return 0
   else
@@ -337,8 +345,8 @@ test_junit_test_errors_when_no_tests_found() {
 test_resources() {
   RESOURCE_NAME="resource.txt"
   TARGET=$1
-  OUTPUT_JAR="bazel-bin/test/src/main/scala/scala/test/resources/$TARGET.jar"
-  FULL_TARGET="test/src/main/scala/scala/test/resources/$TARGET.jar"
+  OUTPUT_JAR="bazel-bin/test/src/main/scala/scalarules/test/resources/$TARGET.jar"
+  FULL_TARGET="test/src/main/scala/scalarules/test/resources/$TARGET.jar"
   bazel build $FULL_TARGET
   jar tf $OUTPUT_JAR | grep $RESOURCE_NAME
 }
@@ -360,7 +368,7 @@ scala_test_test_filters() {
     local output=$(bazel test \
                          --cache_test_results=no \
                          --test_output streamed \
-                         --test_filter scala.test.* \
+                         --test_filter scalarules.test.* \
                          test:TestFilterTests)
     if [[ $output != *"tests a"* || $output != *"tests b"* ]]; then
         echo "Should have contained test output from both test filter test a and b"
@@ -370,7 +378,7 @@ scala_test_test_filters() {
     local output=$(bazel test \
                          --cache_test_results=no \
                          --test_output streamed \
-                         --test_filter scala.test.TestFilterTestA \
+                         --test_filter scalarules.test.TestFilterTestA \
                          test:TestFilterTests)
     if [[ $output != *"tests a"* || $output == *"tests b"* ]]; then
         echo "Should have only contained test output from test filter test a"
@@ -382,19 +390,19 @@ scala_junit_test_test_filter(){
   local output=$(bazel test \
     --nocache_test_results \
     --test_output=streamed \
-    '--test_filter=scala.test.junit.FirstFilterTest#(method1|method2)$|scala.test.junit.SecondFilterTest#(method2|method3)$' \
+    '--test_filter=scalarules.test.junit.FirstFilterTest#(method1|method2)$|scalarules.test.junit.SecondFilterTest#(method2|method3)$' \
     test:JunitFilterTest)
   local expected=(
-      "scala.test.junit.FirstFilterTest#method1"
-      "scala.test.junit.FirstFilterTest#method2"
-      "scala.test.junit.SecondFilterTest#method2"
-      "scala.test.junit.SecondFilterTest#method3")
+      "scalarules.test.junit.FirstFilterTest#method1"
+      "scalarules.test.junit.FirstFilterTest#method2"
+      "scalarules.test.junit.SecondFilterTest#method2"
+      "scalarules.test.junit.SecondFilterTest#method3")
   local unexpected=(
-      "scala.test.junit.FirstFilterTest#method3"
-      "scala.test.junit.SecondFilterTest#method1"
-      "scala.test.junit.ThirdFilterTest#method1"
-      "scala.test.junit.ThirdFilterTest#method2"
-      "scala.test.junit.ThirdFilterTest#method3")
+      "scalarules.test.junit.FirstFilterTest#method3"
+      "scalarules.test.junit.SecondFilterTest#method1"
+      "scalarules.test.junit.ThirdFilterTest#method1"
+      "scalarules.test.junit.ThirdFilterTest#method2"
+      "scalarules.test.junit.ThirdFilterTest#method3")
   for method in "${expected[@]}"; do
     if ! grep "$method" <<<$output; then
       echo "output:"
@@ -417,7 +425,7 @@ scala_junit_test_test_filter_custom_runner(){
   bazel test \
     --nocache_test_results \
     --test_output=streamed \
-    '--test_filter=scala.test.junit.JunitCustomRunnerTest#' \
+    '--test_filter=scalarules.test.junit.JunitCustomRunnerTest#' \
     test:JunitCustomRunner
 }
 
@@ -455,7 +463,7 @@ scala_specs2_junit_test_test_filter_whole_spec(){
   local output=$(bazel test \
     --nocache_test_results \
     --test_output=streamed \
-    '--test_filter=scala.test.junit.specs2.JunitSpecs2Test#' \
+    '--test_filter=scalarules.test.junit.specs2.JunitSpecs2Test#' \
     test:Specs2Tests)
   local expected=(
       "+ run smoothly in bazel"
@@ -484,7 +492,7 @@ scala_specs2_junit_test_test_filter_one_test(){
   local output=$(bazel test \
     --nocache_test_results \
     --test_output=streamed \
-    '--test_filter=scala.test.junit.specs2.JunitSpecs2Test#specs2 tests should::run smoothly in bazel$' \
+    '--test_filter=scalarules.test.junit.specs2.JunitSpecs2Test#specs2 tests should::run smoothly in bazel$' \
     test:Specs2Tests)
   local expected="+ run smoothly in bazel"
   local unexpected="+ not run smoothly in bazel"
@@ -506,7 +514,7 @@ scala_specs2_junit_test_test_filter_exact_match(){
   local output=$(bazel test \
     --nocache_test_results \
     --test_output=streamed \
-    '--test_filter=scala.test.junit.specs2.JunitSpecs2AnotherTest#other specs2 tests should::run from another test$' \
+    '--test_filter=scalarules.test.junit.specs2.JunitSpecs2AnotherTest#other specs2 tests should::run from another test$' \
     test:Specs2Tests)
   local expected="+ run from another test"
   local unexpected="+ run from another test 2"
@@ -528,7 +536,7 @@ scala_specs2_junit_test_test_filter_exact_match_unsafe_characters(){
   local output=$(bazel test \
     --nocache_test_results \
     --test_output=streamed \
-    '--test_filter=scala.test.junit.specs2.JunitSpec2RegexTest#\Qtests with unsafe characters should::2 + 2 != 5\E$' \
+    '--test_filter=scalarules.test.junit.specs2.JunitSpec2RegexTest#\Qtests with unsafe characters should::2 + 2 != 5\E$' \
     test:Specs2Tests)
   local expected="+ 2 + 2 != 5"
   local unexpected="+ work escaped (with regex)"
@@ -550,7 +558,7 @@ scala_specs2_junit_test_test_filter_exact_match_escaped_and_sanitized(){
   local output=$(bazel test \
     --nocache_test_results \
     --test_output=streamed \
-    '--test_filter=scala.test.junit.specs2.JunitSpec2RegexTest#\Qtests with unsafe characters should::work escaped [with regex]\E$' \
+    '--test_filter=scalarules.test.junit.specs2.JunitSpec2RegexTest#\Qtests with unsafe characters should::work escaped [with regex]\E$' \
     test:Specs2Tests)
   local expected="+ work escaped (with regex)"
   local unexpected="+ 2 + 2 != 5"
@@ -572,7 +580,7 @@ scala_specs2_junit_test_test_filter_match_multiple_methods(){
   local output=$(bazel test \
     --nocache_test_results \
     --test_output=streamed \
-    '--test_filter=scala.test.junit.specs2.JunitSpecs2AnotherTest#other specs2 tests should::(\Qrun from another test\E|\Qrun from another test 2\E)$' \
+    '--test_filter=scalarules.test.junit.specs2.JunitSpecs2AnotherTest#other specs2 tests should::(\Qrun from another test\E|\Qrun from another test 2\E)$' \
     test:Specs2Tests)
   local expected=(
       "+ run from another test"
@@ -599,7 +607,7 @@ scala_specs2_junit_test_test_filter_match_multiple_methods(){
 
 
 scala_specs2_exception_in_initializer_without_filter(){
-  expected_message="org.specs2.control.UserException: cannot create an instance for class scala.test.junit.specs2.FailingTest"
+  expected_message="org.specs2.control.UserException: cannot create an instance for class scalarules.test.junit.specs2.FailingTest"
   test_command="test_expect_failure/scala_junit_test:specs2_failing_test"
 
   test_expect_failure_with_message "$expected_message" $test_filter $test_command
@@ -649,7 +657,7 @@ revert_internal_change() {
 
 test_scala_library_expect_no_recompilation_on_internal_change_of_transitive_dependency() {
   set +e
-  no_recompilation_path="test/src/main/scala/scala/test/strict_deps/no_recompilation"
+  no_recompilation_path="test/src/main/scala/scalarules/test/strict_deps/no_recompilation"
   build_command="bazel build //$no_recompilation_path/... --subcommands --strict_java_deps=error"
 
   echo "running initial build"
@@ -695,7 +703,7 @@ test_scala_library_expect_no_recompilation_on_internal_change() {
   dependency=$3
   dependency_description=$4
   set +e
-  no_recompilation_path="test/src/main/scala/scala/test/ijar"
+  no_recompilation_path="test/src/main/scala/scalarules/test/ijar"
   build_command="bazel build //$no_recompilation_path/... --subcommands"
 
   echo "running initial build"
@@ -748,7 +756,7 @@ test_scala_import_library_passes_labels_of_direct_deps() {
 test_scala_classpath_resources_expect_warning_on_namespace_conflict() {
   local output=$(bazel build \
     --verbose_failures \
-    //test/src/main/scala/scala/test/classpath_resources:classpath_resource_duplicates
+    //test/src/main/scala/scalarules/test/classpath_resources:classpath_resource_duplicates
   )
 
   local expected="Classpath resource file classpath-resourcehas a namespace conflict with another file: classpath-resource"
@@ -801,7 +809,7 @@ $runner bazel test third_party/...
 $runner bazel build "test/... --strict_java_deps=ERROR"
 $runner bazel build "test/... --strict_java_deps=ERROR --all_incompatible_changes"
 $runner bazel test "test/... --strict_java_deps=ERROR"
-$runner bazel run test/src/main/scala/scala/test/twitter_scrooge:justscrooges
+$runner bazel run test/src/main/scala/scalarules/test/twitter_scrooge:justscrooges
 $runner bazel run test:JavaBinary
 $runner bazel run test:JavaBinary2
 $runner bazel run test:JavaOnlySources
@@ -826,7 +834,7 @@ $runner test_junit_test_must_have_prefix_or_suffix
 $runner test_junit_test_errors_when_no_tests_found
 $runner scala_library_jar_without_srcs_must_include_direct_file_resources
 $runner scala_library_jar_without_srcs_must_include_filegroup_resources
-$runner bazel run test/src/main/scala/scala/test/large_classpath:largeClasspath
+$runner bazel run test/src/main/scala/scalarules/test/large_classpath:largeClasspath
 $runner scala_test_test_filters
 $runner scala_junit_test_test_filter
 $runner scala_junit_test_test_filter_custom_runner
@@ -858,6 +866,7 @@ $runner test_scala_library_expect_no_recompilation_on_internal_change_of_scala_d
 $runner test_scala_library_expect_no_recompilation_on_internal_change_of_java_dependency
 $runner test_scala_library_expect_no_java_recompilation_on_internal_change_of_scala_sibling
 $runner test_scala_library_expect_failure_on_missing_direct_java
+$runner test_scala_library_expect_failure_on_java_in_src_jar_when_disabled
 $runner bazel run test:test_scala_proto_server
 $runner test_scala_library_expect_failure_on_missing_direct_deps_warn_mode_java
 $runner test_scala_library_expect_better_failure_message_on_missing_transitive_dependency_labels_from_other_jvm_rules
@@ -866,7 +875,7 @@ $runner bazel build "test_expect_failure/missing_direct_deps/internal_deps/... -
 $runner test_scalaopts_from_scala_toolchain
 $runner test_scala_import_library_passes_labels_of_direct_deps
 $runner java_toolchain_javacopts_are_used
-$runner bazel run test/src/main/scala/scala/test/classpath_resources:classpath_resource
+$runner bazel run test/src/main/scala/scalarules/test/classpath_resources:classpath_resource
 $runner test_scala_classpath_resources_expect_warning_on_namespace_conflict
 $runner bazel build //test_expect_failure/proto_source_root/... --strict_proto_deps=off
 $runner scala_binary_jar_is_exposed_in_build_event_protocol
