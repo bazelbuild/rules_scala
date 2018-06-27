@@ -165,7 +165,9 @@ thrift_library = rule(
         "absolute_prefix": attr.string(default = '', mandatory = False),
         "absolute_prefixes": attr.string_list(),
         # This is a list of JARs which only contain Thrift files
-        # these files will be compiled as part of the current target
+        # these files will NOT  be compiled as part of the current target,
+        # but the current thrifts do include these. It should also include
+        # the compiled versions of these thrifts
         "external_jars": attr.label_list(),
         "_zipper": attr.label(
             executable = True,
