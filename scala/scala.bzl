@@ -211,11 +211,10 @@ _scala_test_attrs = {
     "suites": attr.string_list(),
     "colors": attr.bool(default = True),
     "full_stacktraces": attr.bool(default = True),
-    "_scalatest": attr.label_list(
-        default = [
-            Label("//external:io_bazel_rules_scala/dependency/scalatest/scalatest"),
-            Label("//external:io_bazel_rules_scala/dependency/scalactic/scalactic"),
-        ]),
+    "_scalatest": attr.label_list(default = [
+        Label("//external:io_bazel_rules_scala/dependency/scalatest/scalatest"),
+        Label("//external:io_bazel_rules_scala/dependency/scalactic/scalactic"),
+    ]),
     "_scalatest_runner": attr.label(
         cfg = "host",
         default = Label("//src/java/io/bazel/rulesscala/scala_test:runner.jar"),

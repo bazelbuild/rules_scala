@@ -712,8 +712,7 @@ def scala_test_impl(ctx):
                       jars.transitive_compile_jars, jars.jars2labels)
   # _scalatest is an http_jar, so its compile jar is run through ijar
   # however, contains macros, so need to handle separately
-  scalatest_jars = collect_jars(
-      ctx.attr._scalatest).transitive_runtime_jars
+  scalatest_jars = collect_jars(ctx.attr._scalatest).transitive_runtime_jars
   cjars = depset(transitive = [cjars, scalatest_jars])
   transitive_rjars = depset(transitive = [transitive_rjars, scalatest_jars])
 
@@ -722,8 +721,8 @@ def scala_test_impl(ctx):
         transitive = [scalatest_jars, transitive_compile_jars])
     scalatest_jars_list = scalatest_jars.to_list()
     for dep in ctx.attr._scalatest:
-      add_labels_of_jars_to(jars_to_labels, dep,
-                            scalatest_jars_list, scalatest_jars_list)
+      add_labels_of_jars_to(jars_to_labels, dep, scalatest_jars_list,
+                            scalatest_jars_list)
 
   args = " ".join([
       "-R \"{path}\"".format(path = ctx.outputs.jar.short_path),

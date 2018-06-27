@@ -47,7 +47,8 @@ def scala_proto_repositories(scala_version = "2.11.11"):
 
   native.bind(
       name = 'io_bazel_rules_scala/dependency/proto/scalapb_plugin',
-      actual = '@scala_proto_rules_scalapb_plugin_{}//jar'.format(major_version_underscore))
+      actual = '@scala_proto_rules_scalapb_plugin_{}//jar'.format(
+          major_version_underscore))
 
   native.maven_jar(
       name = "scala_proto_rules_protoc_bridge_2_11",
@@ -62,7 +63,8 @@ def scala_proto_repositories(scala_version = "2.11.11"):
 
   native.bind(
       name = 'io_bazel_rules_scala/dependency/proto/protoc_bridge',
-      actual = '@scala_proto_rules_protoc_bridge_{}//jar'.format(major_version_underscore))
+      actual = '@scala_proto_rules_protoc_bridge_{}//jar'.format(
+          major_version_underscore))
 
   native.maven_jar(
       name = "scala_proto_rules_scalapbc_2_11",
@@ -76,7 +78,8 @@ def scala_proto_repositories(scala_version = "2.11.11"):
   )
   native.bind(
       name = 'io_bazel_rules_scala/dependency/proto/scalapbc',
-      actual = '@scala_proto_rules_scalapbc_{}//jar'.format(major_version_underscore))
+      actual = '@scala_proto_rules_scalapbc_{}//jar'.format(
+          major_version_underscore))
 
   native.maven_jar(
       name = "scala_proto_rules_scalapb_runtime_2_11",
@@ -90,7 +93,8 @@ def scala_proto_repositories(scala_version = "2.11.11"):
   )
   native.bind(
       name = 'io_bazel_rules_scala/dependency/proto/scalapb_runtime',
-      actual = '@scala_proto_rules_scalapb_runtime_{}//jar'.format(major_version_underscore))
+      actual = '@scala_proto_rules_scalapb_runtime_{}//jar'.format(
+          major_version_underscore))
 
   native.maven_jar(
       name = "scala_proto_rules_scalapb_runtime_grpc_2_11",
@@ -104,7 +108,8 @@ def scala_proto_repositories(scala_version = "2.11.11"):
   )
   native.bind(
       name = 'io_bazel_rules_scala/dependency/proto/scalapb_runtime_grpc',
-      actual = '@scala_proto_rules_scalapb_runtime_grpc_{}//jar'.format(major_version_underscore))
+      actual = '@scala_proto_rules_scalapb_runtime_grpc_{}//jar'.format(
+          major_version_underscore))
 
   native.maven_jar(
       name = "scala_proto_rules_scalapb_lenses_2_11",
@@ -118,7 +123,8 @@ def scala_proto_repositories(scala_version = "2.11.11"):
   )
   native.bind(
       name = 'io_bazel_rules_scala/dependency/proto/scalapb_lenses',
-      actual = '@scala_proto_rules_scalapb_lenses_{}//jar'.format(major_version_underscore))
+      actual = '@scala_proto_rules_scalapb_lenses_{}//jar'.format(
+          major_version_underscore))
 
   native.maven_jar(
       name = "scala_proto_rules_scalapb_fastparse_2_11",
@@ -133,7 +139,8 @@ def scala_proto_repositories(scala_version = "2.11.11"):
 
   native.bind(
       name = 'io_bazel_rules_scala/dependency/proto/scalapb_fastparse',
-      actual = '@scala_proto_rules_scalapb_fastparse_{}//jar'.format(major_version_underscore))
+      actual = '@scala_proto_rules_scalapb_fastparse_{}//jar'.format(
+          major_version_underscore))
 
   native.maven_jar(
       name = "scala_proto_rules_grpc_core",

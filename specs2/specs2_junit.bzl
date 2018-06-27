@@ -11,7 +11,8 @@ def specs2_junit_repositories(scala_version = "2.11.11"):
   # Aditional dependencies for specs2 junit runner
   native.maven_jar(
       name = "io_bazel_rules_scala_org_specs2_specs2_junit",
-      artifact = "org.specs2:specs2-junit_{}:".format(major_version) + specs2_version(),
+      artifact = "org.specs2:specs2-junit_{}:".format(major_version) +
+      specs2_version(),
       #sha1 = "1dc9e43970557c308ee313842d84094bc6c1c1b5",
   )
 

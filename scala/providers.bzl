@@ -28,7 +28,10 @@ def create_scala_provider(ijar, class_jar, compile_jars,
 ScalacProvider = provider(
     doc = "ScalaProvider",
     fields = [
-        "scalac", "scalalib", "scalareflect", "scalacompiler",
+        "scalac",
+        "scalalib",
+        "scalareflect",
+        "scalacompiler",
     ])
 
 def _declare_scalac_provider(ctx):
