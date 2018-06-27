@@ -13,7 +13,7 @@ load("//scala/private:common.bzl", "write_manifest", "collect_srcjars",
 
 load("//thrift:thrift.bzl", "ThriftInfo")
 
-_jar_filetype = FileType([".jar"])
+_jar_extension = ".jar"
 
 def twitter_scrooge():
   native.maven_server(
@@ -94,8 +94,11 @@ def _collect_external_jars(targets):
     if ThriftInfo in target:
       thrift = target[ThriftInfo]
       for jar in thrift.external_jars:
-        r.extend(_jar_filetype.filter(jar.files))
-      r.extend(_jar_filetype.filter(thrift.transitive_external_jars))
+        r.extend([f for f in jar.files if f.basename.endswith(_jar_extension)])
+      r.extend([
+          f for f in thrift.transitive_external_jars
+          if f.basename.endswith(_jar_extension)
+      ])
   return depset(r)
 
 def collect_extra_srcjars(targets):
@@ -138,7 +141,9 @@ def _list_to_map(items):
 def _gen_scrooge_srcjar_impl(ctx):
   remote_jars = []
   for target in ctx.attr.remote_jars:
-    remote_jars.append(depset(_jar_filetype.filter(target.files)))
+    remote_jars.append(
+        depset(
+            [f for f in target.files if f.basename.endswith(_jar_extension)]))
 
   # deduplicate these
   remote_jars = depset(transitive = remote_jars).to_list()
