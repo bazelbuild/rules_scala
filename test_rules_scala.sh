@@ -176,11 +176,9 @@ test_scala_library_expect_failure_on_missing_direct_deps_warn_mode() {
 
 test_scala_library_expect_failure_on_missing_direct_java() {
   dependency_target='//test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency'
-  #since bazel 0.12.0 the labels are only emmitted if ijar is in play 
-  dependency_file='test_expect_failure/missing_direct_deps/internal_deps/transitive_dependency_ijar.jar'
   test_target='//test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency_java_user'
 
-  expected_message="$dependency_file.*$test_target"
+  expected_message=".*$test_target"
 
   test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" $test_target "--strict_java_deps=error"
 }

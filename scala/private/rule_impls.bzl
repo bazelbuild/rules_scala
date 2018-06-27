@@ -329,7 +329,7 @@ def _compile_or_empty(ctx, manifest, jars, srcjars, buildijar,
                   ctx.attr.print_compile_time, ctx.attr.expect_java_output,
                   ctx.attr.scalac_jvm_flags)
 
-    # compile the java now
+    # build ijar if needed
     if buildijar:
       ijar = java_common.run_ijar(
           ctx.actions,
@@ -340,6 +340,8 @@ def _compile_or_empty(ctx, manifest, jars, srcjars, buildijar,
       #  macro code needs to be available at compile-time,
       #  so set ijar == jar
       ijar = ctx.outputs.jar
+
+    # compile the java now
     java_jar = try_to_compile_java_jar(
         ctx, ijar, all_srcjars, java_srcs,
         implicit_junit_deps_needed_for_java_compilation)
