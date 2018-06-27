@@ -1,5 +1,6 @@
 load("//scala:scala.bzl", "scala_binary", "scala_library")
 load("//twitter_scrooge:twitter_scrooge.bzl", "scrooge_scala_library")
+load("//thrift:thrift.bzl", "thrift_library")
 
 scrooge_scala_library(
     name = "scrooge1",
@@ -83,21 +84,12 @@ scrooge_scala_library(
 scrooge_scala_library(
     name = "bare_thrift_scrooge",
     visibility = ["//visibility:public"],
-    deps = [
+    exports = [
         ":scroogebarejar1",
         ":scroogebarejar2",
-        "//test/src/main/scala/scalarules/test/twitter_scrooge/thrift/bare_jar_thrifts",
     ],
-)
-
-scrooge_scala_library(
-    name = "thrift_with_remote_jar",
-    remote_jars = [
-        "//test/src/main/scala/scalarules/test/twitter_scrooge/thrift/bare_jar_thrifts:barejar_java_import",
-    ],
-    visibility = ["//visibility:public"],
     deps = [
-        "//test/src/main/scala/scalarules/test/twitter_scrooge/thrift/bare_jar_thrifts/bare_jar_2",
+        "//test/src/main/scala/scalarules/test/twitter_scrooge/thrift/bare_jar_thrifts",
     ],
 )
 

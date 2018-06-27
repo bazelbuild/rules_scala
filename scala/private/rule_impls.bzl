@@ -132,25 +132,11 @@ def _expand_location(ctx, flags):
 def _join_path(args, sep = ","):
   return sep.join([f.path for f in args])
 
-def compile_scala(ctx,
-                  target_label,
-                  output,
-                  manifest,
-                  statsfile,
-                  sources,
-                  cjars,
-                  all_srcjars,
-                  buildijar,
-                  transitive_compile_jars,
-                  plugins,
-                  resource_strip_prefix,
-                  resources,
-                  resource_jars,
-                  labels,
-                  in_scalacopts,
-                  print_compile_time,
-                  expect_java_output,
-                  scalac_jvm_flags = []):
+def compile_scala(ctx, target_label, output, manifest, statsfile, sources,
+                  cjars, all_srcjars, buildijar, transitive_compile_jars,
+                  plugins, resource_strip_prefix, resources, resource_jars,
+                  labels, in_scalacopts, print_compile_time, expect_java_output,
+                  scalac_jvm_flags):
   ijar_output_path = ""
   ijar_cmd_path = ""
   if buildijar:
@@ -254,12 +240,13 @@ StatsfileOutput: {statsfile_output}
       output = argfile, content = scalac_args + optional_scalac_args)
 
   outs = [output, statsfile]
+  ins = (compiler_classpath_jars.to_list() + all_srcjars.to_list() +
+         list(sources) + plugins_list + dependency_analyzer_plugin_jars +
+         classpath_resources + resources + resource_jars + [manifest, argfile])
   if buildijar:
     outs.extend([ctx.outputs.ijar])
-  ins = (
-      compiler_classpath_jars.to_list() + all_srcjars.to_list() + list(sources)
-      + plugins_list + dependency_analyzer_plugin_jars + classpath_resources +
-      resources + resource_jars + [manifest, ctx.executable._ijar, argfile])
+    ins.extend([ctx.executable._ijar])
+
   ctx.actions.run(
       inputs = ins,
       outputs = outs,
@@ -567,27 +554,8 @@ def _lib(ctx, non_macro_lib):
       scala = scalaattr,
       providers = [java_provider],
       runfiles = runfiles,
-      # This is a free monoid given to the graph for the purpose of
-      # extensibility. This is necessary when one wants to create
-      # new targets which want to leverage a scala_library. For example,
-      # new_target1 -> scala_library -> new_target2. There might be
-      # information that new_target2 needs to get from new_target1,
-      # but we do not want to have to change scala_library to pass
-      # this information through. extra_information allows passing
-      # this information through, and it is up to the new_targets
-      # to filter and make sense of this information.
-      # unfortunately, we need to see this for scrooge and protobuf to work,
-      # but those are generating srcjar, so they should really come in via srcs
-      extra_information=_collect_extra_information(ctx.attr.deps + ctx.attr.srcs),
       jars_to_labels = jars.jars2labels,
     )
-
-def _collect_extra_information(targets):
-  r = []
-  for target in targets:
-    if hasattr(target, "extra_information"):
-      r.extend(target.extra_information)
-  return r
 
 def scala_library_impl(ctx):
   return _lib(ctx, True)

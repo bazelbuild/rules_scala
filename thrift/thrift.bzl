@@ -1,19 +1,21 @@
 """Rules for organizing thrift files."""
 
-_thrift_filetype = FileType([".thrift"])
-
-ThriftInfo = provider(fields = [
-    "srcs",  # The source files in this rule
-    "transitive_srcs",  # the transitive version of the above
-])
+load("@io_bazel_rules_scala//thrift:thrift_info.bzl", "ThriftInfo")
 
 def empty_thrift_info():
-  return ThriftInfo(srcs = depset(), transitive_srcs = depset())
+  return ThriftInfo(
+      srcs = depset(),
+      transitive_srcs = depset(),
+      external_jars = depset(),
+      transitive_external_jars = depset())
 
 def merge_thrift_infos(tis):
   return ThriftInfo(
       srcs = depset(transitive = [t.srcs for t in tis]),
-      transitive_srcs = depset(transitive = [t.transitive_srcs for t in tis]))
+      transitive_srcs = depset(transitive = [t.transitive_srcs for t in tis]),
+      external_jars = depset(transitive = [t.external_jars for t in tis]),
+      transitive_external_jars = depset(
+          transitive = [t.transitive_external_jars for t in tis]))
 
 def _common_prefix(strings):
   pref = None
@@ -86,6 +88,7 @@ rm -f {out}
         progress_message = "making thrift archive %s (%s files)" %
         (ctx.label, len(src_paths)),
     )
+    srcs_depset = depset([ctx.outputs.libarchive])
   else:
     # we still have to create the output we declared
     ctx.actions.run_shell(
@@ -100,19 +103,29 @@ rm {out}.contents
            zipper = ctx.executable._zipper.path),
         progress_message = "making empty thrift archive %s" % ctx.label,
     )
+    srcs_depset = depset()
 
-  src_files = [ctx.outputs.libarchive]
+  # external jars are references to thrift we depend on,
+  # BUT WE DON'T BUILD. When we build the code, the code can
+  # do a thrift include to this, but we won't generate the source or bytecode.
+  remotes = []
   for f in ctx.attr.external_jars:
-    src_files.extend(f.files.to_list())
+    remotes.extend(f.files.to_list())
 
-  srcs_depset = depset(src_files)
   transitive_srcs = depset(
       transitive = _collect_thrift_srcs(ctx.attr.deps) + [srcs_depset])
+  transitive_external_jars = depset(
+      remotes,
+      transitive = [
+          d[ThriftInfo].transitive_external_jars for d in ctx.attr.deps
+      ])
 
   return [
       ThriftInfo(
           srcs = srcs_depset,
           transitive_srcs = transitive_srcs,
+          external_jars = depset(remotes),
+          transitive_external_jars = transitive_external_jars,
       )
   ]
 
@@ -133,7 +146,7 @@ def _collect_thrift_srcs(targets):
 thrift_library = rule(
     implementation = _thrift_library_impl,
     attrs = {
-        "srcs": attr.label_list(allow_files = _thrift_filetype),
+        "srcs": attr.label_list(allow_files = [".thrift"]),
         "deps": attr.label_list(providers = [ThriftInfo]),
         #TODO this is not necessarily the best way to do this... the goal
         # is that we want thrifts to be able to be imported via an absolute
@@ -152,6 +165,7 @@ thrift_library = rule(
         "absolute_prefix": attr.string(default = '', mandatory = False),
         "absolute_prefixes": attr.string_list(),
         # This is a list of JARs which only contain Thrift files
+        # these files will be compiled as part of the current target
         "external_jars": attr.label_list(),
         "_zipper": attr.label(
             executable = True,
