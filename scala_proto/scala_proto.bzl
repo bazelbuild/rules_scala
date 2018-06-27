@@ -5,7 +5,7 @@ load(
 
 load(
     "//scala:scala_cross_version.bzl",
-    "scala_mvn_artifact",
+   _scala_mvn_artifact =  "scala_mvn_artifact",
     _extract_major_version_underscore = "extract_major_version_underscore",
     _default_scala_version = "default_scala_version",
 )
@@ -36,13 +36,13 @@ def scala_proto_repositories(scala_version = _default_scala_version()):
 
   native.maven_jar(
       name = "scala_proto_rules_scalapb_plugin_2_11",
-      artifact = "com.trueaccord.scalapb:compilerplugin_2.11:0.6.5",
-      #server = "scala_proto_deps_maven_server",
+      artifact = _scala_mvn_artifact("com.trueaccord.scalapb:compilerplugin:0.6.5", "2.11"),
+      server = "scala_proto_deps_maven_server",
   )
   native.maven_jar(
       name = "scala_proto_rules_scalapb_plugin_2_12",
-      artifact = "com.trueaccord.scalapb:compilerplugin_2.12:0.6.5",
-      #server = "scala_proto_deps_maven_server",
+      artifact = _scala_mvn_artifact("com.trueaccord.scalapb:compilerplugin:0.6.5", "2.12"),
+      server = "scala_proto_deps_maven_server",
   )
 
   native.bind(
@@ -52,13 +52,13 @@ def scala_proto_repositories(scala_version = _default_scala_version()):
 
   native.maven_jar(
       name = "scala_proto_rules_protoc_bridge_2_11",
-      artifact = "com.trueaccord.scalapb:protoc-bridge_2.11:0.3.0-M1",
-      #server = "scala_proto_deps_maven_server",
+      artifact = _scala_mvn_artifact("com.trueaccord.scalapb:protoc-bridge:0.3.0-M1", "2.11"),
+      server = "scala_proto_deps_maven_server",
   )
   native.maven_jar(
       name = "scala_proto_rules_protoc_bridge_2_12",
-      artifact = "com.trueaccord.scalapb:protoc-bridge_2.12:0.3.0-M1",
-      #server = "scala_proto_deps_maven_server",
+      artifact = _scala_mvn_artifact("com.trueaccord.scalapb:protoc-bridge:0.3.0-M1", "2.12"),
+      server = "scala_proto_deps_maven_server",
   )
 
   native.bind(
@@ -68,13 +68,13 @@ def scala_proto_repositories(scala_version = _default_scala_version()):
 
   native.maven_jar(
       name = "scala_proto_rules_scalapbc_2_11",
-      artifact = "com.trueaccord.scalapb:scalapbc_2.11:0.6.5",
-      #server = "scala_proto_deps_maven_server",
+      artifact = _scala_mvn_artifact("com.trueaccord.scalapb:scalapbc:0.6.5", "2.11"),
+      server = "scala_proto_deps_maven_server",
   )
   native.maven_jar(
       name = "scala_proto_rules_scalapbc_2_12",
-      artifact = "com.trueaccord.scalapb:scalapbc_2.12:0.6.5",
-      #server = "scala_proto_deps_maven_server",
+      artifact = _scala_mvn_artifact("com.trueaccord.scalapb:scalapbc:0.6.5", "2.12"),
+      server = "scala_proto_deps_maven_server",
   )
   native.bind(
       name = 'io_bazel_rules_scala/dependency/proto/scalapbc',
@@ -83,13 +83,13 @@ def scala_proto_repositories(scala_version = _default_scala_version()):
 
   native.maven_jar(
       name = "scala_proto_rules_scalapb_runtime_2_11",
-      artifact = "com.trueaccord.scalapb:scalapb-runtime_2.11:0.6.5",
-      #server = "scala_proto_deps_maven_server",
+      artifact = _scala_mvn_artifact("com.trueaccord.scalapb:scalapb-runtime:0.6.5", "2.11"),
+      server = "scala_proto_deps_maven_server",
   )
   native.maven_jar(
       name = "scala_proto_rules_scalapb_runtime_2_12",
-      artifact = "com.trueaccord.scalapb:scalapb-runtime_2.12:0.6.5",
-      #server = "scala_proto_deps_maven_server",
+      artifact = _scala_mvn_artifact("com.trueaccord.scalapb:scalapb-runtime:0.6.5", "2.12"),
+      server = "scala_proto_deps_maven_server",
   )
   native.bind(
       name = 'io_bazel_rules_scala/dependency/proto/scalapb_runtime',
@@ -98,13 +98,13 @@ def scala_proto_repositories(scala_version = _default_scala_version()):
 
   native.maven_jar(
       name = "scala_proto_rules_scalapb_runtime_grpc_2_11",
-      artifact = "com.trueaccord.scalapb:scalapb-runtime-grpc_2.11:0.6.5",
-      #server = "scala_proto_deps_maven_server",
+      artifact = _scala_mvn_artifact("com.trueaccord.scalapb:scalapb-runtime-grpc:0.6.5", "2.11"),
+      server = "scala_proto_deps_maven_server",
   )
   native.maven_jar(
       name = "scala_proto_rules_scalapb_runtime_grpc_2_12",
-      artifact = "com.trueaccord.scalapb:scalapb-runtime-grpc_2.12:0.6.5",
-      #server = "scala_proto_deps_maven_server",
+      artifact = _scala_mvn_artifact("com.trueaccord.scalapb:scalapb-runtime-grpc:0.6.5", "2.12"),
+      server = "scala_proto_deps_maven_server",
   )
   native.bind(
       name = 'io_bazel_rules_scala/dependency/proto/scalapb_runtime_grpc',
@@ -113,13 +113,13 @@ def scala_proto_repositories(scala_version = _default_scala_version()):
 
   native.maven_jar(
       name = "scala_proto_rules_scalapb_lenses_2_11",
-      artifact = "com.trueaccord.lenses:lenses_2.11:0.4.12",
-      #server = "scala_proto_deps_maven_server",
+      artifact = _scala_mvn_artifact("com.trueaccord.lenses:lenses:0.4.12", "2.11"),
+      server = "scala_proto_deps_maven_server",
   )
   native.maven_jar(
       name = "scala_proto_rules_scalapb_lenses_2_12",
-      artifact = "com.trueaccord.lenses:lenses_2.12:0.4.12",
-      #server = "scala_proto_deps_maven_server",
+      artifact = _scala_mvn_artifact("com.trueaccord.lenses:lenses:0.4.12", "2.12"),
+      server = "scala_proto_deps_maven_server",
   )
   native.bind(
       name = 'io_bazel_rules_scala/dependency/proto/scalapb_lenses',
@@ -128,13 +128,13 @@ def scala_proto_repositories(scala_version = _default_scala_version()):
 
   native.maven_jar(
       name = "scala_proto_rules_scalapb_fastparse_2_11",
-      artifact = "com.lihaoyi:fastparse_2.11:0.4.4",
-      #server = "scala_proto_deps_maven_server",
+      artifact = _scala_mvn_artifact("com.lihaoyi:fastparse:0.4.4", "2.11"),
+      server = "scala_proto_deps_maven_server",
   )
   native.maven_jar(
       name = "scala_proto_rules_scalapb_fastparse_2_12",
-      artifact = "com.lihaoyi:fastparse_2.12:0.4.4",
-      #server = "scala_proto_deps_maven_server",
+      artifact = _scala_mvn_artifact("com.lihaoyi:fastparse:0.4.4", "2.12"),
+      server = "scala_proto_deps_maven_server",
   )
 
   native.bind(

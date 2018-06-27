@@ -15,13 +15,13 @@ def tut_repositories(scala_version = _default_scala_version()):
 
   native.maven_jar(
       name = "io_bazel_rules_scala_org_tpolecat_tut_core_2_11",
-      artifact = scala_mvn_artifact("org.tpolecat:tut-core:0.4.8"),
+      artifact = scala_mvn_artifact("org.tpolecat:tut-core:0.4.8", "2.11"),
       sha1 = "fc723eb822494580cc05d6b3b3a6039d2280a5a0",
       server = "tut_repositories_maven_server",
   )
   native.maven_jar(
       name = "io_bazel_rules_scala_org_tpolecat_tut_core_2_12",
-      artifact = "org.tpolecat:tut-core_2.12:0.4.8",
+      artifact = scala_mvn_artifact("org.tpolecat:tut-core:0.4.8", "2.12"),
       server = "tut_repositories_maven_server",
   )
   native.bind(

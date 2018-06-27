@@ -5,7 +5,7 @@ load(
 
 load(
     "//scala:scala_cross_version.bzl",
-    "scala_mvn_artifact",
+    _scala_mvn_artifact = "scala_mvn_artifact",
     _default_scala_version = "default_scala_version",
     _extract_major_version_underscore = "extract_major_version_underscore")
 
@@ -36,12 +36,12 @@ def twitter_scrooge(scala_version = _default_scala_version()):
 
   native.maven_jar(
       name = "scrooge_core_2_11",
-      artifact = "com.twitter:scrooge-core_2.11:18.6.0",
+      artifact = _scala_mvn_artifact("com.twitter:scrooge-core:18.6.0", "2.11"),
       #server = "twitter_scrooge_maven_server"
   )
   native.maven_jar(
       name = "scrooge_core_2_12",
-      artifact = "com.twitter:scrooge-core_2.12:18.6.0",
+      artifact = _scala_mvn_artifact("com.twitter:scrooge-core:18.6.0", "2.12"),
       #server = "twitter_scrooge_maven_server"
   )
   native.bind(
@@ -51,12 +51,12 @@ def twitter_scrooge(scala_version = _default_scala_version()):
   #scrooge-generator related dependencies
   native.maven_jar(
       name = "scrooge_generator_2_11",
-      artifact = "com.twitter:scrooge-generator_2.11:18.6.0",
+      artifact = _scala_mvn_artifact("com.twitter:scrooge-generator:18.6.0", "2.11"),
       #server = "twitter_scrooge_maven_server",
   )
   native.maven_jar(
       name = "scrooge_generator_2_12",
-      artifact = "com.twitter:scrooge-generator_2.12:18.6.0",
+      artifact = _scala_mvn_artifact("com.twitter:scrooge-generator:18.6.0", "2.12"),
       #server = "twitter_scrooge_maven_server",
   )
   native.bind(
@@ -65,12 +65,12 @@ def twitter_scrooge(scala_version = _default_scala_version()):
 
   native.maven_jar(
       name = "util_core_2_11",
-      artifact = "com.twitter:util-core_2.11:18.6.0",
+      artifact = _scala_mvn_artifact("com.twitter:util-core:18.6.0", "2.11"),
       #server = "twitter_scrooge_maven_server",
   )
   native.maven_jar(
       name = "util_core_2_12",
-      artifact = "com.twitter:util-core_2.12:18.6.0",
+      artifact = _scala_mvn_artifact("com.twitter:util-core:18.6.0", "2.12"),
       #server = "twitter_scrooge_maven_server",
   )
   native.bind(
@@ -79,12 +79,12 @@ def twitter_scrooge(scala_version = _default_scala_version()):
 
   native.maven_jar(
       name = "util_logging_2_11",
-      artifact = "com.twitter:util-logging_2.11:18.6.0",
+      artifact = _scala_mvn_artifact("com.twitter:util-logging:18.6.0", "2.11"),
       #server = "twitter_scrooge_maven_server",
   )
   native.maven_jar(
       name = "util_logging_2_12",
-      artifact = "com.twitter:util-logging_2.12:18.6.0",
+      artifact = _scala_mvn_artifact("com.twitter:util-logging:18.6.0", "2.12"),
       #server = "twitter_scrooge_maven_server",
   )
   native.bind(

@@ -261,43 +261,51 @@ def scala_repositories(scala_version = _default_scala_version()):
   native.http_jar(
       name = "scalatest_2_11",
       url =
-      "http://central.maven.org/maven2/org/scalatest/scalatest_2.11/3.0.5/scalatest_2.11-3.0.5.jar"
+      "http://central.maven.org/maven2/org/scalatest/scalatest_2.11/3.0.5/scalatest_2.11-3.0.5.jar",
+      sha256 = "2aafeb41257912cbba95f9d747df9ecdc7ff43f039d35014b4c2a8eb7ed9ba2f"
   )
   native.http_jar(
       name = "scalactic_2_11",
       url =
-      "http://central.maven.org/maven2/org/scalactic/scalactic_2.11/3.0.5/scalactic_2.11-3.0.5.jar"
+      "http://central.maven.org/maven2/org/scalactic/scalactic_2.11/3.0.5/scalactic_2.11-3.0.5.jar",
+      sha256 = "84723064f5716f38990fe6e65468aa39700c725484efceef015771d267341cf2"
   )
 
   native.http_jar(
       name = "scalatest_2_12",
       url =
-      "http://central.maven.org/maven2/org/scalatest/scalatest_2.12/3.0.5/scalatest_2.12-3.0.5.jar"
+      "http://central.maven.org/maven2/org/scalatest/scalatest_2.12/3.0.5/scalatest_2.12-3.0.5.jar",
+      sha256 = "b416b5bcef6720da469a8d8a5726e457fc2d1cd5d316e1bc283aa75a2ae005e5"
   )
   native.http_jar(
       name = "scalactic_2_12",
       url =
-      "http://central.maven.org/maven2/org/scalactic/scalactic_2.12/3.0.5/scalactic_2.12-3.0.5.jar"
+      "http://central.maven.org/maven2/org/scalactic/scalactic_2.12/3.0.5/scalactic_2.12-3.0.5.jar",
+      sha256 = "57e25b4fd969b1758fe042595112c874dfea99dca5cc48eebe07ac38772a0c41"
   )
   native.http_jar(
       name = "scala_xml_2_11",
       url =
-      "http://central.maven.org/maven2/org/scala-lang/modules/scala-xml_2.11/1.0.5/scala-xml_2.11-1.0.5.jar"
+      "http://central.maven.org/maven2/org/scala-lang/modules/scala-xml_2.11/1.0.5/scala-xml_2.11-1.0.5.jar",
+      sha256 = "767e11f33eddcd506980f0ff213f9d553a6a21802e3be1330345f62f7ee3d50f"
   )
   native.http_jar(
       name = "scala_xml_2_12",
       url =
-      "http://central.maven.org/maven2/org/scala-lang/modules/scala-xml_2.12/1.0.5/scala-xml_2.12-1.0.5.jar"
+      "http://central.maven.org/maven2/org/scala-lang/modules/scala-xml_2.12/1.0.5/scala-xml_2.12-1.0.5.jar",
+      sha256 = "035015366f54f403d076d95f4529ce9eeaf544064dbc17c2d10e4f5908ef4256"
   )
   native.http_jar(
       name = "scala_parser_combinators_2_11",
       url =
-      "http://central.maven.org/maven2/org/scala-lang/modules/scala-parser-combinators_2.11/1.0.4/scala-parser-combinators_2.11-1.0.4.jar"
+      "http://central.maven.org/maven2/org/scala-lang/modules/scala-parser-combinators_2.11/1.0.4/scala-parser-combinators_2.11-1.0.4.jar",
+      sha256 = "0dfaafce29a9a245b0a9180ec2c1073d2bd8f0330f03a9f1f6a74d1bc83f62d6"
   )
   native.http_jar(
       name = "scala_parser_combinators_2_12",
       url =
-      "http://central.maven.org/maven2/org/scala-lang/modules/scala-parser-combinators_2.12/1.0.4/scala-parser-combinators_2.12-1.0.4.jar"
+      "http://central.maven.org/maven2/org/scala-lang/modules/scala-parser-combinators_2.12/1.0.4/scala-parser-combinators_2.12-1.0.4.jar",
+      sha256 = "282c78d064d3e8f09b3663190d9494b85e0bb7d96b0da05994fe994384d96111"
   )
 
   native.maven_server(
