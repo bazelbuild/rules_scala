@@ -211,10 +211,8 @@ _scala_test_attrs = {
     "suites": attr.string_list(),
     "colors": attr.bool(default = True),
     "full_stacktraces": attr.bool(default = True),
-    "_scalatest": attr.label_list(default = [
-        Label("//external:io_bazel_rules_scala/dependency/scalatest/scalatest"),
-        Label("//external:io_bazel_rules_scala/dependency/scalactic/scalactic"),
-    ]),
+    "_scalatest": attr.label(default =
+        Label("//external:io_bazel_rules_scala/dependency/scalatest/scalatest")),
     "_scalatest_runner": attr.label(
         cfg = "host",
         default = Label("//src/java/io/bazel/rulesscala/scala_test:runner.jar"),
@@ -347,12 +345,16 @@ def scala_repositories(scala_version = "2.11.11"):
       actual = "@scalac_rules_commons_io//jar")
 
   native.bind(
-      name = "io_bazel_rules_scala/dependency/scalatest/scalatest",
+      name = "io_bazel_rules_scala/dependency/scalatest/scalatest_library",
       actual = "@scalatest_{}//jar".format(major_version_underscore))
 
   native.bind(
       name = "io_bazel_rules_scala/dependency/scalactic/scalactic",
       actual = "@scalactic_{}//jar".format(major_version_underscore))
+
+  native.bind(
+      name = "io_bazel_rules_scala/dependency/scalatest/scalatest",
+      actual = "@io_bazel_rules_scala//scala/scalatest:scalatest")
 
   native.bind(
       name = "io_bazel_rules_scala/dependency/scala/scala_xml",
