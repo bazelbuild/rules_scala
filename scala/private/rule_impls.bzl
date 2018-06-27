@@ -25,9 +25,9 @@ load(
     "write_manifest",
 )
 
-_java_filetype = FileType([".java"])
-_scala_filetype = FileType([".scala"])
-_srcjar_filetype = FileType([".srcjar"])
+_java_extension = ".java"
+_scala_extension = ".scala"
+_srcjar_extension = ".srcjar"
 
 def _adjust_resources_path_by_strip_prefix(path, resource_strip_prefix):
   if not path.startswith(resource_strip_prefix):
@@ -343,10 +343,17 @@ def _compile_or_empty(ctx, manifest, jars, srcjars, buildijar,
         full_jars = [ctx.outputs.jar],
         ijars = [ctx.outputs.jar])
   else:
-    in_srcjars = _srcjar_filetype.filter(ctx.files.srcs)
+    in_srcjars = [
+        f for f in ctx.files.srcs if f.basename.endswith(_srcjar_extension)
+    ]
     all_srcjars = depset(in_srcjars, transitive = [srcjars])
-    java_srcs = _java_filetype.filter(ctx.files.srcs)
-    sources = _scala_filetype.filter(ctx.files.srcs) + java_srcs
+
+    java_srcs = [
+        f for f in ctx.files.srcs if f.basename.endswith(_java_extension)
+    ]
+    sources = [
+        f for f in ctx.files.srcs if f.basename.endswith(_scala_extension)
+    ] + java_srcs
     compile_scala(ctx, ctx.label, ctx.outputs.jar, manifest,
                   ctx.outputs.statsfile, sources, jars, all_srcjars, buildijar,
                   transitive_compile_jars, ctx.attr.plugins,

@@ -8,6 +8,8 @@ load(
     _scala_junit_test_impl = "scala_junit_test_impl",
 )
 
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
+
 load(
     "@io_bazel_rules_scala//specs2:specs2_junit.bzl",
     _specs2_junit_dependencies = "specs2_junit_dependencies")
@@ -335,7 +337,7 @@ def scala_repositories():
       BAZEL_JAVA_LAUNCHER_VERSION +
       "/src/main/java/com/google/devtools/build/lib/bazel/rules/java/" +
       "java_stub_template.txt")
-  native.http_file(
+  http_file(
       name = "java_stub_template",
       urls = [
           "https://mirror.bazel.build/%s" % java_stub_template_url,
