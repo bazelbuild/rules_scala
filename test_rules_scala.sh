@@ -178,7 +178,7 @@ test_scala_library_expect_failure_on_missing_direct_java() {
   dependency_target='//test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency'
   test_target='//test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency_java_user'
 
-  expected_message=".*$test_target"
+  expected_message=".*$dependency_target"
 
   test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" $test_target "--strict_java_deps=error"
 }
@@ -192,7 +192,7 @@ test_scala_library_expect_failure_on_java_in_src_jar_when_disabled() {
 }
 
 test_scala_library_expect_better_failure_message_on_missing_transitive_dependency_labels_from_other_jvm_rules() {
-  transitive_target='.*transitive_dependency_ijar.jar'
+  transitive_target='.*transitive_dependency-ijar.jar'
   direct_target='//test_expect_failure/missing_direct_deps/internal_deps:direct_java_provider_dependency'
   test_target='//test_expect_failure/missing_direct_deps/internal_deps:dependent_on_some_java_provider'
 
@@ -203,10 +203,9 @@ test_scala_library_expect_better_failure_message_on_missing_transitive_dependenc
 
 test_scala_library_expect_failure_on_missing_direct_deps_warn_mode_java() {
   dependency_target='//test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency'
-  dependency_file='test_expect_failure/missing_direct_deps/internal_deps/transitive_dependency_ijar.jar'
   test_target='//test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency_java_user'
 
-  local expected_message="$dependency_file.*$test_target"
+  local expected_message=".*$dependency_target"
 
   test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target} "--strict_java_deps=warn" "ne"
 }
