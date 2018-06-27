@@ -1,9 +1,13 @@
 load("//scala:scala.bzl", "scala_binary")
-load("//scala:scala_cross_version.bzl", "scala_mvn_artifact")
+load(
+    "//scala:scala_cross_version.bzl",
+    "scala_mvn_artifact",
+    _extract_major_version_underscore = "extract_major_version_underscore",
+    _default_scala_version = "default_scala_version")
 
-def tut_repositories(scala_version = "2.11.11"):
-  major_version_underscore = scala_version[:scala_version.find(".", 2)].replace(
-      ".", "_")
+def tut_repositories(scala_version = _default_scala_version()):
+  major_version_underscore = _extract_major_version_underscore(scala_version)
+
   native.maven_server(
       name = "tut_repositories_maven_server",
       url = "https://dl.bintray.com/tpolecat/maven/",

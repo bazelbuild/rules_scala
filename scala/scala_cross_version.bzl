@@ -15,16 +15,20 @@
 of abstracting over Scala major version (2.11, 2.12, etc) for dependency
 resolution."""
 
-def scala_version():
+def default_scala_version():
   """return the scala version for use in maven coordinates"""
-  return "2.11"
+  return "2.11.11"
 
 def scala_mvn_artifact(artifact):
   gav = artifact.split(":")
   groupid = gav[0]
   artifactid = gav[1]
   version = gav[2]
-  return "%s:%s_%s:%s" % (groupid, artifactid, scala_version(), version)
+  return "%s:%s_%s:%s" % (groupid, artifactid, "2.11", version)
+
+def extract_major_version_underscore(scala_version):
+  """Return major Scala version given a full version, e.g. "2.11.11" -> "2_11" """
+  return scala_version[:scala_version.find(".", 2)].replace(".", "_")
 
 def _generate_scala_imports(version):
   return """

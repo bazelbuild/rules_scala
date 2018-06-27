@@ -1,12 +1,13 @@
 load(
     "//scala:scala_cross_version.bzl",
     "scala_mvn_artifact",
+    _default_scala_version = "default_scala_version",
 )
 
 def specs2_version():
   return "3.8.8"
 
-def specs2_repositories(scala_version = "2.11.11"):
+def specs2_repositories(scala_version = _default_scala_version()):
   major_version = scala_version[:scala_version.find(".", 2)]
 
   if major_version == "2.11":

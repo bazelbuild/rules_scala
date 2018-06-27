@@ -244,17 +244,18 @@ StatsfileOutput: {statsfile_output}
       output = argfile, content = scalac_args + optional_scalac_args)
 
   scalac_provider = ctx.attr._scalac[_ScalacProvider]
-  scalac_inputs, _, scalac_input_manifests = ctx.resolve_command(tools = [scalac_provider.scalac])
+  scalac_inputs, _, scalac_input_manifests = ctx.resolve_command(
+      tools = [scalac_provider.scalac])
 
   outs = [ctx.outputs.jar, ctx.outputs.statsfile]
   if buildijar:
     outs.extend([ctx.outputs.ijar])
-  ins = (compiler_classpath_jars.to_list() + dep_srcjars.to_list() +
-         list(srcjars) + list(sources) + ctx.files.srcs + ctx.files.plugins +
-         dependency_analyzer_plugin_jars + classpath_resources +
-         ctx.files.resources + ctx.files.resource_jars + ctx.files._java_runtime
-         + [ctx.outputs.manifest, ctx.executable._ijar, argfile
-           ] + scalac_inputs)
+  ins = (
+      compiler_classpath_jars.to_list() + dep_srcjars.to_list() +
+      list(srcjars) + list(sources) + ctx.files.srcs + ctx.files.plugins +
+      dependency_analyzer_plugin_jars + classpath_resources +
+      ctx.files.resources + ctx.files.resource_jars + ctx.files._java_runtime +
+      [ctx.outputs.manifest, ctx.executable._ijar, argfile] + scalac_inputs)
 
   ctx.actions.run(
       inputs = ins,

@@ -15,7 +15,9 @@ load(
 
 load(
     "@io_bazel_rules_scala//scala:scala_cross_version.bzl",
-    _new_scala_repository = "new_scala_repository")
+    _new_scala_repository = "new_scala_repository",
+    _extract_major_version_underscore = "extract_major_version_underscore",
+    _default_scala_version = "default_scala_version")
 
 load(
     "@io_bazel_rules_scala//specs2:specs2_junit.bzl",
@@ -211,8 +213,9 @@ _scala_test_attrs = {
     "suites": attr.string_list(),
     "colors": attr.bool(default = True),
     "full_stacktraces": attr.bool(default = True),
-    "_scalatest": attr.label(default =
-        Label("//external:io_bazel_rules_scala/dependency/scalatest/scalatest")),
+    "_scalatest": attr.label(
+        default = Label(
+            "//external:io_bazel_rules_scala/dependency/scalatest/scalatest")),
     "_scalatest_runner": attr.label(
         cfg = "host",
         default = Label("//src/java/io/bazel/rulesscala/scala_test:runner.jar"),
@@ -249,9 +252,8 @@ scala_repl = rule(
     toolchains = ['@io_bazel_rules_scala//scala:toolchain_type'],
 )
 
-def scala_repositories(scala_version = "2.11.11"):
-  major_version_underscore = scala_version[:scala_version.find(".", 2)].replace(
-      ".", "_")
+def scala_repositories(scala_version = _default_scala_version()):
+  major_version_underscore = _extract_major_version_underscore(scala_version)
 
   _new_scala_repository("scala_default", scala_version)
 
