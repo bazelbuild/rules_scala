@@ -8,6 +8,8 @@ load(
     _scala_junit_test_impl = "scala_junit_test_impl",
 )
 
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
+
 load(
     "@io_bazel_rules_scala//specs2:specs2_junit.bzl",
     _specs2_junit_dependencies = "specs2_junit_dependencies")
@@ -22,11 +24,6 @@ _implicit_deps = {
         executable = True,
         cfg = "host",
         default = Label("@bazel_tools//tools/jdk:singlejar"),
-        allow_files = True),
-    "_ijar": attr.label(
-        executable = True,
-        cfg = "host",
-        default = Label("@bazel_tools//tools/jdk:ijar"),
         allow_files = True),
     "_scalac": attr.label(
         executable = True,
@@ -144,9 +141,6 @@ _common_outputs = {
 
 _library_outputs = {}
 _library_outputs.update(_common_outputs)
-_library_outputs.update({
-    "ijar": "%{name}_ijar.jar",
-})
 
 _scala_library_attrs = {}
 _scala_library_attrs.update(_implicit_deps)
@@ -291,10 +285,10 @@ java_import(
 def scala_repositories():
   native.new_http_archive(
       name = "scala",
-      strip_prefix = "scala-2.11.11",
+      strip_prefix = "scala-2.11.12",
       sha256 =
-      "12037ca64c68468e717e950f47fc77d5ceae5e74e3bdca56f6d02fd5bfd6900b",
-      url = "http://downloads.lightbend.com/scala/2.11.11/scala-2.11.11.tgz",
+      "b11d7d33699ca4f60bc3b2b6858fd953e3de2b8522c943f4cda4b674316196a8",
+      url = "http://downloads.lightbend.com/scala/2.11.12/scala-2.11.12.tgz",
       build_file_content = _SCALA_BUILD_FILE,
   )
 
@@ -335,7 +329,7 @@ def scala_repositories():
       BAZEL_JAVA_LAUNCHER_VERSION +
       "/src/main/java/com/google/devtools/build/lib/bazel/rules/java/" +
       "java_stub_template.txt")
-  native.http_file(
+  http_file(
       name = "java_stub_template",
       urls = [
           "https://mirror.bazel.build/%s" % java_stub_template_url,

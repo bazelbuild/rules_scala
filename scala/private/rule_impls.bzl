@@ -25,9 +25,9 @@ load(
     "write_manifest",
 )
 
-_java_filetype = FileType([".java"])
-_scala_filetype = FileType([".scala"])
-_srcjar_filetype = FileType([".srcjar"])
+_java_extension = ".java"
+_scala_extension = ".scala"
+_srcjar_extension = ".srcjar"
 
 def _adjust_resources_path_by_strip_prefix(path, resource_strip_prefix):
   if not path.startswith(resource_strip_prefix):
@@ -70,12 +70,9 @@ def _add_resources_cmd(ctx):
     res_cmd.extend([line])
   return "".join(res_cmd)
 
-def _build_nosrc_jar(ctx, buildijar):
+def _build_nosrc_jar(ctx):
   resources = _add_resources_cmd(ctx)
   ijar_cmd = ""
-  if buildijar:
-    ijar_cmd = "\ncp {jar_output} {ijar_output}\n".format(
-        jar_output = ctx.outputs.jar.path, ijar_output = ctx.outputs.ijar.path)
 
   # this ensures the file is not empty
   resources += "META-INF/MANIFEST.MF=%s\n" % ctx.outputs.manifest.path
@@ -97,8 +94,6 @@ touch {statsfile}
   )
 
   outs = [ctx.outputs.jar, ctx.outputs.statsfile]
-  if buildijar:
-    outs.extend([ctx.outputs.ijar])
 
   inputs = ctx.files.resources + [
       ctx.outputs.manifest, ctx.executable._zipper, zipper_arg_path
@@ -133,16 +128,10 @@ def _join_path(args, sep = ","):
   return sep.join([f.path for f in args])
 
 def compile_scala(ctx, target_label, output, manifest, statsfile, sources,
-                  cjars, all_srcjars, buildijar, transitive_compile_jars,
-                  plugins, resource_strip_prefix, resources, resource_jars,
-                  labels, in_scalacopts, print_compile_time, expect_java_output,
+                  cjars, all_srcjars, transitive_compile_jars, plugins,
+                  resource_strip_prefix, resources, resource_jars, labels,
+                  in_scalacopts, print_compile_time, expect_java_output,
                   scalac_jvm_flags):
-  ijar_output_path = ""
-  ijar_cmd_path = ""
-  if buildijar:
-    ijar_output_path = ctx.outputs.ijar.path
-    ijar_cmd_path = ctx.executable._ijar.path
-
   # look for any plugins:
   plugins = _collect_plugin_paths(plugins)
   dependency_analyzer_plugin_jars = []
@@ -190,10 +179,7 @@ CurrentTarget: {current_target}
   scalac_args = """
 Classpath: {cp}
 ClasspathResourceSrcs: {classpath_resource_src}
-EnableIjar: {enableijar}
 Files: {files}
-IjarCmdPath: {ijar_cmd_path}
-IjarOutput: {ijar_out}
 JarOutput: {out}
 Manifest: {manifest}
 Plugins: {plugin_arg}
@@ -218,9 +204,6 @@ StatsfileOutput: {statsfile_output}
       cp = compiler_classpath,
       classpath_resource_src = _join_path(classpath_resources),
       files = _join_path(sources),
-      enableijar = buildijar,
-      ijar_out = ijar_output_path,
-      ijar_cmd_path = ijar_cmd_path,
       srcjars = _join_path(all_srcjars.to_list()),
       # the resource paths need to be aligned in order
       resource_src = ",".join([f.path for f in resources]),
@@ -243,9 +226,6 @@ StatsfileOutput: {statsfile_output}
   ins = (compiler_classpath_jars.to_list() + all_srcjars.to_list() +
          list(sources) + plugins_list + dependency_analyzer_plugin_jars +
          classpath_resources + resources + resource_jars + [manifest, argfile])
-  if buildijar:
-    outs.extend([ctx.outputs.ijar])
-    ins.extend([ctx.executable._ijar])
 
   ctx.actions.run(
       inputs = ins,
@@ -321,7 +301,7 @@ def _compile_or_empty(ctx, manifest, jars, srcjars, buildijar,
                       implicit_junit_deps_needed_for_java_compilation):
   # We assume that if a srcjar is present, it is not empty
   if len(ctx.files.srcs) + len(srcjars.to_list()) == 0:
-    _build_nosrc_jar(ctx, buildijar)
+    _build_nosrc_jar(ctx)
     #  no need to build ijar when empty
     return struct(
         ijar = ctx.outputs.jar,
@@ -330,33 +310,42 @@ def _compile_or_empty(ctx, manifest, jars, srcjars, buildijar,
         full_jars = [ctx.outputs.jar],
         ijars = [ctx.outputs.jar])
   else:
-    in_srcjars = _srcjar_filetype.filter(ctx.files.srcs)
+    in_srcjars = [
+        f for f in ctx.files.srcs if f.basename.endswith(_srcjar_extension)
+    ]
     all_srcjars = depset(in_srcjars, transitive = [srcjars])
-    java_srcs = _java_filetype.filter(ctx.files.srcs)
-    sources = _scala_filetype.filter(ctx.files.srcs) + java_srcs
+
+    java_srcs = [
+        f for f in ctx.files.srcs if f.basename.endswith(_java_extension)
+    ]
+    sources = [
+        f for f in ctx.files.srcs if f.basename.endswith(_scala_extension)
+    ] + java_srcs
     compile_scala(ctx, ctx.label, ctx.outputs.jar, manifest,
-                  ctx.outputs.statsfile, sources, jars, all_srcjars, buildijar,
+                  ctx.outputs.statsfile, sources, jars, all_srcjars,
                   transitive_compile_jars, ctx.attr.plugins,
                   ctx.attr.resource_strip_prefix, ctx.files.resources,
                   ctx.files.resource_jars, jars2labels, ctx.attr.scalacopts,
                   ctx.attr.print_compile_time, ctx.attr.expect_java_output,
                   ctx.attr.scalac_jvm_flags)
-    # compile the java now
-    if buildijar:
-      scala_output = ctx.outputs.ijar
-    else:
-      scala_output = ctx.outputs.jar
-    java_jar = try_to_compile_java_jar(
-        ctx, scala_output, all_srcjars, java_srcs,
-        implicit_junit_deps_needed_for_java_compilation)
 
-    ijar = None
+    # build ijar if needed
     if buildijar:
-      ijar = ctx.outputs.ijar
+      ijar = java_common.run_ijar(
+          ctx.actions,
+          jar = ctx.outputs.jar,
+          target_label = ctx.label,
+          java_toolchain = ctx.attr._java_toolchain)
     else:
       #  macro code needs to be available at compile-time,
       #  so set ijar == jar
       ijar = ctx.outputs.jar
+
+    # compile the java now
+    java_jar = try_to_compile_java_jar(
+        ctx, ijar, all_srcjars, java_srcs,
+        implicit_junit_deps_needed_for_java_compilation)
+
     full_jars = [ctx.outputs.jar]
     ijars = [ijar]
     if java_jar:
@@ -454,6 +443,8 @@ def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper):
           "%needs_runfiles%": "",
           "%runfiles_manifest_only%": "",
           "%set_jacoco_metadata%": "",
+          "%set_jacoco_main_class%": "",
+          "%set_jacoco_java_runfiles_root%": "",
           "%workspace_prefix%": ctx.workspace_name + "/",
       },
       is_executable = True,

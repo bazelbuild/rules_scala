@@ -18,6 +18,8 @@ load("@io_bazel_rules_scala//thrift:thrift_info.bzl", "ThriftInfo")
 load("@io_bazel_rules_scala//thrift:thrift.bzl", "merge_thrift_infos",
      "empty_thrift_info")
 
+_jar_extension = ".jar"
+
 def twitter_scrooge():
   native.maven_server(
       name = "twitter_scrooge_maven_server",
@@ -151,8 +153,10 @@ def _compile_scala(ctx, label, scrooge_jar, deps_java_info, implicit_deps):
       label.name + "_scalac.statsfile", sibling = scrooge_jar)
   merged_deps = java_common.merge(deps_java_info + implicit_deps)
 
-  # We don't need ijar, because generated thrift only changes with the whole thing changes
-  # thrifts generally need the full transitive path to compile
+  # this only compiles scala, not the ijar, but we don't
+  # want the ijar for generated code anyway: any change
+  # in the thrift generally will change the interface and
+  # method bodies
   compile_scala(
       ctx,
       label,
@@ -162,7 +166,6 @@ def _compile_scala(ctx, label, scrooge_jar, deps_java_info, implicit_deps):
       sources = [],
       cjars = merged_deps.transitive_compile_time_jars,
       all_srcjars = depset([scrooge_jar]),
-      buildijar = False,
       transitive_compile_jars = merged_deps.transitive_compile_time_jars,
       plugins = [],
       resource_strip_prefix = "",
