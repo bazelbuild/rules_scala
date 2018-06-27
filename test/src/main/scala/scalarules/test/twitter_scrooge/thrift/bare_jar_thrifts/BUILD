@@ -6,17 +6,10 @@ java_import(
     visibility = ["//visibility:public"],
 )
 
-java_import(
-    name = "barejar_java_import",
-    jars = ["bare_jar_thrifts_scrooge.jar"],
-    visibility = ["//visibility:public"],
-)
-
 thrift_library(
     name = "bare_jar_thrifts",
     external_jars = [
         ":barejar",
-        ":barejar_java_import",
     ],
     visibility = ["//visibility:public"],
     deps = [

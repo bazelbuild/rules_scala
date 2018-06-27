@@ -59,7 +59,7 @@ def _thrift_library_impl(ctx):
 
   # external jars are references to things srcs may depend on
   # ARE built as part of this target, but are not combined
-  # into the output jar. They are includede in the ThriftInfo provider
+  # into the output jar. They are included in the ThriftInfo provider
   externals = []
   for f in ctx.attr.external_jars:
     externals.extend(f.files.to_list())

@@ -198,32 +198,11 @@ def _empty_java_info(deps_java_info, implicit_deps):
       transitive_runtime_jars = depset(
           transitive = [merged_deps.transitive_runtime_jars]))
 
-def _provider_for_file(jar_file):
-  return java_common.create_provider(
-      use_ijar = False,
-      compile_time_jars = depset([jar_file]),
-      transitive_compile_time_jars = depset([jar_file]),
-      transitive_runtime_jars = depset([jar_file]))
-
 ####
-# if we have a thrift target here, then we get all
-# the srcjars of its dependencies and the thrifts
-# we compute pass the deps as the extra thrifts,
-# we then create a new srcjar for the current target
-# we compute the transitive srcjars and transitive thriftjars
-# return those in a provider.
-#
-# if we have another ScroogeSrc, we pass that through.
-# finally, the scrooge_scala_library takes all the ScroogeSrcs
-# and just calls the scala compiler only on the srcjars, but also
-# returns the merged ScroogeSrc.
-#
-# not clear if the above is correct since we want to make sure
-# we invoke scalac once on each thrift jar, so we may need to make
-# sure to run scalac inside the aspect as well, otherwise we
-# may call it over and over in diamond cases.
+# This is applied to the DAG of thrift_librarys reachable from a deps
+# or a scrooge_scala_library. Each thrift_library will be one scrooge
+# invocation assuming it has some sources.
 def _scrooge_aspect_impl(target, ctx):
-  # in this branch we need to generate the scrooge_src
   target_ti = target[ThriftInfo]
   # we sort so the inputs are always the same for caching
   compile_thrifts = sorted(target_ti.srcs.to_list())
