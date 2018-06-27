@@ -244,7 +244,7 @@ StatsfileOutput: {statsfile_output}
       output = argfile, content = scalac_args + optional_scalac_args)
 
   scalac_provider = ctx.attr._scalac[_ScalacProvider]
-  _, _, input_manifests = ctx.resolve_command(tools = [scalac_provider.scalac])
+  scalac_inputs, _, scalac_input_manifests = ctx.resolve_command(tools = [scalac_provider.scalac])
 
   outs = [ctx.outputs.jar, ctx.outputs.statsfile]
   if buildijar:
@@ -254,13 +254,13 @@ StatsfileOutput: {statsfile_output}
          dependency_analyzer_plugin_jars + classpath_resources +
          ctx.files.resources + ctx.files.resource_jars + ctx.files._java_runtime
          + [ctx.outputs.manifest, ctx.executable._ijar, argfile
-           ] + [scalac_provider.scalac.files_to_run.runfiles_manifest])
+           ] + scalac_inputs)
 
   ctx.actions.run(
       inputs = ins,
       outputs = outs,
       executable = scalac_provider.scalac.files_to_run.executable,
-      input_manifests = input_manifests,
+      input_manifests = scalac_input_manifests,
       mnemonic = "Scalac",
       progress_message = "scala %s" % ctx.label,
       execution_requirements = {"supports-workers": "1"},
