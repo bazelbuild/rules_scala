@@ -109,8 +109,9 @@ def _compile_to_scala(ctx, label, compile_thrifts, include_thrifts, jar_output):
       output = jar_output.path,
       paths = path_content,
       flags = worker_arg_pad + ':'.join([
-          # '--with-finagle' if ctx.attr.with_finagle else '',
-          ''
+          # always add finagle option which is a no-op if there are no services
+          # we could put "include_services" on thrift_info, if needed
+          '--with-finagle',
       ]))
 
   argfile = ctx.actions.declare_file(
@@ -222,57 +223,43 @@ def _provider_for_file(jar_file):
 # sure to run scalac inside the aspect as well, otherwise we
 # may call it over and over in diamond cases.
 def _scrooge_aspect_impl(target, ctx):
-  if ThriftInfo in target:
-    # in this branch we need to generate the scrooge_src
-    target_ti = target[ThriftInfo]
+  # in this branch we need to generate the scrooge_src
+  target_ti = target[ThriftInfo]
+  # we sort so the inputs are always the same for caching
+  compile_thrifts = sorted(target_ti.srcs.to_list())
+  transitive_ti = merge_thrift_infos(
+      [d[ScroogeAspectInfo].thrift_info
+       for d in ctx.rule.attr.deps] + [target_ti])
+  deps = [d[ScroogeAspectInfo].java_info for d in ctx.rule.attr.deps]
+  imps = [j[JavaInfo] for j in ctx.attr._implicit_compile_deps]
+  if compile_thrifts:
     # we sort so the inputs are always the same for caching
-    compile_thrifts = sorted(target_ti.srcs.to_list())
-    transitive_ti = merge_thrift_infos(
-        [d[ScroogeAspectInfo].thrift_info
-         for d in ctx.rule.attr.deps] + [target_ti])
-    deps = [d[ScroogeAspectInfo].java_info for d in ctx.rule.attr.deps]
-    external_deps = [
-        _provider_for_file(d)
-        for d in sorted(transitive_ti.transitive_external_jars.to_list())
-    ]
-    imps = [j[JavaInfo] for j in ctx.attr._implicit_compile_deps]
-    if compile_thrifts:
-      # we sort so the inputs are always the same for caching
-      compile_thrift_map = {}
-      for ct in compile_thrifts:
-        compile_thrift_map[ct] = True
-      include_thrifts = sorted([
-          trans for trans in transitive_ti.transitive_srcs.to_list()
-          if trans not in compile_thrift_map
-      ] + transitive_ti.transitive_external_jars.to_list())
-      scrooge_file = ctx.actions.declare_file(
-          target.label.name + "_scrooge.srcjar", sibling = compile_thrifts[0])
-      _compile_to_scala(ctx, target.label, compile_thrifts, include_thrifts,
-                        scrooge_file)
+    compile_thrift_map = {}
+    for ct in compile_thrifts:
+      compile_thrift_map[ct] = True
+    include_thrifts = sorted([
+        trans for trans in transitive_ti.transitive_srcs.to_list()
+        if trans not in compile_thrift_map
+    ])
+    scrooge_file = ctx.actions.declare_file(
+        target.label.name + "_scrooge.srcjar")
+    _compile_to_scala(ctx, target.label, compile_thrifts, include_thrifts,
+                      scrooge_file)
 
-      src_jars = depset([scrooge_file])
-      java_info = _compile_scala(ctx, target.label, scrooge_file,
-                                 deps + external_deps, imps)
+    src_jars = depset([scrooge_file])
+    java_info = _compile_scala(ctx, target.label, scrooge_file, deps, imps)
 
-    else:
-      # this target only has external thrifts/dependencies
-      src_jars = depset()
-      java_info = _empty_java_info(deps + external_deps, imps)
-
-    return [
-        ScroogeAspectInfo(
-            src_jars = src_jars,
-            thrift_info = transitive_ti,
-            java_info = java_info)
-    ]
-  elif ScroogeInfo in target:
-    print("warning, %s using scrooge as deps is deprecated, please use exports"
-          % target)
-    # in this branch we are just getting the already constructed aspect info
-    return [target[ScroogeInfo].aspect_info]
   else:
-    fail("expected scrooge_scala_library or thrift_library as a dep: " +
-         str(dir(target)) + str(ctx.rule))
+    # this target is only an aggregation target
+    src_jars = depset()
+    java_info = _empty_java_info(deps, imps)
+
+  return [
+      ScroogeAspectInfo(
+          src_jars = src_jars,
+          thrift_info = transitive_ti,
+          java_info = java_info)
+  ]
 
 scrooge_aspect = aspect(
     implementation = _scrooge_aspect_impl,
@@ -302,22 +289,25 @@ scrooge_aspect = aspect(
                 ),
             ]),
     },
-    required_aspect_providers = [[ThriftInfo],
-                                 [ScroogeInfo]],
+    required_aspect_providers = [[ThriftInfo]],
     toolchains = ['@io_bazel_rules_scala//scala:toolchain_type'],
 )
 
 def _scrooge_scala_library_impl(ctx):
   aspect_info = merge_scrooge_aspect_info(
       [dep[ScroogeAspectInfo] for dep in ctx.attr.deps])
-  exports = [exp[JavaInfo] for exp in ctx.attr.exports]
-  all_java = java_common.merge(exports + [aspect_info.java_info])
+  if ctx.attr.exports:
+    exports = [exp[JavaInfo] for exp in ctx.attr.exports]
+    all_java = java_common.merge(exports + [aspect_info.java_info])
+  else:
+    all_java = aspect_info.java_info
   return [ScroogeInfo(aspect_info = aspect_info), all_java]
 
 scrooge_scala_library = rule(
     implementation = _scrooge_scala_library_impl,
     attrs = {
-        'deps': attr.label_list(aspects = [scrooge_aspect]),
+        'deps': attr.label_list(
+            aspects = [scrooge_aspect], providers = [ThriftInfo]),
         'exports': attr.label_list(providers = [JavaInfo]),
     },
     provides = [ScroogeInfo, JavaInfo],

@@ -3,19 +3,12 @@
 load("@io_bazel_rules_scala//thrift:thrift_info.bzl", "ThriftInfo")
 
 def empty_thrift_info():
-  return ThriftInfo(
-      srcs = depset(),
-      transitive_srcs = depset(),
-      external_jars = depset(),
-      transitive_external_jars = depset())
+  return ThriftInfo(srcs = depset(), transitive_srcs = depset())
 
 def merge_thrift_infos(tis):
   return ThriftInfo(
       srcs = depset(transitive = [t.srcs for t in tis]),
-      transitive_srcs = depset(transitive = [t.transitive_srcs for t in tis]),
-      external_jars = depset(transitive = [t.external_jars for t in tis]),
-      transitive_external_jars = depset(
-          transitive = [t.transitive_external_jars for t in tis]))
+      transitive_srcs = depset(transitive = [t.transitive_srcs for t in tis]))
 
 def _common_prefix(strings):
   pref = None
@@ -40,8 +33,6 @@ def _thrift_library_impl(ctx):
   ]
 
   src_paths = [f.path for f in ctx.files.srcs]
-  if len(src_paths) <= 0 and len(ctx.attr.external_jars) <= 0:
-    fail("we require at least one thrift file in a target")
 
   zipper_args = "\n".join(src_paths) + "\n"
   if len(prefixes) > 0:
@@ -66,6 +57,13 @@ def _thrift_library_impl(ctx):
       zipper_args = "\n".join(
           ["%s=%s" % (src[endpos + 1:], src) for src in src_paths]) + "\n"
 
+  # external jars are references to things srcs may depend on
+  # ARE built as part of this target, but are not combined
+  # into the output jar. They are includede in the ThriftInfo provider
+  externals = []
+  for f in ctx.attr.external_jars:
+    externals.extend(f.files.to_list())
+
   if len(src_paths) > 0:
     zipper_arg_path = ctx.actions.declare_file(
         "%s_zipper_args" % ctx.outputs.libarchive.path)
@@ -88,7 +86,7 @@ rm -f {out}
         progress_message = "making thrift archive %s (%s files)" %
         (ctx.label, len(src_paths)),
     )
-    srcs_depset = depset([ctx.outputs.libarchive])
+    srcs_depset = depset([ctx.outputs.libarchive] + externals)
   else:
     # we still have to create the output we declared
     ctx.actions.run_shell(
@@ -103,34 +101,18 @@ rm {out}.contents
            zipper = ctx.executable._zipper.path),
         progress_message = "making empty thrift archive %s" % ctx.label,
     )
-    srcs_depset = depset()
-
-  # external jars are references to thrift we depend on,
-  # BUT WE DON'T BUILD. When we build the code, the code can
-  # do a thrift include to this, but we won't generate the source or bytecode.
-  remotes = []
-  for f in ctx.attr.external_jars:
-    remotes.extend(f.files.to_list())
+    srcs_depset = depset(externals)
 
   transitive_srcs = depset(
-      transitive = _collect_thrift_srcs(ctx.attr.deps) + [srcs_depset])
-  transitive_external_jars = depset(
-      remotes,
-      transitive = [
-          d[ThriftInfo].transitive_external_jars for d in ctx.attr.deps
-      ])
+      transitive = _collect_thrift_srcs(ctx.attr.deps, srcs_depset))
 
-  return [
-      ThriftInfo(
-          srcs = srcs_depset,
-          transitive_srcs = transitive_srcs,
-          external_jars = depset(remotes),
-          transitive_external_jars = transitive_external_jars,
-      )
-  ]
+  return [ThriftInfo(
+      srcs = srcs_depset,
+      transitive_srcs = transitive_srcs,
+  )]
 
-def _collect_thrift_srcs(targets):
-  ds = []
+def _collect_thrift_srcs(targets, init):
+  ds = [init]
   for target in targets:
     ds.append(target[ThriftInfo].transitive_srcs)
   return ds
@@ -164,11 +146,9 @@ thrift_library = rule(
         # created by this is created in such a way that absolute imports work...
         "absolute_prefix": attr.string(default = '', mandatory = False),
         "absolute_prefixes": attr.string_list(),
-        # This is a list of JARs which only contain Thrift files
-        # these files will NOT  be compiled as part of the current target,
-        # but the current thrifts do include these. It should also include
-        # the compiled versions of these thrifts
-        "external_jars": attr.label_list(),
+        # This is a list of JARs which only Thrift files
+        # these files WILL be compiled as part of the current target
+        "external_jars": attr.label_list(allow_files = [".jar"]),
         "_zipper": attr.label(
             executable = True,
             cfg = "host",

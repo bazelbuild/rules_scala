@@ -5,19 +5,21 @@ load("//thrift:thrift.bzl", "thrift_library")
 scrooge_scala_library(
     name = "scrooge1",
     visibility = ["//visibility:public"],
-    deps = [
+    exports = [
         ":scrooge2_a",
         ":scrooge2_b",
         ":scrooge3",
-        "//test/src/main/scala/scalarules/test/twitter_scrooge/thrift",
     ],
+    deps = ["//test/src/main/scala/scalarules/test/twitter_scrooge/thrift"],
 )
 
 scrooge_scala_library(
     name = "scrooge2_a",
     visibility = ["//visibility:public"],
-    deps = [
+    exports = [
         ":scrooge3",
+    ],
+    deps = [
         "//test/src/main/scala/scalarules/test/twitter_scrooge/thrift/thrift2:thrift2_a",
     ],
 )
@@ -25,8 +27,10 @@ scrooge_scala_library(
 scrooge_scala_library(
     name = "scrooge2_b",
     visibility = ["//visibility:public"],
-    deps = [
+    exports = [
         ":scrooge3",
+    ],
+    deps = [
         "//test/src/main/scala/scalarules/test/twitter_scrooge/thrift/thrift2:thrift2_b",
     ],
 )
@@ -40,8 +44,10 @@ scrooge_scala_library(
 scrooge_scala_library(
     name = "scrooge2",
     visibility = ["//visibility:public"],
-    deps = [
+    exports = [
         ":scrooge3",
+    ],
+    deps = [
         "//test/src/main/scala/scalarules/test/twitter_scrooge/thrift/thrift2:thrift2_a",
         "//test/src/main/scala/scalarules/test/twitter_scrooge/thrift/thrift2:thrift2_b",
     ],
@@ -50,8 +56,10 @@ scrooge_scala_library(
 scrooge_scala_library(
     name = "scrooge4",
     visibility = ["//visibility:public"],
-    deps = [
+    exports = [
         ":scrooge2",
+    ],
+    deps = [
         "//test/src/main/scala/scalarules/test/twitter_scrooge/thrift/thrift2/thrift4",
     ],
 )
@@ -59,8 +67,10 @@ scrooge_scala_library(
 scrooge_scala_library(
     name = "scrooge4a",
     visibility = ["//visibility:public"],
-    deps = [
+    exports = [
         ":scrooge4",
+    ],
+    deps = [
         "//test/src/main/scala/scalarules/test/twitter_scrooge/thrift/thrift2/thrift4:thrift4a",
     ],
 )
