@@ -28,11 +28,6 @@ def scala_mvn_artifact(artifact):
 
 def _generate_scala_imports(version):
   return """
-# scala.BUILD
-load("@io_bazel_rules_scala//scala:providers.bzl",
-     _declare_scalac_provider = "declare_scalac_provider",
-)
-
 java_import(
     name = "scala-library",
     jars = ["lib/scala-library.jar"],

@@ -64,7 +64,6 @@ _resolve_deps = {
         allow_files = False),
 }
 
-# TODO not version specific
 _test_resolve_deps = {
     "_scala_toolchain": attr.label_list(
         default = [
@@ -223,7 +222,7 @@ _scala_test_attrs = {
         executable = True,
         allow_files = True),
     "_scalatest_reporter": attr.label(
-        default = "//scala/support:test_reporter"),
+        default = Label("//scala/support:test_reporter")),
 }
 _scala_test_attrs.update(_launcher_template)
 _scala_test_attrs.update(_implicit_deps)
