@@ -127,23 +127,10 @@ def _expand_location(ctx, flags):
 def _join_path(args, sep = ","):
   return sep.join([f.path for f in args])
 
-def compile_scala(ctx,
-                  target_label,
-                  output,
-                  manifest,
-                  statsfile,
-                  sources,
-                  cjars,
-                  all_srcjars,
-                  transitive_compile_jars,
-                  plugins,
-                  resource_strip_prefix,
-                  resources,
-                  resource_jars,
-                  labels,
-                  in_scalacopts,
-                  print_compile_time,
-                  expect_java_output,
+def compile_scala(ctx, target_label, output, manifest, statsfile, sources,
+                  cjars, all_srcjars, transitive_compile_jars, plugins,
+                  resource_strip_prefix, resources, resource_jars, labels,
+                  in_scalacopts, print_compile_time, expect_java_output,
                   scalac_jvm_flags):
   # look for any plugins:
   plugins = _collect_plugin_paths(plugins)
@@ -238,8 +225,7 @@ StatsfileOutput: {statsfile_output}
   outs = [output, statsfile]
   ins = (compiler_classpath_jars.to_list() + all_srcjars.to_list() +
          list(sources) + plugins_list + dependency_analyzer_plugin_jars +
-         classpath_resources + resources + resource_jars +
-         [manifest, argfile])
+         classpath_resources + resources + resource_jars + [manifest, argfile])
 
   ctx.actions.run(
       inputs = ins,
