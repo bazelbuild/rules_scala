@@ -25,11 +25,6 @@ _implicit_deps = {
         cfg = "host",
         default = Label("@bazel_tools//tools/jdk:singlejar"),
         allow_files = True),
-    "_ijar": attr.label(
-        executable = True,
-        cfg = "host",
-        default = Label("@bazel_tools//tools/jdk:ijar"),
-        allow_files = True),
     "_scalac": attr.label(
         executable = True,
         cfg = "host",
@@ -146,9 +141,6 @@ _common_outputs = {
 
 _library_outputs = {}
 _library_outputs.update(_common_outputs)
-_library_outputs.update({
-    "ijar": "%{name}_ijar.jar",
-})
 
 _scala_library_attrs = {}
 _scala_library_attrs.update(_implicit_deps)
