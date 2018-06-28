@@ -9,6 +9,9 @@ load(
 )
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
+ 
+load("@io_bazel_rules_scala//scala:scala_maven_import_external.bzl",
+     _scala_maven_import_external = "scala_maven_import_external")
 
 load(
     "@io_bazel_rules_scala//specs2:specs2_junit.bzl",
@@ -252,68 +255,53 @@ scala_repl = rule(
     fragments = ["java"],
     toolchains = ['@io_bazel_rules_scala//scala:toolchain_type'],
 )
-
-def _scala_libraries_impl(repository_ctx):
-  repository_ctx.template(
-    "BUILD",
-    Label("@io_bazel_rules_scala//scala:BUILD.scala.bazel"),
-    executable = False,
-  )
-
-_scala_libraries = repository_rule(
-  implementation = _scala_libraries_impl
-)
     
 
 def scala_repositories():
-  native.http_file(
-      name = "scala_library_jar",
-      url =
-      "http://central.maven.org/maven2/org/scala-lang/scala-library/2.11.12/scala-library-2.11.12.jar",
-      sha256 =
-      "0b3d6fd42958ee98715ba2ec5fe221f4ca1e694d7c981b0ae0cd68e97baf6dce",
+  _scala_maven_import_external(
+    name = "scala_library",
+    artifact = "org.scala-lang:scala-library:2.11.12",
+    jar_sha256 = "0b3d6fd42958ee98715ba2ec5fe221f4ca1e694d7c981b0ae0cd68e97baf6dce",
+    licenses = ["notice"],
+    server_urls = ["https://central.maven.org/maven2"],
+  )
+  _scala_maven_import_external(
+    name = "scala_compiler",
+    artifact = "org.scala-lang:scala-compiler:2.11.12",
+    jar_sha256 = "3e892546b72ab547cb77de4d840bcfd05c853e73390fed7370a8f19acb0735a0",
+    licenses = ["notice"],
+    server_urls = ["https://central.maven.org/maven2"],
+  )
+  _scala_maven_import_external(
+    name = "scala_reflect",
+    artifact = "org.scala-lang:scala-reflect:2.11.12",
+    jar_sha256 = "6ba385b450a6311a15c918cf8688b9af9327c6104f0ecbd35933cfcd3095fe04",
+    licenses = ["notice"],
+    server_urls = ["https://central.maven.org/maven2"],
+  )
+  _scala_maven_import_external(
+    name = "scalatest",
+    artifact = "org.scalatest:scalatest_2.11:2.2.6",
+    jar_sha256 = "f198967436a5e7a69cfd182902adcfbcb9f2e41b349e1a5c8881a2407f615962",
+    licenses = ["notice"],
+    server_urls = ["https://central.maven.org/maven2"],
   )
 
-  native.http_file(
-      name = "scala_compiler_jar",
-      url =
-      "http://central.maven.org/maven2/org/scala-lang/scala-compiler/2.11.12/scala-compiler-2.11.12.jar",
-      sha256 =
-      "3e892546b72ab547cb77de4d840bcfd05c853e73390fed7370a8f19acb0735a0",
+  _scala_maven_import_external(
+    name = "scala_xml",
+    artifact = "org.scala-lang:scala-xml_2.11:1.0.5",
+    jar_sha256 = "767e11f33eddcd506980f0ff213f9d553a6a21802e3be1330345f62f7ee3d50f",
+    licenses = ["notice"],
+    server_urls = ["https://central.maven.org/maven2"],
   )
 
-  native.http_file(
-      name = "scala_reflect_jar",
-      url =
-      "http://central.maven.org/maven2/org/scala-lang/scala-reflect/2.11.12/scala-reflect-2.11.12.jar",
-      sha256 =
-      "6ba385b450a6311a15c918cf8688b9af9327c6104f0ecbd35933cfcd3095fe04",
+  _scala_maven_import_external(
+    name = "scala_parser_combinators",
+    artifact = "org.scala-lang:scala-parser-combinators.11:1.0.4",
+    jar_sha256 = "0dfaafce29a9a245b0a9180ec2c1073d2bd8f0330f03a9f1f6a74d1bc83f62d6",
+    licenses = ["notice"],
+    server_urls = ["https://central.maven.org/maven2"],
   )
-
-  # scalatest has macros, note http_jar is invoking ijar
-  native.http_file(
-      name = "scalatest_jar",
-      url =
-      "https://mirror.bazel.build/oss.sonatype.org/content/groups/public/org/scalatest/scalatest_2.11/2.2.6/scalatest_2.11-2.2.6.jar",
-      sha256 =
-      "f198967436a5e7a69cfd182902adcfbcb9f2e41b349e1a5c8881a2407f615962",
-  )
-
-  native.http_file(
-      name = "scala_xml_jar",
-      url =
-      "http://central.maven.org/maven2/org/scala-lang/modules/scala-xml_2.11/1.0.5/scala-xml_2.11-1.0.5.jar",
-      sha256 = "767e11f33eddcd506980f0ff213f9d553a6a21802e3be1330345f62f7ee3d50f"
-  )
-
-  native.http_file(
-      name = "scala_parser_combinators_jar",
-      url =
-      "http://central.maven.org/maven2/org/scala-lang/modules/scala-parser-combinators_2.11/1.0.4/scala-parser-combinators_2.11-1.0.4.jar",
-      sha256 = "0dfaafce29a9a245b0a9180ec2c1073d2bd8f0330f03a9f1f6a74d1bc83f62d6"
-  )
-
-  _scala_libraries(name = "scala")
 
   native.maven_server(
       name = "scalac_deps_maven_server",
@@ -363,27 +351,27 @@ def scala_repositories():
 
   native.bind(
       name = "io_bazel_rules_scala/dependency/scala/scala_compiler",
-      actual = "@scala//:scala_compiler")
+      actual = "@scala_compiler")
 
   native.bind(
       name = "io_bazel_rules_scala/dependency/scala/scala_library",
-      actual = "@scala//:scala_library")
+      actual = "@scala_library")
 
   native.bind(
       name = "io_bazel_rules_scala/dependency/scala/scala_reflect",
-      actual = "@scala//:scala_reflect")
+      actual = "@scala_reflect")
 
   native.bind(
       name = "io_bazel_rules_scala/dependency/scala/scala_xml",
-      actual = "@scala//:scala_xml")
+      actual = "@scala_xml")
 
   native.bind(
       name = "io_bazel_rules_scala/dependency/scala/parser_combinators",
-      actual = "@scala//:scala_parser_combinators")
+      actual = "@scala_parser_combinators")
 
   native.bind(
       name = "io_bazel_rules_scala/dependency/scalatest/scalatest",
-      actual = "@scala//:scalatest")
+      actual = "@scalatest")
 
 def _sanitize_string_for_usage(s):
   res_array = []
