@@ -20,16 +20,24 @@ def default_scala_version():
   return "2.11.11"
 
 def scala_mvn_artifact(artifact, major_scala_version):
+  """Add scala version to maven artifact"""
   gav = artifact.split(":")
   groupid = gav[0]
   artifactid = gav[1]
   version = gav[2]
   return "%s:%s_%s:%s" % (groupid, artifactid, major_scala_version, version)
 
+def extract_major_version(scala_version):
+  """Return major Scala version given a full version, e.g. "2.11.11" -> "2.11" """
+  return scala_version[:scala_version.find(".", 2)]
+
 def extract_major_version_underscore(scala_version):
   """Return major Scala version with underscore given a full version,
   e.g. "2.11.11" -> "2_11" """
-  return scala_version[:scala_version.find(".", 2)].replace(".", "_")
+  return extract_major_version(scala_version).replace(".", "_")
+
+def default_scala_major_version():
+    return extract_major_version(default_scala_version())
 
 def _generate_scala_imports(version):
   return """
