@@ -26,7 +26,7 @@ java_binary(
     main_class = "scalarules.test.JavaBinary",
     runtime_deps = [
         ":OtherJavaLib",
-        "@scala_library//jar",
+        "@scala//:scala_library",
     ],
     deps = [
         ":Exported",
