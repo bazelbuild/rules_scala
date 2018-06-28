@@ -1,11 +1,14 @@
 """Rules for organizing thrift files."""
 
-ThriftInfo = provider(fields = [
-    "srcs",  # The source files in this rule
-    "transitive_srcs",  # the transitive version of the above
-    "external_jars",  # external jars of thrift files
-    "transitive_external_jars"  # transitive version of the above
-])
+load("@io_bazel_rules_scala//thrift:thrift_info.bzl", "ThriftInfo")
+
+def empty_thrift_info():
+  return ThriftInfo(srcs = depset(), transitive_srcs = depset())
+
+def merge_thrift_infos(tis):
+  return ThriftInfo(
+      srcs = depset(transitive = [t.srcs for t in tis]),
+      transitive_srcs = depset(transitive = [t.transitive_srcs for t in tis]))
 
 def _common_prefix(strings):
   pref = None
@@ -30,8 +33,6 @@ def _thrift_library_impl(ctx):
   ]
 
   src_paths = [f.path for f in ctx.files.srcs]
-  if len(src_paths) <= 0 and len(ctx.attr.external_jars) <= 0:
-    fail("we require at least one thrift file in a target")
 
   zipper_args = "\n".join(src_paths) + "\n"
   if len(prefixes) > 0:
@@ -56,11 +57,17 @@ def _thrift_library_impl(ctx):
       zipper_args = "\n".join(
           ["%s=%s" % (src[endpos + 1:], src) for src in src_paths]) + "\n"
 
+  # external jars are references to things srcs may depend on
+  # ARE built as part of this target, but are not combined
+  # into the output jar. They are included in the ThriftInfo provider
+  externals = []
+  for f in ctx.attr.external_jars:
+    externals.extend(f.files.to_list())
+
   if len(src_paths) > 0:
     zipper_arg_path = ctx.actions.declare_file(
         "%s_zipper_args" % ctx.outputs.libarchive.path)
     ctx.actions.write(zipper_arg_path, zipper_args)
-    _valid_thrift_deps(ctx.attr.deps)
     # We move the files and touch them so that the output file is a purely deterministic
     # product of the _content_ of the inputs
     cmd = """
@@ -79,6 +86,7 @@ rm -f {out}
         progress_message = "making thrift archive %s (%s files)" %
         (ctx.label, len(src_paths)),
     )
+    srcs_depset = depset([ctx.outputs.libarchive] + externals)
   else:
     # we still have to create the output we declared
     ctx.actions.run_shell(
@@ -93,40 +101,21 @@ rm {out}.contents
            zipper = ctx.executable._zipper.path),
         progress_message = "making empty thrift archive %s" % ctx.label,
     )
+    srcs_depset = depset(externals)
 
   transitive_srcs = depset(
-      [ctx.outputs.libarchive],
-      transitive = _collect_thrift_srcs(ctx.attr.deps))
-  jarfiles = _collect_thrift_external_jars(ctx.attr.deps)
-  for jar in ctx.attr.external_jars:
-    jarfiles.append(depset(jar.files))
-  transitive_external_jars = depset(transitive = jarfiles)
+      transitive = _collect_thrift_srcs(ctx.attr.deps, srcs_depset))
 
-  return [
-      ThriftInfo(
-          srcs = ctx.outputs.libarchive,
-          transitive_srcs = transitive_srcs,
-          external_jars = ctx.attr.external_jars,
-          transitive_external_jars = transitive_external_jars,
-      )
-  ]
+  return [ThriftInfo(
+      srcs = srcs_depset,
+      transitive_srcs = transitive_srcs,
+  )]
 
-def _collect_thrift_srcs(targets):
-  ds = []
+def _collect_thrift_srcs(targets, init):
+  ds = [init]
   for target in targets:
     ds.append(target[ThriftInfo].transitive_srcs)
   return ds
-
-def _collect_thrift_external_jars(targets):
-  ds = []
-  for target in targets:
-    ds.append(target[ThriftInfo].transitive_external_jars)
-  return ds
-
-def _valid_thrift_deps(targets):
-  for target in targets:
-    if not ThriftInfo in target:
-      fail("thrift_library can only depend on thrift_library", target)
 
 # Some notes on the raison d'etre of thrift_library vs. code gen specific
 # targets. The idea is to be able to separate concerns -- thrift_library is
@@ -140,7 +129,7 @@ thrift_library = rule(
     implementation = _thrift_library_impl,
     attrs = {
         "srcs": attr.label_list(allow_files = [".thrift"]),
-        "deps": attr.label_list(),
+        "deps": attr.label_list(providers = [ThriftInfo]),
         #TODO this is not necessarily the best way to do this... the goal
         # is that we want thrifts to be able to be imported via an absolute
         # path. But the thrift files have no clue what part of their path
@@ -157,8 +146,9 @@ thrift_library = rule(
         # created by this is created in such a way that absolute imports work...
         "absolute_prefix": attr.string(default = '', mandatory = False),
         "absolute_prefixes": attr.string_list(),
-        # This is a list of JARs which only contain Thrift files
-        "external_jars": attr.label_list(),
+        # This is a list of JARs which only Thrift files
+        # these files WILL be compiled as part of the current target
+        "external_jars": attr.label_list(allow_files = [".jar"]),
         "_zipper": attr.label(
             executable = True,
             cfg = "host",
@@ -166,4 +156,5 @@ thrift_library = rule(
             allow_files = True)
     },
     outputs = {"libarchive": "lib%{name}.jar"},
+    provides = [ThriftInfo],
 )
