@@ -36,6 +36,13 @@ scrooge_scala_library(
 )
 
 scrooge_scala_library(
+    name = "scrooge2_b_imp",
+    deps = [
+        "//test/src/main/scala/scalarules/test/twitter_scrooge/thrift/thrift2:thrift2_b_imp",
+    ],
+)
+
+scrooge_scala_library(
     name = "scrooge3",
     visibility = ["//visibility:public"],
     deps = ["//test/src/main/scala/scalarules/test/twitter_scrooge/thrift/thrift2/thrift3"],
@@ -127,6 +134,14 @@ scala_library(
     srcs = ["JustScrooge3.scala"],
     exports = [":scrooge3"],
     deps = [":scrooge3"],
+)
+
+scala_library(
+    name = "justscrooge3_import",
+    srcs = ["JustScrooge3.scala"],
+    deps = [
+        "//test/src/main/scala/scalarules/test/twitter_scrooge/thrift/thrift2/thrift3:thrift3_import",
+    ],
 )
 
 scala_library(

@@ -91,6 +91,11 @@ ScroogeInfo = provider(fields = [
     "aspect_info",
 ])
 
+ScroogeImport = provider(fields = [
+    "java_info",
+    "thrift_info",
+])
+
 def merge_scrooge_aspect_info(scrooges):
   return ScroogeAspectInfo(
       src_jars = depset(transitive = [s.src_jars for s in scrooges]),
@@ -205,13 +210,20 @@ def _empty_java_info(deps_java_info, implicit_deps):
 # or a scrooge_scala_library. Each thrift_library will be one scrooge
 # invocation assuming it has some sources.
 def _scrooge_aspect_impl(target, ctx):
-  target_ti = target[ThriftInfo]
+  if ScroogeImport in target:
+    target_import = target[ScroogeImport]
+    target_ti = target_import.thrift_info
+    deps = [target_import.java_info]
+    transitive_ti = target_ti
+  else:
+    target_ti = target[ThriftInfo]
+    deps = [d[ScroogeAspectInfo].java_info for d in ctx.rule.attr.deps]
+    transitive_ti = merge_thrift_infos(
+        [d[ScroogeAspectInfo].thrift_info
+         for d in ctx.rule.attr.deps] + [target_ti])
+
   # we sort so the inputs are always the same for caching
   compile_thrifts = sorted(target_ti.srcs.to_list())
-  transitive_ti = merge_thrift_infos(
-      [d[ScroogeAspectInfo].thrift_info
-       for d in ctx.rule.attr.deps] + [target_ti])
-  deps = [d[ScroogeAspectInfo].java_info for d in ctx.rule.attr.deps]
   imps = [j[JavaInfo] for j in ctx.attr._implicit_compile_deps]
   if compile_thrifts:
     # we sort so the inputs are always the same for caching
@@ -275,7 +287,8 @@ scrooge_aspect = aspect(
                 ),
             ]),
     },
-    required_aspect_providers = [[ThriftInfo]],
+    required_aspect_providers = [[ThriftInfo],
+                                 [ScroogeImport]],
     toolchains = ['@io_bazel_rules_scala//scala:toolchain_type'],
 )
 
@@ -295,9 +308,45 @@ def _scrooge_scala_library_impl(ctx):
 scrooge_scala_library = rule(
     implementation = _scrooge_scala_library_impl,
     attrs = {
-        'deps': attr.label_list(
-            aspects = [scrooge_aspect], providers = [ThriftInfo]),
+        'deps': attr.label_list(aspects = [scrooge_aspect]),
         'exports': attr.label_list(providers = [JavaInfo]),
     },
     provides = [DefaultInfo, ScroogeInfo, JavaInfo],
 )
+
+def _scrooge_scala_import_impl(ctx):
+  scala_jars = depset(ctx.files.scala_jars)
+  jars_ji = java_common.create_provider(
+      use_ijar = False,
+      compile_time_jars = scala_jars,
+      transitive_compile_time_jars = scala_jars,
+      transitive_runtime_jars = scala_jars)
+  java_info = java_common.merge(
+      [imp[JavaInfo] for imp in ctx.attr._implicit_compile_deps] + [jars_ji])
+  # to make the thrift_info, we only put this in the
+  # transitive part
+  ti = ThriftInfo(
+      srcs = depset(), transitive_srcs = depset(ctx.files.thrift_jars))
+  return [java_info, ti, ScroogeImport(java_info = java_info, thrift_info = ti)]
+
+# Allows you to consume thrifts and compiled jars from external repos
+scrooge_scala_import = rule(
+    implementation = _scrooge_scala_import_impl,
+    attrs = {
+        "thrift_jars": attr.label_list(allow_files = [".jar"]),
+        "scala_jars": attr.label_list(allow_files = [".jar"]),
+        "_implicit_compile_deps": attr.label_list(
+            providers = [JavaInfo],
+            default = [
+                Label(
+                    "//external:io_bazel_rules_scala/dependency/scala/scala_library"
+                ),
+                Label(
+                    "//external:io_bazel_rules_scala/dependency/thrift/libthrift"
+                ),
+                Label(
+                    "//external:io_bazel_rules_scala/dependency/thrift/scrooge_core"
+                ),
+            ]),
+    },
+    provides = [ThriftInfo, JavaInfo, ScroogeImport])
