@@ -23,14 +23,22 @@ def _scala_import_impl(ctx):
       jars_to_labels = jars2labels,
       providers = [
           _create_provider(current_jars, transitive_runtime_jars, jars,
-                           exports),
+                           exports, ctx.attr.neverlink),
           DefaultInfo(files = current_jars,
                      ),
       ],
   )
 
 def _create_provider(current_target_compile_jars, transitive_runtime_jars, jars,
-                     exports):
+                     exports, neverlink):
+
+  transitive_runtime_jars = [
+      transitive_runtime_jars, jars.transitive_runtime_jars, exports.transitive_runtime_jars
+  ]
+
+  if not neverlink:
+    transitive_runtime_jars.append(current_target_compile_jars)
+
   return java_common.create_provider(
       use_ijar = False,
       compile_time_jars = depset(
@@ -39,10 +47,7 @@ def _create_provider(current_target_compile_jars, transitive_runtime_jars, jars,
           jars.transitive_compile_jars, current_target_compile_jars,
           exports.transitive_compile_jars
       ]),
-      transitive_runtime_jars = depset(transitive = [
-          transitive_runtime_jars, jars.transitive_runtime_jars,
-          current_target_compile_jars, exports.transitive_runtime_jars
-      ]),
+      transitive_runtime_jars = depset(transitive = transitive_runtime_jars),
   )
 
 def _add_labels_of_current_code_jars(code_jars, label, jars2labels):
@@ -116,6 +121,7 @@ scala_import = rule(
         ),  #current hidden assumption is that these point to full, not ijar'd jars
         "deps": attr.label_list(),
         "runtime_deps": attr.label_list(),
-        "exports": attr.label_list()
+        "exports": attr.label_list(),
+        "neverlink": attr.bool(default=False, mandatory=False),
     },
 )
