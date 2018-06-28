@@ -249,37 +249,27 @@ scala_repl = rule(
     toolchains = ['@io_bazel_rules_scala//scala:toolchain_type'],
 )
 
-_SCALA_BUILD_FILE = """
-# scala.BUILD
-java_import(
-    name = "scala-library",
-    jars = ["lib/scala-library.jar"],
-    visibility = ["//visibility:public"],
-)
-
-java_import(
-    name = "scala-compiler",
-    jars = ["lib/scala-compiler.jar"],
-    visibility = ["//visibility:public"],
-)
-
-java_import(
-    name = "scala-reflect",
-    jars = ["lib/scala-reflect.jar"],
-    visibility = ["//visibility:public"],
-)
-"""
-
 def scala_repositories():
-  native.new_http_archive(
-      name = "scala",
-      strip_prefix = "scala-2.11.12",
+  native.http_jar(
+      name = "scala_library",
+      url =
+      "http://central.maven.org/maven2/org/scala-lang/scala-library/2.11.12/scala-library-2.11.12.jar",
       sha256 =
-      "b11d7d33699ca4f60bc3b2b6858fd953e3de2b8522c943f4cda4b674316196a8",
-      url = "http://downloads.lightbend.com/scala/2.11.12/scala-2.11.12.tgz",
-      build_file_content = _SCALA_BUILD_FILE,
+      "0b3d6fd42958ee98715ba2ec5fe221f4ca1e694d7c981b0ae0cd68e97baf6dce",
   )
-
+  native.http_jar(
+      name = "scala_compiler",
+      url = "http://central.maven.org/maven2/org/scala-lang/scala-compiler/2.11.12/scala-compiler-2.11.12.jar",
+      sha256 =
+      "3e892546b72ab547cb77de4d840bcfd05c853e73390fed7370a8f19acb0735a0",
+  )
+  native.http_jar(
+      name = "scala_reflect",
+      url =
+      "http://central.maven.org/maven2/org/scala-lang/scala-reflect/2.11.12/scala-reflect-2.11.12.jar",
+      sha256 =
+      "6ba385b450a6311a15c918cf8688b9af9327c6104f0ecbd35933cfcd3095fe04",
+  )
   # scalatest has macros, note http_jar is invoking ijar
   native.http_jar(
       name = "scalatest",
@@ -349,15 +339,15 @@ def scala_repositories():
 
   native.bind(
       name = "io_bazel_rules_scala/dependency/scala/scala_compiler",
-      actual = "@scala//:scala-compiler")
+      actual = "@scala_compiler//jar")
 
   native.bind(
       name = "io_bazel_rules_scala/dependency/scala/scala_library",
-      actual = "@scala//:scala-library")
+      actual = "@scala_library//jar")
 
   native.bind(
       name = "io_bazel_rules_scala/dependency/scala/scala_reflect",
-      actual = "@scala//:scala-reflect")
+      actual = "@scala_reflect//jar")
 
   native.bind(
       name = "io_bazel_rules_scala/dependency/scala/scala_xml",
