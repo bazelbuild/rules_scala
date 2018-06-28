@@ -293,7 +293,7 @@ def scala_repositories():
 
   _scala_maven_import_external(
       name = "scala_xml",
-      artifact = "org.scala-lang:scala-xml_2.11:1.0.5",
+      artifact = "org.scala-lang.modules:scala-xml_2.11:1.0.5",
       jar_sha256 =
       "767e11f33eddcd506980f0ff213f9d553a6a21802e3be1330345f62f7ee3d50f",
       licenses = ["notice"],
@@ -302,7 +302,7 @@ def scala_repositories():
 
   _scala_maven_import_external(
       name = "scala_parser_combinators",
-      artifact = "org.scala-lang:scala-parser-combinators.11:1.0.4",
+      artifact = "org.scala-lang.modules:scala-parser-combinators_2.11:1.0.4",
       jar_sha256 =
       "0dfaafce29a9a245b0a9180ec2c1073d2bd8f0330f03a9f1f6a74d1bc83f62d6",
       licenses = ["notice"],
