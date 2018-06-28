@@ -6,7 +6,7 @@ scala_import(
     jars = [
         "scala_import_never_link.jar"
     ],
-    neverlink = True,
+    neverlink = 1,
 )
 
 scala_specs2_junit_test(
