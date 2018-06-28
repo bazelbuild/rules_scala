@@ -83,6 +83,7 @@ def _colon_paths(data):
 ScroogeAspectInfo = provider(fields = [
     "thrift_info",
     "src_jars",
+    "output_files",
     "java_info",
 ])
 
@@ -93,6 +94,7 @@ ScroogeInfo = provider(fields = [
 def merge_scrooge_aspect_info(scrooges):
   return ScroogeAspectInfo(
       src_jars = depset(transitive = [s.src_jars for s in scrooges]),
+      output_files = depset(transitive = [s.output_files for s in scrooges]),
       thrift_info = merge_thrift_infos([s.thrift_info for s in scrooges]),
       java_info = java_common.merge([s.java_info for s in scrooges]))
 
@@ -144,9 +146,9 @@ def _compiled_jar_file(actions, scrooge_jar):
   compiled_jar = without_suffix + "jar"
   return actions.declare_file(compiled_jar, sibling = scrooge_jar)
 
-def _compile_scala(ctx, label, scrooge_jar, deps_java_info, implicit_deps):
+def _compile_scala(ctx, label, output, scrooge_jar, deps_java_info,
+                   implicit_deps):
 
-  output = _compiled_jar_file(ctx.actions, scrooge_jar)
   manifest = ctx.actions.declare_file(
       label.name + "_MANIFEST.MF", sibling = scrooge_jar)
   write_manifest_file(ctx.actions, manifest, None)
@@ -226,16 +228,21 @@ def _scrooge_aspect_impl(target, ctx):
                       scrooge_file)
 
     src_jars = depset([scrooge_file])
-    java_info = _compile_scala(ctx, target.label, scrooge_file, deps, imps)
+    output = _compiled_jar_file(ctx.actions, scrooge_file)
+    outs = depset([output])
+    java_info = _compile_scala(ctx, target.label, output, scrooge_file, deps,
+                               imps)
 
   else:
     # this target is only an aggregation target
     src_jars = depset()
+    outs = depset()
     java_info = _empty_java_info(deps, imps)
 
   return [
       ScroogeAspectInfo(
           src_jars = src_jars,
+          output_files = outs,
           thrift_info = transitive_ti,
           java_info = java_info)
   ]
@@ -280,7 +287,10 @@ def _scrooge_scala_library_impl(ctx):
     all_java = java_common.merge(exports + [aspect_info.java_info])
   else:
     all_java = aspect_info.java_info
-  return [ScroogeInfo(aspect_info = aspect_info), all_java]
+  return [
+      DefaultInfo(files = aspect_info.output_files),
+      ScroogeInfo(aspect_info = aspect_info), all_java
+  ]
 
 scrooge_scala_library = rule(
     implementation = _scrooge_scala_library_impl,
@@ -289,5 +299,5 @@ scrooge_scala_library = rule(
             aspects = [scrooge_aspect], providers = [ThriftInfo]),
         'exports': attr.label_list(providers = [JavaInfo]),
     },
-    provides = [ScroogeInfo, JavaInfo],
+    provides = [DefaultInfo, ScroogeInfo, JavaInfo],
 )
