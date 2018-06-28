@@ -65,6 +65,8 @@ to your command line, or to enable by default for building/testing add it to you
 
 | bazel | rules_scala gitsha |
 |-------|--------------------|
+| 0.15.x | HEAD |
+| 0.14.x | HEAD |
 | 0.13.x | 3c987b6ae8a453886759b132f1572c0efca2eca2 |
 
 [scala]: http://www.scala-lang.org/
