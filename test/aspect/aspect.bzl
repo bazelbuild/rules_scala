@@ -43,8 +43,8 @@ def _rule_impl(ctx):
           "@io_bazel_rules_scala_org_hamcrest_hamcrest_core//jar:jar",
           # From specs2/specs2.bzl:specs2_dependencies()
           "@io_bazel_rules_scala//specs2:specs2",
-          "@scala//:scala-xml",
-          "@scala//:scala-parser-combinators",
+          "@scala_xml//jar:jar",
+          "@scala_parser_combinators//jar:jar",
           "@scala//:scala-library",
           "@scala//:scala-reflect",
           # From specs2/specs2_junit.bzl:specs2_junit_dependencies()

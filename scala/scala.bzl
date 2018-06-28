@@ -252,18 +252,6 @@ scala_repl = rule(
 _SCALA_BUILD_FILE = """
 # scala.BUILD
 java_import(
-    name = "scala-xml",
-    jars = ["lib/scala-xml_2.11-1.0.5.jar"],
-    visibility = ["//visibility:public"],
-)
-
-java_import(
-    name = "scala-parser-combinators",
-    jars = ["lib/scala-parser-combinators_2.11-1.0.4.jar"],
-    visibility = ["//visibility:public"],
-)
-
-java_import(
     name = "scala-library",
     jars = ["lib/scala-library.jar"],
     visibility = ["//visibility:public"],
@@ -299,6 +287,18 @@ def scala_repositories():
       "https://mirror.bazel.build/oss.sonatype.org/content/groups/public/org/scalatest/scalatest_2.11/2.2.6/scalatest_2.11-2.2.6.jar",
       sha256 =
       "f198967436a5e7a69cfd182902adcfbcb9f2e41b349e1a5c8881a2407f615962",
+  )
+  native.http_jar(
+      name = "scala_xml",
+      url =
+      "http://central.maven.org/maven2/org/scala-lang/modules/scala-xml_2.11/1.0.5/scala-xml_2.11-1.0.5.jar",
+      sha256 = "767e11f33eddcd506980f0ff213f9d553a6a21802e3be1330345f62f7ee3d50f"
+  )
+  native.http_jar(
+      name = "scala_parser_combinators",
+      url =
+      "http://central.maven.org/maven2/org/scala-lang/modules/scala-parser-combinators_2.11/1.0.4/scala-parser-combinators_2.11-1.0.4.jar",
+      sha256 = "0dfaafce29a9a245b0a9180ec2c1073d2bd8f0330f03a9f1f6a74d1bc83f62d6"
   )
 
   native.maven_server(
@@ -348,10 +348,6 @@ def scala_repositories():
       actual = "@scalac_rules_commons_io//jar")
 
   native.bind(
-      name = "io_bazel_rules_scala/dependency/scala/parser_combinators",
-      actual = "@scala//:scala-parser-combinators")
-
-  native.bind(
       name = "io_bazel_rules_scala/dependency/scala/scala_compiler",
       actual = "@scala//:scala-compiler")
 
@@ -365,7 +361,11 @@ def scala_repositories():
 
   native.bind(
       name = "io_bazel_rules_scala/dependency/scala/scala_xml",
-      actual = "@scala//:scala-xml")
+      actual = "@scala_xml//jar")
+
+  native.bind(
+      name = "io_bazel_rules_scala/dependency/scala/parser_combinators",
+      actual = "@scala_parser_combinators//jar")
 
   native.bind(
       name = "io_bazel_rules_scala/dependency/scalatest/scalatest",
