@@ -104,14 +104,13 @@ _declare_scalac_provider(
     scalac = "@{name}//:scalac_worker",
     scalalib = "@{archive}//:scala-library",
     scalareflect = "@{archive}//:scala-reflect",
-    scalaxml = "@scala_xml_{version_underscore}//jar",
+    scalaxml = "@scala_xml//jar",
     scalacompiler = "@{archive}//:scala-compiler",
     visibility = ["//visibility:public"],
 )
     """.format(
       archive = repository_ctx.attr.archive,
-      name = repository_ctx.attr.name,
-      version_underscore = repository_ctx.attr.version_underscore)
+      name = repository_ctx.attr.name)
 
   repository_ctx.file("BUILD", contents, False)
 
@@ -119,7 +118,6 @@ _generate_scalac_build_file = repository_rule(
     implementation = _generate_scalac_build_file_impl,
     attrs = {
         "archive": attr.string(),
-        "version_underscore": attr.string()
     })
 
 def new_scala_repository(name, version):
@@ -137,5 +135,4 @@ def new_scala_repository(name, version):
   _generate_scalac_build_file(
       name = name,
       archive = archive,
-      version_underscore = major_version.replace(".", "_"),
       visibility = ["//visibility:public"])

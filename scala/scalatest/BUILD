@@ -1,10 +1,11 @@
 package(default_visibility = ["//visibility:public"])
+load("//scala:scala_import.bzl", "scala_import")
 
-java_import(
+scala_import(
     name = "scalatest",
     jars = [],
     exports = [
-        "//external:io_bazel_rules_scala/dependency/scalactic/scalactic",
-        "//external:io_bazel_rules_scala/dependency/scalatest/scalatest_library",
+        "@scalactic//jar",
+        "@scalatest//jar"
     ],
 )
