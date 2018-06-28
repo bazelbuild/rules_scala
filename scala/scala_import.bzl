@@ -23,7 +23,8 @@ def _scala_import_impl(ctx):
       jars_to_labels = jars2labels,
       providers = [
           _create_provider(current_jars, transitive_runtime_jars, jars,
-                           exports, ctx.attr.neverlink),
+                           exports,
+                           ctx.attr.neverlink),
           DefaultInfo(files = current_jars,
                      ),
       ],
@@ -33,7 +34,8 @@ def _create_provider(current_target_compile_jars, transitive_runtime_jars, jars,
                      exports, neverlink):
 
   transitive_runtime_jars = [
-      transitive_runtime_jars, jars.transitive_runtime_jars, exports.transitive_runtime_jars
+      transitive_runtime_jars, jars.transitive_runtime_jars,
+      exports.transitive_runtime_jars
   ]
 
   if not neverlink:
@@ -122,6 +124,6 @@ scala_import = rule(
         "deps": attr.label_list(),
         "runtime_deps": attr.label_list(),
         "exports": attr.label_list(),
-        "neverlink": attr.bool(default=False, mandatory=False),
+        "neverlink": attr.bool(),
     },
 )
