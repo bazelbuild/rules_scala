@@ -257,14 +257,14 @@ scala_repl = rule(
     toolchains = ['@io_bazel_rules_scala//scala:toolchain_type'],
 )
 
-def scala_repositories():
+def scala_repositories(maven_servers = ["http://central.maven.org/maven2"]):
   _scala_maven_import_external(
       name = "scala_library",
       artifact = "org.scala-lang:scala-library:2.11.12",
       jar_sha256 =
       "0b3d6fd42958ee98715ba2ec5fe221f4ca1e694d7c981b0ae0cd68e97baf6dce",
       licenses = ["notice"],
-      server_urls = ["http://central.maven.org/maven2"],
+      server_urls = maven_servers,
   )
   _scala_maven_import_external(
       name = "scala_compiler",
@@ -272,7 +272,7 @@ def scala_repositories():
       jar_sha256 =
       "3e892546b72ab547cb77de4d840bcfd05c853e73390fed7370a8f19acb0735a0",
       licenses = ["notice"],
-      server_urls = ["http://central.maven.org/maven2"],
+      server_urls = maven_servers,
   )
   _scala_maven_import_external(
       name = "scala_reflect",
@@ -280,7 +280,7 @@ def scala_repositories():
       jar_sha256 =
       "6ba385b450a6311a15c918cf8688b9af9327c6104f0ecbd35933cfcd3095fe04",
       licenses = ["notice"],
-      server_urls = ["http://central.maven.org/maven2"],
+      server_urls = maven_servers,
   )
   _scala_maven_import_external(
       name = "scalatest",
@@ -288,7 +288,7 @@ def scala_repositories():
       jar_sha256 =
       "f198967436a5e7a69cfd182902adcfbcb9f2e41b349e1a5c8881a2407f615962",
       licenses = ["notice"],
-      server_urls = ["http://central.maven.org/maven2"],
+      server_urls = maven_servers,
   )
 
   _scala_maven_import_external(
@@ -297,7 +297,7 @@ def scala_repositories():
       jar_sha256 =
       "767e11f33eddcd506980f0ff213f9d553a6a21802e3be1330345f62f7ee3d50f",
       licenses = ["notice"],
-      server_urls = ["http://central.maven.org/maven2"],
+      server_urls = maven_servers,
   )
 
   _scala_maven_import_external(
@@ -306,7 +306,7 @@ def scala_repositories():
       jar_sha256 =
       "0dfaafce29a9a245b0a9180ec2c1073d2bd8f0330f03a9f1f6a74d1bc83f62d6",
       licenses = ["notice"],
-      server_urls = ["http://central.maven.org/maven2"],
+      server_urls = maven_servers,
   )
 
   native.maven_server(
