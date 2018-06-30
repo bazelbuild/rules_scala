@@ -61,6 +61,14 @@ test --strategy=Scalac=worker
 ```
 to your command line, or to enable by default for building/testing add it to your .bazelrc.
 
+## Bazel compatible versions
+
+| bazel | rules_scala gitsha |
+|-------|--------------------|
+| 0.15.x | HEAD |
+| 0.14.x | HEAD |
+| 0.13.x | 3c987b6ae8a453886759b132f1572c0efca2eca2 |
+
 [scala]: http://www.scala-lang.org/
 
 <a name="scala_library"></a>
@@ -104,21 +112,23 @@ In order to make a java rule use this jar file, use the `java_import` rule.
       <td>
         <p><code>List of labels, required</code></p>
         <p>List of Scala <code>.scala</code> source files used to build the
-        library</p>
+        library. These may be .srcjar jar files that contain source code.</p>
       </td>
     </tr>
     <tr>
       <td><code>deps</code></td>
       <td>
         <p><code>List of labels, optional</code></p>
-        <p>List of other libraries to linked to this library target</p>
+        <p>List of other libraries to linked to this library target.
+        These must be jvm targets (scala_library, java_library, java_import, etc...)</p>
       </td>
     </tr>
     <tr>
       <td><code>runtime_deps</code></td>
       <td>
         <p><code>List of labels, optional</code></p>
-        <p>List of other libraries to put on the classpath only at runtime. This is rarely needed in Scala.</p>
+        <p>List of other libraries to put on the classpath only at runtime. This is rarely needed in Scala.
+        These must be jvm targets (scala_library, java_library, java_import, etc...)</p>
       </td>
     </tr>
     <tr>
@@ -127,7 +137,8 @@ In order to make a java rule use this jar file, use the `java_import` rule.
         <p><code>List of labels, optional</code></p>
         <p>List of targets to add to the dependencies of those that depend on this target. Similar
         to the `java_library` parameter of the same name. Use this sparingly as it weakens the
-        precision of the build graph.</p>
+        precision of the build graph.
+        These must be jvm targets (scala_library, java_library, java_import, etc...)</p>
       </td>
     </tr>
     <tr>
@@ -260,14 +271,16 @@ A `scala_binary` requires a `main_class` attribute.
       <td><code>deps</code></td>
       <td>
         <p><code>List of labels, optional</code></p>
-        <p>List of other libraries to linked to this binary target</p>
+        <p>List of other libraries to linked to this binary target.
+        These must be jvm targets (scala_library, java_library, java_import, etc...)</p>
       </td>
     </tr>
     <tr>
       <td><code>runtime_deps</code></td>
       <td>
         <p><code>List of labels, optional</code></p>
-        <p>List of other libraries to put on the classpath only at runtime. This is rarely needed in Scala.</p>
+        <p>List of other libraries to put on the classpath only at runtime. This is rarely needed in Scala.
+        These must be jvm targets (scala_library, java_library, java_import, etc...)</p>
       </td>
     </tr>
     <tr>
@@ -621,8 +634,8 @@ Test & Build:
 ```
 bash test_all.sh
 ```
-This doesn't currently pass on OS X (see #136 for details) and so you can also use:
 
+You can also use:
 ```
 bazel test //test/...
 ```

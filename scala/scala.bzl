@@ -8,6 +8,12 @@ load(
     _scala_junit_test_impl = "scala_junit_test_impl",
 )
 
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
+
+load(
+    "@io_bazel_rules_scala//scala:scala_maven_import_external.bzl",
+    _scala_maven_import_external = "scala_maven_import_external")
+
 load(
     "@io_bazel_rules_scala//scala:providers.bzl",
     _ScalacProvider = "ScalacProvider",
@@ -23,6 +29,10 @@ load(
     "@io_bazel_rules_scala//specs2:specs2_junit.bzl",
     _specs2_junit_dependencies = "specs2_junit_dependencies")
 
+load(
+    "@io_bazel_rules_scala//scala:scala_import.bzl",
+    _scala_import = "scala_import")
+
 _launcher_template = {
     "_java_stub_template": attr.label(
         default = Label("@java_stub_template//file")),
@@ -33,11 +43,6 @@ _implicit_deps = {
         executable = True,
         cfg = "host",
         default = Label("@bazel_tools//tools/jdk:singlejar"),
-        allow_files = True),
-    "_ijar": attr.label(
-        executable = True,
-        cfg = "host",
-        default = Label("@bazel_tools//tools/jdk:ijar"),
         allow_files = True),
     "_zipper": attr.label(
         executable = True,
@@ -98,7 +103,7 @@ _common_attrs_for_plugin_bootstrapping = {
     "srcs": attr.label_list(allow_files = [".scala", ".srcjar", ".java"]),
     "deps": attr.label_list(),
     "plugins": attr.label_list(allow_files = [".jar"]),
-    "runtime_deps": attr.label_list(),
+    "runtime_deps": attr.label_list(providers = [[JavaInfo]]),
     "data": attr.label_list(allow_files = True, cfg = "data"),
     "resources": attr.label_list(allow_files = True),
     "resource_strip_prefix": attr.string(),
@@ -108,6 +113,7 @@ _common_attrs_for_plugin_bootstrapping = {
     "jvm_flags": attr.string_list(),
     "scalac_jvm_flags": attr.string_list(),
     "javac_jvm_flags": attr.string_list(),
+    "expect_java_output": attr.bool(default = True, mandatory = False),
     "print_compile_time": attr.bool(default = False, mandatory = False),
 }
 
@@ -139,9 +145,6 @@ _common_outputs = {
 
 _library_outputs = {}
 _library_outputs.update(_common_outputs)
-_library_outputs.update({
-    "ijar": "%{name}_ijar.jar",
-})
 
 _scala_library_attrs = {}
 _scala_library_attrs.update(_implicit_deps)
@@ -218,9 +221,7 @@ _scala_test_attrs = {
             "//external:io_bazel_rules_scala/dependency/scalatest/scalatest")),
     "_scalatest_runner": attr.label(
         cfg = "host",
-        default = Label("//src/java/io/bazel/rulesscala/scala_test:runner.jar"),
-        executable = True,
-        allow_files = True),
+        default = Label("//src/java/io/bazel/rulesscala/scala_test:runner")),
     "_scalatest_reporter": attr.label(
         default = Label("//scala/support:test_reporter")),
 }
@@ -252,10 +253,11 @@ scala_repl = rule(
     toolchains = ['@io_bazel_rules_scala//scala:toolchain_type'],
 )
 
-def scala_repositories(scala_version = _default_scala_version()):
+def scala_repositories(scala_version = _default_scala_version(), maven_servers = ["http://central.maven.org/maven2"]):
   major_version = _extract_major_version(scala_version)
+  version_underscore = scala_version.replace(".", "_")
 
-  _new_scala_repository("scala_default", scala_version)
+  _new_scala_repository("scala_default", scala_version, maven_servers)
 
   scala_jar_shas = {
     "2.11": {
@@ -272,33 +274,36 @@ def scala_repositories(scala_version = _default_scala_version()):
     },
   }
 
-  native.http_jar(
-      name = "scalatest",
-      url =
-      "http://central.maven.org/maven2/org/scalatest/scalatest_{major_version}/3.0.5/scalatest_{major_version}-3.0.5.jar".format(
-          major_version = major_version),
-      sha256 = scala_jar_shas[major_version]["scalatest"]
+  _scala_maven_import_external(
+      name = "io_bazel_rules_scala_scalatest",
+      artifact = "org.scalatest:scalatest_{major_version}:3.0.5".format(major_version = major_version),
+      jar_sha256 = scala_jar_shas[major_version]["scalatest"],
+      licenses = ["notice"],
+      server_urls = maven_servers,
   )
-  native.http_jar(
-      name = "scalactic",
-       url =
-       "http://central.maven.org/maven2/org/scalactic/scalactic_{major_version}/3.0.5/scalactic_{major_version}-3.0.5.jar".format(
+  _scala_maven_import_external(
+      name = "io_bazel_rules_scala_scalactic",
+      artifact = "org.scalactic:scalactci_{major_version}:3.0.5".format(
           major_version = major_version),
-      sha256 = scala_jar_shas[major_version]["scalactic"]
+      jar_sha256 = scala_jar_shas[major_version]["scalactic"],
+      licenses = ["notice"],
+      server_urls = maven_servers,
   )
-  native.http_jar(
-      name = "scala_xml",
-      url =
-      "http://central.maven.org/maven2/org/scala-lang/modules/scala-xml_{major_version}/1.0.5/scala-xml_{major_version}-1.0.5.jar".format(
-          major_version = major_version),
-      sha256 = scala_jar_shas[major_version]["scala_xml"]
+
+  _scala_maven_import_external(
+      name = "io_bazel_rules_scala_scala_xml",
+      artifact = "org.scala-lang.modules:scala-xml_{major_version}:1.0.5".format(major_version = major_version),
+      jar_sha256 = scala_jar_shas[major_version]["scala_xml"],
+      licenses = ["notice"],
+      server_urls = maven_servers,
   )
-  native.http_jar(
-      name = "scala_parser_combinators",
-      url =
-      "http://central.maven.org/maven2/org/scala-lang/modules/scala-parser-combinators_{major_version}/1.0.4/scala-parser-combinators_{major_version}-1.0.4.jar".format(
-          major_version = major_version),
-      sha256 = scala_jar_shas[major_version]["scala_parser_combinators"]
+
+  _scala_maven_import_external(
+      name = "io_bazel_rules_scala_scala_parser_combinators",
+      artifact = "org.scala-lang.modules:scala-parser-combinators_{major_version}:1.0.4".format(major_version = major_version),
+      jar_sha256 = scala_jar_shas[major_version]["scala_parser_combinators"],
+      licenses = ["notice"],
+      server_urls = maven_servers,
   )
 
   native.maven_server(
@@ -323,20 +328,20 @@ def scala_repositories(scala_version = _default_scala_version()):
   )
 
   # Template for binary launcher
-  BAZEL_JAVA_LAUNCHER_VERSION = "0.4.5"
+  BAZEL_JAVA_LAUNCHER_VERSION = "0.14.1"
   java_stub_template_url = (
       "raw.githubusercontent.com/bazelbuild/bazel/" +
       BAZEL_JAVA_LAUNCHER_VERSION +
       "/src/main/java/com/google/devtools/build/lib/bazel/rules/java/" +
       "java_stub_template.txt")
-  native.http_file(
+  http_file(
       name = "java_stub_template",
       urls = [
           "https://mirror.bazel.build/%s" % java_stub_template_url,
           "https://%s" % java_stub_template_url
       ],
       sha256 =
-      "f09d06d55cd25168427a323eb29d32beca0ded43bec80d76fc6acd8199a24489",
+      "2cbba7c512e400df0e7d4376e667724a38d1155db5baaa81b72ad785c6d761d1",
   )
 
   native.bind(
@@ -352,24 +357,24 @@ def scala_repositories(scala_version = _default_scala_version()):
       actual = "@io_bazel_rules_scala//scala/scalatest:scalatest")
 
   native.bind(
-      name = "io_bazel_rules_scala/dependency/scala/scala_xml",
-      actual = "@scala_xml//jar")
-
-  native.bind(
-      name = "io_bazel_rules_scala/dependency/scala/parser_combinators",
-      actual = "@scala_parser_combinators//jar")
-
-  native.bind(
       name = "io_bazel_rules_scala/dependency/scala/scala_compiler",
-      actual = "@scala_default_imports//:scala-compiler")
+      actual = "@io_bazel_rules_scala_scala_compiler_{}".format(version_underscore))
 
   native.bind(
       name = "io_bazel_rules_scala/dependency/scala/scala_library",
-      actual = "@scala_default_imports//:scala-library")
+      actual = "@io_bazel_rules_scala_scala_library_{}".format(version_underscore))
 
   native.bind(
       name = "io_bazel_rules_scala/dependency/scala/scala_reflect",
-      actual = "@scala_default_imports//:scala-reflect")
+      actual = "@io_bazel_rules_scala_scala_reflect_{}".format(version_underscore))
+
+  native.bind(
+      name = "io_bazel_rules_scala/dependency/scala/scala_xml",
+      actual = "@io_bazel_rules_scala_scala_xml")
+
+  native.bind(
+      name = "io_bazel_rules_scala/dependency/scala/parser_combinators",
+      actual = "@io_bazel_rules_scala_scala_parser_combinators")
 
 def _sanitize_string_for_usage(s):
   res_array = []
@@ -468,7 +473,8 @@ _scala_junit_test_attrs = {
             "//external:io_bazel_rules_scala/dependency/hamcrest/hamcrest_core")
     ),
     "_bazel_test_runner": attr.label(
-        default = Label("@bazel_tools//tools/jdk:TestRunner_deploy.jar"),
+        default = Label(
+            "@io_bazel_rules_scala//scala:bazel_test_runner_deploy"),
         allow_files = True),
 }
 _scala_junit_test_attrs.update(_launcher_template)

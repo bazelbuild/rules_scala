@@ -12,8 +12,7 @@ def _custom_jvm_impl(ctx):
 def _collect(deps):
   transitive_compile_jars = depset()
   for dep_target in deps:
-    transitive_compile_jars += dep_target[
-        java_common.provider].transitive_compile_time_jars
+    transitive_compile_jars += dep_target[JavaInfo].transitive_compile_time_jars
   return transitive_compile_jars
 
 custom_jvm = rule(

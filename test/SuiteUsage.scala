@@ -1,4 +1,4 @@
-package scala.test
+package scalarules.test
 
 
 object Usage {

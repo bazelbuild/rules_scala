@@ -47,6 +47,11 @@ class ScalacProcessor implements Processor {
       List<File> scalaJarFiles = filterFilesByExtension(jarFiles, ".scala");
       List<File> javaJarFiles = filterFilesByExtension(jarFiles, ".java");
 
+      if (!ops.expectJavaOutput && !javaJarFiles.isEmpty()) {
+        throw new RuntimeException(
+            "Found java files in source jars but expect Java output is set to false");
+      }
+
       String[] scalaSources = collectSrcJarSources(ops.files, scalaJarFiles, javaJarFiles);
 
       String[] javaSources = GenericWorker.appendToString(ops.javaFiles, javaJarFiles);
@@ -74,19 +79,6 @@ class ScalacProcessor implements Processor {
       /** Now build the output jar */
       String[] jarCreatorArgs = {"-m", ops.manifestPath, outputPath.toString(), tmpPath.toString()};
       JarCreator.main(jarCreatorArgs);
-
-      /** Now build the output ijar */
-      if (ops.iJarEnabled) {
-        Process iostat =
-            new ProcessBuilder()
-                .command(ops.ijarCmdPath, ops.outputName, ops.ijarOutput)
-                .inheritIO()
-                .start();
-        int exitCode = iostat.waitFor();
-        if (exitCode != 0) {
-          throw new RuntimeException("ijar process failed!");
-        }
-      }
     } finally {
       removeTmp(tmpPath);
     }

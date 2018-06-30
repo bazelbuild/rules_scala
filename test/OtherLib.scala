@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package scala.test
+package scalarules.test
 
 // It is just to show how a Scala library can depend on another Scala library.
 object OtherLib {

@@ -9,13 +9,11 @@ public class CompileOptions {
   public final String manifestPath;
   public final String[] scalaOpts;
   public final boolean printCompileTime;
+  public final boolean expectJavaOutput;
   public final String[] pluginArgs;
   public final String classpath;
   public final String[] files;
   public final String[] sourceJars;
-  public final boolean iJarEnabled;
-  public final String ijarOutput;
-  public final String ijarCmdPath;
   public final String[] javaFiles;
   public final Map<String, Resource> resourceFiles;
   public final String resourceStripPrefix;
@@ -36,23 +34,18 @@ public class CompileOptions {
 
     scalaOpts = getCommaList(argMap, "ScalacOpts");
     printCompileTime = booleanGetOrFalse(argMap, "PrintCompileTime");
+    expectJavaOutput = booleanGetOrTrue(argMap, "ExpectJavaOutput");
     pluginArgs = buildPluginArgs(getOrEmpty(argMap, "Plugins"));
     classpath = getOrError(argMap, "Classpath", "Must supply the classpath arg");
     files = getCommaList(argMap, "Files");
 
     javaFiles = getCommaList(argMap, "JavaFiles");
 
-    sourceJars = getCommaList(argMap, "SourceJars");
-    iJarEnabled = booleanGetOrFalse(argMap, "EnableIjar");
-    if (iJarEnabled) {
-      ijarOutput =
-          getOrError(argMap, "IjarOutput", "Missing required arg ijarOutput when ijar enabled");
-      ijarCmdPath =
-          getOrError(argMap, "IjarCmdPath", "Missing required arg ijarCmdPath when ijar enabled");
-    } else {
-      ijarOutput = null;
-      ijarCmdPath = null;
+    if (!expectJavaOutput && javaFiles.length != 0) {
+      throw new RuntimeException("Cannot hava java source files when no expected java output");
     }
+
+    sourceJars = getCommaList(argMap, "SourceJars");
     resourceFiles = getResources(argMap);
     resourceStripPrefix = getOrEmpty(argMap, "ResourceStripPrefix");
     resourceJars = getCommaList(argMap, "ResourceJars");
@@ -148,6 +141,16 @@ public class CompileOptions {
       }
     }
     return false;
+  }
+
+  private static boolean booleanGetOrTrue(Map<String, String> m, String k) {
+    if (m.containsKey(k)) {
+      String v = m.get(k);
+      if (v.trim().equals("False") || v.trim().equals("false")) {
+        return false;
+      }
+    }
+    return true;
   }
 
   public static String[] buildPluginArgs(String packedPlugins) {

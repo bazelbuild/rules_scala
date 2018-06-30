@@ -5,7 +5,7 @@ scala_import(
     name = "scalatest",
     jars = [],
     exports = [
-        "@scalactic//jar",
-        "@scalatest//jar"
+        "@io_bazel_rules_scala_scalatest",
+        "@io_bazel_rules_scala_scalactic",
     ],
 )
