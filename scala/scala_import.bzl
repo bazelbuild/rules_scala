@@ -22,8 +22,7 @@ def _scala_import_impl(ctx):
                     ),
       jars_to_labels = jars2labels,
       providers = [
-          _create_provider(current_jars, transitive_runtime_jars, jars,
-                           exports,
+          _create_provider(current_jars, transitive_runtime_jars, jars, exports,
                            ctx.attr.neverlink),
           DefaultInfo(files = current_jars,
                      ),
