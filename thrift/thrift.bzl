@@ -148,7 +148,10 @@ thrift_library = rule(
         "absolute_prefixes": attr.string_list(),
         # This is a list of JARs which only Thrift files
         # these files WILL be compiled as part of the current target
-        "external_jars": attr.label_list(allow_files = [".jar"]),
+        "external_jars": attr.label_list(allow_files = [".jar"], default = [
+            "//external:io_bazel_rules_scala/dependency/thrift/util_core",
+            "//external:io_bazel_rules_scala/dependency/thrift/util_logging",
+        ]),
         "_zipper": attr.label(
             executable = True,
             cfg = "host",

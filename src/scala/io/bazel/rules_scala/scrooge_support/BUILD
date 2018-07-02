@@ -11,6 +11,10 @@ scala_library(
         "//external:io_bazel_rules_scala/dependency/thrift/util_core",
         "//external:io_bazel_rules_scala/dependency/thrift/util_logging",
     ],
+    exports = [
+        "//external:io_bazel_rules_scala/dependency/thrift/util_core",
+        "//external:io_bazel_rules_scala/dependency/thrift/util_logging",
+        ]
 )
 
 scala_library(
