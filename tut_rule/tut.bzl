@@ -13,17 +13,18 @@ def tut_repositories(scala_version = _default_scala_version()):
   major_version = _extract_major_version(scala_version)
 
   scala_jar_shas = {
-    "2.11": {
-        "tut_core": "edab4e9963dd7dbab1a8bfff2ef087eb6b6882804dfb3a2641895c958a62ba89",
-    },
-    "2.12": {
-        "tut_core": "767735128b6d5694d59ccb3bd1f5544a05d83146577121bcf7b6a32327adf281",
-    },
+      "2.11": {
+          "tut_core": "edab4e9963dd7dbab1a8bfff2ef087eb6b6882804dfb3a2641895c958a62ba89",
+      },
+      "2.12": {
+          "tut_core": "767735128b6d5694d59ccb3bd1f5544a05d83146577121bcf7b6a32327adf281",
+      },
   }
 
   _scala_maven_import_external(
       name = "io_bazel_rules_scala_org_tpolecat_tut_core",
-      artifact = scala_mvn_artifact("org.tpolecat:tut-core:0.4.8", major_version),
+      artifact = scala_mvn_artifact("org.tpolecat:tut-core:0.4.8",
+                                    major_version),
       jar_sha256 = scala_jar_shas[major_version]["tut_core"],
       licenses = ["notice"],
       server_urls = ["https://dl.bintray.com/tpolecat/maven/"],

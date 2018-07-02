@@ -15,7 +15,6 @@
 load(
     "@io_bazel_rules_scala//scala:scala_maven_import_external.bzl",
     _scala_maven_import_external = "scala_maven_import_external")
-
 """Helper functions for Scala cross-version support. Encapsulates the logic
 of abstracting over Scala major version (2.11, 2.12, etc) for dependency
 resolution."""
@@ -23,6 +22,13 @@ resolution."""
 def default_scala_version():
   """return the scala version for use in maven coordinates"""
   return "2.11.11"
+
+def default_scala_version_jar_shas():
+  return {
+      "scala_compiler": "5f929ed57c515ef9545497374eec88ffd129b8f04079dedb7e32107104325cdd",
+      "scala_library": "f2ba1550a39304e5d06caaddfa226cdf0a4cbccee189828fa8c1ddf1110c4872",
+      "scala_reflect": "73aef1a6ccabd3a3c15cc153ec846e12d0f045587a2a1d88cc1b49293f47cb20",
+  }
 
 def scala_mvn_artifact(artifact, major_scala_version):
   """Add scala version to maven artifact"""
@@ -42,7 +48,7 @@ def extract_major_version_underscore(scala_version):
   return extract_major_version(scala_version).replace(".", "_")
 
 def default_scala_major_version():
-    return extract_major_version(default_scala_version())
+  return extract_major_version(default_scala_version())
 
 def _generate_scalac_build_file_impl(repository_ctx):
   scalac_worker_srcs = [
@@ -104,35 +110,36 @@ _generate_scalac_build_file = repository_rule(
         "version_underscore": attr.string(),
     })
 
-def new_scala_repository(name, version, maven_servers):
-  version_underscore = version.replace(".", "_")
+def new_scala_repository(name, scala_version, scala_version_jar_shas,
+                         maven_servers):
+  scala_version_underscore = scala_version.replace(".", "_")
 
   _scala_maven_import_external(
-      name = "io_bazel_rules_scala_scala_library_{}".format(version_underscore),
-      artifact = "org.scala-lang:scala-library:{}".format(version),
-      #jar_sha256 =
-      #"0b3d6fd42958ee98715ba2ec5fe221f4ca1e694d7c981b0ae0cd68e97baf6dce",
+      name = "io_bazel_rules_scala_scala_library_{}".format(
+          scala_version_underscore),
+      artifact = "org.scala-lang:scala-library:{}".format(scala_version),
+      jar_sha256 = scala_version_jar_shas["scala_library"],
       licenses = ["notice"],
       server_urls = maven_servers,
   )
   _scala_maven_import_external(
-      name = "io_bazel_rules_scala_scala_compiler_{}".format(version_underscore),
-      artifact = "org.scala-lang:scala-compiler:{}".format(version),
-      #jar_sha256 =
-      #"3e892546b72ab547cb77de4d840bcfd05c853e73390fed7370a8f19acb0735a0",
+      name = "io_bazel_rules_scala_scala_compiler_{}".format(
+          scala_version_underscore),
+      artifact = "org.scala-lang:scala-compiler:{}".format(scala_version),
+      jar_sha256 = scala_version_jar_shas["scala_compiler"],
       licenses = ["notice"],
       server_urls = maven_servers,
   )
   _scala_maven_import_external(
-      name = "io_bazel_rules_scala_scala_reflect_{}".format(version_underscore),
-      artifact = "org.scala-lang:scala-reflect:{}".format(version),
-      jar_sha256 =
-      "6ba385b450a6311a15c918cf8688b9af9327c6104f0ecbd35933cfcd3095fe04",
+      name = "io_bazel_rules_scala_scala_reflect_{}".format(
+          scala_version_underscore),
+      artifact = "org.scala-lang:scala-reflect:{}".format(scala_version),
+      jar_sha256 = scala_version_jar_shas["scala_reflect"],
       licenses = ["notice"],
       server_urls = maven_servers,
   )
 
   _generate_scalac_build_file(
       name = name,
-      version_underscore = version_underscore,
+      version_underscore = scala_version_underscore,
       visibility = ["//visibility:public"])

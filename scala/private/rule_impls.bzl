@@ -230,9 +230,10 @@ StatsfileOutput: {statsfile_output}
       tools = [scalac_provider.scalac])
 
   outs = [output, statsfile]
-  ins = (compiler_classpath_jars.to_list() + all_srcjars.to_list() +
-         list(sources) + plugins_list + dependency_analyzer_plugin_jars +
-         classpath_resources + resources + resource_jars + [manifest, argfile] + scalac_inputs)
+  ins = (
+      compiler_classpath_jars.to_list() + all_srcjars.to_list() + list(sources)
+      + plugins_list + dependency_analyzer_plugin_jars + classpath_resources +
+      resources + resource_jars + [manifest, argfile] + scalac_inputs)
 
   ctx.actions.run(
       inputs = ins,
