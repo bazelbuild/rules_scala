@@ -307,6 +307,9 @@ scrooge_aspect = aspect(
                 Label(
                     "//external:io_bazel_rules_scala/dependency/thrift/scrooge_core"
                 ),
+                Label(
+                    "//external:io_bazel_rules_scala/dependency/thrift/util_core"
+                ),
             ]),
     },
     required_aspect_providers = [[ThriftInfo],
