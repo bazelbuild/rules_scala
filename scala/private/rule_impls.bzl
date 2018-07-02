@@ -197,7 +197,10 @@ StatsfileOutput: {statsfile_output}
 """.format(
       out = output.path,
       manifest = manifest.path,
-      scala_opts = ",".join(scalacopts),
+      # always append -YdisableFlatCpCaching, workaround for
+      # https://github.com/bazelbuild/rules_scala/issues/305
+      # remove once we upgrade to Scala 2.12.4
+      scala_opts = ",".join(scalacopts + ["-YdisableFlatCpCaching"]),
       print_compile_time = print_compile_time,
       expect_java_output = expect_java_output,
       plugin_arg = plugin_arg,

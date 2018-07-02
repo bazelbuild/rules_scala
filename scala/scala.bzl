@@ -260,51 +260,61 @@ scala_repl = rule(
 def scala_repositories(maven_servers = ["http://central.maven.org/maven2"]):
   _scala_maven_import_external(
       name = "io_bazel_rules_scala_scala_library",
-      artifact = "org.scala-lang:scala-library:2.11.12",
+      artifact = "org.scala-lang:scala-library:2.12.6",
       jar_sha256 =
-      "0b3d6fd42958ee98715ba2ec5fe221f4ca1e694d7c981b0ae0cd68e97baf6dce",
+      "f81d7144f0ce1b8123335b72ba39003c4be2870767aca15dd0888ba3dab65e98",
       licenses = ["notice"],
       server_urls = maven_servers,
   )
   _scala_maven_import_external(
       name = "io_bazel_rules_scala_scala_compiler",
-      artifact = "org.scala-lang:scala-compiler:2.11.12",
+      artifact = "org.scala-lang:scala-compiler:2.12.6",
       jar_sha256 =
-      "3e892546b72ab547cb77de4d840bcfd05c853e73390fed7370a8f19acb0735a0",
+      "3023b07cc02f2b0217b2c04f8e636b396130b3a8544a8dfad498a19c3e57a863",
       licenses = ["notice"],
       server_urls = maven_servers,
   )
   _scala_maven_import_external(
       name = "io_bazel_rules_scala_scala_reflect",
-      artifact = "org.scala-lang:scala-reflect:2.11.12",
+      artifact = "org.scala-lang:scala-reflect:2.12.6",
       jar_sha256 =
-      "6ba385b450a6311a15c918cf8688b9af9327c6104f0ecbd35933cfcd3095fe04",
+      "ffa70d522fc9f9deec14358aa674e6dd75c9dfa39d4668ef15bb52f002ce99fa",
       licenses = ["notice"],
       server_urls = maven_servers,
   )
+
   _scala_maven_import_external(
       name = "io_bazel_rules_scala_scalatest",
-      artifact = "org.scalatest:scalatest_2.11:2.2.6",
+      artifact = "org.scalatest:scalatest_2.12:3.0.3",
       jar_sha256 =
-      "f198967436a5e7a69cfd182902adcfbcb9f2e41b349e1a5c8881a2407f615962",
+        "353f7c2bdde22c4286ee6a3ae0e425a9463b102f4c4cf76055a24f4666996762",
+      licenses = ["notice"],
+      server_urls = maven_servers,
+  )
+
+  _scala_maven_import_external(
+      name = "io_bazel_rules_scala_scalactic",
+      artifact = "org.scalactic:scalactic_2.12:3.0.3",
+      jar_sha256 =
+      "245ad1baab6661aee70c137c5e1625771c2624596b349b305801d94618673292",
       licenses = ["notice"],
       server_urls = maven_servers,
   )
 
   _scala_maven_import_external(
       name = "io_bazel_rules_scala_scala_xml",
-      artifact = "org.scala-lang.modules:scala-xml_2.11:1.0.5",
+      artifact = "org.scala-lang.modules:scala-xml_2.12:1.0.6",
       jar_sha256 =
-      "767e11f33eddcd506980f0ff213f9d553a6a21802e3be1330345f62f7ee3d50f",
+      "7cc3b6ceb56e879cb977e8e043f4bfe2e062f78795efd7efa09f85003cb3230a",
       licenses = ["notice"],
       server_urls = maven_servers,
   )
 
   _scala_maven_import_external(
       name = "io_bazel_rules_scala_scala_parser_combinators",
-      artifact = "org.scala-lang.modules:scala-parser-combinators_2.11:1.0.4",
+      artifact = "org.scala-lang.modules:scala-parser-combinators_2.12:1.0.6",
       jar_sha256 =
-      "0dfaafce29a9a245b0a9180ec2c1073d2bd8f0330f03a9f1f6a74d1bc83f62d6",
+      "c9dd59ef2231b73e2a415885bd9c5e4f9e593cd84c0d5a104d6722ce0294349d",
       licenses = ["notice"],
       server_urls = maven_servers,
   )
@@ -377,7 +387,7 @@ def scala_repositories(maven_servers = ["http://central.maven.org/maven2"]):
 
   native.bind(
       name = "io_bazel_rules_scala/dependency/scalatest/scalatest",
-      actual = "@io_bazel_rules_scala_scalatest")
+      actual = "//scalatest")
 
 def _sanitize_string_for_usage(s):
   res_array = []

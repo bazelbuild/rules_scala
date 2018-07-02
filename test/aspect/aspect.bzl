@@ -28,7 +28,7 @@ def _rule_impl(ctx):
       "scala_test": [
           "//test/aspect:scala_test",
           "@io_bazel_rules_scala_scala_library//:io_bazel_rules_scala_scala_library",
-          "@io_bazel_rules_scala_scalatest//:io_bazel_rules_scala_scalatest",
+          "//scalatest:scalatest",
       ],
       "scala_junit_test": [
           "//test/aspect:scala_junit_test",
@@ -48,7 +48,7 @@ def _rule_impl(ctx):
           "@io_bazel_rules_scala_scala_library//:io_bazel_rules_scala_scala_library",
           "@io_bazel_rules_scala_scala_reflect//:io_bazel_rules_scala_scala_reflect",
           # From specs2/specs2_junit.bzl:specs2_junit_dependencies()
-          "@io_bazel_rules_scala_org_specs2_specs2_junit_2_11//jar:jar",
+          "@io_bazel_rules_scala_org_specs2_specs2_junit_2_12//jar:jar",
       ],
   }
   content = ""
