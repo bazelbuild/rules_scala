@@ -259,7 +259,6 @@ def scala_repositories(
     scala_version_jar_shas = _default_scala_version_jar_shas(),
     maven_servers = ["http://central.maven.org/maven2"]):
   major_version = _extract_major_version(scala_version)
-  version_underscore = scala_version.replace(".", "_")
 
   _new_scala_repository(
       name = "io_bazel_rules_scala_scala_default",
@@ -267,7 +266,7 @@ def scala_repositories(
       scala_version_jar_shas = scala_version_jar_shas,
       maven_servers = maven_servers)
 
-  scala_jar_shas = {
+  scala_extra_jar_shas = {
       "2.11": {
           "scalatest": "2aafeb41257912cbba95f9d747df9ecdc7ff43f039d35014b4c2a8eb7ed9ba2f",
           "scalactic": "84723064f5716f38990fe6e65468aa39700c725484efceef015771d267341cf2",
@@ -282,11 +281,13 @@ def scala_repositories(
       },
   }
 
+  scala_version_extra_jar_shas = scala_extra_jar_shas[major_version]
+
   _scala_maven_import_external(
       name = "io_bazel_rules_scala_scalatest",
       artifact = "org.scalatest:scalatest_{major_version}:3.0.5".format(
           major_version = major_version),
-      jar_sha256 = scala_jar_shas[major_version]["scalatest"],
+      jar_sha256 = scala_version_extra_jar_shas["scalatest"],
       licenses = ["notice"],
       server_urls = maven_servers,
   )
@@ -294,7 +295,7 @@ def scala_repositories(
       name = "io_bazel_rules_scala_scalactic",
       artifact = "org.scalactic:scalactic_{major_version}:3.0.5".format(
           major_version = major_version),
-      jar_sha256 = scala_jar_shas[major_version]["scalactic"],
+      jar_sha256 = scala_version_extra_jar_shas["scalactic"],
       licenses = ["notice"],
       server_urls = maven_servers,
   )
@@ -303,7 +304,7 @@ def scala_repositories(
       name = "io_bazel_rules_scala_scala_xml",
       artifact = "org.scala-lang.modules:scala-xml_{major_version}:1.0.5".
       format(major_version = major_version),
-      jar_sha256 = scala_jar_shas[major_version]["scala_xml"],
+      jar_sha256 = scala_version_extra_jar_shas["scala_xml"],
       licenses = ["notice"],
       server_urls = maven_servers,
   )
@@ -313,7 +314,7 @@ def scala_repositories(
       artifact =
       "org.scala-lang.modules:scala-parser-combinators_{major_version}:1.0.4".
       format(major_version = major_version),
-      jar_sha256 = scala_jar_shas[major_version]["scala_parser_combinators"],
+      jar_sha256 = scala_version_extra_jar_shas["scala_parser_combinators"],
       licenses = ["notice"],
       server_urls = maven_servers,
   )
@@ -371,17 +372,17 @@ def scala_repositories(
   native.bind(
       name = "io_bazel_rules_scala/dependency/scala/scala_compiler",
       actual = "@io_bazel_rules_scala_scala_compiler_{}".format(
-          version_underscore))
+          scala_version.replace(".", "_")))
 
   native.bind(
       name = "io_bazel_rules_scala/dependency/scala/scala_library",
       actual = "@io_bazel_rules_scala_scala_library_{}".format(
-          version_underscore))
+          scala_version.replace(".", "_")))
 
   native.bind(
       name = "io_bazel_rules_scala/dependency/scala/scala_reflect",
       actual = "@io_bazel_rules_scala_scala_reflect_{}".format(
-          version_underscore))
+          scala_version.replace(".", "_")))
 
   native.bind(
       name = "io_bazel_rules_scala/dependency/scala/scala_xml",
