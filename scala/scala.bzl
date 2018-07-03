@@ -58,7 +58,7 @@ _implicit_deps = {
     "_java_runtime": attr.label(
         default = Label("@bazel_tools//tools/jdk:current_java_runtime")),
     "_scalac": attr.label(
-        default = Label("@scala_default"), providers = [_ScalacProvider])
+        default = Label("@io_bazel_rules_scala_scala_default"), providers = [_ScalacProvider])
 }
 
 # Single dep to allow IDEs to pickup all the implicit dependencies.
@@ -262,7 +262,7 @@ def scala_repositories(
   version_underscore = scala_version.replace(".", "_")
 
   _new_scala_repository(
-      name = "scala_default",
+      name = "io_bazel_rules_scala_scala_default",
       scala_version = scala_version,
       scala_version_jar_shas = scala_version_jar_shas,
       maven_servers = maven_servers)
