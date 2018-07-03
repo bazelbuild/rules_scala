@@ -496,13 +496,13 @@ scala_specs2_junit_test_test_filter_one_test(){
   if ! grep "$expected" <<<$output; then
     echo "output:"
     echo "$output"
-    echo "Expected $method in output, but was not found."
+    echo "Expected $expected in output, but was not found."
     exit 1
   fi
   if grep "$unexpected" <<<$output; then
     echo "output:"
     echo "$output"
-    echo "Not expecting $method in output, but was found."
+    echo "Not expecting $unexpected in output, but was found."
     exit 1
   fi
 }
@@ -518,13 +518,13 @@ scala_specs2_junit_test_test_filter_exact_match(){
   if ! grep "$expected" <<<$output; then
     echo "output:"
     echo "$output"
-    echo "Expected $method in output, but was not found."
+    echo "Expected $expected in output, but was not found."
     exit 1
   fi
   if grep "$unexpected" <<<$output; then
     echo "output:"
     echo "$output"
-    echo "Not expecting $method in output, but was found."
+    echo "Not expecting $unexpected in output, but was found."
     exit 1
   fi
 }
@@ -540,13 +540,13 @@ scala_specs2_junit_test_test_filter_exact_match_unsafe_characters(){
   if ! grep "$expected" <<<$output; then
     echo "output:"
     echo "$output"
-    echo "Expected $method in output, but was not found."
+    echo "Expected $expected in output, but was not found."
     exit 1
   fi
   if grep "$unexpected" <<<$output; then
     echo "output:"
     echo "$output"
-    echo "Not expecting $method in output, but was found."
+    echo "Not expecting $unexpected in output, but was found."
     exit 1
   fi
 }
@@ -562,13 +562,13 @@ scala_specs2_junit_test_test_filter_exact_match_escaped_and_sanitized(){
   if ! grep "$expected" <<<$output; then
     echo "output:"
     echo "$output"
-    echo "Expected $method in output, but was not found."
+    echo "Expected $expected in output, but was not found."
     exit 1
   fi
   if grep "$unexpected" <<<$output; then
     echo "output:"
     echo "$output"
-    echo "Not expecting $method in output, but was found."
+    echo "Not expecting $unexpected in output, but was found."
     exit 1
   fi
 }
