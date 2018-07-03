@@ -62,11 +62,13 @@ def scala_proto_repositories(
       },
   }
 
+  scala_version_jar_shas = scala_jar_shas[major_version]
+
   _scala_maven_import_external(
       name = "scala_proto_rules_scalapb_plugin",
       artifact = _scala_mvn_artifact(
           "com.trueaccord.scalapb:compilerplugin:0.6.5", major_version),
-      jar_sha256 = scala_jar_shas[major_version]["scalapb_plugin"],
+      jar_sha256 = scala_version_jar_shas["scalapb_plugin"],
       licenses = ["notice"],
       server_urls = maven_servers)
 
@@ -78,7 +80,7 @@ def scala_proto_repositories(
       name = "scala_proto_rules_protoc_bridge",
       artifact = _scala_mvn_artifact(
           "com.trueaccord.scalapb:protoc-bridge:0.3.0-M1", major_version),
-      jar_sha256 = scala_jar_shas[major_version]["protoc_bridge"],
+      jar_sha256 = scala_version_jar_shas["protoc_bridge"],
       licenses = ["notice"],
       server_urls = maven_servers)
 
@@ -90,7 +92,7 @@ def scala_proto_repositories(
       name = "scala_proto_rules_scalapbc",
       artifact = _scala_mvn_artifact("com.trueaccord.scalapb:scalapbc:0.6.5",
                                      major_version),
-      jar_sha256 = scala_jar_shas[major_version]["scalapbc"],
+      jar_sha256 = scala_version_jar_shas["scalapbc"],
       licenses = ["notice"],
       server_urls = maven_servers)
   native.bind(
@@ -101,7 +103,7 @@ def scala_proto_repositories(
       name = "scala_proto_rules_scalapb_runtime",
       artifact = _scala_mvn_artifact(
           "com.trueaccord.scalapb:scalapb-runtime:0.6.5", major_version),
-      jar_sha256 = scala_jar_shas[major_version]["scalapb_runtime"],
+      jar_sha256 = scala_version_jar_shas["scalapb_runtime"],
       licenses = ["notice"],
       server_urls = maven_servers)
   native.bind(
@@ -112,7 +114,7 @@ def scala_proto_repositories(
       name = "scala_proto_rules_scalapb_runtime_grpc",
       artifact = _scala_mvn_artifact(
           "com.trueaccord.scalapb:scalapb-runtime-grpc:0.6.5", major_version),
-      jar_sha256 = scala_jar_shas[major_version]["scalapb_runtime_grpc"],
+      jar_sha256 = scala_version_jar_shas["scalapb_runtime_grpc"],
       licenses = ["notice"],
       server_urls = maven_servers)
   native.bind(
@@ -123,7 +125,7 @@ def scala_proto_repositories(
       name = "scala_proto_rules_scalapb_lenses",
       artifact = _scala_mvn_artifact("com.trueaccord.lenses:lenses:0.4.12",
                                      major_version),
-      jar_sha256 = scala_jar_shas[major_version]["scalapb_lenses"],
+      jar_sha256 = scala_version_jar_shas["scalapb_lenses"],
       licenses = ["notice"],
       server_urls = maven_servers)
   native.bind(
@@ -134,7 +136,7 @@ def scala_proto_repositories(
       name = "scala_proto_rules_scalapb_fastparse",
       artifact = _scala_mvn_artifact("com.lihaoyi:fastparse:0.4.4",
                                      major_version),
-      jar_sha256 = scala_jar_shas[major_version]["scalapb_fastparse"],
+      jar_sha256 = scala_version_jar_shas["scalapb_fastparse"],
       licenses = ["notice"],
       server_urls = maven_servers)
 

@@ -32,11 +32,13 @@ def specs2_repositories(scala_version = _default_scala_version(),
       },
   }
 
+  scala_version_jar_shas = scala_jar_shas[major_version]
+
   _scala_maven_import_external(
       name = "io_bazel_rules_scala_org_specs2_specs2_core",
       artifact = _scala_mvn_artifact(
           "org.specs2:specs2-core:" + specs2_version(), major_version),
-      jar_sha256 = scala_jar_shas[major_version]["specs2_core"],
+      jar_sha256 = scala_version_jar_shas["specs2_core"],
       licenses = ["notice"],
       server_urls = maven_servers,
   )
@@ -45,7 +47,7 @@ def specs2_repositories(scala_version = _default_scala_version(),
       name = "io_bazel_rules_scala_org_specs2_specs2_common",
       artifact = _scala_mvn_artifact(
           "org.specs2:specs2-common:" + specs2_version(), major_version),
-      jar_sha256 = scala_jar_shas[major_version]["specs2_common"],
+      jar_sha256 = scala_version_jar_shas["specs2_common"],
       licenses = ["notice"],
       server_urls = maven_servers,
   )
@@ -54,7 +56,7 @@ def specs2_repositories(scala_version = _default_scala_version(),
       name = "io_bazel_rules_scala_org_specs2_specs2_matcher",
       artifact = _scala_mvn_artifact(
           "org.specs2:specs2-matcher:" + specs2_version(), major_version),
-      jar_sha256 = scala_jar_shas[major_version]["specs2_matcher"],
+      jar_sha256 = scala_version_jar_shas["specs2_matcher"],
       licenses = ["notice"],
       server_urls = maven_servers,
   )
@@ -63,7 +65,7 @@ def specs2_repositories(scala_version = _default_scala_version(),
       name = "io_bazel_rules_scala_org_scalaz_scalaz_effect",
       artifact = _scala_mvn_artifact("org.scalaz:scalaz-effect:7.2.7",
                                      major_version),
-      jar_sha256 = scala_jar_shas[major_version]["scalaz_effect"],
+      jar_sha256 = scala_version_jar_shas["scalaz_effect"],
       licenses = ["notice"],
       server_urls = maven_servers,
   )
@@ -72,7 +74,7 @@ def specs2_repositories(scala_version = _default_scala_version(),
       name = "io_bazel_rules_scala_org_scalaz_scalaz_core",
       artifact = _scala_mvn_artifact("org.scalaz:scalaz-core:7.2.7",
                                      major_version),
-      jar_sha256 = scala_jar_shas[major_version]["scalaz_core"],
+      jar_sha256 = scala_version_jar_shas["scalaz_core"],
       licenses = ["notice"],
       server_urls = maven_servers,
   )
