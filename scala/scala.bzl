@@ -292,7 +292,7 @@ def scala_repositories(
   )
   _scala_maven_import_external(
       name = "io_bazel_rules_scala_scalactic",
-      artifact = "org.scalactic:scalactci_{major_version}:3.0.5".format(
+      artifact = "org.scalactic:scalactic_{major_version}:3.0.5".format(
           major_version = major_version),
       jar_sha256 = scala_jar_shas[major_version]["scalactic"],
       licenses = ["notice"],

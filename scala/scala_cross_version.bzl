@@ -21,13 +21,13 @@ resolution."""
 
 def default_scala_version():
   """return the scala version for use in maven coordinates"""
-  return "2.11.11"
+  return "2.11.12"
 
 def default_scala_version_jar_shas():
   return {
-      "scala_compiler": "5f929ed57c515ef9545497374eec88ffd129b8f04079dedb7e32107104325cdd",
-      "scala_library": "f2ba1550a39304e5d06caaddfa226cdf0a4cbccee189828fa8c1ddf1110c4872",
-      "scala_reflect": "73aef1a6ccabd3a3c15cc153ec846e12d0f045587a2a1d88cc1b49293f47cb20",
+      "scala_compiler": "3e892546b72ab547cb77de4d840bcfd05c853e73390fed7370a8f19acb0735a0",
+      "scala_library": "0b3d6fd42958ee98715ba2ec5fe221f4ca1e694d7c981b0ae0cd68e97baf6dce",
+      "scala_reflect": "6ba385b450a6311a15c918cf8688b9af9327c6104f0ecbd35933cfcd3095fe04",
   }
 
 def scala_mvn_artifact(artifact, major_scala_version):
