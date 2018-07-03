@@ -489,16 +489,18 @@ def _collect_jars_from_common_ctx(ctx,
   dependency_analyzer_is_off = is_dependency_analyzer_off(ctx)
 
   default_cjars = [d[JavaInfo].compile_jars for d in default_compile_classpath]
-  default_transitive_rjars = [d[JavaInfo].transitive_runtime_jars for d in default_runtime_classpath]
+  default_transitive_rjars = [
+      d[JavaInfo].transitive_runtime_jars for d in default_runtime_classpath
+  ]
 
   deps_jars = collect_jars(ctx.attr.deps + extra_deps,
                            dependency_analyzer_is_off)
 
-  (cjars, transitive_rjars, jars2labels,
-   transitive_compile_jars) = (depset(transitive = [deps_jars.compile_jars] + default_cjars),
-                               depset(transitive = [deps_jars.transitive_runtime_jars] + default_transitive_rjars),
-                               deps_jars.jars2labels,
-                               deps_jars.transitive_compile_jars)
+  (cjars, transitive_rjars, jars2labels, transitive_compile_jars) = (
+      depset(transitive = [deps_jars.compile_jars] + default_cjars),
+      depset(transitive = [deps_jars.transitive_runtime_jars] +
+             default_transitive_rjars), deps_jars.jars2labels,
+      deps_jars.transitive_compile_jars)
 
   transitive_rjars = depset(
       transitive = [transitive_rjars] +
@@ -510,9 +512,7 @@ def _collect_jars_from_common_ctx(ctx,
       jars2labels = jars2labels,
       transitive_compile_jars = transitive_compile_jars)
 
-def _lib(ctx,
-         default_compile_classpath,
-         default_runtime_classpath,
+def _lib(ctx, default_compile_classpath, default_runtime_classpath,
          non_macro_lib):
   # Build up information from dependency-like attributes
 
@@ -520,8 +520,7 @@ def _lib(ctx,
   # targets (like thrift code generation)
   srcjars = collect_srcjars(ctx.attr.deps)
 
-  jars = _collect_jars_from_common_ctx(ctx,
-                                       default_compile_classpath,
+  jars = _collect_jars_from_common_ctx(ctx, default_compile_classpath,
                                        default_runtime_classpath)
   (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
 
@@ -569,15 +568,12 @@ def _lib(ctx,
 
 def scala_library_impl(ctx):
   scalac_provider = ctx.attr._scalac[_ScalacProvider]
-  return _lib(ctx,
-              scalac_provider.default_compile_classpath,
-              scalac_provider.default_runtime_classpath,
-              True)
+  return _lib(ctx, scalac_provider.default_compile_classpath,
+              scalac_provider.default_runtime_classpath, True)
 
 def scala_macro_library_impl(ctx):
   scalac_provider = ctx.attr._scalac[_ScalacProvider]
-  return _lib(ctx,
-              scalac_provider.default_macro_classpath,
+  return _lib(ctx, scalac_provider.default_macro_classpath,
               scalac_provider.default_macro_classpath,
               False)  # don't build the ijar for macros
 
@@ -626,9 +622,9 @@ def _scala_binary_common(ctx,
 
 def scala_binary_impl(ctx):
   scalac_provider = ctx.attr._scalac[_ScalacProvider]
-  jars = _collect_jars_from_common_ctx(ctx,
-                                       scalac_provider.default_compile_classpath,
-                                       scalac_provider.default_runtime_classpath)
+  jars = _collect_jars_from_common_ctx(
+      ctx, scalac_provider.default_compile_classpath,
+      scalac_provider.default_runtime_classpath)
   (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
 
   wrapper = _write_java_wrapper(ctx, "", "")
