@@ -134,7 +134,7 @@ def compile_scala(ctx, target_label, output, manifest, statsfile, sources,
                   cjars, all_srcjars, transitive_compile_jars, plugins,
                   resource_strip_prefix, resources, resource_jars, labels,
                   in_scalacopts, print_compile_time, expect_java_output,
-                  scalac_jvm_flags):
+                  scalac_jvm_flags, scalac_provider):
   # look for any plugins:
   plugins = _collect_plugin_paths(plugins)
   dependency_analyzer_plugin_jars = []
@@ -225,7 +225,6 @@ StatsfileOutput: {statsfile_output}
   ctx.actions.write(
       output = argfile, content = scalac_args + optional_scalac_args)
 
-  scalac_provider = ctx.attr._scalac[_ScalacProvider]
   scalac_inputs, _, scalac_input_manifests = ctx.resolve_command(
       tools = [scalac_provider.scalac])
 
@@ -336,7 +335,7 @@ def _compile_or_empty(ctx, manifest, jars, srcjars, buildijar,
                   ctx.attr.resource_strip_prefix, ctx.files.resources,
                   ctx.files.resource_jars, jars2labels, ctx.attr.scalacopts,
                   ctx.attr.print_compile_time, ctx.attr.expect_java_output,
-                  ctx.attr.scalac_jvm_flags)
+                  ctx.attr.scalac_jvm_flags, ctx.attr._scalac[_ScalacProvider])
 
     # build ijar if needed
     if buildijar:

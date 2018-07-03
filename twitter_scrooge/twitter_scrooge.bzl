@@ -213,7 +213,8 @@ def _compile_scala(ctx, label, output, scrooge_jar, deps_java_info,
       in_scalacopts = [],
       print_compile_time = False,
       expect_java_output = False,
-      scalac_jvm_flags = [])
+      scalac_jvm_flags = [],
+      scalac_provider = ctx.attr._scalac[_ScalacProvider])
 
   return java_common.create_provider(
       use_ijar = False,
