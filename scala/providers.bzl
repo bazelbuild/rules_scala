@@ -29,18 +29,20 @@ ScalacProvider = provider(
     doc = "ScalaProvider",
     fields = [
         "scalac",
-        "scalalib",
-        "scalareflect",
-        "scalacompiler",
+        "default_compile_classpath",
+        "default_runtime_classpath",
+        "default_macro_classpath",
+        "default_repl_classpath",
     ])
 
 def _declare_scalac_provider(ctx):
   return [
       ScalacProvider(
           scalac = ctx.attr.scalac,
-          scalalib = ctx.attr.scalalib,
-          scalareflect = ctx.attr.scalareflect,
-          scalacompiler = ctx.attr.scalacompiler,
+          default_compile_classpath = ctx.attr.default_compile_classpath,
+          default_runtime_classpath = ctx.attr.default_runtime_classpath,
+          default_repl_classpath = ctx.attr.default_repl_classpath,
+          default_macro_classpath = ctx.attr.default_macro_classpath,
       )
   ]
 
@@ -52,8 +54,8 @@ declare_scalac_provider = rule(
             cfg = "host",
             allow_files = True,
             mandatory = True),
-        "scalalib": attr.label(mandatory = True, allow_files = True),
-        "scalareflect": attr.label(mandatory = True, allow_files = True),
-        "scalacompiler": attr.label(mandatory = True, allow_files = True),
-        "scalaxml": attr.label(mandatory = True, allow_files = True)
+        "default_compile_classpath": attr.label_list(allow_files = True),
+        "default_runtime_classpath": attr.label_list(allow_files = True),
+        "default_repl_classpath": attr.label_list(allow_files = True),
+        "default_macro_classpath": attr.label_list(allow_files = True),
     })

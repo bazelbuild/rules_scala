@@ -92,10 +92,18 @@ java_binary(
 _declare_scalac_provider(
     name = "{name}",
     scalac = "@{name}//:scalac_worker",
-    scalalib = "@io_bazel_rules_scala_scala_library_{version_underscore}",
-    scalareflect = "@io_bazel_rules_scala_scala_reflect_{version_underscore}",
-    scalaxml = "@io_bazel_rules_scala_scala_xml",
-    scalacompiler = "@io_bazel_rules_scala_scala_compiler_{version_underscore}",
+    #scalacompiler = "@io_bazel_rules_scala_scala_compiler_{version_underscore}",
+    default_compile_classpath = ["@io_bazel_rules_scala_scala_library_{version_underscore}"],
+    default_runtime_classpath = ["@io_bazel_rules_scala_scala_library_{version_underscore}"],
+    default_repl_classpath = [
+        "@io_bazel_rules_scala_scala_library_{version_underscore}",
+        "@io_bazel_rules_scala_scala_reflect_{version_underscore}",
+        "@io_bazel_rules_scala_scala_compiler_{version_underscore}"
+    ],
+    default_macro_classpath = [
+        "@io_bazel_rules_scala_scala_library_{version_underscore}",
+        "@io_bazel_rules_scala_scala_reflect_{version_underscore}"
+    ],
     visibility = ["//visibility:public"],
 )
     """.format(

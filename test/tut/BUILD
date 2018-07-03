@@ -6,8 +6,8 @@ scala_library(
     srcs = ["TestDep.scala"],
 )
 
-scala_tut_doc(
-    name = "some_example",
-    src = "SomeExample.md",
-    deps = [":test_dep"],
-)
+#scala_tut_doc(
+#    name = "some_example",
+#    src = "SomeExample.md",
+#    deps = [":test_dep"],
+#)
