@@ -9,7 +9,7 @@ load(
     "@io_bazel_rules_scala//scala:scala_maven_import_external.bzl",
     _scala_maven_import_external = "scala_maven_import_external")
 
-def tut_repositories(scala_version = _default_scala_version()):
+def tut_repositories(scala_version = _default_scala_version(), server_urls = ["https://dl.bintray.com/tpolecat/maven/"]):
   major_version = _extract_major_version(scala_version)
 
   scala_jar_shas = {
@@ -27,7 +27,7 @@ def tut_repositories(scala_version = _default_scala_version()):
                                     major_version),
       jar_sha256 = scala_jar_shas[major_version]["tut_core"],
       licenses = ["notice"],
-      server_urls = ["https://dl.bintray.com/tpolecat/maven/"],
+      server_urls = server_urls,
   )
 
   native.bind(
