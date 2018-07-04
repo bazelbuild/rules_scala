@@ -7,8 +7,6 @@ load(
     "scala_test",
     "scala_macro_library",
     "scala_repl",
-    "scala_test_suite",
-    "scala_library_suite",
     "scala_junit_test",
     "scala_specs2_junit_test",
 )
@@ -68,24 +66,6 @@ scala_test(
     ],
 )
 
-# test that a library can depend on a test:
-scala_library(
-    name = "lib_to_test",
-    srcs = ["LibToTest.scala"],
-    deps = [":HelloLibTest"],
-)
-
-scala_test(
-    name = "TestFilterTests",
-    size = "small",
-    srcs = glob(["TestFilterTest*.scala"]),
-)
-
-scala_repl(
-    name = "HelloLibTestRepl",
-    deps = [":HelloLibTest"],
-)
-
 scala_library(
     name = "OtherLib",
     srcs = ["OtherLib.scala"],
@@ -119,11 +99,6 @@ java_library(
     srcs = ["OtherJavaLib.java"],
 )
 
-scala_repl(
-    name = "ReplWithSources",
-    srcs = ["A.scala"],
-)
-
 #Mix java scala
 scala_library(
     name = "MixJavaScalaLib",
@@ -142,28 +117,6 @@ scala_binary(
     srcs = ["src/main/scala/scalarules/test/MixJavaScalaLibBinary.scala"],
     main_class = "scalarules.test.MixJavaScalaLibBinary",
     deps = ["MixJavaScalaLib"],
-)
-
-#Mix java scala (srcjar), much like above only the java is provided via srcjar
-scala_library(
-    name = "MixJavaScalaSrcjarLib",
-    srcs = glob([
-        "src/main/scala/scalarules/test/mix_java_scala/*.scala",
-        # srcjar created with `jar -cfM Baz.srcjar Baz.java`
-        "src/main/scala/scalarules/test/mix_java_scala/*.srcjar",
-    ]),
-    jvm_flags = [
-        "-Xms1G",
-        "-Xmx4G",
-    ],
-)
-
-#needed to test java sources are compiled
-scala_binary(
-    name = "MixJavaScalaSrcjarLibBinary",
-    srcs = ["src/main/scala/scalarules/test/MixJavaScalaLibBinary.scala"],
-    main_class = "scalarules.test.MixJavaScalaLibBinary",
-    deps = ["MixJavaScalaSrcjarLib"],
 )
 
 scala_library(
@@ -204,7 +157,6 @@ scala_specs2_junit_test(
 ) for binary in [
     "JavaBinary",
     "MixJavaScalaLibBinary",
-    "MixJavaScalaSrcjarLibBinary",
     "ScalaBinary",
 ]]
 
@@ -215,14 +167,6 @@ scala_junit_test(
     srcs = ["src/main/scala/scalarules/test/junit/JunitCustomRunnerTest.scala"],
     suffixes = ["Test"],
     deps = [":customJunitRunner"],
-)
-
-scala_junit_test(
-    name = "JunitIncludesClassesWithRunWith",
-    size = "small",
-    srcs = ["src/main/scala/scalarules/test/junit/JunitIncludesRunWith.scala"],
-    print_discovered_classes = True,
-    suffixes = ["Test"],
 )
 
 scala_library(

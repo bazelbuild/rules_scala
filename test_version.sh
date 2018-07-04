@@ -1,4 +1,6 @@
-#!/bin/bash -e
+#!/bin/bash
+
+set -e
 
 test_scala_version() {
   SCALA_VERSION=$1
