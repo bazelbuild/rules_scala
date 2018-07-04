@@ -807,6 +807,9 @@ $runner bazel build "test/... --strict_java_deps=ERROR"
 #$runner bazel build "test/... --strict_java_deps=ERROR --all_incompatible_changes"
 $runner bazel test "test/... --strict_java_deps=ERROR"
 $runner bazel run test/src/main/scala/scalarules/test/twitter_scrooge:justscrooges
+$runner bazel run test/src/main/scala/scalarules/test/twitter_scrooge:barethrifts
+$runner bazel run test/src/main/scala/scalarules/test/twitter_scrooge:twodeep_binary
+$runner bazel run test/src/main/scala/scalarules/test/twitter_scrooge:justscrooge2b_binary
 $runner bazel run test:JavaBinary
 $runner bazel run test:JavaBinary2
 $runner bazel run test:JavaOnlySources
