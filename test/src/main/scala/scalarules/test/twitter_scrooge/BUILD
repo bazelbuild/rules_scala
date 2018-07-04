@@ -205,7 +205,7 @@ scala_library(
 scala_binary(
     name = "barethrifts",
     main_class = "scalarules.test.twitter_scrooge.BareThrifts",
-    deps = [":bare_thrift_scrooge"],
+    deps = [":barethriftslib"],
 )
 
 sh_test(
