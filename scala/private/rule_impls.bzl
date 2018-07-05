@@ -481,26 +481,20 @@ def is_dependency_analyzer_off(ctx):
 # automatically adds dependency on scala-library and scala-reflect
 # collects jars from deps, runtime jars from runtime_deps, and
 def _collect_jars_from_common_ctx(ctx,
-                                  base_compile_classpath,
-                                  base_runtime_classpath,
+                                  base_classpath,
                                   extra_deps = [],
                                   extra_runtime_deps = []):
 
   dependency_analyzer_is_off = is_dependency_analyzer_off(ctx)
 
-  base_cjars = [d[JavaInfo].compile_jars for d in base_compile_classpath]
-  base_transitive_rjars = [
-      d[JavaInfo].transitive_runtime_jars for d in base_runtime_classpath
-  ]
-
-  deps_jars = collect_jars(ctx.attr.deps + extra_deps,
+  deps_jars = collect_jars(ctx.attr.deps + extra_deps + base_classpath,
                            dependency_analyzer_is_off)
 
-  (cjars, transitive_rjars, jars2labels, transitive_compile_jars) = (
-      depset(transitive = [deps_jars.compile_jars] + base_cjars),
-      depset(transitive = [deps_jars.transitive_runtime_jars] +
-             base_transitive_rjars), deps_jars.jars2labels,
-      deps_jars.transitive_compile_jars)
+  (cjars, transitive_rjars, jars2labels,
+   transitive_compile_jars) = (deps_jars.compile_jars,
+                               deps_jars.transitive_runtime_jars,
+                               deps_jars.jars2labels,
+                               deps_jars.transitive_compile_jars)
 
   transitive_rjars = depset(
       transitive = [transitive_rjars] +
@@ -512,16 +506,14 @@ def _collect_jars_from_common_ctx(ctx,
       jars2labels = jars2labels,
       transitive_compile_jars = transitive_compile_jars)
 
-def _lib(ctx, base_compile_classpath, base_runtime_classpath,
-         non_macro_lib):
+def _lib(ctx, base_classpath, non_macro_lib):
   # Build up information from dependency-like attributes
 
   # This will be used to pick up srcjars from non-scala library
   # targets (like thrift code generation)
   srcjars = collect_srcjars(ctx.attr.deps)
 
-  jars = _collect_jars_from_common_ctx(ctx, base_compile_classpath,
-                                       base_runtime_classpath)
+  jars = _collect_jars_from_common_ctx(ctx, base_classpath)
   (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
 
   write_manifest(ctx)
@@ -568,13 +560,11 @@ def _lib(ctx, base_compile_classpath, base_runtime_classpath,
 
 def scala_library_impl(ctx):
   scalac_provider = ctx.attr._scalac[_ScalacProvider]
-  return _lib(ctx, scalac_provider.default_compile_classpath,
-              scalac_provider.default_runtime_classpath, True)
+  return _lib(ctx, scalac_provider.default_classpath, True)
 
 def scala_macro_library_impl(ctx):
   scalac_provider = ctx.attr._scalac[_ScalacProvider]
-  return _lib(ctx, scalac_provider.default_macro_compile_classpath,
-              scalac_provider.default_runtime_classpath,
+  return _lib(ctx, scalac_provider.default_macro_classpath,
               False)  # don't build the ijar for macros
 
 # Common code shared by all scala binary implementations.
@@ -622,9 +612,7 @@ def _scala_binary_common(ctx,
 
 def scala_binary_impl(ctx):
   scalac_provider = ctx.attr._scalac[_ScalacProvider]
-  jars = _collect_jars_from_common_ctx(
-      ctx, scalac_provider.default_compile_classpath,
-      scalac_provider.default_runtime_classpath)
+  jars = _collect_jars_from_common_ctx(ctx, scalac_provider.default_classpath)
   (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
 
   wrapper = _write_java_wrapper(ctx, "", "")
@@ -644,7 +632,6 @@ def scala_repl_impl(ctx):
   # need scala-compiler for MainGenericRunner below
   jars = _collect_jars_from_common_ctx(
       ctx,
-      scalac_provider.default_repl_classpath,
       scalac_provider.default_repl_classpath,
   )
   (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
@@ -698,8 +685,7 @@ def scala_test_impl(ctx):
   scalac_provider = ctx.attr._scalac[_ScalacProvider]
   jars = _collect_jars_from_common_ctx(
       ctx,
-      scalac_provider.default_compile_classpath,
-      scalac_provider.default_runtime_classpath,
+      scalac_provider.default_classpath,
       extra_runtime_deps = [
           ctx.attr._scalatest_reporter, ctx.attr._scalatest_runner
       ],
@@ -764,8 +750,7 @@ def scala_junit_test_impl(ctx):
   scalac_provider = ctx.attr._scalac[_ScalacProvider]
   jars = _collect_jars_from_common_ctx(
       ctx,
-      scalac_provider.default_compile_classpath,
-      scalac_provider.default_runtime_classpath,
+      scalac_provider.default_classpath,
       extra_deps = [
           ctx.attr._junit, ctx.attr._hamcrest, ctx.attr.suite_label,
           ctx.attr._bazel_test_runner

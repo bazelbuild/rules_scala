@@ -91,15 +91,13 @@ java_binary(
 _declare_scalac_provider(
     name = "{name}",
     scalac = "@{name}//:scalac_worker",
-    #scalacompiler = "@io_bazel_rules_scala_scala_compiler",
-    default_compile_classpath = ["@io_bazel_rules_scala_scala_library"],
-    default_runtime_classpath = ["@io_bazel_rules_scala_scala_library"],
+    default_classpath = ["@io_bazel_rules_scala_scala_library"],
     default_repl_classpath = [
         "@io_bazel_rules_scala_scala_library",
         "@io_bazel_rules_scala_scala_reflect",
         "@io_bazel_rules_scala_scala_compiler"
     ],
-    default_macro_compile_classpath = [
+    default_macro_classpath = [
         "@io_bazel_rules_scala_scala_library",
         "@io_bazel_rules_scala_scala_reflect"
     ],
