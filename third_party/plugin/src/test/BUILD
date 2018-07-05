@@ -19,6 +19,7 @@ scala_junit_test(
     deps = [
         "//external:io_bazel_rules_scala/dependency/scala/scala_compiler",
         "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+        "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
         "//third_party/plugin/src/main:dependency_analyzer",
         "@com_google_guava_guava_21_0_with_file//jar",
         "@org_apache_commons_commons_lang_3_5_without_file//:linkable_org_apache_commons_commons_lang_3_5_without_file",

@@ -5,7 +5,6 @@
 # You may obtain a copy of the License at
 #
 #    http://www.apache.org/licenses/LICENSE-2.0
-#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -83,26 +82,26 @@ java_binary(
         "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/jar",
         "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/worker",
         "@scalac_rules_commons_io//jar",
-        "@io_bazel_rules_scala_scala_library_{version_underscore}",
-        "@io_bazel_rules_scala_scala_reflect_{version_underscore}",
-        "@io_bazel_rules_scala_scala_compiler_{version_underscore}",
+        "@io_bazel_rules_scala_scala_library",
+        "@io_bazel_rules_scala_scala_reflect",
+        "@io_bazel_rules_scala_scala_compiler",
     ],
 )
 
 _declare_scalac_provider(
     name = "{name}",
     scalac = "@{name}//:scalac_worker",
-    #scalacompiler = "@io_bazel_rules_scala_scala_compiler_{version_underscore}",
-    default_compile_classpath = ["@io_bazel_rules_scala_scala_library_{version_underscore}"],
-    default_runtime_classpath = ["@io_bazel_rules_scala_scala_library_{version_underscore}"],
+    #scalacompiler = "@io_bazel_rules_scala_scala_compiler",
+    default_compile_classpath = ["@io_bazel_rules_scala_scala_library"],
+    default_runtime_classpath = ["@io_bazel_rules_scala_scala_library"],
     default_repl_classpath = [
-        "@io_bazel_rules_scala_scala_library_{version_underscore}",
-        "@io_bazel_rules_scala_scala_reflect_{version_underscore}",
-        "@io_bazel_rules_scala_scala_compiler_{version_underscore}"
+        "@io_bazel_rules_scala_scala_library",
+        "@io_bazel_rules_scala_scala_reflect",
+        "@io_bazel_rules_scala_scala_compiler"
     ],
     default_macro_classpath = [
-        "@io_bazel_rules_scala_scala_library_{version_underscore}",
-        "@io_bazel_rules_scala_scala_reflect_{version_underscore}"
+        "@io_bazel_rules_scala_scala_library",
+        "@io_bazel_rules_scala_scala_reflect"
     ],
     visibility = ["//visibility:public"],
 )
@@ -123,24 +122,21 @@ def new_scala_repository(name, scala_version, scala_version_jar_shas,
   scala_version_underscore = scala_version.replace(".", "_")
 
   _scala_maven_import_external(
-      name = "io_bazel_rules_scala_scala_library_{}".format(
-          scala_version_underscore),
+      name = "io_bazel_rules_scala_scala_library",
       artifact = "org.scala-lang:scala-library:{}".format(scala_version),
       jar_sha256 = scala_version_jar_shas["scala_library"],
       licenses = ["notice"],
       server_urls = maven_servers,
   )
   _scala_maven_import_external(
-      name = "io_bazel_rules_scala_scala_compiler_{}".format(
-          scala_version_underscore),
+      name = "io_bazel_rules_scala_scala_compiler",
       artifact = "org.scala-lang:scala-compiler:{}".format(scala_version),
       jar_sha256 = scala_version_jar_shas["scala_compiler"],
       licenses = ["notice"],
       server_urls = maven_servers,
   )
   _scala_maven_import_external(
-      name = "io_bazel_rules_scala_scala_reflect_{}".format(
-          scala_version_underscore),
+      name = "io_bazel_rules_scala_scala_reflect",
       artifact = "org.scala-lang:scala-reflect:{}".format(scala_version),
       jar_sha256 = scala_version_jar_shas["scala_reflect"],
       licenses = ["notice"],

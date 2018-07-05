@@ -372,18 +372,15 @@ def scala_repositories(
 
   native.bind(
       name = "io_bazel_rules_scala/dependency/scala/scala_compiler",
-      actual = "@io_bazel_rules_scala_scala_compiler_{}".format(
-          scala_version.replace(".", "_")))
+      actual = "@io_bazel_rules_scala_scala_compiler")
 
   native.bind(
       name = "io_bazel_rules_scala/dependency/scala/scala_library",
-      actual = "@io_bazel_rules_scala_scala_library_{}".format(
-          scala_version.replace(".", "_")))
+      actual = "@io_bazel_rules_scala_scala_library")
 
   native.bind(
       name = "io_bazel_rules_scala/dependency/scala/scala_reflect",
-      actual = "@io_bazel_rules_scala_scala_reflect_{}".format(
-          scala_version.replace(".", "_")))
+      actual = "@io_bazel_rules_scala_scala_reflect")
 
   native.bind(
       name = "io_bazel_rules_scala/dependency/scala/scala_xml",
