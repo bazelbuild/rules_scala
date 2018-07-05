@@ -99,7 +99,7 @@ _declare_scalac_provider(
         "@io_bazel_rules_scala_scala_reflect",
         "@io_bazel_rules_scala_scala_compiler"
     ],
-    default_macro_classpath = [
+    default_macro_compile_classpath = [
         "@io_bazel_rules_scala_scala_library",
         "@io_bazel_rules_scala_scala_reflect"
     ],

@@ -23,30 +23,30 @@ def _rule_impl(ctx):
   expected_deps = {
       "scala_library": [
           "//test/aspect:scala_library",
-          "@io_bazel_rules_scala_scala_library_2_11_12//:io_bazel_rules_scala_scala_library_2_11_12",
+          "@io_bazel_rules_scala_scala_library//:io_bazel_rules_scala_scala_library",
       ],
       "scala_test": [
           "//test/aspect:scala_test",
-          "@io_bazel_rules_scala_scala_library_2_11_12//:io_bazel_rules_scala_scala_library_2_11_12",
+          "@io_bazel_rules_scala_scala_library//:io_bazel_rules_scala_scala_library",
           "@io_bazel_rules_scala//scala/scalatest:scalatest",
       ],
       "scala_junit_test": [
           "//test/aspect:scala_junit_test",
-          "@io_bazel_rules_scala_scala_library_2_11_12//:io_bazel_rules_scala_scala_library_2_11_12",
+          "@io_bazel_rules_scala_scala_library//:io_bazel_rules_scala_scala_library",
           "@io_bazel_rules_scala_junit_junit//jar:jar",
           "@io_bazel_rules_scala_org_hamcrest_hamcrest_core//jar:jar",
       ],
       "scala_specs2_junit_test": [
           "//test/aspect:scala_specs2_junit_test",
-          "@io_bazel_rules_scala_scala_library_2_11_12//:io_bazel_rules_scala_scala_library_2_11_12",
+          "@io_bazel_rules_scala_scala_library//:io_bazel_rules_scala_scala_library",
           "@io_bazel_rules_scala_junit_junit//jar:jar",
           "@io_bazel_rules_scala_org_hamcrest_hamcrest_core//jar:jar",
           # From specs2/specs2.bzl:specs2_dependencies()
           "@io_bazel_rules_scala//specs2:specs2",
           "@io_bazel_rules_scala_scala_xml//:io_bazel_rules_scala_scala_xml",
           "@io_bazel_rules_scala_scala_parser_combinators//:io_bazel_rules_scala_scala_parser_combinators",
-          "@io_bazel_rules_scala_scala_library_2_11_12//:io_bazel_rules_scala_scala_library_2_11_12",
-          "@io_bazel_rules_scala_scala_reflect_2_11_12//:io_bazel_rules_scala_scala_reflect_2_11_12",
+          "@io_bazel_rules_scala_scala_library//:io_bazel_rules_scala_scala_library",
+          "@io_bazel_rules_scala_scala_reflect//:io_bazel_rules_scala_scala_reflect",
           # From specs2/specs2_junit.bzl:specs2_junit_dependencies()
           "@io_bazel_rules_scala_org_specs2_specs2_junit//:io_bazel_rules_scala_org_specs2_specs2_junit",
       ],

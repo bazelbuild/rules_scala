@@ -31,7 +31,7 @@ ScalacProvider = provider(
         "scalac",
         "default_compile_classpath",
         "default_runtime_classpath",
-        "default_macro_classpath",
+        "default_macro_compile_classpath",
         "default_repl_classpath",
     ])
 
@@ -42,7 +42,7 @@ def _declare_scalac_provider(ctx):
           default_compile_classpath = ctx.attr.default_compile_classpath,
           default_runtime_classpath = ctx.attr.default_runtime_classpath,
           default_repl_classpath = ctx.attr.default_repl_classpath,
-          default_macro_classpath = ctx.attr.default_macro_classpath,
+          default_macro_compile_classpath = ctx.attr.default_macro_compile_classpath,
       )
   ]
 
@@ -57,5 +57,5 @@ declare_scalac_provider = rule(
         "default_compile_classpath": attr.label_list(allow_files = True),
         "default_runtime_classpath": attr.label_list(allow_files = True),
         "default_repl_classpath": attr.label_list(allow_files = True),
-        "default_macro_classpath": attr.label_list(allow_files = True),
+        "default_macro_compile_classpath": attr.label_list(allow_files = True),
     })

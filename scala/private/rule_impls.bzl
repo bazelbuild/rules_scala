@@ -573,8 +573,8 @@ def scala_library_impl(ctx):
 
 def scala_macro_library_impl(ctx):
   scalac_provider = ctx.attr._scalac[_ScalacProvider]
-  return _lib(ctx, scalac_provider.default_macro_classpath,
-              scalac_provider.default_macro_classpath,
+  return _lib(ctx, scalac_provider.default_macro_compile_classpath,
+              scalac_provider.default_runtime_classpath,
               False)  # don't build the ijar for macros
 
 # Common code shared by all scala binary implementations.
