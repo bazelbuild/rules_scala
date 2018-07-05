@@ -256,9 +256,9 @@ scala_repl = rule(
 )
 
 def scala_repositories(
-    scala_version = _default_scala_version(),
-    scala_version_jar_shas = _default_scala_version_jar_shas(),
+    scala_version_shas = (_default_scala_version(), _default_scala_version_jar_shas()),
     maven_servers = ["http://central.maven.org/maven2"]):
+  (scala_version, scala_version_jar_shas) = scala_version_shas
   major_version = _extract_major_version(scala_version)
 
   _new_scala_repository(

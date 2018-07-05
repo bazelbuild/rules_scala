@@ -12,9 +12,9 @@ scala_major_version = extract_major_version(scala_version)
 
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
 
-scala_repositories(scala_version, {
+scala_repositories((scala_version, {
 ${scala_version_shas}
-})
+}))
 
 load("@io_bazel_rules_scala//twitter_scrooge:twitter_scrooge.bzl", "twitter_scrooge", "scrooge_scala_library")
 
