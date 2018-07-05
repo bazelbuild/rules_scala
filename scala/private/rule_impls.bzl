@@ -481,25 +481,25 @@ def is_dependency_analyzer_off(ctx):
 # automatically adds dependency on scala-library and scala-reflect
 # collects jars from deps, runtime jars from runtime_deps, and
 def _collect_jars_from_common_ctx(ctx,
-                                  default_compile_classpath,
-                                  default_runtime_classpath,
+                                  base_compile_classpath,
+                                  base_runtime_classpath,
                                   extra_deps = [],
                                   extra_runtime_deps = []):
 
   dependency_analyzer_is_off = is_dependency_analyzer_off(ctx)
 
-  default_cjars = [d[JavaInfo].compile_jars for d in default_compile_classpath]
-  default_transitive_rjars = [
-      d[JavaInfo].transitive_runtime_jars for d in default_runtime_classpath
+  base_cjars = [d[JavaInfo].compile_jars for d in base_compile_classpath]
+  base_transitive_rjars = [
+      d[JavaInfo].transitive_runtime_jars for d in base_runtime_classpath
   ]
 
   deps_jars = collect_jars(ctx.attr.deps + extra_deps,
                            dependency_analyzer_is_off)
 
   (cjars, transitive_rjars, jars2labels, transitive_compile_jars) = (
-      depset(transitive = [deps_jars.compile_jars] + default_cjars),
+      depset(transitive = [deps_jars.compile_jars] + base_cjars),
       depset(transitive = [deps_jars.transitive_runtime_jars] +
-             default_transitive_rjars), deps_jars.jars2labels,
+             base_transitive_rjars), deps_jars.jars2labels,
       deps_jars.transitive_compile_jars)
 
   transitive_rjars = depset(
@@ -512,7 +512,7 @@ def _collect_jars_from_common_ctx(ctx,
       jars2labels = jars2labels,
       transitive_compile_jars = transitive_compile_jars)
 
-def _lib(ctx, default_compile_classpath, default_runtime_classpath,
+def _lib(ctx, base_compile_classpath, base_runtime_classpath,
          non_macro_lib):
   # Build up information from dependency-like attributes
 
@@ -520,8 +520,8 @@ def _lib(ctx, default_compile_classpath, default_runtime_classpath,
   # targets (like thrift code generation)
   srcjars = collect_srcjars(ctx.attr.deps)
 
-  jars = _collect_jars_from_common_ctx(ctx, default_compile_classpath,
-                                       default_runtime_classpath)
+  jars = _collect_jars_from_common_ctx(ctx, base_compile_classpath,
+                                       base_runtime_classpath)
   (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
 
   write_manifest(ctx)
