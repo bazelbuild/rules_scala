@@ -2,13 +2,6 @@
 
 set -e
 
-error() {
-    cd ..
-    rm -rf $2
-    exit $1
-}
-
-
 test_scala_version() {
   SCALA_VERSION=$1
   
@@ -31,18 +24,8 @@ test_scala_version() {
       WORKSPACE.template >> $NEW_TEST_DIR/WORKSPACE
   
   cd $NEW_TEST_DIR
-    
-  trap 'error $? $NEW_TEST_DIR' ERR
 
   bazel test //...
-  bazel run src/main/scala/scalarules/test/twitter_scrooge:justscrooges
-  bazel run :JavaBinary
-  bazel run :JavaBinary2
-  bazel run :JavaOnlySources
-  bazel run :MixJavaScalaLibBinary
-  bazel run :MixJavaScalaSrcjarLibBinary
-  bazel run :ScalaBinary
-  bazel run :ScalaLibBinary
   RESPONSE_CODE=$?
   
   cd ..

@@ -160,21 +160,6 @@ scala_specs2_junit_test(
     "ScalaBinary",
 ]]
 
-
-scala_junit_test(
-    name = "JunitCustomRunner",
-    size = "small",
-    srcs = ["src/main/scala/scalarules/test/junit/JunitCustomRunnerTest.scala"],
-    suffixes = ["Test"],
-    deps = [":customJunitRunner"],
-)
-
-scala_library(
-    name = "customJunitRunner",
-    srcs = ["src/main/scala/scalarules/test/junit/JunitCustomRunner.java"],
-    deps = ["//external:io_bazel_rules_scala/dependency/junit/junit"],
-)
-
 scala_library(
     name = "lib_with_scala_proto_dep",
     srcs = ["TestServer.scala"],
