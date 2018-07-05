@@ -180,4 +180,3 @@ scalapb_proto_library(
         "//proto:test2",
     ],
 )
-
