@@ -91,7 +91,10 @@ java_binary(
 _declare_scalac_provider(
     name = "{name}",
     scalac = "@{name}//:scalac_worker",
-    default_classpath = ["@io_bazel_rules_scala_scala_library"],
+    default_classpath = [
+        "@io_bazel_rules_scala_scala_library",
+        "@io_bazel_rules_scala_scala_reflect"
+    ],
     default_repl_classpath = [
         "@io_bazel_rules_scala_scala_library",
         "@io_bazel_rules_scala_scala_reflect",
