@@ -806,17 +806,6 @@ $runner bazel test third_party/...
 $runner bazel build "test/... --strict_java_deps=ERROR"
 #$runner bazel build "test/... --strict_java_deps=ERROR --all_incompatible_changes"
 $runner bazel test "test/... --strict_java_deps=ERROR"
-$runner bazel run test/src/main/scala/scalarules/test/twitter_scrooge:justscrooges
-$runner bazel run test/src/main/scala/scalarules/test/twitter_scrooge:barethrifts
-$runner bazel run test/src/main/scala/scalarules/test/twitter_scrooge:twodeep_binary
-$runner bazel run test/src/main/scala/scalarules/test/twitter_scrooge:justscrooge2b_binary
-$runner bazel run test:JavaBinary
-$runner bazel run test:JavaBinary2
-$runner bazel run test:JavaOnlySources
-$runner bazel run test:MixJavaScalaLibBinary
-$runner bazel run test:MixJavaScalaSrcjarLibBinary
-$runner bazel run test:ScalaBinary
-$runner bazel run test:ScalaLibBinary
 $runner test_disappearing_class
 $runner find -L ./bazel-testlogs -iname "*.xml"
 $runner xmllint_test
@@ -834,7 +823,6 @@ $runner test_junit_test_must_have_prefix_or_suffix
 $runner test_junit_test_errors_when_no_tests_found
 $runner scala_library_jar_without_srcs_must_include_direct_file_resources
 $runner scala_library_jar_without_srcs_must_include_filegroup_resources
-$runner bazel run test/src/main/scala/scalarules/test/large_classpath:largeClasspath
 $runner scala_test_test_filters
 $runner scala_junit_test_test_filter
 $runner scala_junit_test_test_filter_custom_runner
@@ -867,7 +855,6 @@ $runner test_scala_library_expect_no_recompilation_on_internal_change_of_java_de
 $runner test_scala_library_expect_no_java_recompilation_on_internal_change_of_scala_sibling
 $runner test_scala_library_expect_failure_on_missing_direct_java
 $runner test_scala_library_expect_failure_on_java_in_src_jar_when_disabled
-$runner bazel run test:test_scala_proto_server
 $runner test_scala_library_expect_failure_on_missing_direct_deps_warn_mode_java
 $runner test_scala_library_expect_better_failure_message_on_missing_transitive_dependency_labels_from_other_jvm_rules
 $runner test_scala_import_expect_failure_on_missing_direct_deps_warn_mode
@@ -875,7 +862,6 @@ $runner bazel build "test_expect_failure/missing_direct_deps/internal_deps/... -
 $runner test_scalaopts_from_scala_toolchain
 $runner test_scala_import_library_passes_labels_of_direct_deps
 $runner java_toolchain_javacopts_are_used
-$runner bazel run test/src/main/scala/scalarules/test/classpath_resources:classpath_resource
 $runner test_scala_classpath_resources_expect_warning_on_namespace_conflict
 $runner bazel build //test_expect_failure/proto_source_root/... --strict_proto_deps=off
 $runner scala_binary_jar_is_exposed_in_build_event_protocol
