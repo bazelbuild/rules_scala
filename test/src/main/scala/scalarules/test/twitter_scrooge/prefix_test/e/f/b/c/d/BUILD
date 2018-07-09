@@ -15,8 +15,10 @@ thrift_library(
 scrooge_scala_library(
     name = "d",
     visibility = ["//visibility:public"],
+    exports = [
+        "//test/src/main/scala/scalarules/test/twitter_scrooge/prefix_test/a/b/c/d",
+    ],
     deps = [
         ":b_thrift",
-        "//test/src/main/scala/scalarules/test/twitter_scrooge/prefix_test/a/b/c/d",
     ],
 )

@@ -26,7 +26,7 @@ java_binary(
     main_class = "scalarules.test.JavaBinary",
     runtime_deps = [
         ":OtherJavaLib",
-        "@scala//:scala-library",
+        "@io_bazel_rules_scala_scala_library//jar",
     ],
     deps = [
         ":Exported",
@@ -356,6 +356,12 @@ scala_specs2_junit_test(
     "ResourcesStripScalaBinary",
     "ScalaBinary_dependent_on_binary_with_java",
     "//test/src/main/scala/scalarules/test/classpath_resources:classpath_resource",
+    "//test/src/main/scala/scalarules/test/twitter_scrooge:justscrooges",
+    "//test/src/main/scala/scalarules/test/twitter_scrooge:barethrifts",
+    "//test/src/main/scala/scalarules/test/twitter_scrooge:twodeep_binary",
+    "//test/src/main/scala/scalarules/test/twitter_scrooge:justscrooge2b_binary",
+    "//test/src/main/scala/scalarules/test/large_classpath:largeClasspath",
+    "//test:test_scala_proto_server",
 ]]
 
 # Make sure scala_binary works in genrule environment

@@ -176,11 +176,9 @@ test_scala_library_expect_failure_on_missing_direct_deps_warn_mode() {
 
 test_scala_library_expect_failure_on_missing_direct_java() {
   dependency_target='//test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency'
-  #since bazel 0.12.0 the labels are only emmitted if ijar is in play 
-  dependency_file='test_expect_failure/missing_direct_deps/internal_deps/transitive_dependency_ijar.jar'
   test_target='//test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency_java_user'
 
-  expected_message="$dependency_file.*$test_target"
+  expected_message="$dependency_target.*$test_target"
 
   test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" $test_target "--strict_java_deps=error"
 }
@@ -194,7 +192,7 @@ test_scala_library_expect_failure_on_java_in_src_jar_when_disabled() {
 }
 
 test_scala_library_expect_better_failure_message_on_missing_transitive_dependency_labels_from_other_jvm_rules() {
-  transitive_target='.*transitive_dependency_ijar.jar'
+  transitive_target='.*transitive_dependency-ijar.jar'
   direct_target='//test_expect_failure/missing_direct_deps/internal_deps:direct_java_provider_dependency'
   test_target='//test_expect_failure/missing_direct_deps/internal_deps:dependent_on_some_java_provider'
 
@@ -205,10 +203,9 @@ test_scala_library_expect_better_failure_message_on_missing_transitive_dependenc
 
 test_scala_library_expect_failure_on_missing_direct_deps_warn_mode_java() {
   dependency_target='//test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency'
-  dependency_file='test_expect_failure/missing_direct_deps/internal_deps/transitive_dependency_ijar.jar'
   test_target='//test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency_java_user'
 
-  local expected_message="$dependency_file.*$test_target"
+  local expected_message="$dependency_target.*$test_target"
 
   test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target} "--strict_java_deps=warn" "ne"
 }
@@ -499,13 +496,13 @@ scala_specs2_junit_test_test_filter_one_test(){
   if ! grep "$expected" <<<$output; then
     echo "output:"
     echo "$output"
-    echo "Expected $method in output, but was not found."
+    echo "Expected $expected in output, but was not found."
     exit 1
   fi
   if grep "$unexpected" <<<$output; then
     echo "output:"
     echo "$output"
-    echo "Not expecting $method in output, but was found."
+    echo "Not expecting $unexpected in output, but was found."
     exit 1
   fi
 }
@@ -521,13 +518,13 @@ scala_specs2_junit_test_test_filter_exact_match(){
   if ! grep "$expected" <<<$output; then
     echo "output:"
     echo "$output"
-    echo "Expected $method in output, but was not found."
+    echo "Expected $expected in output, but was not found."
     exit 1
   fi
   if grep "$unexpected" <<<$output; then
     echo "output:"
     echo "$output"
-    echo "Not expecting $method in output, but was found."
+    echo "Not expecting $unexpected in output, but was found."
     exit 1
   fi
 }
@@ -543,13 +540,13 @@ scala_specs2_junit_test_test_filter_exact_match_unsafe_characters(){
   if ! grep "$expected" <<<$output; then
     echo "output:"
     echo "$output"
-    echo "Expected $method in output, but was not found."
+    echo "Expected $expected in output, but was not found."
     exit 1
   fi
   if grep "$unexpected" <<<$output; then
     echo "output:"
     echo "$output"
-    echo "Not expecting $method in output, but was found."
+    echo "Not expecting $unexpected in output, but was found."
     exit 1
   fi
 }
@@ -565,13 +562,13 @@ scala_specs2_junit_test_test_filter_exact_match_escaped_and_sanitized(){
   if ! grep "$expected" <<<$output; then
     echo "output:"
     echo "$output"
-    echo "Expected $method in output, but was not found."
+    echo "Expected $expected in output, but was not found."
     exit 1
   fi
   if grep "$unexpected" <<<$output; then
     echo "output:"
     echo "$output"
-    echo "Not expecting $method in output, but was found."
+    echo "Not expecting $unexpected in output, but was found."
     exit 1
   fi
 }
@@ -803,20 +800,12 @@ dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 runner=$(get_test_runner "${1:-local}")
 
 $runner bazel build test/...
-$runner bazel build "test/... --all_incompatible_changes"
+#$runner bazel build "test/... --all_incompatible_changes"
 $runner bazel test test/...
 $runner bazel test third_party/...
 $runner bazel build "test/... --strict_java_deps=ERROR"
-$runner bazel build "test/... --strict_java_deps=ERROR --all_incompatible_changes"
+#$runner bazel build "test/... --strict_java_deps=ERROR --all_incompatible_changes"
 $runner bazel test "test/... --strict_java_deps=ERROR"
-$runner bazel run test/src/main/scala/scalarules/test/twitter_scrooge:justscrooges
-$runner bazel run test:JavaBinary
-$runner bazel run test:JavaBinary2
-$runner bazel run test:JavaOnlySources
-$runner bazel run test:MixJavaScalaLibBinary
-$runner bazel run test:MixJavaScalaSrcjarLibBinary
-$runner bazel run test:ScalaBinary
-$runner bazel run test:ScalaLibBinary
 $runner test_disappearing_class
 $runner find -L ./bazel-testlogs -iname "*.xml"
 $runner xmllint_test
@@ -834,7 +823,6 @@ $runner test_junit_test_must_have_prefix_or_suffix
 $runner test_junit_test_errors_when_no_tests_found
 $runner scala_library_jar_without_srcs_must_include_direct_file_resources
 $runner scala_library_jar_without_srcs_must_include_filegroup_resources
-$runner bazel run test/src/main/scala/scalarules/test/large_classpath:largeClasspath
 $runner scala_test_test_filters
 $runner scala_junit_test_test_filter
 $runner scala_junit_test_test_filter_custom_runner
@@ -867,7 +855,6 @@ $runner test_scala_library_expect_no_recompilation_on_internal_change_of_java_de
 $runner test_scala_library_expect_no_java_recompilation_on_internal_change_of_scala_sibling
 $runner test_scala_library_expect_failure_on_missing_direct_java
 $runner test_scala_library_expect_failure_on_java_in_src_jar_when_disabled
-$runner bazel run test:test_scala_proto_server
 $runner test_scala_library_expect_failure_on_missing_direct_deps_warn_mode_java
 $runner test_scala_library_expect_better_failure_message_on_missing_transitive_dependency_labels_from_other_jvm_rules
 $runner test_scala_import_expect_failure_on_missing_direct_deps_warn_mode
@@ -875,7 +862,6 @@ $runner bazel build "test_expect_failure/missing_direct_deps/internal_deps/... -
 $runner test_scalaopts_from_scala_toolchain
 $runner test_scala_import_library_passes_labels_of_direct_deps
 $runner java_toolchain_javacopts_are_used
-$runner bazel run test/src/main/scala/scalarules/test/classpath_resources:classpath_resource
 $runner test_scala_classpath_resources_expect_warning_on_namespace_conflict
 $runner bazel build //test_expect_failure/proto_source_root/... --strict_proto_deps=off
 $runner scala_binary_jar_is_exposed_in_build_event_protocol

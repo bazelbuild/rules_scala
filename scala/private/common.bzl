@@ -3,12 +3,16 @@ load("@io_bazel_rules_scala//scala:jars_to_labels.bzl", "JarsToLabelsInfo")
 _empty_jars2labels = JarsToLabelsInfo(jars_to_labels = {})
 
 def write_manifest(ctx):
+  main_class = getattr(ctx.attr, "main_class", None)
+  write_manifest_file(ctx.actions, ctx.outputs.manifest, main_class)
+
+def write_manifest_file(actions, output_file, main_class):
   # TODO(bazel-team): I don't think this classpath is what you want
   manifest = "Class-Path: \n"
-  if getattr(ctx.attr, "main_class", ""):
-    manifest += "Main-Class: %s\n" % ctx.attr.main_class
+  if main_class:
+    manifest += "Main-Class: %s\n" % main_class
 
-  ctx.actions.write(output = ctx.outputs.manifest, content = manifest)
+  actions.write(output = output_file, content = manifest)
 
 def collect_srcjars(targets):
   srcjars = []

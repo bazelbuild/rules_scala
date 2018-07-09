@@ -97,7 +97,7 @@ class ScroogeGenerator extends Processor {
     val intersect = allFilesInZips(onlyTransitiveThriftSrcJars)
       .intersect(immediateThriftSrcs)
 
-    if (intersect.nonEmpty)
+    if (intersect.iterator.filter(_.endsWith(".thrift")).nonEmpty)
       sys.error("onlyTransitiveThriftSrcs and immediateThriftSrcs should " +
         s"have not intersection, found: ${intersect.mkString(",")}")
 
