@@ -565,7 +565,8 @@ def _scala_binary_common(ctx,
                          implicit_junit_deps_needed_for_java_compilation = []):
   write_manifest(ctx)
   outputs = _compile_or_empty(ctx, ctx.outputs.manifest, cjars, depset(), False,
-                              transitive_compile_time_jars, jars2labels.jars_to_labels,
+                              transitive_compile_time_jars,
+                              jars2labels.jars_to_labels,
                               implicit_junit_deps_needed_for_java_compilation
                              )  # no need to build an ijar for an executable
   rjars = depset(outputs.full_jars, transitive = [rjars])
