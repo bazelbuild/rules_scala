@@ -21,7 +21,7 @@ load(
 
 load(
     "@io_bazel_rules_scala//scala:scala_cross_version.bzl",
-    _new_scala_repository = "new_scala_repository",
+    _new_scala_default_repository = "new_scala_default_repository",
     _extract_major_version = "extract_major_version",
     _default_scala_version = "default_scala_version",
     _default_scala_version_jar_shas = "default_scala_version_jar_shas")
@@ -58,7 +58,7 @@ _implicit_deps = {
     "_java_runtime": attr.label(
         default = Label("@bazel_tools//tools/jdk:current_java_runtime")),
     "_scalac": attr.label(
-        default = Label("@io_bazel_rules_scala_scala_default"),
+        default = Label("@io_bazel_rules_scala//scala:scala_default"),
         providers = [_ScalacProvider])
 }
 
@@ -262,8 +262,7 @@ def scala_repositories(
   (scala_version, scala_version_jar_shas) = scala_version_shas
   major_version = _extract_major_version(scala_version)
 
-  _new_scala_repository(
-      name = "io_bazel_rules_scala_scala_default",
+  _new_scala_default_repository(
       scala_version = scala_version,
       scala_version_jar_shas = scala_version_jar_shas,
       maven_servers = maven_servers)

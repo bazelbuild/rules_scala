@@ -302,7 +302,7 @@ scrooge_aspect = aspect(
             default = Label("//src/scala/scripts:generator"),
             allow_files = True),
         "_scalac": attr.label(
-            default = Label("@io_bazel_rules_scala_scala_default"),
+            default = Label("@io_bazel_rules_scala//scala:scala_default"),
             providers = [_ScalacProvider]),
         "_implicit_compile_deps": attr.label_list(
             providers = [JavaInfo],

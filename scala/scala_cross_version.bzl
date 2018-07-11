@@ -49,78 +49,8 @@ def extract_major_version_underscore(scala_version):
 def default_scala_major_version():
   return extract_major_version(default_scala_version())
 
-def _generate_scalac_build_file_impl(repository_ctx):
-  scalac_worker_srcs = [
-      "CompileOptions.java",
-      "ScalaCInvoker.java",
-      "ScalacProcessor.java",
-      "Resource.java",
-  ]
-
-  for src in scalac_worker_srcs:
-    path = Label(
-        "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac:{}".format(
-            src))
-    repository_ctx.symlink(path, "scalac_worker_srcs_symlinked/{}".format(src))
-
-  contents = """
-load("@io_bazel_rules_scala//scala:providers.bzl",
-     _declare_scalac_provider = "declare_scalac_provider",
-)
-
-java_binary(
-    name = "scalac_worker",
-    srcs = glob(["scalac_worker_srcs_symlinked/*.java"]),
-    javacopts = [
-      "-source 1.8",
-      "-target 1.8"
-    ],
-    main_class = "io.bazel.rulesscala.scalac.ScalaCInvoker",
-    visibility = ["//visibility:public"],
-    deps = [
-        "@io_bazel_rules_scala//src/java/com/google/devtools/build/lib:worker",
-        "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/jar",
-        "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/worker",
-        "@scalac_rules_commons_io//jar",
-        "@io_bazel_rules_scala_scala_library",
-        "@io_bazel_rules_scala_scala_reflect",
-        "@io_bazel_rules_scala_scala_compiler",
-    ],
-)
-
-_declare_scalac_provider(
-    name = "{name}",
-    scalac = "@{name}//:scalac_worker",
-    default_classpath = [
-        "@io_bazel_rules_scala_scala_library",
-        "@io_bazel_rules_scala_scala_reflect"
-    ],
-    default_repl_classpath = [
-        "@io_bazel_rules_scala_scala_library",
-        "@io_bazel_rules_scala_scala_reflect",
-        "@io_bazel_rules_scala_scala_compiler"
-    ],
-    default_macro_classpath = [
-        "@io_bazel_rules_scala_scala_library",
-        "@io_bazel_rules_scala_scala_reflect"
-    ],
-    visibility = ["//visibility:public"],
-)
-    """.format(
-      name = repository_ctx.attr.name,
-      version_underscore = repository_ctx.attr.version_underscore)
-
-  repository_ctx.file("BUILD", contents, False)
-
-_generate_scalac_build_file = repository_rule(
-    implementation = _generate_scalac_build_file_impl,
-    attrs = {
-        "version_underscore": attr.string(),
-    })
-
-def new_scala_repository(name, scala_version, scala_version_jar_shas,
-                         maven_servers):
-  scala_version_underscore = scala_version.replace(".", "_")
+def new_scala_default_repository(scala_version, scala_version_jar_shas,
+                                 maven_servers):
 
   _scala_maven_import_external(
       name = "io_bazel_rules_scala_scala_library",
@@ -143,8 +73,3 @@ def new_scala_repository(name, scala_version, scala_version_jar_shas,
       licenses = ["notice"],
       server_urls = maven_servers,
   )
-
-  _generate_scalac_build_file(
-      name = name,
-      version_underscore = scala_version_underscore,
-      visibility = ["//visibility:public"])
