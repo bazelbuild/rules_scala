@@ -100,19 +100,17 @@ def add_labels_of_jars_to(jars2labels, dependency, all_jars, direct_jars):
   for jar in all_jars:
     path = jar.path
     if path not in jars2labels:
-      # skylark exposes only labels of direct dependencies.
-      # to get labels of indirect dependencies we collect them from the providers transitively
-      label = _provider_of_dependency_label_of(dependency, path)
-      if label == None:
-        label = "Unknown label of file {jar_path} which came from {dependency_label}".format(
-            jar_path = path, dependency_label = dependency.label)
+      label = _maybe_provider_of_dependency_label_of(dependency, path)
       jars2labels[path] = label
 
-def _provider_of_dependency_label_of(dependency, path):
+# skylark exposes only labels of direct dependencies.
+# to get labels of indirect dependencies we collect them from the providers transitively
+def _maybe_provider_of_dependency_label_of(dependency, path):
   if JarsToLabelsInfo in dependency:
     return dependency[JarsToLabelsInfo].jars_to_labels.get(path)
   else:
-    return None
+    return "Unknown label of file {jar_path} which came from {dependency_label}".format(
+            jar_path = path, dependency_label = dependency.label)
 
 # TODO this seems to have limited value now that JavaInfo has everything
 def create_java_provider(scalaattr, transitive_compile_time_jars):
