@@ -531,6 +531,24 @@ scalapb_proto_library(
     ],
 )
 
+#import is needed since then it's part of the transitive compile dependencies
+scala_library(
+    name = "import",
+    deps = ["@org_scala_lang_scala_library//jar"]
+)
+scala_library(
+    name = "foo",
+    srcs = ["ScalaCase.scala", "JavaClass.java"],
+    deps = [":import"]
+)
+
+#not sure why but when building foo this doesn't happen, only when building foo_dep
+scala_library(
+    name = "foo_dep",
+    srcs = ["Dep.java"],
+    deps = [":foo"]
+)
+
 load(":check_statsfile.bzl", "check_statsfile")
 
 check_statsfile("ScalaBinary")

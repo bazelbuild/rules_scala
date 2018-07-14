@@ -121,3 +121,11 @@ java_import_external(
 load("//private:format.bzl", "format_repositories")
 
 format_repositories()
+load("@io_bazel_rules_scala//scala:scala_maven_import_external.bzl", "scala_maven_import_external")
+scala_maven_import_external(
+          name = "org_scala_lang_scala_library",
+          artifact = "org.scala-lang:scala-library:2.11.12",
+          licenses = ["notice"],  # Apache 2.0
+          jar_sha256 = "17824fcee4d3f46cfaa4da84ebad4f58496426c2b9bc9e341f812ab23a667d5d",
+          server_urls = ["https://repo.maven.apache.org/maven2/"],
+      )
