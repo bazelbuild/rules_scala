@@ -263,6 +263,8 @@ def try_to_compile_java_jar(ctx, scala_output, all_srcjars, java_srcs,
   providers_of_dependencies = collect_java_providers_of(ctx.attr.deps)
   providers_of_dependencies += collect_java_providers_of(
       implicit_junit_deps_needed_for_java_compilation)
+  providers_of_dependencies += collect_java_providers_of(
+      [ctx.attr._scalalib])
   scala_sources_java_provider = _interim_java_provider_for_java_compilation(
       scala_output)
   providers_of_dependencies += [scala_sources_java_provider]
