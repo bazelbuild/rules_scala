@@ -8,7 +8,6 @@ local_repository(
 load("@io_bazel_rules_scala//scala:scala_cross_version.bzl", "extract_major_version")
 
 scala_version = "${scala_version}"
-scala_major_version = extract_major_version(scala_version)
 
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
 
