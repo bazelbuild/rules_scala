@@ -29,14 +29,6 @@ def default_scala_version_jar_shas():
       "scala_reflect": "6ba385b450a6311a15c918cf8688b9af9327c6104f0ecbd35933cfcd3095fe04",
   }
 
-def scala_mvn_artifact(artifact, major_scala_version):
-  """Add scala version to maven artifact"""
-  gav = artifact.split(":")
-  groupid = gav[0]
-  artifactid = gav[1]
-  version = gav[2]
-  return "%s:%s_%s:%s" % (groupid, artifactid, major_scala_version, version)
-
 def extract_major_version(scala_version):
   """Return major Scala version given a full version, e.g. "2.11.11" -> "2.11" """
   return scala_version[:scala_version.find(".", 2)]
@@ -48,6 +40,14 @@ def extract_major_version_underscore(scala_version):
 
 def default_scala_major_version():
   return extract_major_version(default_scala_version())
+
+def scala_mvn_artifact(artifact, major_scala_version = default_scala_major_version()):
+  """Add scala version to maven artifact"""
+  gav = artifact.split(":")
+  groupid = gav[0]
+  artifactid = gav[1]
+  version = gav[2]
+  return "%s:%s_%s:%s" % (groupid, artifactid, major_scala_version, version)
 
 def new_scala_default_repository(scala_version, scala_version_jar_shas,
                                  maven_servers):

@@ -1,5 +1,5 @@
 java_binary(
-    name = "scalac_worker",
+    name = "scalac",
     srcs = [
         "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac:scalac_files",
     ],

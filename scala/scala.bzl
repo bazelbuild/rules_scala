@@ -57,7 +57,7 @@ _implicit_deps = {
         cfg = "host"),
     "_java_runtime": attr.label(
         default = Label("@bazel_tools//tools/jdk:current_java_runtime")),
-    "_scalac": attr.label(
+    "_scala_provider": attr.label(
         default = Label("@io_bazel_rules_scala//scala:scala_default"),
         providers = [_ScalacProvider])
 }

@@ -335,7 +335,7 @@ def _compile_or_empty(ctx, manifest, jars, srcjars, buildijar,
                   ctx.attr.resource_strip_prefix, ctx.files.resources,
                   ctx.files.resource_jars, jars2labels, ctx.attr.scalacopts,
                   ctx.attr.print_compile_time, ctx.attr.expect_java_output,
-                  ctx.attr.scalac_jvm_flags, ctx.attr._scalac[_ScalacProvider])
+                  ctx.attr.scalac_jvm_flags, ctx.attr._scala_provider[_ScalacProvider])
 
     # build ijar if needed
     if buildijar:
@@ -559,11 +559,11 @@ def _lib(ctx, base_classpath, non_macro_lib):
     )
 
 def scala_library_impl(ctx):
-  scalac_provider = ctx.attr._scalac[_ScalacProvider]
+  scalac_provider = ctx.attr._scala_provider[_ScalacProvider]
   return _lib(ctx, scalac_provider.default_classpath, True)
 
 def scala_macro_library_impl(ctx):
-  scalac_provider = ctx.attr._scalac[_ScalacProvider]
+  scalac_provider = ctx.attr._scala_provider[_ScalacProvider]
   return _lib(ctx, scalac_provider.default_macro_classpath,
               False)  # don't build the ijar for macros
 
@@ -611,7 +611,7 @@ def _scala_binary_common(ctx,
       runfiles = runfiles)
 
 def scala_binary_impl(ctx):
-  scalac_provider = ctx.attr._scalac[_ScalacProvider]
+  scalac_provider = ctx.attr._scala_provider[_ScalacProvider]
   jars = _collect_jars_from_common_ctx(ctx, scalac_provider.default_classpath)
   (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
 
@@ -628,7 +628,7 @@ def scala_binary_impl(ctx):
   return out
 
 def scala_repl_impl(ctx):
-  scalac_provider = ctx.attr._scalac[_ScalacProvider]
+  scalac_provider = ctx.attr._scala_provider[_ScalacProvider]
   # need scala-compiler for MainGenericRunner below
   jars = _collect_jars_from_common_ctx(
       ctx,
@@ -682,7 +682,7 @@ def scala_test_impl(ctx):
   if len(ctx.attr.suites) != 0:
     print("suites attribute is deprecated. All scalatest test suites are run")
 
-  scalac_provider = ctx.attr._scalac[_ScalacProvider]
+  scalac_provider = ctx.attr._scala_provider[_ScalacProvider]
   jars = _collect_jars_from_common_ctx(
       ctx,
       scalac_provider.default_classpath,
@@ -747,7 +747,7 @@ def scala_junit_test_impl(ctx):
     fail(
         "Setting at least one of the attributes ('prefixes','suffixes') is required"
     )
-  scalac_provider = ctx.attr._scalac[_ScalacProvider]
+  scalac_provider = ctx.attr._scala_provider[_ScalacProvider]
   jars = _collect_jars_from_common_ctx(
       ctx,
       scalac_provider.default_classpath,

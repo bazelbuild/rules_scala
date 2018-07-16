@@ -31,18 +31,18 @@ java_import(
 _declare_scalac_provider(
     name = "scala_default",
     default_classpath = [
-        "@io_bazel_rules_scala_scala_library",
-        "@io_bazel_rules_scala_scala_reflect",
+        "@io_bazel_rules_scala_scala_library//:io_bazel_rules_scala_scala_library",
+        "@io_bazel_rules_scala_scala_reflect//:io_bazel_rules_scala_scala_reflect",
     ],
     default_macro_classpath = [
-        "@io_bazel_rules_scala_scala_library",
-        "@io_bazel_rules_scala_scala_reflect",
+        "@io_bazel_rules_scala_scala_library//:io_bazel_rules_scala_scala_library",
+        "@io_bazel_rules_scala_scala_reflect//:io_bazel_rules_scala_scala_reflect",
     ],
     default_repl_classpath = [
-        "@io_bazel_rules_scala_scala_library",
-        "@io_bazel_rules_scala_scala_reflect",
-        "@io_bazel_rules_scala_scala_compiler",
+        "@io_bazel_rules_scala_scala_library//:io_bazel_rules_scala_scala_library",
+        "@io_bazel_rules_scala_scala_reflect//:io_bazel_rules_scala_scala_reflect",
+        "@io_bazel_rules_scala_scala_compiler//:io_bazel_rules_scala_scala_compiler",
     ],
-    scalac = "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac:scalac_worker",
+    scalac = "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac",
     visibility = ["//visibility:public"],
 )
