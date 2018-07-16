@@ -61,6 +61,25 @@ test --strategy=Scalac=worker
 ```
 to your command line, or to enable by default for building/testing add it to your .bazelrc.
 
+## Selecting Scala version
+
+Rules scala supports all minor versions of Scala 2.11/2.12. By default `Scala 2.11.12` is used and to use another
+version you need to
+specify it when calling `scala_repositories`. `scala_repositories` takes a tuple `(scala_version, scala_version_jar_shas)`
+as a parameter where `scala_version` is the scala version and `scala_version_jar_shas` is a `dict` with
+`sha256` hashes for the maven artifacts `scala_library`, `scala_reflect` and `scala_compiler`:
+```python
+scala_repositories(("2.12.6", {
+    "scala_compiler": "3e892546b72ab547cb77de4d840bcfd05c853e73390fed7370a8f19acb0735a0",
+    "scala_library": "0b3d6fd42958ee98715ba2ec5fe221f4ca1e694d7c981b0ae0cd68e97baf6dce",
+    "scala_reflect": "6ba385b450a6311a15c918cf8688b9af9327c6104f0ecbd35933cfcd3095fe04"
+}))
+```
+If you're using any of the rules `twitter_scrooge`, `tut_repositories`, `scala_proto_repositories`
+or `specs2_junit_repositories` you also need to specify `scala_version` for them. See `./test_version/WORKSPACE.template`
+for an example workspace using another scala version.
+
+
 ## Bazel compatible versions
 
 | bazel | rules_scala gitsha |
