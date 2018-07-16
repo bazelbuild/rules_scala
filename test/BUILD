@@ -533,7 +533,7 @@ scalapb_proto_library(
 
 scala_library(
     name = "java_uses_scala_std_lib",
-    srcs = ["JavaUsesScalaStdLib.java"]
+    srcs = ["JavaUsesScalaStdLib.java"],
 )
 
 load(":check_statsfile.bzl", "check_statsfile")
