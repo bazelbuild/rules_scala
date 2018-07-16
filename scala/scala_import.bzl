@@ -1,3 +1,5 @@
+load("@io_bazel_rules_scala//scala:jars_to_labels.bzl", "JarsToLabelsInfo")
+
 #intellij part is tested manually, tread lightly when changing there
 #if you change make sure to manually re-import an intellij project and see imports
 #are resolved (not red) and clickable
@@ -20,12 +22,12 @@ def _scala_import_impl(ctx):
   return struct(
       scala = struct(outputs = struct(jars = intellij_metadata),
                     ),
-      jars_to_labels = jars2labels,
       providers = [
           _create_provider(current_jars, transitive_runtime_jars, jars, exports,
                            ctx.attr.neverlink),
           DefaultInfo(files = current_jars,
                      ),
+          JarsToLabelsInfo(jars_to_labels = jars2labels),
       ],
   )
 
@@ -96,15 +98,12 @@ def _collect(deps):
 
 def _collect_labels(deps, jars2labels):
   for dep_target in deps:
+    if JarsToLabelsInfo in dep_target:
+      jars2labels.update(dep_target[JarsToLabelsInfo].jars_to_labels)
+    #scala_library doesn't add labels to the direct dependency itself
     java_provider = dep_target[JavaInfo]
-    _transitively_accumulate_labels(dep_target, java_provider, jars2labels)
-
-def _transitively_accumulate_labels(dep_target, java_provider, jars2labels):
-  if hasattr(dep_target, "jars_to_labels"):
-    jars2labels.update(dep_target.jars_to_labels)
-  #scala_library doesn't add labels to the direct dependency itself
-  for jar in java_provider.compile_jars.to_list():
-    jars2labels[jar.path] = dep_target.label
+    for jar in java_provider.compile_jars.to_list():
+      jars2labels[jar.path] = dep_target.label
 
 def _collect_runtime(runtime_deps):
   jar_deps = []

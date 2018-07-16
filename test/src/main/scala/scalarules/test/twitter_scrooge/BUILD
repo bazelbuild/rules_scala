@@ -170,12 +170,14 @@ scala_library(
 scala_binary(
     name = "twodeep_binary",
     main_class = "scalarules.test.twitter_scrooge.Twodeep",
+    visibility = ["//visibility:public"],
     deps = [":twodeep"],
 )
 
 scala_binary(
     name = "justscrooge2b_binary",
     main_class = "scalarules.test.twitter_scrooge.JustScrooge2b",
+    visibility = ["//visibility:public"],
     deps = [":justscrooge2b"],
 )
 
@@ -193,6 +195,7 @@ scala_binary(
     name = "justscrooges",
     srcs = ["JustScrooge1.scala"],
     main_class = "scalarules.test.twitter_scrooge.JustScrooge1",
+    visibility = ["//visibility:public"],
     deps = [":allscrooges"],
 )
 
@@ -205,7 +208,8 @@ scala_library(
 scala_binary(
     name = "barethrifts",
     main_class = "scalarules.test.twitter_scrooge.BareThrifts",
-    deps = [":bare_thrift_scrooge"],
+    visibility = ["//visibility:public"],
+    deps = [":barethriftslib"],
 )
 
 sh_test(
