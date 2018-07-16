@@ -271,7 +271,8 @@ def try_to_compile_java_jar(ctx, scala_output, all_srcjars, java_srcs,
   providers_of_dependencies = collect_java_providers_of(ctx.attr.deps)
   providers_of_dependencies += collect_java_providers_of(
       implicit_junit_deps_needed_for_java_compilation)
-  providers_of_dependencies += collect_java_providers_of([ctx.attr._scalalib])
+  providers_of_dependencies += collect_java_providers_of(
+      ctx.attr._scala_provider[_ScalacProvider].default_classpath)
   scala_sources_java_provider = _interim_java_provider_for_java_compilation(
       scala_output)
   providers_of_dependencies += [scala_sources_java_provider]
@@ -331,13 +332,13 @@ def _compile_or_empty(ctx, manifest, jars, srcjars, buildijar,
     sources = [
         f for f in ctx.files.srcs if f.basename.endswith(_scala_extension)
     ] + java_srcs
-    compile_scala(ctx, ctx.label, ctx.outputs.jar, manifest,
-                  ctx.outputs.statsfile, sources, jars, all_srcjars,
-                  transitive_compile_jars, ctx.attr.plugins,
-                  ctx.attr.resource_strip_prefix, ctx.files.resources,
-                  ctx.files.resource_jars, jars2labels, ctx.attr.scalacopts,
-                  ctx.attr.print_compile_time, ctx.attr.expect_java_output,
-                  ctx.attr.scalac_jvm_flags, ctx.attr._scala_provider[_ScalacProvider])
+    compile_scala(
+        ctx, ctx.label, ctx.outputs.jar, manifest, ctx.outputs.statsfile,
+        sources, jars, all_srcjars, transitive_compile_jars, ctx.attr.plugins,
+        ctx.attr.resource_strip_prefix, ctx.files.resources,
+        ctx.files.resource_jars, jars2labels, ctx.attr.scalacopts,
+        ctx.attr.print_compile_time, ctx.attr.expect_java_output,
+        ctx.attr.scalac_jvm_flags, ctx.attr._scala_provider[_ScalacProvider])
 
     # build ijar if needed
     if buildijar:

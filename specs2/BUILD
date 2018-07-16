@@ -4,11 +4,11 @@ java_import(
     name = "specs2",
     jars = [],
     exports = [
-        "@io_bazel_rules_scala_org_scalaz_scalaz_core//:io_bazel_rules_scala_org_scalaz_scalaz_core",
-        "@io_bazel_rules_scala_org_scalaz_scalaz_effect//:io_bazel_rules_scala_org_scalaz_scalaz_effect",
-        "@io_bazel_rules_scala_org_specs2_specs2_common//:io_bazel_rules_scala_org_specs2_specs2_common",
-        "@io_bazel_rules_scala_org_specs2_specs2_core//:io_bazel_rules_scala_org_specs2_specs2_core",
-        "@io_bazel_rules_scala_org_specs2_specs2_matcher//:io_bazel_rules_scala_org_specs2_specs2_matcher",
+        "@io_bazel_rules_scala_org_scalaz_scalaz_core",
+        "@io_bazel_rules_scala_org_scalaz_scalaz_effect",
+        "@io_bazel_rules_scala_org_specs2_specs2_common",
+        "@io_bazel_rules_scala_org_specs2_specs2_core",
+        "@io_bazel_rules_scala_org_specs2_specs2_matcher",
     ],
     deps = [
         "//external:io_bazel_rules_scala/dependency/scala/parser_combinators",

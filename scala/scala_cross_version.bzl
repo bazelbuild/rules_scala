@@ -41,7 +41,8 @@ def extract_major_version_underscore(scala_version):
 def default_scala_major_version():
   return extract_major_version(default_scala_version())
 
-def scala_mvn_artifact(artifact, major_scala_version = default_scala_major_version()):
+def scala_mvn_artifact(artifact,
+                       major_scala_version = default_scala_major_version()):
   """Add scala version to maven artifact"""
   gav = artifact.split(":")
   groupid = gav[0]
