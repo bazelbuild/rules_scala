@@ -1,0 +1,43 @@
+workspace(name = "io_bazel_rules_scala_test")
+
+local_repository(
+    name = "io_bazel_rules_scala",
+    path = "../../"
+)
+
+load("@io_bazel_rules_scala//scala:scala_cross_version.bzl", "extract_major_version")
+
+scala_version = "${scala_version}"
+
+load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
+
+scala_repositories((scala_version, {
+${scala_version_shas}
+}))
+
+load("@io_bazel_rules_scala//twitter_scrooge:twitter_scrooge.bzl", "twitter_scrooge", "scrooge_scala_library")
+
+twitter_scrooge(scala_version)
+
+load("@io_bazel_rules_scala//tut_rule:tut.bzl", "tut_repositories")
+
+tut_repositories(scala_version)
+
+load("@io_bazel_rules_scala//scala_proto:scala_proto.bzl", "scala_proto_repositories")
+
+scala_proto_repositories(scala_version)
+
+load("@io_bazel_rules_scala//specs2:specs2_junit.bzl", "specs2_junit_repositories")
+
+specs2_junit_repositories(scala_version)
+
+load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_toolchains")
+
+scala_register_toolchains()
+
+http_archive(
+    name = "com_google_protobuf",
+    sha256 = "118ac276be0db540ff2a89cecc5dfb9606d4d16e91cc4ea8883ae8160acb5163",
+    strip_prefix = "protobuf-0456e269ee6505766474aa8d7b8bba7ac047f457",
+    urls = ["https://github.com/google/protobuf/archive/0456e269ee6505766474aa8d7b8bba7ac047f457.zip"],
+)

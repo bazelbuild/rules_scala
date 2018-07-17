@@ -5,8 +5,14 @@ load(
 
 load(
     "//scala:scala_cross_version.bzl",
-    "scala_mvn_artifact",
+    _scala_mvn_artifact = "scala_mvn_artifact",
+    _extract_major_version = "extract_major_version",
+    _default_scala_version = "default_scala_version",
 )
+
+load(
+    "@io_bazel_rules_scala//scala:scala_maven_import_external.bzl",
+    _scala_maven_import_external = "scala_maven_import_external")
 
 load(
     "//scala/private:common.bzl",
@@ -14,7 +20,11 @@ load(
     "create_java_provider",
 )
 
-def scala_proto_repositories():
+def scala_proto_repositories(
+    scala_version = _default_scala_version(),
+    maven_servers = ["http://central.maven.org/maven2"]):
+  major_version = _extract_major_version(scala_version)
+
   native.maven_server(
       name = "scala_proto_deps_maven_server",
       url = "http://central.maven.org/maven2/",
@@ -31,86 +41,108 @@ def scala_proto_repositories():
       name = 'io_bazel_rules_scala/dependency/proto/protoc',
       actual = '@scala_proto_rules_protoc_jar//jar')
 
-  native.maven_jar(
+  scala_jar_shas = {
+      "2.11": {
+          "scalapb_plugin": "c79e1e1398de88779611fda91ef1a9699f9390946bee6a4bba113f3cc036a838",
+          "protoc_bridge": "a5beafaa7d49822d1412cce675c226304c6499ff65ec6e8cff7e65ae537076b5",
+          "scalapbc": "32b7340a545b282c513d3c91e0ebf906e2ad1de45c0875e7e7bbaaa0909f5e60",
+          "scalapb_runtime": "d5b597f637a6f99560d674715647fc5bb199ebf4ca6e263ed1614ea4eb63baad",
+          "scalapb_runtime_grpc": "d7ce3059cc63b3e1bcc4f710cff55facb92a478cc2225e4c6830ab7ba0fd4fe8",
+          "scalapb_lenses": "1e9fa3830dfcee99ba20bb55468757bb35762b5ee243ddb8c4d238e749a95cd7",
+          "scalapb_fastparse": "9e07298f20ee37e828f2699b71b447008ebf122cc86cab1d1fcd8d00fad4837b",
+      },
+      "2.12": {
+          "scalapb_plugin": "8fec3566010ffbd61b1b44e23bd344790533f5648d918b42ab683d79bdee9ddf",
+          "protoc_bridge": "bb53dacf3dcd588ea8039b44abc9d816f3150f01916d07a76e1e248389b35d71",
+          "scalapbc": "d2d3a7477f7c89b70476627c1eb44781ccb1c99f36ed208fca69849e5d8dd692",
+          "scalapb_runtime": "26a8446755b1b11a75a5e3a1d055ef251b7a479a07bf2285ee1aaf8df92a71f5",
+          "scalapb_runtime_grpc": "fb2ca8ea6c66ec79e4a9ad279c143af08ec9d0c9b607fb0965cc5aee19a8679a",
+          "scalapb_lenses": "7cedcbc3125ad3f156466d6f3aec24b7fe6954cdc54a426ea089b4a46cd84c1c",
+          "scalapb_fastparse": "7bc2a3131204e737f020f94e19b1e62a1bf5359f5741c35dff9351ef36d7a80e",
+      },
+  }
+
+  scala_version_jar_shas = scala_jar_shas[major_version]
+
+  _scala_maven_import_external(
       name = "scala_proto_rules_scalapb_plugin",
-      artifact = scala_mvn_artifact(
-          "com.trueaccord.scalapb:compilerplugin:0.6.5"),
-      sha1 = "290094c632c95b36b6f66d7dbfdc15242b9a247f",
-      server = "scala_proto_deps_maven_server",
-  )
+      artifact = _scala_mvn_artifact(
+          "com.trueaccord.scalapb:compilerplugin:0.6.5", major_version),
+      jar_sha256 = scala_version_jar_shas["scalapb_plugin"],
+      licenses = ["notice"],
+      server_urls = maven_servers)
 
   native.bind(
       name = 'io_bazel_rules_scala/dependency/proto/scalapb_plugin',
-      actual = '@scala_proto_rules_scalapb_plugin//jar')
+      actual = '@scala_proto_rules_scalapb_plugin')
 
-  native.maven_jar(
+  _scala_maven_import_external(
       name = "scala_proto_rules_protoc_bridge",
-      artifact = scala_mvn_artifact(
-          "com.trueaccord.scalapb:protoc-bridge:0.3.0-M1"),
-      sha1 = "73d38f045ea8f09cc1264991d1064add6eac9e00",
-      server = "scala_proto_deps_maven_server",
-  )
+      artifact = _scala_mvn_artifact(
+          "com.trueaccord.scalapb:protoc-bridge:0.3.0-M1", major_version),
+      jar_sha256 = scala_version_jar_shas["protoc_bridge"],
+      licenses = ["notice"],
+      server_urls = maven_servers)
 
   native.bind(
       name = 'io_bazel_rules_scala/dependency/proto/protoc_bridge',
-      actual = '@scala_proto_rules_protoc_bridge//jar')
+      actual = '@scala_proto_rules_protoc_bridge')
 
-  native.maven_jar(
+  _scala_maven_import_external(
       name = "scala_proto_rules_scalapbc",
-      artifact = scala_mvn_artifact("com.trueaccord.scalapb:scalapbc:0.6.5"),
-      sha1 = "b204d6d56a042b973af5b6fe28f81ece232d1fe4",
-      server = "scala_proto_deps_maven_server",
-  )
-
+      artifact = _scala_mvn_artifact("com.trueaccord.scalapb:scalapbc:0.6.5",
+                                     major_version),
+      jar_sha256 = scala_version_jar_shas["scalapbc"],
+      licenses = ["notice"],
+      server_urls = maven_servers)
   native.bind(
       name = 'io_bazel_rules_scala/dependency/proto/scalapbc',
-      actual = '@scala_proto_rules_scalapbc//jar')
+      actual = '@scala_proto_rules_scalapbc')
 
-  native.maven_jar(
+  _scala_maven_import_external(
       name = "scala_proto_rules_scalapb_runtime",
-      artifact = scala_mvn_artifact(
-          "com.trueaccord.scalapb:scalapb-runtime:0.6.5"),
-      sha1 = "ac9287ff48c632df525773570ee4842e3ddf40e9",
-      server = "scala_proto_deps_maven_server",
-  )
-
+      artifact = _scala_mvn_artifact(
+          "com.trueaccord.scalapb:scalapb-runtime:0.6.5", major_version),
+      jar_sha256 = scala_version_jar_shas["scalapb_runtime"],
+      licenses = ["notice"],
+      server_urls = maven_servers)
   native.bind(
       name = 'io_bazel_rules_scala/dependency/proto/scalapb_runtime',
-      actual = '@scala_proto_rules_scalapb_runtime//jar')
+      actual = '@scala_proto_rules_scalapb_runtime')
 
-  native.maven_jar(
+  _scala_maven_import_external(
       name = "scala_proto_rules_scalapb_runtime_grpc",
-      artifact = scala_mvn_artifact(
-          "com.trueaccord.scalapb:scalapb-runtime-grpc:0.6.5"),
-      sha1 = "9dc3374001f4190548db36a7dc87bd4f9bca6f9c",
-      server = "scala_proto_deps_maven_server",
-  )
-
+      artifact = _scala_mvn_artifact(
+          "com.trueaccord.scalapb:scalapb-runtime-grpc:0.6.5", major_version),
+      jar_sha256 = scala_version_jar_shas["scalapb_runtime_grpc"],
+      licenses = ["notice"],
+      server_urls = maven_servers)
   native.bind(
       name = 'io_bazel_rules_scala/dependency/proto/scalapb_runtime_grpc',
-      actual = '@scala_proto_rules_scalapb_runtime_grpc//jar')
+      actual = '@scala_proto_rules_scalapb_runtime_grpc')
 
-  native.maven_jar(
+  _scala_maven_import_external(
       name = "scala_proto_rules_scalapb_lenses",
-      artifact = scala_mvn_artifact("com.trueaccord.lenses:lenses:0.4.12"),
-      sha1 = "c5fbf5b872ce99d9a16d3392ccc0d15a0e43d823",
-      server = "scala_proto_deps_maven_server",
-  )
-
+      artifact = _scala_mvn_artifact("com.trueaccord.lenses:lenses:0.4.12",
+                                     major_version),
+      jar_sha256 = scala_version_jar_shas["scalapb_lenses"],
+      licenses = ["notice"],
+      server_urls = maven_servers)
   native.bind(
       name = 'io_bazel_rules_scala/dependency/proto/scalapb_lenses',
-      actual = '@scala_proto_rules_scalapb_lenses//jar')
+      actual = '@scala_proto_rules_scalapb_lenses')
 
-  native.maven_jar(
+  _scala_maven_import_external(
       name = "scala_proto_rules_scalapb_fastparse",
-      artifact = scala_mvn_artifact("com.lihaoyi:fastparse:0.4.4"),
-      sha1 = "f065fe0afe6fd2b4557d985c37362c36f08f9947",
-      server = "scala_proto_deps_maven_server",
-  )
+      artifact = _scala_mvn_artifact("com.lihaoyi:fastparse:0.4.4",
+                                     major_version),
+      jar_sha256 = scala_version_jar_shas["scalapb_fastparse"],
+      licenses = ["notice"],
+      server_urls = maven_servers)
 
   native.bind(
       name = 'io_bazel_rules_scala/dependency/proto/scalapb_fastparse',
-      actual = '@scala_proto_rules_scalapb_fastparse//jar')
+      actual = '@scala_proto_rules_scalapb_fastparse')
 
   native.maven_jar(
       name = "scala_proto_rules_grpc_core",

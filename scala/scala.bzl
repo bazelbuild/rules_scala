@@ -15,6 +15,18 @@ load(
     _scala_maven_import_external = "scala_maven_import_external")
 
 load(
+    "@io_bazel_rules_scala//scala:providers.bzl",
+    _ScalacProvider = "ScalacProvider",
+)
+
+load(
+    "@io_bazel_rules_scala//scala:scala_cross_version.bzl",
+    _new_scala_default_repository = "new_scala_default_repository",
+    _extract_major_version = "extract_major_version",
+    _default_scala_version = "default_scala_version",
+    _default_scala_version_jar_shas = "default_scala_version_jar_shas")
+
+load(
     "@io_bazel_rules_scala//specs2:specs2_junit.bzl",
     _specs2_junit_dependencies = "specs2_junit_dependencies")
 
@@ -33,23 +45,6 @@ _implicit_deps = {
         cfg = "host",
         default = Label("@bazel_tools//tools/jdk:singlejar"),
         allow_files = True),
-    "_scalac": attr.label(
-        executable = True,
-        cfg = "host",
-        default = Label("//src/java/io/bazel/rulesscala/scalac"),
-        allow_files = True),
-    "_scalalib": attr.label(
-        default = Label(
-            "//external:io_bazel_rules_scala/dependency/scala/scala_library"),
-        allow_files = True),
-    "_scalacompiler": attr.label(
-        default = Label(
-            "//external:io_bazel_rules_scala/dependency/scala/scala_compiler"),
-        allow_files = True),
-    "_scalareflect": attr.label(
-        default = Label(
-            "//external:io_bazel_rules_scala/dependency/scala/scala_reflect"),
-        allow_files = True),
     "_zipper": attr.label(
         executable = True,
         cfg = "host",
@@ -61,7 +56,10 @@ _implicit_deps = {
         default = Label("@bazel_tools//tools/jdk:current_java_runtime"),
         cfg = "host"),
     "_java_runtime": attr.label(
-        default = Label("@bazel_tools//tools/jdk:current_java_runtime"))
+        default = Label("@bazel_tools//tools/jdk:current_java_runtime")),
+    "_scala_provider": attr.label(
+        default = Label("@io_bazel_rules_scala//scala:scala_default"),
+        providers = [_ScalacProvider])
 }
 
 # Single dep to allow IDEs to pickup all the implicit dependencies.
@@ -257,54 +255,67 @@ scala_repl = rule(
     toolchains = ['@io_bazel_rules_scala//scala:toolchain_type'],
 )
 
-def scala_repositories(maven_servers = ["http://central.maven.org/maven2"]):
-  _scala_maven_import_external(
-      name = "io_bazel_rules_scala_scala_library",
-      artifact = "org.scala-lang:scala-library:2.11.12",
-      jar_sha256 =
-      "0b3d6fd42958ee98715ba2ec5fe221f4ca1e694d7c981b0ae0cd68e97baf6dce",
-      licenses = ["notice"],
-      server_urls = maven_servers,
-  )
-  _scala_maven_import_external(
-      name = "io_bazel_rules_scala_scala_compiler",
-      artifact = "org.scala-lang:scala-compiler:2.11.12",
-      jar_sha256 =
-      "3e892546b72ab547cb77de4d840bcfd05c853e73390fed7370a8f19acb0735a0",
-      licenses = ["notice"],
-      server_urls = maven_servers,
-  )
-  _scala_maven_import_external(
-      name = "io_bazel_rules_scala_scala_reflect",
-      artifact = "org.scala-lang:scala-reflect:2.11.12",
-      jar_sha256 =
-      "6ba385b450a6311a15c918cf8688b9af9327c6104f0ecbd35933cfcd3095fe04",
-      licenses = ["notice"],
-      server_urls = maven_servers,
-  )
+def scala_repositories(
+    scala_version_shas = (_default_scala_version(),
+                          _default_scala_version_jar_shas()),
+    maven_servers = ["http://central.maven.org/maven2"]):
+  (scala_version, scala_version_jar_shas) = scala_version_shas
+  major_version = _extract_major_version(scala_version)
+
+  _new_scala_default_repository(
+      scala_version = scala_version,
+      scala_version_jar_shas = scala_version_jar_shas,
+      maven_servers = maven_servers)
+
+  scala_extra_jar_shas = {
+      "2.11": {
+          "scalatest": "2aafeb41257912cbba95f9d747df9ecdc7ff43f039d35014b4c2a8eb7ed9ba2f",
+          "scalactic": "84723064f5716f38990fe6e65468aa39700c725484efceef015771d267341cf2",
+          "scala_xml": "767e11f33eddcd506980f0ff213f9d553a6a21802e3be1330345f62f7ee3d50f",
+          "scala_parser_combinators": "0dfaafce29a9a245b0a9180ec2c1073d2bd8f0330f03a9f1f6a74d1bc83f62d6"
+      },
+      "2.12": {
+          "scalatest": "b416b5bcef6720da469a8d8a5726e457fc2d1cd5d316e1bc283aa75a2ae005e5",
+          "scalactic": "57e25b4fd969b1758fe042595112c874dfea99dca5cc48eebe07ac38772a0c41",
+          "scala_xml": "035015366f54f403d076d95f4529ce9eeaf544064dbc17c2d10e4f5908ef4256",
+          "scala_parser_combinators": "282c78d064d3e8f09b3663190d9494b85e0bb7d96b0da05994fe994384d96111"
+      },
+  }
+
+  scala_version_extra_jar_shas = scala_extra_jar_shas[major_version]
+
   _scala_maven_import_external(
       name = "io_bazel_rules_scala_scalatest",
-      artifact = "org.scalatest:scalatest_2.11:2.2.6",
-      jar_sha256 =
-      "f198967436a5e7a69cfd182902adcfbcb9f2e41b349e1a5c8881a2407f615962",
+      artifact = "org.scalatest:scalatest_{major_version}:3.0.5".format(
+          major_version = major_version),
+      jar_sha256 = scala_version_extra_jar_shas["scalatest"],
+      licenses = ["notice"],
+      server_urls = maven_servers,
+  )
+  _scala_maven_import_external(
+      name = "io_bazel_rules_scala_scalactic",
+      artifact = "org.scalactic:scalactic_{major_version}:3.0.5".format(
+          major_version = major_version),
+      jar_sha256 = scala_version_extra_jar_shas["scalactic"],
       licenses = ["notice"],
       server_urls = maven_servers,
   )
 
   _scala_maven_import_external(
       name = "io_bazel_rules_scala_scala_xml",
-      artifact = "org.scala-lang.modules:scala-xml_2.11:1.0.5",
-      jar_sha256 =
-      "767e11f33eddcd506980f0ff213f9d553a6a21802e3be1330345f62f7ee3d50f",
+      artifact = "org.scala-lang.modules:scala-xml_{major_version}:1.0.5".
+      format(major_version = major_version),
+      jar_sha256 = scala_version_extra_jar_shas["scala_xml"],
       licenses = ["notice"],
       server_urls = maven_servers,
   )
 
   _scala_maven_import_external(
       name = "io_bazel_rules_scala_scala_parser_combinators",
-      artifact = "org.scala-lang.modules:scala-parser-combinators_2.11:1.0.4",
-      jar_sha256 =
-      "0dfaafce29a9a245b0a9180ec2c1073d2bd8f0330f03a9f1f6a74d1bc83f62d6",
+      artifact =
+      "org.scala-lang.modules:scala-parser-combinators_{major_version}:1.0.4".
+      format(major_version = major_version),
+      jar_sha256 = scala_version_extra_jar_shas["scala_parser_combinators"],
       licenses = ["notice"],
       server_urls = maven_servers,
   )
@@ -356,6 +367,10 @@ def scala_repositories(maven_servers = ["http://central.maven.org/maven2"]):
       actual = "@scalac_rules_commons_io//jar")
 
   native.bind(
+      name = "io_bazel_rules_scala/dependency/scalatest/scalatest",
+      actual = "@io_bazel_rules_scala//scala/scalatest:scalatest")
+
+  native.bind(
       name = "io_bazel_rules_scala/dependency/scala/scala_compiler",
       actual = "@io_bazel_rules_scala_scala_compiler")
 
@@ -374,10 +389,6 @@ def scala_repositories(maven_servers = ["http://central.maven.org/maven2"]):
   native.bind(
       name = "io_bazel_rules_scala/dependency/scala/parser_combinators",
       actual = "@io_bazel_rules_scala_scala_parser_combinators")
-
-  native.bind(
-      name = "io_bazel_rules_scala/dependency/scalatest/scalatest",
-      actual = "@io_bazel_rules_scala_scalatest")
 
 def _sanitize_string_for_usage(s):
   res_array = []

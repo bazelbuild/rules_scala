@@ -24,26 +24,35 @@ load("//specs2:specs2_junit.bzl", "specs2_junit_repositories")
 
 specs2_junit_repositories()
 
-load("//scala:scala_cross_version.bzl", "scala_mvn_artifact")
+load("//scala:scala_cross_version.bzl", "scala_mvn_artifact", "default_scala_major_version")
 
 # test adding a scala jar:
 maven_jar(
     name = "com_twitter__scalding_date",
-    artifact = scala_mvn_artifact("com.twitter:scalding-date:0.17.0"),
+    artifact = scala_mvn_artifact(
+        "com.twitter:scalding-date:0.17.0",
+        default_scala_major_version(),
+    ),
     sha1 = "420fb0c4f737a24b851c4316ee0362095710caa5",
 )
 
 # For testing that we don't include sources jars to the classpath
 maven_jar(
     name = "org_typelevel__cats_core",
-    artifact = scala_mvn_artifact("org.typelevel:cats-core:0.9.0"),
+    artifact = scala_mvn_artifact(
+        "org.typelevel:cats-core:0.9.0",
+        default_scala_major_version(),
+    ),
     sha1 = "b2f8629c6ec834d8b6321288c9fe77823f1e1314",
 )
 
 # test of a plugin
 maven_jar(
     name = "org_psywerx_hairyfotr__linter",
-    artifact = scala_mvn_artifact("org.psywerx.hairyfotr:linter:0.1.13"),
+    artifact = scala_mvn_artifact(
+        "org.psywerx.hairyfotr:linter:0.1.13",
+        default_scala_major_version(),
+    ),
     sha1 = "e5b3e2753d0817b622c32aedcb888bcf39e275b4",
 )
 

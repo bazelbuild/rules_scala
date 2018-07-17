@@ -13,7 +13,10 @@
 # limitations under the License.
 """Rules for supporting the Scala language."""
 load("@io_bazel_rules_scala//scala:scala_toolchain.bzl", "scala_toolchain")
-load("@io_bazel_rules_scala//scala:providers.bzl", "create_scala_provider")
+load(
+    "@io_bazel_rules_scala//scala:providers.bzl",
+    "create_scala_provider",
+    _ScalacProvider = "ScalacProvider")
 load(
     ":common.bzl",
     "add_labels_of_jars_to",
@@ -132,7 +135,7 @@ def compile_scala(ctx, target_label, output, manifest, statsfile, sources,
                   cjars, all_srcjars, transitive_compile_jars, plugins,
                   resource_strip_prefix, resources, resource_jars, labels,
                   in_scalacopts, print_compile_time, expect_java_output,
-                  scalac_jvm_flags):
+                  scalac_jvm_flags, scalac_provider):
   # look for any plugins:
   plugins = _collect_plugin_paths(plugins)
   dependency_analyzer_plugin_jars = []
@@ -223,15 +226,20 @@ StatsfileOutput: {statsfile_output}
   ctx.actions.write(
       output = argfile, content = scalac_args + optional_scalac_args)
 
+  scalac_inputs, _, scalac_input_manifests = ctx.resolve_command(
+      tools = [scalac_provider.scalac])
+
   outs = [output, statsfile]
-  ins = (compiler_classpath_jars.to_list() + all_srcjars.to_list() +
-         list(sources) + plugins_list + dependency_analyzer_plugin_jars +
-         classpath_resources + resources + resource_jars + [manifest, argfile])
+  ins = (
+      compiler_classpath_jars.to_list() + all_srcjars.to_list() + list(sources)
+      + plugins_list + dependency_analyzer_plugin_jars + classpath_resources +
+      resources + resource_jars + [manifest, argfile] + scalac_inputs)
 
   ctx.actions.run(
       inputs = ins,
       outputs = outs,
-      executable = ctx.executable._scalac,
+      executable = scalac_provider.scalac.files_to_run.executable,
+      input_manifests = scalac_input_manifests,
       mnemonic = "Scalac",
       progress_message = "scala %s" % target_label,
       execution_requirements = {"supports-workers": "1"},
@@ -263,7 +271,8 @@ def try_to_compile_java_jar(ctx, scala_output, all_srcjars, java_srcs,
   providers_of_dependencies = collect_java_providers_of(ctx.attr.deps)
   providers_of_dependencies += collect_java_providers_of(
       implicit_junit_deps_needed_for_java_compilation)
-  providers_of_dependencies += collect_java_providers_of([ctx.attr._scalalib])
+  providers_of_dependencies += collect_java_providers_of(
+      ctx.attr._scala_provider[_ScalacProvider].default_classpath)
   scala_sources_java_provider = _interim_java_provider_for_java_compilation(
       scala_output)
   providers_of_dependencies += [scala_sources_java_provider]
@@ -323,13 +332,13 @@ def _compile_or_empty(ctx, manifest, jars, srcjars, buildijar,
     sources = [
         f for f in ctx.files.srcs if f.basename.endswith(_scala_extension)
     ] + java_srcs
-    compile_scala(ctx, ctx.label, ctx.outputs.jar, manifest,
-                  ctx.outputs.statsfile, sources, jars, all_srcjars,
-                  transitive_compile_jars, ctx.attr.plugins,
-                  ctx.attr.resource_strip_prefix, ctx.files.resources,
-                  ctx.files.resource_jars, jars2labels, ctx.attr.scalacopts,
-                  ctx.attr.print_compile_time, ctx.attr.expect_java_output,
-                  ctx.attr.scalac_jvm_flags)
+    compile_scala(
+        ctx, ctx.label, ctx.outputs.jar, manifest, ctx.outputs.statsfile,
+        sources, jars, all_srcjars, transitive_compile_jars, ctx.attr.plugins,
+        ctx.attr.resource_strip_prefix, ctx.files.resources,
+        ctx.files.resource_jars, jars2labels, ctx.attr.scalacopts,
+        ctx.attr.print_compile_time, ctx.attr.expect_java_output,
+        ctx.attr.scalac_jvm_flags, ctx.attr._scala_provider[_ScalacProvider])
 
     # build ijar if needed
     if buildijar:
@@ -474,15 +483,16 @@ def is_dependency_analyzer_off(ctx):
 # Extract very common code out from dependency analysis into single place
 # automatically adds dependency on scala-library and scala-reflect
 # collects jars from deps, runtime jars from runtime_deps, and
-def _collect_jars_from_common_ctx(ctx, extra_deps = [],
+def _collect_jars_from_common_ctx(ctx,
+                                  base_classpath,
+                                  extra_deps = [],
                                   extra_runtime_deps = []):
 
   dependency_analyzer_is_off = is_dependency_analyzer_off(ctx)
 
-  # Get jars from deps
-  auto_deps = [ctx.attr._scalalib, ctx.attr._scalareflect]
-  deps_jars = collect_jars(ctx.attr.deps + auto_deps + extra_deps,
+  deps_jars = collect_jars(ctx.attr.deps + extra_deps + base_classpath,
                            dependency_analyzer_is_off)
+
   (cjars, transitive_rjars, jars2labels,
    transitive_compile_jars) = (deps_jars.compile_jars,
                                deps_jars.transitive_runtime_jars,
@@ -499,13 +509,14 @@ def _collect_jars_from_common_ctx(ctx, extra_deps = [],
       jars2labels = jars2labels,
       transitive_compile_jars = transitive_compile_jars)
 
-def _lib(ctx, non_macro_lib):
+def _lib(ctx, base_classpath, non_macro_lib):
   # Build up information from dependency-like attributes
 
   # This will be used to pick up srcjars from non-scala library
   # targets (like thrift code generation)
   srcjars = collect_srcjars(ctx.attr.deps)
-  jars = _collect_jars_from_common_ctx(ctx)
+
+  jars = _collect_jars_from_common_ctx(ctx, base_classpath)
   (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
 
   write_manifest(ctx)
@@ -551,10 +562,13 @@ def _lib(ctx, non_macro_lib):
     )
 
 def scala_library_impl(ctx):
-  return _lib(ctx, True)
+  scalac_provider = ctx.attr._scala_provider[_ScalacProvider]
+  return _lib(ctx, scalac_provider.default_classpath, True)
 
 def scala_macro_library_impl(ctx):
-  return _lib(ctx, False)  # don't build the ijar for macros
+  scalac_provider = ctx.attr._scala_provider[_ScalacProvider]
+  return _lib(ctx, scalac_provider.default_macro_classpath,
+              False)  # don't build the ijar for macros
 
 # Common code shared by all scala binary implementations.
 def _scala_binary_common(ctx,
@@ -600,7 +614,8 @@ def _scala_binary_common(ctx,
       runfiles = runfiles)
 
 def scala_binary_impl(ctx):
-  jars = _collect_jars_from_common_ctx(ctx)
+  scalac_provider = ctx.attr._scala_provider[_ScalacProvider]
+  jars = _collect_jars_from_common_ctx(ctx, scalac_provider.default_classpath)
   (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
 
   wrapper = _write_java_wrapper(ctx, "", "")
@@ -616,9 +631,12 @@ def scala_binary_impl(ctx):
   return out
 
 def scala_repl_impl(ctx):
+  scalac_provider = ctx.attr._scala_provider[_ScalacProvider]
   # need scala-compiler for MainGenericRunner below
   jars = _collect_jars_from_common_ctx(
-      ctx, extra_runtime_deps = [ctx.attr._scalacompiler])
+      ctx,
+      scalac_provider.default_repl_classpath,
+  )
   (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
 
   args = " ".join(ctx.attr.scalacopts)
@@ -666,8 +684,11 @@ def _scala_test_flags(ctx):
 def scala_test_impl(ctx):
   if len(ctx.attr.suites) != 0:
     print("suites attribute is deprecated. All scalatest test suites are run")
+
+  scalac_provider = ctx.attr._scala_provider[_ScalacProvider]
   jars = _collect_jars_from_common_ctx(
       ctx,
+      scalac_provider.default_classpath,
       extra_runtime_deps = [
           ctx.attr._scalatest_reporter, ctx.attr._scalatest_runner
       ],
@@ -731,8 +752,10 @@ def scala_junit_test_impl(ctx):
     fail(
         "Setting at least one of the attributes ('prefixes','suffixes') is required"
     )
+  scalac_provider = ctx.attr._scala_provider[_ScalacProvider]
   jars = _collect_jars_from_common_ctx(
       ctx,
+      scalac_provider.default_classpath,
       extra_deps = [
           ctx.attr._junit, ctx.attr._hamcrest, ctx.attr.suite_label,
           ctx.attr._bazel_test_runner
