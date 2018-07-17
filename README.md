@@ -70,9 +70,9 @@ as a parameter where `scala_version` is the scala version and `scala_version_jar
 `sha256` hashes for the maven artifacts `scala_library`, `scala_reflect` and `scala_compiler`:
 ```python
 scala_repositories(("2.12.6", {
-    "scala_compiler": "3e892546b72ab547cb77de4d840bcfd05c853e73390fed7370a8f19acb0735a0",
-    "scala_library": "0b3d6fd42958ee98715ba2ec5fe221f4ca1e694d7c981b0ae0cd68e97baf6dce",
-    "scala_reflect": "6ba385b450a6311a15c918cf8688b9af9327c6104f0ecbd35933cfcd3095fe04"
+    "scala_compiler": "3023b07cc02f2b0217b2c04f8e636b396130b3a8544a8dfad498a19c3e57a863",
+    "scala_library": "f81d7144f0ce1b8123335b72ba39003c4be2870767aca15dd0888ba3dab65e98",
+    "scala_reflect": "ffa70d522fc9f9deec14358aa674e6dd75c9dfa39d4668ef15bb52f002ce99fa"
 }))
 ```
 If you're using any of the rules `twitter_scrooge`, `tut_repositories`, `scala_proto_repositories`
