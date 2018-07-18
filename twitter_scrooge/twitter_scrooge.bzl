@@ -299,6 +299,8 @@ def _scrooge_scala_library_impl(ctx):
   else:
     all_java = aspect_info.java_info
 
+  # TODO: Remove `scala` field once JavaInfo supports multiple
+  # output jars. https://github.com/bazelbuild/rules_scala/issues/564
   return struct(
       scala = _create_scala_struct(ctx),  # For IntelliJ support
       providers = [
