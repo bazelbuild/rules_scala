@@ -322,16 +322,6 @@ def _create_scala_struct(ctx):
   """Create a scala provider in the shape expected by the IntelliJ bazel plugin."""
   output_jars = []
 
-  if ctx.attr.exports:
-    for exp in ctx.attr.exports:
-      for j in exp[JavaInfo].outputs.jars:
-        output_jars.append(
-            struct(
-                class_jar = j.class_jar,
-                ijar = None,
-                source_jar = None,
-                source_jars = []))
-
   for dep in ctx.attr.deps:
     for j in dep[ScroogeAspectInfo].java_info.outputs.jars:
       output_jars.append(
