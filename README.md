@@ -623,6 +623,34 @@ In your workspace file add the following lines:
   register_toolchains("//toolchains:my_scala_toolchain")
   ```
 
+## Usage with [bazel-deps](https://github.com/johnynek/bazel-deps)
+
+Bazel-deps allows you to generate bazel dependencies transitively for maven artifacts. Generally we don't want bazel-deps to fetch
+scala artifacts from maven but instead use the ones we get from calling `scala_repositories`. The artifacts can be overridden in the
+dependencies file used by bazel-deps:
+```yaml
+replacements:
+  org.scala-lang:
+    scala-library:
+      lang: scala/unmangled
+      target: "@io_bazel_rules_scala_scala_library//:io_bazel_rules_scala_scala_library"
+    scala-reflect:
+      lang: scala/unmangled
+      target: "@io_bazel_rules_scala_scala_reflect//:io_bazel_rules_scala_scala_reflect"
+    scala-compiler:
+      lang: scala/unmangled
+      target: "@io_bazel_rules_scala_scala_compiler//:io_bazel_rules_scala_scala_compiler"
+
+  org.scala-lang.modules:
+    scala-parser-combinators:
+      lang: scala
+      target:
+        "@io_bazel_rules_scala_scala_parser_combinators//:io_bazel_rules_scala_scala_parser_combinators"
+    scala-xml:
+      lang: scala
+      target:
+        "@io_bazel_rules_scala_scala_xml//:io_bazel_rules_scala_scala_xml"
+```
 
 ## [Experimental] Using strict-deps
 Bazel pushes towards explicit and minimal dependencies to keep BUILD file hygiene and allow for targets to refactor their dependencies without fear of downstream breaking.
@@ -660,6 +688,14 @@ bazel test //test/...
 ```
 Note `bazel test //...` will not work since we have a sub-folder on the root folder which is meant to be used in a failure scenario in the integration tests.
 Similarly to only build you should use `bazel build //src/...` due to that folder.
+
+## Updates
+This section contains a list of updates that might require action from the user.
+
+ - [`043ba58`](https://github.com/bazelbuild/rules_scala/commit/043ba58afaf90bf571911123d3353bdf20408a33):  
+ Updates default scrooge version to `18.6.0`
+ - [`76d4ab9`](https://github.com/bazelbuild/rules_scala/commit/76d4ab9f855f78113ee5990a84b0ad55d2417e4a):  
+ Updates naming for scala artifact replacements in bazel-deps. See [Usage with bazel-deps](#usage-with-bazel-deps)
 
 ## Contributing
 
