@@ -44,7 +44,12 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
 
     override val runsAfter = List("jvm")
 
-    val phaseName = DependencyAnalyzer.this.name
+    val phaseName: String = DependencyAnalyzer.this.name
+
+    private def warnOrError(messages: Set[String]): Unit = analyzerMode match {
+      case "error" => messages.foreach(reporter.error(NoPosition, _))
+      case "warn" => messages.foreach(reporter.warning(NoPosition, _))
+    }
 
     override def newPhase(prev: Phase): StdPhase = new StdPhase(prev) {
       override def run(): Unit = {
@@ -53,23 +58,32 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
 
         val usedJars = findUsedJars
 
-        warnOnIndirectTargetsFoundIn(usedJars)
+        warnOrError(unusedDependenciesFound(usedJars))
+        warnOrError(indirectTargetsFound(usedJars))
       }
 
-      private def warnOnIndirectTargetsFoundIn(usedJars: Set[AbstractFile]) = {
-        for (usedJar <- usedJars;
-             usedJarPath = usedJar.path;
-             target <- indirect.get(usedJarPath) if !direct.contains(usedJarPath)) {
-          val errorMessage =
+      private def unusedDependenciesFound(usedJars: Set[AbstractFile]): Set[String] = {
+        val usedJarPaths = usedJars.map(_.path)
+        direct.diff(usedJarPaths)
+          .map(indirect.get)
+          .collect {
+            case Some(target) =>
+              s"""Target '$target' is specified as a dependency to $currentTarget but isn't used, please remove it from the deps.
+                 |You can use the following buildozer command:
+                 |buildozer 'remove deps $target' $currentTarget
+                 |""".stripMargin
+          }
+      }
+
+      private def indirectTargetsFound(usedJars: Set[AbstractFile]): Set[String] = {
+        for {
+          usedJar <- usedJars
+          usedJarPath = usedJar.path
+          target <- indirect.get(usedJarPath) if !direct.contains(usedJarPath)
+        } yield
             s"""Target '$target' is used but isn't explicitly declared, please add it to the deps.
                |You can use the following buildozer command:
                |buildozer 'add deps $target' $currentTarget""".stripMargin
-
-          analyzerMode match {
-            case "error" => reporter.error(NoPosition, errorMessage)
-            case "warn" => reporter.warning(NoPosition, errorMessage)
-          }
-        }
       }
 
       override def apply(unit: CompilationUnit): Unit = ()

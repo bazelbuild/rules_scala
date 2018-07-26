@@ -50,6 +50,37 @@ class DependencyAnalyzerTest {
     run(testCode, withDirect = direct, withIndirect = indirect).noErrorOn(commonsTarget)
   }
 
+  @Test
+  def `error on unused direct dependencies`(): Unit = {
+    val testCode =
+      """object Foo {
+        |}
+      """.stripMargin
+    val commonsTarget = "//commons:Target"
+
+    val direct = Seq(apacheCommonsClasspath)
+    val indirect = Map(apacheCommonsClasspath -> commonsTarget.encode())
+    val errorMesssages = run(testCode, withDirect = direct, withIndirect = indirect)
+
+    assert(errorMesssages.exists { msg =>
+      msg.contains(commonsTarget) && msg.contains(s"buildozer 'remove deps $commonsTarget' $defaultTarget")
+    })
+  }
+
+  @Test
+  def `do not error on used direct dependencies`(): Unit = {
+    val testCode =
+      """object Foo {
+        |  org.apache.commons.lang3.ArrayUtils.EMPTY_BOOLEAN_ARRAY.length
+        |}
+      """.stripMargin
+    val commonsTarget = "commonsTarget"
+
+    val direct = Seq(apacheCommonsClasspath)
+    val indirect = Map(apacheCommonsClasspath -> commonsTarget)
+    run(testCode, withDirect = direct, withIndirect = indirect).noErrorOn(commonsTarget)
+  }
+
 
   implicit class `nice errors on sequence of strings`(infos: Seq[String]) {
 
@@ -64,7 +95,7 @@ class DependencyAnalyzerTest {
     private def buildozerCommand(depTarget: String) =
       s"buildozer 'add deps $depTarget' $defaultTarget"
 
-    def expectErrorOn(targets: String*) = targets.foreach(target => assert(
+    def expectErrorOn(targets: String*): Unit = targets.foreach(target => assert(
       infos.exists(checkErrorContainsMessage(target)),
       s"expected an error on $target to appear in errors (with buildozer command)!")
     )
@@ -83,4 +114,5 @@ class DependencyAnalyzerTest {
       targetLabel.replace(":", ";")
     }
   }
+
 }
