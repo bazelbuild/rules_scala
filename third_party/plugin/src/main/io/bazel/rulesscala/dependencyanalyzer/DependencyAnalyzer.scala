@@ -13,26 +13,36 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
   val components = List[PluginComponent](Component)
 
   var indirect: Map[String, String] = Map.empty
-  var direct: Set[String] = Set.empty
+  var direct: Map[String, String] = Map.empty
   var analyzerMode: String = "error"
   var currentTarget: String = "NA"
 
-  override def processOptions(options: List[String], error: (String) => Unit): Unit = {
+  def decodeTarget(target: String): String = target.replace(";", ":")
+
+  override def init(options: List[String], error: (String) => Unit): Boolean = {
+    var directJars: Seq[String] = Seq.empty
+    var directTargets: Seq[String] = Seq.empty
+
     var indirectJars: Seq[String] = Seq.empty
     var indirectTargets: Seq[String] = Seq.empty
 
     for (option <- options) {
       option.split(":").toList match {
-        case "direct-jars" :: data => direct = data.toSet
+        case "direct-jars" :: data => directJars = data.map(decodeTarget)
+        case "direct-targets" :: data => directTargets = data.map(decodeTarget)
         case "indirect-jars" :: data => indirectJars = data;
-        case "indirect-targets" :: data => indirectTargets = data.map(_.replace(";", ":"))
-        case "current-target" :: target => currentTarget = target.map(_.replace(";", ":")).head
+        case "indirect-targets" :: data => indirectTargets = data.map(decodeTarget)
+        case "current-target" :: target => currentTarget = target.map(decodeTarget).head
         case "mode" :: mode => analyzerMode = mode.head
         case unknown :: _ => error(s"unknown param $unknown")
         case Nil =>
       }
     }
+
+    direct = directJars.zip(directTargets).toMap
     indirect = indirectJars.zip(indirectTargets).toMap
+
+    true
   }
 
 
@@ -63,9 +73,11 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
       }
 
       private def unusedDependenciesFound(usedJars: Set[AbstractFile]): Set[String] = {
+        val directJarPaths = direct.keys.toSet
         val usedJarPaths = usedJars.map(_.path)
-        direct.diff(usedJarPaths)
-          .map(indirect.get)
+
+        directJarPaths.diff(usedJarPaths)
+          .map(direct.get)
           .collect {
             case Some(target) =>
               s"""Target '$target' is specified as a dependency to $currentTarget but isn't used, please remove it from the deps.

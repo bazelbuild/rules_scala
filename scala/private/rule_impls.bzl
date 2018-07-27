@@ -154,19 +154,25 @@ def compile_scala(ctx, target_label, output, manifest, statsfile, sources,
     dependency_analyzer_plugin_jars = ctx.files._dependency_analyzer_plugin
     compiler_classpath_jars = transitive_compile_jars
 
-    direct_jars = _join_path(cjars.to_list())
+    cjars_list = cjars.to_list()
+    direct_jars = _join_path(cjars_list)
+    direct_targets = ",".join([labels[j.path] for j in cjars_list])
+
     transitive_cjars_list = transitive_compile_jars.to_list()
     indirect_jars = _join_path(transitive_cjars_list)
     indirect_targets = ",".join([labels[j.path] for j in transitive_cjars_list])
+
     current_target = str(target_label)
 
     optional_scalac_args = """
 DirectJars: {direct_jars}
+DirectTargets: {direct_targets}
 IndirectJars: {indirect_jars}
 IndirectTargets: {indirect_targets}
 CurrentTarget: {current_target}
         """.format(
         direct_jars = direct_jars,
+        direct_targets = direct_targets,
         indirect_jars = indirect_jars,
         indirect_targets = indirect_targets,
         current_target = current_target)

@@ -15,9 +15,11 @@ class DependencyAnalyzerTest {
         |  org.apache.commons.lang3.ArrayUtils.EMPTY_BOOLEAN_ARRAY.length
         |}
       """.stripMargin
-    val commonsTarget = "//commons:Target".encode()
-    val indirect = Map(apacheCommonsClasspath -> commonsTarget)
-    run(testCode, withIndirect = indirect).expectErrorOn(indirect(apacheCommonsClasspath).decoded)
+
+    val commonsTarget = "//commons:Target"
+
+    val indirect = List(apacheCommonsClasspath -> commonsTarget.encode())
+    run(testCode, withIndirect = indirect).expectErrorOn(commonsTarget)
   }
 
   @Test
@@ -28,11 +30,11 @@ class DependencyAnalyzerTest {
         |  com.google.common.base.Strings.commonPrefix("abc", "abcd")
         |}
       """.stripMargin
-    val commonsTarget = "commonsTarget"
 
+    val commonsTarget = "commonsTarget"
     val guavaTarget = "guavaTarget"
 
-    val indirect = Map(apacheCommonsClasspath -> commonsTarget, guavaClasspath -> guavaTarget)
+    val indirect = List(apacheCommonsClasspath -> commonsTarget, guavaClasspath -> guavaTarget)
     run(testCode, withIndirect = indirect).expectErrorOn(commonsTarget, guavaTarget)
   }
 
@@ -43,10 +45,11 @@ class DependencyAnalyzerTest {
         |  org.apache.commons.lang3.ArrayUtils.EMPTY_BOOLEAN_ARRAY.length
         |}
       """.stripMargin
+
     val commonsTarget = "commonsTarget"
 
-    val direct = Seq(apacheCommonsClasspath)
-    val indirect = Map(apacheCommonsClasspath -> commonsTarget)
+    val direct = List(apacheCommonsClasspath -> commonsTarget)
+    val indirect = List(apacheCommonsClasspath -> commonsTarget)
     run(testCode, withDirect = direct, withIndirect = indirect).noErrorOn(commonsTarget)
   }
 
@@ -56,14 +59,15 @@ class DependencyAnalyzerTest {
       """object Foo {
         |}
       """.stripMargin
+
     val commonsTarget = "//commons:Target"
 
-    val direct = Seq(apacheCommonsClasspath)
-    val indirect = Map(apacheCommonsClasspath -> commonsTarget.encode())
-    val errorMesssages = run(testCode, withDirect = direct, withIndirect = indirect)
+    val direct = List(apacheCommonsClasspath -> commonsTarget.encode)
+    val errorMesssages = run(testCode, withDirect = direct)
 
     assert(errorMesssages.exists { msg =>
-      msg.contains(commonsTarget) && msg.contains(s"buildozer 'remove deps $commonsTarget' $defaultTarget")
+      msg.contains(commonsTarget) &&
+        msg.contains(s"buildozer 'remove deps $commonsTarget' $defaultTarget")
     })
   }
 
@@ -74,11 +78,11 @@ class DependencyAnalyzerTest {
         |  org.apache.commons.lang3.ArrayUtils.EMPTY_BOOLEAN_ARRAY.length
         |}
       """.stripMargin
+
     val commonsTarget = "commonsTarget"
 
-    val direct = Seq(apacheCommonsClasspath)
-    val indirect = Map(apacheCommonsClasspath -> commonsTarget)
-    run(testCode, withDirect = direct, withIndirect = indirect).noErrorOn(commonsTarget)
+    val direct = List(apacheCommonsClasspath -> commonsTarget)
+    run(testCode, withDirect = direct).noErrorOn(commonsTarget)
   }
 
 
