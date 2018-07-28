@@ -127,7 +127,7 @@ _common_attrs.update({
     # on the other hand any internal change (i.e. on code that ijar omits) WON’T trigger recompilation by transitive dependencies
     "_dependency_analyzer_plugin": attr.label(
         default = Label(
-            "@io_bazel_rules_scala//third_party/plugin/src/main:dependency_analyzer"
+            "@io_bazel_rules_scala//third_party/dependency_analyzer/src/main:dependency_analyzer"
         ),
         allow_files = [".jar"],
         mandatory = False),
