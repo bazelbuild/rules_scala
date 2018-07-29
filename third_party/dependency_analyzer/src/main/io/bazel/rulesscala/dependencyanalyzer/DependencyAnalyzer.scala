@@ -4,8 +4,6 @@ import scala.reflect.io.AbstractFile
 import scala.tools.nsc.plugins.{Plugin, PluginComponent}
 import scala.tools.nsc.{Global, Phase}
 
-import third_party.utils.src.main.io.bazel.rulesscala.utils.Utils
-
 class DependencyAnalyzer(val global: Global) extends Plugin {
   val name = "dependency-analyzer"
   val description =
@@ -62,7 +60,7 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
 
         super.run()
 
-        val usedJars = Utils.findUsedJars(global)
+        val usedJars: Set[AbstractFile] = findUsedJars
 
         warnOrError(indirectTargetsFound(usedJars))
       }
@@ -81,5 +79,33 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
       override def apply(unit: CompilationUnit): Unit = ()
     }
 
+    private def findUsedJars: Set[AbstractFile] = {
+      val jars = collection.mutable.Set[AbstractFile]()
+
+      def walkTopLevels(root: Symbol): Unit = {
+        def safeInfo(sym: Symbol): Type =
+          if (sym.hasRawInfo && sym.rawInfo.isComplete) sym.info else NoType
+
+        def packageClassOrSelf(sym: Symbol): Symbol =
+          if (sym.hasPackageFlag && !sym.isModuleClass) sym.moduleClass else sym
+
+        for (x <- safeInfo(packageClassOrSelf(root)).decls) {
+          if (x == root) ()
+          else if (x.hasPackageFlag) walkTopLevels(x)
+          else if (x.owner != root) { // exclude package class members
+            if (x.hasRawInfo && x.rawInfo.isComplete) {
+              val assocFile = x.associatedFile
+              if (assocFile.path.endsWith(".class") && assocFile.underlyingSource.isDefined)
+                assocFile.underlyingSource.foreach(jars += _)
+            }
+          }
+        }
+      }
+
+      exitingTyper {
+        walkTopLevels(RootClass)
+      }
+      jars.toSet
+    }
   }
 }

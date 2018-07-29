@@ -135,10 +135,10 @@ def compile_scala(ctx, target_label, output, manifest, statsfile, sources,
                   cjars, all_srcjars, transitive_compile_jars, plugins,
                   resource_strip_prefix, resources, resource_jars, labels,
                   in_scalacopts, print_compile_time, expect_java_output,
-                  scalac_jvm_flags, scalac_provider):
+                  scalac_jvm_flags, scalac_provider, unused_dependency_checker_mode):
   # look for any plugins:
   plugins = _collect_plugin_paths(plugins)
-  dependency_analyzer_plugin_jars = []
+  internal_plugin_jars = []
   dependency_analyzer_mode = "off"
   compiler_classpath_jars = cjars
   optional_scalac_args = ""
@@ -151,7 +151,7 @@ def compile_scala(ctx, target_label, output, manifest, statsfile, sources,
     dependency_analyzer_mode = ctx.fragments.java.strict_java_deps
     dep_plugin = ctx.attr._dependency_analyzer_plugin
     plugins = depset(transitive = [plugins, dep_plugin.files])
-    dependency_analyzer_plugin_jars = ctx.files._dependency_analyzer_plugin
+    internal_plugin_jars = ctx.files._dependency_analyzer_plugin
     compiler_classpath_jars = transitive_compile_jars
 
     cjars_list = cjars.to_list()
@@ -176,6 +176,27 @@ CurrentTarget: {current_target}
         indirect_jars = indirect_jars,
         indirect_targets = indirect_targets,
         current_target = current_target)
+
+  if unused_dependency_checker_mode != "off":
+    unused_dependency_plugin = ctx.attr._unused_dependency_checker_plugin
+    plugins = depset(transitive = [plugins, unused_dependency_plugin[JavaInfo].transitive_runtime_deps])
+    internal_plugin_jars = ctx.files._unused_dependency_checker_plugin
+
+    cjars_list = cjars.to_list()
+    direct_jars = _join_path(cjars_list)
+    direct_targets = ",".join([labels[j.path] for j in cjars_list])
+
+    current_target = str(target_label)
+
+    optional_scalac_args = """
+DirectJars: {direct_jars}
+DirectTargets: {direct_targets}
+CurrentTarget: {current_target}
+        """.format(
+        direct_jars = direct_jars,
+        direct_targets = direct_targets,
+        current_target = current_target)
+
 
   plugins_list = plugins.to_list()
   plugin_arg = _join_path(plugins_list)
@@ -203,6 +224,7 @@ ResourceStripPrefix: {resource_strip_prefix}
 ScalacOpts: {scala_opts}
 SourceJars: {srcjars}
 DependencyAnalyzerMode: {dependency_analyzer_mode}
+UnusedDependencyCheckerMode: {unused_dependency_checker_mode}
 StatsfileOutput: {statsfile_output}
 """.format(
       out = output.path,
@@ -225,6 +247,7 @@ StatsfileOutput: {statsfile_output}
       resource_strip_prefix = resource_strip_prefix,
       resource_jars = _join_path(resource_jars),
       dependency_analyzer_mode = dependency_analyzer_mode,
+      unused_dependency_checker_mode = ctx.attr.unused_dependency_checker_mode,
       statsfile_output = statsfile.path)
   argfile = ctx.actions.declare_file(
       "%s_scalac_worker_input" % target_label.name, sibling = output)
@@ -238,7 +261,7 @@ StatsfileOutput: {statsfile_output}
   outs = [output, statsfile]
   ins = (
       compiler_classpath_jars.to_list() + all_srcjars.to_list() + list(sources)
-      + plugins_list + dependency_analyzer_plugin_jars + classpath_resources +
+      + plugins_list + internal_plugin_jars + classpath_resources +
       resources + resource_jars + [manifest, argfile] + scalac_inputs)
 
   ctx.actions.run(
@@ -344,7 +367,7 @@ def _compile_or_empty(ctx, manifest, jars, srcjars, buildijar,
         ctx.attr.resource_strip_prefix, ctx.files.resources,
         ctx.files.resource_jars, jars2labels, ctx.attr.scalacopts,
         ctx.attr.print_compile_time, ctx.attr.expect_java_output,
-        ctx.attr.scalac_jvm_flags, ctx.attr._scala_provider[_ScalacProvider])
+        ctx.attr.scalac_jvm_flags, ctx.attr._scala_provider[_ScalacProvider], ctx.attr.unused_dependency_checker_mode)
 
     # build ijar if needed
     if buildijar:
@@ -495,9 +518,10 @@ def _collect_jars_from_common_ctx(ctx,
                                   extra_runtime_deps = []):
 
   dependency_analyzer_is_off = is_dependency_analyzer_off(ctx)
+  unused_dependency_checker_is_off = ctx.attr.unused_dependency_checker_mode == "off"
 
   deps_jars = collect_jars(ctx.attr.deps + extra_deps + base_classpath,
-                           dependency_analyzer_is_off)
+                           dependency_analyzer_is_off, unused_dependency_checker_is_off)
 
   (cjars, transitive_rjars, jars2labels,
    transitive_compile_jars) = (deps_jars.compile_jars,

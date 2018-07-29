@@ -6,7 +6,7 @@ import org.scalatest._
 import third_party.utils.src.test.io.bazel.rulesscala.utils.TestUtil._
 
 class UnusedDependencyCheckerTest extends FunSuite {
-  val pluginName = "unused_dependencies_checker"
+  val pluginName = "unused_dependency_checker"
 
   def compileWithUnusedDependencyChecker(code: String, withDirect: List[(String, String)] = Nil): List[String] = {
     val toolboxPluginOptions: String = {

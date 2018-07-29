@@ -169,26 +169,36 @@ class ScalacProcessor implements Processor {
   }
 
   private static String[] getPluginParamsFrom(CompileOptions ops) {
-    String[] pluginParams;
+    ArrayList<String> pluginParams = new ArrayList<>(0);
 
     if (isModeEnabled(ops.dependencyAnalyzerMode)) {
-      String[] directTargets = encodeBazelTargets(ops.directTargets);
       String[] indirectTargets = encodeBazelTargets(ops.indirectTargets);
       String currentTarget = encodeBazelTarget(ops.currentTarget);
 
-      String[] pluginParamsInUse = {
+      String[] dependencyAnalyzerParams = {
         "-P:dependency-analyzer:direct-jars:" + String.join(":", ops.directJars),
-        "-P:dependency-analyzer:direct-targets:" + String.join(":", directTargets),
         "-P:dependency-analyzer:indirect-jars:" + String.join(":", ops.indirectJars),
         "-P:dependency-analyzer:indirect-targets:" + String.join(":", indirectTargets),
         "-P:dependency-analyzer:mode:" + ops.dependencyAnalyzerMode,
         "-P:dependency-analyzer:current-target:" + currentTarget,
       };
-      pluginParams = pluginParamsInUse;
-    } else {
-      pluginParams = new String[0];
+      pluginParams.addAll(Arrays.asList(dependencyAnalyzerParams));
     }
-    return pluginParams;
+
+    if (isModeEnabled(ops.unusedDependencyCheckerMode)) {
+      String[] directTargets = encodeBazelTargets(ops.directTargets);
+      String currentTarget = encodeBazelTarget(ops.currentTarget);
+
+      String[] unusedDependencyCheckerParams = {
+        "-P:unused-dependency-checker:direct-jars:" + String.join(":", ops.directJars),
+        "-P:unused-dependency-checker:direct-targets:" + String.join(":", directTargets),
+        "-P:unused-dependency-checker:mode:" + ops.dependencyAnalyzerMode,
+        "-P:unused-dependency-checker:current-target:" + currentTarget,
+      };
+      pluginParams.addAll(Arrays.asList(unusedDependencyCheckerParams));
+    } 
+
+    return pluginParams.toArray(new String[pluginParams.size()]);
   }
 
   private static void compileScalaSources(CompileOptions ops, String[] scalaSources, Path tmpPath)
