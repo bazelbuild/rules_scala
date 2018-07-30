@@ -155,9 +155,7 @@ def compile_scala(ctx, target_label, output, manifest, statsfile, sources,
     internal_plugin_jars = ctx.files._dependency_analyzer_plugin
     compiler_classpath_jars = transitive_compile_jars
 
-    cjars_list = cjars.to_list()
-    direct_jars = _join_path(cjars_list)
-    direct_targets = ",".join([labels[j.path] for j in cjars_list])
+    direct_jars = _join_path(cjars.to_list())
 
     transitive_cjars_list = transitive_compile_jars.to_list()
     indirect_jars = _join_path(transitive_cjars_list)
@@ -167,13 +165,11 @@ def compile_scala(ctx, target_label, output, manifest, statsfile, sources,
 
     optional_scalac_args = """
 DirectJars: {direct_jars}
-DirectTargets: {direct_targets}
 IndirectJars: {indirect_jars}
 IndirectTargets: {indirect_targets}
 CurrentTarget: {current_target}
         """.format(
         direct_jars = direct_jars,
-        direct_targets = direct_targets,
         indirect_jars = indirect_jars,
         indirect_targets = indirect_targets,
         current_target = current_target)
@@ -249,8 +245,9 @@ StatsfileOutput: {statsfile_output}
       resource_strip_prefix = resource_strip_prefix,
       resource_jars = _join_path(resource_jars),
       dependency_analyzer_mode = dependency_analyzer_mode,
-      unused_dependency_checker_mode = ctx.attr.unused_dependency_checker_mode,
+      unused_dependency_checker_mode = unused_dependency_checker_mode,
       statsfile_output = statsfile.path)
+  print(scalac_args)
   argfile = ctx.actions.declare_file(
       "%s_scalac_worker_input" % target_label.name, sibling = output)
 
@@ -376,7 +373,7 @@ def _compile_or_empty(ctx,
         ctx.files.resource_jars, jars2labels, ctx.attr.scalacopts,
         ctx.attr.print_compile_time, ctx.attr.expect_java_output,
         ctx.attr.scalac_jvm_flags, ctx.attr._scala_provider[_ScalacProvider],
-        unused_dependency_checker_mode)
+        unused_dependency_checker_mode = unused_dependency_checker_mode)
 
     # build ijar if needed
     if buildijar:
@@ -524,10 +521,10 @@ def is_dependency_analyzer_off(ctx):
 def _collect_jars_from_common_ctx(ctx,
                                   base_classpath,
                                   extra_deps = [],
-                                  extra_runtime_deps = []):
+                                  extra_runtime_deps = [],
+                                  unused_dependency_checker_is_off = True):
 
   dependency_analyzer_is_off = is_dependency_analyzer_off(ctx)
-  unused_dependency_checker_is_off = ctx.attr.unused_dependency_checker_mode == "off"
 
   deps_jars = collect_jars(ctx.attr.deps + extra_deps + base_classpath,
                            dependency_analyzer_is_off,
@@ -559,14 +556,18 @@ def _lib(ctx,
   # targets (like thrift code generation)
   srcjars = collect_srcjars(ctx.attr.deps)
 
-  jars = _collect_jars_from_common_ctx(ctx, base_classpath)
+  unused_dependency_checker_is_off = unused_dependency_checker_mode == "off"
+  jars = _collect_jars_from_common_ctx(ctx,
+                                       base_classpath,
+                                       unused_dependency_checker_is_off=unused_dependency_checker_is_off)
+
   (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
 
   write_manifest(ctx)
   outputs = _compile_or_empty(ctx, ctx.outputs.manifest, cjars, srcjars,
                               non_macro_lib, jars.transitive_compile_jars,
                               jars.jars2labels.jars_to_labels, [],
-                              unused_dependency_checker_mode)
+                              unused_dependency_checker_mode = unused_dependency_checker_mode)
 
   transitive_rjars = depset(outputs.full_jars, transitive = [transitive_rjars])
 
@@ -620,9 +621,7 @@ def scala_library_impl(ctx):
 
 def scala_library_for_plugin_bootstrapping_impl(ctx):
   scalac_provider = ctx.attr._scala_provider[_ScalacProvider]
-  unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
-  return _lib(ctx, scalac_provider.default_classpath, True,
-              unused_dependency_checker_mode)
+  return _lib(ctx, scalac_provider.default_classpath, True)
 
 def scala_macro_library_impl(ctx):
   scalac_provider = ctx.attr._scala_provider[_ScalacProvider]

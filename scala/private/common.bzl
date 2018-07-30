@@ -1,7 +1,5 @@
 load("@io_bazel_rules_scala//scala:jars_to_labels.bzl", "JarsToLabelsInfo")
 
-_empty_jars2labels = JarsToLabelsInfo(jars_to_labels = {})
-
 def write_manifest(ctx):
   main_class = getattr(ctx.attr, "main_class", None)
   write_manifest_file(ctx.actions, ctx.outputs.manifest, main_class)

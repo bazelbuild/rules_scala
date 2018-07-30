@@ -62,7 +62,7 @@ class UnusedDependencyChecker(val global: Global) extends Plugin { self =>
       }
 
       private def unusedDependenciesFound: Set[String] = {
-        val usedJars: Set[AbstractFile] = findUsedJars(global)
+        val usedJars: Set[AbstractFile] = findUsedJars
         val directJarPaths = direct.keys.toSet
         val usedJarPaths = usedJars.map(_.path)
 

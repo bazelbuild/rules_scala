@@ -119,10 +119,6 @@ _common_attrs_for_plugin_bootstrapping = {
     "javac_jvm_flags": attr.string_list(),
     "expect_java_output": attr.bool(default = True, mandatory = False),
     "print_compile_time": attr.bool(default = False, mandatory = False),
-    "unused_dependency_checker_mode": attr.string(
-        #values = ["warn", "error"],
-        mandatory = False,
-    ),
 }
 
 _common_attrs = {}
@@ -137,6 +133,10 @@ _common_attrs.update({
         ),
         allow_files = [".jar"],
         mandatory = False),
+    "unused_dependency_checker_mode": attr.string(
+        values = ["warn", "error", ""],
+        mandatory = False,
+    ),
     "_unused_dependency_checker_plugin": attr.label(
         default = Label(
             "@io_bazel_rules_scala//third_party/unused_dependency_checker/src/main:unused_dependency_checker"
