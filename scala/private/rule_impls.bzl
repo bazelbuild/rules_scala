@@ -338,7 +338,7 @@ def collect_java_providers_of(deps):
 
 def _compile_or_empty(ctx, manifest, jars, srcjars, buildijar,
                       transitive_compile_jars, jars2labels,
-                      implicit_junit_deps_needed_for_java_compilation):
+                      implicit_junit_deps_needed_for_java_compilation, unused_dependency_checker_mode = "off"):
   # We assume that if a srcjar is present, it is not empty
   if len(ctx.files.srcs) + len(srcjars.to_list()) == 0:
     _build_nosrc_jar(ctx)
@@ -367,7 +367,7 @@ def _compile_or_empty(ctx, manifest, jars, srcjars, buildijar,
         ctx.attr.resource_strip_prefix, ctx.files.resources,
         ctx.files.resource_jars, jars2labels, ctx.attr.scalacopts,
         ctx.attr.print_compile_time, ctx.attr.expect_java_output,
-        ctx.attr.scalac_jvm_flags, ctx.attr._scala_provider[_ScalacProvider], ctx.attr.unused_dependency_checker_mode)
+        ctx.attr.scalac_jvm_flags, ctx.attr._scala_provider[_ScalacProvider], unused_dependency_checker_mode)
 
     # build ijar if needed
     if buildijar:
@@ -539,7 +539,7 @@ def _collect_jars_from_common_ctx(ctx,
       jars2labels = jars2labels,
       transitive_compile_jars = transitive_compile_jars)
 
-def _lib(ctx, base_classpath, non_macro_lib):
+def _lib(ctx, base_classpath, non_macro_lib, unused_dependency_checker_mode = "off"):
   # Build up information from dependency-like attributes
 
   # This will be used to pick up srcjars from non-scala library
@@ -552,7 +552,7 @@ def _lib(ctx, base_classpath, non_macro_lib):
   write_manifest(ctx)
   outputs = _compile_or_empty(ctx, ctx.outputs.manifest, cjars, srcjars,
                               non_macro_lib, jars.transitive_compile_jars,
-                              jars.jars2labels.jars_to_labels, [])
+                              jars.jars2labels.jars_to_labels, [], unused_dependency_checker_mode)
 
   transitive_rjars = depset(outputs.full_jars, transitive = [transitive_rjars])
 
@@ -591,14 +591,28 @@ def _lib(ctx, base_classpath, non_macro_lib):
       jars_to_labels = jars.jars2labels,
     )
 
+def get_unused_dependency_checker_mode(ctx):
+  if ctx.attr.unused_dependency_checker_mode:
+    return ctx.attr.unused_dependency_checker_mode
+  else:
+    return ctx.toolchains['@io_bazel_rules_scala//scala:toolchain_type'].unused_dependency_checker_mode
+
 def scala_library_impl(ctx):
   scalac_provider = ctx.attr._scala_provider[_ScalacProvider]
-  return _lib(ctx, scalac_provider.default_classpath, True)
+  unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
+  return _lib(ctx, scalac_provider.default_classpath, True, unused_dependency_checker_mode)
+
+def scala_library_for_plugin_bootstrapping_impl(ctx):
+  scalac_provider = ctx.attr._scala_provider[_ScalacProvider]
+  unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
+  return _lib(ctx, scalac_provider.default_classpath, True, unused_dependency_checker_mode)
 
 def scala_macro_library_impl(ctx):
   scalac_provider = ctx.attr._scala_provider[_ScalacProvider]
-  return _lib(ctx, scalac_provider.default_macro_classpath,
-              False)  # don't build the ijar for macros
+  unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
+  return _lib(ctx,
+              scalac_provider.default_macro_classpath,
+              False) # don't build the ijar for macros
 
 # Common code shared by all scala binary implementations.
 def _scala_binary_common(ctx,

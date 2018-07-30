@@ -1,6 +1,7 @@
 load(
     "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
     _scala_library_impl = "scala_library_impl",
+    _scala_library_for_plugin_bootstrapping_impl = "scala_library_for_plugin_bootstrapping_impl",
     _scala_macro_library_impl = "scala_macro_library_impl",
     _scala_binary_impl = "scala_binary_impl",
     _scala_test_impl = "scala_test_impl",
@@ -118,9 +119,8 @@ _common_attrs_for_plugin_bootstrapping = {
     "expect_java_output": attr.bool(default = True, mandatory = False),
     "print_compile_time": attr.bool(default = False, mandatory = False),
     "unused_dependency_checker_mode": attr.string(
-        default = "off",
-        values = ["warn", "error", "off"],
-        mandatory = False,)
+        #values = ["warn", "error"],
+        mandatory = False,),
 }
 
 _common_attrs = {}
@@ -182,7 +182,7 @@ _scala_library_for_plugin_bootstrapping_attrs.update(_resolve_deps)
 _scala_library_for_plugin_bootstrapping_attrs.update(
     _common_attrs_for_plugin_bootstrapping)
 scala_library_for_plugin_bootstrapping = rule(
-    implementation = _scala_library_impl,
+    implementation = _scala_library_for_plugin_bootstrapping_impl,
     attrs = _scala_library_for_plugin_bootstrapping_attrs,
     outputs = _library_outputs,
     fragments = ["java"],
