@@ -183,9 +183,7 @@ class ScalacProcessor implements Processor {
         "-P:dependency-analyzer:current-target:" + currentTarget,
       };
       pluginParams.addAll(Arrays.asList(dependencyAnalyzerParams));
-    }
-
-    if (isModeEnabled(ops.unusedDependencyCheckerMode)) {
+    } else if (isModeEnabled(ops.unusedDependencyCheckerMode)) {
       String[] directTargets = encodeBazelTargets(ops.directTargets);
       String currentTarget = encodeBazelTarget(ops.currentTarget);
 

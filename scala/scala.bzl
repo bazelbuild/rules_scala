@@ -134,7 +134,7 @@ _common_attrs.update({
         allow_files = [".jar"],
         mandatory = False),
     "unused_dependency_checker_mode": attr.string(
-        values = ["warn", "error", ""],
+        values = ["warn", "error", "off", ""],
         mandatory = False,
     ),
     "_unused_dependency_checker_plugin": attr.label(

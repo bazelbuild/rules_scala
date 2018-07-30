@@ -174,10 +174,13 @@ CurrentTarget: {current_target}
         indirect_targets = indirect_targets,
         current_target = current_target)
 
-  if unused_dependency_checker_mode != "off":
+    if unused_dependency_checker_mode != "off":
+        fail("Using both --strict_java_deps and unused-dependency-checker at the same time is not allowed")
+
+  elif unused_dependency_checker_mode != "off":
     unused_dependency_plugin = ctx.attr._unused_dependency_checker_plugin
     plugins = depset(transitive = [
-        plugins, unused_dependency_plugin[JavaInfo].transitive_runtime_deps
+        plugins, unused_dependency_plugin.files
     ])
     internal_plugin_jars = ctx.files._unused_dependency_checker_plugin
 
@@ -247,7 +250,7 @@ StatsfileOutput: {statsfile_output}
       dependency_analyzer_mode = dependency_analyzer_mode,
       unused_dependency_checker_mode = unused_dependency_checker_mode,
       statsfile_output = statsfile.path)
-  print(scalac_args)
+
   argfile = ctx.actions.declare_file(
       "%s_scalac_worker_input" % target_label.name, sibling = output)
 

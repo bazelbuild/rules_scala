@@ -9,5 +9,5 @@ scala_toolchain = rule(
     attrs = {
         'scalacopts': attr.string_list(),
         'unused_dependency_checker_mode': attr.string(
-            default = "warn", values = ["off", "warn", "error"]),
+            default = "off", values = ["off", "warn", "error"]),
     })
