@@ -196,7 +196,7 @@ class ScalacProcessor implements Processor {
         "-P:unused-dependency-checker:current-target:" + currentTarget,
       };
       pluginParams.addAll(Arrays.asList(unusedDependencyCheckerParams));
-    } 
+    }
 
     return pluginParams.toArray(new String[pluginParams.size()]);
   }

@@ -21,15 +21,19 @@ def collect_srcjars(targets):
       srcjars.append(target.srcjars.srcjar)
   return depset(srcjars)
 
-def collect_jars(dep_targets, dependency_analyzer_is_off = True, unused_dependency_checker_is_off = True):
+def collect_jars(dep_targets,
+                 dependency_analyzer_is_off = True,
+                 unused_dependency_checker_is_off = True):
   """Compute the runtime and compile-time dependencies from the given targets"""  # noqa
 
   if dependency_analyzer_is_off:
-    return _collect_jars_when_dependency_analyzer_is_off(dep_targets, unused_dependency_checker_is_off)
+    return _collect_jars_when_dependency_analyzer_is_off(
+        dep_targets, unused_dependency_checker_is_off)
   else:
     return _collect_jars_when_dependency_analyzer_is_on(dep_targets)
 
-def _collect_jars_when_dependency_analyzer_is_off(dep_targets, unused_dependency_checker_is_off):
+def _collect_jars_when_dependency_analyzer_is_off(
+    dep_targets, unused_dependency_checker_is_off):
   compile_jars = []
   runtime_jars = []
   jars2labels = {}
@@ -43,8 +47,7 @@ def _collect_jars_when_dependency_analyzer_is_off(dep_targets, unused_dependency
       runtime_jars.append(java_provider.transitive_runtime_jars)
 
       if not unused_dependency_checker_is_off:
-        add_labels_of_jars_to(jars2labels, dep_target,
-                              [],
+        add_labels_of_jars_to(jars2labels, dep_target, [],
                               java_provider.compile_jars.to_list())
     else:
       print("ignored dependency, has no JavaInfo: " + str(dep_target))

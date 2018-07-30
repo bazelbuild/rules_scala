@@ -1,7 +1,8 @@
 load(
     "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
     _scala_library_impl = "scala_library_impl",
-    _scala_library_for_plugin_bootstrapping_impl = "scala_library_for_plugin_bootstrapping_impl",
+    _scala_library_for_plugin_bootstrapping_impl =
+    "scala_library_for_plugin_bootstrapping_impl",
     _scala_macro_library_impl = "scala_macro_library_impl",
     _scala_binary_impl = "scala_binary_impl",
     _scala_test_impl = "scala_test_impl",
@@ -120,7 +121,8 @@ _common_attrs_for_plugin_bootstrapping = {
     "print_compile_time": attr.bool(default = False, mandatory = False),
     "unused_dependency_checker_mode": attr.string(
         #values = ["warn", "error"],
-        mandatory = False,),
+        mandatory = False,
+    ),
 }
 
 _common_attrs = {}
