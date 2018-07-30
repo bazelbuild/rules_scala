@@ -6,12 +6,10 @@ import org.scalatest._
 import third_party.utils.src.test.io.bazel.rulesscala.utils.TestUtil._
 
 class UnusedDependencyCheckerTest extends FunSuite {
-  val pluginName = "unused_dependency_checker"
-
   def compileWithUnusedDependencyChecker(code: String, withDirect: List[(String, String)] = Nil): List[String] = {
     val toolboxPluginOptions: String = {
-      val jar = System.getProperty(s"plugin.jar.location")
-      val start = jar.indexOf(s"/third_party/$pluginName")
+      val jar = System.getProperty("plugin.jar.location")
+      val start = jar.indexOf("/third_party/unused_dependency_checker")
       // this substring is needed due to issue: https://github.com/bazelbuild/bazel/issues/2475
       val jarInRelationToBaseDir = jar.substring(start, jar.length)
       val pluginPath = Paths.get(baseDir, jarInRelationToBaseDir).toAbsolutePath
@@ -41,7 +39,6 @@ class UnusedDependencyCheckerTest extends FunSuite {
     val direct = List(apacheCommonsClasspath -> encodeLabel(commonsTarget))
     val errorMesssages = compileWithUnusedDependencyChecker(testCode, withDirect = direct)
 
-    println(errorMesssages)
     assert(errorMesssages.exists { msg =>
       msg.contains(commonsTarget) &&
         msg.contains(s"buildozer 'remove deps $commonsTarget' $defaultTarget")

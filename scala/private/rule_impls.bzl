@@ -175,13 +175,13 @@ CurrentTarget: {current_target}
         current_target = current_target)
 
     if unused_dependency_checker_mode != "off":
-        fail("Using both --strict_java_deps and unused-dependency-checker at the same time is not allowed")
+      fail(
+          "Using both --strict_java_deps and unused-dependency-checker at the same time is not allowed"
+      )
 
   elif unused_dependency_checker_mode != "off":
     unused_dependency_plugin = ctx.attr._unused_dependency_checker_plugin
-    plugins = depset(transitive = [
-        plugins, unused_dependency_plugin.files
-    ])
+    plugins = depset(transitive = [plugins, unused_dependency_plugin.files])
     internal_plugin_jars = ctx.files._unused_dependency_checker_plugin
 
     cjars_list = cjars.to_list()
@@ -370,12 +370,25 @@ def _compile_or_empty(ctx,
         f for f in ctx.files.srcs if f.basename.endswith(_scala_extension)
     ] + java_srcs
     compile_scala(
-        ctx, ctx.label, ctx.outputs.jar, manifest, ctx.outputs.statsfile,
-        sources, jars, all_srcjars, transitive_compile_jars, ctx.attr.plugins,
-        ctx.attr.resource_strip_prefix, ctx.files.resources,
-        ctx.files.resource_jars, jars2labels, ctx.attr.scalacopts,
-        ctx.attr.print_compile_time, ctx.attr.expect_java_output,
-        ctx.attr.scalac_jvm_flags, ctx.attr._scala_provider[_ScalacProvider],
+        ctx,
+        ctx.label,
+        ctx.outputs.jar,
+        manifest,
+        ctx.outputs.statsfile,
+        sources,
+        jars,
+        all_srcjars,
+        transitive_compile_jars,
+        ctx.attr.plugins,
+        ctx.attr.resource_strip_prefix,
+        ctx.files.resources,
+        ctx.files.resource_jars,
+        jars2labels,
+        ctx.attr.scalacopts,
+        ctx.attr.print_compile_time,
+        ctx.attr.expect_java_output,
+        ctx.attr.scalac_jvm_flags,
+        ctx.attr._scala_provider[_ScalacProvider],
         unused_dependency_checker_mode = unused_dependency_checker_mode)
 
     # build ijar if needed
@@ -560,17 +573,23 @@ def _lib(ctx,
   srcjars = collect_srcjars(ctx.attr.deps)
 
   unused_dependency_checker_is_off = unused_dependency_checker_mode == "off"
-  jars = _collect_jars_from_common_ctx(ctx,
-                                       base_classpath,
-                                       unused_dependency_checker_is_off=unused_dependency_checker_is_off)
+  jars = _collect_jars_from_common_ctx(
+      ctx,
+      base_classpath,
+      unused_dependency_checker_is_off = unused_dependency_checker_is_off)
 
   (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
 
   write_manifest(ctx)
-  outputs = _compile_or_empty(ctx, ctx.outputs.manifest, cjars, srcjars,
-                              non_macro_lib, jars.transitive_compile_jars,
-                              jars.jars2labels.jars_to_labels, [],
-                              unused_dependency_checker_mode = unused_dependency_checker_mode)
+  outputs = _compile_or_empty(
+      ctx,
+      ctx.outputs.manifest,
+      cjars,
+      srcjars,
+      non_macro_lib,
+      jars.transitive_compile_jars,
+      jars.jars2labels.jars_to_labels, [],
+      unused_dependency_checker_mode = unused_dependency_checker_mode)
 
   transitive_rjars = depset(outputs.full_jars, transitive = [transitive_rjars])
 
