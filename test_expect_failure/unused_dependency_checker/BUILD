@@ -18,23 +18,23 @@ scala_library(
     name = "failing_build",
     srcs = ["A.scala"],
     unused_dependency_checker_mode = "error",
-    deps = [":B"]
+    deps = [":B"],
 )
 
 scala_library(
     name = "toolchain_failing_build",
     srcs = ["A.scala"],
-    deps = [":B"]
+    deps = [":B"],
 )
 
 scala_library(
     name = "toolchain_override",
     srcs = ["A.scala"],
     unused_dependency_checker_mode = "off",
-    deps = [":B"]
+    deps = [":B"],
 )
 
 scala_library(
     name = "B",
-    srcs = ["B.scala"]
+    srcs = ["B.scala"],
 )
