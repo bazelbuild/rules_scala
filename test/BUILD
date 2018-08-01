@@ -120,7 +120,7 @@ scala_library(
 )
 
 scala_library(
-    name = "OtherLib2",
+    name = "UnusedDependency",
     srcs = ["OtherLib.scala"],
     unused_dependency_checker_mode = "error",
     deps = ["Exported"],
