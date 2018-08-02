@@ -586,7 +586,7 @@ def _collect_jars_from_common_ctx(ctx,
 def _lib(ctx,
          base_classpath,
          non_macro_lib,
-         unused_dependency_checker_mode = "off"):
+         unused_dependency_checker_mode):
   # Build up information from dependency-like attributes
 
   # This will be used to pick up srcjars from non-scala library
@@ -665,7 +665,7 @@ def scala_library_impl(ctx):
 
 def scala_library_for_plugin_bootstrapping_impl(ctx):
   scalac_provider = ctx.attr._scala_provider[_ScalacProvider]
-  return _lib(ctx, scalac_provider.default_classpath, True)
+  return _lib(ctx, scalac_provider.default_classpath, True, unused_dependency_checker_mode = "off")
 
 def scala_macro_library_impl(ctx):
   scalac_provider = ctx.attr._scala_provider[_ScalacProvider]
