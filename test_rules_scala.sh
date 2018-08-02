@@ -816,9 +816,9 @@ $runner bazel build test/...
 $runner bazel test test/...
 $runner bazel test third_party/...
 # UnusedDependencyChecker doesn't work with strict_java_deps
-$runner bazel build "--strict_java_deps=ERROR -- test/... -test:UnusedDependency"
-#$runner bazel build "--strict_java_deps=ERROR --all_incompatible_changes -- test/... -test:UnusedDependency"
-$runner bazel test "--strict_java_deps=ERROR -- test/... -test:UnusedDependency"
+$runner bazel build "--strict_java_deps=ERROR -- test/... -test:UnusedDependencyChecker"
+#$runner bazel build "--strict_java_deps=ERROR --all_incompatible_changes -- test/... -test:UnusedDependencyChecker"
+$runner bazel test "--strict_java_deps=ERROR -- test/... -test:UnusedDependencyChecker"
 $runner test_disappearing_class
 $runner find -L ./bazel-testlogs -iname "*.xml"
 $runner xmllint_test

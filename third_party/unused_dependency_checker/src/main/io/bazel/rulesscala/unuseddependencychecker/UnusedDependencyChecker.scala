@@ -66,15 +66,25 @@ class UnusedDependencyChecker(val global: Global) extends Plugin { self =>
         val directJarPaths = direct.keys.toSet
         val usedJarPaths = usedJars.map(_.path)
 
-        directJarPaths.diff(usedJarPaths)
+        val usedTargets = usedJarPaths
           .map(direct.get)
           .collect {
-            case Some(target) =>
-              s"""Target '$target' is specified as a dependency to $currentTarget but isn't used, please remove it from the deps.
-                 |You can use the following buildozer command:
-                 |buildozer 'remove deps $target' $currentTarget
-                 |""".stripMargin
+            case Some(target) => target
           }
+
+        val unusedTargets = directJarPaths
+          .filter(jar => !usedTargets.contains(direct(jar)))
+          .map(direct.get)
+          .collect {
+            case Some(target) => target
+          }
+
+        unusedTargets.map { target =>
+          s"""Target '$target' is specified as a dependency to $currentTarget but isn't used, please remove it from the deps.
+             |You can use the following buildozer command:
+             |buildozer 'remove deps $target' $currentTarget
+             |""".stripMargin
+        }
       }
 
       override def apply(unit: CompilationUnit): Unit = ()
@@ -113,6 +123,7 @@ class UnusedDependencyChecker(val global: Global) extends Plugin { self =>
 }
 
 object UnusedDependencyChecker {
+
   sealed trait AnalyzerMode
 
   case object Error extends AnalyzerMode

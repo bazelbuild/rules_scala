@@ -115,15 +115,14 @@ scala_repl(
 scala_library(
     name = "OtherLib",
     srcs = ["OtherLib.scala"],
-    #unused_dependency_checker_mode = "error", using library only exporting fails
     deps = ["ExportOnly"],
 )
 
 scala_library(
-    name = "UnusedDependency",
+    name = "UnusedDependencyChecker",
     srcs = ["OtherLib.scala"],
     unused_dependency_checker_mode = "error",
-    deps = ["Exported"],
+    deps = ["ExportOnly"],
 )
 
 # Test of library without src
