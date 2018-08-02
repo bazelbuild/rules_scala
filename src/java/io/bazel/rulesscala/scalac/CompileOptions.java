@@ -21,6 +21,7 @@ public class CompileOptions {
   public final String[] classpathResourceFiles;
   public final String[] directJars;
   public final String[] directTargets;
+  public final String[] ignoredTargets;
   public final String[] indirectJars;
   public final String[] indirectTargets;
   public final String dependencyAnalyzerMode;
@@ -55,6 +56,7 @@ public class CompileOptions {
 
     directJars = getCommaList(argMap, "DirectJars");
     directTargets = getCommaList(argMap, "DirectTargets");
+    ignoredTargets = getCommaList(argMap, "IgnoredTargets");
     indirectJars = getCommaList(argMap, "IndirectJars");
     indirectTargets = getCommaList(argMap, "IndirectTargets");
 

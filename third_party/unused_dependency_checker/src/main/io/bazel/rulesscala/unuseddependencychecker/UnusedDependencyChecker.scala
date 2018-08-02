@@ -12,6 +12,7 @@ class UnusedDependencyChecker(val global: Global) extends Plugin { self =>
   val components: List[PluginComponent] = List[PluginComponent](Component)
 
   var direct: Map[String, String] = Map.empty
+  var ignoredTargets: Set[String] = Set.empty
   var analyzerMode: AnalyzerMode = Error
   var currentTarget: String = "NA"
 
@@ -23,6 +24,7 @@ class UnusedDependencyChecker(val global: Global) extends Plugin { self =>
       option.split(":").toList match {
         case "direct-jars" :: data => directJars = data.map(decodeTarget)
         case "direct-targets" :: data => directTargets = data.map(decodeTarget)
+        case "ignored-targets" :: data => ignoredTargets = data.map(decodeTarget).toSet
         case "current-target" :: target :: _ => currentTarget = decodeTarget(target)
         case "mode" :: mode :: _ => parseAnalyzerMode(mode).foreach(analyzerMode = _)
         case unknown :: _ => error(s"unknown param $unknown")
@@ -76,7 +78,7 @@ class UnusedDependencyChecker(val global: Global) extends Plugin { self =>
           .filter(jar => !usedTargets.contains(direct(jar)))
           .map(direct.get)
           .collect {
-            case Some(target) => target
+            case Some(target) if !ignoredTargets.contains(target) => target
           }
 
         unusedTargets.map { target =>
