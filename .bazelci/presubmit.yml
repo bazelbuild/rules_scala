@@ -4,6 +4,7 @@ platforms:
     shell_commands:
     # Disable local disk caching on CI.
     - mv tools/bazel.rc.buildkite tools/bazel.rc
+    - echo "import %workspace%/tools/bazel.rc" > .bazelrc
     build_targets:
     - "//test/..."
     test_targets:
@@ -12,6 +13,7 @@ platforms:
     shell_commands:
     # Disable local disk caching on CI.
     - mv tools/bazel.rc.buildkite tools/bazel.rc
+    - echo "import %workspace%/tools/bazel.rc" > .bazelrc
     build_targets:
     - "//test/..."
     test_targets:
@@ -20,6 +22,7 @@ platforms:
     shell_commands:
     # Disable local disk caching on CI.
     - mv tools/bazel.rc.buildkite tools/bazel.rc
+    - echo "import %workspace%/tools/bazel.rc" > .bazelrc
     build_targets:
     - "//test/..."
     test_targets:
