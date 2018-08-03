@@ -860,6 +860,11 @@ def scala_test_impl(ctx):
                           scalatest_jars_list)
     jars_to_labels = JarsToLabelsInfo(jars_to_labels = j2l)
 
+  elif not unused_dependency_checker_is_off:
+    j2l = jars_to_labels.jars_to_labels
+    add_labels_of_jars_to(j2l, ctx.attr._scalatest, [], scalatest_jars.to_list())
+    jars_to_labels = JarsToLabelsInfo(jars_to_labels = j2l)
+
   args = " ".join([
       "-R \"{path}\"".format(path = ctx.outputs.jar.short_path),
       _scala_test_flags(ctx),
