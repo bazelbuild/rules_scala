@@ -743,6 +743,18 @@ test_scalaopts_from_scala_toolchain() {
   action_should_fail build --extra_toolchains="//test_expect_failure/scalacopts_from_toolchain:failing_scala_toolchain" //test_expect_failure/scalacopts_from_toolchain:failing_build
 }
 
+test_unused_dependency_checker_mode_set_in_rule() {
+  action_should_fail build //test_expect_failure/unused_dependency_checker:failing_build
+}
+
+test_unused_dependency_checker_mode_from_scala_toolchain() {
+  action_should_fail build --extra_toolchains="//test_expect_failure/unused_dependency_checker:failing_scala_toolchain" //test_expect_failure/unused_dependency_checker:toolchain_failing_build
+}
+
+test_unused_dependency_checker_mode_override_toolchain() {
+  bazel build --extra_toolchains="//test_expect_failure/unused_dependency_checker:failing_scala_toolchain" //test_expect_failure/unused_dependency_checker:toolchain_override
+}
+
 test_scala_import_library_passes_labels_of_direct_deps() {
   dependency_target='//test_expect_failure/scala_import:root_for_scala_import_passes_labels_of_direct_deps'
   test_target='test_expect_failure/scala_import:leaf_for_scala_import_passes_labels_of_direct_deps'
@@ -803,9 +815,10 @@ $runner bazel build test/...
 #$runner bazel build "test/... --all_incompatible_changes"
 $runner bazel test test/...
 $runner bazel test third_party/...
-$runner bazel build "test/... --strict_java_deps=ERROR"
-#$runner bazel build "test/... --strict_java_deps=ERROR --all_incompatible_changes"
-$runner bazel test "test/... --strict_java_deps=ERROR"
+# UnusedDependencyChecker doesn't work with strict_java_deps
+$runner bazel build "--strict_java_deps=ERROR -- test/... -test:UnusedDependencyChecker"
+#$runner bazel build "--strict_java_deps=ERROR --all_incompatible_changes -- test/... -test:UnusedDependencyChecker"
+$runner bazel test "--strict_java_deps=ERROR -- test/... -test:UnusedDependencyChecker"
 $runner test_disappearing_class
 $runner find -L ./bazel-testlogs -iname "*.xml"
 $runner xmllint_test
@@ -848,6 +861,9 @@ $runner test_scala_binary_expect_failure_on_missing_direct_deps
 $runner test_scala_binary_expect_failure_on_missing_direct_deps_located_in_dependency_which_is_scala_binary
 $runner test_scala_library_expect_failure_on_missing_direct_deps_warn_mode
 $runner test_scala_library_expect_failure_on_missing_direct_deps_off_mode
+$runner test_unused_dependency_checker_mode_from_scala_toolchain
+$runner test_unused_dependency_checker_mode_set_in_rule
+$runner test_unused_dependency_checker_mode_override_toolchain
 $runner test_scala_library_expect_no_recompilation_on_internal_change_of_transitive_dependency
 $runner test_multi_service_manifest
 $runner test_scala_library_expect_no_recompilation_on_internal_change_of_scala_dependency

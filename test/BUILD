@@ -118,6 +118,13 @@ scala_library(
     deps = ["ExportOnly"],
 )
 
+scala_library(
+    name = "UnusedDependencyChecker",
+    srcs = ["OtherLib.scala"],
+    unused_dependency_checker_mode = "error",
+    deps = ["ExportOnly"],
+)
+
 # Test of library without src
 scala_library(
     name = "ExportOnly",

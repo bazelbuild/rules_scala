@@ -1,4 +1,4 @@
-package third_party.plugin.src.test.io.bazel.rulesscala.dependencyanalyzer
+package third_party.utils.src.test.io.bazel.rulesscala.utils
 
 import java.nio.file.Paths
 
@@ -14,21 +14,18 @@ object TestUtil {
 
   final val defaultTarget = "//..."
 
-  def run(code: String, withDirect: Seq[String] = Seq.empty, withIndirect: Map[String, String] = Map.empty): Seq[String] = {
-    val compileOptions = Seq(
-      constructParam("direct-jars", withDirect),
-      constructParam("indirect-jars", withIndirect.keys),
-      constructParam("indirect-targets", withIndirect.values),
-      constructParam("current-target", Seq(defaultTarget))
-    ).mkString(" ")
-
-    val extraClasspath = withDirect ++ withIndirect.keys
-
-    val reporter: StoreReporter = runCompilation(code, compileOptions, extraClasspath)
-    reporter.infos.collect({ case msg if msg.severity == reporter.ERROR => msg.msg }).toSeq
+  def constructPluginParam(pluginName: String)(name: String, values: Iterable[String]): String = {
+    if (values.isEmpty) ""
+    else s"-P:$pluginName:$name:${values.mkString(":")}"
   }
 
-  private def runCompilation(code: String, compileOptions: String, extraClasspath: Seq[String]) = {
+  def runCompiler(code: String, compileOptions: String, extraClasspath: List[String], toolboxPluginOptions: String): List[String] = {
+    val fullCompileOptions: String = getCompileOptions(code, compileOptions, extraClasspath, toolboxPluginOptions)
+    val reporter: StoreReporter =  eval(code, fullCompileOptions)
+    reporter.infos.collect({ case msg if msg.severity == reporter.ERROR => msg.msg }).toList
+  }
+
+  private def getCompileOptions(code: String, compileOptions: String, extraClasspath: Seq[String], toolboxPluginOptions: String): String = {
     val fullClasspath: String = {
       val extraClasspathString = extraClasspath.mkString(":")
       if (toolboxClasspath.isEmpty) extraClasspathString
@@ -37,7 +34,7 @@ object TestUtil {
     val basicOptions =
       createBasicCompileOptions(fullClasspath, toolboxPluginOptions)
 
-    eval(code, s"$basicOptions $compileOptions")
+    s"$basicOptions $compileOptions"
   }
 
   /** Evaluate using global instance instead of toolbox because toolbox seems
@@ -61,15 +58,6 @@ object TestUtil {
   lazy val toolboxClasspath: String =
     pathOf("scala.library.location")
 
-  lazy val toolboxPluginOptions: String = {
-    val jar = System.getProperty("plugin.jar.location")
-    val start= jar.indexOf("/third_party/plugin")
-    // this substring is needed due to issue: https://github.com/bazelbuild/bazel/issues/2475
-    val jarInRelationToBaseDir = jar.substring(start, jar.length)
-    val pluginPath = Paths.get(baseDir, jarInRelationToBaseDir).toAbsolutePath
-    s"-Xplugin:${pluginPath} -Jdummy=${pluginPath.toFile.lastModified}"
-  }
-
   lazy val guavaClasspath: String =
     pathOf("guava.jar.location")
 
@@ -85,8 +73,8 @@ object TestUtil {
   private def createBasicCompileOptions(classpath: String, usePluginOptions: String) =
     s"-classpath $classpath $usePluginOptions"
 
-  private def constructParam(name: String, values: Iterable[String]) = {
-    if (values.isEmpty) ""
-    else s"-P:dependency-analyzer:$name:${values.mkString(":")}"
-  }
+
+  def decodeLabel(targetLabel: String): String = targetLabel.replace(";", ":")
+
+  def encodeLabel(targetLabel: String): String = targetLabel.replace(":", ";")
 }

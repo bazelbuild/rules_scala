@@ -1,7 +1,5 @@
 load("@io_bazel_rules_scala//scala:jars_to_labels.bzl", "JarsToLabelsInfo")
 
-_empty_jars2labels = JarsToLabelsInfo(jars_to_labels = {})
-
 def write_manifest(ctx):
   main_class = getattr(ctx.attr, "main_class", None)
   write_manifest_file(ctx.actions, ctx.outputs.manifest, main_class)
@@ -21,17 +19,22 @@ def collect_srcjars(targets):
       srcjars.append(target.srcjars.srcjar)
   return depset(srcjars)
 
-def collect_jars(dep_targets, dependency_analyzer_is_off = True):
+def collect_jars(dep_targets,
+                 dependency_analyzer_is_off = True,
+                 unused_dependency_checker_is_off = True):
   """Compute the runtime and compile-time dependencies from the given targets"""  # noqa
 
   if dependency_analyzer_is_off:
-    return _collect_jars_when_dependency_analyzer_is_off(dep_targets)
+    return _collect_jars_when_dependency_analyzer_is_off(
+        dep_targets, unused_dependency_checker_is_off)
   else:
     return _collect_jars_when_dependency_analyzer_is_on(dep_targets)
 
-def _collect_jars_when_dependency_analyzer_is_off(dep_targets):
+def _collect_jars_when_dependency_analyzer_is_off(
+    dep_targets, unused_dependency_checker_is_off):
   compile_jars = []
   runtime_jars = []
+  jars2labels = {}
 
   for dep_target in dep_targets:
     # we require a JavaInfo for dependencies
@@ -40,13 +43,17 @@ def _collect_jars_when_dependency_analyzer_is_off(dep_targets):
       java_provider = dep_target[JavaInfo]
       compile_jars.append(java_provider.compile_jars)
       runtime_jars.append(java_provider.transitive_runtime_jars)
+
+      if not unused_dependency_checker_is_off:
+        add_labels_of_jars_to(jars2labels, dep_target, [],
+                              java_provider.compile_jars.to_list())
     else:
       print("ignored dependency, has no JavaInfo: " + str(dep_target))
 
   return struct(
       compile_jars = depset(transitive = compile_jars),
       transitive_runtime_jars = depset(transitive = runtime_jars),
-      jars2labels = _empty_jars2labels,
+      jars2labels = JarsToLabelsInfo(jars_to_labels = jars2labels),
       transitive_compile_jars = depset())
 
 def _collect_jars_when_dependency_analyzer_is_on(dep_targets):

@@ -20,9 +20,12 @@ public class CompileOptions {
   public final String[] resourceJars;
   public final String[] classpathResourceFiles;
   public final String[] directJars;
+  public final String[] directTargets;
+  public final String[] ignoredTargets;
   public final String[] indirectJars;
   public final String[] indirectTargets;
   public final String dependencyAnalyzerMode;
+  public final String unusedDependencyCheckerMode;
   public final String currentTarget;
   public final String statsfile;
 
@@ -52,10 +55,13 @@ public class CompileOptions {
     classpathResourceFiles = getCommaList(argMap, "ClasspathResourceSrcs");
 
     directJars = getCommaList(argMap, "DirectJars");
+    directTargets = getCommaList(argMap, "DirectTargets");
+    ignoredTargets = getCommaList(argMap, "IgnoredTargets");
     indirectJars = getCommaList(argMap, "IndirectJars");
     indirectTargets = getCommaList(argMap, "IndirectTargets");
 
     dependencyAnalyzerMode = getOrElse(argMap, "DependencyAnalyzerMode", "off");
+    unusedDependencyCheckerMode = getOrElse(argMap, "UnusedDependencyCheckerMode", "off");
     currentTarget = getOrElse(argMap, "CurrentTarget", "NA");
 
     statsfile = getOrError(argMap, "StatsfileOutput", "Missing required arg StatsfileOutput");

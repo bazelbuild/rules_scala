@@ -1,6 +1,8 @@
 load(
     "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
     _scala_library_impl = "scala_library_impl",
+    _scala_library_for_plugin_bootstrapping_impl =
+    "scala_library_for_plugin_bootstrapping_impl",
     _scala_macro_library_impl = "scala_macro_library_impl",
     _scala_binary_impl = "scala_binary_impl",
     _scala_test_impl = "scala_test_impl",
@@ -127,7 +129,17 @@ _common_attrs.update({
     # on the other hand any internal change (i.e. on code that ijar omits) WON’T trigger recompilation by transitive dependencies
     "_dependency_analyzer_plugin": attr.label(
         default = Label(
-            "@io_bazel_rules_scala//third_party/plugin/src/main:dependency_analyzer"
+            "@io_bazel_rules_scala//third_party/dependency_analyzer/src/main:dependency_analyzer"
+        ),
+        allow_files = [".jar"],
+        mandatory = False),
+    "unused_dependency_checker_mode": attr.string(
+        values = ["warn", "error", "off", ""],
+        mandatory = False,
+    ),
+    "_unused_dependency_checker_plugin": attr.label(
+        default = Label(
+            "@io_bazel_rules_scala//third_party/unused_dependency_checker/src/main:unused_dependency_checker"
         ),
         allow_files = [".jar"],
         mandatory = False),
@@ -172,7 +184,7 @@ _scala_library_for_plugin_bootstrapping_attrs.update(_resolve_deps)
 _scala_library_for_plugin_bootstrapping_attrs.update(
     _common_attrs_for_plugin_bootstrapping)
 scala_library_for_plugin_bootstrapping = rule(
-    implementation = _scala_library_impl,
+    implementation = _scala_library_for_plugin_bootstrapping_impl,
     attrs = _scala_library_for_plugin_bootstrapping_attrs,
     outputs = _library_outputs,
     fragments = ["java"],
