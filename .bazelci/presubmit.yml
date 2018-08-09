@@ -27,3 +27,12 @@ platforms:
     - "//test/..."
     test_targets:
     - "//test/..."
+  rbe_ubuntu1604:
+    build_targets:
+    - "--"
+    - "//test/..."
+    - "-//test/tut/..."
+    test_targets:
+    - "--"
+    - "//test/..."
+    - "-//test/tut/..."
