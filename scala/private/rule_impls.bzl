@@ -582,11 +582,8 @@ def _collect_jars_from_common_ctx(ctx,
       jars2labels = jars2labels,
       transitive_compile_jars = transitive_compile_jars)
 
-def _lib(ctx,
-         base_classpath,
-         non_macro_lib,
-         unused_dependency_checker_mode,
-         unused_dependency_checker_ignored_targets = []):
+def _lib(ctx, base_classpath, non_macro_lib, unused_dependency_checker_mode,
+         unused_dependency_checker_ignored_targets):
   # Build up information from dependency-like attributes
 
   # This will be used to pick up srcjars from non-scala library
@@ -686,7 +683,11 @@ def scala_macro_library_impl(ctx):
       ctx,
       scalac_provider.default_macro_classpath,
       False,  # don't build the ijar for macros
-      unused_dependency_checker_mode)
+      unused_dependency_checker_mode,
+      [
+          target.label
+          for target in ctx.attr.unused_dependency_checker_ignored_targets
+      ])
 
 # Common code shared by all scala binary implementations.
 def _scala_binary_common(
