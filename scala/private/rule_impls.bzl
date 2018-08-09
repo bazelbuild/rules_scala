@@ -375,10 +375,11 @@ def _compile_or_empty(
     java_srcs = [
         f for f in ctx.files.srcs if f.basename.endswith(_java_extension)
     ]
-    # We are not able to verify whether dependencies are used when compiling the java sources
-    # Thus we disable the unused dependency checker in those cases
+    # We are not able to verify whether dependencies are used when compiling java sources
+    # Thus we disable unused dependency checking when java sources are found
     if len(java_srcs) != 0:
       unused_dependency_checker_mode = "off"
+
     sources = [
         f for f in ctx.files.srcs if f.basename.endswith(_scala_extension)
     ] + java_srcs
