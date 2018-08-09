@@ -23,14 +23,14 @@ toolchain(
 )
 
 scala_toolchain(
-    name = "unused_dependency_error_toolchain_impl",
+    name = "unused_dependency_checker_error_toolchain_impl",
     unused_dependency_checker_mode = "error",
     visibility = ["//visibility:public"],
 )
 
 toolchain(
-    name = "unused_dependency_error_toolchain",
-    toolchain = ":unused_dependency_error_toolchain_impl",
+    name = "unused_dependency_checker_error_toolchain",
+    toolchain = ":unused_dependency_checker_error_toolchain_impl",
     toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
     visibility = ["//visibility:public"],
 )

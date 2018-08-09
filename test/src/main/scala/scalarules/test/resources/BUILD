@@ -39,7 +39,6 @@ scala_specs2_junit_test(
     srcs = ["ScalaLibResourcesFromExternalDepTest.scala"],
     resources = ["@test_new_local_repo//:data"],
     suffixes = ["Test"],
-    unused_dependency_checker_mode = "off",
 )
 
 scala_test(
@@ -47,5 +46,4 @@ scala_test(
     size = "small",
     srcs = ["ScalaLibResourcesFromExternalScalaTest.scala"],
     resources = ["@test_new_local_repo//:data"],
-    unused_dependency_checker_mode = "off",
 )
