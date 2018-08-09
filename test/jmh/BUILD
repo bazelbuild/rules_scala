@@ -15,6 +15,7 @@ scala_library(
 scala_library(
     name = "add_numbers",
     srcs = ["AddNumbers.scala"],
+    unused_dependency_checker_mode = "off",
     visibility = ["//visibility:public"],
     exports = [
         ":java_type",

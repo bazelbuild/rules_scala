@@ -22,6 +22,19 @@ toolchain(
     visibility = ["//visibility:public"],
 )
 
+scala_toolchain(
+    name = "unused_dependency_error_toolchain_impl",
+    unused_dependency_checker_mode = "error",
+    visibility = ["//visibility:public"],
+)
+
+toolchain(
+    name = "unused_dependency_error_toolchain",
+    toolchain = ":unused_dependency_error_toolchain_impl",
+    toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
+    visibility = ["//visibility:public"],
+)
+
 java_import(
     name = "bazel_test_runner_deploy",
     jars = ["@bazel_tools//tools/jdk:TestRunner_deploy.jar"],

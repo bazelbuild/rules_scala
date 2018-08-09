@@ -97,9 +97,9 @@ filegroup(
     path = "third_party/test/new_local_repo",
 )
 
-load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_toolchains")
+load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_toolchains_unused_deps")
 
-scala_register_toolchains()
+scala_register_toolchains_unused_deps()
 
 load("//scala:scala_maven_import_external.bzl", "scala_maven_import_external", "java_import_external")
 

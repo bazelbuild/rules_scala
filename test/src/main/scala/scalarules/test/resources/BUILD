@@ -20,6 +20,7 @@ scala_specs2_junit_test(
     size = "small",
     srcs = ["ScalaLibOnlyResourcesTest.scala"],
     suffixes = ["Test"],
+    unused_dependency_checker_mode = "off",
     deps = [":noSrcsWithDirectFileResources"],
 )
 
@@ -28,6 +29,7 @@ scala_specs2_junit_test(
     size = "small",
     srcs = ["ScalaLibOnlyResourcesFilegroupTest.scala"],
     suffixes = ["Test"],
+    unused_dependency_checker_mode = "off",
     deps = [":noSrcsWithFilegroupResources"],
 )
 
@@ -37,6 +39,7 @@ scala_specs2_junit_test(
     srcs = ["ScalaLibResourcesFromExternalDepTest.scala"],
     resources = ["@test_new_local_repo//:data"],
     suffixes = ["Test"],
+    unused_dependency_checker_mode = "off",
 )
 
 scala_test(
@@ -44,4 +47,5 @@ scala_test(
     size = "small",
     srcs = ["ScalaLibResourcesFromExternalScalaTest.scala"],
     resources = ["@test_new_local_repo//:data"],
+    unused_dependency_checker_mode = "off",
 )
