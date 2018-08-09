@@ -189,11 +189,6 @@ CurrentTarget: {current_target}
         indirect_targets = indirect_targets,
         current_target = current_target)
 
-    if unused_dependency_checker_mode != "off":
-      fail(
-          "Using both --strict_java_deps and unused-dependency-checker at the same time is not allowed"
-      )
-
   elif unused_dependency_checker_mode != "off":
     unused_dependency_plugin = ctx.attr._unused_dependency_checker_plugin
     plugins = depset(transitive = [plugins, unused_dependency_plugin.files])
