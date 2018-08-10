@@ -4,10 +4,14 @@ scala_library(
     name = "compiler",
     srcs = ["Compiler.scala"],
     visibility = ["//visibility:public"],
+    # util_core is still needed as a dep for older versions of scrooge
+    unused_dependency_checker_mode = "off",
     deps = [
         ":focused_zip_importer",
         "//external:io_bazel_rules_scala/dependency/scala/parser_combinators",
         "//external:io_bazel_rules_scala/dependency/thrift/scrooge_generator",
+        "//external:io_bazel_rules_scala/dependency/thrift/util_core",
+        "//external:io_bazel_rules_scala/dependency/thrift/util_logging",
     ],
 )
 
