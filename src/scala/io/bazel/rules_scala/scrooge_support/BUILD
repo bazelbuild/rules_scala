@@ -3,9 +3,9 @@ load("//scala:scala.bzl", "scala_library")
 scala_library(
     name = "compiler",
     srcs = ["Compiler.scala"],
-    visibility = ["//visibility:public"],
     # util_core is still needed as a dep for older versions of scrooge
     unused_dependency_checker_mode = "off",
+    visibility = ["//visibility:public"],
     deps = [
         ":focused_zip_importer",
         "//external:io_bazel_rules_scala/dependency/scala/parser_combinators",
