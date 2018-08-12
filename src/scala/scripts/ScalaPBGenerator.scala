@@ -41,7 +41,7 @@ class ScalaPBGenerator extends Processor {
     val extractRequestResult = PBGenerateRequest.from(args)
     val config = ScalaPBC.processArgs(extractRequestResult.scalaPBArgs.toArray)
     val code = ProtocBridge.runWithGenerators(
-      protoc = a => com.github.os72.protocjar.Protoc.runProtoc(config.version +: a.toArray),
+      protoc = a => com.github.os72.protocjar.Protoc.runProtoc(a.toArray),
       namedGenerators = Seq("scala" -> ScalaPbCodeGenerator),
       params = config.args)
 
