@@ -441,7 +441,8 @@ def scala_test_suite(name,
         visibility = visibility,
         size = size,
         colors = colors,
-        full_stacktraces = full_stacktraces)
+        full_stacktraces = full_stacktraces,
+        unused_dependency_checker_mode = "off")
     ts.append(n)
   native.test_suite(name = name, tests = ts, visibility = visibility)
 
@@ -478,7 +479,8 @@ def scala_library_suite(name,
         jvm_flags = jvm_flags,
         print_compile_time = print_compile_time,
         visibility = visibility,
-        exports = exports)
+        exports = exports,
+        unused_dependency_checker_mode = "off")
     ts.append(n)
   scala_library(
       name = name, deps = ts, exports = exports + ts, visibility = visibility)
