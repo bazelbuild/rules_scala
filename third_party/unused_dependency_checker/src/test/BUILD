@@ -5,7 +5,6 @@ load("//scala:scala.bzl", "scala_junit_test", "scala_test")
 scala_test(
     name = "unused_dependency_checker_test",
     size = "small",
-    unused_dependency_checker_mode = "off",
     srcs = [
         "io/bazel/rulesscala/dependencyanalyzer/UnusedDependencyCheckerTest.scala",
     ],
@@ -14,6 +13,7 @@ scala_test(
         "-Dscala.library.location=$(location //external:io_bazel_rules_scala/dependency/scala/scala_library)",
         "-Dapache.commons.jar.location=$(location @org_apache_commons_commons_lang_3_5_without_file//:linkable_org_apache_commons_commons_lang_3_5_without_file)",
     ],
+    unused_dependency_checker_mode = "off",
     deps = [
         "//external:io_bazel_rules_scala/dependency/scala/scala_compiler",
         "//external:io_bazel_rules_scala/dependency/scala/scala_library",
