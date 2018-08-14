@@ -143,6 +143,7 @@ _common_attrs.update({
         ),
         allow_files = [".jar"],
         mandatory = False),
+    "unused_dependency_checker_ignored_targets": attr.label_list(default = []),
 })
 
 _library_attrs = {
@@ -440,7 +441,8 @@ def scala_test_suite(name,
         visibility = visibility,
         size = size,
         colors = colors,
-        full_stacktraces = full_stacktraces)
+        full_stacktraces = full_stacktraces,
+        unused_dependency_checker_mode = "off")
     ts.append(n)
   native.test_suite(name = name, tests = ts, visibility = visibility)
 
@@ -477,7 +479,8 @@ def scala_library_suite(name,
         jvm_flags = jvm_flags,
         print_compile_time = print_compile_time,
         visibility = visibility,
-        exports = exports)
+        exports = exports,
+        unused_dependency_checker_mode = "off")
     ts.append(n)
   scala_library(
       name = name, deps = ts, exports = exports + ts, visibility = visibility)
@@ -519,6 +522,7 @@ def scala_specs2_junit_test(name, **kwargs):
   scala_junit_test(
       name = name,
       deps = _specs2_junit_dependencies() + kwargs.pop("deps", []),
+      unused_dependency_checker_ignored_targets = _specs2_junit_dependencies(),
       suite_label = Label(
           "//src/java/io/bazel/rulesscala/specs2:specs2_test_discovery"),
       suite_class = "io.bazel.rulesscala.specs2.Specs2DiscoveredTestSuite",

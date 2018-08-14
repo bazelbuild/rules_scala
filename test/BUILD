@@ -475,6 +475,7 @@ scala_binary(
     name = "ScalaBinary_with_fake",
     srcs = ["ScalaBinary.scala"],
     main_class = "scalarules.test.ScalaBinary",
+    unused_dependency_checker_mode = "off",
     deps = [
         ":HelloLib",
         ":MacroTest",
@@ -504,6 +505,7 @@ scala_binary(
     name = "ScalaBinary_with_service_manifest_srcs",
     srcs = ["A.scala"],
     main_class = "scalarules.test.A",
+    unused_dependency_checker_mode = "off",
     deps = [
         "//test/example_jars:example_jar1",
         "//test/example_jars:example_jar2",

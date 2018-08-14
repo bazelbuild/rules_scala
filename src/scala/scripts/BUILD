@@ -32,9 +32,11 @@ scala_library(
     name = "scalapb_generator_lib",
     srcs = ["ScalaPBGenerator.scala"],
     visibility = ["//visibility:public"],
+    runtime_deps = [
+        "//external:io_bazel_rules_scala/dependency/com_google_protobuf/protobuf_java",
+    ],
     deps = [
         ":scala_proto_request_extractor",
-        "//external:io_bazel_rules_scala/dependency/com_google_protobuf/protobuf_java",
         "//external:io_bazel_rules_scala/dependency/proto/protoc",
         "//external:io_bazel_rules_scala/dependency/proto/protoc_bridge",
         "//external:io_bazel_rules_scala/dependency/proto/scalapb_plugin",

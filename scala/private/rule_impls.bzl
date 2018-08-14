@@ -189,11 +189,6 @@ CurrentTarget: {current_target}
         indirect_targets = indirect_targets,
         current_target = current_target)
 
-    if unused_dependency_checker_mode != "off":
-      fail(
-          "Using both --strict_java_deps and unused-dependency-checker at the same time is not allowed"
-      )
-
   elif unused_dependency_checker_mode != "off":
     unused_dependency_plugin = ctx.attr._unused_dependency_checker_plugin
     plugins = depset(transitive = [plugins, unused_dependency_plugin.files])
@@ -380,6 +375,11 @@ def _compile_or_empty(
     java_srcs = [
         f for f in ctx.files.srcs if f.basename.endswith(_java_extension)
     ]
+    # We are not able to verify whether dependencies are used when compiling java sources
+    # Thus we disable unused dependency checking when java sources are found
+    if len(java_srcs) != 0:
+      unused_dependency_checker_mode = "off"
+
     sources = [
         f for f in ctx.files.srcs if f.basename.endswith(_scala_extension)
     ] + java_srcs
@@ -578,7 +578,8 @@ def _collect_jars_from_common_ctx(ctx,
       jars2labels = jars2labels,
       transitive_compile_jars = transitive_compile_jars)
 
-def _lib(ctx, base_classpath, non_macro_lib, unused_dependency_checker_mode):
+def _lib(ctx, base_classpath, non_macro_lib, unused_dependency_checker_mode,
+         unused_dependency_checker_ignored_targets):
   # Build up information from dependency-like attributes
 
   # This will be used to pick up srcjars from non-scala library
@@ -604,7 +605,8 @@ def _lib(ctx, base_classpath, non_macro_lib, unused_dependency_checker_mode):
       jars.jars2labels.jars_to_labels, [],
       unused_dependency_checker_mode = unused_dependency_checker_mode,
       unused_dependency_checker_ignored_targets = [
-          target.label for target in base_classpath
+          target.label for target in base_classpath + ctx.attr.exports +
+          unused_dependency_checker_ignored_targets
       ])
 
   transitive_rjars = depset(outputs.full_jars, transitive = [transitive_rjars])
@@ -655,7 +657,8 @@ def scala_library_impl(ctx):
   scalac_provider = ctx.attr._scala_provider[_ScalacProvider]
   unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
   return _lib(ctx, scalac_provider.default_classpath, True,
-              unused_dependency_checker_mode)
+              unused_dependency_checker_mode,
+              ctx.attr.unused_dependency_checker_ignored_targets)
 
 def scala_library_for_plugin_bootstrapping_impl(ctx):
   scalac_provider = ctx.attr._scala_provider[_ScalacProvider]
@@ -663,7 +666,8 @@ def scala_library_for_plugin_bootstrapping_impl(ctx):
       ctx,
       scalac_provider.default_classpath,
       True,
-      unused_dependency_checker_mode = "off")
+      unused_dependency_checker_mode = "off",
+      unused_dependency_checker_ignored_targets = [])
 
 def scala_macro_library_impl(ctx):
   scalac_provider = ctx.attr._scala_provider[_ScalacProvider]
@@ -672,7 +676,8 @@ def scala_macro_library_impl(ctx):
       ctx,
       scalac_provider.default_macro_classpath,
       False,  # don't build the ijar for macros
-      unused_dependency_checker_mode)
+      unused_dependency_checker_mode,
+      ctx.attr.unused_dependency_checker_ignored_targets)
 
 # Common code shared by all scala binary implementations.
 def _scala_binary_common(
@@ -750,7 +755,8 @@ def scala_binary_impl(ctx):
       wrapper,
       unused_dependency_checker_mode = unused_dependency_checker_mode,
       unused_dependency_checker_ignored_targets = [
-          target.label for target in scalac_provider.default_classpath
+          target.label for target in scalac_provider.default_classpath +
+          ctx.attr.unused_dependency_checker_ignored_targets
       ])
   _write_executable(
       ctx = ctx,
@@ -801,7 +807,8 @@ trap finish EXIT
       wrapper,
       unused_dependency_checker_mode = unused_dependency_checker_mode,
       unused_dependency_checker_ignored_targets = [
-          target.label for target in scalac_provider.default_repl_classpath
+          target.label for target in scalac_provider.default_repl_classpath +
+          ctx.attr.unused_dependency_checker_ignored_targets
       ])
   _write_executable(
       ctx = ctx,
@@ -831,7 +838,8 @@ def scala_test_impl(ctx):
 
   unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
   unused_dependency_checker_ignored_targets = [
-      target.label for target in scalac_provider.default_classpath
+      target.label for target in scalac_provider.default_classpath +
+      ctx.attr.unused_dependency_checker_ignored_targets
   ]
   unused_dependency_checker_is_off = unused_dependency_checker_mode == "off"
 
@@ -919,7 +927,11 @@ def scala_junit_test_impl(ctx):
 
   unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
   unused_dependency_checker_ignored_targets = [
-      target.label for target in scalac_provider.default_classpath
+      target.label for target in scalac_provider.default_classpath +
+      ctx.attr.unused_dependency_checker_ignored_targets
+  ] + [
+      ctx.attr._junit.label, ctx.attr._hamcrest.label,
+      ctx.attr.suite_label.label, ctx.attr._bazel_test_runner.label
   ]
   unused_dependency_checker_is_off = unused_dependency_checker_mode == "off"
 
