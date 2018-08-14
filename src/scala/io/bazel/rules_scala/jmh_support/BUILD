@@ -4,6 +4,9 @@ scala_library(
     name = "benchmark_generator_lib",
     srcs = ["BenchmarkGenerator.scala"],
     visibility = ["//visibility:public"],
+    runtime_deps = [
+        "//external:io_bazel_rules_scala/dependency/jmh/org_ows2_asm_asm",
+    ],
     deps = [
         "//external:io_bazel_rules_scala/dependency/jmh/jmh_core",
         "//external:io_bazel_rules_scala/dependency/jmh/jmh_generator_asm",
