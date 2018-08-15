@@ -94,8 +94,8 @@ for an example workspace using another scala version.
 ## scala\_library / scala\_macro_library
 
 ```python
-scala_library(name, srcs, deps, runtime_deps, exports, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags, scalac_jvm_flags, javac_jvm_flags)
-scala_macro_library(name, srcs, deps, runtime_deps, exports, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags, scalac_jvm_flags, javac_jvm_flags)
+scala_library(name, srcs, deps, runtime_deps, exports, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags, scalac_jvm_flags, javac_jvm_flags, unused_dependency_checker_mode)
+scala_macro_library(name, srcs, deps, runtime_deps, exports, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags, scalac_jvm_flags, javac_jvm_flags, unused_dependency_checker_mode)
 ```
 
 `scala_library` generates a `.jar` file from `.scala` source files. This rule
@@ -246,6 +246,16 @@ In order to make a java rule use this jar file, use the `java_import` rule.
         </p>
       </td>
     </tr>
+    <tr>
+      <td><code>unused_dependency_checker_mode</code></td>
+      <td>
+        <p><code>String; optional</code></p>
+        <p>
+          Enable unused dependency checking (see <a href="https://github.com/bazelbuild/rules_scala#experimental-unused-dependency-checking">Unused dependency checking</a>).
+          Possible values are: <code>off</code>, <code>warn</code> and <code>error</code>.
+        </p>
+      </td>
+    </tr>
   </tbody>
 </table>
 
@@ -253,7 +263,7 @@ In order to make a java rule use this jar file, use the `java_import` rule.
 ## scala_binary
 
 ```python
-scala_binary(name, srcs, deps, runtime_deps, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags, scalac_jvm_flags, javac_jvm_flags)
+scala_binary(name, srcs, deps, runtime_deps, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags, scalac_jvm_flags, javac_jvm_flags, unused_dependency_checker_mode)
 ```
 
 `scala_binary` generates a Scala executable. It may depend on `scala_library`, `scala_macro_library`
@@ -391,6 +401,16 @@ A `scala_binary` requires a `main_class` attribute.
         </p>
       </td>
     </tr>
+    <tr>
+      <td><code>unused_dependency_checker_mode</code></td>
+      <td>
+        <p><code>String; optional</code></p>
+        <p>
+          Enable unused dependency checking (see <a href="https://github.com/bazelbuild/rules_scala#experimental-unused-dependency-checking">Unused dependency checking</a>).
+          Possible values are: <code>off</code>, <code>warn</code> and <code>error</code>.
+        </p>
+      </td>
+    </tr>
   </tbody>
 </table>
 
@@ -398,7 +418,7 @@ A `scala_binary` requires a `main_class` attribute.
 ## scala_test
 
 ```python
-scala_test(name, srcs, suites, deps, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags, scalac_jvm_flags, javac_jvm_flags)
+scala_test(name, srcs, suites, deps, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags, scalac_jvm_flags, javac_jvm_flags, unused_dependency_checker_mode)
 ```
 
 `scala_test` generates a Scala executable which runs unit test suites written
@@ -414,7 +434,7 @@ populated and tests are not run.
 <a name="scala_repl"></a>
 ## scala_repl
 ```python
-scala_repl(name, deps, scalacopts, jvm_flags, scalac_jvm_flags, javac_jvm_flags)
+scala_repl(name, deps, scalacopts, jvm_flags, scalac_jvm_flags, javac_jvm_flags, unused_dependency_checker_mode)
 ```
 A scala repl allows you to add library dependencies (not currently `scala_binary` targets)
 to generate a script to run which starts a REPL.
@@ -607,6 +627,7 @@ In your workspace file add the following lines:
   scala_toolchain(
       name = "my_toolchain_impl",
       scalacopts = ["-Ywarn-unused"],
+      unused_dependency_checker_mode = "off",
       visibility = ["//visibility:public"]
   )
 
@@ -676,6 +697,23 @@ Note that if you have `buildozer` installed you can just run the last line and h
   </ul>
 
 Note: Currently strict-deps is protected by a feature toggle but we're strongly considering making it the default behavior as `java_*` rules do.
+
+## [Experimental] Unused dependency checking
+To allow for better caching and faster builds we want to minimize the direct dependencies of our targets. Unused dependency checking
+makes sure that all targets specified as direct dependencies are actually used. If `unused_dependency_checker_mode` is set to either
+`error` or `warn` you will get the following message for any dependencies that are not used:
+```
+error: Target '//some_package:unused_dep' is specified as a dependency to //target:target but isn't used, please remove it from the deps.
+You can use the following buildozer command:
+buildozer 'remove deps //some_package:unused_dep' //target:target
+```
+
+Currently unused dependency checking and strict-deps can't be used simultaneously, if both are set only strict-deps will run.
+
+Unused dependency checking can either be enabled globally for all targets using a scala toolchain or for individual targets using the
+`unused_dependency_checker_mode` attribute. The feature is still experimental and there can thus be cases where it works incorrectly,
+in these cases you can enable unused dependency checking globally through a toolchain and override individual misbehaving targets
+using the attribute.
 
 ## Building from source
 Test & Build:
