@@ -133,6 +133,10 @@ _common_attrs.update({
         ),
         allow_files = [".jar"],
         mandatory = False),
+})
+
+_unused_deps_checker_attrs = {}
+_unused_deps_checker_attrs.update({
     "unused_dependency_checker_mode": attr.string(
         values = ["warn", "error", "off", ""],
         mandatory = False,
@@ -164,6 +168,7 @@ _library_outputs.update(_common_outputs)
 _scala_library_attrs = {}
 _scala_library_attrs.update(_implicit_deps)
 _scala_library_attrs.update(_common_attrs)
+_scala_library_attrs.update(_unused_deps_checker_attrs)
 _scala_library_attrs.update(_library_attrs)
 _scala_library_attrs.update(_resolve_deps)
 
@@ -215,6 +220,7 @@ _scala_binary_attrs = {
 _scala_binary_attrs.update(_launcher_template)
 _scala_binary_attrs.update(_implicit_deps)
 _scala_binary_attrs.update(_common_attrs)
+_scala_binary_attrs.update(_unused_deps_checker_attrs)
 _scala_binary_attrs.update(_resolve_deps)
 scala_binary = rule(
     implementation = _scala_binary_impl,
@@ -243,6 +249,7 @@ _scala_test_attrs = {
 _scala_test_attrs.update(_launcher_template)
 _scala_test_attrs.update(_implicit_deps)
 _scala_test_attrs.update(_common_attrs)
+_scala_test_attrs.update(_unused_deps_checker_attrs)
 _scala_test_attrs.update(_test_resolve_deps)
 scala_test = rule(
     implementation = _scala_test_impl,
@@ -258,6 +265,7 @@ _scala_repl_attrs = {}
 _scala_repl_attrs.update(_launcher_template)
 _scala_repl_attrs.update(_implicit_deps)
 _scala_repl_attrs.update(_common_attrs)
+_scala_repl_attrs.update(_unused_deps_checker_attrs)
 _scala_repl_attrs.update(_resolve_deps)
 scala_repl = rule(
     implementation = _scala_repl_impl,
@@ -509,6 +517,7 @@ _scala_junit_test_attrs = {
 _scala_junit_test_attrs.update(_launcher_template)
 _scala_junit_test_attrs.update(_implicit_deps)
 _scala_junit_test_attrs.update(_common_attrs)
+_scala_junit_test_attrs.update(_unused_deps_checker_attrs)
 _scala_junit_test_attrs.update(_junit_resolve_deps)
 scala_junit_test = rule(
     implementation = _scala_junit_test_impl,

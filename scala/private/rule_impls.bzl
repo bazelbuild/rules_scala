@@ -671,13 +671,12 @@ def scala_library_for_plugin_bootstrapping_impl(ctx):
 
 def scala_macro_library_impl(ctx):
   scalac_provider = ctx.attr._scala_provider[_ScalacProvider]
-  unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
   return _lib(
       ctx,
       scalac_provider.default_macro_classpath,
       False,  # don't build the ijar for macros
-      unused_dependency_checker_mode,
-      ctx.attr.unused_dependency_checker_ignored_targets)
+      unused_dependency_checker_mode = "off",
+      unused_dependency_checker_ignored_targets = ctx.attr.unused_dependency_checker_ignored_targets)
 
 # Common code shared by all scala binary implementations.
 def _scala_binary_common(
