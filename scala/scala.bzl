@@ -200,6 +200,13 @@ _scala_macro_library_attrs.update(_implicit_deps)
 _scala_macro_library_attrs.update(_common_attrs)
 _scala_macro_library_attrs.update(_library_attrs)
 _scala_macro_library_attrs.update(_resolve_deps)
+# Set unused_dependency_checker_mode default to off for scala_macro_library
+_scala_macro_library_attrs["unused_dependency_checker_mode"] = attr.string(
+    default = "off",
+    values = ["warn", "error", "off", ""],
+    mandatory = False,
+)
+
 scala_macro_library = rule(
     implementation = _scala_macro_library_impl,
     attrs = _scala_macro_library_attrs,
