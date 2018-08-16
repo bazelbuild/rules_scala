@@ -84,8 +84,9 @@ for an example workspace using another scala version.
 
 | bazel | rules_scala gitsha |
 |-------|--------------------|
-| 0.15.x | HEAD |
-| 0.14.x | HEAD |
+| 0.16.x | HEAD              |
+| 0.15.x | 3b9ab9be31ac217d3337c709cb6bfeb89c8dcbb1 |
+| 0.14.x | 3b9ab9be31ac217d3337c709cb6bfeb89c8dcbb1 |
 | 0.13.x | 3c987b6ae8a453886759b132f1572c0efca2eca2 |
 
 [scala]: http://www.scala-lang.org/
