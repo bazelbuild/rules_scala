@@ -13,10 +13,10 @@ java_binary(
         "@io_bazel_rules_scala//src/java/com/google/devtools/build/lib:worker",
         "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/jar",
         "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/worker",
-        "@io_bazel_rules_scala_scala_compiler",
-        "@io_bazel_rules_scala_scala_library",
-        "@io_bazel_rules_scala_scala_reflect",
-        "@scalac_rules_commons_io//jar",
+        "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+        "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
+        "//external:io_bazel_rules_scala/dependency/scala/scala_compiler",
+        "//external:io_bazel_rules_scala/dependency/commons_io/commons_io",
     ],
 )
 
