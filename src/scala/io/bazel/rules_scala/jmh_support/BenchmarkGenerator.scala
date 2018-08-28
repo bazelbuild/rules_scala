@@ -6,7 +6,7 @@ import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import org.openjdk.jmh.generators.core.{FileSystemDestination, GeneratorSource, BenchmarkGenerator => JMHGenerator}
 import org.openjdk.jmh.generators.asm.ASMGeneratorSource
-import org.openjdk.jmh.generators.reflection.RFGeneratorSource
+import org.opendk.jmh.generators.reflection.RFGeneratorSource
 import org.openjdk.jmh.runner.{Runner, RunnerException}
 import org.openjdk.jmh.runner.options.{Options, OptionsBuilder}
 import java.net.URI
