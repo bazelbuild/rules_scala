@@ -100,12 +100,13 @@ touch {statsfile}
   outs = [ctx.outputs.jar, ctx.outputs.statsfile]
 
   inputs = ctx.files.resources + [
-      ctx.outputs.manifest, ctx.executable._zipper, zipper_arg_path
+      ctx.outputs.manifest, zipper_arg_path
   ]
 
   ctx.actions.run_shell(
       inputs = inputs,
       outputs = outs,
+      tools = [ctx.executable._zipper],
       command = cmd,
       progress_message = "scala %s" % ctx.label,
       arguments = [])
