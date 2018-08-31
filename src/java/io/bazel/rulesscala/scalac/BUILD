@@ -1,9 +1,12 @@
-load(":jvm_export_toolchain.bzl",
-_export_scalac_repositories_from_toolchain_to_jvm = "export_scalac_repositories_from_toolchain_to_jvm")
+load(
+    ":jvm_export_toolchain.bzl",
+    _export_scalac_repositories_from_toolchain_to_jvm = "export_scalac_repositories_from_toolchain_to_jvm",
+)
 
 _export_scalac_repositories_from_toolchain_to_jvm(
     name = "exported_scalac_repositories_from_toolchain_to_jvm",
 )
+
 java_binary(
     name = "scalac",
     srcs = [
@@ -16,10 +19,10 @@ java_binary(
     main_class = "io.bazel.rulesscala.scalac.ScalaCInvoker",
     visibility = ["//visibility:public"],
     deps = [
+        ":exported_scalac_repositories_from_toolchain_to_jvm",
         "@io_bazel_rules_scala//src/java/com/google/devtools/build/lib:worker",
         "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/jar",
         "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/worker",
-        ":exported_scalac_repositories_from_toolchain_to_jvm",
         "@scalac_rules_commons_io//jar",
     ],
 )

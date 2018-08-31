@@ -10,8 +10,10 @@ def _files_of(deps):
 
 def _export_scalac_repositories_from_toolchain_to_jvm_impl(ctx):
   default_repl_classpath_deps = ctx.toolchains[
-  '@io_bazel_rules_scala//scala:toolchain_type'].scalac_repositories[_ScalacRepositoriesProvider].default_repl_classpath
-  default_repl_classpath_files = _files_of(default_repl_classpath_deps).to_list()
+      '@io_bazel_rules_scala//scala:toolchain_type'].scalac_repositories[
+          _ScalacRepositoriesProvider].default_repl_classpath
+  default_repl_classpath_files = _files_of(
+      default_repl_classpath_deps).to_list()
   java_common_provider = java_common.create_provider(
       use_ijar = False,
       compile_time_jars = default_repl_classpath_files,
@@ -21,5 +23,4 @@ def _export_scalac_repositories_from_toolchain_to_jvm_impl(ctx):
 
 export_scalac_repositories_from_toolchain_to_jvm = rule(
     _export_scalac_repositories_from_toolchain_to_jvm_impl,
-    toolchains = ['@io_bazel_rules_scala//scala:toolchain_type']
-)
+    toolchains = ['@io_bazel_rules_scala//scala:toolchain_type'])

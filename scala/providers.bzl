@@ -44,8 +44,7 @@ def _declare_scalac_provider(ctx):
   return [
       ScalacProvider(
           scalac = ctx.attr.scalac,
-          scalac_repositories_provider = ctx.attr.scalac_repositories_provider
-      )
+          scalac_repositories_provider = ctx.attr.scalac_repositories_provider)
   ]
 
 def _declare_scalac_repositories_provider(ctx):
@@ -65,7 +64,8 @@ declare_scalac_provider = rule(
             cfg = "host",
             allow_files = True,
             mandatory = True),
-        "scalac_repositories_provider": attr.label(providers = [ScalacRepositoriesProvider]),
+        "scalac_repositories_provider": attr.label(
+            providers = [ScalacRepositoriesProvider]),
     })
 
 declare_scalac_repositories_provider = rule(
