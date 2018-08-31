@@ -1,6 +1,7 @@
 load(
     "@io_bazel_rules_scala//scala:providers.bzl",
     _declare_scalac_provider = "declare_scalac_provider",
+    _declare_scalac_repositories_provider = "declare_scalac_repositories_provider",
 )
 load("//scala:scala_toolchain.bzl", "scala_toolchain")
 
@@ -43,6 +44,13 @@ java_import(
 
 _declare_scalac_provider(
     name = "scala_default",
+    scalac = "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac",
+    scalac_repositories_provider = ":scala_repositories_default",
+    visibility = ["//visibility:public"],
+)
+
+_declare_scalac_repositories_provider(
+    name = "scala_repositories_default",
     default_classpath = [
         "@io_bazel_rules_scala_scala_library",
         "@io_bazel_rules_scala_scala_reflect",
@@ -56,6 +64,5 @@ _declare_scalac_provider(
         "@io_bazel_rules_scala_scala_reflect",
         "@io_bazel_rules_scala_scala_compiler",
     ],
-    scalac = "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac",
     visibility = ["//visibility:public"],
 )
