@@ -42,7 +42,7 @@ java_import(
 )
 
 _declare_scalac_provider(
-    name = "scala_repositories_default",
+    name = "scalac_default",
     default_classpath = [
         "@io_bazel_rules_scala_scala_library",
         "@io_bazel_rules_scala_scala_reflect",

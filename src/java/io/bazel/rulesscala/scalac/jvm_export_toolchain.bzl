@@ -10,7 +10,7 @@ def _files_of(deps):
 
 def _export_scalac_repositories_from_toolchain_to_jvm_impl(ctx):
   default_repl_classpath_deps = ctx.toolchains[
-      '@io_bazel_rules_scala//scala:toolchain_type'].scalac_repositories[
+      '@io_bazel_rules_scala//scala:toolchain_type'].scalac_provider_attr[
           _ScalacProvider].default_repl_classpath
   default_repl_classpath_files = _files_of(
       default_repl_classpath_deps).to_list()

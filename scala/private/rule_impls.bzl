@@ -310,7 +310,7 @@ def _interim_java_provider_for_java_compilation(scala_output):
 
 def _scalac_provider(ctx):
   return ctx.toolchains[
-      '@io_bazel_rules_scala//scala:toolchain_type'].scalac_repositories[
+      '@io_bazel_rules_scala//scala:toolchain_type'].scalac_provider_attr[
           _ScalacProvider]
 
 def try_to_compile_java_jar(ctx, scala_output, all_srcjars, java_srcs,
