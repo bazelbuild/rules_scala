@@ -1,6 +1,6 @@
 load(
     "@io_bazel_rules_scala//scala:providers.bzl",
-    _ScalacRepositoriesProvider = "ScalacRepositoriesProvider")
+    _ScalacProvider = "ScalacProvider")
 
 def _scala_toolchain_impl(ctx):
   toolchain = platform_common.ToolchainInfo(
@@ -15,7 +15,7 @@ scala_toolchain = rule(
         'scalacopts': attr.string_list(),
         'scalac_repositories': attr.label(
             default = "@io_bazel_rules_scala//scala:scala_repositories_default",
-            providers = [_ScalacRepositoriesProvider]),
+            providers = [_ScalacProvider]),
         'unused_dependency_checker_mode': attr.string(
             default = "off", values = ["off", "warn", "error"]),
     })

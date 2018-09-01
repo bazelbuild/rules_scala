@@ -1,6 +1,6 @@
 load(
     "@io_bazel_rules_scala//scala:providers.bzl",
-    _declare_scalac_repositories_provider = "declare_scalac_repositories_provider",
+    _declare_scalac_provider = "declare_scalac_provider",
 )
 load("//scala:scala_toolchain.bzl", "scala_toolchain")
 
@@ -41,7 +41,7 @@ java_import(
     visibility = ["//visibility:public"],
 )
 
-_declare_scalac_repositories_provider(
+_declare_scalac_provider(
     name = "scala_repositories_default",
     default_classpath = [
         "@io_bazel_rules_scala_scala_library",
