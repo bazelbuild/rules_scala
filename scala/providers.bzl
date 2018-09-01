@@ -26,7 +26,7 @@ def create_scala_provider(ijar, class_jar, compile_jars,
   )
 
 ScalacProvider = provider(
-    doc = "ScalaCProvider",
+    doc = "ScalacProvider",
     fields = [
         "default_classpath",
         "default_macro_classpath",
