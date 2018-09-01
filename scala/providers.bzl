@@ -26,9 +26,8 @@ def create_scala_provider(ijar, class_jar, compile_jars,
   )
 
 ScalacProvider = provider(
-    doc = "ScalaProvider",
+    doc = "ScalacProvider",
     fields = [
-        "scalac",
         "default_classpath",
         "default_macro_classpath",
         "default_repl_classpath",
@@ -37,7 +36,6 @@ ScalacProvider = provider(
 def _declare_scalac_provider(ctx):
   return [
       ScalacProvider(
-          scalac = ctx.attr.scalac,
           default_classpath = ctx.attr.default_classpath,
           default_repl_classpath = ctx.attr.default_repl_classpath,
           default_macro_classpath = ctx.attr.default_macro_classpath,
@@ -47,11 +45,6 @@ def _declare_scalac_provider(ctx):
 declare_scalac_provider = rule(
     implementation = _declare_scalac_provider,
     attrs = {
-        "scalac": attr.label(
-            executable = True,
-            cfg = "host",
-            allow_files = True,
-            mandatory = True),
         "default_classpath": attr.label_list(allow_files = True),
         "default_repl_classpath": attr.label_list(allow_files = True),
         "default_macro_classpath": attr.label_list(allow_files = True),

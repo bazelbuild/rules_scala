@@ -149,7 +149,7 @@ def compile_scala(ctx,
                   print_compile_time,
                   expect_java_output,
                   scalac_jvm_flags,
-                  scalac_provider,
+                  scalac,
                   unused_dependency_checker_mode = "off",
                   unused_dependency_checker_ignored_targets = []):
   # look for any plugins:
@@ -272,7 +272,7 @@ StatsfileOutput: {statsfile_output}
       output = argfile, content = scalac_args + optional_scalac_args)
 
   scalac_inputs, _, scalac_input_manifests = ctx.resolve_command(
-      tools = [scalac_provider.scalac])
+      tools = [scalac])
 
   outs = [output, statsfile]
   ins = (
@@ -283,7 +283,7 @@ StatsfileOutput: {statsfile_output}
   ctx.actions.run(
       inputs = ins,
       outputs = outs,
-      executable = scalac_provider.scalac.files_to_run.executable,
+      executable = scalac.files_to_run.executable,
       input_manifests = scalac_input_manifests,
       mnemonic = "Scalac",
       progress_message = "scala %s" % target_label,
@@ -308,6 +308,11 @@ def _interim_java_provider_for_java_compilation(scala_output):
       runtime_jars = [],
   )
 
+def _scalac_provider(ctx):
+  return ctx.toolchains[
+      '@io_bazel_rules_scala//scala:toolchain_type'].scalac_provider_attr[
+          _ScalacProvider]
+
 def try_to_compile_java_jar(ctx, scala_output, all_srcjars, java_srcs,
                             implicit_junit_deps_needed_for_java_compilation):
   if not java_srcs and (not (all_srcjars and ctx.attr.expect_java_output)):
@@ -317,7 +322,7 @@ def try_to_compile_java_jar(ctx, scala_output, all_srcjars, java_srcs,
   providers_of_dependencies += collect_java_providers_of(
       implicit_junit_deps_needed_for_java_compilation)
   providers_of_dependencies += collect_java_providers_of(
-      ctx.attr._scala_provider[_ScalacProvider].default_classpath)
+      _scalac_provider(ctx).default_classpath)
   scala_sources_java_provider = _interim_java_provider_for_java_compilation(
       scala_output)
   providers_of_dependencies += [scala_sources_java_provider]
@@ -402,7 +407,7 @@ def _compile_or_empty(
         ctx.attr.print_compile_time,
         ctx.attr.expect_java_output,
         ctx.attr.scalac_jvm_flags,
-        ctx.attr._scala_provider[_ScalacProvider],
+        ctx.attr._scalac,
         unused_dependency_checker_mode = unused_dependency_checker_mode,
         unused_dependency_checker_ignored_targets =
         unused_dependency_checker_ignored_targets)
@@ -654,14 +659,14 @@ def get_unused_dependency_checker_mode(ctx):
         '@io_bazel_rules_scala//scala:toolchain_type'].unused_dependency_checker_mode
 
 def scala_library_impl(ctx):
-  scalac_provider = ctx.attr._scala_provider[_ScalacProvider]
+  scalac_provider = _scalac_provider(ctx)
   unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
   return _lib(ctx, scalac_provider.default_classpath, True,
               unused_dependency_checker_mode,
               ctx.attr.unused_dependency_checker_ignored_targets)
 
 def scala_library_for_plugin_bootstrapping_impl(ctx):
-  scalac_provider = ctx.attr._scala_provider[_ScalacProvider]
+  scalac_provider = _scalac_provider(ctx)
   return _lib(
       ctx,
       scalac_provider.default_classpath,
@@ -670,7 +675,7 @@ def scala_library_for_plugin_bootstrapping_impl(ctx):
       unused_dependency_checker_ignored_targets = [])
 
 def scala_macro_library_impl(ctx):
-  scalac_provider = ctx.attr._scala_provider[_ScalacProvider]
+  scalac_provider = _scalac_provider(ctx)
   unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
   return _lib(
       ctx,
@@ -735,7 +740,7 @@ def _scala_binary_common(
       runfiles = runfiles)
 
 def scala_binary_impl(ctx):
-  scalac_provider = ctx.attr._scala_provider[_ScalacProvider]
+  scalac_provider = _scalac_provider(ctx)
   unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
   unused_dependency_checker_is_off = unused_dependency_checker_mode == "off"
 
@@ -767,7 +772,7 @@ def scala_binary_impl(ctx):
   return out
 
 def scala_repl_impl(ctx):
-  scalac_provider = ctx.attr._scala_provider[_ScalacProvider]
+  scalac_provider = _scalac_provider(ctx)
 
   unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
   unused_dependency_checker_is_off = unused_dependency_checker_mode == "off"
@@ -834,7 +839,7 @@ def scala_test_impl(ctx):
   if len(ctx.attr.suites) != 0:
     print("suites attribute is deprecated. All scalatest test suites are run")
 
-  scalac_provider = ctx.attr._scala_provider[_ScalacProvider]
+  scalac_provider = _scalac_provider(ctx)
 
   unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
   unused_dependency_checker_ignored_targets = [
@@ -923,7 +928,7 @@ def scala_junit_test_impl(ctx):
     fail(
         "Setting at least one of the attributes ('prefixes','suffixes') is required"
     )
-  scalac_provider = ctx.attr._scala_provider[_ScalacProvider]
+  scalac_provider = _scalac_provider(ctx)
 
   unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
   unused_dependency_checker_ignored_targets = [

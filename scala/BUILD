@@ -42,7 +42,7 @@ java_import(
 )
 
 _declare_scalac_provider(
-    name = "scala_default",
+    name = "scalac_default",
     default_classpath = [
         "@io_bazel_rules_scala_scala_library",
         "@io_bazel_rules_scala_scala_reflect",
@@ -56,6 +56,5 @@ _declare_scalac_provider(
         "@io_bazel_rules_scala_scala_reflect",
         "@io_bazel_rules_scala_scala_compiler",
     ],
-    scalac = "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac",
     visibility = ["//visibility:public"],
 )
