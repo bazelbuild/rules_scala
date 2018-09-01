@@ -25,13 +25,6 @@ def create_scala_provider(ijar, class_jar, compile_jars,
       transitive_exports = []  #needed by intellij plugin
   )
 
-ScalacProvider = provider(
-    doc = "ScalaCProvider",
-    fields = [
-        "scalac",
-        "scalac_repositories_provider",
-    ])
-
 ScalacRepositoriesProvider = provider(
     doc = "ScalaCRepositoriesProvider",
     fields = [
@@ -39,13 +32,6 @@ ScalacRepositoriesProvider = provider(
         "default_macro_classpath",
         "default_repl_classpath",
     ])
-
-def _declare_scalac_provider(ctx):
-  return [
-      ScalacProvider(
-          scalac = ctx.attr.scalac,
-          scalac_repositories_provider = ctx.attr.scalac_repositories_provider)
-  ]
 
 def _declare_scalac_repositories_provider(ctx):
   return [
@@ -55,18 +41,6 @@ def _declare_scalac_repositories_provider(ctx):
           default_macro_classpath = ctx.attr.default_macro_classpath,
       )
   ]
-
-declare_scalac_provider = rule(
-    implementation = _declare_scalac_provider,
-    attrs = {
-        "scalac": attr.label(
-            executable = True,
-            cfg = "host",
-            allow_files = True,
-            mandatory = True),
-        "scalac_repositories_provider": attr.label(
-            providers = [ScalacRepositoriesProvider]),
-    })
 
 declare_scalac_repositories_provider = rule(
     implementation = _declare_scalac_repositories_provider,

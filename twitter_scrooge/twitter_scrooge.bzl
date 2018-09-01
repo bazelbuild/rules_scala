@@ -18,10 +18,6 @@ load("@io_bazel_rules_scala//thrift:thrift_info.bzl", "ThriftInfo")
 load("@io_bazel_rules_scala//thrift:thrift.bzl", "merge_thrift_infos",
      "empty_thrift_info")
 
-load(
-    "@io_bazel_rules_scala//scala:providers.bzl",
-    _ScalacProvider = "ScalacProvider")
-
 _jar_extension = ".jar"
 
 def twitter_scrooge(scala_version = _default_scala_version(),
@@ -216,7 +212,7 @@ def _compile_scala(ctx, label, output, scrooge_jar, deps_java_info,
       print_compile_time = False,
       expect_java_output = False,
       scalac_jvm_flags = [],
-      scalac_provider = ctx.attr._scalac[_ScalacProvider])
+      scalac = ctx.attr._scalac)
 
   return JavaInfo(
       source_jar = scrooge_jar,
@@ -300,8 +296,7 @@ scrooge_aspect = aspect(
             default = Label("//src/scala/scripts:generator"),
             allow_files = True),
         "_scalac": attr.label(
-            default = Label("@io_bazel_rules_scala//scala:scala_default"),
-            providers = [_ScalacProvider]),
+            default = Label("@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac")),
         "_implicit_compile_deps": attr.label_list(
             providers = [JavaInfo],
             default = [
