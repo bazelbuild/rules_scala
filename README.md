@@ -740,3 +740,11 @@ This section contains a list of updates that might require action from the user.
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for more info.
+
+## Adopters
+
+Here's a (non-exhaustive) list of companies that use `rules_scala` in production. Don't see yours? [You can add it in a PR](https://github.com/bazelbuild/rules_scala/edit/master/README.md)!
+
+* [Stripe](https://stripe.com/)
+* [Wix](https://www.wix.com/)
+
