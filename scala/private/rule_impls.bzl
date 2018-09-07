@@ -13,7 +13,10 @@
 # limitations under the License.
 """Rules for supporting the Scala language."""
 load("@io_bazel_rules_scala//scala:scala_toolchain.bzl", "scala_toolchain")
-load("@io_bazel_rules_scala//scala:providers.bzl", "create_scala_provider")
+load(
+    "@io_bazel_rules_scala//scala:providers.bzl",
+    "create_scala_provider",
+    _ScalacProvider = "ScalacProvider")
 load(
     ":common.bzl",
     "add_labels_of_jars_to",
@@ -24,10 +27,11 @@ load(
     "not_sources_jar",
     "write_manifest",
 )
+load("@io_bazel_rules_scala//scala:jars_to_labels.bzl", "JarsToLabelsInfo")
 
-_java_filetype = FileType([".java"])
-_scala_filetype = FileType([".scala"])
-_srcjar_filetype = FileType([".srcjar"])
+_java_extension = ".java"
+_scala_extension = ".scala"
+_srcjar_extension = ".srcjar"
 
 def _adjust_resources_path_by_strip_prefix(path, resource_strip_prefix):
   if not path.startswith(resource_strip_prefix):
@@ -70,12 +74,9 @@ def _add_resources_cmd(ctx):
     res_cmd.extend([line])
   return "".join(res_cmd)
 
-def _build_nosrc_jar(ctx, buildijar):
+def _build_nosrc_jar(ctx):
   resources = _add_resources_cmd(ctx)
   ijar_cmd = ""
-  if buildijar:
-    ijar_cmd = "\ncp {jar_output} {ijar_output}\n".format(
-        jar_output = ctx.outputs.jar.path, ijar_output = ctx.outputs.ijar.path)
 
   # this ensures the file is not empty
   resources += "META-INF/MANIFEST.MF=%s\n" % ctx.outputs.manifest.path
@@ -97,8 +98,6 @@ touch {statsfile}
   )
 
   outs = [ctx.outputs.jar, ctx.outputs.statsfile]
-  if buildijar:
-    outs.extend([ctx.outputs.ijar])
 
   inputs = ctx.files.resources + [
       ctx.outputs.manifest, ctx.executable._zipper, zipper_arg_path
@@ -132,21 +131,30 @@ def _expand_location(ctx, flags):
 def _join_path(args, sep = ","):
   return sep.join([f.path for f in args])
 
-def _compile(ctx, cjars, dep_srcjars, buildijar, transitive_compile_jars,
-             labels, implicit_junit_deps_needed_for_java_compilation):
-  ijar_output_path = ""
-  ijar_cmd_path = ""
-  if buildijar:
-    ijar_output_path = ctx.outputs.ijar.path
-    ijar_cmd_path = ctx.executable._ijar.path
-
-  java_srcs = _java_filetype.filter(ctx.files.srcs)
-  sources = _scala_filetype.filter(ctx.files.srcs) + java_srcs
-  srcjars = _srcjar_filetype.filter(ctx.files.srcs)
-  all_srcjars = depset(srcjars, transitive = [dep_srcjars])
+def compile_scala(ctx,
+                  target_label,
+                  output,
+                  manifest,
+                  statsfile,
+                  sources,
+                  cjars,
+                  all_srcjars,
+                  transitive_compile_jars,
+                  plugins,
+                  resource_strip_prefix,
+                  resources,
+                  resource_jars,
+                  labels,
+                  in_scalacopts,
+                  print_compile_time,
+                  expect_java_output,
+                  scalac_jvm_flags,
+                  scalac,
+                  unused_dependency_checker_mode = "off",
+                  unused_dependency_checker_ignored_targets = []):
   # look for any plugins:
-  plugins = _collect_plugin_paths(ctx.attr.plugins)
-  dependency_analyzer_plugin_jars = []
+  plugins = _collect_plugin_paths(plugins)
+  internal_plugin_jars = []
   dependency_analyzer_mode = "off"
   compiler_classpath_jars = cjars
   optional_scalac_args = ""
@@ -159,14 +167,16 @@ def _compile(ctx, cjars, dep_srcjars, buildijar, transitive_compile_jars,
     dependency_analyzer_mode = ctx.fragments.java.strict_java_deps
     dep_plugin = ctx.attr._dependency_analyzer_plugin
     plugins = depset(transitive = [plugins, dep_plugin.files])
-    dependency_analyzer_plugin_jars = ctx.files._dependency_analyzer_plugin
+    internal_plugin_jars = ctx.files._dependency_analyzer_plugin
     compiler_classpath_jars = transitive_compile_jars
 
     direct_jars = _join_path(cjars.to_list())
+
     transitive_cjars_list = transitive_compile_jars.to_list()
     indirect_jars = _join_path(transitive_cjars_list)
     indirect_targets = ",".join([labels[j.path] for j in transitive_cjars_list])
-    current_target = str(ctx.label)
+
+    current_target = str(target_label)
 
     optional_scalac_args = """
 DirectJars: {direct_jars}
@@ -179,26 +189,48 @@ CurrentTarget: {current_target}
         indirect_targets = indirect_targets,
         current_target = current_target)
 
-  plugin_arg = _join_path(plugins.to_list())
+  elif unused_dependency_checker_mode != "off":
+    unused_dependency_plugin = ctx.attr._unused_dependency_checker_plugin
+    plugins = depset(transitive = [plugins, unused_dependency_plugin.files])
+    internal_plugin_jars = ctx.files._unused_dependency_checker_plugin
+
+    cjars_list = cjars.to_list()
+    direct_jars = _join_path(cjars_list)
+    direct_targets = ",".join([labels[j.path] for j in cjars_list])
+
+    ignored_targets = ",".join(unused_dependency_checker_ignored_targets)
+
+    current_target = str(target_label)
+
+    optional_scalac_args = """
+DirectJars: {direct_jars}
+DirectTargets: {direct_targets}
+IgnoredTargets: {ignored_targets}
+CurrentTarget: {current_target}
+        """.format(
+        direct_jars = direct_jars,
+        direct_targets = direct_targets,
+        ignored_targets = ignored_targets,
+        current_target = current_target)
+
+  plugins_list = plugins.to_list()
+  plugin_arg = _join_path(plugins_list)
 
   separator = ctx.configuration.host_path_separator
   compiler_classpath = _join_path(compiler_classpath_jars.to_list(), separator)
 
   toolchain = ctx.toolchains['@io_bazel_rules_scala//scala:toolchain_type']
-  scalacopts = toolchain.scalacopts + ctx.attr.scalacopts
+  scalacopts = toolchain.scalacopts + in_scalacopts
 
   scalac_args = """
 Classpath: {cp}
 ClasspathResourceSrcs: {classpath_resource_src}
-EnableIjar: {enableijar}
 Files: {files}
-IjarCmdPath: {ijar_cmd_path}
-IjarOutput: {ijar_out}
 JarOutput: {out}
-JavaFiles: {java_files}
 Manifest: {manifest}
 Plugins: {plugin_arg}
 PrintCompileTime: {print_compile_time}
+ExpectJavaOutput: {expect_java_output}
 ResourceDests: {resource_dest}
 ResourceJars: {resource_jars}
 ResourceSrcs: {resource_src}
@@ -207,53 +239,54 @@ ResourceStripPrefix: {resource_strip_prefix}
 ScalacOpts: {scala_opts}
 SourceJars: {srcjars}
 DependencyAnalyzerMode: {dependency_analyzer_mode}
+UnusedDependencyCheckerMode: {unused_dependency_checker_mode}
 StatsfileOutput: {statsfile_output}
 """.format(
-      out = ctx.outputs.jar.path,
-      manifest = ctx.outputs.manifest.path,
+      out = output.path,
+      manifest = manifest.path,
       scala_opts = ",".join(scalacopts),
-      print_compile_time = ctx.attr.print_compile_time,
+      print_compile_time = print_compile_time,
+      expect_java_output = expect_java_output,
       plugin_arg = plugin_arg,
       cp = compiler_classpath,
       classpath_resource_src = _join_path(classpath_resources),
       files = _join_path(sources),
-      enableijar = buildijar,
-      ijar_out = ijar_output_path,
-      ijar_cmd_path = ijar_cmd_path,
       srcjars = _join_path(all_srcjars.to_list()),
-      java_files = _join_path(java_srcs),
       # the resource paths need to be aligned in order
-      resource_src = ",".join([f.path for f in ctx.files.resources]),
-      resource_short_paths = ",".join(
-          [f.short_path for f in ctx.files.resources]),
+      resource_src = ",".join([f.path for f in resources]),
+      resource_short_paths = ",".join([f.short_path for f in resources]),
       resource_dest = ",".join([
           _adjust_resources_path_by_default_prefixes(f.short_path)[1]
-          for f in ctx.files.resources
+          for f in resources
       ]),
-      resource_strip_prefix = ctx.attr.resource_strip_prefix,
-      resource_jars = _join_path(ctx.files.resource_jars),
+      resource_strip_prefix = resource_strip_prefix,
+      resource_jars = _join_path(resource_jars),
       dependency_analyzer_mode = dependency_analyzer_mode,
-      statsfile_output = ctx.outputs.statsfile.path)
+      unused_dependency_checker_mode = unused_dependency_checker_mode,
+      statsfile_output = statsfile.path)
+
   argfile = ctx.actions.declare_file(
-      "%s_worker_input" % ctx.label.name, sibling = ctx.outputs.jar)
+      "%s_scalac_worker_input" % target_label.name, sibling = output)
 
   ctx.actions.write(
       output = argfile, content = scalac_args + optional_scalac_args)
 
-  outs = [ctx.outputs.jar, ctx.outputs.statsfile]
-  if buildijar:
-    outs.extend([ctx.outputs.ijar])
-  ins = (compiler_classpath_jars.to_list() + dep_srcjars.to_list() +
-         list(srcjars) + list(sources) + ctx.files.srcs + ctx.files.plugins +
-         dependency_analyzer_plugin_jars + classpath_resources +
-         ctx.files.resources + ctx.files.resource_jars + ctx.files._java_runtime
-         + [ctx.outputs.manifest, ctx.executable._ijar, argfile])
+  scalac_inputs, _, scalac_input_manifests = ctx.resolve_command(
+      tools = [scalac])
+
+  outs = [output, statsfile]
+  ins = (
+      compiler_classpath_jars.to_list() + all_srcjars.to_list() + list(sources)
+      + plugins_list + internal_plugin_jars + classpath_resources + resources +
+      resource_jars + [manifest, argfile] + scalac_inputs)
+
   ctx.actions.run(
       inputs = ins,
       outputs = outs,
-      executable = ctx.executable._scalac,
+      executable = scalac.files_to_run.executable,
+      input_manifests = scalac_input_manifests,
       mnemonic = "Scalac",
-      progress_message = "scala %s" % ctx.label,
+      progress_message = "scala %s" % target_label,
       execution_requirements = {"supports-workers": "1"},
       #  when we run with a worker, the `@argfile.path` is removed and passed
       #  line by line as arguments in the protobuf. In that case,
@@ -264,19 +297,9 @@ StatsfileOutput: {statsfile_output}
       # be correctly handled since the executable is a jvm app that will
       # consume the flags on startup.
       arguments = [
-          "--jvm_flag=%s" % f
-          for f in _expand_location(ctx, ctx.attr.scalac_jvm_flags)
+          "--jvm_flag=%s" % f for f in _expand_location(ctx, scalac_jvm_flags)
       ] + ["@" + argfile.path],
   )
-
-  if buildijar:
-    scala_output = ctx.outputs.ijar
-  else:
-    scala_output = ctx.outputs.jar
-  java_jar = try_to_compile_java_jar(
-      ctx, scala_output, all_srcjars, java_srcs,
-      implicit_junit_deps_needed_for_java_compilation)
-  return java_jar
 
 def _interim_java_provider_for_java_compilation(scala_output):
   return java_common.create_provider(
@@ -285,14 +308,21 @@ def _interim_java_provider_for_java_compilation(scala_output):
       runtime_jars = [],
   )
 
+def _scalac_provider(ctx):
+  return ctx.toolchains[
+      '@io_bazel_rules_scala//scala:toolchain_type'].scalac_provider_attr[
+          _ScalacProvider]
+
 def try_to_compile_java_jar(ctx, scala_output, all_srcjars, java_srcs,
                             implicit_junit_deps_needed_for_java_compilation):
-  if not java_srcs and not all_srcjars:
+  if not java_srcs and (not (all_srcjars and ctx.attr.expect_java_output)):
     return False
 
   providers_of_dependencies = collect_java_providers_of(ctx.attr.deps)
   providers_of_dependencies += collect_java_providers_of(
       implicit_junit_deps_needed_for_java_compilation)
+  providers_of_dependencies += collect_java_providers_of(
+      _scalac_provider(ctx).default_classpath)
   scala_sources_java_provider = _interim_java_provider_for_java_compilation(
       scala_output)
   providers_of_dependencies += [scala_sources_java_provider]
@@ -327,12 +357,13 @@ def collect_java_providers_of(deps):
       providers.append(dep[JavaInfo])
   return providers
 
-def _compile_or_empty(ctx, jars, srcjars, buildijar, transitive_compile_jars,
-                      jars2labels,
-                      implicit_junit_deps_needed_for_java_compilation):
+def _compile_or_empty(
+    ctx, manifest, jars, srcjars, buildijar, transitive_compile_jars,
+    jars2labels, implicit_junit_deps_needed_for_java_compilation,
+    unused_dependency_checker_mode, unused_dependency_checker_ignored_targets):
   # We assume that if a srcjar is present, it is not empty
   if len(ctx.files.srcs) + len(srcjars.to_list()) == 0:
-    _build_nosrc_jar(ctx, buildijar)
+    _build_nosrc_jar(ctx)
     #  no need to build ijar when empty
     return struct(
         ijar = ctx.outputs.jar,
@@ -341,16 +372,63 @@ def _compile_or_empty(ctx, jars, srcjars, buildijar, transitive_compile_jars,
         full_jars = [ctx.outputs.jar],
         ijars = [ctx.outputs.jar])
   else:
-    java_jar = _compile(ctx, jars, srcjars, buildijar, transitive_compile_jars,
-                        jars2labels,
-                        implicit_junit_deps_needed_for_java_compilation)
-    ijar = None
+    in_srcjars = [
+        f for f in ctx.files.srcs if f.basename.endswith(_srcjar_extension)
+    ]
+    all_srcjars = depset(in_srcjars, transitive = [srcjars])
+
+    java_srcs = [
+        f for f in ctx.files.srcs if f.basename.endswith(_java_extension)
+    ]
+    # We are not able to verify whether dependencies are used when compiling java sources
+    # Thus we disable unused dependency checking when java sources are found
+    if len(java_srcs) != 0:
+      unused_dependency_checker_mode = "off"
+
+    sources = [
+        f for f in ctx.files.srcs if f.basename.endswith(_scala_extension)
+    ] + java_srcs
+    compile_scala(
+        ctx,
+        ctx.label,
+        ctx.outputs.jar,
+        manifest,
+        ctx.outputs.statsfile,
+        sources,
+        jars,
+        all_srcjars,
+        transitive_compile_jars,
+        ctx.attr.plugins,
+        ctx.attr.resource_strip_prefix,
+        ctx.files.resources,
+        ctx.files.resource_jars,
+        jars2labels,
+        ctx.attr.scalacopts,
+        ctx.attr.print_compile_time,
+        ctx.attr.expect_java_output,
+        ctx.attr.scalac_jvm_flags,
+        ctx.attr._scalac,
+        unused_dependency_checker_mode = unused_dependency_checker_mode,
+        unused_dependency_checker_ignored_targets =
+        unused_dependency_checker_ignored_targets)
+
+    # build ijar if needed
     if buildijar:
-      ijar = ctx.outputs.ijar
+      ijar = java_common.run_ijar(
+          ctx.actions,
+          jar = ctx.outputs.jar,
+          target_label = ctx.label,
+          java_toolchain = ctx.attr._java_toolchain)
     else:
       #  macro code needs to be available at compile-time,
       #  so set ijar == jar
       ijar = ctx.outputs.jar
+
+    # compile the java now
+    java_jar = try_to_compile_java_jar(
+        ctx, ijar, all_srcjars, java_srcs,
+        implicit_junit_deps_needed_for_java_compilation)
+
     full_jars = [ctx.outputs.jar]
     ijars = [ijar]
     if java_jar:
@@ -448,6 +526,8 @@ def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper):
           "%needs_runfiles%": "",
           "%runfiles_manifest_only%": "",
           "%set_jacoco_metadata%": "",
+          "%set_jacoco_main_class%": "",
+          "%set_jacoco_java_runfiles_root%": "",
           "%workspace_prefix%": ctx.workspace_name + "/",
       },
       is_executable = True,
@@ -475,15 +555,18 @@ def is_dependency_analyzer_off(ctx):
 # Extract very common code out from dependency analysis into single place
 # automatically adds dependency on scala-library and scala-reflect
 # collects jars from deps, runtime jars from runtime_deps, and
-def _collect_jars_from_common_ctx(ctx, extra_deps = [],
-                                  extra_runtime_deps = []):
+def _collect_jars_from_common_ctx(ctx,
+                                  base_classpath,
+                                  extra_deps = [],
+                                  extra_runtime_deps = [],
+                                  unused_dependency_checker_is_off = True):
 
   dependency_analyzer_is_off = is_dependency_analyzer_off(ctx)
 
-  # Get jars from deps
-  auto_deps = [ctx.attr._scalalib, ctx.attr._scalareflect]
-  deps_jars = collect_jars(ctx.attr.deps + auto_deps + extra_deps,
-                           dependency_analyzer_is_off)
+  deps_jars = collect_jars(ctx.attr.deps + extra_deps + base_classpath,
+                           dependency_analyzer_is_off,
+                           unused_dependency_checker_is_off)
+
   (cjars, transitive_rjars, jars2labels,
    transitive_compile_jars) = (deps_jars.compile_jars,
                                deps_jars.transitive_runtime_jars,
@@ -500,19 +583,36 @@ def _collect_jars_from_common_ctx(ctx, extra_deps = [],
       jars2labels = jars2labels,
       transitive_compile_jars = transitive_compile_jars)
 
-def _lib(ctx, non_macro_lib):
+def _lib(ctx, base_classpath, non_macro_lib, unused_dependency_checker_mode,
+         unused_dependency_checker_ignored_targets):
   # Build up information from dependency-like attributes
 
   # This will be used to pick up srcjars from non-scala library
   # targets (like thrift code generation)
   srcjars = collect_srcjars(ctx.attr.deps)
-  jars = _collect_jars_from_common_ctx(ctx)
+
+  unused_dependency_checker_is_off = unused_dependency_checker_mode == "off"
+  jars = _collect_jars_from_common_ctx(
+      ctx,
+      base_classpath,
+      unused_dependency_checker_is_off = unused_dependency_checker_is_off)
+
   (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
 
   write_manifest(ctx)
-  outputs = _compile_or_empty(ctx, cjars, srcjars, non_macro_lib,
-                              jars.transitive_compile_jars, jars.jars2labels,
-                              [])
+  outputs = _compile_or_empty(
+      ctx,
+      ctx.outputs.manifest,
+      cjars,
+      srcjars,
+      non_macro_lib,
+      jars.transitive_compile_jars,
+      jars.jars2labels.jars_to_labels, [],
+      unused_dependency_checker_mode = unused_dependency_checker_mode,
+      unused_dependency_checker_ignored_targets = [
+          target.label for target in base_classpath + ctx.attr.exports +
+          unused_dependency_checker_ignored_targets
+      ])
 
   transitive_rjars = depset(outputs.full_jars, transitive = [transitive_rjars])
 
@@ -546,49 +646,70 @@ def _lib(ctx, non_macro_lib):
   return struct(
       files = depset([ctx.outputs.jar]),  # Here is the default output
       scala = scalaattr,
-      providers = [java_provider],
+      providers = [java_provider, jars.jars2labels],
       runfiles = runfiles,
-      # This is a free monoid given to the graph for the purpose of
-      # extensibility. This is necessary when one wants to create
-      # new targets which want to leverage a scala_library. For example,
-      # new_target1 -> scala_library -> new_target2. There might be
-      # information that new_target2 needs to get from new_target1,
-      # but we do not want to have to change scala_library to pass
-      # this information through. extra_information allows passing
-      # this information through, and it is up to the new_targets
-      # to filter and make sense of this information.
-      # unfortunately, we need to see this for scrooge and protobuf to work,
-      # but those are generating srcjar, so they should really come in via srcs
-      extra_information=_collect_extra_information(ctx.attr.deps + ctx.attr.srcs),
       jars_to_labels = jars.jars2labels,
     )
 
-def _collect_extra_information(targets):
-  r = []
-  for target in targets:
-    if hasattr(target, "extra_information"):
-      r.extend(target.extra_information)
-  return r
+def get_unused_dependency_checker_mode(ctx):
+  if ctx.attr.unused_dependency_checker_mode:
+    return ctx.attr.unused_dependency_checker_mode
+  else:
+    return ctx.toolchains[
+        '@io_bazel_rules_scala//scala:toolchain_type'].unused_dependency_checker_mode
 
 def scala_library_impl(ctx):
-  return _lib(ctx, True)
+  scalac_provider = _scalac_provider(ctx)
+  unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
+  return _lib(ctx, scalac_provider.default_classpath, True,
+              unused_dependency_checker_mode,
+              ctx.attr.unused_dependency_checker_ignored_targets)
+
+def scala_library_for_plugin_bootstrapping_impl(ctx):
+  scalac_provider = _scalac_provider(ctx)
+  return _lib(
+      ctx,
+      scalac_provider.default_classpath,
+      True,
+      unused_dependency_checker_mode = "off",
+      unused_dependency_checker_ignored_targets = [])
 
 def scala_macro_library_impl(ctx):
-  return _lib(ctx, False)  # don't build the ijar for macros
+  scalac_provider = _scalac_provider(ctx)
+  unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
+  return _lib(
+      ctx,
+      scalac_provider.default_macro_classpath,
+      False,  # don't build the ijar for macros
+      unused_dependency_checker_mode,
+      ctx.attr.unused_dependency_checker_ignored_targets)
 
 # Common code shared by all scala binary implementations.
-def _scala_binary_common(ctx,
-                         cjars,
-                         rjars,
-                         transitive_compile_time_jars,
-                         jars2labels,
-                         java_wrapper,
-                         implicit_junit_deps_needed_for_java_compilation = []):
+def _scala_binary_common(
+    ctx,
+    cjars,
+    rjars,
+    transitive_compile_time_jars,
+    jars2labels,
+    java_wrapper,
+    unused_dependency_checker_mode,
+    unused_dependency_checker_ignored_targets,
+    implicit_junit_deps_needed_for_java_compilation = [],
+):
   write_manifest(ctx)
-  outputs = _compile_or_empty(ctx, cjars, depset(), False,
-                              transitive_compile_time_jars, jars2labels,
-                              implicit_junit_deps_needed_for_java_compilation
-                             )  # no need to build an ijar for an executable
+  outputs = _compile_or_empty(
+      ctx,
+      ctx.outputs.manifest,
+      cjars,
+      depset(),
+      False,
+      transitive_compile_time_jars,
+      jars2labels.jars_to_labels,
+      implicit_junit_deps_needed_for_java_compilation,
+      unused_dependency_checker_mode = unused_dependency_checker_mode,
+      unused_dependency_checker_ignored_targets =
+      unused_dependency_checker_ignored_targets
+  )  # no need to build an ijar for an executable
   rjars = depset(outputs.full_jars, transitive = [rjars])
 
   _build_deployable(ctx, rjars.to_list())
@@ -612,21 +733,36 @@ def _scala_binary_common(ctx,
 
   return struct(
       files = depset([ctx.outputs.executable, ctx.outputs.jar]),
-      providers = [java_provider],
+      providers = [java_provider, jars2labels],
       scala = scalaattr,
       transitive_rjars =
       rjars,  #calling rules need this for the classpath in the launcher
-      jars_to_labels = jars2labels,
       runfiles = runfiles)
 
 def scala_binary_impl(ctx):
-  jars = _collect_jars_from_common_ctx(ctx)
+  scalac_provider = _scalac_provider(ctx)
+  unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
+  unused_dependency_checker_is_off = unused_dependency_checker_mode == "off"
+
+  jars = _collect_jars_from_common_ctx(
+      ctx,
+      scalac_provider.default_classpath,
+      unused_dependency_checker_is_off = unused_dependency_checker_is_off)
   (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
 
   wrapper = _write_java_wrapper(ctx, "", "")
-  out = _scala_binary_common(ctx, cjars, transitive_rjars,
-                             jars.transitive_compile_jars, jars.jars2labels,
-                             wrapper)
+  out = _scala_binary_common(
+      ctx,
+      cjars,
+      transitive_rjars,
+      jars.transitive_compile_jars,
+      jars.jars2labels,
+      wrapper,
+      unused_dependency_checker_mode = unused_dependency_checker_mode,
+      unused_dependency_checker_ignored_targets = [
+          target.label for target in scalac_provider.default_classpath +
+          ctx.attr.unused_dependency_checker_ignored_targets
+      ])
   _write_executable(
       ctx = ctx,
       rjars = out.transitive_rjars,
@@ -636,9 +772,16 @@ def scala_binary_impl(ctx):
   return out
 
 def scala_repl_impl(ctx):
+  scalac_provider = _scalac_provider(ctx)
+
+  unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
+  unused_dependency_checker_is_off = unused_dependency_checker_mode == "off"
+
   # need scala-compiler for MainGenericRunner below
   jars = _collect_jars_from_common_ctx(
-      ctx, extra_runtime_deps = [ctx.attr._scalacompiler])
+      ctx,
+      scalac_provider.default_repl_classpath,
+      unused_dependency_checker_is_off = unused_dependency_checker_is_off)
   (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
 
   args = " ".join(ctx.attr.scalacopts)
@@ -660,9 +803,18 @@ function finish() {
 trap finish EXIT
 """)
 
-  out = _scala_binary_common(ctx, cjars, transitive_rjars,
-                             jars.transitive_compile_jars, jars.jars2labels,
-                             wrapper)
+  out = _scala_binary_common(
+      ctx,
+      cjars,
+      transitive_rjars,
+      jars.transitive_compile_jars,
+      jars.jars2labels,
+      wrapper,
+      unused_dependency_checker_mode = unused_dependency_checker_mode,
+      unused_dependency_checker_ignored_targets = [
+          target.label for target in scalac_provider.default_repl_classpath +
+          ctx.attr.unused_dependency_checker_ignored_targets
+      ])
   _write_executable(
       ctx = ctx,
       rjars = out.transitive_rjars,
@@ -686,12 +838,23 @@ def _scala_test_flags(ctx):
 def scala_test_impl(ctx):
   if len(ctx.attr.suites) != 0:
     print("suites attribute is deprecated. All scalatest test suites are run")
+
+  scalac_provider = _scalac_provider(ctx)
+
+  unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
+  unused_dependency_checker_ignored_targets = [
+      target.label for target in scalac_provider.default_classpath +
+      ctx.attr.unused_dependency_checker_ignored_targets
+  ]
+  unused_dependency_checker_is_off = unused_dependency_checker_mode == "off"
+
   jars = _collect_jars_from_common_ctx(
       ctx,
+      scalac_provider.default_classpath,
       extra_runtime_deps = [
           ctx.attr._scalatest_reporter, ctx.attr._scalatest_runner
       ],
-  )
+      unused_dependency_checker_is_off = unused_dependency_checker_is_off)
   (cjars, transitive_rjars, transitive_compile_jars,
    jars_to_labels) = (jars.compile_jars, jars.transitive_runtime_jars,
                       jars.transitive_compile_jars, jars.jars2labels)
@@ -705,8 +868,16 @@ def scala_test_impl(ctx):
     transitive_compile_jars = depset(
         transitive = [scalatest_jars, transitive_compile_jars])
     scalatest_jars_list = scalatest_jars.to_list()
-    add_labels_of_jars_to(jars_to_labels, ctx.attr._scalatest,
-                          scalatest_jars_list, scalatest_jars_list)
+    j2l = jars_to_labels.jars_to_labels
+    add_labels_of_jars_to(j2l, ctx.attr._scalatest, scalatest_jars_list,
+                          scalatest_jars_list)
+    jars_to_labels = JarsToLabelsInfo(jars_to_labels = j2l)
+
+  elif not unused_dependency_checker_is_off:
+    j2l = jars_to_labels.jars_to_labels
+    add_labels_of_jars_to(j2l, ctx.attr._scalatest, [],
+                          scalatest_jars.to_list())
+    jars_to_labels = JarsToLabelsInfo(jars_to_labels = j2l)
 
   args = " ".join([
       "-R \"{path}\"".format(path = ctx.outputs.jar.short_path),
@@ -715,8 +886,16 @@ def scala_test_impl(ctx):
   ])
   # main_class almost has to be "org.scalatest.tools.Runner" due to args....
   wrapper = _write_java_wrapper(ctx, args, "")
-  out = _scala_binary_common(ctx, cjars, transitive_rjars,
-                             transitive_compile_jars, jars_to_labels, wrapper)
+  out = _scala_binary_common(
+      ctx,
+      cjars,
+      transitive_rjars,
+      transitive_compile_jars,
+      jars_to_labels,
+      wrapper,
+      unused_dependency_checker_mode = unused_dependency_checker_mode,
+      unused_dependency_checker_ignored_targets =
+      unused_dependency_checker_ignored_targets)
   _write_executable(
       ctx = ctx,
       rjars = out.transitive_rjars,
@@ -749,23 +928,45 @@ def scala_junit_test_impl(ctx):
     fail(
         "Setting at least one of the attributes ('prefixes','suffixes') is required"
     )
+  scalac_provider = _scalac_provider(ctx)
+
+  unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
+  unused_dependency_checker_ignored_targets = [
+      target.label for target in scalac_provider.default_classpath +
+      ctx.attr.unused_dependency_checker_ignored_targets
+  ] + [
+      ctx.attr._junit.label, ctx.attr._hamcrest.label,
+      ctx.attr.suite_label.label, ctx.attr._bazel_test_runner.label
+  ]
+  unused_dependency_checker_is_off = unused_dependency_checker_mode == "off"
+
   jars = _collect_jars_from_common_ctx(
       ctx,
+      scalac_provider.default_classpath,
       extra_deps = [
           ctx.attr._junit, ctx.attr._hamcrest, ctx.attr.suite_label,
           ctx.attr._bazel_test_runner
       ],
-  )
+      unused_dependency_checker_is_off = unused_dependency_checker_is_off)
   (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
   implicit_junit_deps_needed_for_java_compilation = [
       ctx.attr._junit, ctx.attr._hamcrest
   ]
 
   wrapper = _write_java_wrapper(ctx, "", "")
-  out = _scala_binary_common(ctx, cjars, transitive_rjars,
-                             jars.transitive_compile_jars, jars.jars2labels,
-                             wrapper,
-                             implicit_junit_deps_needed_for_java_compilation)
+  out = _scala_binary_common(
+      ctx,
+      cjars,
+      transitive_rjars,
+      jars.transitive_compile_jars,
+      jars.jars2labels,
+      wrapper,
+      implicit_junit_deps_needed_for_java_compilation =
+      implicit_junit_deps_needed_for_java_compilation,
+      unused_dependency_checker_mode = unused_dependency_checker_mode,
+      unused_dependency_checker_ignored_targets =
+      unused_dependency_checker_ignored_targets,
+  )
   test_suite = _gen_test_suite_flags_based_on_prefixes_and_suffixes(
       ctx, out.scala.outputs.jars)
   launcherJvmFlags = [

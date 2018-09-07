@@ -24,7 +24,7 @@ you must have bazel 0.5.3 or later and add the following to your WORKSPACE file:
 
 ```python
 
-rules_scala_version="63eab9f4d80612e918ba954211f377cc83d27a07" # update this as needed
+rules_scala_version="a89d44f7ef67d93dedfc9888630f48d7723516f7" # update this as needed
 
 http_archive(
              name = "io_bazel_rules_scala",
@@ -61,14 +61,42 @@ test --strategy=Scalac=worker
 ```
 to your command line, or to enable by default for building/testing add it to your .bazelrc.
 
+## Selecting Scala version
+
+Rules scala supports all minor versions of Scala 2.11/2.12. By default `Scala 2.11.12` is used and to use another
+version you need to
+specify it when calling `scala_repositories`. `scala_repositories` takes a tuple `(scala_version, scala_version_jar_shas)`
+as a parameter where `scala_version` is the scala version and `scala_version_jar_shas` is a `dict` with
+`sha256` hashes for the maven artifacts `scala_library`, `scala_reflect` and `scala_compiler`:
+```python
+scala_repositories(("2.12.6", {
+    "scala_compiler": "3023b07cc02f2b0217b2c04f8e636b396130b3a8544a8dfad498a19c3e57a863",
+    "scala_library": "f81d7144f0ce1b8123335b72ba39003c4be2870767aca15dd0888ba3dab65e98",
+    "scala_reflect": "ffa70d522fc9f9deec14358aa674e6dd75c9dfa39d4668ef15bb52f002ce99fa"
+}))
+```
+If you're using any of the rules `twitter_scrooge`, `tut_repositories`, `scala_proto_repositories`
+or `specs2_junit_repositories` you also need to specify `scala_version` for them. See `./test_version/WORKSPACE.template`
+for an example workspace using another scala version.
+
+
+## Bazel compatible versions
+
+| bazel | rules_scala gitsha |
+|-------|--------------------|
+| 0.16.x | HEAD              |
+| 0.15.x | 3b9ab9be31ac217d3337c709cb6bfeb89c8dcbb1 |
+| 0.14.x | 3b9ab9be31ac217d3337c709cb6bfeb89c8dcbb1 |
+| 0.13.x | 3c987b6ae8a453886759b132f1572c0efca2eca2 |
+
 [scala]: http://www.scala-lang.org/
 
 <a name="scala_library"></a>
 ## scala\_library / scala\_macro_library
 
 ```python
-scala_library(name, srcs, deps, runtime_deps, exports, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags, scalac_jvm_flags, javac_jvm_flags)
-scala_macro_library(name, srcs, deps, runtime_deps, exports, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags, scalac_jvm_flags, javac_jvm_flags)
+scala_library(name, srcs, deps, runtime_deps, exports, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags, scalac_jvm_flags, javac_jvm_flags, unused_dependency_checker_mode)
+scala_macro_library(name, srcs, deps, runtime_deps, exports, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags, scalac_jvm_flags, javac_jvm_flags, unused_dependency_checker_mode)
 ```
 
 `scala_library` generates a `.jar` file from `.scala` source files. This rule
@@ -219,6 +247,16 @@ In order to make a java rule use this jar file, use the `java_import` rule.
         </p>
       </td>
     </tr>
+    <tr>
+      <td><code>unused_dependency_checker_mode</code></td>
+      <td>
+        <p><code>String; optional</code></p>
+        <p>
+          Enable unused dependency checking (see <a href="https://github.com/bazelbuild/rules_scala#experimental-unused-dependency-checking">Unused dependency checking</a>).
+          Possible values are: <code>off</code>, <code>warn</code> and <code>error</code>.
+        </p>
+      </td>
+    </tr>
   </tbody>
 </table>
 
@@ -226,7 +264,7 @@ In order to make a java rule use this jar file, use the `java_import` rule.
 ## scala_binary
 
 ```python
-scala_binary(name, srcs, deps, runtime_deps, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags, scalac_jvm_flags, javac_jvm_flags)
+scala_binary(name, srcs, deps, runtime_deps, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags, scalac_jvm_flags, javac_jvm_flags, unused_dependency_checker_mode)
 ```
 
 `scala_binary` generates a Scala executable. It may depend on `scala_library`, `scala_macro_library`
@@ -364,6 +402,16 @@ A `scala_binary` requires a `main_class` attribute.
         </p>
       </td>
     </tr>
+    <tr>
+      <td><code>unused_dependency_checker_mode</code></td>
+      <td>
+        <p><code>String; optional</code></p>
+        <p>
+          Enable unused dependency checking (see <a href="https://github.com/bazelbuild/rules_scala#experimental-unused-dependency-checking">Unused dependency checking</a>).
+          Possible values are: <code>off</code>, <code>warn</code> and <code>error</code>.
+        </p>
+      </td>
+    </tr>
   </tbody>
 </table>
 
@@ -371,7 +419,7 @@ A `scala_binary` requires a `main_class` attribute.
 ## scala_test
 
 ```python
-scala_test(name, srcs, suites, deps, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags, scalac_jvm_flags, javac_jvm_flags)
+scala_test(name, srcs, suites, deps, data, main_class, resources, resource_strip_prefix, scalacopts, jvm_flags, scalac_jvm_flags, javac_jvm_flags, unused_dependency_checker_mode)
 ```
 
 `scala_test` generates a Scala executable which runs unit test suites written
@@ -387,7 +435,7 @@ populated and tests are not run.
 <a name="scala_repl"></a>
 ## scala_repl
 ```python
-scala_repl(name, deps, scalacopts, jvm_flags, scalac_jvm_flags, javac_jvm_flags)
+scala_repl(name, deps, scalacopts, jvm_flags, scalac_jvm_flags, javac_jvm_flags, unused_dependency_checker_mode)
 ```
 A scala repl allows you to add library dependencies (not currently `scala_binary` targets)
 to generate a script to run which starts a REPL.
@@ -423,7 +471,7 @@ load("@io_bazel_rules_scala//thrift:thrift.bzl", "thrift_library")
 thrift_library(name, srcs, deps, absolute_prefix, absolute_prefixes)
 ```
 
-`thrift_library` generates a thrift source zip file. It should be consumed by a thrift compiler like `scrooge_scala_library`.
+`thrift_library` generates a thrift source zip file. It should be consumed by a thrift compiler like `scrooge_scala_library` (in its `deps`).
 
 <table class="table table-condensed table-bordered table-params">
   <colgroup>
@@ -453,7 +501,8 @@ thrift_library(name, srcs, deps, absolute_prefix, absolute_prefixes)
       <td><code>deps</code></td>
       <td>
         <p><code>List of labels, optional</code></p>
-        <p>List of other thrift dependencies that this thrift depends on.</p>
+        <p>List of other thrift dependencies that this thrift depends on.  Also can include `scroogle_scala_import`
+        targets, containing additional `thrift_jars` (which will be compiled) and/or `scala_jars` needed at compile time (such as Finagle).</p>
       </td>
     </tr>
     <tr>
@@ -579,6 +628,7 @@ In your workspace file add the following lines:
   scala_toolchain(
       name = "my_toolchain_impl",
       scalacopts = ["-Ywarn-unused"],
+      unused_dependency_checker_mode = "off",
       visibility = ["//visibility:public"]
   )
 
@@ -596,6 +646,34 @@ In your workspace file add the following lines:
   register_toolchains("//toolchains:my_scala_toolchain")
   ```
 
+## Usage with [bazel-deps](https://github.com/johnynek/bazel-deps)
+
+Bazel-deps allows you to generate bazel dependencies transitively for maven artifacts. Generally we don't want bazel-deps to fetch
+scala artifacts from maven but instead use the ones we get from calling `scala_repositories`. The artifacts can be overridden in the
+dependencies file used by bazel-deps:
+```yaml
+replacements:
+  org.scala-lang:
+    scala-library:
+      lang: scala/unmangled
+      target: "@io_bazel_rules_scala_scala_library//:io_bazel_rules_scala_scala_library"
+    scala-reflect:
+      lang: scala/unmangled
+      target: "@io_bazel_rules_scala_scala_reflect//:io_bazel_rules_scala_scala_reflect"
+    scala-compiler:
+      lang: scala/unmangled
+      target: "@io_bazel_rules_scala_scala_compiler//:io_bazel_rules_scala_scala_compiler"
+
+  org.scala-lang.modules:
+    scala-parser-combinators:
+      lang: scala
+      target:
+        "@io_bazel_rules_scala_scala_parser_combinators//:io_bazel_rules_scala_scala_parser_combinators"
+    scala-xml:
+      lang: scala
+      target:
+        "@io_bazel_rules_scala_scala_xml//:io_bazel_rules_scala_scala_xml"
+```
 
 ## [Experimental] Using strict-deps
 Bazel pushes towards explicit and minimal dependencies to keep BUILD file hygiene and allow for targets to refactor their dependencies without fear of downstream breaking.
@@ -621,6 +699,23 @@ Note that if you have `buildozer` installed you can just run the last line and h
 
 Note: Currently strict-deps is protected by a feature toggle but we're strongly considering making it the default behavior as `java_*` rules do.
 
+## [Experimental] Unused dependency checking
+To allow for better caching and faster builds we want to minimize the direct dependencies of our targets. Unused dependency checking
+makes sure that all targets specified as direct dependencies are actually used. If `unused_dependency_checker_mode` is set to either
+`error` or `warn` you will get the following message for any dependencies that are not used:
+```
+error: Target '//some_package:unused_dep' is specified as a dependency to //target:target but isn't used, please remove it from the deps.
+You can use the following buildozer command:
+buildozer 'remove deps //some_package:unused_dep' //target:target
+```
+
+Currently unused dependency checking and strict-deps can't be used simultaneously, if both are set only strict-deps will run.
+
+Unused dependency checking can either be enabled globally for all targets using a scala toolchain or for individual targets using the
+`unused_dependency_checker_mode` attribute. The feature is still experimental and there can thus be cases where it works incorrectly,
+in these cases you can enable unused dependency checking globally through a toolchain and override individual misbehaving targets
+using the attribute.
+
 ## Building from source
 Test & Build:
 ```
@@ -634,6 +729,22 @@ bazel test //test/...
 Note `bazel test //...` will not work since we have a sub-folder on the root folder which is meant to be used in a failure scenario in the integration tests.
 Similarly to only build you should use `bazel build //src/...` due to that folder.
 
+## Updates
+This section contains a list of updates that might require action from the user.
+
+ - [`043ba58`](https://github.com/bazelbuild/rules_scala/commit/043ba58afaf90bf571911123d3353bdf20408a33):  
+ Updates default scrooge version to `18.6.0`
+ - [`76d4ab9`](https://github.com/bazelbuild/rules_scala/commit/76d4ab9f855f78113ee5990a84b0ad55d2417e4a):  
+ Updates naming for scala artifact replacements in bazel-deps. See [Usage with bazel-deps](#usage-with-bazel-deps)
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for more info.
+
+## Adopters
+
+Here's a (non-exhaustive) list of companies that use `rules_scala` in production. Don't see yours? [You can add it in a PR](https://github.com/bazelbuild/rules_scala/edit/master/README.md)!
+
+* [Stripe](https://stripe.com/)
+* [Wix](https://www.wix.com/)
+

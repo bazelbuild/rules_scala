@@ -1,10 +1,16 @@
+load("@io_bazel_rules_scala//scala:jars_to_labels.bzl", "JarsToLabelsInfo")
+
 def write_manifest(ctx):
+  main_class = getattr(ctx.attr, "main_class", None)
+  write_manifest_file(ctx.actions, ctx.outputs.manifest, main_class)
+
+def write_manifest_file(actions, output_file, main_class):
   # TODO(bazel-team): I don't think this classpath is what you want
   manifest = "Class-Path: \n"
-  if getattr(ctx.attr, "main_class", ""):
-    manifest += "Main-Class: %s\n" % ctx.attr.main_class
+  if main_class:
+    manifest += "Main-Class: %s\n" % main_class
 
-  ctx.actions.write(output = ctx.outputs.manifest, content = manifest)
+  actions.write(output = output_file, content = manifest)
 
 def collect_srcjars(targets):
   srcjars = []
@@ -13,17 +19,22 @@ def collect_srcjars(targets):
       srcjars.append(target.srcjars.srcjar)
   return depset(srcjars)
 
-def collect_jars(dep_targets, dependency_analyzer_is_off = True):
+def collect_jars(dep_targets,
+                 dependency_analyzer_is_off = True,
+                 unused_dependency_checker_is_off = True):
   """Compute the runtime and compile-time dependencies from the given targets"""  # noqa
 
   if dependency_analyzer_is_off:
-    return _collect_jars_when_dependency_analyzer_is_off(dep_targets)
+    return _collect_jars_when_dependency_analyzer_is_off(
+        dep_targets, unused_dependency_checker_is_off)
   else:
     return _collect_jars_when_dependency_analyzer_is_on(dep_targets)
 
-def _collect_jars_when_dependency_analyzer_is_off(dep_targets):
+def _collect_jars_when_dependency_analyzer_is_off(
+    dep_targets, unused_dependency_checker_is_off):
   compile_jars = []
   runtime_jars = []
+  jars2labels = {}
 
   for dep_target in dep_targets:
     # we require a JavaInfo for dependencies
@@ -32,13 +43,17 @@ def _collect_jars_when_dependency_analyzer_is_off(dep_targets):
       java_provider = dep_target[JavaInfo]
       compile_jars.append(java_provider.compile_jars)
       runtime_jars.append(java_provider.transitive_runtime_jars)
+
+      if not unused_dependency_checker_is_off:
+        add_labels_of_jars_to(jars2labels, dep_target, [],
+                              java_provider.compile_jars.to_list())
     else:
       print("ignored dependency, has no JavaInfo: " + str(dep_target))
 
   return struct(
       compile_jars = depset(transitive = compile_jars),
       transitive_runtime_jars = depset(transitive = runtime_jars),
-      jars2labels = {},
+      jars2labels = JarsToLabelsInfo(jars_to_labels = jars2labels),
       transitive_compile_jars = depset())
 
 def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
@@ -58,6 +73,7 @@ def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
 
       compile_jars.append(current_dep_compile_jars)
       transitive_compile_jars.append(current_dep_transitive_compile_jars)
+
       add_labels_of_jars_to(jars2labels, dep_target,
                             current_dep_transitive_compile_jars.to_list(),
                             current_dep_compile_jars.to_list())
@@ -67,7 +83,7 @@ def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
   return struct(
       compile_jars = depset(transitive = compile_jars),
       transitive_runtime_jars = depset(transitive = runtime_jars),
-      jars2labels = jars2labels,
+      jars2labels = JarsToLabelsInfo(jars_to_labels = jars2labels),
       transitive_compile_jars = depset(transitive = transitive_compile_jars))
 
 # When import mavan_jar's for scala macros we have to use the jar:file requirement
@@ -87,33 +103,23 @@ def filter_not_sources(deps):
 
 def add_labels_of_jars_to(jars2labels, dependency, all_jars, direct_jars):
   for jar in direct_jars:
-    _add_label_of_direct_jar_to(jars2labels, dependency, jar)
+    jars2labels[jar.path] = dependency.label
   for jar in all_jars:
-    _add_label_of_indirect_jar_to(jars2labels, dependency, jar)
+    path = jar.path
+    if path not in jars2labels:
+      # skylark exposes only labels of direct dependencies.
+      # to get labels of indirect dependencies we collect them from the providers transitively
+      label = _provider_of_dependency_label_of(dependency, path)
+      if label == None:
+        label = "Unknown label of file {jar_path} which came from {dependency_label}".format(
+            jar_path = path, dependency_label = dependency.label)
+      jars2labels[path] = label
 
-def _add_label_of_direct_jar_to(jars2labels, dependency, jar):
-  jars2labels[jar.path] = dependency.label
-
-def _add_label_of_indirect_jar_to(jars2labels, dependency, jar):
-  if _label_already_exists(jars2labels, jar):
-    return
-
-  # skylark exposes only labels of direct dependencies.
-  # to get labels of indirect dependencies we collect them from the providers transitively
-  if _provider_of_dependency_contains_label_of(dependency, jar):
-    jars2labels[jar.path] = dependency.jars_to_labels[jar.path]
+def _provider_of_dependency_label_of(dependency, path):
+  if JarsToLabelsInfo in dependency:
+    return dependency[JarsToLabelsInfo].jars_to_labels.get(path)
   else:
-    jars2labels[
-        jar.
-        path] = "Unknown label of file {jar_path} which came from {dependency_label}".format(
-            jar_path = jar.path, dependency_label = dependency.label)
-
-def _label_already_exists(jars2labels, jar):
-  return jar.path in jars2labels
-
-def _provider_of_dependency_contains_label_of(dependency, jar):
-  return hasattr(dependency,
-                 "jars_to_labels") and jar.path in dependency.jars_to_labels
+    return None
 
 # TODO this seems to have limited value now that JavaInfo has everything
 def create_java_provider(scalaattr, transitive_compile_time_jars):

@@ -20,6 +20,7 @@ scala_specs2_junit_test(
     size = "small",
     srcs = ["ScalaLibOnlyResourcesTest.scala"],
     suffixes = ["Test"],
+    unused_dependency_checker_mode = "off",
     deps = [":noSrcsWithDirectFileResources"],
 )
 
@@ -28,6 +29,7 @@ scala_specs2_junit_test(
     size = "small",
     srcs = ["ScalaLibOnlyResourcesFilegroupTest.scala"],
     suffixes = ["Test"],
+    unused_dependency_checker_mode = "off",
     deps = [":noSrcsWithFilegroupResources"],
 )
 

@@ -11,5 +11,6 @@ scala_specs2_junit_test(
     size = "small",
     srcs = ["ResourceStripPrefixTest.scala"],
     suffixes = ["Test"],
+    unused_dependency_checker_mode = "off",
     deps = [":noSrcsWithResources"],
 )

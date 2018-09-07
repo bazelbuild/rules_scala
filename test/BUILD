@@ -26,7 +26,7 @@ java_binary(
     main_class = "scalarules.test.JavaBinary",
     runtime_deps = [
         ":OtherJavaLib",
-        "@scala//:scala-library",
+        "//external:io_bazel_rules_scala/dependency/scala/scala_library",
     ],
     deps = [
         ":Exported",
@@ -115,6 +115,13 @@ scala_repl(
 scala_library(
     name = "OtherLib",
     srcs = ["OtherLib.scala"],
+    deps = ["ExportOnly"],
+)
+
+scala_library(
+    name = "UnusedDependencyChecker",
+    srcs = ["OtherLib.scala"],
+    unused_dependency_checker_mode = "error",
     deps = ["ExportOnly"],
 )
 
@@ -356,6 +363,12 @@ scala_specs2_junit_test(
     "ResourcesStripScalaBinary",
     "ScalaBinary_dependent_on_binary_with_java",
     "//test/src/main/scala/scalarules/test/classpath_resources:classpath_resource",
+    "//test/src/main/scala/scalarules/test/twitter_scrooge:justscrooges",
+    "//test/src/main/scala/scalarules/test/twitter_scrooge:barethrifts",
+    "//test/src/main/scala/scalarules/test/twitter_scrooge:twodeep_binary",
+    "//test/src/main/scala/scalarules/test/twitter_scrooge:justscrooge2b_binary",
+    "//test/src/main/scala/scalarules/test/large_classpath:largeClasspath",
+    "//test:test_scala_proto_server",
 ]]
 
 # Make sure scala_binary works in genrule environment
@@ -462,6 +475,7 @@ scala_binary(
     name = "ScalaBinary_with_fake",
     srcs = ["ScalaBinary.scala"],
     main_class = "scalarules.test.ScalaBinary",
+    unused_dependency_checker_mode = "off",
     deps = [
         ":HelloLib",
         ":MacroTest",
@@ -491,6 +505,7 @@ scala_binary(
     name = "ScalaBinary_with_service_manifest_srcs",
     srcs = ["A.scala"],
     main_class = "scalarules.test.A",
+    unused_dependency_checker_mode = "off",
     deps = [
         "//test/example_jars:example_jar1",
         "//test/example_jars:example_jar2",
@@ -523,6 +538,11 @@ scalapb_proto_library(
         ":HelloLib",
         "//test/proto:test2",
     ],
+)
+
+scala_library(
+    name = "java_uses_scala_std_lib",
+    srcs = ["JavaUsesScalaStdLib.java"],
 )
 
 load(":check_statsfile.bzl", "check_statsfile")

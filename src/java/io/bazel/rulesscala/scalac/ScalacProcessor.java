@@ -47,6 +47,11 @@ class ScalacProcessor implements Processor {
       List<File> scalaJarFiles = filterFilesByExtension(jarFiles, ".scala");
       List<File> javaJarFiles = filterFilesByExtension(jarFiles, ".java");
 
+      if (!ops.expectJavaOutput && !javaJarFiles.isEmpty()) {
+        throw new RuntimeException(
+            "Found java files in source jars but expect Java output is set to false");
+      }
+
       String[] scalaSources = collectSrcJarSources(ops.files, scalaJarFiles, javaJarFiles);
 
       String[] javaSources = GenericWorker.appendToString(ops.javaFiles, javaJarFiles);
@@ -74,19 +79,6 @@ class ScalacProcessor implements Processor {
       /** Now build the output jar */
       String[] jarCreatorArgs = {"-m", ops.manifestPath, outputPath.toString(), tmpPath.toString()};
       JarCreator.main(jarCreatorArgs);
-
-      /** Now build the output ijar */
-      if (ops.iJarEnabled) {
-        Process iostat =
-            new ProcessBuilder()
-                .command(ops.ijarCmdPath, ops.outputName, ops.ijarOutput)
-                .inheritIO()
-                .start();
-        int exitCode = iostat.waitFor();
-        if (exitCode != 0) {
-          throw new RuntimeException("ijar process failed!");
-        }
-      }
     } finally {
       removeTmp(tmpPath);
     }
@@ -177,24 +169,36 @@ class ScalacProcessor implements Processor {
   }
 
   private static String[] getPluginParamsFrom(CompileOptions ops) {
-    String[] pluginParams;
+    ArrayList<String> pluginParams = new ArrayList<>(0);
 
     if (isModeEnabled(ops.dependencyAnalyzerMode)) {
-      String[] targets = encodeBazelTargets(ops.indirectTargets);
+      String[] indirectTargets = encodeBazelTargets(ops.indirectTargets);
       String currentTarget = encodeBazelTarget(ops.currentTarget);
 
-      String[] pluginParamsInUse = {
+      String[] dependencyAnalyzerParams = {
         "-P:dependency-analyzer:direct-jars:" + String.join(":", ops.directJars),
         "-P:dependency-analyzer:indirect-jars:" + String.join(":", ops.indirectJars),
-        "-P:dependency-analyzer:indirect-targets:" + String.join(":", targets),
+        "-P:dependency-analyzer:indirect-targets:" + String.join(":", indirectTargets),
         "-P:dependency-analyzer:mode:" + ops.dependencyAnalyzerMode,
         "-P:dependency-analyzer:current-target:" + currentTarget,
       };
-      pluginParams = pluginParamsInUse;
-    } else {
-      pluginParams = new String[0];
+      pluginParams.addAll(Arrays.asList(dependencyAnalyzerParams));
+    } else if (isModeEnabled(ops.unusedDependencyCheckerMode)) {
+      String[] directTargets = encodeBazelTargets(ops.directTargets);
+      String[] ignoredTargets = encodeBazelTargets(ops.ignoredTargets);
+      String currentTarget = encodeBazelTarget(ops.currentTarget);
+
+      String[] unusedDependencyCheckerParams = {
+        "-P:unused-dependency-checker:direct-jars:" + String.join(":", ops.directJars),
+        "-P:unused-dependency-checker:direct-targets:" + String.join(":", directTargets),
+        "-P:unused-dependency-checker:ignored-targets:" + String.join(":", ignoredTargets),
+        "-P:unused-dependency-checker:mode:" + ops.dependencyAnalyzerMode,
+        "-P:unused-dependency-checker:current-target:" + currentTarget,
+      };
+      pluginParams.addAll(Arrays.asList(unusedDependencyCheckerParams));
     }
-    return pluginParams;
+
+    return pluginParams.toArray(new String[pluginParams.size()]);
   }
 
   private static void compileScalaSources(CompileOptions ops, String[] scalaSources, Path tmpPath)

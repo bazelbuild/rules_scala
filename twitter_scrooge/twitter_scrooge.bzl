@@ -1,21 +1,29 @@
 load(
-    "//scala:scala.bzl",
-    "scala_library",
-)
+    "//scala:scala_cross_version.bzl",
+    _scala_mvn_artifact = "scala_mvn_artifact",
+    _default_scala_version = "default_scala_version",
+    _extract_major_version = "extract_major_version")
 
 load(
-    "//scala:scala_cross_version.bzl",
-    "scala_mvn_artifact",
-)
+    "@io_bazel_rules_scala//scala:scala_maven_import_external.bzl",
+    _scala_maven_import_external = "scala_maven_import_external")
 
-load("//scala/private:common.bzl", "write_manifest", "collect_srcjars",
+load("//scala/private:common.bzl", "write_manifest_file", "collect_srcjars",
      "collect_jars")
 
-load("//thrift:thrift.bzl", "ThriftInfo")
+load("//scala/private:rule_impls.bzl", "compile_scala")
 
-_jar_filetype = FileType([".jar"])
+load("@io_bazel_rules_scala//thrift:thrift_info.bzl", "ThriftInfo")
 
-def twitter_scrooge():
+load("@io_bazel_rules_scala//thrift:thrift.bzl", "merge_thrift_infos",
+     "empty_thrift_info")
+
+_jar_extension = ".jar"
+
+def twitter_scrooge(scala_version = _default_scala_version(),
+                    maven_servers = ["http://central.maven.org/maven2"]):
+  major_version = _extract_major_version(scala_version)
+
   native.maven_server(
       name = "twitter_scrooge_maven_server",
       url = "http://mirror.bazel.build/repo1.maven.org/maven2/",
@@ -31,175 +39,123 @@ def twitter_scrooge():
       name = 'io_bazel_rules_scala/dependency/thrift/libthrift',
       actual = '@libthrift//jar')
 
-  native.maven_jar(
-      name = "scrooge_core",
-      artifact = scala_mvn_artifact("com.twitter:scrooge-core:4.6.0"),
-      sha1 = "84b86c2e082aba6e0c780b3c76281703b891a2c8",
-      server = "twitter_scrooge_maven_server",
+  scala_jar_shas = {
+      "2.11": {
+          "util_logging": "73ddd61cedabd4dab82b30e6c52c1be6c692b063b8ba310d716ead9e3b4e9267",
+          "scrooge_core": "00351f73b555d61cfe7320ef3b1367a9641e694cfb8dfa8a733cfcf49df872e8",
+          "scrooge_generator": "0f0027e815e67985895a6f3caa137f02366ceeea4966498f34fb82cabb11dee6",
+          "util_core": "5336da4846dfc3db8ffe5ae076be1021828cfee35aa17bda9af461e203cf265c"
+      },
+      "2.12": {
+          "util_logging": "c0cba01705e9321b3444adcd4a9ce27c2acefd27e14c13b5aec2c318ce1b4fdf",
+          "scrooge_core": "02a6d7cf9fe8d872dfabd20298e4315d677748708e153d8b464fd5abac9a7430",
+          "scrooge_generator": "e7d5da1e3f0e494d3c81a26f44f3e3dc92d7efd757133de8c71758646fd5a833",
+          "util_core": "65bb92e70f95cbbfc640e54a5823a16154eac1a2631dc0211347e085aaa6ed0b"
+      },
+  }
+
+  scala_version_jar_shas = scala_jar_shas[major_version]
+
+  _scala_maven_import_external(
+      name = "io_bazel_rules_scala_scrooge_core",
+      artifact = _scala_mvn_artifact("com.twitter:scrooge-core:18.6.0",
+                                     major_version),
+      jar_sha256 = scala_version_jar_shas["scrooge_core"],
+      licenses = ["notice"],
+      server_urls = maven_servers,
   )
   native.bind(
       name = 'io_bazel_rules_scala/dependency/thrift/scrooge_core',
-      actual = '@scrooge_core//jar')
+      actual = '@io_bazel_rules_scala_scrooge_core')
 
   #scrooge-generator related dependencies
-  native.maven_jar(
-      name = "scrooge_generator",
-      artifact = scala_mvn_artifact("com.twitter:scrooge-generator:4.6.0"),
-      sha1 = "cacf72eedeb5309ca02b2d8325c587198ecaac82",
-      server = "twitter_scrooge_maven_server",
+  _scala_maven_import_external(
+      name = "io_bazel_rules_scala_scrooge_generator",
+      artifact = _scala_mvn_artifact("com.twitter:scrooge-generator:18.6.0",
+                                     major_version),
+      jar_sha256 = scala_version_jar_shas["scrooge_generator"],
+      licenses = ["notice"],
+      server_urls = maven_servers,
   )
   native.bind(
       name = 'io_bazel_rules_scala/dependency/thrift/scrooge_generator',
-      actual = '@scrooge_generator//jar')
+      actual = '@io_bazel_rules_scala_scrooge_generator')
 
-  native.maven_jar(
-      name = "util_core",
-      artifact = scala_mvn_artifact("com.twitter:util-core:6.33.0"),
-      sha1 = "bb49fa66a3ca9b7db8cd764d0b26ce498bbccc83",
-      server = "twitter_scrooge_maven_server",
+  _scala_maven_import_external(
+      name = "io_bazel_rules_scala_util_core",
+      artifact = _scala_mvn_artifact("com.twitter:util-core:18.6.0",
+                                     major_version),
+      jar_sha256 = scala_version_jar_shas["util_core"],
+      licenses = ["notice"],
+      server_urls = maven_servers,
   )
   native.bind(
       name = 'io_bazel_rules_scala/dependency/thrift/util_core',
-      actual = '@util_core//jar')
+      actual = '@io_bazel_rules_scala_util_core')
 
-  native.maven_jar(
-      name = "util_logging",
-      artifact = scala_mvn_artifact("com.twitter:util-logging:6.33.0"),
-      sha1 = "3d28e46f8ee3b7ad1b98a51b98089fc01c9755dd",
-      server = "twitter_scrooge_maven_server",
+  _scala_maven_import_external(
+      name = "io_bazel_rules_scala_util_logging",
+      artifact = _scala_mvn_artifact("com.twitter:util-logging:18.6.0",
+                                     major_version),
+      jar_sha256 = scala_version_jar_shas["util_logging"],
+      licenses = ["notice"],
+      server_urls = maven_servers,
   )
   native.bind(
       name = 'io_bazel_rules_scala/dependency/thrift/util_logging',
-      actual = '@util_logging//jar')
-
-def _collect_transitive_srcs(targets):
-  r = []
-  for target in targets:
-    if ThriftInfo in target:
-      r.append(target[ThriftInfo].transitive_srcs)
-  return depset(transitive = r)
-
-def _collect_owned_srcs(targets):
-  r = []
-  for _target in targets:
-    if hasattr(_target, "extra_information"):
-      for target in _target.extra_information:
-        if hasattr(target, "scrooge_srcjar"):
-          r.append(target.scrooge_srcjar.transitive_owned_srcs)
-  return depset(transitive = r)
-
-def _collect_external_jars(targets):
-  r = []
-  for target in targets:
-    if ThriftInfo in target:
-      thrift = target[ThriftInfo]
-      for jar in thrift.external_jars:
-        r.extend(_jar_filetype.filter(jar.files))
-      r.extend(_jar_filetype.filter(thrift.transitive_external_jars))
-  return depset(r)
-
-def collect_extra_srcjars(targets):
-  srcjar = []
-  srcjars = []
-  for target in targets:
-    if hasattr(target, "extra_information"):
-      for _target in target.extra_information:
-        srcjar.append(_target.srcjars.srcjar)
-        srcjars.append(_target.srcjars.transitive_srcjars)
-  return depset(srcjar, transitive = srcjars)
-
-def _collect_immediate_srcs(targets):
-  srcs = []
-  for target in targets:
-    if ThriftInfo in target:
-      srcs.append(target[ThriftInfo].srcs)
-  return depset(srcs)
-
-def _assert_set_is_subset(want, have):
-  missing = []
-  for e in want:
-    if e not in have:
-      missing.append(e)
-  if len(missing) > 0:
-    fail(
-        'scrooge_srcjar target must depend on scrooge_srcjar targets sufficient to '
-        + 'cover the transitive graph of thrift files. Uncovered sources: ' +
-        str(missing))
+      actual = '@io_bazel_rules_scala_util_logging')
 
 def _colon_paths(data):
   return ':'.join([f.path for f in sorted(data)])
 
-def _list_to_map(items):
-  map_result = {}
-  for item in items:
-    map_result[item] = None
-  return map_result
+ScroogeAspectInfo = provider(fields = [
+    "thrift_info",
+    "src_jars",
+    "output_files",
+    "java_info",
+])
 
-def _gen_scrooge_srcjar_impl(ctx):
-  remote_jars = []
-  for target in ctx.attr.remote_jars:
-    remote_jars.append(depset(_jar_filetype.filter(target.files)))
+ScroogeInfo = provider(fields = [
+    "aspect_info",
+])
 
-  # deduplicate these
-  remote_jars = depset(transitive = remote_jars).to_list()
+ScroogeImport = provider(fields = [
+    "java_info",
+    "thrift_info",
+])
 
-  # These are JARs that are declared externally and only have Thrift files
-  # in them.
-  external_jars = _collect_external_jars(ctx.attr.deps).to_list()
+def merge_scrooge_aspect_info(scrooges):
+  return ScroogeAspectInfo(
+      src_jars = depset(transitive = [s.src_jars for s in scrooges]),
+      output_files = depset(transitive = [s.output_files for s in scrooges]),
+      thrift_info = merge_thrift_infos([s.thrift_info for s in scrooges]),
+      java_info = java_common.merge([s.java_info for s in scrooges]))
 
-  # These are the thrift sources whose generated code we will "own" as a target
-  immediate_thrift_srcs = _collect_immediate_srcs(ctx.attr.deps).to_list()
-
-  # This is the set of sources which is covered by any scala_library
-  # or scala_scrooge_gen targets that are depended on by this. This is
-  # necessary as we only compile the sources we own, and rely on other
-  # targets compiling the rest (for the benefit of caching and correctness).
-  transitive_owned_srcs = _collect_owned_srcs(ctx.attr.deps)
-
-  # These are the thrift sources in the dependency graph. They are necessary
-  # to generate the code, but are not "owned" by this target and will not
-  # be in the resultant source jar
-  transitive_thrift_srcs = depset(transitive = [
-      transitive_owned_srcs,
-      _collect_transitive_srcs(ctx.attr.deps)
-  ]).to_list()
-
-  only_transitive_thrift_srcs = []
-  for src in transitive_thrift_srcs:
-    if src not in _list_to_map(immediate_thrift_srcs):
-      only_transitive_thrift_srcs.append(src)
-
-  # We want to ensure that the thrift sources which we do not own (but need
-  # in order to generate code) have targets which will compile them.
-  _assert_set_is_subset(
-      _list_to_map(only_transitive_thrift_srcs),
-      _list_to_map(transitive_owned_srcs.to_list()))
-
+def _compile_to_scala(ctx, label, compile_thrifts, include_thrifts, jar_output):
   # bazel worker arguments cannot be empty so we pad to ensure non-empty
   # and drop it off on the other side
   # https://github.com/bazelbuild/bazel/issues/3329
   worker_arg_pad = "_"
   path_content = "\n".join([
-      worker_arg_pad + _colon_paths(ps) for ps in [
-          immediate_thrift_srcs, only_transitive_thrift_srcs, remote_jars,
-          external_jars
-      ]
+      worker_arg_pad + _colon_paths(ps)
+      for ps in [compile_thrifts, include_thrifts, [], []]
   ])
   worker_content = "{output}\n{paths}\n{flags}".format(
-      output = ctx.outputs.srcjar.path,
+      output = jar_output.path,
       paths = path_content,
       flags = worker_arg_pad + ':'.join([
-          '--with-finagle' if ctx.attr.with_finagle else '',
+          # always add finagle option which is a no-op if there are no services
+          # we could put "include_services" on thrift_info, if needed
+          '--with-finagle',
       ]))
 
   argfile = ctx.actions.declare_file(
-      "%s_worker_input" % ctx.label.name, sibling = ctx.outputs.srcjar)
+      "%s_worker_input" % label.name, sibling = jar_output)
   ctx.actions.write(output = argfile, content = worker_content)
   ctx.actions.run(
       executable = ctx.executable._pluck_scrooge_scala,
-      inputs = remote_jars + only_transitive_thrift_srcs + external_jars +
-      immediate_thrift_srcs + [argfile],
-      outputs = [ctx.outputs.srcjar],
+      inputs = compile_thrifts + include_thrifts + [argfile],
+      outputs = [jar_output],
       mnemonic = "ScroogeRule",
       progress_message = "creating scrooge files %s" % ctx.label,
       execution_requirements = {"supports-workers": "1"},
@@ -211,95 +167,235 @@ def _gen_scrooge_srcjar_impl(ctx):
       # In either case (worker or not), they will be jvm flags which will
       # be correctly handled since the executable is a jvm app that will
       # consume the flags on startup.
-      arguments = ["--jvm_flag=%s" % flag for flag in ctx.attr.jvm_flags] +
-      ["@" + argfile.path],
+      #arguments = ["--jvm_flag=%s" % flag for flag in ctx.attr.jvm_flags] +
+      arguments = ["@" + argfile.path],
   )
 
-  deps_jars = collect_jars(ctx.attr.deps)
+def _compiled_jar_file(actions, scrooge_jar):
+  scrooge_jar_name = scrooge_jar.basename
+  # ends with .srcjar, so remove last 6 characters
+  without_suffix = scrooge_jar_name[0:len(scrooge_jar_name) - 6]
+  # this already ends with _scrooge because that is how scrooge_jar is named
+  compiled_jar = without_suffix + "jar"
+  return actions.declare_file(compiled_jar, sibling = scrooge_jar)
 
-  scalaattr = struct(
-      outputs = None,
-      compile_jars = deps_jars.compile_jars,
-      transitive_runtime_jars = deps_jars.transitive_runtime_jars,
-  )
+def _compile_scala(ctx, label, output, scrooge_jar, deps_java_info,
+                   implicit_deps):
 
-  transitive_srcjars = depset(transitive = [
-      collect_srcjars(ctx.attr.deps),
-      collect_extra_srcjars(ctx.attr.deps)
-  ])
+  manifest = ctx.actions.declare_file(
+      label.name + "_MANIFEST.MF", sibling = scrooge_jar)
+  write_manifest_file(ctx.actions, manifest, None)
+  statsfile = ctx.actions.declare_file(
+      label.name + "_scalac.statsfile", sibling = scrooge_jar)
+  merged_deps = java_common.merge(deps_java_info + implicit_deps)
 
-  srcjarsattr = struct(
-      srcjar = ctx.outputs.srcjar,
-      transitive_srcjars = transitive_srcjars,
-  )
+  # this only compiles scala, not the ijar, but we don't
+  # want the ijar for generated code anyway: any change
+  # in the thrift generally will change the interface and
+  # method bodies
+  compile_scala(
+      ctx,
+      label,
+      output,
+      manifest,
+      statsfile,
+      sources = [],
+      cjars = merged_deps.transitive_compile_time_jars,
+      all_srcjars = depset([scrooge_jar]),
+      transitive_compile_jars = merged_deps.transitive_compile_time_jars,
+      plugins = [],
+      resource_strip_prefix = "",
+      resources = [],
+      resource_jars = [],
+      labels = {},
+      in_scalacopts = [],
+      print_compile_time = False,
+      expect_java_output = False,
+      scalac_jvm_flags = [],
+      scalac = ctx.attr._scalac)
 
-  return struct(
-      scala = scalaattr,
-      srcjars = srcjarsattr,
-      extra_information = [
-          struct(
-              srcjars = srcjarsattr,
-              scrooge_srcjar = struct(
-                  transitive_owned_srcs = depset(
-                      immediate_thrift_srcs,
-                      transitive = [transitive_owned_srcs])),
-          )
-      ],
-  )
+  return JavaInfo(
+      source_jar = scrooge_jar,
+      deps = deps_java_info + implicit_deps,
+      runtime_deps = deps_java_info + implicit_deps,
+      exports = deps_java_info + implicit_deps,
+      output_jar = output,
+      compile_jar = output)
 
-scrooge_scala_srcjar = rule(
-    _gen_scrooge_srcjar_impl,
+def _empty_java_info(deps_java_info, implicit_deps):
+  merged_deps = java_common.merge(deps_java_info + implicit_deps)
+  return java_common.create_provider(
+      use_ijar = False,
+      compile_time_jars = depset(transitive = [merged_deps.compile_jars]),
+      transitive_compile_time_jars = depset(
+          transitive = [merged_deps.transitive_compile_time_jars]),
+      transitive_runtime_jars = depset(
+          transitive = [merged_deps.transitive_runtime_jars]))
+
+####
+# This is applied to the DAG of thrift_librarys reachable from a deps
+# or a scrooge_scala_library. Each thrift_library will be one scrooge
+# invocation assuming it has some sources.
+def _scrooge_aspect_impl(target, ctx):
+  if ScroogeImport in target:
+    target_import = target[ScroogeImport]
+    target_ti = target_import.thrift_info
+    deps = [target_import.java_info]
+    transitive_ti = target_ti
+  else:
+    target_ti = target[ThriftInfo]
+    deps = [d[ScroogeAspectInfo].java_info for d in ctx.rule.attr.deps]
+    transitive_ti = merge_thrift_infos(
+        [d[ScroogeAspectInfo].thrift_info
+         for d in ctx.rule.attr.deps] + [target_ti])
+
+  # we sort so the inputs are always the same for caching
+  compile_thrifts = sorted(target_ti.srcs.to_list())
+  imps = [j[JavaInfo] for j in ctx.attr._implicit_compile_deps]
+  if compile_thrifts:
+    # we sort so the inputs are always the same for caching
+    compile_thrift_map = {}
+    for ct in compile_thrifts:
+      compile_thrift_map[ct] = True
+    include_thrifts = sorted([
+        trans for trans in transitive_ti.transitive_srcs.to_list()
+        if trans not in compile_thrift_map
+    ])
+    scrooge_file = ctx.actions.declare_file(
+        target.label.name + "_scrooge.srcjar")
+    _compile_to_scala(ctx, target.label, compile_thrifts, include_thrifts,
+                      scrooge_file)
+
+    src_jars = depset([scrooge_file])
+    output = _compiled_jar_file(ctx.actions, scrooge_file)
+    outs = depset([output])
+    java_info = _compile_scala(ctx, target.label, output, scrooge_file, deps,
+                               imps)
+
+  else:
+    # this target is only an aggregation target
+    src_jars = depset()
+    outs = depset()
+    java_info = _empty_java_info(deps, imps)
+
+  return [
+      ScroogeAspectInfo(
+          src_jars = src_jars,
+          output_files = outs,
+          thrift_info = transitive_ti,
+          java_info = java_info)
+  ]
+
+scrooge_aspect = aspect(
+    implementation = _scrooge_aspect_impl,
+    attr_aspects = ['deps'],
     attrs = {
-        "deps": attr.label_list(mandatory = True),
-        #TODO we should think more about how we want to deal
-        #     with these sorts of things... this basically
-        #     is saying that we have a jar with a bunch
-        #     of thrifts that we want to depend on. Seems like
-        #     that should be a concern of thrift_library? we have
-        #     it here through because we need to show that it is
-        #     "covered," as well as needing the thrifts to
-        #     do the code gen.
-        "remote_jars": attr.label_list(),
-        "jvm_flags": attr.
-        string_list(),  # the jvm flags to use with the generator
-        "with_finagle": attr.bool(default = False),
         "_pluck_scrooge_scala": attr.label(
             executable = True,
             cfg = "host",
             default = Label("//src/scala/scripts:generator"),
             allow_files = True),
+        "_scalac": attr.label(
+            default = Label(
+                "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac")),
+        "_implicit_compile_deps": attr.label_list(
+            providers = [JavaInfo],
+            default = [
+                Label(
+                    "//external:io_bazel_rules_scala/dependency/scala/scala_library"
+                ),
+                Label(
+                    "//external:io_bazel_rules_scala/dependency/thrift/libthrift"
+                ),
+                Label(
+                    "//external:io_bazel_rules_scala/dependency/thrift/scrooge_core"
+                ),
+                Label(
+                    "//external:io_bazel_rules_scala/dependency/thrift/util_core"
+                ),
+            ]),
     },
-    outputs = {
-        "srcjar": "lib%{name}.srcjar",
-    },
+    required_aspect_providers = [[ThriftInfo],
+                                 [ScroogeImport]],
+    toolchains = ['@io_bazel_rules_scala//scala:toolchain_type'],
 )
 
-def scrooge_scala_library(name,
-                          deps = [],
-                          remote_jars = [],
-                          jvm_flags = [],
-                          visibility = None,
-                          with_finagle = False):
-  srcjar = name + '_srcjar'
-  scrooge_scala_srcjar(
-      name = srcjar,
-      deps = deps,
-      remote_jars = remote_jars,
-      visibility = visibility,
-      with_finagle = with_finagle,
-  )
+def _scrooge_scala_library_impl(ctx):
+  aspect_info = merge_scrooge_aspect_info(
+      [dep[ScroogeAspectInfo] for dep in ctx.attr.deps])
+  if ctx.attr.exports:
+    exports = [exp[JavaInfo] for exp in ctx.attr.exports]
+    all_java = java_common.merge(exports + [aspect_info.java_info])
+  else:
+    all_java = aspect_info.java_info
 
-  scala_library(
-      name = name,
-      srcs = [srcjar],
-      deps = deps + remote_jars + [
-          "//external:io_bazel_rules_scala/dependency/thrift/libthrift",
-          "//external:io_bazel_rules_scala/dependency/thrift/scrooge_core"
-      ],
-      exports = deps + remote_jars + [
-          "//external:io_bazel_rules_scala/dependency/thrift/libthrift",
-          "//external:io_bazel_rules_scala/dependency/thrift/scrooge_core",
-      ],
-      jvm_flags = jvm_flags,
-      visibility = visibility,
-  )
+  # TODO: Remove `scala` field once JavaInfo supports multiple
+  # output jars. https://github.com/bazelbuild/rules_scala/issues/564
+  return struct(
+      scala = _create_scala_struct(ctx),  # For IntelliJ support
+      providers = [
+          all_java,
+          ScroogeInfo(aspect_info = aspect_info),
+          DefaultInfo(files = aspect_info.output_files)
+      ])
+
+scrooge_scala_library = rule(
+    implementation = _scrooge_scala_library_impl,
+    attrs = {
+        'deps': attr.label_list(aspects = [scrooge_aspect]),
+        'exports': attr.label_list(providers = [JavaInfo]),
+    },
+    provides = [DefaultInfo, ScroogeInfo, JavaInfo],
+)
+
+def _create_scala_struct(ctx):
+  """Create a scala provider in the shape expected by the IntelliJ bazel plugin."""
+  output_jars = []
+
+  for dep in ctx.attr.deps:
+    for j in dep[ScroogeAspectInfo].java_info.outputs.jars:
+      output_jars.append(
+          struct(
+              class_jar = j.class_jar,
+              ijar = None,
+              source_jar = None,
+              source_jars = []))
+
+  return struct(outputs = struct(jars = output_jars))
+
+def _scrooge_scala_import_impl(ctx):
+  scala_jars = depset(ctx.files.scala_jars)
+  jars_ji = java_common.create_provider(
+      use_ijar = False,
+      compile_time_jars = scala_jars,
+      transitive_compile_time_jars = scala_jars,
+      transitive_runtime_jars = scala_jars)
+  java_info = java_common.merge(
+      [imp[JavaInfo] for imp in ctx.attr._implicit_compile_deps] + [jars_ji])
+  # to make the thrift_info, we only put this in the
+  # transitive part
+  ti = ThriftInfo(
+      srcs = depset(), transitive_srcs = depset(ctx.files.thrift_jars))
+  return [java_info, ti, ScroogeImport(java_info = java_info, thrift_info = ti)]
+
+# Allows you to consume thrifts and compiled jars from external repos
+scrooge_scala_import = rule(
+    implementation = _scrooge_scala_import_impl,
+    attrs = {
+        "thrift_jars": attr.label_list(allow_files = [".jar"]),
+        "scala_jars": attr.label_list(allow_files = [".jar"]),
+        "_implicit_compile_deps": attr.label_list(
+            providers = [JavaInfo],
+            default = [
+                Label(
+                    "//external:io_bazel_rules_scala/dependency/scala/scala_library"
+                ),
+                Label(
+                    "//external:io_bazel_rules_scala/dependency/thrift/libthrift"
+                ),
+                Label(
+                    "//external:io_bazel_rules_scala/dependency/thrift/scrooge_core"
+                ),
+            ]),
+    },
+    provides = [ThriftInfo, JavaInfo, ScroogeImport])

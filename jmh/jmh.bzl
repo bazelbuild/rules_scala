@@ -122,6 +122,7 @@ def scala_benchmark_jmh(**kw):
       resources = kw.get("resources", []),
       resource_jars = kw.get("resource_jars", []),
       visibility = ["//visibility:public"],
+      unused_dependency_checker_mode = "off",
   )
 
   codegen = name + "_codegen"
@@ -136,6 +137,7 @@ def scala_benchmark_jmh(**kw):
           lib,
       ],
       resource_jars = ["%s_resources.jar" % codegen],
+      unused_dependency_checker_mode = "off",
   )
   scala_binary(
       name = name,
@@ -145,4 +147,5 @@ def scala_benchmark_jmh(**kw):
           compiled_lib,
       ],
       main_class = main_class,
+      unused_dependency_checker_mode = "off",
   )

@@ -6,8 +6,9 @@ scala_library(
     srcs = ["TestDep.scala"],
 )
 
-scala_tut_doc(
-    name = "some_example",
-    src = "SomeExample.md",
-    deps = [":test_dep"],
-)
+#TODO - uncomment once tut repo flakiness is resolved
+#scala_tut_doc(
+#    name = "some_example",
+#    src = "SomeExample.md",
+#    deps = [":test_dep"],
+#)

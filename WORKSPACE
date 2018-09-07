@@ -1,5 +1,6 @@
 workspace(name = "io_bazel_rules_scala")
 
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("//scala:scala.bzl", "scala_repositories")
 
 scala_repositories()
@@ -24,26 +25,35 @@ load("//specs2:specs2_junit.bzl", "specs2_junit_repositories")
 
 specs2_junit_repositories()
 
-load("//scala:scala_cross_version.bzl", "scala_mvn_artifact")
+load("//scala:scala_cross_version.bzl", "scala_mvn_artifact", "default_scala_major_version")
 
 # test adding a scala jar:
 maven_jar(
     name = "com_twitter__scalding_date",
-    artifact = scala_mvn_artifact("com.twitter:scalding-date:0.17.0"),
+    artifact = scala_mvn_artifact(
+        "com.twitter:scalding-date:0.17.0",
+        default_scala_major_version(),
+    ),
     sha1 = "420fb0c4f737a24b851c4316ee0362095710caa5",
 )
 
 # For testing that we don't include sources jars to the classpath
 maven_jar(
     name = "org_typelevel__cats_core",
-    artifact = scala_mvn_artifact("org.typelevel:cats-core:0.9.0"),
+    artifact = scala_mvn_artifact(
+        "org.typelevel:cats-core:0.9.0",
+        default_scala_major_version(),
+    ),
     sha1 = "b2f8629c6ec834d8b6321288c9fe77823f1e1314",
 )
 
 # test of a plugin
 maven_jar(
     name = "org_psywerx_hairyfotr__linter",
-    artifact = scala_mvn_artifact("org.psywerx.hairyfotr:linter:0.1.13"),
+    artifact = scala_mvn_artifact(
+        "org.psywerx.hairyfotr:linter:0.1.13",
+        default_scala_major_version(),
+    ),
     sha1 = "e5b3e2753d0817b622c32aedcb888bcf39e275b4",
 )
 
@@ -87,9 +97,9 @@ filegroup(
     path = "third_party/test/new_local_repo",
 )
 
-load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_toolchains")
+load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_unused_deps_toolchains")
 
-scala_register_toolchains()
+scala_register_unused_deps_toolchains()
 
 load("//scala:scala_maven_import_external.bzl", "scala_maven_import_external", "java_import_external")
 
@@ -121,3 +131,13 @@ java_import_external(
 load("//private:format.bzl", "format_repositories")
 
 format_repositories()
+
+http_archive(
+    name = "bazel_toolchains",
+    sha256 = "cefb6ccf86ca592baaa029bcef04148593c0efe8f734542f10293ea58f170715",
+    strip_prefix = "bazel-toolchains-cdea5b8675914d0a354d89f108de5d28e54e0edc",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-toolchains/archive/cdea5b8675914d0a354d89f108de5d28e54e0edc.tar.gz",
+        "https://github.com/bazelbuild/bazel-toolchains/archive/cdea5b8675914d0a354d89f108de5d28e54e0edc.tar.gz",
+    ],
+)
