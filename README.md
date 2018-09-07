@@ -732,9 +732,9 @@ Similarly to only build you should use `bazel build //src/...` due to that folde
 ## Updates
 This section contains a list of updates that might require action from the user.
 
- - [`043ba58`](https://github.com/bazelbuild/rules_scala/commit/043ba58afaf90bf571911123d3353bdf20408a33):  
+ - [`043ba58`](https://github.com/bazelbuild/rules_scala/commit/043ba58afaf90bf571911123d3353bdf20408a33):
  Updates default scrooge version to `18.6.0`
- - [`76d4ab9`](https://github.com/bazelbuild/rules_scala/commit/76d4ab9f855f78113ee5990a84b0ad55d2417e4a):  
+ - [`76d4ab9`](https://github.com/bazelbuild/rules_scala/commit/76d4ab9f855f78113ee5990a84b0ad55d2417e4a):
  Updates naming for scala artifact replacements in bazel-deps. See [Usage with bazel-deps](#usage-with-bazel-deps)
 
 ## Contributing
@@ -745,6 +745,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for more info.
 
 Here's a (non-exhaustive) list of companies that use `rules_scala` in production. Don't see yours? [You can add it in a PR](https://github.com/bazelbuild/rules_scala/edit/master/README.md)!
 
+* [Kitty Hawk](https://kittyhawk.aero/)
 * [Meetup](https://meetup.com/)
 * [Stripe](https://stripe.com/)
 * [Wix](https://www.wix.com/)
