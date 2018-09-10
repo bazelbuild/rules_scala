@@ -745,10 +745,10 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for more info.
 
 Here's a (non-exhaustive) list of companies that use `rules_scala` in production. Don't see yours? [You can add it in a PR](https://github.com/bazelbuild/rules_scala/edit/master/README.md)!
 
+* [Etsy](https://www.etsy.com/)
 * [Kitty Hawk](https://kittyhawk.aero/)
 * [Meetup](https://meetup.com/)
 * [Spotify](https://www.spotify.com/)
 * [Stripe](https://stripe.com/)
 * [Wix](https://www.wix.com/)
-* [Etsy](https://www.etsy.com/)
 
