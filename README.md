@@ -747,6 +747,7 @@ Here's a (non-exhaustive) list of companies that use `rules_scala` in production
 
 * [Kitty Hawk](https://kittyhawk.aero/)
 * [Meetup](https://meetup.com/)
+* [Spotify](https://www.spotify.com/)
 * [Stripe](https://stripe.com/)
 * [Wix](https://www.wix.com/)
 
