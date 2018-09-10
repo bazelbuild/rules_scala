@@ -750,4 +750,5 @@ Here's a (non-exhaustive) list of companies that use `rules_scala` in production
 * [Spotify](https://www.spotify.com/)
 * [Stripe](https://stripe.com/)
 * [Wix](https://www.wix.com/)
+* [Etsy](https://www.etsy.com/)
 
