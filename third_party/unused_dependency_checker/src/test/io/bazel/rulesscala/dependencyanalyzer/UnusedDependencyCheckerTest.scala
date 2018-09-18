@@ -59,4 +59,19 @@ class UnusedDependencyCheckerTest extends FunSuite {
     val errorMessages = compileWithUnusedDependencyChecker(testCode, withDirect = direct)
     assert(errorMessages.isEmpty)
   }
+
+  test("do not error on used direct import-only dependency") {
+    val testCode =
+      """object Foo {
+        |  import org.apache.commons.lang3.ArrayUtils
+        |}
+      """.stripMargin
+
+    val commonsTarget = "commonsTarget"
+
+    val direct = List(apacheCommonsClasspath -> commonsTarget)
+
+    val errorMessages = compileWithUnusedDependencyChecker(testCode, withDirect = direct)
+    assert(errorMessages.isEmpty)
+  }
 }
