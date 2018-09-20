@@ -49,7 +49,7 @@ object PrefixSuffixTestDiscoveringSuite {
     val classes = archives.flatMap(discoverClassesIn)
     if (classes.isEmpty)
       throw new IllegalStateException("Was not able to discover any classes " +
-                                      s"for archive=$archives, " +
+                                      s"for archives=${archives.mkString(",")}" +
                                       s"prefixes=$prefixes, " +
                                       s"suffixes=$suffixes")
     classes
