@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Test the IntelliJ aspect. Override intellij's rules_scala with this one for an
 # integration test. See https://github.com/bazelbuild/rules_scala/issues/308.
