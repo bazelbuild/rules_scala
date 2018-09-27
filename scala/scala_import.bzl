@@ -125,12 +125,6 @@ scala_import = rule(
         "deps": attr.label_list(),
         "runtime_deps": attr.label_list(),
         "exports": attr.label_list(),
-        "neverlink": attr.int(
-            default = 0,
-            values = [
-                0,
-                1,
-            ],
-        ),
+        "neverlink": attr.bool(),
     },
 )
