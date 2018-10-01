@@ -467,7 +467,8 @@ def scala_test_suite(name,
                      visibility = None,
                      size = None,
                      colors = True,
-                     full_stacktraces = True):
+                     full_stacktraces = True,
+                     **kwargs):
   ts = []
   for test_file in srcs:
     n = "%s_test_suite_%s" % (name, _sanitize_string_for_usage(test_file))
@@ -483,7 +484,8 @@ def scala_test_suite(name,
         size = size,
         colors = colors,
         full_stacktraces = full_stacktraces,
-        unused_dependency_checker_mode = "off")
+        unused_dependency_checker_mode = "off",
+        **kwargs)
     ts.append(n)
   native.test_suite(name = name, tests = ts, visibility = visibility)
 
@@ -502,7 +504,8 @@ def scala_library_suite(name,
                         javacopts = [],
                         jvm_flags = [],
                         print_compile_time = False,
-                        visibility = None):
+                        visibility = None,
+                        **kwargs):
   ts = []
   for src_file in srcs:
     n = "%s_lib_%s" % (name, _sanitize_string_for_usage(src_file))
@@ -521,7 +524,8 @@ def scala_library_suite(name,
         print_compile_time = print_compile_time,
         visibility = visibility,
         exports = exports,
-        unused_dependency_checker_mode = "off")
+        unused_dependency_checker_mode = "off",
+        **kwargs)
     ts.append(n)
   scala_library(
       name = name, deps = ts, exports = exports + ts, visibility = visibility)
