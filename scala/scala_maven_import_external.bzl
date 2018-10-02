@@ -199,18 +199,22 @@ def scala_maven_import_external(
       #    additional_rule_attrs = {"foo": "'bar'"},
       **kwargs)
 
-def jvm_maven_import_external(artifact, server_urls, src_artifact = None, **kwargs):
+def jvm_maven_import_external(artifact,
+                              server_urls,
+                              src_artifact = None,
+                              **kwargs):
   if kwargs.get("srcjar_urls") and src_artifact:
     fail("Either use srcjar_urls or src_artifcat but not both")
 
   srcjar_urls = kwargs.pop("srcjar_urls", None)
 
   if src_artifact:
-     srcjar_urls = _convert_to_url(src_artifact, server_urls)
+    srcjar_urls = _convert_to_url(src_artifact, server_urls)
 
   jvm_import_external(
       jar_urls = _convert_to_url(artifact, server_urls),
-      srcjar_urls = srcjar_urls, **kwargs)
+      srcjar_urls = srcjar_urls,
+      **kwargs)
 
 def scala_import_external(
     rule_load = "load(\"@io_bazel_rules_scala//scala:scala_import.bzl\", \"scala_import\")",
