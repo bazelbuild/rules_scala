@@ -200,7 +200,10 @@ def scala_maven_import_external(
       **kwargs)
 
 def jvm_maven_import_external(artifact, server_urls, src_artifcat = None, **kwargs):
-  srcjar_urls = []
+  if kwargs.get("srcjar_urls") not None and src_artifcat not None:
+    fail("Either use srcjar_urls or src_artifcat but not both")
+
+  srcjar_urls = kwargs.pop("srcjar_urls", None)
 
   if src_artifact not None:
      srcjar_urls = _convert_to_url(src_artifact, server_urls)
