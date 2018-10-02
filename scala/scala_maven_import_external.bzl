@@ -187,19 +187,27 @@ def scala_maven_import_external(
     artifact,
     server_urls,
     rule_load = "load(\"@io_bazel_rules_scala//scala:scala_import.bzl\", \"scala_import\")",
+    src_artifact = None,
     **kwargs):
   jvm_maven_import_external(
       rule_name = "scala_import",
       rule_load = rule_load,
       artifact = artifact,
       server_urls = server_urls,
+      src_artifact = src_artifact,
       #additional string attributes' values have to be escaped in order to accomodate non-string types
       #    additional_rule_attrs = {"foo": "'bar'"},
       **kwargs)
 
-def jvm_maven_import_external(artifact, server_urls, **kwargs):
+def jvm_maven_import_external(artifact, server_urls, src_artifcat = None, **kwargs):
+  srcjar_urls = []
+
+  if src_artifact not None:
+     srcjar_urls = _convert_to_url(src_artifact, server_urls)
+
   jvm_import_external(
-      jar_urls = _convert_to_url(artifact, server_urls), **kwargs)
+      jar_urls = _convert_to_url(artifact, server_urls),
+      srcjar_urls = srcjar_urls, **kwargs)
 
 def scala_import_external(
     rule_load = "load(\"@io_bazel_rules_scala//scala:scala_import.bzl\", \"scala_import\")",
