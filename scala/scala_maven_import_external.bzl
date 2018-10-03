@@ -204,7 +204,7 @@ def jvm_maven_import_external(artifact,
                               src_artifact = None,
                               **kwargs):
   if kwargs.get("srcjar_urls") and src_artifact:
-    fail("Either use srcjar_urls or src_artifcat but not both")
+    fail("Either use srcjar_urls or src_artifact but not both")
 
   srcjar_urls = kwargs.pop("srcjar_urls", None)
 
