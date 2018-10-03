@@ -2,6 +2,7 @@ workspace(name = "io_bazel_rules_scala")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("//scala:scala.bzl", "scala_repositories")
+load("//scala:scala_maven_import_external.bzl", "scala_maven_import_external")
 
 scala_repositories()
 
@@ -62,6 +63,18 @@ maven_jar(
     name = "com_google_guava_guava_21_0_with_file",
     artifact = "com.google.guava:guava:21.0",
     sha1 = "3a3d111be1be1b745edfa7d91678a12d7ed38709",
+)
+
+# test of import external
+scala_maven_import_external(
+    name = "com_google_guava_guava_21_0_external",
+    artifact = "com.google.guava:guava:21.0",
+    jar_sha256 = "972139718abc8a4893fa78cba8cf7b2c903f35c97aaf44fa3031b0669948b480",
+    fetch_sources = True,
+    server_urls = [
+        "https://repo.maven.apache.org/maven2/"
+    ],
+    licenses = ["notice"]
 )
 
 maven_jar(
