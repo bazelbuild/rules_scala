@@ -10,6 +10,13 @@ scala_import(
     ],
 )
 
+scala_import(
+    name = "guava_external",
+    jars = [
+        "@com_google_guava_guava_21_0_external//jar",
+    ],
+)
+
 # Jars as files
 scala_import(
     name = "relate",

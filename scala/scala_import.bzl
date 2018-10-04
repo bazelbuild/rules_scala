@@ -4,7 +4,8 @@ load("@io_bazel_rules_scala//scala:jars_to_labels.bzl", "JarsToLabelsInfo")
 #if you change make sure to manually re-import an intellij project and see imports
 #are resolved (not red) and clickable
 def _scala_import_impl(ctx):
-  target_data = _code_jars_and_intellij_metadata_from(ctx.attr.jars)
+  target_data = _code_jars_and_intellij_metadata_from(ctx.attr.jars,
+                                                      ctx.file.srcjar)
   (current_target_compile_jars,
    intellij_metadata) = (target_data.code_jars, target_data.intellij_metadata)
   current_jars = depset(current_target_compile_jars)
@@ -24,7 +25,8 @@ def _scala_import_impl(ctx):
                     ),
       providers = [
           _create_provider(current_jars, transitive_runtime_jars, jars, exports,
-                           ctx.attr.neverlink),
+                           ctx.attr.neverlink, ctx.file.srcjar,
+                           intellij_metadata),
           DefaultInfo(files = current_jars,
                      ),
           JarsToLabelsInfo(jars_to_labels = jars2labels),
@@ -32,7 +34,7 @@ def _scala_import_impl(ctx):
   )
 
 def _create_provider(current_target_compile_jars, transitive_runtime_jars, jars,
-                     exports, neverlink):
+                     exports, neverlink, source_jar, intellij_metadata):
 
   transitive_runtime_jars = [
       transitive_runtime_jars, jars.transitive_runtime_jars,
@@ -41,6 +43,14 @@ def _create_provider(current_target_compile_jars, transitive_runtime_jars, jars,
 
   if not neverlink:
     transitive_runtime_jars.append(current_target_compile_jars)
+
+  source_jars = []
+
+  if source_jar:
+    source_jars.append(source_jar)
+  else:
+    for metadata in intellij_metadata:
+      source_jars.extend(metadata.source_jars)
 
   return java_common.create_provider(
       use_ijar = False,
@@ -51,30 +61,38 @@ def _create_provider(current_target_compile_jars, transitive_runtime_jars, jars,
           exports.transitive_compile_jars
       ]),
       transitive_runtime_jars = depset(transitive = transitive_runtime_jars),
+      source_jars = source_jars,
   )
 
 def _add_labels_of_current_code_jars(code_jars, label, jars2labels):
   for jar in code_jars.to_list():
     jars2labels[jar.path] = label
 
-def _code_jars_and_intellij_metadata_from(jars):
+def _code_jars_and_intellij_metadata_from(jars, srcjar):
   code_jars = []
   intellij_metadata = []
   for jar in jars:
     current_jar_code_jars = _filter_out_non_code_jars(jar.files)
-    current_jar_source_jars = [
-        file for file in jar.files.to_list() if _is_source_jar(file)
-    ]
+    (current_jar_source_jars, src_jar) = _source_jars(jar, srcjar)
     code_jars += current_jar_code_jars
     for current_class_jar in current_jar_code_jars:  #intellij, untested
       intellij_metadata.append(
           struct(
               ijar = None,
               class_jar = current_class_jar,
-              source_jar = None,
+              source_jar = src_jar,
               source_jars = current_jar_source_jars,
           ))
   return struct(code_jars = code_jars, intellij_metadata = intellij_metadata)
+
+def _source_jars(jar, srcjar):
+  if srcjar:
+    return ([], srcjar)
+  else:
+    jar_source_jars = [
+        file for file in jar.files.to_list() if _is_source_jar(file)
+    ]
+    return (jar_source_jars, None)
 
 def _filter_out_non_code_jars(files):
   return [file for file in files.to_list() if not _is_source_jar(file)]
@@ -126,5 +144,6 @@ scala_import = rule(
         "runtime_deps": attr.label_list(),
         "exports": attr.label_list(),
         "neverlink": attr.bool(),
+        "srcjar": attr.label(allow_single_file = True),
     },
 )

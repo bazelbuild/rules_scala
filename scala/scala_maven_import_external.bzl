@@ -111,23 +111,40 @@ def _jvm_import_external(repository_ctx):
       "",
   ]))
 
-def _convert_to_url(artifact, server_urls):
+def _decode_maven_coordinates(artifact):
   parts = artifact.split(":")
-  group_id_part = parts[0].replace(".", "/")
+  group_id = parts[0]
   artifact_id = parts[1]
   version = parts[2]
   packaging = "jar"
-  classifier_part = ""
+  classifier = None
   if len(parts) == 4:
     packaging = parts[2]
     version = parts[3]
   elif len(parts) == 5:
     packaging = parts[2]
-    classifier_part = "-" + parts[3]
+    classifier_part = parts[3]
     version = parts[4]
 
-  final_name = artifact_id + "-" + version + classifier_part + "." + packaging
-  url_suffix = group_id_part + "/" + artifact_id + "/" + version + "/" + final_name
+  return struct(
+      group_id = group_id,
+      artifact_id = artifact_id,
+      version = version,
+      classifier = classifier,
+      packaging = packaging)
+
+def _convert_coordinates_to_urls(coordinates, server_urls):
+  group_id = coordinates.group_id.replace(".", "/")
+  classifier = coordinates.classifier
+
+  if classifier:
+    classifier = "-" + classifier
+  else:
+    classifier = ""
+
+  final_name = coordinates.artifact_id + "-" + coordinates.version + classifier + "." + coordinates.packaging
+  url_suffix = group_id + "/" + coordinates.artifact_id + "/" + coordinates.version + "/" + final_name
+
   urls = []
   for server_url in server_urls:
     urls.append(_concat_with_needed_slash(server_url, url_suffix))
@@ -187,34 +204,42 @@ def scala_maven_import_external(
     artifact,
     server_urls,
     rule_load = "load(\"@io_bazel_rules_scala//scala:scala_import.bzl\", \"scala_import\")",
-    src_artifact = None,
+    fetch_sources = False,
     **kwargs):
   jvm_maven_import_external(
       rule_name = "scala_import",
       rule_load = rule_load,
       artifact = artifact,
       server_urls = server_urls,
-      src_artifact = src_artifact,
+      fetch_sources = fetch_sources,
       #additional string attributes' values have to be escaped in order to accomodate non-string types
       #    additional_rule_attrs = {"foo": "'bar'"},
       **kwargs)
 
 def jvm_maven_import_external(artifact,
                               server_urls,
-                              src_artifact = None,
+                              fetch_sources = False,
                               **kwargs):
-  if kwargs.get("srcjar_urls") and src_artifact:
-    fail("Either use srcjar_urls or src_artifcat but not both")
+  if kwargs.get("srcjar_urls") and fetch_sources:
+    fail("Either use srcjar_urls or fetch_sources but not both")
+
+  coordinates = _decode_maven_coordinates(artifact)
+
+  jar_urls = _convert_coordinates_to_urls(coordinates, server_urls)
 
   srcjar_urls = kwargs.pop("srcjar_urls", None)
 
-  if src_artifact:
-    srcjar_urls = _convert_to_url(src_artifact, server_urls)
+  if fetch_sources:
+    src_coordinates = struct(
+        group_id = coordinates.group_id,
+        artifact_id = coordinates.artifact_id,
+        version = coordinates.version,
+        classifier = "sources",
+        packaging = "jar")
 
-  jvm_import_external(
-      jar_urls = _convert_to_url(artifact, server_urls),
-      srcjar_urls = srcjar_urls,
-      **kwargs)
+    srcjar_urls = _convert_coordinates_to_urls(src_coordinates, server_urls)
+
+  jvm_import_external(jar_urls = jar_urls, srcjar_urls = srcjar_urls, **kwargs)
 
 def scala_import_external(
     rule_load = "load(\"@io_bazel_rules_scala//scala:scala_import.bzl\", \"scala_import\")",
