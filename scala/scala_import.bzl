@@ -24,7 +24,7 @@ def _scala_import_impl(ctx):
                     ),
       providers = [
           _create_provider(current_jars, transitive_runtime_jars, jars, exports,
-                           ctx.attr.neverlink),
+                           ctx.attr.neverlink, intellij_metadata),
           DefaultInfo(files = current_jars,
                      ),
           JarsToLabelsInfo(jars_to_labels = jars2labels),
@@ -32,7 +32,7 @@ def _scala_import_impl(ctx):
   )
 
 def _create_provider(current_target_compile_jars, transitive_runtime_jars, jars,
-                     exports, neverlink):
+                     exports, neverlink, intellij_metadata):
 
   transitive_runtime_jars = [
       transitive_runtime_jars, jars.transitive_runtime_jars,
@@ -41,6 +41,14 @@ def _create_provider(current_target_compile_jars, transitive_runtime_jars, jars,
 
   if not neverlink:
     transitive_runtime_jars.append(current_target_compile_jars)
+
+  source_jars = []
+
+  for metadata in intellij_metadata:
+    if metadata.source_jar:
+      source_jars.extend(metadata.source_jar.files.to_list())
+    elif metadata.source_jars:
+      source_jars.extend(metadata.source_jars)
 
   return java_common.create_provider(
       use_ijar = False,
@@ -51,6 +59,7 @@ def _create_provider(current_target_compile_jars, transitive_runtime_jars, jars,
           exports.transitive_compile_jars
       ]),
       transitive_runtime_jars = depset(transitive = transitive_runtime_jars),
+      source_jars = source_jars,
   )
 
 def _add_labels_of_current_code_jars(code_jars, label, jars2labels):
