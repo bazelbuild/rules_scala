@@ -13,7 +13,7 @@ scala_import(
 scala_import(
     name = "guava_external",
     jars = [
-        "@com_google_guava_guava_21_0_external//jar"
+        "@com_google_guava_guava_21_0_external//jar",
     ],
 )
 
