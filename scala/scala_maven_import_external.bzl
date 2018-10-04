@@ -131,8 +131,7 @@ def _decode_maven_coordinates(artifact):
       artifact_id = artifact_id,
       version = version,
       classifier = classifier,
-      packaging = packaging
-  )
+      packaging = packaging)
 
 def _convert_coordinates_to_urls(coordinates, server_urls):
   group_id = coordinates.group_id.replace(".", "/")
@@ -150,7 +149,6 @@ def _convert_coordinates_to_urls(coordinates, server_urls):
   for server_url in server_urls:
     urls.append(_concat_with_needed_slash(server_url, url_suffix))
   return urls
-
 
 def _concat_with_needed_slash(server_url, url_suffix):
   if server_url.endswith("/"):
@@ -237,15 +235,11 @@ def jvm_maven_import_external(artifact,
         artifact_id = coordinates.artifact_id,
         version = coordinates.version,
         classifier = "sources",
-        packaging = "jar"
-    )
+        packaging = "jar")
 
     srcjar_urls = _convert_coordinates_to_urls(src_coordinates, server_urls)
 
-  jvm_import_external(
-      jar_urls = jar_urls,
-      srcjar_urls = srcjar_urls,
-      **kwargs)
+  jvm_import_external(jar_urls = jar_urls, srcjar_urls = srcjar_urls, **kwargs)
 
 def scala_import_external(
     rule_load = "load(\"@io_bazel_rules_scala//scala:scala_import.bzl\", \"scala_import\")",
