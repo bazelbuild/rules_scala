@@ -4,7 +4,7 @@ load("@io_bazel_rules_scala//scala:jars_to_labels.bzl", "JarsToLabelsInfo")
 #if you change make sure to manually re-import an intellij project and see imports
 #are resolved (not red) and clickable
 def _scala_import_impl(ctx):
-  target_data = _code_jars_and_intellij_metadata_from(ctx.attr.jars, ctx.attr.srcjar)
+  target_data = _code_jars_and_intellij_metadata_from(ctx.attr.jars, ctx.file.srcjar)
   (current_target_compile_jars,
    intellij_metadata) = (target_data.code_jars, target_data.intellij_metadata)
   current_jars = depset(current_target_compile_jars)
@@ -46,7 +46,7 @@ def _create_provider(current_target_compile_jars, transitive_runtime_jars, jars,
 
   for metadata in intellij_metadata:
     if metadata.source_jar:
-      source_jars.extend(metadata.source_jar.files.to_list())
+      source_jars.append(metadata.source_jar)
     elif metadata.source_jars:
       source_jars.extend(metadata.source_jars)
 
@@ -142,6 +142,6 @@ scala_import = rule(
         "runtime_deps": attr.label_list(),
         "exports": attr.label_list(),
         "neverlink": attr.bool(),
-        "srcjar": attr.label(allow_files = True),
+        "srcjar": attr.label(allow_single_file = True),
     },
 )
