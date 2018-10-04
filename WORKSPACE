@@ -2,9 +2,10 @@ workspace(name = "io_bazel_rules_scala")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("//scala:scala.bzl", "scala_repositories")
-load("//scala:scala_maven_import_external.bzl", "scala_maven_import_external")
 
 scala_repositories()
+
+load("//scala:scala_maven_import_external.bzl", "scala_maven_import_external")
 
 load("//twitter_scrooge:twitter_scrooge.bzl", "twitter_scrooge", "scrooge_scala_library")
 
