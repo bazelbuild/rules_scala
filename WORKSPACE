@@ -6,7 +6,6 @@ load("//scala:scala.bzl", "scala_repositories")
 scala_repositories()
 
 load("//scala:scala_maven_import_external.bzl", "scala_maven_import_external")
-
 load("//twitter_scrooge:twitter_scrooge.bzl", "twitter_scrooge", "scrooge_scala_library")
 
 twitter_scrooge()
@@ -70,13 +69,13 @@ maven_jar(
 scala_maven_import_external(
     name = "com_google_guava_guava_21_0_external",
     artifact = "com.google.guava:guava:21.0",
-    jar_sha256 = "972139718abc8a4893fa78cba8cf7b2c903f35c97aaf44fa3031b0669948b480",
     fetch_sources = True,
-    srcjar_sha256 = "b186965c9af0a714632fe49b33378c9670f8f074797ab466f49a67e918e116ea",
+    jar_sha256 = "972139718abc8a4893fa78cba8cf7b2c903f35c97aaf44fa3031b0669948b480",
+    licenses = ["notice"],
     server_urls = [
-        "https://repo.maven.apache.org/maven2/"
+        "https://repo.maven.apache.org/maven2/",
     ],
-    licenses = ["notice"]
+    srcjar_sha256 = "b186965c9af0a714632fe49b33378c9670f8f074797ab466f49a67e918e116ea",
 )
 
 maven_jar(
