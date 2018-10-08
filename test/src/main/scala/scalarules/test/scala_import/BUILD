@@ -11,9 +11,9 @@ scala_import(
 )
 
 scala_import(
-    name = "guava_external",
+    name = "jffi_native_external",
     jars = [
-        "@com_google_guava_guava_21_0_external//jar",
+        "@com_github_jnr_jffi_native//jar",
     ],
 )
 

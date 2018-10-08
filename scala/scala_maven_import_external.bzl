@@ -123,7 +123,7 @@ def _decode_maven_coordinates(artifact):
     version = parts[3]
   elif len(parts) == 5:
     packaging = parts[2]
-    classifier_part = parts[3]
+    classifier = parts[3]
     version = parts[4]
 
   return struct(
