@@ -66,6 +66,11 @@ maven_jar(
 )
 
 # test of import external
+# scala maven import external decodes maven artifacts to its parts
+# (group id, artifact id, packaging, version and classifier). To make sure
+# the decoding and then the download url composition are working the artifact example
+# must contain all the different parts and sha256s so the downloaded content will be
+# validated against it
 scala_maven_import_external(
     name = "com_github_jnr_jffi_native",
     artifact = "com.github.jnr:jffi:jar:native:1.2.17",
