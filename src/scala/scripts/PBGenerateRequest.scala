@@ -10,13 +10,23 @@ object PBGenerateRequest {
     val jarOutput = args.get(0)
     val parsedProtoFiles = args.get(1).split(':').toList.map { rootAndFile =>
       val parsed = rootAndFile.split(',')
-      val root = parsed(0)
-      val file = if (root.isEmpty) {
-        parsed(1)
-      } else {
-        parsed(1).substring(root.length + 1)
+      if (parsed(1).contains("external")) {
+        println("parsed(0) is " + parsed(0))
+        println("parsed(1) is " + parsed(1))
+        (parsed(0), parsed(1))
       }
-      (file, Paths.get(root, file).toString)
+      else {
+        val root = parsed(0)
+        val file = if (root.isEmpty) {
+          parsed(1)
+        } else {
+          parsed(1).substring(root.length + 1)
+        }
+        println("Root is " + root)
+        println("parsed(1) is " + parsed(1))
+        println("file is " + file)
+        (file, Paths.get(root, file).toString)
+      }
     }
     // This will map the absolute path of a given proto file
     // to a relative path that does not contain the repo prefix.

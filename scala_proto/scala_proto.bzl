@@ -331,14 +331,34 @@ def scala_proto_repositories(
       name = 'io_bazel_rules_scala/dependency/proto/netty_handler_proxy',
       actual = '@scala_proto_rules_netty_handler_proxy//jar')
 
-def _root_path(f):
+def _root_path(f, transitive_proto_paths):
+  print("f.is_source is {}".format(f.is_source))
   if f.is_source:
-    return f.owner.workspace_root
+    print("f.path: " + f.path + ".  f.owner.workspace_root: "+ f.owner.workspace_root + ". f.root.path: " + f.root.path)
+    if (f.owner.workspace_root):
+        start = len(f.owner.workspace_root)+1
+        # print("start index: {}".format(start))
+        package_len = 0
+        for package_set in transitive_proto_paths:
+           for package in package_set.to_list():
+               if str(package) in f.path:
+                #   print(package)
+                  package_len = len(package)+1
+                #   print(package_len)
+        if package_len > 1:
+            relative_path=f.path[start+package_len:]
+            print("relative_path: " + relative_path)
+            return relative_path
+        else:
+            print("no package was found")
+            return f.owner.workspace_root
+    else:
+        return f.owner.workspace_root
   return '/'.join([f.root.path, f.owner.workspace_root])
 
-def _colon_paths(data):
+def _colon_paths(data, transitive_proto_paths):
   return ':'.join([
-      "{root},{path}".format(root = _root_path(f), path = f.path)
+      "{root},{path}".format(root = _root_path(f, transitive_proto_paths), path = f.path)
       for f in sorted(data)
   ])
 
@@ -352,6 +372,7 @@ def _gen_proto_srcjar_impl(ctx):
       acc_imports.append(target.proto.transitive_sources)
       #inline this if after 0.12.0 is the oldest supported version
       if hasattr(target.proto, 'transitive_proto_path'):
+        print("target.proto.transitive_proto_path: {}".format(target.proto.transitive_proto_path))
         transitive_proto_paths.append(target.proto.transitive_proto_path)
     else:
       jvm_deps.append(target)
@@ -366,12 +387,14 @@ def _gen_proto_srcjar_impl(ctx):
 
   worker_content = "{output}\n{paths}\n{flags_arg}\n{packages}".format(
       output = ctx.outputs.srcjar.path,
-      paths = _colon_paths(acc_imports.to_list()),
+      paths = _colon_paths(acc_imports.to_list(), transitive_proto_paths),
       # Command line args to worker cannot be empty so using padding
       flags_arg = "-" + ",".join(ctx.attr.flags),
       # Command line args to worker cannot be empty so using padding
       packages = "-" +
       ":".join(depset(transitive = transitive_proto_paths).to_list()))
+  print("_colon_paths(acc_imports.to_list())")
+  print(_colon_paths(acc_imports.to_list(), transitive_proto_paths))
   argfile = ctx.actions.declare_file(
       "%s_worker_input" % ctx.label.name, sibling = ctx.outputs.srcjar)
   ctx.actions.write(output = argfile, content = worker_content)
