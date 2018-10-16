@@ -332,7 +332,7 @@ def scala_proto_repositories(
       actual = '@scala_proto_rules_netty_handler_proxy//jar')
 
 def _root_path(f, transitive_proto_paths):
-  print("f.is_source is {}".format(f.is_source))
+#   print("f.is_source is {}".format(f.is_source))
   if f.is_source:
     print("f.path: " + f.path + ".  f.owner.workspace_root: "+ f.owner.workspace_root + ". f.root.path: " + f.root.path)
     if (f.owner.workspace_root):
@@ -342,16 +342,10 @@ def _root_path(f, transitive_proto_paths):
         for package_set in transitive_proto_paths:
            for package in package_set.to_list():
                if str(package) in f.path:
-                #   print(package)
                   package_len = len(package)+1
-                #   print(package_len)
-        if package_len > 1:
-            relative_path=f.path[start+package_len:]
-            print("relative_path: " + relative_path)
-            return relative_path
-        else:
-            print("no package was found")
-            return f.owner.workspace_root
+        relative_path=f.path[start+package_len:]
+        print("relative_path: " + relative_path)
+        return relative_path
     else:
         return f.owner.workspace_root
   return '/'.join([f.root.path, f.owner.workspace_root])
