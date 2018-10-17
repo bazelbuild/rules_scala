@@ -101,6 +101,14 @@ scala_test_suite(
     ],
 )
 
+scala_test_suite(
+    name = "ScalaTestSuiteData",
+    size = "small",
+    srcs = ["ScalaTestData.scala"],
+    data = ["//test/data:foo.txt"],
+    jvm_flags = ["-Dtext=$(location //test/data:foo.txt)"],
+)
+
 scala_test(
     name = "TestFilterTests",
     size = "small",
