@@ -275,10 +275,51 @@ scala_repl = rule(
     toolchains = ['@io_bazel_rules_scala//scala:toolchain_type'],
 )
 
+def _default_scala_extra_jar_shas():
+    return {
+        "2.11": {
+            "scalatest": {
+                "version": "3.0.5",
+                "sha256": "2aafeb41257912cbba95f9d747df9ecdc7ff43f039d35014b4c2a8eb7ed9ba2f",
+            },
+            "scalactic": {
+                "version": "3.0.5",
+                "sha256": "84723064f5716f38990fe6e65468aa39700c725484efceef015771d267341cf2",
+            },
+            "scala_xml": {
+                "version": "1.0.5",
+                "sha256": "767e11f33eddcd506980f0ff213f9d553a6a21802e3be1330345f62f7ee3d50f",
+            },
+            "scala_parser_combinators": {
+                "version": "1.0.4",
+                "sha256": "0dfaafce29a9a245b0a9180ec2c1073d2bd8f0330f03a9f1f6a74d1bc83f62d6",
+            },
+        },
+        "2.12": {
+            "scalatest": {
+                "version": "3.0.5",
+                "sha256": "b416b5bcef6720da469a8d8a5726e457fc2d1cd5d316e1bc283aa75a2ae005e5",
+            },
+            "scalactic": {
+                "version": "3.0.5",
+                "sha256": "57e25b4fd969b1758fe042595112c874dfea99dca5cc48eebe07ac38772a0c41",
+            },
+            "scala_xml": {
+                "version": "1.0.5",
+                "sha256": "035015366f54f403d076d95f4529ce9eeaf544064dbc17c2d10e4f5908ef4256",
+            },
+            "scala_parser_combinators": {
+                "version": "1.0.4",
+                "sha256": "282c78d064d3e8f09b3663190d9494b85e0bb7d96b0da05994fe994384d96111",
+            }
+        },
+    }
+
 def scala_repositories(
     scala_version_shas = (_default_scala_version(),
                           _default_scala_version_jar_shas()),
-    maven_servers = ["http://central.maven.org/maven2"]):
+    maven_servers = ["http://central.maven.org/maven2"],
+    scala_extra_jar_shas = _default_scala_extra_jar_shas()):
   (scala_version, scala_version_jar_shas) = scala_version_shas
   major_version = _extract_major_version(scala_version)
 
@@ -287,10 +328,10 @@ def scala_repositories(
       scala_version_jar_shas = scala_version_jar_shas,
       maven_servers = maven_servers)
 
-  scala_extra_jar_shas = {
+  scala_extra_jar_shas_old = {
       "2.11": {
-          "scalatest": "2aafeb41257912cbba95f9d747df9ecdc7ff43f039d35014b4c2a8eb7ed9ba2f",
-          "scalactic": "84723064f5716f38990fe6e65468aa39700c725484efceef015771d267341cf2",
+          "scalatest": "f198967436a5e7a69cfd182902adcfbcb9f2e41b349e1a5c8881a2407f615962", # copy me into meetup/meetup WORKSPACE
+          "scalactic": "4461fb60500a5047dedd9751d222dc5fdf950a1e2cfeb7350411b68e4e02ff53", # copy me into meetup/meetup WORKSPACE
           "scala_xml": "767e11f33eddcd506980f0ff213f9d553a6a21802e3be1330345f62f7ee3d50f",
           "scala_parser_combinators": "0dfaafce29a9a245b0a9180ec2c1073d2bd8f0330f03a9f1f6a74d1bc83f62d6"
       },
@@ -306,26 +347,32 @@ def scala_repositories(
 
   _scala_maven_import_external(
       name = "io_bazel_rules_scala_scalatest",
-      artifact = "org.scalatest:scalatest_{major_version}:3.0.5".format(
-          major_version = major_version),
-      jar_sha256 = scala_version_extra_jar_shas["scalatest"],
+      artifact = "org.scalatest:scalatest_{major_version}:{extra_jar_version}".format(
+          major_version = major_version,
+          extra_jar_version = scala_version_extra_jar_shas["scalatest"]["version"],
+      ),
+      jar_sha256 = scala_version_extra_jar_shas["scalatest"]["sha256"],
       licenses = ["notice"],
       server_urls = maven_servers,
   )
   _scala_maven_import_external(
       name = "io_bazel_rules_scala_scalactic",
-      artifact = "org.scalactic:scalactic_{major_version}:3.0.5".format(
-          major_version = major_version),
-      jar_sha256 = scala_version_extra_jar_shas["scalactic"],
+      artifact = "org.scalactic:scalactic_{major_version}:{extra_jar_version}".format(
+          major_version = major_version,
+          extra_jar_version = scala_version_extra_jar_shas["scalactic"]["version"],
+      ),
+      jar_sha256 = scala_version_extra_jar_shas["scalactic"]["sha256"],
       licenses = ["notice"],
       server_urls = maven_servers,
   )
 
   _scala_maven_import_external(
       name = "io_bazel_rules_scala_scala_xml",
-      artifact = "org.scala-lang.modules:scala-xml_{major_version}:1.0.5".
-      format(major_version = major_version),
-      jar_sha256 = scala_version_extra_jar_shas["scala_xml"],
+      artifact = "org.scala-lang.modules:scala-xml_{major_version}:{extra_jar_version}".
+      format(major_version = major_version,
+          extra_jar_version = scala_version_extra_jar_shas["scala_xml"]["version"],
+      ),
+      jar_sha256 = scala_version_extra_jar_shas["scala_xml"]["sha256"],
       licenses = ["notice"],
       server_urls = maven_servers,
   )
@@ -333,9 +380,11 @@ def scala_repositories(
   _scala_maven_import_external(
       name = "io_bazel_rules_scala_scala_parser_combinators",
       artifact =
-      "org.scala-lang.modules:scala-parser-combinators_{major_version}:1.0.4".
-      format(major_version = major_version),
-      jar_sha256 = scala_version_extra_jar_shas["scala_parser_combinators"],
+      "org.scala-lang.modules:scala-parser-combinators_{major_version}:{extra_jar_version}".
+      format(major_version = major_version,
+          extra_jar_version = scala_version_extra_jar_shas["scala_parser_combinators"]["version"],
+      ),
+      jar_sha256 = scala_version_extra_jar_shas["scala_parser_combinators"]["sha256"],
       licenses = ["notice"],
       server_urls = maven_servers,
   )
