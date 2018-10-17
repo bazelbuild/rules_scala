@@ -104,10 +104,9 @@ scala_test_suite(
 scala_test_suite(
     name = "TestSuitePassesKwArgs",
     size = "small",  # Not a macro, can pass test-specific attributes.
-    srcs = glob(["HelloLibTest*.scala"]),
-    deps = [
-        ":HelloLib",
-    ],
+    srcs = glob(["ScalaTestData.scala"]),
+    data = ["//test/data:foo.txt"],
+    jvm_flags = ["-Dtext=$(location //test/data:foo.txt)"],
     scalac_jvm_flags = [
         "-Xms1G",
         "-Xmx4G",
