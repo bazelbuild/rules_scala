@@ -623,7 +623,7 @@ In your workspace file add the following lines:
 1. Add your own definition to scala_toolchain to a `BUILD` file:
   ```python
   # //toolchains/BUILD
-  load("//scala:scala_toolchain.bzl", "scala_toolchain")
+  load("@io_bazel_rules_scala//scala:scala_toolchain.bzl", "scala_toolchain")
 
   scala_toolchain(
       name = "my_toolchain_impl",
