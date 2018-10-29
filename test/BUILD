@@ -17,6 +17,11 @@ load(
     "scalapb_proto_library",
 )
 
+load(
+    ":mix_java_scala_lib.bzl",
+    "mix_java_scala_lib_rule"
+)
+
 # The examples below show how to combine Scala and Java rules.
 # ScalaBinary is the Scala equivalent of JavaBinary.
 
@@ -238,6 +243,11 @@ scala_library(
         "-Xms1G",
         "-Xmx4G",
     ],
+)
+
+mix_java_scala_lib_rule(
+    name = "MixJavaScalaLibRule",
+    deps = ["MixJavaScalaLib"]
 )
 
 #needed to test java sources are compiled
