@@ -3,7 +3,7 @@ def _mix_java_scala_lib_impl(ctx):
     for path in paths:
         print(path)
 
-mix_java_scala_lib_rule = rule(
+mix_java_scala_lib_test_rule = rule(
     implementation = _mix_java_scala_lib_impl,
     attrs = {
         "deps": attr.label_list(),

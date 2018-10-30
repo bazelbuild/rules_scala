@@ -19,7 +19,7 @@ load(
 
 load(
     ":mix_java_scala_lib.bzl",
-    "mix_java_scala_lib_rule"
+    "mix_java_scala_lib_test_rule"
 )
 
 # The examples below show how to combine Scala and Java rules.
@@ -245,8 +245,8 @@ scala_library(
     ],
 )
 
-mix_java_scala_lib_rule(
-    name = "MixJavaScalaLibRule",
+mix_java_scala_lib_test_rule(
+    name = "MixJavaScalaLibTestRule",
     deps = ["MixJavaScalaLib"]
 )
 
