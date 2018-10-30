@@ -458,32 +458,17 @@ def _sanitize_string_for_usage(s):
 # we will add a root test_suite with the name of the passed name
 def scala_test_suite(name,
                      srcs = [],
-                     deps = [],
-                     runtime_deps = [],
-                     data = [],
-                     resources = [],
-                     scalacopts = [],
-                     jvm_flags = [],
                      visibility = None,
-                     size = None,
-                     colors = True,
-                     full_stacktraces = True):
+                     **kwargs):
   ts = []
   for test_file in srcs:
     n = "%s_test_suite_%s" % (name, _sanitize_string_for_usage(test_file))
     scala_test(
         name = n,
         srcs = [test_file],
-        deps = deps,
-        runtime_deps = runtime_deps,
-        resources = resources,
-        scalacopts = scalacopts,
-        jvm_flags = jvm_flags,
         visibility = visibility,
-        size = size,
-        colors = colors,
-        full_stacktraces = full_stacktraces,
-        unused_dependency_checker_mode = "off")
+        unused_dependency_checker_mode = "off",
+        **kwargs)
     ts.append(n)
   native.test_suite(name = name, tests = ts, visibility = visibility)
 
@@ -491,37 +476,19 @@ def scala_test_suite(name,
 # then it depends on them with a meta one which exports all the sub targets
 def scala_library_suite(name,
                         srcs = [],
-                        deps = [],
                         exports = [],
-                        plugins = [],
-                        runtime_deps = [],
-                        data = [],
-                        resources = [],
-                        resource_strip_prefix = "",
-                        scalacopts = [],
-                        javacopts = [],
-                        jvm_flags = [],
-                        print_compile_time = False,
-                        visibility = None):
+                        visibility = None,
+                        **kwargs):
   ts = []
   for src_file in srcs:
     n = "%s_lib_%s" % (name, _sanitize_string_for_usage(src_file))
     scala_library(
         name = n,
         srcs = [src_file],
-        deps = deps,
-        plugins = plugins,
-        runtime_deps = runtime_deps,
-        data = data,
-        resources = resources,
-        resource_strip_prefix = resource_strip_prefix,
-        scalacopts = scalacopts,
-        javacopts = javacopts,
-        jvm_flags = jvm_flags,
-        print_compile_time = print_compile_time,
         visibility = visibility,
         exports = exports,
-        unused_dependency_checker_mode = "off")
+        unused_dependency_checker_mode = "off",
+        **kwargs)
     ts.append(n)
   scala_library(
       name = name, deps = ts, exports = exports + ts, visibility = visibility)

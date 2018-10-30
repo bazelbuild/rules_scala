@@ -101,6 +101,18 @@ scala_test_suite(
     ],
 )
 
+scala_test_suite(
+    name = "TestSuitePassesKwArgs",
+    size = "small",  # Not a macro, can pass test-specific attributes.
+    srcs = glob(["ScalaTestData.scala"]),
+    data = ["//test/data:foo.txt"],
+    jvm_flags = ["-Dtext=$(location //test/data:foo.txt)"],
+    scalac_jvm_flags = [
+        "-Xms1G",
+        "-Xmx4G",
+    ],
+)
+
 scala_test(
     name = "TestFilterTests",
     size = "small",
@@ -141,6 +153,15 @@ scala_library(
 scala_library_suite(
     name = "SuiteSrcs",
     srcs = glob(["Data*.scala"]),
+)
+
+scala_library_suite(
+    name = "LibrarySuitePassesKwArgs",
+    srcs = glob(["Data*.scala"]),
+    scalac_jvm_flags = [
+        "-Xms1G",
+        "-Xmx4G",
+    ],
 )
 
 scala_library(
