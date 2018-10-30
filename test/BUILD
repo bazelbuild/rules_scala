@@ -102,7 +102,7 @@ scala_test_suite(
 )
 
 scala_test_suite(
-    name = "HelloLibTestSuiteFlags",
+    name = "TestSuitePassesKwArgs",
     size = "small",  # Not a macro, can pass test-specific attributes.
     srcs = glob(["HelloLibTest*.scala"]),
     deps = [
@@ -157,7 +157,7 @@ scala_library_suite(
 )
 
 scala_library_suite(
-    name = "SuiteSrcsFlags",
+    name = "LibrarySuitePassesKwArgs",
     srcs = glob(["Data*.scala"]),
     scalac_jvm_flags = [
         "-Xms1G",
