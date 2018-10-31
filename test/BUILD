@@ -17,11 +17,6 @@ load(
     "scalapb_proto_library",
 )
 
-load(
-    ":mix_java_scala_lib.bzl",
-    "mix_java_scala_lib_test_rule"
-)
-
 # The examples below show how to combine Scala and Java rules.
 # ScalaBinary is the Scala equivalent of JavaBinary.
 
@@ -245,9 +240,18 @@ scala_library(
     ],
 )
 
-mix_java_scala_lib_test_rule(
-    name = "MixJavaScalaLibTestRule",
-    deps = ["MixJavaScalaLib"]
+genrule(
+    name = "MixJavaScalaLibTestOutputs",
+    outs = ["mix_java_scala_lib_test_rule_outputs.txt"],
+    cmd = "echo $(locations MixJavaScalaLib) > $@",
+    tools = [":MixJavaScalaLib"]
+)
+
+sh_test(
+    name = "MixJavaScalaLibTest",
+    srcs = ["test_scala_library_outputs_mixed_java_scala_jars.sh"],
+    args = ["$(location MixJavaScalaLibTestOutputs)"],
+    data = ["MixJavaScalaLibTestOutputs"]
 )
 
 #needed to test java sources are compiled
