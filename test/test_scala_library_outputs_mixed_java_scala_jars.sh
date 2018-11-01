@@ -14,7 +14,5 @@ contains() {
 
 set -e
 
-TARGET="MixJavaScalaLib"
-
-assert contains "test/${TARGET}.jar" $1
-assert contains "test/${TARGET}_java.jar" $1
+assert contains "test/${2}.jar" $1
+assert contains "test/${2}_java.jar" $1

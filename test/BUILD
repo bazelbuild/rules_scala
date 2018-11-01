@@ -250,7 +250,7 @@ genrule(
 sh_test(
     name = "MixJavaScalaLibTest",
     srcs = ["test_scala_library_outputs_mixed_java_scala_jars.sh"],
-    args = ["$(location MixJavaScalaLibTestOutputs)"],
+    args = ["$(location MixJavaScalaLibTestOutputs) MixJavaScalaLib"],
     data = ["MixJavaScalaLibTestOutputs"]
 )
 

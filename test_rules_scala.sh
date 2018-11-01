@@ -806,10 +806,6 @@ scala_junit_test_jar_is_exposed_in_build_event_protocol() {
   scala_binary_common_jar_is_exposed_in_build_event_protocol JunitTestWithDeps
 }
 
-test_mix_java_scala_lib() {
-  bazel test test:MixJavaScalaLibTest
-}
-
 dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 # shellcheck source=./test_runner.sh
 . "${dir}"/test_runner.sh
@@ -887,4 +883,3 @@ $runner bazel build //test_expect_failure/proto_source_root/... --strict_proto_d
 $runner scala_binary_jar_is_exposed_in_build_event_protocol
 $runner scala_test_jar_is_exposed_in_build_event_protocol
 $runner scala_junit_test_jar_is_exposed_in_build_event_protocol
-$runner test_mix_java_scala_lib
