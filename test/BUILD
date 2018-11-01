@@ -261,6 +261,20 @@ scala_library(
     ],
 )
 
+genrule(
+    name = "MixJavaScalaLibTestOutputs",
+    outs = ["mix_java_scala_lib_test_rule_outputs.txt"],
+    cmd = "echo $(locations MixJavaScalaLib) > $@",
+    tools = [":MixJavaScalaLib"]
+)
+
+sh_test(
+    name = "MixJavaScalaLibTest",
+    srcs = ["test_scala_library_outputs_mixed_java_scala_jars.sh"],
+    args = ["$(location MixJavaScalaLibTestOutputs) MixJavaScalaLib"],
+    data = ["MixJavaScalaLibTestOutputs"]
+)
+
 #needed to test java sources are compiled
 scala_binary(
     name = "MixJavaScalaLibBinary",
