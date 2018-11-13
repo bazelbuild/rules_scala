@@ -8,26 +8,7 @@ object PBGenerateRequest {
 
   def from(args: java.util.List[String]): PBGenerateRequest = {
     val jarOutput = args.get(0)
-    val parsedProtoFiles = args.get(1).split(':').toList.map { rootAndFile =>
-      val parsed = rootAndFile.split(',')
-      if (parsed(1).startsWith("external")) {
-        println("parsed(0) is " + parsed(0))
-        println("parsed(1) is " + parsed(1))
-        (parsed(0), parsed(1))
-      }
-      else {
-        val root = parsed(0)
-        val file = if (root.isEmpty) {
-          parsed(1)
-        } else {
-          parsed(1).substring(root.length + 1)
-        }
-        println("Root is " + root)
-        println("parsed(1) is " + parsed(1))
-        println("file is " + file)
-        (file, Paths.get(root, file).toString)
-      }
-    }
+    val parsedProtoFiles = args.get(1).split(':').toList.map(_.split(',')).map(toRelativeAbsolutePair)
     // This will map the absolute path of a given proto file
     // to a relative path that does not contain the repo prefix.
     // This is to match the expected behavior of
@@ -53,6 +34,32 @@ object PBGenerateRequest {
     val flagPrefix = flagOpt.fold("")(_ + ":")
     val scalaPBArgs = s"--scala_out=$flagPrefix$scalaPBOutput" :: (padWithProtoPathPrefix(transitiveProtoPaths) ++ imports ++ protoFiles)
     new PBGenerateRequest(jarOutput, scalaPBOutput, scalaPBArgs)
+  }
+
+  private def toRelativeAbsolutePair(paths: Array[String]) = {
+    def alreadyRelativeAbsolutePair(absolutePath: String) = {
+      absolutePath.startsWith("external")
+    }
+
+    def resolveRelativePath(root: String, absolutePath: String) = {
+      val resolvedRelativePath = if (root.isEmpty) {
+        absolutePath
+      } else {
+        absolutePath.substring(root.length + 1)
+      }
+      resolvedRelativePath
+    }
+
+    val absolutePath = paths(1)
+
+    if (alreadyRelativeAbsolutePair(absolutePath)) {
+      val givenRelativePath = paths(0)
+      (givenRelativePath, absolutePath)
+    }
+    else {
+      val resolvedRelativePath = resolveRelativePath(paths(0), absolutePath)
+      (resolvedRelativePath, absolutePath)
+    }
   }
 
   private def padWithProtoPathPrefix(transitiveProtoPathFlags: List[String]) =
