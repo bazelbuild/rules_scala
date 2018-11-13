@@ -83,6 +83,12 @@ scala_maven_import_external(
     srcjar_sha256 = "5e586357a289f5fe896f7b48759e1c16d9fa419333156b496696887e613d7a19",
 )
 
+# for testing of proto dependency in external repo under package
+local_repository(
+    name = "b_for_proto_test",
+    path = "test/proto/cross_repo/repo_b"
+)
+
 maven_jar(
     name = "org_apache_commons_commons_lang_3_5",
     artifact = "org.apache.commons:commons-lang3:3.5",

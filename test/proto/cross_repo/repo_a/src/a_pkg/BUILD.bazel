@@ -1,0 +1,13 @@
+load("@io_bazel_rules_scala//scala_proto:scala_proto.bzl", "scala_proto_srcjar", "scalapb_proto_library")
+
+proto_library(
+    name = "a_proto",
+    srcs = ["some_package/a.proto"],
+    deps = ["@b_for_proto_test//src/b_pkg:b_proto"],
+    proto_source_root = PACKAGE_NAME,
+    )
+
+scalapb_proto_library(
+      name = "a_scala_proto",
+      deps = [":a_proto"],
+  )

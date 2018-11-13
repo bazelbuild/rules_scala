@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+import "some_package2/b.proto";
+
+message Baz {
+  Foo foo3 = 1;
+}
