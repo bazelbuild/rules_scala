@@ -10,7 +10,7 @@ object PBGenerateRequest {
     val jarOutput = args.get(0)
     val parsedProtoFiles = args.get(1).split(':').toList.map { rootAndFile =>
       val parsed = rootAndFile.split(',')
-      if (parsed(1).contains("external")) {
+      if (parsed(1).startsWith("external")) {
         println("parsed(0) is " + parsed(0))
         println("parsed(1) is " + parsed(1))
         (parsed(0), parsed(1))

@@ -336,19 +336,20 @@ def _root_path(f, transitive_proto_paths):
   if f.is_source:
     print("f.path: " + f.path + ".  f.owner.workspace_root: "+ f.owner.workspace_root + ". f.root.path: " + f.root.path)
     if (f.owner.workspace_root):
-        start = len(f.owner.workspace_root)+1
+        start_of_relative_path = len(f.owner.workspace_root)+1
         # print("start index: {}".format(start))
         package_len = 0
         for package_set in transitive_proto_paths:
            for package in package_set.to_list():
-               if str(package) in f.path:
+               if f.path.startswith(f.owner.workspace_root + "/" + str(package)):
                   package_len = len(package)+1
-        relative_path=f.path[start+package_len:]
+        relative_path=f.path[start_of_relative_path+package_len:]
         print("relative_path: " + relative_path)
         return relative_path
     else:
         return f.owner.workspace_root
-  return '/'.join([f.root.path, f.owner.workspace_root])
+  path = '/'.join([f.root.path, f.owner.workspace_root])
+  return path
 
 def _colon_paths(data, transitive_proto_paths):
   return ':'.join([

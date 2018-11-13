@@ -1,5 +1,5 @@
 syntax = "proto3";
 
 message Foo {
-  string bar = 1;
+  string foo = 1;
 }

@@ -2,6 +2,15 @@ syntax = "proto3";
 
 import "some_package2/b.proto";
 
-message Baz {
-  Foo foo3 = 1;
+// use dependency with external in the middle of the file path 
+// (e.g. - 'external' in generated output: bazel-out/darwin-fastbuild/genfiles/external/com_google_protobuf/google/protobuf/descriptor.proto)
+import "google/protobuf/descriptor.proto";
+
+
+message Bar {
+  Foo foo = 1;
+}
+
+extend google.protobuf.MethodOptions {
+    Foo foo = 50301;
 }

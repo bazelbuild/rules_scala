@@ -3,7 +3,8 @@ load("@io_bazel_rules_scala//scala_proto:scala_proto.bzl", "scala_proto_srcjar",
 proto_library(
     name = "a_proto",
     srcs = ["some_package/a.proto"],
-    deps = ["@b_for_proto_test//src/b_pkg:b_proto"],
+    deps = ["@b_for_proto_test//src/b_pkg:b_proto", 
+            "@com_google_protobuf//:descriptor_proto"],
     proto_source_root = PACKAGE_NAME,
     )
 
