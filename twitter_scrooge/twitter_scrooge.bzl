@@ -10,15 +10,12 @@ load(
 )
 load(
     "//scala/private:common.bzl",
-    "collect_jars",
-    "collect_srcjars",
     "write_manifest_file",
 )
 load("//scala/private:rule_impls.bzl", "compile_scala")
 load("@io_bazel_rules_scala//thrift:thrift_info.bzl", "ThriftInfo")
 load(
     "@io_bazel_rules_scala//thrift:thrift.bzl",
-    "empty_thrift_info",
     "merge_thrift_infos",
 )
 

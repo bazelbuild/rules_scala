@@ -13,7 +13,6 @@
 # limitations under the License.
 """Rules for supporting the Scala language."""
 
-load("@io_bazel_rules_scala//scala:scala_toolchain.bzl", "scala_toolchain")
 load(
     "@io_bazel_rules_scala//scala:providers.bzl",
     "create_scala_provider",
@@ -25,7 +24,6 @@ load(
     "collect_jars",
     "collect_srcjars",
     "create_java_provider",
-    "filter_not_sources",
     "not_sources_jar",
     "write_manifest",
 )
@@ -105,15 +103,11 @@ touch {statsfile}
     )
 
     outs = [ctx.outputs.jar, ctx.outputs.statsfile]
-
-    inputs = ctx.files.resources + [
-        ctx.outputs.manifest,
-        ctx.executable._zipper,
-        zipper_arg_path,
-    ]
+    inputs = ctx.files.resources + [ctx.outputs.manifest]
 
     ctx.actions.run_shell(
         inputs = inputs,
+        tools = [ctx.executable._zipper, zipper_arg_path],
         outputs = outs,
         command = cmd,
         progress_message = "scala %s" % ctx.label,

@@ -14,10 +14,6 @@ load(
     _scala_maven_import_external = "scala_maven_import_external",
 )
 load(
-    "@io_bazel_rules_scala//scala:providers.bzl",
-    _ScalacProvider = "ScalacProvider",
-)
-load(
     "@io_bazel_rules_scala//scala:scala_cross_version.bzl",
     _default_scala_version = "default_scala_version",
     _default_scala_version_jar_shas = "default_scala_version_jar_shas",
@@ -27,10 +23,6 @@ load(
 load(
     "@io_bazel_rules_scala//specs2:specs2_junit.bzl",
     _specs2_junit_dependencies = "specs2_junit_dependencies",
-)
-load(
-    "@io_bazel_rules_scala//scala:scala_import.bzl",
-    _scala_import = "scala_import",
 )
 
 _launcher_template = {

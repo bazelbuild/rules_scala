@@ -89,7 +89,8 @@ rm -f {out}
             zipper = ctx.executable._zipper.path,
         )
         ctx.actions.run_shell(
-            inputs = ctx.files.srcs + [ctx.executable._zipper, zipper_arg_path],
+            inputs = ctx.files.srcs,
+            tools = [ctx.executable._zipper, zipper_arg_path],
             outputs = [ctx.outputs.libarchive],
             command = cmd,
             progress_message = "making thrift archive %s (%s files)" %
@@ -99,7 +100,7 @@ rm -f {out}
     else:
         # we still have to create the output we declared
         ctx.actions.run_shell(
-            inputs = [ctx.executable._zipper],
+            tools = [ctx.executable._zipper],
             outputs = [ctx.outputs.libarchive],
             command = """
 echo "empty" > {out}.contents
