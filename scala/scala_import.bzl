@@ -93,14 +93,13 @@ def _code_jars_and_intellij_metadata_from(jars, srcjar):
     intellij_metadata = []
     for jar in jars:
         current_jar_code_jars = _filter_out_non_code_jars(jar.files)
-        (current_jar_source_jars, src_jar) = _source_jars(jar, srcjar)
+        current_jar_source_jars = _source_jars(jar, srcjar)
         code_jars += current_jar_code_jars
         for current_class_jar in current_jar_code_jars:  #intellij, untested
             intellij_metadata.append(
                 struct(
                     ijar = None,
                     class_jar = current_class_jar,
-                    source_jar = src_jar,
                     source_jars = current_jar_source_jars,
                 ),
             )
@@ -108,14 +107,14 @@ def _code_jars_and_intellij_metadata_from(jars, srcjar):
 
 def _source_jars(jar, srcjar):
     if srcjar:
-        return ([], srcjar)
+        return [srcjar]
     else:
         jar_source_jars = [
             file
             for file in jar.files.to_list()
             if _is_source_jar(file)
         ]
-        return (jar_source_jars, None)
+        return jar_source_jars
 
 def _filter_out_non_code_jars(files):
     return [file for file in files.to_list() if not _is_source_jar(file)]
