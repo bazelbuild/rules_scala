@@ -450,12 +450,7 @@ scala_proto_srcjar = rule(
     attrs = {
         "deps": attr.label_list(
             mandatory = True,
-            allow_rules = [
-                "proto_library",
-                "java_proto_library",
-                "java_library",
-                "scala_library",
-            ],
+            providers = [["proto"],[JavaInfo]],
         ),
         "flags": attr.string_list(default = []),
         "generator": attr.label(
