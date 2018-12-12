@@ -394,10 +394,7 @@ def _gen_proto_srcjar_impl(ctx):
     for target in ctx.attr.deps:
         if hasattr(target, "proto"):
             acc_imports.append(target.proto.transitive_sources)
-
-            #inline this if after 0.12.0 is the oldest supported version
-            if hasattr(target.proto, "transitive_proto_path"):
-                transitive_proto_paths.append(target.proto.transitive_proto_path)
+            transitive_proto_paths.append(target.proto.transitive_proto_path)
         else:
             jvm_deps.append(target)
 
@@ -450,12 +447,7 @@ scala_proto_srcjar = rule(
     attrs = {
         "deps": attr.label_list(
             mandatory = True,
-            allow_rules = [
-                "proto_library",
-                "java_proto_library",
-                "java_library",
-                "scala_library",
-            ],
+            providers = [["proto"],[JavaInfo]],
         ),
         "flags": attr.string_list(default = []),
         "generator": attr.label(
