@@ -388,25 +388,21 @@ def scala_repositories(
         server_urls = maven_servers,
     )
 
-    native.maven_server(
-        name = "scalac_deps_maven_server",
-        url = "https://mirror.bazel.build/repo1.maven.org/maven2/",
-    )
-
-    native.maven_jar(
+    _scala_maven_import_external(
         name = "scalac_rules_protobuf_java",
         artifact = "com.google.protobuf:protobuf-java:3.1.0",
-        sha1 = "e13484d9da178399d32d2d27ee21a77cfb4b7873",
-        server = "scalac_deps_maven_server",
+        jar_sha256 = "8d7ec605ca105747653e002bfe67bddba90ab964da697aaa5daa1060923585db",
+        licenses = ["notice"],
+        server_urls = maven_servers,
     )
 
     # used by ScalacProcessor
-    native.maven_jar(
+    _scala_maven_import_external(
         name = "scalac_rules_commons_io",
         artifact = "commons-io:commons-io:2.6",
-        sha1 = "815893df5f31da2ece4040fe0a12fd44b577afaf",
-        # bazel maven mirror doesn't have the commons_io artifact
-        #      server = "scalac_deps_maven_server",
+        jar_sha256 = "f877d304660ac2a142f3865badfc971dec7ed73c747c7f8d5d2f5139ca736513",
+        licenses = ["notice"],
+        server_urls = maven_servers,
     )
 
     # Template for binary launcher
