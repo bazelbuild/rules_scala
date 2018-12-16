@@ -806,6 +806,51 @@ scala_junit_test_jar_is_exposed_in_build_event_protocol() {
   scala_binary_common_jar_is_exposed_in_build_event_protocol JunitTestWithDeps
 }
 
+test_scala_import_source_jar_should_be_fetched_when_fetch_sources_is_set_to_true() {
+  test_scala_import_fetch_sources
+}
+
+test_scala_import_source_jar_should_be_fetched_when_env_bazel_jvm_fetch_sources_is_set_to_true() {
+  test_scala_import_fetch_sources_with_env_bazel_jvm_fetch_sources "True"
+}
+
+test_scala_import_source_jar_should_not_be_fetched_when_env_bazel_jvm_fetch_sources_is_set_to_false() {
+  test_scala_import_fetch_sources_with_env_bazel_jvm_fetch_sources "False"
+}
+
+test_scala_import_fetch_sources_with_env_bazel_jvm_fetch_sources() {
+  # the existence of the env var should cause the import repository rule to re-fetch the dependency
+  # and therefore the order of tests is not expected to matter
+  export BAZEL_JVM_FETCH_SOURCES=$1
+
+  if [[ $1 = "True" ]]; then
+    test_scala_import_fetch_sources
+  else
+    action_should_fail test_scala_import_fetch_sources
+  fi
+
+  unset BAZEL_JVM_FETCH_SOURCES
+}
+
+test_scala_import_fetch_sources() {
+  local srcjar_name="guava-21.0-src.jar"
+  local bazel_out_external_guava_21=$(bazel info output_base)/external/com_google_guava_guava_21_0
+
+  bazel build //test/src/main/scala/scalarules/test/fetch_sources/...
+
+  assert_file_exists $bazel_out_external_guava_21/$srcjar_name
+}
+
+assert_file_exists() {
+  if [[ -f $1 ]]; then
+    echo "File $1 exists."
+    exit 0
+  else
+    echo "File $1 does not exist."
+    exit 1
+  fi
+}
+
 dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 # shellcheck source=./test_runner.sh
 . "${dir}"/test_runner.sh
@@ -883,3 +928,6 @@ $runner bazel build //test_expect_failure/proto_source_root/... --strict_proto_d
 $runner scala_binary_jar_is_exposed_in_build_event_protocol
 $runner scala_test_jar_is_exposed_in_build_event_protocol
 $runner scala_junit_test_jar_is_exposed_in_build_event_protocol
+$runner test_scala_import_source_jar_should_be_fetched_when_fetch_sources_is_set_to_true
+$runner test_scala_import_source_jar_should_be_fetched_when_env_bazel_jvm_fetch_sources_is_set_to_true
+$runner test_scala_import_source_jar_should_not_be_fetched_when_env_bazel_jvm_fetch_sources_is_set_to_false
