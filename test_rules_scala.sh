@@ -837,7 +837,9 @@ test_scala_import_fetch_sources() {
   local srcjar_name="guava-21.0-src.jar"
   local bazel_out_external_guava_21=$(bazel info output_base)/external/com_google_guava_guava_21_0
 
+  set -e
   bazel build //test/src/main/scala/scalarules/test/fetch_sources/...
+  set +e
 
   assert_file_exists $bazel_out_external_guava_21/$srcjar_name
 }
