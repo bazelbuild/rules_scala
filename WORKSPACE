@@ -129,7 +129,10 @@ scala_maven_import_external(
     srcjar_sha256 = "b7ffb578b2bd6445c958356e308d1c46c9ea6fb868fc9444bc8bda3a41875a1b",
     fetch_sources = True,
     licenses = ["notice"],  # Apache 2.0
-    server_urls = ["https://mirror.bazel.build/repo1.maven.org/maven2"],
+    server_urls = [
+        "https://repo1.maven.org/maven2/",
+        "https://mirror.bazel.build/repo1.maven.org/maven2",
+        ],
 )
 
 # bazel's java_import_external has been altered in rules_scala to be a macro based on jvm_import_external
