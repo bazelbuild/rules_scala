@@ -127,7 +127,7 @@ def _jvm_import_external(repository_ctx):
 
 def _should_fetch_sources_in_current_env(repository_ctx):
     env_bazel_jvm_fetch_sources = repository_ctx.os.environ.get(_FETCH_SOURCES_ENV_VAR_NAME)
-    return (not env_bazel_jvm_fetch_sources) or (env_bazel_jvm_fetch_sources == "True")
+    return (not env_bazel_jvm_fetch_sources) or (env_bazel_jvm_fetch_sources.lower() == "true")
 
 def _decode_maven_coordinates(artifact):
     parts = artifact.split(":")

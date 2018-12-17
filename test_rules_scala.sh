@@ -811,22 +811,23 @@ test_scala_import_source_jar_should_be_fetched_when_fetch_sources_is_set_to_true
 }
 
 test_scala_import_source_jar_should_be_fetched_when_env_bazel_jvm_fetch_sources_is_set_to_true() {
-  test_scala_import_fetch_sources_with_env_bazel_jvm_fetch_sources "True"
+  test_scala_import_fetch_sources_with_env_bazel_jvm_fetch_sources_set_to "TruE" # as implied, the value is case insensitive
 }
 
-test_scala_import_source_jar_should_not_be_fetched_when_env_bazel_jvm_fetch_sources_is_set_to_false() {
-  test_scala_import_fetch_sources_with_env_bazel_jvm_fetch_sources "False"
+test_scala_import_source_jar_should_not_be_fetched_when_env_bazel_jvm_fetch_sources_is_set_to_non_true() {
+  test_scala_import_fetch_sources_with_env_bazel_jvm_fetch_sources_set_to "false" "and expect no source jars"
 }
 
-test_scala_import_fetch_sources_with_env_bazel_jvm_fetch_sources() {
+test_scala_import_fetch_sources_with_env_bazel_jvm_fetch_sources_set_to() {
   # the existence of the env var should cause the import repository rule to re-fetch the dependency
   # and therefore the order of tests is not expected to matter
   export BAZEL_JVM_FETCH_SOURCES=$1
+  local expect_failure=$2
 
-  if [[ $1 = "True" ]]; then
-    test_scala_import_fetch_sources
-  else
+  if [[ ${expect_failure} ]]; then
     action_should_fail test_scala_import_fetch_sources
+  else
+    test_scala_import_fetch_sources
   fi
 
   unset BAZEL_JVM_FETCH_SOURCES
@@ -930,4 +931,4 @@ $runner scala_test_jar_is_exposed_in_build_event_protocol
 $runner scala_junit_test_jar_is_exposed_in_build_event_protocol
 $runner test_scala_import_source_jar_should_be_fetched_when_fetch_sources_is_set_to_true
 $runner test_scala_import_source_jar_should_be_fetched_when_env_bazel_jvm_fetch_sources_is_set_to_true
-$runner test_scala_import_source_jar_should_not_be_fetched_when_env_bazel_jvm_fetch_sources_is_set_to_false
+$runner test_scala_import_source_jar_should_not_be_fetched_when_env_bazel_jvm_fetch_sources_is_set_to_non_true
