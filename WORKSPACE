@@ -126,8 +126,13 @@ scala_maven_import_external(
     name = "com_google_guava_guava_21_0",
     artifact = "com.google.guava:guava:21.0",
     jar_sha256 = "972139718abc8a4893fa78cba8cf7b2c903f35c97aaf44fa3031b0669948b480",
+    srcjar_sha256 = "b186965c9af0a714632fe49b33378c9670f8f074797ab466f49a67e918e116ea",
+    fetch_sources = True,
     licenses = ["notice"],  # Apache 2.0
-    server_urls = ["https://mirror.bazel.build/repo1.maven.org/maven2"],
+    server_urls = [
+        "https://repo1.maven.org/maven2/",
+        "https://mirror.bazel.build/repo1.maven.org/maven2",
+        ],
 )
 
 # bazel's java_import_external has been altered in rules_scala to be a macro based on jvm_import_external

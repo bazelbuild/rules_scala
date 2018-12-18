@@ -46,6 +46,8 @@ _PASS_PROPS = (
     "tags",
 )
 
+_FETCH_SOURCES_ENV_VAR_NAME = "BAZEL_JVM_FETCH_SOURCES"
+
 def _jvm_import_external(repository_ctx):
     """Implementation of `java_import_external` rule."""
     if (repository_ctx.attr.generated_linkable_rule_name and
@@ -106,7 +108,7 @@ def _jvm_import_external(repository_ctx):
         if not extra.endswith("\n"):
             lines.append("")
     repository_ctx.download(urls, path, sha)
-    if srcurls:
+    if srcurls and _should_fetch_sources_in_current_env(repository_ctx):
         repository_ctx.download(srcurls, srcpath, srcsha)
     repository_ctx.file("BUILD", "\n".join(lines))
     repository_ctx.file("jar/BUILD", "\n".join([
@@ -122,6 +124,10 @@ def _jvm_import_external(repository_ctx):
         ")",
         "",
     ]))
+
+def _should_fetch_sources_in_current_env(repository_ctx):
+    env_bazel_jvm_fetch_sources = repository_ctx.os.environ.get(_FETCH_SOURCES_ENV_VAR_NAME, "true")
+    return env_bazel_jvm_fetch_sources.lower() == "true"
 
 def _decode_maven_coordinates(artifact):
     parts = artifact.split(":")
@@ -219,6 +225,7 @@ jvm_import_external = repository_rule(
         ),
         "extra_build_file_content": attr.string(),
     },
+    environ = [_FETCH_SOURCES_ENV_VAR_NAME]
 )
 
 def scala_maven_import_external(
