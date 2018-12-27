@@ -841,10 +841,10 @@ def _pack_source_jars(ctx):
       f for f in ctx.files.srcs if f.basename.endswith(_java_extension)
   ]
   if len(java_sources) > 0:
-      pseudo_java_jara_file = ctx.actions.declare_file(ctx.label.name + "_java.jar")
+      pseudo_java_jar_file = ctx.actions.declare_file(ctx.label.name + "_java.jar")
       java_source_jar = java_common.pack_sources(
          ctx.actions,
-         output_jar = pseudo_java_jara_file,
+         output_jar = pseudo_java_jar_file,
          sources = java_sources,
          java_toolchain = ctx.attr._java_toolchain,
          host_javabase = ctx.attr._host_javabase
