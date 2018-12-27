@@ -708,7 +708,7 @@ def _lib(
         transitive = [transitive_rjars, exports_jars.transitive_runtime_jars],
     )
 
-    source_jar = _pack_sources(ctx)
+    source_jars = _pack_source_jars(ctx)
 
     scalaattr = create_scala_provider(
         ijar = outputs.ijar,
@@ -721,7 +721,7 @@ def _lib(
         deploy_jar = ctx.outputs.deploy_jar,
         full_jars = outputs.full_jars,
         statsfile = ctx.outputs.statsfile,
-        source_jar = source_jar,
+        source_jars = source_jars,
     )
 
     java_provider = create_java_provider(scalaattr, jars.transitive_compile_jars)
@@ -809,7 +809,7 @@ def _scala_binary_common(
         collect_data = True,
     )
 
-    source_jar = _pack_sources(ctx)
+    source_jars = _pack_source_jars(ctx)
 
     scalaattr = create_scala_provider(
         ijar = outputs.class_jar,  # we aren't using ijar here
@@ -819,7 +819,7 @@ def _scala_binary_common(
         deploy_jar = ctx.outputs.deploy_jar,
         full_jars = outputs.full_jars,
         statsfile = ctx.outputs.statsfile,
-        source_jar = source_jar,
+        source_jars = source_jars,
     )
 
     java_provider = create_java_provider(scalaattr, transitive_compile_time_jars)
@@ -833,22 +833,49 @@ def _scala_binary_common(
         runfiles = runfiles,
     )
 
-def _pack_sources(ctx):
-  java_srcs = [
+def _pack_source_jars(ctx):
+  source_jars = []
+
+  # collect .java sources and pack a source jar for Java
+  java_sources = [
       f for f in ctx.files.srcs if f.basename.endswith(_java_extension)
   ]
-  sources = [
-      f for f in ctx.files.srcs if f.basename.endswith(_scala_extension)
-  ] + java_srcs
+  if len(java_sources) > 0:
+      pseudo_java_jara_file = ctx.actions.declare_file(ctx.label.name + "_java.jar")
+      java_source_jar = java_common.pack_sources(
+         ctx.actions,
+         output_jar = pseudo_java_jara_file,
+         sources = java_sources,
+         java_toolchain = ctx.attr._java_toolchain,
+         host_javabase = ctx.attr._host_javabase
+      )
+      if java_source_jar:
+          source_jars.append(java_source_jar)
 
-  source_jar = java_common.pack_sources(
+
+  # collect .scala sources and pack a source jar for Scala
+  scala_sources = [
+      f for f in ctx.files.srcs
+      if f.basename.endswith(_scala_extension)
+  ]
+
+  # collect .srcjar files and pack them with the scala sources
+  bundled_source_jars = [
+      f for f in ctx.files.srcs
+      if f.basename.endswith(_srcjar_extension)
+  ]
+  scala_source_jar = java_common.pack_sources(
       ctx.actions,
       output_jar = ctx.outputs.jar,
-      sources = sources,
+      sources = scala_sources,
+      source_jars = bundled_source_jars,
       java_toolchain = ctx.attr._java_toolchain,
       host_javabase = ctx.attr._host_javabase
   )
-  return source_jar
+  if scala_source_jar:
+    source_jars.append(scala_source_jar)
+
+  return source_jars
 
 def scala_binary_impl(ctx):
     scalac_provider = _scalac_provider(ctx)

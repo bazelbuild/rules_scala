@@ -7,11 +7,11 @@ def create_scala_provider(
         transitive_runtime_jars,
         deploy_jar,
         full_jars,
-        source_jar,
+        source_jars,
         statsfile):
 
     formatted_for_intellij = [
-        struct(class_jar = jar, ijar = None, source_jar = None, source_jars = [source_jar])
+        struct(class_jar = jar, ijar = None, source_jar = None, source_jars = source_jars)
         for jar in full_jars
     ]
 
