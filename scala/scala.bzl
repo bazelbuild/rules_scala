@@ -554,7 +554,7 @@ _scala_junit_test_attrs.update(_implicit_deps)
 _scala_junit_test_attrs.update(_common_attrs)
 _scala_junit_test_attrs.update(_junit_resolve_deps)
 _scala_junit_test_attrs.update({
-    "discover_tests_additionally_from": attr.label_list(providers = [[JavaInfo]]),
+    "alternatively_discover_tests_from": attr.label_list(providers = [[JavaInfo]]),
 })
 scala_junit_test = rule(
     implementation = _scala_junit_test_impl,

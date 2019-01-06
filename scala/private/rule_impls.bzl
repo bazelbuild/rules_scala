@@ -1049,13 +1049,13 @@ def _serialize_archives_short_path(archives):
 def _get_test_archive_jars(ctx, test_archives):
     flattened_list = []
     for archive in test_archives:
-        #1. fix scala_library full_compile_jars
-        #2. move to archive[JavaInfo].full_compile_jars
-        #3. add failing test about non JavaInfo (filegroup)
-        #4. handle case where tests exist both in current target and in the attribute
-        for jar in archive[JavaInfo].runtime_output_jars:
-            flattened_list.append(jar)
-    print(flattened_list)
+        # because we (rules_scala) use the legacy JavaInfo (java_common.create_provider)
+        # runtime_output_jars contains more jars than needed
+        if hasattr(archive, "scala"):
+            jars = [jar.class_jar for jar in archive.scala.outputs.jars]
+        else:
+            jars = archive[JavaInfo].runtime_output_jars
+        flattened_list.extend(jars)
     return flattened_list
 
 def scala_junit_test_impl(ctx):
@@ -1110,8 +1110,8 @@ def scala_junit_test_impl(ctx):
             unused_dependency_checker_ignored_targets,
     )
 
-    if ctx.attr.discover_tests_additionally_from:
-        archives = _get_test_archive_jars(ctx, ctx.attr.discover_tests_additionally_from)
+    if ctx.attr.alternatively_discover_tests_from:
+        archives = _get_test_archive_jars(ctx, ctx.attr.alternatively_discover_tests_from)
     else:
         archives = [archive.class_jar for archive in out.scala.outputs.jars]
 
