@@ -594,3 +594,19 @@ load(":check_statsfile.bzl", "check_statsfile")
 check_statsfile("ScalaBinary")
 
 check_statsfile("ScalaLibBinary")
+
+scala_library(
+    name = "JunitSeparateTarget",
+    srcs = ["src/main/scala/scalarules/test/junit/JunitSeparateTarget.scala"],
+    deps = ["//external:io_bazel_rules_scala/dependency/junit/junit"],
+)
+
+scala_junit_test(
+    name = "JunitSeparateTarget_test_runner",
+    size = "small",
+    suffixes = ["Test"],
+    runtime_deps = [":JunitSeparateTarget"],
+    test_archives = [":JunitSeparateTarget"],
+
+)
+

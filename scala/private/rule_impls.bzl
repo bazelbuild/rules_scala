@@ -1026,11 +1026,10 @@ def scala_test_impl(ctx):
     return out
 
 def _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, archives):
-    serialized_archives = _serialize_archives_short_path(archives)
     return struct(
         testSuiteFlag = "-Dbazel.test_suite=%s" % ctx.attr.suite_class,
         archiveFlag = "-Dbazel.discover.classes.archives.file.paths=%s" %
-                      serialized_archives,
+                      archives,
         prefixesFlag = "-Dbazel.discover.classes.prefixes=%s" % ",".join(
             ctx.attr.prefixes,
         ),
@@ -1044,8 +1043,20 @@ def _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, archives):
 def _serialize_archives_short_path(archives):
     archives_short_path = ""
     for archive in archives:
-        archives_short_path += archive.class_jar.short_path + ","
+        archives_short_path += archive.short_path + ","
     return archives_short_path[:-1]  #remove redundant comma
+
+def _get_test_archive_jars(ctx, test_archives):
+    flattened_list = []
+    for archive in test_archives:
+        #1. fix scala_library full_compile_jars
+        #2. move to archive[JavaInfo].full_compile_jars
+        #3. add failing test about non JavaInfo (filegroup)
+        #4. handle case where tests exist both in current target and in the attribute
+        for jar in archive[JavaInfo].runtime_output_jars:
+            flattened_list.append(jar)
+    print(flattened_list)
+    return flattened_list
 
 def scala_junit_test_impl(ctx):
     if (not (ctx.attr.prefixes) and not (ctx.attr.suffixes)):
@@ -1098,9 +1109,16 @@ def scala_junit_test_impl(ctx):
         unused_dependency_checker_ignored_targets =
             unused_dependency_checker_ignored_targets,
     )
+
+    if ctx.attr.discover_tests_additionally_from:
+        archives = _get_test_archive_jars(ctx, ctx.attr.discover_tests_additionally_from)
+    else:
+        archives = [archive.class_jar for archive in out.scala.outputs.jars]
+
+    serialized_archives = _serialize_archives_short_path(archives)
     test_suite = _gen_test_suite_flags_based_on_prefixes_and_suffixes(
         ctx,
-        out.scala.outputs.jars,
+        serialized_archives,
     )
     launcherJvmFlags = [
         "-ea",
