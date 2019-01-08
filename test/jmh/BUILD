@@ -1,4 +1,5 @@
-load("//jmh:jmh.bzl", "scala_library", "scala_benchmark_jmh")
+load("//scala:scala.bzl", "scala_library")
+load("//jmh:jmh.bzl", "scala_benchmark_jmh")
 
 java_library(
     name = "java_type",

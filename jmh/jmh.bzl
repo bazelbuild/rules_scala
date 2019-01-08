@@ -1,7 +1,4 @@
-load("//scala:scala.bzl", _scala_binary = "scala_binary", _scala_library = "scala_library")
-
-scala_library = _scala_library
-scala_binary = _scala_binary
+load("//scala:scala.bzl", "scala_binary", "scala_library")
 
 def jmh_repositories():
     native.maven_jar(
