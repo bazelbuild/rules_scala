@@ -594,3 +594,89 @@ load(":check_statsfile.bzl", "check_statsfile")
 check_statsfile("ScalaBinary")
 
 check_statsfile("ScalaLibBinary")
+
+#discovering tests from a separate target
+scala_library(
+    name = "JunitSeparateTarget",
+    srcs = ["src/main/scala/scalarules/test/junit/separate_target/JunitSeparateTargetTest.scala"],
+    deps = ["//external:io_bazel_rules_scala/dependency/junit/junit"],
+)
+
+scala_junit_test(
+    name = "JunitSeparateTarget_test_runner",
+    size = "small",
+    suffixes = ["Test"],
+    runtime_deps = [":JunitSeparateTarget"],
+    tests_from = [":JunitSeparateTarget"],
+
+)
+
+java_library(
+    name = "JunitJavaSeparateTarget",
+    srcs = ["src/main/scala/scalarules/test/junit/separate_target/JunitJavaSeparateTargetTest.java"],
+    deps = ["//external:io_bazel_rules_scala/dependency/junit/junit"],
+)
+
+scala_junit_test(
+    name = "JunitJavaSeparateTarget_test_runner",
+    size = "small",
+    suffixes = ["Test"],
+    runtime_deps = [":JunitJavaSeparateTarget"],
+    tests_from = [":JunitJavaSeparateTarget"],
+
+)
+
+scala_library(
+    name = "TargetWithTestThatShouldNotRun",
+    srcs = ["src/main/scala/scalarules/test/junit/separate_target/FailingTest.scala"],
+    deps = ["//external:io_bazel_rules_scala/dependency/junit/junit"],
+)
+
+scala_library(
+    name = "JunitSeparateTargetWithDependencyOnTest",
+    srcs = ["src/main/scala/scalarules/test/junit/separate_target/JunitSeparateTargetTest.scala"],
+    deps = ["//external:io_bazel_rules_scala/dependency/junit/junit"],
+    runtime_deps = [":TargetWithTestThatShouldNotRun"],
+)
+
+scala_junit_test(
+    name = "JunitSeparateTargetTransitiveDependencyShouldNotRun_test_runner",
+    size = "small",
+    suffixes = ["Test"],
+    runtime_deps = [":JunitSeparateTargetWithDependencyOnTest"],
+    tests_from = [":JunitSeparateTargetWithDependencyOnTest"],
+
+)
+
+java_library(
+    name = "JunitSeparateJavaTargetWithDependencyOnTest",
+    srcs = ["src/main/scala/scalarules/test/junit/separate_target/JunitJavaSeparateTargetTest.java"],
+    deps = ["//external:io_bazel_rules_scala/dependency/junit/junit"],
+    runtime_deps = [":TargetWithTestThatShouldNotRun"],
+)
+
+scala_junit_test(
+    name = "JunitSeparateJavaTargetTransitiveDependencyShouldNotRun_test_runner",
+    size = "small",
+    suffixes = ["Test"],
+    runtime_deps = [":JunitSeparateJavaTargetWithDependencyOnTest"],
+    tests_from = [":JunitSeparateJavaTargetWithDependencyOnTest"],
+
+)
+
+scala_library(
+    name = "JunitMixedSeparateTarget",
+    srcs = ["src/main/scala/scalarules/test/junit/separate_target/SomeScalaClass.scala",
+            "src/main/scala/scalarules/test/junit/separate_target/JunitJavaSeparateTargetTest.java"
+            ],
+    deps = ["//external:io_bazel_rules_scala/dependency/junit/junit"],
+)
+
+scala_junit_test(
+    name = "JunitMixedSeparateTarget_test_runner",
+    size = "small",
+    suffixes = ["Test"],
+    runtime_deps = [":JunitMixedSeparateTarget"],
+    tests_from = [":JunitMixedSeparateTarget"],
+
+)

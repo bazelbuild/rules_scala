@@ -1026,11 +1026,10 @@ def scala_test_impl(ctx):
     return out
 
 def _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, archives):
-    serialized_archives = _serialize_archives_short_path(archives)
     return struct(
         testSuiteFlag = "-Dbazel.test_suite=%s" % ctx.attr.suite_class,
         archiveFlag = "-Dbazel.discover.classes.archives.file.paths=%s" %
-                      serialized_archives,
+                      archives,
         prefixesFlag = "-Dbazel.discover.classes.prefixes=%s" % ",".join(
             ctx.attr.prefixes,
         ),
@@ -1044,8 +1043,20 @@ def _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, archives):
 def _serialize_archives_short_path(archives):
     archives_short_path = ""
     for archive in archives:
-        archives_short_path += archive.class_jar.short_path + ","
+        archives_short_path += archive.short_path + ","
     return archives_short_path[:-1]  #remove redundant comma
+
+def _get_test_archive_jars(ctx, test_archives):
+    flattened_list = []
+    for archive in test_archives:
+        # because we (rules_scala) use the legacy JavaInfo (java_common.create_provider)
+        # runtime_output_jars contains more jars than needed
+        if hasattr(archive, "scala"):
+            jars = [jar.class_jar for jar in archive.scala.outputs.jars]
+        else:
+            jars = archive[JavaInfo].runtime_output_jars
+        flattened_list.extend(jars)
+    return flattened_list
 
 def scala_junit_test_impl(ctx):
     if (not (ctx.attr.prefixes) and not (ctx.attr.suffixes)):
@@ -1098,9 +1109,16 @@ def scala_junit_test_impl(ctx):
         unused_dependency_checker_ignored_targets =
             unused_dependency_checker_ignored_targets,
     )
+
+    if ctx.attr.tests_from:
+        archives = _get_test_archive_jars(ctx, ctx.attr.tests_from)
+    else:
+        archives = [archive.class_jar for archive in out.scala.outputs.jars]
+
+    serialized_archives = _serialize_archives_short_path(archives)
     test_suite = _gen_test_suite_flags_based_on_prefixes_and_suffixes(
         ctx,
-        out.scala.outputs.jars,
+        serialized_archives,
     )
     launcherJvmFlags = [
         "-ea",
