@@ -607,7 +607,7 @@ scala_junit_test(
     size = "small",
     suffixes = ["Test"],
     runtime_deps = [":JunitSeparateTarget"],
-    alternatively_discover_tests_from = [":JunitSeparateTarget"],
+    tests_from = [":JunitSeparateTarget"],
 
 )
 
@@ -622,7 +622,7 @@ scala_junit_test(
     size = "small",
     suffixes = ["Test"],
     runtime_deps = [":JunitJavaSeparateTarget"],
-    alternatively_discover_tests_from = [":JunitJavaSeparateTarget"],
+    tests_from = [":JunitJavaSeparateTarget"],
 
 )
 
@@ -644,7 +644,7 @@ scala_junit_test(
     size = "small",
     suffixes = ["Test"],
     runtime_deps = [":JunitSeparateTargetWithDependencyOnTest"],
-    alternatively_discover_tests_from = [":JunitSeparateTargetWithDependencyOnTest"],
+    tests_from = [":JunitSeparateTargetWithDependencyOnTest"],
 
 )
 
@@ -660,7 +660,7 @@ scala_junit_test(
     size = "small",
     suffixes = ["Test"],
     runtime_deps = [":JunitSeparateJavaTargetWithDependencyOnTest"],
-    alternatively_discover_tests_from = [":JunitSeparateJavaTargetWithDependencyOnTest"],
+    tests_from = [":JunitSeparateJavaTargetWithDependencyOnTest"],
 
 )
 
@@ -677,6 +677,6 @@ scala_junit_test(
     size = "small",
     suffixes = ["Test"],
     runtime_deps = [":JunitMixedSeparateTarget"],
-    alternatively_discover_tests_from = [":JunitMixedSeparateTarget"],
+    tests_from = [":JunitMixedSeparateTarget"],
 
 )

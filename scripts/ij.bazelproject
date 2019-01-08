@@ -20,3 +20,5 @@ targets:
 
 additional_languages:
   scala
+
+bazel_binary: /usr/local/bin/bazel

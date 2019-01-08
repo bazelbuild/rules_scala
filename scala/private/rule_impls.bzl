@@ -1110,8 +1110,8 @@ def scala_junit_test_impl(ctx):
             unused_dependency_checker_ignored_targets,
     )
 
-    if ctx.attr.alternatively_discover_tests_from:
-        archives = _get_test_archive_jars(ctx, ctx.attr.alternatively_discover_tests_from)
+    if ctx.attr.tests_from:
+        archives = _get_test_archive_jars(ctx, ctx.attr.tests_from)
     else:
         archives = [archive.class_jar for archive in out.scala.outputs.jars]
 
