@@ -312,7 +312,7 @@ def _scrooge_aspect_impl(target, ctx):
 
         src_jars = depset([scrooge_file])
         output = _compiled_jar_file(ctx.actions, scrooge_file)
-        outs = depset([output])
+        outs = depset([output], transitive = [d[ScroogeAspectInfo].output_files for d in ctx.rule.attr.deps])
         java_info = _compile_scala(
             ctx,
             target.label,
@@ -325,7 +325,7 @@ def _scrooge_aspect_impl(target, ctx):
     else:
         # this target is only an aggregation target
         src_jars = depset()
-        outs = depset()
+        outs = depset(transitive = [d[ScroogeAspectInfo].output_files for d in ctx.rule.attr.deps])
         java_info = _empty_java_info(deps, imps)
 
     return [
@@ -412,10 +412,10 @@ def _create_scala_struct(ctx):
     output_jars = []
 
     for dep in ctx.attr.deps:
-        for j in dep[ScroogeAspectInfo].java_info.outputs.jars:
+        for j in dep[ScroogeAspectInfo].output_files:
             output_jars.append(
                 struct(
-                    class_jar = j.class_jar,
+                    class_jar = j,
                     ijar = None,
                     source_jar = None,
                     source_jars = [],
