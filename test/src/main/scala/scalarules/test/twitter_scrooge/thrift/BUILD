@@ -18,3 +18,12 @@ thrift_library(
     ],
     visibility = ["//visibility:public"],
 )
+
+thrift_library(
+    name = "thrift_service",
+    srcs = ["ThriftService.thrift"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":thrift",
+    ],
+)
