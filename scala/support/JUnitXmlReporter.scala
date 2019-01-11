@@ -59,13 +59,13 @@ class JUnitXmlReporter extends Reporter {
       case e: SuiteAborted =>
         testSuites += getTestsuite(e, e.suiteId)
 
-      case e: RunCompleted =>
+      case _: RunCompleted =>
         write(testSuites)
         testSuites = Set.empty
-      case e: RunStopped =>
+      case _: RunStopped =>
         write(testSuites)
         testSuites = Set.empty
-      case e: RunAborted =>
+      case _: RunAborted =>
         write(testSuites)
         testSuites = Set.empty
 
@@ -193,13 +193,13 @@ class JUnitXmlReporter extends Reporter {
           testsuite.testcases += testcase
           idx += 1
 
-        case e: InfoProvided   => idx += 1
-        case e: AlertProvided  => idx += 1
-        case e: NoteProvided   => idx += 1
-        case e: MarkupProvided => idx += 1
-        case e: ScopeOpened    => idx += 1
-        case e: ScopeClosed    => idx += 1
-        case e: ScopePending   => idx += 1
+        case _: InfoProvided   => idx += 1
+        case _: AlertProvided  => idx += 1
+        case _: NoteProvided   => idx += 1
+        case _: MarkupProvided => idx += 1
+        case _: ScopeOpened    => idx += 1
+        case _: ScopeClosed    => idx += 1
+        case _: ScopePending   => idx += 1
         case e: TestPending    => unexpected(e)
         case e: TestCanceled   => unexpected(e)
         case e: RunStarting    => unexpected(e)
@@ -246,7 +246,7 @@ class JUnitXmlReporter extends Reporter {
       val event = orderedEvents(idx)
 
       event match {
-        case e: SuiteStarting =>
+        case _: SuiteStarting =>
           startIndex = idx
 
         case e: SuiteCompleted =>
@@ -322,13 +322,13 @@ class JUnitXmlReporter extends Reporter {
           testcase.canceled = true
           idx += idxAdjustmentForRecordedEvents(e.recordedEvents)
 
-        case e: ScopeOpened    => idx += 1
-        case e: ScopeClosed    => idx += 1
-        case e: ScopePending   => idx += 1
-        case e: InfoProvided   => idx += 1
-        case e: MarkupProvided => idx += 1
-        case e: AlertProvided  => idx += 1
-        case e: NoteProvided   => idx += 1
+        case _: ScopeOpened    => idx += 1
+        case _: ScopeClosed    => idx += 1
+        case _: ScopePending   => idx += 1
+        case _: InfoProvided   => idx += 1
+        case _: MarkupProvided => idx += 1
+        case _: AlertProvided  => idx += 1
+        case _: NoteProvided   => idx += 1
         case e: SuiteCompleted => unexpected(e)
         case e: TestStarting   => unexpected(e)
         case e: TestIgnored    => unexpected(e)
@@ -455,7 +455,7 @@ class JUnitXmlReporter extends Reporter {
       val localMachine = InetAddress.getLocalHost();
       localMachine.getHostName
     } catch {
-      case e: UnknownHostException => "unknown"
+      case _: UnknownHostException => "unknown"
     }
 
   //
