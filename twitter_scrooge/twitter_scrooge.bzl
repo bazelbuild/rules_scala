@@ -412,15 +412,17 @@ def _create_scala_struct(ctx):
     output_jars = []
 
     for dep in ctx.attr.deps:
-        for j in dep[ScroogeAspectInfo].java_info.outputs.jars:
-            output_jars.append(
-                struct(
-                    class_jar = j.class_jar,
-                    ijar = None,
-                    source_jar = None,
-                    source_jars = [],
-                ),
-            )
+        outputs = dep[ScroogeAspectInfo].java_info.outputs
+        if outputs != None:
+            for j in outputs.jars:
+                output_jars.append(
+                    struct(
+                        class_jar = j.class_jar,
+                        ijar = None,
+                        source_jar = None,
+                        source_jars = [],
+                    ),
+                )
 
     return struct(outputs = struct(jars = output_jars))
 
