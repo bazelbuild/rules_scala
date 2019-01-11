@@ -127,6 +127,7 @@ ScroogeAspectInfo = provider(fields = [
     "thrift_info",
     "src_jars",
     "output_files",
+    "transitive_output_files",
     "java_info",
 ])
 
@@ -312,7 +313,7 @@ def _scrooge_aspect_impl(target, ctx):
 
         src_jars = depset([scrooge_file])
         output = _compiled_jar_file(ctx.actions, scrooge_file)
-        outs = depset([output], transitive = [d[ScroogeAspectInfo].output_files for d in ctx.rule.attr.deps])
+        outs = depset([output])
         java_info = _compile_scala(
             ctx,
             target.label,
@@ -325,13 +326,19 @@ def _scrooge_aspect_impl(target, ctx):
     else:
         # this target is only an aggregation target
         src_jars = depset()
-        outs = depset(transitive = [d[ScroogeAspectInfo].output_files for d in ctx.rule.attr.deps])
+        outs = depset()
         java_info = _empty_java_info(deps, imps)
+
+    transitive_outs = depset(
+        outs.to_list(),
+        transitive = [d[ScroogeAspectInfo].output_files for d in ctx.rule.attr.deps]
+    )
 
     return [
         ScroogeAspectInfo(
             src_jars = src_jars,
             output_files = outs,
+            transitive_output_files = transitive_outs,
             thrift_info = transitive_ti,
             java_info = java_info,
         ),
@@ -412,7 +419,7 @@ def _create_scala_struct(ctx):
     output_jars = []
 
     for dep in ctx.attr.deps:
-        for j in dep[ScroogeAspectInfo].output_files:
+        for j in dep[ScroogeAspectInfo].transitive_output_files:
             output_jars.append(
                 struct(
                     class_jar = j,
@@ -450,6 +457,7 @@ scrooge_scala_import = rule(
     attrs = {
         "thrift_jars": attr.label_list(allow_files = [".jar"]),
         "scala_jars": attr.label_list(allow_files = [".jar"]),
+        "deps": attr.label_list(),
         "_implicit_compile_deps": attr.label_list(
             providers = [JavaInfo],
             default = [
