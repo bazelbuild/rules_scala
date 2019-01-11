@@ -234,3 +234,10 @@ sh_test(
 )
 
 twitter_scrooge_test_suite()
+
+scrooge_scala_library(
+    name = "scrooge_service",
+    deps = [
+        "//test/src/main/scala/scalarules/test/twitter_scrooge/thrift:thrift_service",
+    ],
+)
