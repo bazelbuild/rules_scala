@@ -28,13 +28,13 @@ def twitter_scrooge(
 
     native.maven_server(
         name = "twitter_scrooge_maven_server",
-        url = "http://mirror.bazel.build/repo1.maven.org/maven2/",
+        url = "http://central.maven.org/maven2/",
     )
 
     native.maven_jar(
         name = "libthrift",
-        artifact = "org.apache.thrift:libthrift:0.8.0",
-        sha1 = "2203b4df04943f4d52c53b9608cef60c08786ef2",
+        artifact = "org.apache.thrift:libthrift:0.10.0",
+        sha1 = "3201c5a6d85d3f030bae5a520abaaf81ef7df037",
         server = "twitter_scrooge_maven_server",
     )
     native.bind(
@@ -48,12 +48,18 @@ def twitter_scrooge(
             "scrooge_core": "00351f73b555d61cfe7320ef3b1367a9641e694cfb8dfa8a733cfcf49df872e8",
             "scrooge_generator": "0f0027e815e67985895a6f3caa137f02366ceeea4966498f34fb82cabb11dee6",
             "util_core": "5336da4846dfc3db8ffe5ae076be1021828cfee35aa17bda9af461e203cf265c",
+            "util_stats": "55fc86ce7581a5472de0f1012d140c576187697f633c3d44223e30f3de7502ec",
+            "finagle_thrift": "f8ea8b8fbe82d50dd670ed454d9658fb376db038596cddbc0d782e94d324acf0",
+            "finagle_core": "0c0ffa761633b44299a4973467da6d65c57ad01afe6fc93b4a8a0eeb068d5643",
         },
         "2.12": {
             "util_logging": "c0cba01705e9321b3444adcd4a9ce27c2acefd27e14c13b5aec2c318ce1b4fdf",
             "scrooge_core": "02a6d7cf9fe8d872dfabd20298e4315d677748708e153d8b464fd5abac9a7430",
             "scrooge_generator": "e7d5da1e3f0e494d3c81a26f44f3e3dc92d7efd757133de8c71758646fd5a833",
             "util_core": "65bb92e70f95cbbfc640e54a5823a16154eac1a2631dc0211347e085aaa6ed0b",
+            "util_stats": "942a721dba504bb1de419c8a4f1637764927d3981bd3ceb82d117e9d831ae260",
+            "finagle_thrift": "fda81cc26f1385f02246f92fe02dccb17b4fb3a470c484fd68041ab561f052e1",
+            "finagle_core": "cc3371e4a53633461e71bc497838751cad33fedb0de8eb320e88965500f4b1bc",
         },
     }
 
@@ -118,6 +124,51 @@ def twitter_scrooge(
     native.bind(
         name = "io_bazel_rules_scala/dependency/thrift/util_logging",
         actual = "@io_bazel_rules_scala_util_logging",
+    )
+
+    _scala_maven_import_external(
+        name = "io_bazel_rules_scala_util_stats",
+        artifact = _scala_mvn_artifact(
+            "com.twitter:util-stats:18.6.0",
+            major_version,
+        ),
+        jar_sha256 = scala_version_jar_shas["util_stats"],
+        licenses = ["notice"],
+        server_urls = maven_servers,
+    )
+    native.bind(
+        name = "io_bazel_rules_scala/dependency/thrift/util_stats",
+        actual = "@io_bazel_rules_scala_util_stats",
+    )
+
+    _scala_maven_import_external(
+        name = "io_bazel_rules_scala_finagle_core",
+        artifact = _scala_mvn_artifact(
+            "com.twitter:finagle-core:18.6.0",
+            major_version,
+        ),
+        jar_sha256 = scala_version_jar_shas["finagle_core"],
+        licenses = ["notice"],
+        server_urls = maven_servers,
+    )
+    native.bind(
+        name = "io_bazel_rules_scala/dependency/thrift/finagle_core",
+        actual = "@io_bazel_rules_scala_finagle_core",
+    )
+
+    _scala_maven_import_external(
+        name = "io_bazel_rules_scala_finagle_thrift",
+        artifact = _scala_mvn_artifact(
+            "com.twitter:finagle-thrift:18.6.0",
+            major_version,
+        ),
+        jar_sha256 = scala_version_jar_shas["finagle_thrift"],
+        licenses = ["notice"],
+        server_urls = maven_servers,
+    )
+    native.bind(
+        name = "io_bazel_rules_scala/dependency/thrift/finagle_thrift",
+        actual = "@io_bazel_rules_scala_finagle_thrift",
     )
 
 def _colon_paths(data):
@@ -367,6 +418,15 @@ scrooge_aspect = aspect(
                 Label(
                     "//external:io_bazel_rules_scala/dependency/thrift/util_core",
                 ),
+                Label(
+                    "//external:io_bazel_rules_scala/dependency/thrift/util_stats",
+                ),
+                Label(
+                    "//external:io_bazel_rules_scala/dependency/thrift/finagle_core",
+                ),
+                Label(
+                    "//external:io_bazel_rules_scala/dependency/thrift/finagle_thrift",
+                ),
             ],
         ),
     },
@@ -412,15 +472,17 @@ def _create_scala_struct(ctx):
     output_jars = []
 
     for dep in ctx.attr.deps:
-        for j in dep[ScroogeAspectInfo].java_info.outputs.jars:
-            output_jars.append(
-                struct(
-                    class_jar = j.class_jar,
-                    ijar = None,
-                    source_jar = None,
-                    source_jars = [],
-                ),
-            )
+        outputs = dep[ScroogeAspectInfo].java_info.outputs
+        if outputs != None:
+            for j in outputs.jars:
+                output_jars.append(
+                    struct(
+                        class_jar = j.class_jar,
+                        ijar = None,
+                        source_jar = None,
+                        source_jars = [],
+                    ),
+                )
 
     return struct(outputs = struct(jars = output_jars))
 
@@ -461,6 +523,18 @@ scrooge_scala_import = rule(
                 ),
                 Label(
                     "//external:io_bazel_rules_scala/dependency/thrift/scrooge_core",
+                ),
+                Label(
+                    "//external:io_bazel_rules_scala/dependency/thrift/util_core",
+                ),
+                Label(
+                    "//external:io_bazel_rules_scala/dependency/thrift/util_stats",
+                ),
+                Label(
+                    "//external:io_bazel_rules_scala/dependency/thrift/finagle_core",
+                ),
+                Label(
+                    "//external:io_bazel_rules_scala/dependency/thrift/finagle_thrift",
                 ),
             ],
         ),
