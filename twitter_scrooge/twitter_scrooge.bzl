@@ -28,13 +28,13 @@ def twitter_scrooge(
 
     native.maven_server(
         name = "twitter_scrooge_maven_server",
-        url = "http://mirror.bazel.build/repo1.maven.org/maven2/",
+        url = "http://central.maven.org/maven2/",
     )
 
     native.maven_jar(
         name = "libthrift",
-        artifact = "org.apache.thrift:libthrift:0.8.0",
-        sha1 = "2203b4df04943f4d52c53b9608cef60c08786ef2",
+        artifact = "org.apache.thrift:libthrift:0.10.0",
+        sha1 = "3201c5a6d85d3f030bae5a520abaaf81ef7df037",
         server = "twitter_scrooge_maven_server",
     )
     native.bind(
