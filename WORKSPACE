@@ -91,16 +91,16 @@ maven_jar(
 
 http_archive(
     name = "com_google_protobuf",
-    sha256 = "118ac276be0db540ff2a89cecc5dfb9606d4d16e91cc4ea8883ae8160acb5163",
-    strip_prefix = "protobuf-0456e269ee6505766474aa8d7b8bba7ac047f457",
-    urls = ["https://github.com/google/protobuf/archive/0456e269ee6505766474aa8d7b8bba7ac047f457.zip"],
+    sha256 = "23dcfef4adf06e1db7f1d391c035896a92eec546fff5ef9244b6e7b9ee24aa66",
+    strip_prefix = "protobuf-66dc42d891a4fc8e9190c524fd67961688a37bbe",
+    urls = ["https://github.com/google/protobuf/archive/66dc42d891a4fc8e9190c524fd67961688a37bbe.zip"],
 )
 
 http_archive(
     name = "com_google_protobuf_java",
-    sha256 = "118ac276be0db540ff2a89cecc5dfb9606d4d16e91cc4ea8883ae8160acb5163",
-    strip_prefix = "protobuf-0456e269ee6505766474aa8d7b8bba7ac047f457",
-    urls = ["https://github.com/google/protobuf/archive/0456e269ee6505766474aa8d7b8bba7ac047f457.zip"],
+    sha256 = "23dcfef4adf06e1db7f1d391c035896a92eec546fff5ef9244b6e7b9ee24aa66",
+    strip_prefix = "protobuf-66dc42d891a4fc8e9190c524fd67961688a37bbe",
+    urls = ["https://github.com/google/protobuf/archive/66dc42d891a4fc8e9190c524fd67961688a37bbe.zip"],
 )
 
 new_local_repository(
