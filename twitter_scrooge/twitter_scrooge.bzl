@@ -127,7 +127,6 @@ ScroogeAspectInfo = provider(fields = [
     "thrift_info",
     "src_jars",
     "output_files",
-    "transitive_output_files",
     "java_info",
 ])
 
@@ -329,16 +328,14 @@ def _scrooge_aspect_impl(target, ctx):
         outs = depset()
         java_info = _empty_java_info(deps, imps)
 
-    transitive_outs = depset(
-        outs.to_list(),
-        transitive = [d[ScroogeAspectInfo].output_files for d in ctx.rule.attr.deps]
+    java_info = java_common.merge(
+        [java_info] + [d[ScroogeAspectInfo].java_info for d in ctx.rule.attr.deps]
     )
 
     return [
         ScroogeAspectInfo(
             src_jars = src_jars,
             output_files = outs,
-            transitive_output_files = transitive_outs,
             thrift_info = transitive_ti,
             java_info = java_info,
         ),
@@ -394,16 +391,11 @@ def _scrooge_scala_library_impl(ctx):
     else:
         all_java = aspect_info.java_info
 
-    # TODO: Remove `scala` field once JavaInfo supports multiple
-    # output jars. https://github.com/bazelbuild/rules_scala/issues/564
-    return struct(
-        scala = _create_scala_struct(ctx),  # For IntelliJ support
-        providers = [
-            all_java,
-            ScroogeInfo(aspect_info = aspect_info),
-            DefaultInfo(files = aspect_info.output_files),
-        ],
-    )
+    return [
+        all_java,
+        ScroogeInfo(aspect_info = aspect_info),
+        DefaultInfo(files = aspect_info.output_files),
+    ]
 
 scrooge_scala_library = rule(
     implementation = _scrooge_scala_library_impl,
@@ -413,23 +405,6 @@ scrooge_scala_library = rule(
     },
     provides = [DefaultInfo, ScroogeInfo, JavaInfo],
 )
-
-def _create_scala_struct(ctx):
-    """Create a scala provider in the shape expected by the IntelliJ bazel plugin."""
-    output_jars = []
-
-    for dep in ctx.attr.deps:
-        for j in dep[ScroogeAspectInfo].transitive_output_files:
-            output_jars.append(
-                struct(
-                    class_jar = j,
-                    ijar = None,
-                    source_jar = None,
-                    source_jars = [],
-                ),
-            )
-
-    return struct(outputs = struct(jars = output_jars))
 
 def _scrooge_scala_import_impl(ctx):
     scala_jars = depset(ctx.files.scala_jars)
