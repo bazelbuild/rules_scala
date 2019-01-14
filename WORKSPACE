@@ -91,16 +91,14 @@ maven_jar(
 
 http_archive(
     name = "com_google_protobuf",
-    sha256 = "118ac276be0db540ff2a89cecc5dfb9606d4d16e91cc4ea8883ae8160acb5163",
-    strip_prefix = "protobuf-0456e269ee6505766474aa8d7b8bba7ac047f457",
-    urls = ["https://github.com/google/protobuf/archive/0456e269ee6505766474aa8d7b8bba7ac047f457.zip"],
+    urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.6.1.3.zip"],
+    strip_prefix = "protobuf-3.6.1.3",
 )
 
 http_archive(
     name = "com_google_protobuf_java",
-    sha256 = "118ac276be0db540ff2a89cecc5dfb9606d4d16e91cc4ea8883ae8160acb5163",
-    strip_prefix = "protobuf-0456e269ee6505766474aa8d7b8bba7ac047f457",
-    urls = ["https://github.com/google/protobuf/archive/0456e269ee6505766474aa8d7b8bba7ac047f457.zip"],
+    urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.6.1.3.zip"],
+    strip_prefix = "protobuf-3.6.1.3",
 )
 
 new_local_repository(

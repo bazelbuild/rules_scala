@@ -406,7 +406,11 @@ def _gen_proto_srcjar_impl(ctx):
 
     deps_jars = collect_jars(jvm_deps)
 
-    worker_content = "{output}\n{paths}\n{flags_arg}\n{packages}".format(
+    blacklisted_protos = [dep for target in ctx.attr.blacklisted_protos for dep in target.proto.transitive_sources]
+    blacklisted_protos_dict = dict(zip(blacklisted_protos, blacklisted_protos))
+    inputs = [f.path for f in sorted(acc_imports) if blacklisted_protos_dict.get(f, None) == None]
+
+    worker_content = "{output}\n{paths}\n{flags_arg}\n{packages}\n{inputs}".format(
         output = ctx.outputs.srcjar.path,
         paths = _colon_paths(acc_imports.to_list()),
         # Command line args to worker cannot be empty so using padding
@@ -414,6 +418,7 @@ def _gen_proto_srcjar_impl(ctx):
         # Command line args to worker cannot be empty so using padding
         packages = "-" +
                    ":".join(depset(transitive = transitive_proto_paths).to_list()),
+        inputs = ":".join(inputs)
     )
     argfile = ctx.actions.declare_file(
         "%s_worker_input" % ctx.label.name,
@@ -455,6 +460,7 @@ scala_proto_srcjar = rule(
             cfg = "host",
             allow_files = True,
         ),
+        "blacklisted_protos" : attr.label_list(providers = [["proto"]]),
     },
     outputs = {
         "srcjar": "lib%{name}.srcjar",

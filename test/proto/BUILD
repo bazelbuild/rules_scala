@@ -1,6 +1,12 @@
 load(
     "//scala_proto:scala_proto.bzl",
     "scalapb_proto_library",
+    "scala_proto_srcjar"
+)
+
+load(
+    "//scala:scala.bzl",
+    "scala_library",
 )
 
 proto_library(
@@ -60,3 +66,24 @@ scalapb_proto_library(
     with_grpc = True,
     deps = [":test_service"],
 )
+
+scala_proto_srcjar(
+    name = "test1_proto_scala",
+    deps = ["//test/proto2:test"],
+    generator = "@io_bazel_rules_scala//src/scala/scripts:scalapb_generator")
+
+scala_proto_srcjar(
+    name = "test2_proto_scala",
+    deps = [":test2"],
+    blacklisted_protos = ["//test/proto2:test"],
+    generator = "@io_bazel_rules_scala//src/scala/scripts:scalapb_generator")
+
+scala_library(
+    name = "lib_scala",
+    srcs = [
+        ":test1_proto_scala",
+        ":test2_proto_scala"],
+    deps = [
+        "@com_google_protobuf//:protobuf_java",
+        "@scala_proto_rules_scalapb_lenses",
+        "@scala_proto_rules_scalapb_runtime"])
