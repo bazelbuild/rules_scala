@@ -328,10 +328,6 @@ def _scrooge_aspect_impl(target, ctx):
         outs = depset()
         java_info = _empty_java_info(deps, imps)
 
-    java_info = java_common.merge(
-        [java_info] + [d[ScroogeAspectInfo].java_info for d in ctx.rule.attr.deps]
-    )
-
     return [
         ScroogeAspectInfo(
             src_jars = src_jars,
@@ -432,7 +428,6 @@ scrooge_scala_import = rule(
     attrs = {
         "thrift_jars": attr.label_list(allow_files = [".jar"]),
         "scala_jars": attr.label_list(allow_files = [".jar"]),
-        "deps": attr.label_list(),
         "_implicit_compile_deps": attr.label_list(
             providers = [JavaInfo],
             default = [
