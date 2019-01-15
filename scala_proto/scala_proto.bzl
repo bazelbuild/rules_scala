@@ -18,6 +18,8 @@ load(
     "create_java_provider",
 )
 
+load("@com_google_protobuf//:protobuf.bzl", "proto_gen")
+
 def scala_proto_repositories(
         scala_version = _default_scala_version(),
         maven_servers = ["http://central.maven.org/maven2"]):
@@ -594,3 +596,46 @@ def scalapb_proto_library(
         scalac_jvm_flags = scalac_jvm_flags,
         visibility = visibility,
     )
+
+
+#def _scala_proto_library_impl(ctx):
+#@com_google_protobuf//:protoc
+
+def scala_proto_library(
+        name,
+        deps,
+        flags = [],
+        plugin = "@io_bazel_rules_scala//src/scala/scripts:scalapb_plugin",
+        protoc = "@com_google_protobuf//:protoc",
+        visibility = None):
+    proto_gen(
+            name = name + "_genproto",
+            srcs = [],
+            deps = deps,
+            includes = [],
+            protoc = protoc,
+            plugin = plugin,
+            plugin_language = "scala",
+            plugin_options = flags,
+            outs = [],
+            visibility = ["//visibility:public"],
+        )
+
+
+#scala_proto_library = rule(
+#    implementation = _scala_proto_library_impl,
+#    attrs = {
+#        "deps": attr.label_list(
+#            mandatory = True,
+#            providers = [["proto"],[JavaInfo]],
+#        ),
+#        "flags": attr.string_list(default = []),
+#        "plugin": attr.label(
+#            default = "@io_bazel_rules_scala//src/scala/scripts:scalapb_plugin",
+#            executable = True,
+#            cfg = "host",
+#        ),
+#        "runtime": attr.label_list(),
+#        "_compiler": attr # or protoc
+#    },
+#)

@@ -55,3 +55,14 @@ scala_binary(
         ":scalapb_generator_lib",
     ],
 )
+
+scala_binary(
+    name = "scalapb_plugin",
+    srcs = ["ScalaPBPlugin.scala"],
+    main_class = "scripts.ScalaPBPlugin",
+    deps = [
+        "//external:io_bazel_rules_scala/dependency/proto/scalapb_plugin",
+        "//external:io_bazel_rules_scala/dependency/com_google_protobuf/protobuf_java",
+    ],
+    visibility = ["//visibility:public"],
+)
