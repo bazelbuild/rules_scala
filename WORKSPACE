@@ -170,5 +170,5 @@ http_archive(
 git_repository(
     name = "bazel_skylib",
     remote = "https://github.com/bazelbuild/bazel-skylib.git",
-    tag = "0.1.0",  # change this to use a different release
+    tag = "0.6.0",
 )
