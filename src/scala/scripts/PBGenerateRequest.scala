@@ -26,7 +26,7 @@ object PBGenerateRequest {
     val imports = parsedProtoFiles.map { case (relPath, absolutePath) =>
       s"-I$relPath=$absolutePath"
     }
-    val protoFiles = parsedProtoFiles.map(_._2)
+    val protoFiles = args.get(4).split(':')
     val flagOpt = args.get(2) match {
       case "-" => None
       case s if s.charAt(0) == '-' => Some(s.tail) //drop padding character
