@@ -26,6 +26,7 @@ you must have bazel 0.5.3 or later and add the following to your WORKSPACE file:
 
 rules_scala_version="a89d44f7ef67d93dedfc9888630f48d7723516f7" # update this as needed
 
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
              name = "io_bazel_rules_scala",
              url = "https://github.com/bazelbuild/rules_scala/archive/%s.zip"%rules_scala_version,
