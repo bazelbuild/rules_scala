@@ -73,16 +73,16 @@ scala_proto_srcjar(
     generator = "@io_bazel_rules_scala//src/scala/scripts:scalapb_generator")
 
 scala_proto_srcjar(
-    name = "test2_proto_scala",
+    name = "test2_proto_scala_with_blacklisted_test1_proto_scala",
     deps = [":test2"],
     blacklisted_protos = ["//test/proto2:test"],
     generator = "@io_bazel_rules_scala//src/scala/scripts:scalapb_generator")
 
 scala_library(
-    name = "lib_scala",
+    name = "lib_scala_should_fail_on_duplicated_sources_unless_duplicates_are_blacklisted",
     srcs = [
         ":test1_proto_scala",
-        ":test2_proto_scala"],
+        ":test2_proto_scala_with_blacklisted_test1_proto_scala"],
     deps = [
         "@com_google_protobuf//:protobuf_java",
         "@scala_proto_rules_scalapb_lenses",
