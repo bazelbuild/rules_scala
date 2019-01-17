@@ -375,6 +375,7 @@ def try_to_compile_java_jar(
     return struct(
         jar = full_java_jar,
         ijar = provider.compile_jars.to_list().pop(),
+        source_jars = provider.source_jars
     )
 
 def collect_java_providers_of(deps):
@@ -406,6 +407,7 @@ def _compile_or_empty(
             java_jar = False,
             full_jars = [ctx.outputs.jar],
             ijars = [ctx.outputs.jar],
+            source_jars = [],
         )
     else:
         in_srcjars = [
@@ -480,15 +482,18 @@ def _compile_or_empty(
 
         full_jars = [ctx.outputs.jar]
         ijars = [ijar]
+        source_jars = []
         if java_jar:
             full_jars += [java_jar.jar]
             ijars += [java_jar.ijar]
+            source_jars += java_jar.source_jars
         return struct(
             ijar = ijar,
             class_jar = ctx.outputs.jar,
             java_jar = java_jar,
             full_jars = full_jars,
             ijars = ijars,
+            source_jars = source_jars,
         )
 
 def _build_deployable(ctx, jars_list):
@@ -708,6 +713,8 @@ def _lib(
         transitive = [transitive_rjars, exports_jars.transitive_runtime_jars],
     )
 
+    source_jars = _pack_source_jars(ctx) + outputs.source_jars
+
     scalaattr = create_scala_provider(
         ijar = outputs.ijar,
         class_jar = outputs.class_jar,
@@ -719,6 +726,7 @@ def _lib(
         deploy_jar = ctx.outputs.deploy_jar,
         full_jars = outputs.full_jars,
         statsfile = ctx.outputs.statsfile,
+        source_jars = source_jars,
     )
 
     java_provider = create_java_provider(scalaattr, jars.transitive_compile_jars)
@@ -806,6 +814,8 @@ def _scala_binary_common(
         collect_data = True,
     )
 
+    source_jars = _pack_source_jars(ctx) + outputs.source_jars
+
     scalaattr = create_scala_provider(
         ijar = outputs.class_jar,  # we aren't using ijar here
         class_jar = outputs.class_jar,
@@ -814,6 +824,7 @@ def _scala_binary_common(
         deploy_jar = ctx.outputs.deploy_jar,
         full_jars = outputs.full_jars,
         statsfile = ctx.outputs.statsfile,
+        source_jars = source_jars,
     )
 
     java_provider = create_java_provider(scalaattr, transitive_compile_time_jars)
@@ -826,6 +837,33 @@ def _scala_binary_common(
             rjars,  #calling rules need this for the classpath in the launcher
         runfiles = runfiles,
     )
+
+def _pack_source_jars(ctx):
+  source_jars = []
+
+  # collect .scala sources and pack a source jar for Scala
+  scala_sources = [
+      f for f in ctx.files.srcs
+      if f.basename.endswith(_scala_extension)
+  ]
+
+  # collect .srcjar files and pack them with the scala sources
+  bundled_source_jars = [
+      f for f in ctx.files.srcs
+      if f.basename.endswith(_srcjar_extension)
+  ]
+  scala_source_jar = java_common.pack_sources(
+      ctx.actions,
+      output_jar = ctx.outputs.jar,
+      sources = scala_sources,
+      source_jars = bundled_source_jars,
+      java_toolchain = ctx.attr._java_toolchain,
+      host_javabase = ctx.attr._host_javabase
+  )
+  if scala_source_jar:
+    source_jars.append(scala_source_jar)
+
+  return source_jars
 
 def scala_binary_impl(ctx):
     scalac_provider = _scalac_provider(ctx)
