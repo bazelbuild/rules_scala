@@ -3,8 +3,8 @@ package io.bazel.rulesscala.specs2
 import java.util
 import java.util.regex.Pattern
 
-import io.bazel.rulesscala.test_discovery._
 import io.bazel.rulesscala.test_discovery.FilteredRunnerBuilder.FilteringRunnerBuilder
+import io.bazel.rulesscala.test_discovery._
 import org.junit.runner.notification.RunNotifier
 import org.junit.runner.{Description, RunWith, Runner}
 import org.junit.runners.Suite
@@ -12,11 +12,12 @@ import org.junit.runners.model.RunnerBuilder
 import org.specs2.concurrent.ExecutionEnv
 import org.specs2.control.Action
 import org.specs2.main.{Arguments, CommandLine, Select}
+import org.specs2.runner.JUnitRunner
 import org.specs2.specification.core.Env
 import org.specs2.specification.process.Stats
 
-import scala.language.reflectiveCalls
 import scala.collection.JavaConverters._
+import scala.language.reflectiveCalls
 import scala.util.Try
 
 @RunWith(classOf[Specs2PrefixSuffixTestDiscoveringSuite])
@@ -34,22 +35,14 @@ class Specs2PrefixSuffixTestDiscoveringSuite(suite: Class[Any], runnerBuilder: R
 
   override def getName: String = "Aggregate Specs2 Test Suite"
 
-  override def getDescription: Description = {
-    lazy val emptySuiteDescription = {
-      val description = Description.createSuiteDescription(getName)
-      description.addChild(Description.EMPTY)
-      description
-    }
-    Try(super.getDescription).getOrElse(emptySuiteDescription)
-  }
-
-  override def getChildren: util.List[Runner] =
+  override def getChildren: util.List[Runner] = {
     super.getChildren.asScala
       .collect {
-        case r: FilteredSpecs2ClassRunner if r.matchesFilter => Some(r)
+        case r: FilteredSpecs2ClassRunner if r.matchesFilter => Some(new SafeSpecs2Runner(r))
         case _: FilteredSpecs2ClassRunner => None
-        case other => Some(other)
+        case other => Some(new SafeSpecs2Runner(other).asInstanceOf[Runner])
       }.flatten.asJava
+  }
 }
 
 object Specs2FilteringRunnerBuilder {
@@ -59,7 +52,20 @@ object Specs2FilteringRunnerBuilder {
   }
 }
 
-class FilteredSpecs2ClassRunner(testClass: Class[_], testFilter: Pattern)
+class SafeSpecs2Runner(parent: Runner) extends Runner {
+  def getDescription: Description =
+    try { parent.getDescription }
+    catch {
+      case e: Exception => parent match {
+        case r: JUnitRunner => r.env.shutdown(); throw e
+        case _ => throw e
+      }
+    }
+
+  def run(n: RunNotifier): Unit = parent.run(n)
+}
+
+class FilteredSpecs2ClassRunner(val testClass: Class[_], testFilter: Pattern)
   extends org.specs2.runner.JUnitRunner(testClass) {
 
   def matchesFilter: Boolean = {
