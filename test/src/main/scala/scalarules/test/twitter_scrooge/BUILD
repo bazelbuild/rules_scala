@@ -1,6 +1,7 @@
 load("//scala:scala.bzl", "scala_binary", "scala_library")
 load("//twitter_scrooge:twitter_scrooge.bzl", "scrooge_scala_library")
 load("//thrift:thrift.bzl", "thrift_library")
+load("//test/src/main/scala/scalarules/test/twitter_scrooge:twitter_scrooge_test.bzl", "twitter_scrooge_test_suite")
 
 scrooge_scala_library(
     name = "scrooge1",
@@ -231,3 +232,5 @@ sh_test(
     ],
     data = [":justscrooges"],
 )
+
+twitter_scrooge_test_suite()
