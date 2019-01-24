@@ -26,10 +26,10 @@ def specs2_junit_repositories(
 
     scala_jar_shas = {
         "2.11": {
-            "specs2_junit": "516e1c07340878bd2d37ee764c0c0f03985a658af2d638810d8cff7bec4a89f3",
+            "specs2_junit": "6a856dadf5e159df9141fd5df0bf96b40078eeceeada793561661bea41fa1007",
         },
         "2.12": {
-            "specs2_junit": "4704f2e706d5df76e7993fe0d3fb10499dd623f9cef98fe4ac7f84f66823b35f",
+            "specs2_junit": "fd4a226f087041c32cad5b417d543ffb6788db6214aa2b7ec2af10d9f39ba0af",
         },
     }
 
