@@ -569,7 +569,8 @@ def scala_specs2_junit_test(name, **kwargs):
     scala_junit_test(
         name = name,
         deps = _specs2_junit_dependencies() + kwargs.pop("deps", []),
-        unused_dependency_checker_ignored_targets = _specs2_junit_dependencies(),
+        unused_dependency_checker_ignored_targets =
+            _specs2_junit_dependencies() + kwargs.pop("unused_dependency_checker_ignored_targets", []),
         suite_label = Label(
             "//src/java/io/bazel/rulesscala/specs2:specs2_test_discovery",
         ),
