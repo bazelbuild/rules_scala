@@ -381,6 +381,19 @@ scala_specs2_junit_test(
     deps = [":JUnitCompileTimeDep"],
 )
 
+scala_specs2_junit_test(
+    name = "Specs2Tests_unused_dependency_checker",
+    size = "small",
+    srcs = ["src/main/scala/scalarules/test/junit/specs2/Specs2Tests.scala"],
+    unused_dependency_checker_mode = "error",
+    unused_dependency_checker_ignored_targets = [":JUnitRuntimeDep"],
+    suffixes = ["Test"],
+    deps = [
+        ":JUnitCompileTimeDep",
+        ":JUnitRuntimeDep",
+    ],
+)
+
 # Make sure scala_binary works in test environment
 [sh_test(
     name = "Run" + "".join([binary[idx] if binary[idx].isalnum() else "_" for idx in range(len(binary))]),
