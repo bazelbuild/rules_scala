@@ -131,10 +131,25 @@ scala_library(
 )
 
 scala_library(
+    name = "UnusedLib",
+    srcs = ["UnusedLib.scala"]
+)
+
+scala_library(
     name = "UnusedDependencyChecker",
     srcs = ["OtherLib.scala"],
     unused_dependency_checker_mode = "error",
     deps = ["ExportOnly"],
+)
+
+scala_library(
+    name = "UnusedDependencyCheckerWarn",
+    srcs = ["OtherLib.scala"],
+    unused_dependency_checker_mode = "warn",
+    deps = [
+        "ExportOnly",
+        "UnusedLib"
+    ],
 )
 
 # Test of library without src
