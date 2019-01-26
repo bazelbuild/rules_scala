@@ -10,7 +10,7 @@ load(
 )
 
 def specs2_version():
-    return "3.8.8"
+    return "4.3.5"
 
 def specs2_repositories(
         scala_version = _default_scala_version(),
@@ -19,33 +19,20 @@ def specs2_repositories(
 
     scala_jar_shas = {
         "2.11": {
-            "specs2_core": "692eafc052a838c0c8552afc1a15e10978979d1703c812bd16f572d77ddd07ab",
-            "specs2_common": "ba06a6218704cff61296e13300a87b07ac5ab5ad45fc82dce37e550101b8cdb5",
-            "specs2_matcher": "9c8cc2148a6692aa4e2fcd1282c28971215f501f10d532d1a3a3c33fd803fedc",
-            "scalaz_effect": "4d45f0d1bb6958f5c6781a5e94d9528934b6a1404346d224dda25da064b0c964",
-            "scalaz_core": "810504bc8d669913af830dd5d9c87f83e0570898f09be6474f0d5603bba8ba79",
+            "specs2_common": "363562d874da321f8191e83ff2c3dd91b448a557c481c8e5671c5e43d232d90c",
+            "specs2_core": "7a878b5af6a3da9d751d8da1b054e287296c97bac9e772ef6c9edeb64a258dc4",
+            "specs2_fp": "263e4fb253addc524ae0e1a3f2e99ab446fd1deb69dffecc84645150aded6a41",
+            "specs2_matcher": "4f68a4a3d6f1af04be5b6a6ec4e0362fcc78636c455dc58f8c21ad86f2ff8034",
         },
         "2.12": {
-            "specs2_core": "1fc47c1199675ed60b58923c84006cc4f776818b11e0a18a47db29c03a60ee97",
-            "specs2_common": "c0a892fd1a5a1aaf5bb29792e39da5459f1564a721d9a6a0954fb52c395b2deb",
-            "specs2_matcher": "c17b8f1e4c3da6c1489c59f67e03374b358fdfbe90d9def2a7e4e1b1b10f5046",
-            "scalaz_effect": "eca21ba69a1532c74ea77356b59d6175a5fd54dac7f57f1d1979738c98521919",
-            "scalaz_core": "b53cd091daec1c8df8c4244e5b8b460b7416c2cc86aecd25dec4c93d2baf2b04",
+            "specs2_common": "fd4a226f087041c32cad5b417d543ffb6788db6214aa2b7ec2af10d9f39ba0af",
+            "specs2_core": "36f5ba21e5acdd7dd8acf7fe9b4bf39b493816037630c55ae074736a0a47c231",
+            "specs2_fp": "2159c14f44425cc39f6742b124d04f1e91274570baf2f2641097c2c3080dc130",
+            "specs2_matcher": "c4bccc931e8dbac360e47c5e3f57a67a090a151d43d0dba8bdbe56a6132ac83a",
         },
     }
 
     scala_version_jar_shas = scala_jar_shas[major_version]
-
-    _scala_maven_import_external(
-        name = "io_bazel_rules_scala_org_specs2_specs2_core",
-        artifact = _scala_mvn_artifact(
-            "org.specs2:specs2-core:" + specs2_version(),
-            major_version,
-        ),
-        jar_sha256 = scala_version_jar_shas["specs2_core"],
-        licenses = ["notice"],
-        server_urls = maven_servers,
-    )
 
     _scala_maven_import_external(
         name = "io_bazel_rules_scala_org_specs2_specs2_common",
@@ -59,34 +46,34 @@ def specs2_repositories(
     )
 
     _scala_maven_import_external(
+        name = "io_bazel_rules_scala_org_specs2_specs2_core",
+        artifact = _scala_mvn_artifact(
+            "org.specs2:specs2-core:" + specs2_version(),
+            major_version,
+        ),
+        jar_sha256 = scala_version_jar_shas["specs2_core"],
+        licenses = ["notice"],
+        server_urls = maven_servers,
+    )
+
+    _scala_maven_import_external(
+        name = "io_bazel_rules_scala_org_specs2_specs2_fp",
+        artifact = _scala_mvn_artifact(
+            "org.specs2:specs2-fp:" + specs2_version(),
+            major_version,
+        ),
+        jar_sha256 = scala_version_jar_shas["specs2_fp"],
+        licenses = ["notice"],
+        server_urls = maven_servers,
+    )
+
+    _scala_maven_import_external(
         name = "io_bazel_rules_scala_org_specs2_specs2_matcher",
         artifact = _scala_mvn_artifact(
             "org.specs2:specs2-matcher:" + specs2_version(),
             major_version,
         ),
         jar_sha256 = scala_version_jar_shas["specs2_matcher"],
-        licenses = ["notice"],
-        server_urls = maven_servers,
-    )
-
-    _scala_maven_import_external(
-        name = "io_bazel_rules_scala_org_scalaz_scalaz_effect",
-        artifact = _scala_mvn_artifact(
-            "org.scalaz:scalaz-effect:7.2.7",
-            major_version,
-        ),
-        jar_sha256 = scala_version_jar_shas["scalaz_effect"],
-        licenses = ["notice"],
-        server_urls = maven_servers,
-    )
-
-    _scala_maven_import_external(
-        name = "io_bazel_rules_scala_org_scalaz_scalaz_core",
-        artifact = _scala_mvn_artifact(
-            "org.scalaz:scalaz-core:7.2.7",
-            major_version,
-        ),
-        jar_sha256 = scala_version_jar_shas["scalaz_core"],
         licenses = ["notice"],
         server_urls = maven_servers,
     )
