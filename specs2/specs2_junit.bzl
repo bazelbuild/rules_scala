@@ -29,7 +29,7 @@ def specs2_junit_repositories(
             "specs2_junit": "6a856dadf5e159df9141fd5df0bf96b40078eeceeada793561661bea41fa1007",
         },
         "2.12": {
-            "specs2_junit": "fd4a226f087041c32cad5b417d543ffb6788db6214aa2b7ec2af10d9f39ba0af",
+            "specs2_junit": "8cff1f84259869fd272f6ea924752a4e41688271654fb8e72481a15a522c1726",
         },
     }
 
