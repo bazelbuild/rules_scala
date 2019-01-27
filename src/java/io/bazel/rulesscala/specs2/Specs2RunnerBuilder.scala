@@ -40,7 +40,9 @@ class Specs2PrefixSuffixTestDiscoveringSuite(suite: Class[Any], runnerBuilder: R
       .collect {
         case r: FilteredSpecs2ClassRunner if r.matchesFilter => Some(new SafeSpecs2Runner(r))
         case _: FilteredSpecs2ClassRunner => None
-        case other => Some(new SafeSpecs2Runner(other).asInstanceOf[Runner])
+        case other =>
+          val runner: Runner = new SafeSpecs2Runner(other)
+          Some(runner)
       }.flatten.asJava
   }
 }
