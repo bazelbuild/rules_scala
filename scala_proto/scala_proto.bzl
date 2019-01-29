@@ -525,6 +525,7 @@ def scalapb_proto_library(
         with_java = False,
         with_flat_package = False,
         with_single_line_to_string = False,
+        scalac_jvm_flags = [],
         visibility = None):
     srcjar = name + "_srcjar"
     flags = []
@@ -554,5 +555,6 @@ def scalapb_proto_library(
         deps = [srcjar] + external_deps,
         unused_dependency_checker_ignored_targets = [srcjar] + external_deps,
         exports = external_deps,
+        scalac_jvm_flags = scalac_jvm_flags,
         visibility = visibility,
     )
