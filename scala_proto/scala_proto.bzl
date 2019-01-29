@@ -502,7 +502,8 @@ Example:
     scalapb_proto_library(
         name = "exampla_proto_scala",
         with_grpc = True,
-        deps = ["//src/proto:example_service"]
+        deps = ["//src/proto:example_service"],
+        scalac_jvm_fags = ["-Xss8M"],
     )
 
 Args:
@@ -512,6 +513,7 @@ Args:
     with_java: Enables generation of converters to and from java protobuf bindings
     with_flat_package: When true, ScalaPB will not append the protofile base name to the package name
     with_single_line_to_string: Enables generation of toString() methods that use the single line format
+    scalac_jvm_flags: List of JVM flags to pass to the underlying scala_library attribute
 
 Outputs:
     A scala_library rule that includes the generated scalapb bindings, as
