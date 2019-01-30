@@ -502,8 +502,7 @@ Example:
     scalapb_proto_library(
         name = "exampla_proto_scala",
         with_grpc = True,
-        deps = ["//src/proto:example_service"],
-        scalac_jvm_fags = ["-Xss8M"],
+        deps = ["//src/proto:example_service"]
     )
 
 Args:
