@@ -10,7 +10,7 @@ load(
 )
 
 def specs2_version():
-    return "4.3.5"
+    return "4.4.1"
 
 def specs2_repositories(
         scala_version = _default_scala_version(),
@@ -19,16 +19,16 @@ def specs2_repositories(
 
     scala_jar_shas = {
         "2.11": {
-            "specs2_common": "363562d874da321f8191e83ff2c3dd91b448a557c481c8e5671c5e43d232d90c",
-            "specs2_core": "7a878b5af6a3da9d751d8da1b054e287296c97bac9e772ef6c9edeb64a258dc4",
-            "specs2_fp": "263e4fb253addc524ae0e1a3f2e99ab446fd1deb69dffecc84645150aded6a41",
-            "specs2_matcher": "4f68a4a3d6f1af04be5b6a6ec4e0362fcc78636c455dc58f8c21ad86f2ff8034",
+            "specs2_common": "52d7c0da58725606e98c6e8c81d2efe632053520a25da9140116d04a4abf9d2c",
+            "specs2_core": "8e95cb7e347e7a87e7a80466cbd88419ece1aaacb35c32e8bd7d299a623b31b9",
+            "specs2_fp": "e43006fdd0726ffcd1e04c6c4d795176f5f765cc787cc09baebe1fcb009e4462",
+            "specs2_matcher": "448e5ab89d4d650d23030fdbee66a010a07dcac5e4c3e73ef5fe39ca1aace1cd",
         },
         "2.12": {
-            "specs2_common": "fd4a226f087041c32cad5b417d543ffb6788db6214aa2b7ec2af10d9f39ba0af",
-            "specs2_core": "36f5ba21e5acdd7dd8acf7fe9b4bf39b493816037630c55ae074736a0a47c231",
-            "specs2_fp": "2159c14f44425cc39f6742b124d04f1e91274570baf2f2641097c2c3080dc130",
-            "specs2_matcher": "c4bccc931e8dbac360e47c5e3f57a67a090a151d43d0dba8bdbe56a6132ac83a",
+            "specs2_common": "7b7d2497bfe10ad552f5ab3780537c7db9961d0ae841098d5ebd91c78d09438a",
+            "specs2_core": "f92c3c83844aac13250acec4eb247a2a26a2b3f04e79ef1bf42c56de4e0bb2e7",
+            "specs2_fp": "834a145b28dbf57ba6d96f02a3862522e693b5aeec44d4cb2f305ef5617dc73f",
+            "specs2_matcher": "78c699001c307dcc5dcbec8a80cd9f14e9bdaa047579c3d1010ee4bea66805fe",
         },
     }
 
