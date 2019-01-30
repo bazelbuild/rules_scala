@@ -783,6 +783,33 @@ test_unused_dependency_checker_mode_override_toolchain() {
   bazel build --extra_toolchains="//test_expect_failure/unused_dependency_checker:failing_scala_toolchain" //test_expect_failure/unused_dependency_checker:toolchain_override
 }
 
+test_unused_dependency_checker_mode_warn() {
+  # this is a hack to invalidate the cache, so that the target actually gets built and outputs warnings.
+  bazel build \
+    --strict_java_deps=warn \
+    //test:UnusedDependencyCheckerWarn
+    
+  local output
+  output=$(bazel build \
+    --strict_java_deps=off \
+    //test:UnusedDependencyCheckerWarn 2>&1
+  )
+  
+  if [ $? -ne 0 ]; then
+    echo "Target with unused dependency failed to build with status $?"
+    echo "$output"
+    exit 1
+  fi
+  
+  local expected="warning: Target '//test:UnusedLib' is specified as a dependency to //test:UnusedDependencyCheckerWarn but isn't used, please remove it from the deps."
+  
+  echo "$output" | grep "$expected"
+  if [ $? -ne 0 ]; then
+    echo "Expected output:[$output] to contain [$expected]"
+    exit 1
+  fi
+}
+
 test_scala_import_library_passes_labels_of_direct_deps() {
   dependency_target='//test_expect_failure/scala_import:root_for_scala_import_passes_labels_of_direct_deps'
   test_target='test_expect_failure/scala_import:leaf_for_scala_import_passes_labels_of_direct_deps'
@@ -963,3 +990,4 @@ $runner scala_junit_test_jar_is_exposed_in_build_event_protocol
 $runner test_scala_import_source_jar_should_be_fetched_when_fetch_sources_is_set_to_true
 $runner test_scala_import_source_jar_should_be_fetched_when_env_bazel_jvm_fetch_sources_is_set_to_true
 $runner test_scala_import_source_jar_should_not_be_fetched_when_env_bazel_jvm_fetch_sources_is_set_to_non_true
+$runner test_unused_dependency_checker_mode_warn
