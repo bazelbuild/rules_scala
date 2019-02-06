@@ -17,6 +17,7 @@ load(
     "@io_bazel_rules_scala//scala:scala_cross_version.bzl",
     _default_scala_version = "default_scala_version",
     _default_scala_version_jar_shas = "default_scala_version_jar_shas",
+    _default_scala_version_src_jar_shas = "default_scala_version_src_jar_shas",
     _extract_major_version = "extract_major_version",
     _new_scala_default_repository = "new_scala_default_repository",
 )
@@ -328,18 +329,20 @@ def scala_repositories(
         scala_version_shas = (
             _default_scala_version(),
             _default_scala_version_jar_shas(),
+            _default_scala_version_src_jar_shas(),
         ),
         maven_servers = ["http://central.maven.org/maven2"],
         scala_extra_jars = _default_scala_extra_jars(),
-        fetch_sources = False):
-    (scala_version, scala_version_jar_shas) = scala_version_shas
+        fetch_scala_version_sources = False):
+    (scala_version, scala_version_jar_shas, scala_version_src_jar_shas) = scala_version_shas
     major_version = _extract_major_version(scala_version)
 
     _new_scala_default_repository(
         scala_version = scala_version,
         scala_version_jar_shas = scala_version_jar_shas,
+        scala_version_src_jar_shas = scala_version_src_jar_shas,
         maven_servers = maven_servers,
-        fetch_sources = fetch_sources,
+        fetch_sources = fetch_scala_version_sources,
     )
 
     scala_version_extra_jars = scala_extra_jars[major_version]
@@ -353,7 +356,6 @@ def scala_repositories(
         jar_sha256 = scala_version_extra_jars["scalatest"]["sha256"],
         licenses = ["notice"],
         server_urls = maven_servers,
-        fetch_sources = fetch_sources,
     )
     _scala_maven_import_external(
         name = "io_bazel_rules_scala_scalactic",
@@ -364,7 +366,6 @@ def scala_repositories(
         jar_sha256 = scala_version_extra_jars["scalactic"]["sha256"],
         licenses = ["notice"],
         server_urls = maven_servers,
-        fetch_sources = fetch_sources,
     )
 
     _scala_maven_import_external(
@@ -377,7 +378,6 @@ def scala_repositories(
         jar_sha256 = scala_version_extra_jars["scala_xml"]["sha256"],
         licenses = ["notice"],
         server_urls = maven_servers,
-        fetch_sources = fetch_sources,
     )
 
     _scala_maven_import_external(
@@ -391,7 +391,6 @@ def scala_repositories(
         jar_sha256 = scala_version_extra_jars["scala_parser_combinators"]["sha256"],
         licenses = ["notice"],
         server_urls = maven_servers,
-        fetch_sources = fetch_sources,
     )
 
     _scala_maven_import_external(
@@ -400,7 +399,6 @@ def scala_repositories(
         jar_sha256 = "8d7ec605ca105747653e002bfe67bddba90ab964da697aaa5daa1060923585db",
         licenses = ["notice"],
         server_urls = maven_servers,
-        fetch_sources = fetch_sources,
     )
 
     # used by ScalacProcessor
@@ -410,7 +408,6 @@ def scala_repositories(
         jar_sha256 = "f877d304660ac2a142f3865badfc971dec7ed73c747c7f8d5d2f5139ca736513",
         licenses = ["notice"],
         server_urls = maven_servers,
-        fetch_sources = fetch_sources,
     )
 
     # Template for binary launcher
