@@ -24,6 +24,21 @@ proto_library(
 )
 
 proto_library(
+    name = "test_external_dep_proto",
+    srcs = ["test_external_dep.proto"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "@com_google_protobuf//:wrappers_proto",
+    ],
+)
+
+scalapb_proto_library(
+    name = "test_external_dep",
+    visibility = ["//visibility:public"],
+    deps = [":test_external_dep_proto"],
+)
+
+proto_library(
     name = "test_service",
     srcs = ["test_service.proto"],
     visibility = ["//visibility:public"],
