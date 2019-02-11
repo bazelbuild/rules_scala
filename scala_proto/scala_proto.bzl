@@ -393,13 +393,11 @@ def _retained_protos(inputs, blacklisted_proto_targets):
 
 def _gen_proto_srcjar_impl(ctx):
     acc_imports = []
-    transitive_proto_paths = []
 
     jvm_deps = []
     for target in ctx.attr.deps:
         if hasattr(target, "proto"):
             acc_imports.append(target.proto.transitive_sources)
-            transitive_proto_paths.append(target.proto.transitive_proto_path)
         else:
             jvm_deps.append(target)
 
@@ -417,8 +415,7 @@ def _gen_proto_srcjar_impl(ctx):
         # Command line args to worker cannot be empty so using padding
         flags_arg = "-" + ",".join(ctx.attr.flags),
         # Command line args to worker cannot be empty so using padding
-        packages = "-" +
-                   ":".join(depset(transitive = transitive_proto_paths).to_list()),
+        packages = "-",
         # Pass inputs seprately because they doesn't always match to imports (ie blacklisted protos are excluded)
         inputs = ":".join(sorted([f.path for f in _retained_protos(acc_imports, ctx.attr.blacklisted_protos)]))
     )
