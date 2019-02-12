@@ -1,7 +1,8 @@
 load(
     "//scala_proto:scala_proto.bzl",
     "scalapb_proto_library",
-    "scala_proto_srcjar"
+    "scala_proto_srcjar",
+    "scala_proto_gen",
 )
 
 load(
@@ -116,3 +117,8 @@ scala_library(
         "@com_google_protobuf//:protobuf_java",
         "@scala_proto_rules_scalapb_lenses",
         "@scala_proto_rules_scalapb_runtime"])
+
+scala_proto_gen(
+    name = "a_proto_scala",
+    deps = ["//test/proto2:test"],
+    plugin = "@io_bazel_rules_scala//src/scala/scripts:scalapb_plugin")

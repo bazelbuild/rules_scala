@@ -18,8 +18,6 @@ load(
     "create_java_provider",
 )
 
-load("@com_google_protobuf//:protobuf.bzl", "proto_gen")
-
 def scala_proto_repositories(
         scala_version = _default_scala_version(),
         maven_servers = ["http://central.maven.org/maven2"]):
@@ -597,45 +595,41 @@ def scalapb_proto_library(
         visibility = visibility,
     )
 
+def _scala_proto_gen_impl(ctx):
+    srcs = [f for dep in ctx.attr.deps for f in dep.proto.direct_sources]
+    includes = [f for dep in ctx.attr.deps for f in dep.proto.transitive_imports]
 
-#def _scala_proto_library_impl(ctx):
-#@com_google_protobuf//:protoc
+    srcdotjar = ctx.actions.declare_file("_" + ctx.label.name + "_src.jar")
 
-def scala_proto_library(
-        name,
-        deps,
-        flags = [],
-        plugin = "@io_bazel_rules_scala//src/scala/scripts:scalapb_plugin",
-        protoc = "@com_google_protobuf//:protoc",
-        visibility = None):
-    proto_gen(
-            name = name + "_genproto",
-            srcs = [],
-            deps = deps,
-            includes = [],
-            protoc = protoc,
-            plugin = plugin,
-            plugin_language = "scala",
-            plugin_options = flags,
-            outs = [],
-            visibility = ["//visibility:public"],
-        )
+    ctx.actions.run(
+        inputs = [ctx.executable._protoc, ctx.executable.plugin] + srcs + includes,
+        outputs = [srcdotjar],
+        arguments = [
+            "--plugin=protoc-gen-scala=" + ctx.executable.plugin.path,
+            "--scala_out=%s:%s" % (",".join(ctx.attr.flags), srcdotjar.path)]
+            + ["-I{0}={1}".format(include.short_path, include.path) for include in includes]
+            + [src.short_path for src in srcs],
+        executable = ctx.executable._protoc,
+        mnemonic = "ScalaProtoGen",
+        use_default_shell_env = True,
+    )
 
+    ctx.actions.run_shell(
+          command = "cp $1 $2",
+          inputs = [srcdotjar],
+          outputs = [ctx.outputs.srcjar],
+          arguments = [srcdotjar.path, ctx.outputs.srcjar.path])
 
-#scala_proto_library = rule(
-#    implementation = _scala_proto_library_impl,
-#    attrs = {
-#        "deps": attr.label_list(
-#            mandatory = True,
-#            providers = [["proto"],[JavaInfo]],
-#        ),
-#        "flags": attr.string_list(default = []),
-#        "plugin": attr.label(
-#            default = "@io_bazel_rules_scala//src/scala/scripts:scalapb_plugin",
-#            executable = True,
-#            cfg = "host",
-#        ),
-#        "runtime": attr.label_list(),
-#        "_compiler": attr # or protoc
-#    },
-#)
+scala_proto_gen = rule(
+    _scala_proto_gen_impl,
+    attrs = {
+        "deps": attr.label_list(mandatory = True, providers = [["proto"]]),
+        "blacklisted_protos" : attr.label_list(providers = [["proto"]]),
+        "flags": attr.string_list(default = []),
+        "plugin": attr.label(executable = True, cfg = "host"),
+        "_protoc": attr.label(executable = True, cfg = "host", default = "@com_google_protobuf//:protoc")
+    },
+    outputs = {
+        "srcjar": "lib%{name}.srcjar",
+    },
+)
