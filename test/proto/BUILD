@@ -38,6 +38,20 @@ scalapb_proto_library(
     deps = [":test_external_dep_proto"],
 )
 
+# Test that the `proto_source_root` attribute is handled properly
+proto_library(
+    name = "proto_source_root",
+    proto_source_root = native.package_name(),
+    srcs = ["different_root.proto", "different_root2.proto"],
+    visibility = ["//visibility:public"],
+)
+
+scalapb_proto_library(
+    name = "test_proto_source_root",
+    visibility = ["//visibility:public"],
+    deps = [":proto_source_root"],
+)
+
 proto_library(
     name = "test_service",
     srcs = ["test_service.proto"],
