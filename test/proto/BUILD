@@ -122,3 +122,17 @@ scala_proto_gen(
     name = "a_proto_scala",
     deps = ["//test/proto2:test"],
     plugin = "@io_bazel_rules_scala//src/scala/scripts:scalapb_plugin")
+
+scala_proto_gen(
+    name = "test2_proto_scala",
+    deps = [":test2"],
+    plugin = "@io_bazel_rules_scala//src/scala/scripts:scalapb_plugin")
+
+scala_proto_gen(
+    name = "multi_src_proto_scala",
+    deps = [":test2", "//test/proto2:test"],
+    plugin = "@io_bazel_rules_scala//src/scala/scripts:scalapb_plugin")
+
+java_proto_library(
+    name = "test2_proto_java",
+    deps = [":test2", "//test/proto2:test"])

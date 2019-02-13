@@ -596,29 +596,28 @@ def scalapb_proto_library(
     )
 
 def _scala_proto_gen_impl(ctx):
-    srcs = [f for dep in ctx.attr.deps for f in dep.proto.direct_sources]
-    includes = [f for dep in ctx.attr.deps for f in dep.proto.transitive_imports]
-
+    sources = [f for dep in ctx.attr.deps for f in dep.proto.direct_sources]
+    descriptors = [f for dep in ctx.attr.deps for f in dep.proto.transitive_descriptor_sets]
     srcdotjar = ctx.actions.declare_file("_" + ctx.label.name + "_src.jar")
 
     ctx.actions.run(
-        inputs = [ctx.executable._protoc, ctx.executable.plugin] + srcs + includes,
+        inputs = [ctx.executable._protoc, ctx.executable.plugin] + descriptors + sources,
         outputs = [srcdotjar],
         arguments = [
             "--plugin=protoc-gen-scala=" + ctx.executable.plugin.path,
-            "--scala_out=%s:%s" % (",".join(ctx.attr.flags), srcdotjar.path)]
-            + ["-I{0}={1}".format(include.short_path, include.path) for include in includes]
-            + [src.short_path for src in srcs],
+            "--scala_out=%s:%s" % (",".join(ctx.attr.flags), srcdotjar.path),
+            "--descriptor_set_in=" + ":".join([descriptor.path for descriptor in descriptors])]
+            + [source.short_path for source in sources],
         executable = ctx.executable._protoc,
         mnemonic = "ScalaProtoGen",
         use_default_shell_env = True,
     )
 
     ctx.actions.run_shell(
-          command = "cp $1 $2",
-          inputs = [srcdotjar],
-          outputs = [ctx.outputs.srcjar],
-          arguments = [srcdotjar.path, ctx.outputs.srcjar.path])
+        command = "cp $1 $2",
+        inputs = [srcdotjar],
+        outputs = [ctx.outputs.srcjar],
+        arguments = [srcdotjar.path, ctx.outputs.srcjar.path])
 
 scala_proto_gen = rule(
     _scala_proto_gen_impl,
