@@ -391,6 +391,14 @@ def _retained_protos(inputs, blacklisted_proto_targets):
     blacklisted_protos_dict = dict(zip(blacklisted_protos, blacklisted_protos))
     return [f for f in inputs if blacklisted_protos_dict.get(f, None) == None]
 
+def _valid_proto_paths(transitive_proto_path):
+    """Build a list of valid paths to build the --proto_path arguments for the ScalaPB protobuf compiler
+    In particular, the '.' path needs to be stripped out. This mirrors a fix in the java proto rules:
+    https://github.com/bazelbuild/bazel/commit/af3605862047f7b553b7d2c19fa645714ea19bcf
+    This is explained in this issue: https://github.com/bazelbuild/rules_scala/issues/687
+    """
+    return depset([path for path in transitive_proto_path if path != "."])
+
 def _gen_proto_srcjar_impl(ctx):
     acc_imports = []
     transitive_proto_paths = []
@@ -399,7 +407,7 @@ def _gen_proto_srcjar_impl(ctx):
     for target in ctx.attr.deps:
         if hasattr(target, "proto"):
             acc_imports.append(target.proto.transitive_sources)
-            transitive_proto_paths.append(target.proto.transitive_proto_path)
+            transitive_proto_paths.append(_valid_proto_paths(target.proto.transitive_proto_path))
         else:
             jvm_deps.append(target)
 

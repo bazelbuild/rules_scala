@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+import "different_root2.proto";
+
+message TestMessage {
+    TestMessage2 message = 1;
+}
