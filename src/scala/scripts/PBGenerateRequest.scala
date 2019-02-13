@@ -14,7 +14,7 @@ object PBGenerateRequest {
       val file = if (root.isEmpty) {
         parsed(1)
       } else {
-        parsed(1).substring(root.length + 1)
+        parsed(1).substring(root.length).stripPrefix("/")
       }
       (file, Paths.get(root, file).toString)
     }
