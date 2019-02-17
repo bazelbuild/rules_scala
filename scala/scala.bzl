@@ -24,6 +24,10 @@ load(
     "@io_bazel_rules_scala//specs2:specs2_junit.bzl",
     _specs2_junit_dependencies = "specs2_junit_dependencies",
 )
+load(
+    "@io_bazel_rules_scala//scala/private:common.bzl",
+    _collect_plus_one_deps_aspect = "collect_plus_one_deps_aspect",
+)
 
 _launcher_template = {
     "_java_stub_template": attr.label(
@@ -105,7 +109,7 @@ _junit_resolve_deps = {
 # Common attributes reused across multiple rules.
 _common_attrs_for_plugin_bootstrapping = {
     "srcs": attr.label_list(allow_files = [".scala", ".srcjar", ".java"]),
-    "deps": attr.label_list(),
+    "deps": attr.label_list(aspects = [_collect_plus_one_deps_aspect]),
     "plugins": attr.label_list(allow_files = [".jar"]),
     "runtime_deps": attr.label_list(providers = [[JavaInfo]]),
     "data": attr.label_list(allow_files = True),

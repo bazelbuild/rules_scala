@@ -172,3 +172,29 @@ git_repository(
     remote = "https://github.com/bazelbuild/bazel-skylib.git",
     tag = "0.6.0",
 )
+
+## deps for tests of limited deps support
+scala_maven_import_external(
+    name = "org_springframework_spring_core",
+    artifact = "org.springframework:spring-core:5.1.5.RELEASE",
+    jar_sha256 = "f771b605019eb9d2cf8f60c25c050233e39487ff54d74c93d687ea8de8b7285a",
+    licenses = ["notice"],  # Apache 2.0
+    server_urls = [
+        "https://repo1.maven.org/maven2/",
+        "https://mirror.bazel.build/repo1.maven.org/maven2",
+        ],
+)
+
+scala_maven_import_external(
+    name = "org_springframework_spring_tx",
+    artifact = "org.springframework:spring-tx:5.1.5.RELEASE",
+    jar_sha256 = "666f72b73c7e6b34e5bb92a0d77a14cdeef491c00fcb07a1e89eb62b08500135",
+    licenses = ["notice"],  # Apache 2.0
+    server_urls = [
+        "https://repo1.maven.org/maven2/",
+        "https://mirror.bazel.build/repo1.maven.org/maven2",
+        ],
+    deps = [
+        "@org_springframework_spring_core"
+    ]
+)

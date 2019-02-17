@@ -904,6 +904,26 @@ test_scala_import_fetch_sources() {
   assert_file_exists $bazel_out_external_guava_21/$srcjar_name
 }
 
+test_compilation_succeeds_with_plus_one_deps_on() {
+  bazel build --define plus_one_deps=true //test_expect_failure/plus_one_deps/internal_deps:a
+}
+test_compilation_fails_with_plus_one_deps_undefined() {
+  action_should_fail build //test_expect_failure/plus_one_deps/internal_deps:a
+}
+test_compilation_succeeds_with_plus_one_deps_on_for_external_deps() {
+  bazel build --define plus_one_deps=true //test_expect_failure/plus_one_deps/external_deps:a
+}
+test_compilation_succeeds_with_plus_one_deps_on_also_for_exports() {
+  bazel build --define plus_one_deps=true //test_expect_failure/plus_one_deps/exports_deps:a
+}
+test_plus_one_deps_only_works_for_java_info_targets() {
+  #for example doesn't break scala proto which depends on proto_library
+  bazel build --define plus_one_deps=true //test/proto:test_proto
+}
+test_unused_dependency_fails_even_if_also_exists_in_plus_one_deps() {
+  action_should_fail build //test_expect_failure/plus_one_deps/with_unused_deps:a
+}
+
 assert_file_exists() {
   if [[ -f $1 ]]; then
     echo "File $1 exists."
@@ -997,3 +1017,11 @@ $runner test_scala_import_source_jar_should_be_fetched_when_env_bazel_jvm_fetch_
 $runner test_scala_import_source_jar_should_not_be_fetched_when_env_bazel_jvm_fetch_sources_is_set_to_non_true
 $runner test_unused_dependency_checker_mode_warn
 $runner test_override_javabin
+$runner test_compilation_succeeds_with_plus_one_deps_on
+$runner test_compilation_fails_with_plus_one_deps_undefined
+$runner test_compilation_succeeds_with_plus_one_deps_on_for_external_deps
+$runner test_compilation_succeeds_with_plus_one_deps_on_also_for_exports
+$runner test_plus_one_deps_only_works_for_java_info_targets
+$runner bazel test //test/... --define plus_one_deps=true
+$runner test_unused_dependency_fails_even_if_also_exists_in_plus_one_deps
+
