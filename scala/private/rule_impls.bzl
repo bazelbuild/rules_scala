@@ -552,8 +552,9 @@ def _write_java_wrapper(ctx, args = "", wrapper_preamble = ""):
         output = wrapper,
         content = """#!/usr/bin/env bash
 {preamble}
-
-{exec_str}{javabin} "$@" {args}
+DEFAULT_JAVABIN={javabin}
+JAVABIN=${{JAVABIN:-$DEFAULT_JAVABIN}}
+{exec_str}$JAVABIN "$@" {args}
 """.format(
             preamble = wrapper_preamble,
             exec_str = exec_str,
