@@ -42,6 +42,11 @@ test_transitive_deps() {
   exit 0
 }
 
+test_override_javabin() {
+  # set the JAVABIN to nonsense
+  JAVABIN=/etc/basdf action_should_fail run test:ScalaBinary
+}
+
 test_scala_library_suite() {
   action_should_fail build test_expect_failure/scala_library_suite:library_suite_dep_on_children
 }
@@ -788,21 +793,21 @@ test_unused_dependency_checker_mode_warn() {
   bazel build \
     --strict_java_deps=warn \
     //test:UnusedDependencyCheckerWarn
-    
+
   local output
   output=$(bazel build \
     --strict_java_deps=off \
     //test:UnusedDependencyCheckerWarn 2>&1
   )
-  
+
   if [ $? -ne 0 ]; then
     echo "Target with unused dependency failed to build with status $?"
     echo "$output"
     exit 1
   fi
-  
+
   local expected="warning: Target '//test:UnusedLib' is specified as a dependency to //test:UnusedDependencyCheckerWarn but isn't used, please remove it from the deps."
-  
+
   echo "$output" | grep "$expected"
   if [ $? -ne 0 ]; then
     echo "Expected output:[$output] to contain [$expected]"
@@ -991,3 +996,4 @@ $runner test_scala_import_source_jar_should_be_fetched_when_fetch_sources_is_set
 $runner test_scala_import_source_jar_should_be_fetched_when_env_bazel_jvm_fetch_sources_is_set_to_true
 $runner test_scala_import_source_jar_should_not_be_fetched_when_env_bazel_jvm_fetch_sources_is_set_to_non_true
 $runner test_unused_dependency_checker_mode_warn
+$runner test_override_javabin
