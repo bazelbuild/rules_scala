@@ -261,7 +261,7 @@ action_should_fail() {
   # runs the tests locally
   set +e
   TEST_ARG=$@
-  $(bazel $TEST_ARG)
+  DUMMY=$(bazel $TEST_ARG)
   RESPONSE_CODE=$?
   if [ $RESPONSE_CODE -eq 0 ]; then
     echo -e "${RED} \"bazel $TEST_ARG\" should have failed but passed. $NC"
