@@ -553,8 +553,8 @@ def _write_java_wrapper(ctx, args = "", wrapper_preamble = ""):
         content = """#!/usr/bin/env bash
 {preamble}
 DEFAULT_JAVABIN={javabin}
-JAVABIN=${{JAVABIN:-$DEFAULT_JAVABIN}}
-{exec_str}$JAVABIN "$@" {args}
+JAVA_EXEC_TO_USE=${{REAL_EXTERNAL_JAVA_BIN:-$DEFAULT_JAVABIN}}
+{exec_str}$JAVA_EXEC_TO_USE "$@" {args}
 """.format(
             preamble = wrapper_preamble,
             exec_str = exec_str,
@@ -582,7 +582,7 @@ def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper):
         substitutions = {
             "%classpath%": classpath,
             "%java_start_class%": main_class,
-            "%javabin%": "JAVABIN=%s/%s" % (
+            "%javabin%": "export REAL_EXTERNAL_JAVA_BIN=${JAVABIN};JAVABIN=%s/%s" % (
                 _runfiles_root(ctx),
                 wrapper.short_path,
             ),
