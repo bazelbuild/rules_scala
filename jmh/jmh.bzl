@@ -110,6 +110,7 @@ def scala_benchmark_jmh(**kw):
     name = kw["name"]
     deps = kw.get("deps", [])
     srcs = kw["srcs"]
+    data = kw.get("data", [])
     generator_type = kw.get("generator_type", "reflection")
     lib = "%s_generator" % name
     scalacopts = kw.get("scalacopts", [])
@@ -152,6 +153,7 @@ def scala_benchmark_jmh(**kw):
             "//external:io_bazel_rules_scala/dependency/jmh/org_apache_commons_commons_math3",
             compiled_lib,
         ],
+        data = data,
         main_class = main_class,
         unused_dependency_checker_mode = "off",
     )
