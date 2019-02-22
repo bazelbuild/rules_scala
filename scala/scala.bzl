@@ -25,7 +25,7 @@ load(
     _specs2_junit_dependencies = "specs2_junit_dependencies",
 )
 load(
-    "@io_bazel_rules_scala//scala/private:common.bzl",
+    "@io_bazel_rules_scala//scala:plusone.bzl",
     _collect_plus_one_deps_aspect = "collect_plus_one_deps_aspect",
 )
 
