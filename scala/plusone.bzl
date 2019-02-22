@@ -1,3 +1,8 @@
+"""
+Keeps direct compile dependencies of targets.
+This enables targets to pass the to compiler the plus one dependencies in addition to the direct ones.
+For motivation of plus one see the e2e tests     9
+"""
 PlusOneDeps = provider(
     fields = {
         'direct_deps' : 'list of direct compile dependencies of a target',
