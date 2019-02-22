@@ -619,7 +619,7 @@ def is_dependency_analyzer_off(ctx):
     return not is_dependency_analyzer_on(ctx)
 
 def _is_plus_one_deps_off(ctx):
-    return not ("plus_one_deps" in ctx.var)
+    return ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].plus_one_deps_mode == "off"
 
 # Extract very common code out from dependency analysis into single place
 # automatically adds dependency on scala-library and scala-reflect

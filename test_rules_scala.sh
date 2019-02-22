@@ -905,23 +905,23 @@ test_scala_import_fetch_sources() {
 }
 
 test_compilation_succeeds_with_plus_one_deps_on() {
-  bazel build --define plus_one_deps=true //test_expect_failure/plus_one_deps/internal_deps:a
+  bazel build --extra_toolchains=//test_expect_failure/plus_one_deps:plus_one_deps //test_expect_failure/plus_one_deps/internal_deps:a
 }
 test_compilation_fails_with_plus_one_deps_undefined() {
   action_should_fail build //test_expect_failure/plus_one_deps/internal_deps:a
 }
 test_compilation_succeeds_with_plus_one_deps_on_for_external_deps() {
-  bazel build --define plus_one_deps=true //test_expect_failure/plus_one_deps/external_deps:a
+  bazel build --extra_toolchains="//test_expect_failure/plus_one_deps:plus_one_deps" //test_expect_failure/plus_one_deps/external_deps:a
 }
 test_compilation_succeeds_with_plus_one_deps_on_also_for_exports() {
-  bazel build --define plus_one_deps=true //test_expect_failure/plus_one_deps/exports_deps:a
+  bazel build --extra_toolchains="//test_expect_failure/plus_one_deps:plus_one_deps" //test_expect_failure/plus_one_deps/exports_deps:a
 }
 test_plus_one_deps_only_works_for_java_info_targets() {
   #for example doesn't break scala proto which depends on proto_library
-  bazel build --define plus_one_deps=true //test/proto:test_proto
+  bazel build --extra_toolchains="//test_expect_failure/plus_one_deps:plus_one_deps" //test/proto:test_proto
 }
 test_unused_dependency_fails_even_if_also_exists_in_plus_one_deps() {
-  action_should_fail build //test_expect_failure/plus_one_deps/with_unused_deps:a
+  action_should_fail build --extra_toolchains="//test_expect_failure/plus_one_deps:plus_one_deps_with_unused_error" //test_expect_failure/plus_one_deps/with_unused_deps:a
 }
 
 assert_file_exists() {
@@ -1022,6 +1022,6 @@ $runner test_compilation_fails_with_plus_one_deps_undefined
 $runner test_compilation_succeeds_with_plus_one_deps_on_for_external_deps
 $runner test_compilation_succeeds_with_plus_one_deps_on_also_for_exports
 $runner test_plus_one_deps_only_works_for_java_info_targets
-$runner bazel test //test/... --define plus_one_deps=true
+$runner bazel test //test/... --extra_toolchains="//test_expect_failure/plus_one_deps:plus_one_deps"
 $runner test_unused_dependency_fails_even_if_also_exists_in_plus_one_deps
 
