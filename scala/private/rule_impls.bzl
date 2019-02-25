@@ -220,6 +220,8 @@ CurrentTarget: {current_target}
             ignored_targets = ignored_targets,
             current_target = current_target,
         )
+    if is_dependency_analyzer_off(ctx) and not _is_plus_one_deps_off(ctx):
+       compiler_classpath_jars = transitive_compile_jars
 
     plugins_list = plugins.to_list()
     plugin_arg = _join_path(plugins_list)
@@ -616,6 +618,9 @@ def is_dependency_analyzer_on(ctx):
 def is_dependency_analyzer_off(ctx):
     return not is_dependency_analyzer_on(ctx)
 
+def _is_plus_one_deps_off(ctx):
+    return ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].plus_one_deps_mode == "off"
+
 # Extract very common code out from dependency analysis into single place
 # automatically adds dependency on scala-library and scala-reflect
 # collects jars from deps, runtime jars from runtime_deps, and
@@ -631,6 +636,7 @@ def _collect_jars_from_common_ctx(
         ctx.attr.deps + extra_deps + base_classpath,
         dependency_analyzer_is_off,
         unused_dependency_checker_is_off,
+        _is_plus_one_deps_off(ctx),
     )
 
     (
@@ -985,9 +991,10 @@ def scala_test_impl(ctx):
     ]
     unused_dependency_checker_is_off = unused_dependency_checker_mode == "off"
 
+    scalatest_base_classpath = scalac_provider.default_classpath + [ctx.attr._scalatest]
     jars = _collect_jars_from_common_ctx(
         ctx,
-        scalac_provider.default_classpath,
+        scalatest_base_classpath,
         extra_runtime_deps = [
             ctx.attr._scalatest_reporter,
             ctx.attr._scalatest_runner,
@@ -1005,36 +1012,6 @@ def scala_test_impl(ctx):
         jars.transitive_compile_jars,
         jars.jars2labels,
     )
-
-    # _scalatest is an http_jar, so its compile jar is run through ijar
-    # however, contains macros, so need to handle separately
-    scalatest_jars = collect_jars([ctx.attr._scalatest]).transitive_runtime_jars
-    cjars = depset(transitive = [cjars, scalatest_jars])
-    transitive_rjars = depset(transitive = [transitive_rjars, scalatest_jars])
-
-    if is_dependency_analyzer_on(ctx):
-        transitive_compile_jars = depset(
-            transitive = [scalatest_jars, transitive_compile_jars],
-        )
-        scalatest_jars_list = scalatest_jars.to_list()
-        j2l = jars_to_labels.jars_to_labels
-        add_labels_of_jars_to(
-            j2l,
-            ctx.attr._scalatest,
-            scalatest_jars_list,
-            scalatest_jars_list,
-        )
-        jars_to_labels = JarsToLabelsInfo(jars_to_labels = j2l)
-
-    elif not unused_dependency_checker_is_off:
-        j2l = jars_to_labels.jars_to_labels
-        add_labels_of_jars_to(
-            j2l,
-            ctx.attr._scalatest,
-            [],
-            scalatest_jars.to_list(),
-        )
-        jars_to_labels = JarsToLabelsInfo(jars_to_labels = j2l)
 
     args = " ".join([
         "-R \"{path}\"".format(path = ctx.outputs.jar.short_path),

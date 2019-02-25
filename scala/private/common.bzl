@@ -1,4 +1,5 @@
 load("@io_bazel_rules_scala//scala:jars_to_labels.bzl", "JarsToLabelsInfo")
+load("@io_bazel_rules_scala//scala:plusone.bzl", "PlusOneDeps")
 
 def write_manifest(ctx):
     main_class = getattr(ctx.attr, "main_class", None)
@@ -22,21 +23,25 @@ def collect_srcjars(targets):
 def collect_jars(
         dep_targets,
         dependency_analyzer_is_off = True,
-        unused_dependency_checker_is_off = True):
+        unused_dependency_checker_is_off = True,
+        plus_one_deps_is_off = True):
     """Compute the runtime and compile-time dependencies from the given targets"""  # noqa
 
     if dependency_analyzer_is_off:
         return _collect_jars_when_dependency_analyzer_is_off(
             dep_targets,
             unused_dependency_checker_is_off,
+            plus_one_deps_is_off,
         )
     else:
         return _collect_jars_when_dependency_analyzer_is_on(dep_targets)
 
 def _collect_jars_when_dependency_analyzer_is_off(
         dep_targets,
-        unused_dependency_checker_is_off):
+        unused_dependency_checker_is_off,
+        plus_one_deps_is_off):
     compile_jars = []
+    plus_one_deps_compile_jars = []
     runtime_jars = []
     jars2labels = {}
 
@@ -58,11 +63,16 @@ def _collect_jars_when_dependency_analyzer_is_off(
         else:
             print("ignored dependency, has no JavaInfo: " + str(dep_target))
 
+        if (not plus_one_deps_is_off) and (PlusOneDeps in dep_target):
+            plus_one_deps_compile_jars.append(
+                depset(transitive = [dep[JavaInfo].compile_jars for dep in dep_target[PlusOneDeps].direct_deps if JavaInfo in dep ])
+            )
+
     return struct(
         compile_jars = depset(transitive = compile_jars),
         transitive_runtime_jars = depset(transitive = runtime_jars),
         jars2labels = JarsToLabelsInfo(jars_to_labels = jars2labels),
-        transitive_compile_jars = depset(),
+        transitive_compile_jars = depset(transitive = compile_jars + plus_one_deps_compile_jars),
     )
 
 def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
