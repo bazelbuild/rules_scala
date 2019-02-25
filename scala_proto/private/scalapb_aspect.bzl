@@ -83,7 +83,6 @@ def _compile_scala(
         label.name + "_scalac.statsfile",
         sibling = scalapb_jar,
     )
-    print("Compiling %s -> %s" %(label, scalapb_jar))
     merged_deps = java_common.merge(deps_java_info + implicit_deps)
 
     # this only compiles scala, not the ijar, but we don't
@@ -152,17 +151,6 @@ def _scalapb_aspect_impl(target, ctx):
     # we sort so the inputs are always the same for caching
     compile_protos = sorted(target_ti.direct_sources)
     transitive_protos = sorted(target_ti.transitive_sources)
-
-    print("transitive_descriptor_sets")
-    print(target_ti.transitive_descriptor_sets)
-    print("target_ti.transitive_sources")
-    print(target_ti.transitive_sources)
-    print("transitive_imports")
-    print(target_ti.transitive_imports)
-    print("transitive_proto_path")
-    print(target_ti.transitive_proto_path)
-    print("proto_source_root")
-    print(target_ti.proto_source_root)
 
     toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
     flags = []
