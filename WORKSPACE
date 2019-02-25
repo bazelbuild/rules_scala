@@ -121,9 +121,9 @@ load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_unused_deps_
 
 scala_register_unused_deps_toolchains()
 
-load("@io_bazel_rules_scala//scala_proto:toolchains.bzl", "scala_proto_register_enable_all_options_toolchain")
+load("@io_bazel_rules_scala//scala_proto:toolchains.bzl", "scala_proto_register_toolchains")
 
-scala_proto_register_enable_all_options_toolchain()
+scala_proto_register_toolchains()
 
 load("//scala:scala_maven_import_external.bzl", "scala_maven_import_external", "java_import_external")
 
