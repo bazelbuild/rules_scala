@@ -138,76 +138,86 @@ def _empty_java_info(deps_java_info, implicit_deps):
 # or a scalapb_scala_library. Each thrift_library will be one scalapb
 # invocation assuming it has some sources.
 def _scalapb_aspect_impl(target, ctx):
-    target_ti = target[ProtoInfo]
-
     deps = [d[ScalaPBAspectInfo].java_info for d in ctx.rule.attr.deps]
-    transitive_ti = merge_proto_infos(
-        [
-            d[ScalaPBAspectInfo].proto_info
-            for d in ctx.rule.attr.deps
-        ] + [target_ti],
-    )
 
-    # we sort so the inputs are always the same for caching
-    compile_protos = sorted(target_ti.direct_sources)
-    transitive_protos = sorted(target_ti.transitive_sources)
-
-    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
-    flags = []
-    imps = [j[JavaInfo] for j in ctx.attr._implicit_compile_deps]
-
-    if toolchain.with_grpc:
-        flags.append("grpc")
-        imps.extend([j[JavaInfo] for j in ctx.attr._grpc_deps])
-
-    if toolchain.with_flat_package:
-        flags.append("flat_package")
-
-    if toolchain.with_single_line_to_string:
-        flags.append("single_line_to_proto_string")
-
-    # if toolchain.with_java:
-    #     flags.append("java_conversions")
-
-    if compile_protos:
-        # we sort so the inputs are always the same for caching
-        compile_proto_map = {}
-        for ct in compile_protos:
-            compile_proto_map[ct] = True
-        include_thrifts = sorted([
-            trans
-            for trans in compile_protos
-            if trans not in compile_proto_map
-        ])
-        scalapb_file = ctx.actions.declare_file(
-            target.label.name + "_scalapb.srcjar",
-        )
-        proto_to_scala_src(
-            ctx,
-            target.label,
-            compile_protos,
-            transitive_protos,
-            target_ti.transitive_proto_path.to_list(),
-            flags,
-            scalapb_file,
-        )
-
-        src_jars = depset([scalapb_file])
-        output = _compiled_jar_file(ctx.actions, scalapb_file)
-        outs = depset([output])
-        java_info = _compile_scala(
-            ctx,
-            target.label,
-            output,
-            scalapb_file,
-            deps,
-            imps,
-        )
-    else:
-        # this target is only an aggregation target
+    if ProtoInfo not in target:
+        java_info = target[JavaInfo]
         src_jars = depset()
         outs = depset()
-        java_info = _empty_java_info(deps, imps)
+        transitive_ti = merge_proto_infos(
+            [
+                d[ScalaPBAspectInfo].proto_info
+                for d in ctx.rule.attr.deps
+            ],
+        )
+    else:
+        target_ti = target[ProtoInfo]
+        transitive_ti = merge_proto_infos(
+            [
+                d[ScalaPBAspectInfo].proto_info
+                for d in ctx.rule.attr.deps
+            ] + [target_ti],
+        )
+        # we sort so the inputs are always the same for caching
+        compile_protos = sorted(target_ti.direct_sources)
+        transitive_protos = sorted(target_ti.transitive_sources)
+
+        toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
+        flags = []
+        imps = [j[JavaInfo] for j in ctx.attr._implicit_compile_deps]
+
+        if toolchain.with_grpc:
+            flags.append("grpc")
+            imps.extend([j[JavaInfo] for j in ctx.attr._grpc_deps])
+
+        if toolchain.with_flat_package:
+            flags.append("flat_package")
+
+        if toolchain.with_single_line_to_string:
+            flags.append("single_line_to_proto_string")
+
+        # if toolchain.with_java:
+        #     flags.append("java_conversions")
+
+        if compile_protos:
+            # we sort so the inputs are always the same for caching
+            compile_proto_map = {}
+            for ct in compile_protos:
+                compile_proto_map[ct] = True
+            include_thrifts = sorted([
+                trans
+                for trans in compile_protos
+                if trans not in compile_proto_map
+            ])
+            scalapb_file = ctx.actions.declare_file(
+                target.label.name + "_scalapb.srcjar",
+            )
+            proto_to_scala_src(
+                ctx,
+                target.label,
+                compile_protos,
+                transitive_protos,
+                target_ti.transitive_proto_path.to_list(),
+                flags,
+                scalapb_file,
+            )
+
+            src_jars = depset([scalapb_file])
+            output = _compiled_jar_file(ctx.actions, scalapb_file)
+            outs = depset([output])
+            java_info = _compile_scala(
+                ctx,
+                target.label,
+                output,
+                scalapb_file,
+                deps,
+                imps,
+            )
+        else:
+            # this target is only an aggregation target
+            src_jars = depset()
+            outs = depset()
+            java_info = _empty_java_info(deps, imps)
 
     return [
         ScalaPBAspectInfo(
