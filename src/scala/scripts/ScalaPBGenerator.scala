@@ -10,7 +10,7 @@ import io.bazel.rulesscala.worker.{GenericWorker, Processor}
 import protocbridge.ProtocBridge
 import scala.collection.JavaConverters._
 import scalapb.ScalaPbCodeGenerator
-import java.nio.file.Paths
+import java.nio.file.{Files, Paths}
 
 object ScalaPBWorker extends GenericWorker(new ScalaPBGenerator) {
 
@@ -40,7 +40,7 @@ class ScalaPBGenerator extends Processor {
       val relativePath = rp.relativize(op)
 
       relativePath.toFile.getParentFile.mkdirs
-      java.nio.file.Files.copy(op, relativePath)
+      Files.copy(op, relativePath)
     }
   }
   def deleteDir(path: Path): Unit =
