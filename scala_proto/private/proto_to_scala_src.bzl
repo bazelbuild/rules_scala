@@ -30,7 +30,6 @@ def proto_to_scala_src(ctx, label, compile_proto, include_proto, transitive_prot
         # Pass inputs seprately because they doesn't always match to imports (ie blacklisted protos are excluded)
         inputs = _colon_paths(compile_proto)
     )
-    print(worker_content)
     argfile = ctx.actions.declare_file(
         "%s_worker_input" % label.name,
         sibling = jar_output,
