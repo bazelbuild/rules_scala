@@ -39,7 +39,6 @@ class ScalaPBGenerator extends Processor {
       require(op.toFile.exists, s"Path $fullPath does not exist, which it should as a dependency of this rule")
       val relativePath = rp.relativize(op)
 
-      println(s"Root: rp , op: $op and relativePath: $relativePath")
       relativePath.toFile.getParentFile.mkdirs
       java.nio.file.Files.copy(op, relativePath)
     }
