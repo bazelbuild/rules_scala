@@ -1,0 +1,49 @@
+load(
+    "//scala/private:common.bzl",
+    "write_manifest_file",
+)
+load("//scala/private:rule_impls.bzl", "compile_scala")
+load("//scala_proto/private:dep_sets.bzl", "SCALAPB_DEPS", "GRPC_DEPS")
+
+
+def _root_path(f):
+    if f.is_source:
+        return f.owner.workspace_root
+    return "/".join([f.root.path, f.owner.workspace_root])
+
+
+def _colon_paths(data):
+    return ":".join([
+        f.path
+        for f in sorted(data)
+    ])
+
+
+def proto_to_scala_src(ctx, label, compile_proto, include_proto, transitive_proto_paths, flags, jar_output):
+    worker_content = "{output}\n{included_proto}\n{flags_arg}\n{transitive_proto_paths}\n{inputs}".format(
+        output = jar_output.path,
+        included_proto = "-" + ":".join(sorted(["%s,%s" % (f.root.path, f.path) for f in include_proto])),
+        # Command line args to worker cannot be empty so using padding
+        flags_arg = "-" + ",".join(flags),
+        transitive_proto_paths = "-" + ":".join(transitive_proto_paths),
+        # Command line args to worker cannot be empty so using padding
+        # Pass inputs seprately because they doesn't always match to imports (ie blacklisted protos are excluded)
+        inputs = _colon_paths(compile_proto)
+    )
+    print(worker_content)
+    argfile = ctx.actions.declare_file(
+        "%s_worker_input" % label.name,
+        sibling = jar_output,
+    )
+    ctx.actions.write(output = argfile, content = worker_content)
+    ctx.actions.run(
+        executable = ctx.executable._pluck_scalapb_scala,
+        inputs = compile_proto + include_proto + [argfile],
+        outputs = [jar_output],
+        mnemonic = "ProtoScalaPBRule",
+        progress_message = "creating scalapb files %s" % ctx.label,
+        execution_requirements = {"supports-workers": "1"},
+        arguments = ["@" + argfile.path],
+    )
+
+
