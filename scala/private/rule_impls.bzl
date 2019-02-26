@@ -233,7 +233,7 @@ CurrentTarget: {current_target}
             current_target = current_target,
         )
     if is_dependency_analyzer_off(ctx) and not _is_plus_one_deps_off(ctx):
-        compiler_classpath_jars = transitive_compile_jars
+      compiler_classpath_jars = transitive_compile_jars
 
     plugins_list = plugins.to_list()
     plugin_arg = _join_path(plugins_list)
@@ -1109,7 +1109,7 @@ def scala_test_impl(ctx):
         jvm_flags = ctx.attr.jvm_flags,
         main_class = ctx.attr.main_class,
         rjars = rjars,
-        use_jacoco = True,
+        use_jacoco = ctx.configuration.coverage_enabled,
         wrapper = wrapper,
     ))
 
