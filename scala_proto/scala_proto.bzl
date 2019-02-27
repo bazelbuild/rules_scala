@@ -612,7 +612,7 @@ def _strip_roots(roots, f):
 def _scala_proto_gen_impl(ctx):
     descriptors = [f for dep in ctx.attr.deps for f in dep.proto.transitive_descriptor_sets]
     roots = [f for dep in ctx.attr.deps for f in dep.proto.transitive_proto_path]
-    sources = depset([_strip_roots(roots, f) for dep in ctx.attr.deps for f in dep.proto.transitive_sources]).to_list()
+    sources = depset([_strip_roots(roots, f) for dep in ctx.attr.deps for f in _retained_protos(dep.proto.transitive_sources, ctx.attr.blacklisted_protos)]).to_list()
 
     srcdotjar = ctx.actions.declare_file("_" + ctx.label.name + "_src.jar")
 

@@ -85,7 +85,6 @@ scalapb_proto_library(
     with_java = True,
     deps = [
         ":test2",
-
         "//test/proto2:test",
     ],
     java_conversions_deps = [":test_proto_java_lib"]
@@ -98,16 +97,16 @@ scalapb_proto_library(
     deps = [":test_service"],
 )
 
-scala_proto_srcjar(
+scala_proto_gen(
     name = "test1_proto_scala",
     deps = ["//test/proto2:test"],
-    generator = "@io_bazel_rules_scala//src/scala/scripts:scalapb_generator")
+    plugin = "@io_bazel_rules_scala//src/scala/scripts:scalapb_plugin")
 
-scala_proto_srcjar(
+scala_proto_gen(
     name = "test2_proto_scala_with_blacklisted_test1_proto_scala",
     deps = [":test2"],
     blacklisted_protos = ["//test/proto2:test"],
-    generator = "@io_bazel_rules_scala//src/scala/scripts:scalapb_generator")
+    plugin = "@io_bazel_rules_scala//src/scala/scripts:scalapb_plugin")
 
 scala_library(
     name = "lib_scala_should_fail_on_duplicated_sources_unless_duplicates_are_blacklisted",
@@ -118,22 +117,3 @@ scala_library(
         "@com_google_protobuf//:protobuf_java",
         "@scala_proto_rules_scalapb_lenses",
         "@scala_proto_rules_scalapb_runtime"])
-
-scala_proto_gen(
-    name = "a_proto_scala",
-    deps = ["//test/proto2:test"],
-    plugin = "@io_bazel_rules_scala//src/scala/scripts:scalapb_plugin")
-
-scala_proto_gen(
-    name = "test2_proto_scala",
-    deps = [":test2"],
-    plugin = "@io_bazel_rules_scala//src/scala/scripts:scalapb_plugin")
-
-scala_proto_gen(
-    name = "multi_src_proto_scala",
-    deps = [":test2", "//test/proto2:test"],
-    plugin = "@io_bazel_rules_scala//src/scala/scripts:scalapb_plugin")
-
-java_proto_library(
-    name = "test2_proto_java",
-    deps = [":test2", "//test/proto2:test"])
