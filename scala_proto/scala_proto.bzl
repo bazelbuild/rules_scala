@@ -590,8 +590,8 @@ def scalapb_proto_library(
     scala_library(
         name = name,
         srcs = [srcjar],
-        deps = [srcjar] + external_deps,
-        unused_dependency_checker_ignored_targets = [srcjar] + external_deps,
+        deps = external_deps,
+        unused_dependency_checker_ignored_targets = external_deps,
         exports = external_deps,
         scalac_jvm_flags = scalac_jvm_flags,
         visibility = visibility,
