@@ -597,22 +597,18 @@ def scalapb_proto_library(
         visibility = visibility,
     )
 
-def _strip_roots(roots, f):
-    if f.is_source:
-        for prefix in roots:
-            if f.short_path.startswith(prefix + "/"):
-                return f.short_path.replace(prefix + "/", "")
-            return f.short_path
-    else:
-        for prefix in roots:
-            if f.path.startswith(f.root.path + "/" + prefix + "/"):
-                return f.path.replace(f.root.path + "/" + prefix + "/", "")
-            return f.short_path
+def _strip_root(file, roots):
+    for root in roots:
+        prefix = root + "/" if file.is_source else file.root.path + "/" + root + "/"
+        if file.path.startswith(prefix):
+            return file.path.replace(prefix, "")
+    return file.short_path
 
 def _scala_proto_gen_impl(ctx):
-    descriptors = [f for dep in ctx.attr.deps for f in dep.proto.transitive_descriptor_sets]
-    roots = [f for dep in ctx.attr.deps for f in dep.proto.transitive_proto_path]
-    sources = depset([_strip_roots(roots, f) for dep in ctx.attr.deps for f in _retained_protos(dep.proto.transitive_sources, ctx.attr.blacklisted_protos)]).to_list()
+    descriptors = depset([f for dep in ctx.attr.deps for f in dep.proto.transitive_descriptor_sets]).to_list()
+    sources = depset([f for dep in ctx.attr.deps for f in dep.proto.transitive_sources]).to_list()
+    roots = depset([f for dep in ctx.attr.deps for f in dep.proto.transitive_proto_path]).to_list()
+    inputs = depset([_strip_root(f, roots) for f in _retained_protos(sources, ctx.attr.blacklisted_protos)]).to_list()
 
     srcdotjar = ctx.actions.declare_file("_" + ctx.label.name + "_src.jar")
 
@@ -623,7 +619,7 @@ def _scala_proto_gen_impl(ctx):
             "--plugin=protoc-gen-scala=" + ctx.executable.plugin.path,
             "--scala_out=%s:%s" % (",".join(ctx.attr.flags), srcdotjar.path),
             "--descriptor_set_in=" + ":".join([descriptor.path for descriptor in descriptors])]
-            + sources,
+            + inputs,
         executable = ctx.executable._protoc,
         mnemonic = "ScalaProtoGen",
         use_default_shell_env = True,
