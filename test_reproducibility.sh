@@ -16,6 +16,7 @@ non_deploy_jar_md5_sum() {
 }
 
 test_build_is_identical() {
+    printf "\\n/test/jmh\\n" >> .bazelignore
     bazel build test/...
     non_deploy_jar_md5_sum > hash1
     bazel clean
