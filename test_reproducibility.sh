@@ -16,6 +16,8 @@ non_deploy_jar_md5_sum() {
 }
 
 test_build_is_identical() {
+    cp .bazelignore .bazelignore.bak
+    trap 'mv .bazelignore.bak .bazelignore' EXIT
     printf "\\n/test/jmh\\n" >> .bazelignore
     bazel build test/...
     non_deploy_jar_md5_sum > hash1
