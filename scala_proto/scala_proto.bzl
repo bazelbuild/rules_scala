@@ -562,6 +562,7 @@ def scalapb_proto_library(
         with_flat_package = False,
         with_single_line_to_string = False,
         scalac_jvm_flags = [],
+        java_conversions_deps = [],
         visibility = None):
     srcjar = name + "_srcjar"
     flags = []
@@ -573,17 +574,18 @@ def scalapb_proto_library(
         flags.append("flat_package")
     if with_single_line_to_string:
         flags.append("single_line_to_string")
-    scala_proto_srcjar(
+
+    scala_proto_gen(
         name = srcjar,
-        flags = flags,
-        generator = "@io_bazel_rules_scala//src/scala/scripts:scalapb_generator",
         deps = deps,
+        flags = flags,
+        plugin = "@io_bazel_rules_scala//src/scala/scripts:scalapb_plugin",
         visibility = visibility,
     )
 
     external_deps = list(SCALAPB_DEPS + GRPC_DEPS if (
         with_grpc
-    ) else SCALAPB_DEPS)
+    ) else SCALAPB_DEPS) + java_conversions_deps
 
     scala_library(
         name = name,
@@ -595,19 +597,33 @@ def scalapb_proto_library(
         visibility = visibility,
     )
 
+def _strip_roots(roots, f):
+    if f.is_source:
+        for prefix in roots:
+            if f.short_path.startswith(prefix + "/"):
+                return f.short_path.replace(prefix + "/", "")
+            return f.short_path
+    else:
+        for prefix in roots:
+            if f.path.startswith(f.root.path + "/" + prefix + "/"):
+                return f.path.replace(f.root.path + "/" + prefix + "/", "")
+            return f.short_path
+
 def _scala_proto_gen_impl(ctx):
-    sources = [f for dep in ctx.attr.deps for f in dep.proto.direct_sources]
     descriptors = [f for dep in ctx.attr.deps for f in dep.proto.transitive_descriptor_sets]
+    roots = [f for dep in ctx.attr.deps for f in dep.proto.transitive_proto_path]
+    sources = depset([_strip_roots(roots, f) for dep in ctx.attr.deps for f in dep.proto.transitive_sources]).to_list()
+
     srcdotjar = ctx.actions.declare_file("_" + ctx.label.name + "_src.jar")
 
     ctx.actions.run(
-        inputs = [ctx.executable._protoc, ctx.executable.plugin] + descriptors + sources,
+        inputs = [ctx.executable._protoc, ctx.executable.plugin] + descriptors,
         outputs = [srcdotjar],
         arguments = [
             "--plugin=protoc-gen-scala=" + ctx.executable.plugin.path,
             "--scala_out=%s:%s" % (",".join(ctx.attr.flags), srcdotjar.path),
             "--descriptor_set_in=" + ":".join([descriptor.path for descriptor in descriptors])]
-            + [source.short_path for source in sources],
+            + sources,
         executable = ctx.executable._protoc,
         mnemonic = "ScalaProtoGen",
         use_default_shell_env = True,
