@@ -548,6 +548,7 @@ Args:
     with_flat_package: When true, ScalaPB will not append the protofile base name to the package name
     with_single_line_to_string: Enables generation of toString() methods that use the single line format
     scalac_jvm_flags: List of JVM flags to pass to the underlying scala_library attribute
+    runtime: List of libraries that the generated code is compiled against (ScalaPB dependencies are added implicitly)
 
 Outputs:
     A scala_library rule that includes the generated scalapb bindings, as
