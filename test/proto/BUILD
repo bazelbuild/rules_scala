@@ -83,11 +83,11 @@ scalapb_proto_library(
     visibility = ["//visibility:public"],
     with_flat_package = True,
     with_java = True,
+    with_java_deps = [":test_proto_java_lib"],
     deps = [
         ":test2",
         "//test/proto2:test",
     ],
-    runtime = [":test_proto_java_lib"]
 )
 
 scalapb_proto_library(

@@ -548,8 +548,7 @@ Args:
     with_flat_package: When true, ScalaPB will not append the protofile base name to the package name
     with_single_line_to_string: Enables generation of toString() methods that use the single line format
     scalac_jvm_flags: List of JVM flags to pass to the underlying scala_library attribute
-    runtime: List of libraries that the generated code is compiled against (ScalaPB dependencies are added implicitly)
-
+    with_java_deps: List of java_proto_library which are required for java_conversions (with_java=True)
 Outputs:
     A scala_library rule that includes the generated scalapb bindings, as
     well as any library dependencies needed to compile and use these.
@@ -563,7 +562,7 @@ def scalapb_proto_library(
         with_flat_package = False,
         with_single_line_to_string = False,
         scalac_jvm_flags = [],
-        runtime = [],
+        with_java_deps = [],
         visibility = None):
     srcjar = name + "_srcjar"
     flags = []
@@ -584,7 +583,7 @@ def scalapb_proto_library(
         visibility = visibility,
     )
 
-    external_deps = runtime + list(SCALAPB_DEPS + GRPC_DEPS if (
+    external_deps = with_java_deps + list(SCALAPB_DEPS + GRPC_DEPS if (
         with_grpc
     ) else SCALAPB_DEPS)
 
