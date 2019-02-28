@@ -562,7 +562,7 @@ def scalapb_proto_library(
         with_flat_package = False,
         with_single_line_to_string = False,
         scalac_jvm_flags = [],
-        java_conversions_deps = [],
+        runtime = [],
         visibility = None):
     srcjar = name + "_srcjar"
     flags = []
@@ -583,9 +583,9 @@ def scalapb_proto_library(
         visibility = visibility,
     )
 
-    external_deps = list(SCALAPB_DEPS + GRPC_DEPS if (
+    external_deps = runtime + list(SCALAPB_DEPS + GRPC_DEPS if (
         with_grpc
-    ) else SCALAPB_DEPS) + java_conversions_deps
+    ) else SCALAPB_DEPS)
 
     scala_library(
         name = name,

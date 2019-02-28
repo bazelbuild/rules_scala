@@ -87,7 +87,7 @@ scalapb_proto_library(
         ":test2",
         "//test/proto2:test",
     ],
-    java_conversions_deps = [":test_proto_java_lib"]
+    runtime = [":test_proto_java_lib"]
 )
 
 scalapb_proto_library(
