@@ -548,7 +548,7 @@ Args:
     with_flat_package: When true, ScalaPB will not append the protofile base name to the package name
     with_single_line_to_string: Enables generation of toString() methods that use the single line format
     scalac_jvm_flags: List of JVM flags to pass to the underlying scala_library attribute
-    with_java_deps: List of java_proto_library which are required for java_conversions (with_java=True)
+
 Outputs:
     A scala_library rule that includes the generated scalapb bindings, as
     well as any library dependencies needed to compile and use these.
@@ -562,7 +562,6 @@ def scalapb_proto_library(
         with_flat_package = False,
         with_single_line_to_string = False,
         scalac_jvm_flags = [],
-        with_java_deps = [],
         visibility = None):
     srcjar = name + "_srcjar"
     flags = []
@@ -575,7 +574,7 @@ def scalapb_proto_library(
     if with_single_line_to_string:
         flags.append("single_line_to_string")
 
-    scala_proto_gen(
+    _scalapb_proto_gen_with_jvm_deps(
         name = srcjar,
         deps = deps,
         flags = flags,
@@ -583,19 +582,56 @@ def scalapb_proto_library(
         visibility = visibility,
     )
 
-    external_deps = with_java_deps + list(SCALAPB_DEPS + GRPC_DEPS if (
+    external_deps = list(SCALAPB_DEPS + GRPC_DEPS if (
         with_grpc
     ) else SCALAPB_DEPS)
 
     scala_library(
         name = name,
         srcs = [srcjar],
-        deps = external_deps,
-        unused_dependency_checker_ignored_targets = external_deps,
+        deps = [srcjar] + external_deps,
+        unused_dependency_checker_ignored_targets = [srcjar] + external_deps,
         exports = external_deps,
         scalac_jvm_flags = scalac_jvm_flags,
         visibility = visibility,
     )
+
+def _scalapb_proto_gen_with_jvm_deps_impl(ctx):
+    _scala_proto_gen_impl(ctx)
+
+    jvm_deps = [p for p in ctx.attr.deps if hasattr(p, "proto") == False]
+
+    if "java_conversions" in ctx.attr.flags and len(jvm_deps) == 0:
+        fail("must have at least one jvm dependency if with_java is True (java_conversions is turned on)")
+
+    deps_jars = collect_jars(jvm_deps)
+
+    srcjarsattr = struct(srcjar = ctx.outputs.srcjar)
+    scalaattr = struct(
+        outputs = None,
+        compile_jars = deps_jars.compile_jars,
+        transitive_runtime_jars = deps_jars.transitive_runtime_jars,
+    )
+    java_provider = create_java_provider(scalaattr, depset())
+    return struct(
+        scala = scalaattr,
+        providers = [java_provider],
+        srcjars = srcjarsattr,
+    )
+
+_scalapb_proto_gen_with_jvm_deps = rule(
+    _scalapb_proto_gen_with_jvm_deps_impl,
+    attrs = {
+        "deps": attr.label_list(mandatory = True, providers = [["proto"], [JavaInfo]]),
+        "blacklisted_protos" : attr.label_list(providers = [["proto"]]),
+        "flags": attr.string_list(default = []),
+        "plugin": attr.label(executable = True, cfg = "host"),
+        "_protoc": attr.label(executable = True, cfg = "host", default = "@com_google_protobuf//:protoc")
+    },
+    outputs = {
+        "srcjar": "lib%{name}.srcjar",
+    },
+)
 
 def _strip_root(file, roots):
     for root in roots:
@@ -605,9 +641,10 @@ def _strip_root(file, roots):
     return file.short_path
 
 def _scala_proto_gen_impl(ctx):
-    descriptors = depset([f for dep in ctx.attr.deps for f in dep.proto.transitive_descriptor_sets]).to_list()
-    sources = depset([f for dep in ctx.attr.deps for f in dep.proto.transitive_sources]).to_list()
-    roots = depset([f for dep in ctx.attr.deps for f in dep.proto.transitive_proto_path]).to_list()
+    protos = [p for p in ctx.attr.deps if hasattr(p, "proto")] # because scalapb can pass JavaInfo as well
+    descriptors = depset([f for dep in protos for f in dep.proto.transitive_descriptor_sets]).to_list()
+    sources = depset([f for dep in protos for f in dep.proto.transitive_sources]).to_list()
+    roots = depset([f for dep in protos for f in dep.proto.transitive_proto_path]).to_list()
     inputs = depset([_strip_root(f, roots) for f in _retained_protos(sources, ctx.attr.blacklisted_protos)]).to_list()
 
     srcdotjar = ctx.actions.declare_file("_" + ctx.label.name + "_src.jar")
