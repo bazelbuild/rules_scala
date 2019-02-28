@@ -632,6 +632,25 @@ def _scala_proto_gen_impl(ctx):
         outputs = [ctx.outputs.srcjar],
         arguments = [srcdotjar.path, ctx.outputs.srcjar.path])
 
+"""Generates code with scala plugin passed to implicit @com_google_protobuf//:protoc
+
+Example:
+    scala_proto_gen(
+        name = "a_proto_scala",
+        deps = [":a_proto"],
+        plugin = "@io_bazel_rules_scala//src/scala/scripts:scalapb_plugin")
+
+Args:
+    deps: List of proto_library rules to generate code for
+    blacklisted_protos: List of proto_library rules to exclude from protoc inputs
+                        (used for libraries that comes from runtime like any.proto)
+    flags: list of plugin flags passed to --scala_out
+    plugin: an executable passed to --plugin=protoc-gen-scala= which implements protoc plugin contract
+            https://github.com/protocolbuffers/protobuf/blob/master/src/google/protobuf/compiler/plugin.proto
+
+Outputs:
+    Single srcjar with generated sources for all deps and all the transitives
+"""
 scala_proto_gen = rule(
     _scala_proto_gen_impl,
     attrs = {
