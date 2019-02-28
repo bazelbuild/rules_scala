@@ -596,6 +596,19 @@ def scalapb_proto_library(
         visibility = visibility,
     )
 
+def _scala_proto_gen_attrs(deps_providers):
+    return {
+        "deps": attr.label_list(mandatory = True, providers = deps_providers),
+        "blacklisted_protos" : attr.label_list(providers = [["proto"]]),
+        "flags": attr.string_list(default = []),
+        "plugin": attr.label(executable = True, cfg = "host"),
+        "_protoc": attr.label(executable = True, cfg = "host", default = "@com_google_protobuf//:protoc")
+    }
+
+_scala_proto_gen_outputs = {
+    "srcjar": "lib%{name}.srcjar",
+}
+
 def _scalapb_proto_gen_with_jvm_deps_impl(ctx):
     _scala_proto_gen_impl(ctx)
 
@@ -621,16 +634,8 @@ def _scalapb_proto_gen_with_jvm_deps_impl(ctx):
 
 _scalapb_proto_gen_with_jvm_deps = rule(
     _scalapb_proto_gen_with_jvm_deps_impl,
-    attrs = {
-        "deps": attr.label_list(mandatory = True, providers = [["proto"], [JavaInfo]]),
-        "blacklisted_protos" : attr.label_list(providers = [["proto"]]),
-        "flags": attr.string_list(default = []),
-        "plugin": attr.label(executable = True, cfg = "host"),
-        "_protoc": attr.label(executable = True, cfg = "host", default = "@com_google_protobuf//:protoc")
-    },
-    outputs = {
-        "srcjar": "lib%{name}.srcjar",
-    },
+    attrs = _scala_proto_gen_attrs([["proto"], [JavaInfo]]),
+    outputs = _scala_proto_gen_outputs,
 )
 
 def _strip_root(file, roots):
@@ -641,7 +646,7 @@ def _strip_root(file, roots):
     return file.short_path
 
 def _scala_proto_gen_impl(ctx):
-    protos = [p for p in ctx.attr.deps if hasattr(p, "proto")] # because scalapb can pass JavaInfo as well
+    protos = [p for p in ctx.attr.deps if hasattr(p, "proto")] # because scalapb passes JavaInfo as well
     descriptors = depset([f for dep in protos for f in dep.proto.transitive_descriptor_sets]).to_list()
     sources = depset([f for dep in protos for f in dep.proto.transitive_sources]).to_list()
     roots = depset([f for dep in protos for f in dep.proto.transitive_proto_path]).to_list()
@@ -689,14 +694,6 @@ Outputs:
 """
 scala_proto_gen = rule(
     _scala_proto_gen_impl,
-    attrs = {
-        "deps": attr.label_list(mandatory = True, providers = [["proto"]]),
-        "blacklisted_protos" : attr.label_list(providers = [["proto"]]),
-        "flags": attr.string_list(default = []),
-        "plugin": attr.label(executable = True, cfg = "host"),
-        "_protoc": attr.label(executable = True, cfg = "host", default = "@com_google_protobuf//:protoc")
-    },
-    outputs = {
-        "srcjar": "lib%{name}.srcjar",
-    },
+    attrs = _scala_proto_gen_attrs(deps_providers = [["proto"]]),
+    outputs = _scala_proto_gen_outputs,
 )
