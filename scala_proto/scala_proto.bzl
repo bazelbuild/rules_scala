@@ -482,6 +482,9 @@ def _gen_proto_srcjar_impl(ctx):
         srcjars = srcjarsattr,
     )
 
+"""
+    Deprecated: use scala_proto_gen instead
+"""
 scala_proto_srcjar = rule(
     _gen_proto_srcjar_impl,
     attrs = {
@@ -610,12 +613,12 @@ _scala_proto_gen_outputs = {
 }
 
 def _scalapb_proto_gen_with_jvm_deps_impl(ctx):
-    _scala_proto_gen_impl(ctx)
-
     jvm_deps = [p for p in ctx.attr.deps if hasattr(p, "proto") == False]
 
     if "java_conversions" in ctx.attr.flags and len(jvm_deps) == 0:
         fail("must have at least one jvm dependency if with_java is True (java_conversions is turned on)")
+
+    _scala_proto_gen_impl(ctx)
 
     deps_jars = collect_jars(jvm_deps)
 
@@ -639,6 +642,10 @@ _scalapb_proto_gen_with_jvm_deps = rule(
 )
 
 def _strip_root(file, roots):
+    """Strip first matching root which comes from proto_library(proto_source_root)
+        It assumes that proto_source_root are unique.
+        It should go away once generation is moved to aspects and roots can be handled for each proto_library individualy.
+    """
     for root in roots:
         prefix = root + "/" if file.is_source else file.root.path + "/" + root + "/"
         if file.path.startswith(prefix):
@@ -646,7 +653,7 @@ def _strip_root(file, roots):
     return file.short_path
 
 def _scala_proto_gen_impl(ctx):
-    protos = [p for p in ctx.attr.deps if hasattr(p, "proto")] # because scalapb passes JavaInfo as well
+    protos = [p for p in ctx.attr.deps if hasattr(p, "proto")] # because scalapb_proto_library passes JavaInfo as well
     descriptors = depset([f for dep in protos for f in dep.proto.transitive_descriptor_sets]).to_list()
     sources = depset([f for dep in protos for f in dep.proto.transitive_sources]).to_list()
     roots = depset([f for dep in protos for f in dep.proto.transitive_proto_path]).to_list()
