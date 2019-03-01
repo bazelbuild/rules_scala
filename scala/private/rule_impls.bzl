@@ -55,6 +55,10 @@ def _adjust_resources_path_by_default_prefixes(path):
     if rel_path:
         return dir_1 + dir_2, rel_path
 
+    (dir1, meta_inf, rel_path) = path.partition("META-INF/")
+    if rel_path:
+        return dir1, meta_inf + rel_path
+
     return "", path
 
 def _adjust_resources_path(path, resource_strip_prefix):
@@ -65,7 +69,7 @@ def _adjust_resources_path(path, resource_strip_prefix):
 
 def _add_resources_cmd(ctx):
     res_cmd = []
-    for f in ctx.files.resources:
+    for f in _write_services(ctx):
         c_dir, res_path = _adjust_resources_path(
             f.short_path,
             ctx.attr.resource_strip_prefix,
@@ -85,7 +89,7 @@ def _build_nosrc_jar(ctx):
     resources = _add_resources_cmd(ctx)
     ijar_cmd = ""
 
-    # this ensures the file is not empty
+    # this ensures the resources string is not empty
     resources += "META-INF/MANIFEST.MF=%s\n" % ctx.outputs.manifest.path
 
     zipper_arg_path = ctx.actions.declare_file("%s_zipper_args" % ctx.label.name)
@@ -449,7 +453,7 @@ def _compile_or_empty(
             transitive_compile_jars,
             ctx.attr.plugins,
             ctx.attr.resource_strip_prefix,
-            ctx.files.resources,
+            _write_services(ctx),
             ctx.files.resource_jars,
             jars2labels,
             ctx.attr.scalacopts,
@@ -664,6 +668,17 @@ def _collect_jars_from_common_ctx(
         transitive_runtime_jars = transitive_rjars,
     )
 
+def _write_services(ctx):
+    resources = [resource for resource in ctx.files.resources]
+    for service, impls in ctx.attr.services.items():
+        service_file_path = ctx.actions.declare_file("META-INF/services/" + service)
+        ctx.actions.write(
+            output = service_file_path,
+            content = "\n".join(impls)+ "\n"
+        )
+        resources.append(service_file_path)
+    return resources
+
 def _lib(
         ctx,
         base_classpath,
@@ -761,7 +776,7 @@ def scala_library_impl(ctx):
         scalac_provider.default_classpath,
         True,
         unused_dependency_checker_mode,
-        ctx.attr.unused_dependency_checker_ignored_targets,
+        ctx.attr.unused_dependency_checker_ignored_targets
     )
 
 def scala_library_for_plugin_bootstrapping_impl(ctx):

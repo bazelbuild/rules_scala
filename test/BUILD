@@ -588,6 +588,13 @@ scala_library(
     deps = ["//test/proto:test_proto"],
 )
 
+scala_library(
+    name = "lib_with_scala_services",
+    srcs = ["TestServer.scala"],
+    deps = ["//test/proto:test_proto"],
+    services = {"com.scala.test.service": ["com.scala.test.Service1","com.scala.test.Service2",],}
+)
+
 scala_binary(
     name = "test_scala_proto_server",
     main_class = "test.proto.TestServer",

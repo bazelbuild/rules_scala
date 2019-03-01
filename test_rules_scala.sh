@@ -255,7 +255,17 @@ test_multi_service_manifest() {
   exit $RESPONSE_CODE
 }
 
-
+test_services() {
+  services_jar='lib_with_scala_services.jar'
+  services_file='META-INF/services/com.scala.test.service'
+  services_target="//test:lib_with_scala_services"
+  bazel build $services_target
+  unzip -p bazel-bin/test/$services_jar $services_file > services.txt
+  diff services.txt test/example_jars/expected_services.txt
+  RESPONSE_CODE=$?
+  rm services.txt
+  exit $RESPONSE_CODE
+}
 
 action_should_fail() {
   # runs the tests locally
@@ -1015,6 +1025,7 @@ $runner scala_junit_test_jar_is_exposed_in_build_event_protocol
 $runner test_scala_import_source_jar_should_be_fetched_when_fetch_sources_is_set_to_true
 $runner test_scala_import_source_jar_should_be_fetched_when_env_bazel_jvm_fetch_sources_is_set_to_true
 $runner test_scala_import_source_jar_should_not_be_fetched_when_env_bazel_jvm_fetch_sources_is_set_to_non_true
+$runner test_services
 $runner test_unused_dependency_checker_mode_warn
 $runner test_override_javabin
 $runner test_compilation_succeeds_with_plus_one_deps_on
