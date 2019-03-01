@@ -233,7 +233,7 @@ CurrentTarget: {current_target}
             current_target = current_target,
         )
     if is_dependency_analyzer_off(ctx) and not _is_plus_one_deps_off(ctx):
-      compiler_classpath_jars = transitive_compile_jars
+        compiler_classpath_jars = transitive_compile_jars
 
     plugins_list = plugins.to_list()
     plugin_arg = _join_path(plugins_list)
@@ -583,7 +583,7 @@ JAVA_EXEC_TO_USE=${{REAL_EXTERNAL_JAVA_BIN:-$DEFAULT_JAVABIN}}
     )
     return wrapper
 
-def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper, use_jacoco = False):
+def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper, use_jacoco):
     template = ctx.attr._java_stub_template.files.to_list()[0]
 
     jvm_flags = " ".join(
@@ -960,6 +960,7 @@ def scala_binary_impl(ctx):
         jvm_flags = ctx.attr.jvm_flags,
         main_class = ctx.attr.main_class,
         rjars = out.transitive_rjars,
+        use_jacoco = False,
         wrapper = wrapper,
     )
     return out
@@ -1017,6 +1018,7 @@ trap finish EXIT
         jvm_flags = ["-Dscala.usejavacp=true"] + ctx.attr.jvm_flags,
         main_class = "scala.tools.nsc.MainGenericRunner",
         rjars = out.transitive_rjars,
+        use_jacoco = False,
         wrapper = wrapper,
     )
 
@@ -1229,6 +1231,7 @@ def scala_junit_test_impl(ctx):
         jvm_flags = launcherJvmFlags + ctx.attr.jvm_flags,
         main_class = "com.google.testing.junit.runner.BazelTestRunner",
         rjars = out.transitive_rjars,
+        use_jacoco = False,
         wrapper = wrapper,
     )
 
