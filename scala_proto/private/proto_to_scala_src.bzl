@@ -19,7 +19,7 @@ def _colon_paths(data):
     ])
 
 
-def proto_to_scala_src(ctx, label, compile_proto, include_proto, transitive_proto_paths, flags, jar_output):
+def proto_to_scala_src(ctx, label, code_generator, compile_proto, include_proto, transitive_proto_paths, flags, jar_output):
     worker_content = "{output}\n{included_proto}\n{flags_arg}\n{transitive_proto_paths}\n{inputs}".format(
         output = jar_output.path,
         included_proto = "-" + ":".join(sorted(["%s,%s" % (f.root.path, f.path) for f in include_proto])),
@@ -36,7 +36,7 @@ def proto_to_scala_src(ctx, label, compile_proto, include_proto, transitive_prot
     )
     ctx.actions.write(output = argfile, content = worker_content)
     ctx.actions.run(
-        executable = ctx.executable._pluck_scalapb_scala,
+        executable = code_generator,
         inputs = compile_proto + include_proto + [argfile],
         outputs = [jar_output],
         mnemonic = "ProtoScalaPBRule",

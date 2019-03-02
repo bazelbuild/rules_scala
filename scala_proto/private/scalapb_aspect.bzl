@@ -176,9 +176,6 @@ def _scalapb_aspect_impl(target, ctx):
         if toolchain.with_single_line_to_string:
             flags.append("single_line_to_proto_string")
 
-        # if toolchain.with_java:
-        #     flags.append("java_conversions")
-
 
         # This feels rather hacky and odd, but we can't compare the labels to ignore a target easily
         # since the @ or // forms seem to not have good equality :( , so we aim to make them absolute
@@ -193,6 +190,7 @@ def _scalapb_aspect_impl(target, ctx):
             if(lbl.label == target_absolute_label):
                 compile_protos = False
 
+        code_generator = toolchain.code_generator
 
         if compile_protos:
             # we sort so the inputs are always the same for caching
@@ -210,6 +208,7 @@ def _scalapb_aspect_impl(target, ctx):
             proto_to_scala_src(
                 ctx,
                 target.label,
+                code_generator,
                 compile_protos,
                 transitive_protos,
                 target_ti.transitive_proto_path.to_list(),
