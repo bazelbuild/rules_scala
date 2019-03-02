@@ -179,6 +179,21 @@ def _scalapb_aspect_impl(target, ctx):
         # if toolchain.with_java:
         #     flags.append("java_conversions")
 
+
+        # This feels rather hacky and odd, but we can't compare the labels to ignore a target easily
+        # since the @ or // forms seem to not have good equality :( , so we aim to make them absolute
+        #
+        # the backlisted protos in the tool chain get made into to absolute paths
+        # so we make the local target we are looking at absolute too
+        target_absolute_label = target.label
+        if not str(target_absolute_label)[0] == "@":
+            target_absolute_label = Label("@%s//%s:%s" % (ctx.workspace_name, target.label.package, target.label.name))
+
+        for lbl in toolchain.blacklisted_protos:
+            if(lbl.label == target_absolute_label):
+                compile_protos = False
+
+
         if compile_protos:
             # we sort so the inputs are always the same for caching
             compile_proto_map = {}

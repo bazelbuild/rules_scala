@@ -4,6 +4,7 @@ def _scala_proto_toolchain_impl(ctx):
         with_flat_package = ctx.attr.with_flat_package,
         # with_java = ctx.attr.with_java,
         with_single_line_to_string = ctx.attr.with_single_line_to_string,
+        blacklisted_protos = ctx.attr.blacklisted_protos,
     )
     return [toolchain]
 
@@ -20,5 +21,6 @@ scala_proto_toolchain = rule(
         "with_flat_package": attr.bool(),
         # "with_java": attr.bool(),
         "with_single_line_to_string": attr.bool(),
+        "blacklisted_protos": attr.label_list(default=[]),
     },
 )

@@ -6,6 +6,45 @@ load(
 load(
     "//scala:scala.bzl",
     "scala_library",
+    "scala_test",
+)
+
+load(
+    "//scala_proto:scala_proto_toolchain.bzl",
+    "scala_proto_toolchain"
+)
+
+scala_proto_toolchain(
+    name = "test_scala_proto_toolchain_configuration",
+    with_grpc = True,
+    with_flat_package=False,
+    # with_java=True,
+    blacklisted_protos = [
+        "//test/proto:blacklisted_proto",
+        "//test/proto:other_blacklisted_proto",
+    ],
+    with_single_line_to_string=True,
+    visibility = ["//visibility:public"],
+)
+
+toolchain(
+    name = "scalapb_toolchain",
+    toolchain = ":test_scala_proto_toolchain_configuration",
+    toolchain_type = "@io_bazel_rules_scala//scala_proto:toolchain_type",
+    visibility = ["//visibility:public"],
+)
+
+proto_library(
+    name = "blacklisted_proto",
+    srcs = ["blacklisted_proto.proto"],
+    visibility = ["//visibility:public"],
+)
+
+
+proto_library(
+    name = "other_blacklisted_proto",
+    srcs = ["blacklisted_proto.proto"],
+    visibility = ["//visibility:public"],
 )
 
 proto_library(
@@ -89,26 +128,19 @@ scalapb_proto_library(
 scalapb_proto_library(
     name = "test_proto",
     visibility = ["//visibility:public"],
-    deps = [":test_service"],
+    deps = [
+        ":test_service",
+        ":blacklisted_proto",
+        "@io_bazel_rules_scala//test/proto:other_blacklisted_proto",
+    ],
 )
 
-# scala_proto_srcjar(
-#     name = "test1_proto_scala",
-#     deps = ["//test/proto2:test"],
-#     generator = "@io_bazel_rules_scala//src/scala/scripts:scalapb_generator")
-
-# scala_proto_srcjar(
-#     name = "test2_proto_scala_with_blacklisted_test1_proto_scala",
-#     deps = [":test2"],
-#     blacklisted_protos = ["//test/proto2:test"],
-#     generator = "@io_bazel_rules_scala//src/scala/scripts:scalapb_generator")
-
-# scala_library(
-#     name = "lib_scala_should_fail_on_duplicated_sources_unless_duplicates_are_blacklisted",
-#     srcs = [
-#         ":test1_proto_scala",
-#         ":test2_proto_scala_with_blacklisted_test1_proto_scala"],
-#     deps = [
-#         "@com_google_protobuf//:protobuf_java",
-#         "@scala_proto_rules_scalapb_lenses",
-#         "@scala_proto_rules_scalapb_runtime"])
+scala_test(
+    name = "test_blacklisted_proto",
+    srcs= [
+        "BlackListedProtoTest.scala",
+    ],
+    deps = [
+        ":test_proto",
+    ]
+    )
