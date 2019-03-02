@@ -272,7 +272,7 @@ scalapb_aspect = aspect(
         ),
     },
     required_aspect_providers = [
-        ["proto"],
+        [ProtoInfo],
         [ScalaPBImport],
     ],
     toolchains = [
