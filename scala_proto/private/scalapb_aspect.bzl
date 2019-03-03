@@ -26,26 +26,10 @@ ScalaPBInfo = provider(fields = [
 ])
 
 
-
-def lift_proto_to_struct(tis):
-    return struct(
-        direct_sources = tis.direct_sources,
-        transitive_sources = tis.transitive_sources,
-        # transitive = depset(transitive = [t.transitive for t in tis]),
-        # srcs = depset(transitive = [t.srcs for t in tis]),
-        # import_flags = [t.import_flags for t in tis],
-        # deps = depset(transitive = [t.deps for t in tis]),
-    )
-
 def merge_proto_infos(tis):
     return struct(
         transitive_sources = [t.transitive_sources for t in tis],
-        # transitive = depset(transitive = [t.transitive for t in tis]),
-        # srcs = depset(transitive = [t.srcs for t in tis]),
-        # import_flags = [t.import_flags for t in tis],
-        # deps = depset(transitive = [t.deps for t in tis]),
     )
-
 
 def merge_scalapb_aspect_info(scalapbs):
     return ScalaPBAspectInfo(
@@ -96,7 +80,7 @@ def _compile_scala(
         manifest,
         statsfile,
         sources = [],
-        cjars = merged_deps.transitive_compile_time_jars,
+        cjars = merged_deps.compile_jars,
         all_srcjars = depset([scalapb_jar]),
         transitive_compile_jars = merged_deps.transitive_compile_time_jars,
         plugins = [],
