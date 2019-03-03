@@ -1,3 +1,5 @@
+load("//scala_proto/private:dep_sets.bzl", "SCALAPB_DEPS", "GRPC_DEPS")
+
 def _scala_proto_toolchain_impl(ctx):
     toolchain = platform_common.ToolchainInfo(
         with_grpc = ctx.attr.with_grpc,
@@ -5,6 +7,11 @@ def _scala_proto_toolchain_impl(ctx):
         with_single_line_to_string = ctx.attr.with_single_line_to_string,
         blacklisted_protos = ctx.attr.blacklisted_protos,
         code_generator = ctx.executable.code_generator,
+        override_code_generator = ctx.executable.override_code_generator,
+        override_code_generator_targets = ctx.attr.override_code_generator_targets,
+        grpc_deps=ctx.attr.grpc_deps,
+        implicit_compile_deps=ctx.attr.implicit_compile_deps,
+        scalac=ctx.attr.scalac,
     )
     return [toolchain]
 
@@ -27,6 +34,31 @@ scala_proto_toolchain = rule(
             cfg = "host",
             default = Label("@io_bazel_rules_scala//src/scala/scripts:scalapb_generator"),
             allow_files=True
+        ),
+        # Default value of the override generator is just the same generator
+        "override_code_generator": attr.label(
+            executable = True,
+            cfg = "host",
+            default = Label("@io_bazel_rules_scala//src/scala/scripts:scalapb_generator"),
+            allow_files=True
+        ),
+        "override_code_generator_targets": attr.label_list(default=[]),
+        "grpc_deps": attr.label_list(
+            providers = [JavaInfo],
+            default = GRPC_DEPS
+        ),
+        "implicit_compile_deps": attr.label_list(
+            providers = [JavaInfo],
+            default = SCALAPB_DEPS + [
+            Label(
+                    "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+                )
+            ],
+        ),
+        "scalac": attr.label(
+            default = Label(
+                "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac",
+            ),
         ),
     },
 )

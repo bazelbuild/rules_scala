@@ -5,7 +5,6 @@ load(
 load("//scala/private:rule_impls.bzl", "compile_scala")
 
 load("//scala_proto/private:proto_to_scala_src.bzl", "proto_to_scala_src")
-load("//scala_proto/private:dep_sets.bzl", "SCALAPB_DEPS", "GRPC_DEPS")
 
 
 ScalaPBAspectInfo = provider(fields = [
@@ -69,6 +68,7 @@ def _compiled_jar_file(actions, scalapb_jar):
 
 def _compile_scala(
         ctx,
+        scalac,
         label,
         output,
         scalapb_jar,
@@ -108,7 +108,7 @@ def _compile_scala(
         print_compile_time = False,
         expect_java_output = False,
         scalac_jvm_flags = [],
-        scalac = ctx.attr._scalac,
+        scalac = scalac,
     )
 
     return JavaInfo(
@@ -141,6 +141,9 @@ def _scalapb_aspect_impl(target, ctx):
     deps = [d[ScalaPBAspectInfo].java_info for d in ctx.rule.attr.deps]
 
     if ProtoInfo not in target:
+        # We allow some dependencies which are not protobuf, but instead
+        # are jvm deps. This is to enable cases of custom generators which
+        # add a needed jvm dependency.
         java_info = target[JavaInfo]
         src_jars = depset()
         outs = depset()
@@ -164,11 +167,11 @@ def _scalapb_aspect_impl(target, ctx):
 
         toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
         flags = []
-        imps = [j[JavaInfo] for j in ctx.attr._implicit_compile_deps]
+        imps = [j[JavaInfo] for j in toolchain.implicit_compile_deps]
 
         if toolchain.with_grpc:
             flags.append("grpc")
-            imps.extend([j[JavaInfo] for j in ctx.attr._grpc_deps])
+            imps.extend([j[JavaInfo] for j in toolchain.grpc_deps])
 
         if toolchain.with_flat_package:
             flags.append("flat_package")
@@ -221,6 +224,7 @@ def _scalapb_aspect_impl(target, ctx):
             outs = depset([output])
             java_info = _compile_scala(
                 ctx,
+                toolchain.scalac,
                 target.label,
                 output,
                 scalapb_file,
@@ -245,31 +249,6 @@ def _scalapb_aspect_impl(target, ctx):
 scalapb_aspect = aspect(
     implementation = _scalapb_aspect_impl,
     attr_aspects = ["deps"],
-    attrs = {
-        "_pluck_scalapb_scala": attr.label(
-            executable = True,
-            cfg = "host",
-            default = Label("@io_bazel_rules_scala//src/scala/scripts:scalapb_generator"),
-            allow_files = True,
-        ),
-        "_scalac": attr.label(
-            default = Label(
-                "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac",
-            ),
-        ),
-        "_grpc_deps": attr.label_list(
-            providers = [JavaInfo],
-            default = GRPC_DEPS
-        ),
-        "_implicit_compile_deps": attr.label_list(
-            providers = [JavaInfo],
-            default = SCALAPB_DEPS + [
-            Label(
-                    "//external:io_bazel_rules_scala/dependency/scala/scala_library",
-                )
-            ],
-        ),
-    },
     required_aspect_providers = [
         [ProtoInfo],
         [ScalaPBImport],
