@@ -25,7 +25,7 @@ def proto_to_scala_src(ctx, label, code_generator, compile_proto, include_proto,
         included_proto = "-" + ":".join(sorted(["%s,%s" % (f.root.path, f.path) for f in include_proto])),
         # Command line args to worker cannot be empty so using padding
         flags_arg = "-" + ",".join(flags),
-        transitive_proto_paths = "-" + ":".join(transitive_proto_paths),
+        transitive_proto_paths = "-" + ":".join(sorted(transitive_proto_paths)),
         # Command line args to worker cannot be empty so using padding
         # Pass inputs seprately because they doesn't always match to imports (ie blacklisted protos are excluded)
         inputs = _colon_paths(compile_proto)

@@ -196,15 +196,6 @@ def _scalapb_aspect_impl(target, ctx):
         code_generator = toolchain.code_generator
 
         if compile_protos:
-            # we sort so the inputs are always the same for caching
-            compile_proto_map = {}
-            for ct in compile_protos:
-                compile_proto_map[ct] = True
-            include_thrifts = sorted([
-                trans
-                for trans in compile_protos
-                if trans not in compile_proto_map
-            ])
             scalapb_file = ctx.actions.declare_file(
                 target.label.name + "_scalapb.srcjar",
             )
