@@ -3,12 +3,11 @@ package scripts
 import java.io.PrintStream
 import java.nio.file.Path
 
-import com.trueaccord.scalapb.{ScalaPBC, ScalaPbcException}
 import io.bazel.rulesscala.io_utils.DeleteRecursively
 import io.bazel.rulesscala.jar.JarCreator
 import io.bazel.rulesscala.worker.{GenericWorker, Processor}
 import protocbridge.ProtocBridge
-import scalapb.ScalaPbCodeGenerator
+import scalapb.{ScalaPBC, ScalaPbCodeGenerator, ScalaPbcException}
 
 object ScalaPBWorker extends GenericWorker(new ScalaPBGenerator) {
 
