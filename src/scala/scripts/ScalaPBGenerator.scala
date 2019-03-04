@@ -3,13 +3,11 @@ package scripts
 import java.io.PrintStream
 import java.nio.file.Path
 
-import com.trueaccord.scalapb.{ScalaPBC, ScalaPbcException}
 import io.bazel.rulesscala.io_utils.DeleteRecursively
 import io.bazel.rulesscala.jar.JarCreator
 import io.bazel.rulesscala.worker.{GenericWorker, Processor}
 import protocbridge.ProtocBridge
-
-import scalapb.ScalaPbCodeGenerator
+import scalapb.{ScalaPBC, ScalaPbCodeGenerator, ScalaPbcException}
 
 object ScalaPBWorker extends GenericWorker(new ScalaPBGenerator) {
 
@@ -41,7 +39,7 @@ class ScalaPBGenerator extends Processor {
     val extractRequestResult = PBGenerateRequest.from(args)
     val config = ScalaPBC.processArgs(extractRequestResult.scalaPBArgs.toArray)
     val code = ProtocBridge.runWithGenerators(
-      protoc = a => com.github.os72.protocjar.Protoc.runProtoc(a.toArray),
+      protoc = exec(extractRequestResult.protoc),
       namedGenerators = Seq("scala" -> ScalaPbCodeGenerator),
       params = config.args)
 
@@ -57,4 +55,7 @@ class ScalaPBGenerator extends Processor {
       deleteDir(extractRequestResult.scalaPBOutput)
     }
   }
+
+  private def exec(protoc: Path): Seq[String] => Int = (args: Seq[String]) =>
+    new ProcessBuilder(protoc.toString +: args: _*).inheritIO().start().waitFor()
 }

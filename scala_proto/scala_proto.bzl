@@ -28,18 +28,6 @@ def scala_proto_repositories(
         url = "http://central.maven.org/maven2/",
     )
 
-    native.maven_jar(
-        name = "scala_proto_rules_protoc_jar",
-        artifact = "com.github.os72:protoc-jar:3.6.0.1",
-        sha1 = "db8a7cc739f5b332e7f32fd5dfacae68f0062581",
-        server = "scala_proto_deps_maven_server",
-    )
-
-    native.bind(
-        name = "io_bazel_rules_scala/dependency/proto/protoc",
-        actual = "@scala_proto_rules_protoc_jar//jar",
-    )
-
     scala_jar_shas = {
         "2.11": {
             "scalapb_plugin": "b67e563d06f1bbb6ea704a063760a85ec7fb5809828402364d5418dd1c5cab06",
@@ -444,7 +432,7 @@ def _gen_proto_srcjar_impl(ctx):
 
     deps_jars = collect_jars(jvm_deps)
 
-    worker_content = "{output}\n{paths}\n{flags_arg}\n{packages}\n{inputs}".format(
+    worker_content = "{output}\n{paths}\n{flags_arg}\n{packages}\n{inputs}\n{protoc}".format(
         output = ctx.outputs.srcjar.path,
         paths = _colon_paths(acc_imports.to_list()),
         # Command line args to worker cannot be empty so using padding
@@ -453,7 +441,8 @@ def _gen_proto_srcjar_impl(ctx):
         packages = "-" +
                    ":".join(depset(transitive = transitive_proto_paths).to_list()),
         # Pass inputs seprately because they doesn't always match to imports (ie blacklisted protos are excluded)
-        inputs = ":".join(sorted([f.path for f in _retained_protos(acc_imports, ctx.attr.blacklisted_protos)]))
+        inputs = ":".join(sorted([f.path for f in _retained_protos(acc_imports, ctx.attr.blacklisted_protos)])),
+        protoc = ctx.executable._protoc.path
     )
     argfile = ctx.actions.declare_file(
         "%s_worker_input" % ctx.label.name,
@@ -462,7 +451,7 @@ def _gen_proto_srcjar_impl(ctx):
     ctx.actions.write(output = argfile, content = worker_content)
     ctx.actions.run(
         executable = ctx.executable.generator,
-        inputs = depset([argfile], transitive = [acc_imports]),
+        inputs = depset([argfile, ctx.executable._protoc], transitive = [acc_imports]),
         outputs = [ctx.outputs.srcjar],
         mnemonic = "ProtoScalaPBRule",
         progress_message = "creating scalapb files %s" % ctx.label,
@@ -496,6 +485,7 @@ scala_proto_srcjar = rule(
             allow_files = True,
         ),
         "blacklisted_protos" : attr.label_list(providers = [["proto"]]),
+        "_protoc": attr.label(executable = True, cfg = "host", default = "@com_google_protobuf//:protoc")
     },
     outputs = {
         "srcjar": "lib%{name}.srcjar",
