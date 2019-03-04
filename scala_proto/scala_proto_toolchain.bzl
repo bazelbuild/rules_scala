@@ -7,8 +7,6 @@ def _scala_proto_toolchain_impl(ctx):
         with_single_line_to_string = ctx.attr.with_single_line_to_string,
         blacklisted_protos = ctx.attr.blacklisted_protos,
         code_generator = ctx.executable.code_generator,
-        override_code_generator = ctx.executable.override_code_generator,
-        override_code_generator_targets = ctx.attr.override_code_generator_targets,
         grpc_deps=ctx.attr.grpc_deps,
         implicit_compile_deps=ctx.attr.implicit_compile_deps,
         scalac=ctx.attr.scalac,
@@ -35,14 +33,6 @@ scala_proto_toolchain = rule(
             default = Label("@io_bazel_rules_scala//src/scala/scripts:scalapb_generator"),
             allow_files=True
         ),
-        # Default value of the override generator is just the same generator
-        "override_code_generator": attr.label(
-            executable = True,
-            cfg = "host",
-            default = Label("@io_bazel_rules_scala//src/scala/scripts:scalapb_generator"),
-            allow_files=True
-        ),
-        "override_code_generator_targets": attr.label_list(default=[]),
         "grpc_deps": attr.label_list(
             providers = [JavaInfo],
             default = GRPC_DEPS
