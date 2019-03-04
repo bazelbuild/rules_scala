@@ -2,7 +2,7 @@ package scripts
 
 import java.nio.file.{Files, Path, Paths}
 
-class PBGenerateRequest(val jarOutput: String, val scalaPBOutput: Path, val scalaPBArgs: List[String], val protoc: String)
+class PBGenerateRequest(val jarOutput: String, val scalaPBOutput: Path, val scalaPBArgs: List[String], val protoc: Path)
 
 object PBGenerateRequest {
 
@@ -42,7 +42,7 @@ object PBGenerateRequest {
     val scalaPBOutput = Files.createTempDirectory(tmp, "bazelscalapb")
     val flagPrefix = flagOpt.fold("")(_ + ":")
     val scalaPBArgs = s"--scala_out=$flagPrefix$scalaPBOutput" :: (padWithProtoPathPrefix(transitiveProtoPaths) ++ imports ++ protoFiles)
-    val protoc = args.get(5)
+    val protoc = Paths.get(args.get(5))
     new PBGenerateRequest(jarOutput, scalaPBOutput, scalaPBArgs, protoc)
   }
 

@@ -56,6 +56,6 @@ class ScalaPBGenerator extends Processor {
     }
   }
 
-  private def exec(protoc: String): Seq[String] => Int = (args: Seq[String]) =>
-    new ProcessBuilder(protoc +: args: _*).inheritIO().start().waitFor()
+  private def exec(protoc: Path): Seq[String] => Int = (args: Seq[String]) =>
+    new ProcessBuilder(protoc.toString +: args: _*).inheritIO().start().waitFor()
 }
