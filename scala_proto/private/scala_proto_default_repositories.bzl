@@ -19,18 +19,6 @@ def scala_proto_default_repositories(
         url = "http://central.maven.org/maven2/",
     )
 
-    native.maven_jar(
-        name = "scala_proto_rules_protoc_jar",
-        artifact = "com.github.os72:protoc-jar:3.6.0.1",
-        sha1 = "db8a7cc739f5b332e7f32fd5dfacae68f0062581",
-        server = "scala_proto_deps_maven_server",
-    )
-
-    native.bind(
-        name = "io_bazel_rules_scala/dependency/proto/protoc",
-        actual = "@scala_proto_rules_protoc_jar//jar",
-    )
-
     scala_jar_shas = {
         "2.11": {
             "scalapb_plugin": "b67e563d06f1bbb6ea704a063760a85ec7fb5809828402364d5418dd1c5cab06",

@@ -33,7 +33,7 @@ object PBGenerateRequest {
     val flagPrefix = flagOpt.fold("")(_ + ":")
     val scalaPBArgs = s"--scala_out=$flagPrefix$scalaPBOutput" :: (padWithProtoPathPrefix(transitiveProtoPaths) ++ protoFiles)
     val protoc = Paths.get(args.get(5))
-    new PBGenerateRequest(jarOutput, scalaPBOutput, scalaPBArgs, protoc)
+    new PBGenerateRequest(jarOutput, scalaPBOutput, scalaPBArgs, includedProto, protoc)
   }
 
   private def padWithProtoPathPrefix(transitiveProtoPathFlags: List[String]) =

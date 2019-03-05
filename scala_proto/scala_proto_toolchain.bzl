@@ -6,7 +6,7 @@ def _scala_proto_toolchain_impl(ctx):
         with_flat_package = ctx.attr.with_flat_package,
         with_single_line_to_string = ctx.attr.with_single_line_to_string,
         blacklisted_protos = ctx.attr.blacklisted_protos,
-        code_generator = ctx.executable.code_generator,
+        code_generator = ctx.attr.code_generator,
         grpc_deps=ctx.attr.grpc_deps,
         implicit_compile_deps=ctx.attr.implicit_compile_deps,
         scalac=ctx.attr.scalac,

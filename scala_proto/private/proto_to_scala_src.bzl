@@ -20,7 +20,7 @@ def _colon_paths(data):
 
 
 def proto_to_scala_src(ctx, label, code_generator, compile_proto, include_proto, transitive_proto_paths, flags, jar_output):
-    worker_content = "{output}\n{included_proto}\n{flags_arg}\n{transitive_proto_paths}\n{inputs}".format(
+    worker_content = "{output}\n{included_proto}\n{flags_arg}\n{transitive_proto_paths}\n{inputs}\n{protoc}".format(
         output = jar_output.path,
         included_proto = "-" + ":".join(sorted(["%s,%s" % (f.root.path, f.path) for f in include_proto])),
         # Command line args to worker cannot be empty so using padding
@@ -28,7 +28,8 @@ def proto_to_scala_src(ctx, label, code_generator, compile_proto, include_proto,
         transitive_proto_paths = "-" + ":".join(sorted(transitive_proto_paths)),
         # Command line args to worker cannot be empty so using padding
         # Pass inputs seprately because they doesn't always match to imports (ie blacklisted protos are excluded)
-        inputs = _colon_paths(compile_proto)
+        inputs = _colon_paths(compile_proto),
+        protoc = ctx.executable._protoc.path
     )
     argfile = ctx.actions.declare_file(
         "%s_worker_input" % label.name,
@@ -37,7 +38,7 @@ def proto_to_scala_src(ctx, label, code_generator, compile_proto, include_proto,
     ctx.actions.write(output = argfile, content = worker_content)
     ctx.actions.run(
         executable = code_generator.files_to_run,
-        inputs = compile_proto + include_proto + [argfile],
+        inputs = compile_proto + include_proto + [argfile, ctx.executable._protoc],
         outputs = [jar_output],
         mnemonic = "ProtoScalaPBRule",
         progress_message = "creating scalapb files %s" % ctx.label,
