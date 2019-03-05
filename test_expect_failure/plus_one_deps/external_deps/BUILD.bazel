@@ -1,0 +1,7 @@
+load("//scala:scala.bzl", "scala_library")
+scala_library(
+    name = "a",
+    srcs = ["A.scala"],
+    deps = ["@org_springframework_spring_tx"]
+
+)

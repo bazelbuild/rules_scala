@@ -1,0 +1,15 @@
+load("//scala:scala.bzl", "scala_library")
+scala_library(
+    name = "a",
+    srcs = ["A.scala"],
+    deps = [":b"],
+)
+scala_library(
+    name = "b",
+    srcs = ["B.scala"],
+    deps = [":c"],
+)
+scala_library(
+    name = "c",
+    srcs = ["C.scala"],
+)

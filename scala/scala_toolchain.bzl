@@ -8,6 +8,7 @@ def _scala_toolchain_impl(ctx):
         scalacopts = ctx.attr.scalacopts,
         scalac_provider_attr = ctx.attr.scalac_provider_attr,
         unused_dependency_checker_mode = ctx.attr.unused_dependency_checker_mode,
+        plus_one_deps_mode = ctx.attr.plus_one_deps_mode,
     )
     return [toolchain]
 
@@ -22,6 +23,10 @@ scala_toolchain = rule(
         "unused_dependency_checker_mode": attr.string(
             default = "off",
             values = ["off", "warn", "error"],
+        ),
+        "plus_one_deps_mode": attr.string(
+            default = "off",
+            values = ["off", "on"],
         ),
     },
 )
