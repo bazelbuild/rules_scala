@@ -89,7 +89,6 @@ for an example workspace using another scala version.
 | 0.21.x | HEAD              |
 | 0.20.x | HEAD              |
 | 0.19.x | HEAD              |
-| 0.18.x | HEAD              |
 | 0.17.x | 37032481ed5ac2b2d88a1a3f0d80be7b14beb19c |
 | 0.16.x | 1354d935a74395b3f0870dd90a04e0376fe22587 |
 | 0.15.x | 3b9ab9be31ac217d3337c709cb6bfeb89c8dcbb1 |
