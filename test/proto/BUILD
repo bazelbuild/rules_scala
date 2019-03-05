@@ -1,30 +1,49 @@
 load(
     "//scala_proto:scala_proto.bzl",
-    "scalapb_proto_library"
+    "scalapb_proto_library",
 )
-
 load(
     "//scala:scala.bzl",
+    "scala_binary",
     "scala_library",
     "scala_test",
 )
-
 load(
     "//scala_proto:scala_proto_toolchain.bzl",
-    "scala_proto_toolchain"
+    "scala_proto_toolchain",
+)
+
+scala_binary(
+    name = "custom_code_generator",
+    srcs = [
+        "CustomCodeGenerator.scala",
+    ],
+    main_class = "tests.CustomScalaPBWorker",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//external:io_bazel_rules_scala/dependency/proto/protoc_bridge",
+        "//external:io_bazel_rules_scala/dependency/proto/scalapb_plugin",
+        "//external:io_bazel_rules_scala/dependency/proto/scalapbc",
+        "//src/java/io/bazel/rulesscala/jar",
+        "//src/java/io/bazel/rulesscala/worker",
+        "//src/scala/scripts:scala_proto_request_extractor",
+        "//src/scala/scripts:scalapb_generator_lib",
+    ],
 )
 
 scala_proto_toolchain(
     name = "test_scala_proto_toolchain_configuration",
-    with_grpc = True,
-    with_flat_package=False,
     # with_java=True,
     blacklisted_protos = [
         "//test/proto:blacklisted_proto",
         "//test/proto:other_blacklisted_proto",
     ],
-    with_single_line_to_string=True,
+    override_code_generator = ":custom_code_generator",
+    override_code_generator_targets = [":test4"],
     visibility = ["//visibility:public"],
+    with_flat_package = False,
+    with_grpc = True,
+    with_single_line_to_string = True,
 )
 
 toolchain(
@@ -39,7 +58,6 @@ proto_library(
     srcs = ["blacklisted_proto.proto"],
     visibility = ["//visibility:public"],
 )
-
 
 proto_library(
     name = "other_blacklisted_proto",
@@ -62,6 +80,13 @@ proto_library(
 )
 
 proto_library(
+    name = "test4",
+    srcs = ["test4.proto"],
+    visibility = ["//visibility:public"],
+    deps = ["//test/proto2:test"],
+)
+
+proto_library(
     name = "test_external_dep_proto",
     srcs = ["test_external_dep.proto"],
     visibility = ["//visibility:public"],
@@ -79,8 +104,11 @@ scalapb_proto_library(
 # Test that the `proto_source_root` attribute is handled properly
 proto_library(
     name = "proto_source_root",
+    srcs = [
+        "different_root.proto",
+        "different_root2.proto",
+    ],
     proto_source_root = native.package_name(),
-    srcs = ["different_root.proto", "different_root2.proto"],
     visibility = ["//visibility:public"],
 )
 
@@ -129,18 +157,37 @@ scalapb_proto_library(
     name = "test_proto",
     visibility = ["//visibility:public"],
     deps = [
-        ":test_service",
         ":blacklisted_proto",
+        ":test_service",
         "@io_bazel_rules_scala//test/proto:other_blacklisted_proto",
     ],
 )
 
 scala_test(
     name = "test_blacklisted_proto",
-    srcs= [
+    srcs = [
         "BlackListedProtoTest.scala",
     ],
     deps = [
         ":test_proto",
-    ]
-    )
+    ],
+)
+
+scalapb_proto_library(
+    name = "test_proto4",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":test4",
+    ],
+)
+
+
+scala_test(
+    name = "test_override_proto",
+    srcs = [
+        "OverrideProtoTest.scala",
+    ],
+    deps = [
+        ":test_proto4",
+    ],
+)

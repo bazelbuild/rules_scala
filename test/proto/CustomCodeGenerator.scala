@@ -1,18 +1,18 @@
-package scripts
+package tests
 
 import java.io.PrintStream
 import java.nio.file.Path
 
-import io.bazel.rulesscala.io_utils.DeleteRecursively
+import com.trueaccord.scalapb.{ScalaPBC, ScalaPbcException}
 import io.bazel.rulesscala.jar.JarCreator
 import io.bazel.rulesscala.worker.{GenericWorker, Processor}
 import protocbridge.ProtocBridge
 import scala.collection.JavaConverters._
 import scalapb.ScalaPbCodeGenerator
 import java.nio.file.{Files, Paths}
-import scalapb.{ScalaPBC, ScalaPbCodeGenerator, ScalaPbcException}
+import scripts._
 
-object ScalaPBWorker extends GenericWorker(new ScalaPBGenerator) {
+object CustomScalaPBWorker extends GenericWorker(new CustomScalaPBGenerator) {
 
   override protected def setupOutput(ps: PrintStream): Unit = {
     System.setOut(ps)
@@ -31,26 +31,15 @@ object ScalaPBWorker extends GenericWorker(new ScalaPBGenerator) {
   }
 }
 
-class ScalaPBGenerator extends Processor {
-  def setupIncludedProto(includedProto: List[(String, String)]): Unit = {
-    includedProto.foreach { case (root, fullPath) =>
-      val rp = Paths.get(root)
-      val op = Paths.get(fullPath)
-      require(op.toFile.exists, s"Path $fullPath does not exist, which it should as a dependency of this rule")
-      val relativePath = rp.relativize(op)
+class CustomScalaPBGenerator extends ScalaPBGenerator {
+  override def processRequest(args: java.util.List[String]) {
+    val a: Array[String] = args.asScala.toArray[String]
 
-      relativePath.toFile.getParentFile.mkdirs
-      Files.copy(op, relativePath)
-    }
-  }
-  def deleteDir(path: Path): Unit =
-    try DeleteRecursively.run(path)
-    catch {
-      case e: Exception => sys.error(s"Problem while deleting path [$path], e.getMessage= ${e.getMessage}")
-    }
+    // flat package doesn't seem to work with different things
+    a(2) = "-flat_package"
 
-  def processRequest(args: java.util.List[String]) {
-    val extractRequestResult = PBGenerateRequest.from(args)
+    val extractRequestResult = PBGenerateRequest.from(a.toList.asJava)
+
     setupIncludedProto(extractRequestResult.includedProto)
 
     val config = ScalaPBC.processArgs(extractRequestResult.scalaPBArgs.toArray)
@@ -68,7 +57,4 @@ class ScalaPBGenerator extends Processor {
       deleteDir(extractRequestResult.scalaPBOutput)
     }
   }
-
-  protected def exec(protoc: Path): Seq[String] => Int = (args: Seq[String]) =>
-    new ProcessBuilder(protoc.toString +: args: _*).inheritIO().start().waitFor()
 }
