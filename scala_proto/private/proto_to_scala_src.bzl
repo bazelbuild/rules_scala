@@ -36,7 +36,7 @@ def proto_to_scala_src(ctx, label, code_generator, compile_proto, include_proto,
     )
     ctx.actions.write(output = argfile, content = worker_content)
     ctx.actions.run(
-        executable = code_generator,
+        executable = code_generator.files_to_run,
         inputs = compile_proto + include_proto + [argfile],
         outputs = [jar_output],
         mnemonic = "ProtoScalaPBRule",
