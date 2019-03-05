@@ -85,7 +85,12 @@ for an example workspace using another scala version.
 
 | bazel | rules_scala gitsha |
 |-------|--------------------|
-| 0.16.x | HEAD              |
+| 0.22.x | HEAD              |
+| 0.21.x | HEAD              |
+| 0.20.x | HEAD              |
+| 0.19.x | HEAD              |
+| 0.18.x | HEAD              |
+| 0.17.1 | 37032481ed5ac2b2d88a1a3f0d80be7b14beb19c |
 | 0.15.x | 3b9ab9be31ac217d3337c709cb6bfeb89c8dcbb1 |
 | 0.14.x | 3b9ab9be31ac217d3337c709cb6bfeb89c8dcbb1 |
 | 0.13.x | 3c987b6ae8a453886759b132f1572c0efca2eca2 |
@@ -761,4 +766,3 @@ Here's a (non-exhaustive) list of companies that use `rules_scala` in production
 * [Stripe](https://stripe.com/)
 * [VSCO](https://vsco.co)
 * [Wix](https://www.wix.com/)
-
