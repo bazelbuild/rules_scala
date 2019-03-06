@@ -441,14 +441,6 @@ def scala_repositories(
         server_urls = maven_servers,
     )
 
-    _scala_maven_import_external(
-        name = "scalac_rules_protobuf_java",
-        artifact = "com.google.protobuf:protobuf-java:3.1.0",
-        jar_sha256 = "8d7ec605ca105747653e002bfe67bddba90ab964da697aaa5daa1060923585db",
-        licenses = ["notice"],
-        server_urls = maven_servers,
-    )
-
     # used by ScalacProcessor
     _scala_maven_import_external(
         name = "scalac_rules_commons_io",
@@ -478,7 +470,7 @@ def scala_repositories(
 
     native.bind(
         name = "io_bazel_rules_scala/dependency/com_google_protobuf/protobuf_java",
-        actual = "@scalac_rules_protobuf_java//jar",
+        actual = "@com_google_protobuf//:protobuf_java",
     )
 
     native.bind(
