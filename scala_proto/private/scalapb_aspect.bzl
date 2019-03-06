@@ -171,11 +171,6 @@ def _scalapb_aspect_impl(target, ctx):
             if(lbl.label == target_absolute_label):
                 code_generator = toolchain.override_code_generator
 
-
-        for lbl in toolchain.override_code_generator_targets:
-            if(lbl.label == target_absolute_label):
-                code_generator = toolchain.override_code_generator
-
         if compile_protos:
             scalapb_file = ctx.actions.declare_file(
                 target.label.name + "_scalapb.srcjar",
