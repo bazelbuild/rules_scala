@@ -148,7 +148,6 @@ scalapb_proto_library(
     visibility = ["//visibility:public"],
     deps = [
         ":test2",
-        # ":test_proto_java_lib",
         "//test/proto2:test",
     ],
 )

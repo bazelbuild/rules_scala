@@ -9,7 +9,6 @@ scala_proto_toolchain(
     name = "default_toolchain_impl",
     with_grpc = True,
     with_flat_package=False,
-    # with_java=False,
     with_single_line_to_string=False,
     visibility = ["//visibility:public"],
 )

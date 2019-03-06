@@ -71,7 +71,7 @@ def _compile_scala(
 
     # this only compiles scala, not the ijar, but we don't
     # want the ijar for generated code anyway: any change
-    # in the thrift generally will change the interface and
+    # in the proto generally will change the interface and
     # method bodies
     compile_scala(
         ctx,
@@ -105,21 +105,11 @@ def _compile_scala(
     )
 
 def _empty_java_info(deps_java_info, implicit_deps):
-    merged_deps = java_common.merge(deps_java_info + implicit_deps)
-    return java_common.create_provider(
-        use_ijar = False,
-        compile_time_jars = depset(transitive = [merged_deps.compile_jars]),
-        transitive_compile_time_jars = depset(
-            transitive = [merged_deps.transitive_compile_time_jars],
-        ),
-        transitive_runtime_jars = depset(
-            transitive = [merged_deps.transitive_runtime_jars],
-        ),
-    )
+    return java_common.merge(deps_java_info + implicit_deps)
 
 ####
-# This is applied to the DAG of thrift_librarys reachable from a deps
-# or a scalapb_scala_library. Each thrift_library will be one scalapb
+# This is applied to the DAG of proto_librarys reachable from a deps
+# or a scalapb_scala_library. Each proto_library will be one scalapb
 # invocation assuming it has some sources.
 def _scalapb_aspect_impl(target, ctx):
     deps = [d[ScalaPBAspectInfo].java_info for d in ctx.rule.attr.deps]
