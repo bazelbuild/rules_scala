@@ -7,6 +7,9 @@ import io.bazel.rulesscala.io_utils.DeleteRecursively
 import io.bazel.rulesscala.jar.JarCreator
 import io.bazel.rulesscala.worker.{GenericWorker, Processor}
 import protocbridge.ProtocBridge
+import scala.collection.JavaConverters._
+import scalapb.ScalaPbCodeGenerator
+import java.nio.file.{Files, Paths}
 import scalapb.{ScalaPBC, ScalaPbCodeGenerator, ScalaPbcException}
 
 object ScalaPBWorker extends GenericWorker(new ScalaPBGenerator) {
@@ -29,6 +32,15 @@ object ScalaPBWorker extends GenericWorker(new ScalaPBGenerator) {
 }
 
 class ScalaPBGenerator extends Processor {
+  def setupIncludedProto(includedProto: List[(Path, Path)]): Unit = {
+    includedProto.foreach { case (root, fullPath) =>
+      require(fullPath.toFile.exists, s"Path $fullPath does not exist, which it should as a dependency of this rule")
+      val relativePath = root.relativize(fullPath)
+
+      relativePath.toFile.getParentFile.mkdirs
+      Files.copy(fullPath, relativePath)
+    }
+  }
   def deleteDir(path: Path): Unit =
     try DeleteRecursively.run(path)
     catch {
@@ -37,6 +49,8 @@ class ScalaPBGenerator extends Processor {
 
   def processRequest(args: java.util.List[String]) {
     val extractRequestResult = PBGenerateRequest.from(args)
+    setupIncludedProto(extractRequestResult.includedProto)
+
     val config = ScalaPBC.processArgs(extractRequestResult.scalaPBArgs.toArray)
     val code = ProtocBridge.runWithGenerators(
       protoc = exec(extractRequestResult.protoc),
@@ -44,18 +58,15 @@ class ScalaPBGenerator extends Processor {
       params = config.args)
 
     try {
-      if (!config.throwException) {
-        JarCreator.buildJar(Array(extractRequestResult.jarOutput, extractRequestResult.scalaPBOutput.toString))
-      } else {
         if (code != 0) {
           throw new ScalaPbcException(s"Exit with code $code")
         }
-      }
+        JarCreator.buildJar(Array(extractRequestResult.jarOutput, extractRequestResult.scalaPBOutput.toString))
     } finally {
       deleteDir(extractRequestResult.scalaPBOutput)
     }
   }
 
-  private def exec(protoc: Path): Seq[String] => Int = (args: Seq[String]) =>
+  protected def exec(protoc: Path): Seq[String] => Int = (args: Seq[String]) =>
     new ProcessBuilder(protoc.toString +: args: _*).inheritIO().start().waitFor()
 }
