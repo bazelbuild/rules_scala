@@ -32,15 +32,13 @@ object ScalaPBWorker extends GenericWorker(new ScalaPBGenerator) {
 }
 
 class ScalaPBGenerator extends Processor {
-  def setupIncludedProto(includedProto: List[(String, String)]): Unit = {
+  def setupIncludedProto(includedProto: List[(Path, Path)]): Unit = {
     includedProto.foreach { case (root, fullPath) =>
-      val rp = Paths.get(root)
-      val op = Paths.get(fullPath)
-      require(op.toFile.exists, s"Path $fullPath does not exist, which it should as a dependency of this rule")
-      val relativePath = rp.relativize(op)
+      require(fullPath.toFile.exists, s"Path $fullPath does not exist, which it should as a dependency of this rule")
+      val relativePath = root.relativize(fullPath)
 
       relativePath.toFile.getParentFile.mkdirs
-      Files.copy(op, relativePath)
+      Files.copy(fullPath, relativePath)
     }
   }
   def deleteDir(path: Path): Unit =

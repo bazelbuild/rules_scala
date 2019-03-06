@@ -2,7 +2,7 @@ package scripts
 
 import java.nio.file.{Files, Path, Paths}
 
-class PBGenerateRequest(val jarOutput: String, val scalaPBOutput: Path, val scalaPBArgs: List[String], val includedProto: List[(String, String)], val protoc: Path)
+case class PBGenerateRequest(jarOutput: String, scalaPBOutput: Path, scalaPBArgs: List[String], includedProto: List[(Path, Path)], protoc: Path)
 
 object PBGenerateRequest {
 
@@ -11,11 +11,12 @@ object PBGenerateRequest {
     val protoFiles = args.get(4).split(':')
     val includedProto = args.get(1).drop(1).split(':').distinct.map { e =>
       val p = e.split(',')
-      (p(0), p(1))
-    }.filter { case (k, v) =>
-    // If its an empty string then it means we are local to the current repo for the key, no op
-    // or if the to compile files contains this absolute path then we are compiling it and shoudln't try move it around(duplicate files.)
-    k != "" && !protoFiles.contains(v)}.toList
+      // If its an empty string then it means we are local to the current repo for the key, no op
+      (Some(p(0)).filter(_.nonEmpty), p(1))
+    }.collect {
+      // if the to compile files contains this absolute path then we are compiling it and shoudln't try move it around(duplicate files.)
+      case (Some(k), v) if !protoFiles.contains(v) => (Paths.get(k), Paths.get(v))
+    }.toList
 
     val flagOpt = args.get(2) match {
       case "-" => None
