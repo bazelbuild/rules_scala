@@ -28,6 +28,7 @@ load(
     "write_manifest",
 )
 load("@io_bazel_rules_scala//scala:jars_to_labels.bzl", "JarsToLabelsInfo")
+load("@bazel_tools//tools/jdk:toolchain_utils.bzl", "find_java_runtime_toolchain", "find_java_toolchain")
 
 _java_extension = ".java"
 
@@ -363,8 +364,7 @@ def try_to_compile_java_jar(
             ctx,
             ctx.attr.javacopts + ctx.attr.javac_jvm_flags +
             java_common.default_javac_opts(
-                ctx,
-                java_toolchain_attr = "_java_toolchain",
+                java_toolchain = ctx.attr._java_toolchain[java_common.JavaToolchainInfo],
             ),
         ),
         deps = providers_of_dependencies,
@@ -372,8 +372,8 @@ def try_to_compile_java_jar(
         #needs to be empty since we want the provider.compile_jars to only contain the sources ijar
         #workaround until https://github.com/bazelbuild/bazel/issues/3528 is resolved
         exports = [],
-        java_toolchain = ctx.attr._java_toolchain,
-        host_javabase = ctx.attr._host_javabase,
+        java_toolchain = find_java_toolchain(ctx, ctx.attr._java_toolchain),
+        host_javabase = find_java_runtime_toolchain(ctx, ctx.attr._host_javabase),
         strict_deps = ctx.fragments.java.strict_java_deps,
     )
     return struct(
@@ -468,7 +468,7 @@ def _compile_or_empty(
                 ctx.actions,
                 jar = ctx.outputs.jar,
                 target_label = ctx.label,
-                java_toolchain = ctx.attr._java_toolchain,
+                java_toolchain = find_java_toolchain(ctx, ctx.attr._java_toolchain),
             )
         else:
             #  macro code needs to be available at compile-time,
@@ -867,8 +867,8 @@ def _pack_source_jars(ctx):
         output_jar = ctx.outputs.jar,
         sources = scala_sources,
         source_jars = bundled_source_jars,
-        java_toolchain = ctx.attr._java_toolchain,
-        host_javabase = ctx.attr._host_javabase,
+        java_toolchain = find_java_toolchain(ctx, ctx.attr._java_toolchain),
+        host_javabase = find_java_runtime_toolchain(ctx, ctx.attr._host_javabase),
     )
     if scala_source_jar:
         source_jars.append(scala_source_jar)
