@@ -152,8 +152,8 @@ def scala_proto_default_repositories(
 
     native.maven_jar(
         name = "scala_proto_rules_grpc_core",
-        artifact = "io.grpc:grpc-core:1.18.0",
-        sha1 = "e21b343bba2006bac31bb16b7438701cddfbf564",
+        artifact = "io.grpc:grpc-core:1.19.0",
+        sha1 = "48b280ef2c8f42989c65bd61665926c212379660",
         server = "scala_proto_deps_maven_server",
     )
 
@@ -164,8 +164,8 @@ def scala_proto_default_repositories(
 
     native.maven_jar(
         name = "scala_proto_rules_grpc_stub",
-        artifact = "io.grpc:grpc-stub:1.18.0",
-        sha1 = "5e4dbf944814d49499e3cbd9846ef58f629b5f32",
+        artifact = "io.grpc:grpc-stub:1.19.0",
+        sha1 = "f9c61fb98a0d5617c430ff3313171072a5b4bca1",
         server = "scala_proto_deps_maven_server",
     )
 
@@ -176,8 +176,8 @@ def scala_proto_default_repositories(
 
     native.maven_jar(
         name = "scala_proto_rules_grpc_protobuf",
-        artifact = "io.grpc:grpc-protobuf:1.18.0",
-        sha1 = "74d794cf9b90b620e0ad698008abc4f55c1ca5e2",
+        artifact = "io.grpc:grpc-protobuf:1.19.0",
+        sha1 = "21964ce4b695d50e826c93b362f2c710d57028ae",
         server = "scala_proto_deps_maven_server",
     )
 
@@ -188,8 +188,8 @@ def scala_proto_default_repositories(
 
     native.maven_jar(
         name = "scala_proto_rules_grpc_netty",
-        artifact = "io.grpc:grpc-netty:1.18.0",
-        sha1 = "0d813fe080edb188953fea46803777e5ba6f41d4",
+        artifact = "io.grpc:grpc-netty:1.19.0",
+        sha1 = "315399f4d3b6df530ab038e7ec29a1f18f3b832a",
         server = "scala_proto_deps_maven_server",
     )
 
@@ -200,8 +200,8 @@ def scala_proto_default_repositories(
 
     native.maven_jar(
         name = "scala_proto_rules_grpc_context",
-        artifact = "io.grpc:grpc-context:1.18.0",
-        sha1 = "c63e8b86af0fb16b5696480dc14f48e6eaa7193b",
+        artifact = "io.grpc:grpc-context:1.19.0",
+        sha1 = "bb73958187106ef1300b9e47ce5333f40cb913eb",
         server = "scala_proto_deps_maven_server",
     )
 
@@ -212,10 +212,10 @@ def scala_proto_default_repositories(
 
     native.maven_jar(
         name = "scala_proto_rules_guava",
-        # io.grpc:grpc-core:1.18.0 defines a dependency on guava 25.1-android
-        # see https://search.maven.org/artifact/io.grpc/grpc-core/1.18.0/jar
-        artifact = "com.google.guava:guava:25.1-android",
-        sha1 = "bdaab946ca5ad20253502d873ba0c3313d141036",
+        # io.grpc:grpc-core:1.19.0 defines a dependency on guava 26.0-android
+        # see https://search.maven.org/artifact/io.grpc/grpc-core/1.19.0/jar
+        artifact = "com.google.guava:guava:26.0-android",
+        sha1 = "ef69663836b339db335fde0df06fb3cd84e3742b",
         server = "scala_proto_deps_maven_server",
     )
 
