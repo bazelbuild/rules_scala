@@ -14,11 +14,6 @@ def scala_proto_default_repositories(
         maven_servers = ["http://central.maven.org/maven2"]):
     major_version = _extract_major_version(scala_version)
 
-    native.maven_server(
-        name = "scala_proto_deps_maven_server",
-        url = "http://central.maven.org/maven2/",
-    )
-
     scala_jar_shas = {
         "2.11": {
             "scalapb_plugin": "b67e563d06f1bbb6ea704a063760a85ec7fb5809828402364d5418dd1c5cab06",
@@ -224,11 +219,12 @@ def scala_proto_default_repositories(
         actual = "@scala_proto_rules_guava//jar",
     )
 
-    native.maven_jar(
+    _scala_maven_import_external(
         name = "scala_proto_rules_google_instrumentation",
         artifact = "com.google.instrumentation:instrumentation-api:0.3.0",
-        sha1 = "a2e145e7a7567c6372738f5c5a6f3ba6407ac354",
-        server = "scala_proto_deps_maven_server",
+        jar_sha256 = "671f7147487877f606af2c7e39399c8d178c492982827305d3b1c7f5b04f1145",
+        licenses = ["notice"],
+        server_urls = maven_servers,
     )
 
     native.bind(
@@ -236,11 +232,12 @@ def scala_proto_default_repositories(
         actual = "@scala_proto_rules_google_instrumentation//jar",
     )
 
-    native.maven_jar(
+    _scala_maven_import_external(
         name = "scala_proto_rules_netty_codec",
         artifact = "io.netty:netty-codec:4.1.32.Final",
-        sha1 = "8f32bd79c5a16f014a4372ed979dc62b39ede33a",
-        server = "scala_proto_deps_maven_server",
+        jar_sha256 = "dbd6cea7d7bf5a2604e87337cb67c9468730d599be56511ed0979aacb309f879",
+        licenses = ["notice"],
+        server_urls = maven_servers,
     )
 
     native.bind(
@@ -248,11 +245,12 @@ def scala_proto_default_repositories(
         actual = "@scala_proto_rules_netty_codec//jar",
     )
 
-    native.maven_jar(
+    _scala_maven_import_external(
         name = "scala_proto_rules_netty_codec_http",
         artifact = "io.netty:netty-codec-http:4.1.32.Final",
-        sha1 = "0b9218adba7353ad5a75fcb639e4755d64bd6ddf",
-        server = "scala_proto_deps_maven_server",
+        jar_sha256 = "db2c22744f6a4950d1817e4e1a26692e53052c5d54abe6cceecd7df33f4eaac3",
+        licenses = ["notice"],
+        server_urls = maven_servers,
     )
 
     native.bind(
@@ -260,11 +258,12 @@ def scala_proto_default_repositories(
         actual = "@scala_proto_rules_netty_codec_http//jar",
     )
 
-    native.maven_jar(
+    _scala_maven_import_external(
         name = "scala_proto_rules_netty_codec_socks",
         artifact = "io.netty:netty-codec-socks:4.1.32.Final",
-        sha1 = "b1e83cb772f842839dbeebd9a1f053da98bf56d2",
-        server = "scala_proto_deps_maven_server",
+        jar_sha256 = "fe2f2e97d6c65dc280623dcfd24337d8a5c7377049c120842f2c59fb83d7408a",
+        licenses = ["notice"],
+        server_urls = maven_servers,
     )
 
     native.bind(
@@ -272,11 +271,12 @@ def scala_proto_default_repositories(
         actual = "@scala_proto_rules_netty_codec_socks//jar",
     )
 
-    native.maven_jar(
+    _scala_maven_import_external(
         name = "scala_proto_rules_netty_codec_http2",
         artifact = "io.netty:netty-codec-http2:4.1.32.Final",
-        sha1 = "d14eb053a1f96d3330ec48e77d489118d547557a",
-        server = "scala_proto_deps_maven_server",
+        jar_sha256 = "4d4c6cfc1f19efb969b9b0ae6cc977462d202867f7dcfee6e9069977e623a2f5",
+        licenses = ["notice"],
+        server_urls = maven_servers,
     )
 
     native.bind(
@@ -284,11 +284,12 @@ def scala_proto_default_repositories(
         actual = "@scala_proto_rules_netty_codec_http2//jar",
     )
 
-    native.maven_jar(
+    _scala_maven_import_external(
         name = "scala_proto_rules_netty_handler",
         artifact = "io.netty:netty-handler:4.1.32.Final",
-        sha1 = "b4e3fa13f219df14a9455cc2111f133374428be0",
-        server = "scala_proto_deps_maven_server",
+        jar_sha256 = "07d9756e48b5f6edc756e33e8b848fb27ff0b1ae087dab5addca6c6bf17cac2d",
+        licenses = ["notice"],
+        server_urls = maven_servers,
     )
 
     native.bind(
@@ -296,11 +297,12 @@ def scala_proto_default_repositories(
         actual = "@scala_proto_rules_netty_handler//jar",
     )
 
-    native.maven_jar(
+    _scala_maven_import_external(
         name = "scala_proto_rules_netty_buffer",
         artifact = "io.netty:netty-buffer:4.1.32.Final",
-        sha1 = "046ede57693788181b2cafddc3a5967ed2f621c8",
-        server = "scala_proto_deps_maven_server",
+        jar_sha256 = "8ac0e30048636bd79ae205c4f9f5d7544290abd3a7ed39d8b6d97dfe3795afc1",
+        licenses = ["notice"],
+        server_urls = maven_servers,
     )
 
     native.bind(
@@ -308,11 +310,12 @@ def scala_proto_default_repositories(
         actual = "@scala_proto_rules_netty_buffer//jar",
     )
 
-    native.maven_jar(
+    _scala_maven_import_external(
         name = "scala_proto_rules_netty_transport",
         artifact = "io.netty:netty-transport:4.1.32.Final",
-        sha1 = "d5e5a8ff9c2bc7d91ddccc536a5aca1a4355bd8b",
-        server = "scala_proto_deps_maven_server",
+        jar_sha256 = "175bae0d227d7932c0c965c983efbb3cf01f39abe934f5c4071d0319784715fb",
+        licenses = ["notice"],
+        server_urls = maven_servers,
     )
 
     native.bind(
@@ -320,11 +323,12 @@ def scala_proto_default_repositories(
         actual = "@scala_proto_rules_netty_transport//jar",
     )
 
-    native.maven_jar(
+    _scala_maven_import_external(
         name = "scala_proto_rules_netty_resolver",
         artifact = "io.netty:netty-resolver:4.1.32.Final",
-        sha1 = "3e0114715cb125a12db8d982b2208e552a91256d",
-        server = "scala_proto_deps_maven_server",
+        jar_sha256 = "9b4a19982047a95ea4791a7ad7ad385c7a08c2ac75f0a3509cc213cb32a726ae",
+        licenses = ["notice"],
+        server_urls = maven_servers,
     )
 
     native.bind(
@@ -332,11 +336,12 @@ def scala_proto_default_repositories(
         actual = "@scala_proto_rules_netty_resolver//jar",
     )
 
-    native.maven_jar(
+    _scala_maven_import_external(
         name = "scala_proto_rules_netty_common",
         artifact = "io.netty:netty-common:4.1.32.Final",
-        sha1 = "e95de4f762606f492328e180c8ad5438565a5e3b",
-        server = "scala_proto_deps_maven_server",
+        jar_sha256 = "cc993e660f8f8e3b033f1d25a9e2f70151666bdf878d460a6508cb23daa696dc",
+        licenses = ["notice"],
+        server_urls = maven_servers,
     )
 
     native.bind(
@@ -344,11 +349,12 @@ def scala_proto_default_repositories(
         actual = "@scala_proto_rules_netty_common//jar",
     )
 
-    native.maven_jar(
+    _scala_maven_import_external(
         name = "scala_proto_rules_netty_handler_proxy",
         artifact = "io.netty:netty-handler-proxy:4.1.32.Final",
-        sha1 = "58b621246262127b97a871b88c09374c8c324cb7",
-        server = "scala_proto_deps_maven_server",
+        jar_sha256 = "10d1081ed114bb0e76ebbb5331b66a6c3189cbdefdba232733fc9ca308a6ea34",
+        licenses = ["notice"],
+        server_urls = maven_servers,
     )
 
     native.bind(
@@ -356,11 +362,12 @@ def scala_proto_default_repositories(
         actual = "@scala_proto_rules_netty_handler_proxy//jar",
     )
 
-    native.maven_jar(
+    _scala_maven_import_external(
         name = "scala_proto_rules_opencensus_api",
         artifact = "io.opencensus:opencensus-api:0.18.0",
-        sha1 = "b89a8f8dfd1e1e0d68d83c82a855624814b19a6e",
-        server = "scala_proto_deps_maven_server",
+        jar_sha256 = "45421ffe95271aba94686ed8d4c5070fe77dc2ff0b922688097f0dd40f1931b1",
+        licenses = ["notice"],
+        server_urls = maven_servers,
     )
 
     native.bind(
@@ -368,10 +375,12 @@ def scala_proto_default_repositories(
         actual = "@scala_proto_rules_opencensus_api//jar",
     )
 
-    native.maven_jar(
+    _scala_maven_import_external(
         name = "scala_proto_rules_opencensus_contrib_grpc_metrics",
         artifact = "io.opencensus:opencensus-contrib-grpc-metrics:0.18.0",
-        sha1 = "8e90fab2930b6a0e67dab48911b9c936470d43dd",
+        jar_sha256 = "1f90585e777b1e0493dbf22e678303369a8d5b7c750b4eda070a34ca99271607",
+        licenses = ["notice"],
+        server_urls = maven_servers,
     )
 
     native.bind(
