@@ -33,14 +33,14 @@ def _rule_impl(ctx):
         "scala_junit_test": [
             "//test/aspect:scala_junit_test",
             "@io_bazel_rules_scala_scala_library//:io_bazel_rules_scala_scala_library",
-            "@io_bazel_rules_scala_junit_junit//jar:jar",
-            "@io_bazel_rules_scala_org_hamcrest_hamcrest_core//jar:jar",
+            "@io_bazel_rules_scala_junit_junit//:io_bazel_rules_scala_junit_junit",
+            "@io_bazel_rules_scala_org_hamcrest_hamcrest_core//:io_bazel_rules_scala_org_hamcrest_hamcrest_core",
         ],
         "scala_specs2_junit_test": [
             "//test/aspect:scala_specs2_junit_test",
             "@io_bazel_rules_scala_scala_library//:io_bazel_rules_scala_scala_library",
-            "@io_bazel_rules_scala_junit_junit//jar:jar",
-            "@io_bazel_rules_scala_org_hamcrest_hamcrest_core//jar:jar",
+            "@io_bazel_rules_scala_junit_junit//:io_bazel_rules_scala_junit_junit",
+            "@io_bazel_rules_scala_org_hamcrest_hamcrest_core//:io_bazel_rules_scala_org_hamcrest_hamcrest_core",
             # From specs2/specs2.bzl:specs2_dependencies()
             "@io_bazel_rules_scala//specs2:specs2",
             "@io_bazel_rules_scala_scala_xml//:io_bazel_rules_scala_scala_xml",
