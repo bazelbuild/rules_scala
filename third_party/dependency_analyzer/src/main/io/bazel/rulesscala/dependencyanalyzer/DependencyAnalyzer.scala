@@ -1,8 +1,11 @@
 package third_party.dependency_analyzer.src.main.io.bazel.rulesscala.dependencyanalyzer
 
+import java.util.jar.JarFile
+
 import scala.reflect.io.AbstractFile
 import scala.tools.nsc.plugins.{Plugin, PluginComponent}
 import scala.tools.nsc.{Global, Phase}
+import scala.util.Try
 
 class DependencyAnalyzer(val global: Global) extends Plugin {
 
@@ -59,7 +62,7 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
       private def warnOnIndirectTargetsFoundIn(usedJars: Set[AbstractFile]) = {
         for (usedJar <- usedJars;
              usedJarPath = usedJar.path;
-             target <- indirect.get(usedJarPath) if !direct.contains(usedJarPath)) {
+             target <- getJarLabel(usedJarPath) if !direct.contains(usedJarPath)) {
           val errorMessage =
             s"""Target '$target' is used but isn't explicitly declared, please add it to the deps.
                |You can use the following buildozer command:
@@ -75,6 +78,19 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
       override def apply(unit: CompilationUnit): Unit = ()
     }
 
+  }
+
+  private def getJarLabel(jarPath: String): Option[String] = {
+    // First check the jar's manifest for a stamped label
+    Try(new JarFile(jarPath)).toOption.flatMap { jf ⇒
+      try {
+        Option(jf.getManifest.getMainAttributes.getValue("Target-Label"))
+      } catch {
+        case e: Exception ⇒ None
+      } finally {
+        jf.close()
+      }
+    }.orElse(indirect.get(jarPath))
   }
 
   import global._
