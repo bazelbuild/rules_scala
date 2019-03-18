@@ -63,6 +63,11 @@ _implicit_deps = {
             "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac",
         ),
     ),
+    "_exe": attr.label(
+        executable = True,
+        cfg = "host",
+        default = Label("@io_bazel_rules_scala//src/java/io/bazel/rulesscala/exe:exe"),
+    ),
 }
 
 # Single dep to allow IDEs to pickup all the implicit dependencies.
@@ -450,6 +455,14 @@ def scala_repositories(
         server_urls = maven_servers,
     )
 
+    _scala_maven_import_external(
+        name = "io_bazel_rules_scala_guava",
+        artifact = "com.google.guava:guava:21.0",
+        jar_sha256 = "972139718abc8a4893fa78cba8cf7b2c903f35c97aaf44fa3031b0669948b480",
+        licenses = ["notice"],
+        server_urls = maven_servers,
+    )
+
     # Template for binary launcher
     BAZEL_JAVA_LAUNCHER_VERSION = "0.17.1"
     java_stub_template_url = (
@@ -506,6 +519,11 @@ def scala_repositories(
     native.bind(
         name = "io_bazel_rules_scala/dependency/scala/parser_combinators",
         actual = "@io_bazel_rules_scala_scala_parser_combinators",
+    )
+
+    native.bind(
+        name = "io_bazel_rules_scala/dependency/scala/guava",
+        actual = "@io_bazel_rules_scala_guava",
     )
 
 def _sanitize_string_for_usage(s):

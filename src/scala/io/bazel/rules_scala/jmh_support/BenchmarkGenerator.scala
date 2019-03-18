@@ -87,7 +87,11 @@ object BenchmarkGenerator {
   }
 
   private def collectClassesFromJar(root: Path): List[Path] = {
-    val uri = new URI("jar:file", null, root.toFile.getAbsolutePath, null)
+    val path = if (System.getProperty("os.name").toLowerCase().contains("windows"))
+      "/" + root.toFile.getAbsolutePath.replaceAll("\\\\", "/")
+    else
+      root.toFile.getAbsolutePath
+    val uri = new URI("jar:file", null, path, null)
     val fs = FileSystems.newFileSystem(uri, Map.empty[String, String].asJava)
     fs.getRootDirectories.asScala.toList.flatMap { rootDir =>
       listFilesRecursively(rootDir) { (path: Path) =>
