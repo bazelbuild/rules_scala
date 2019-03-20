@@ -955,8 +955,6 @@ dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 . "${dir}"/test_runner.sh
 runner=$(get_test_runner "${1:-local}")
 
-$runner test_coverage_off
-$runner test_coverage_on
 $runner bazel build test/...
 #$runner bazel build "test/... --all_incompatible_changes"
 $runner bazel test test/...
@@ -1042,4 +1040,5 @@ $runner test_compilation_succeeds_with_plus_one_deps_on_also_for_exports
 $runner test_plus_one_deps_only_works_for_java_info_targets
 $runner bazel test //test/... --extra_toolchains="//test_expect_failure/plus_one_deps:plus_one_deps"
 $runner test_unused_dependency_fails_even_if_also_exists_in_plus_one_deps
-$runner test_coverage
+$runner test_coverage_off
+$runner test_coverage_on
