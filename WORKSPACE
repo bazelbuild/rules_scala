@@ -97,13 +97,6 @@ http_archive(
     strip_prefix = "protobuf-3.6.1.3",
 )
 
-http_archive(
-    name = "com_google_protobuf_java",
-    sha256 = "9510dd2afc29e7245e9e884336f848c8a6600a14ae726adb6befdb4f786f0be2",
-    urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.6.1.3.zip"],
-    strip_prefix = "protobuf-3.6.1.3",
-)
-
 new_local_repository(
     name = "test_new_local_repo",
     build_file_content =
@@ -120,6 +113,10 @@ filegroup(
 load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_unused_deps_toolchains")
 
 scala_register_unused_deps_toolchains()
+
+
+register_toolchains("@io_bazel_rules_scala//test/proto:scalapb_toolchain")
+
 
 load("//scala:scala_maven_import_external.bzl", "scala_maven_import_external", "java_import_external")
 
@@ -159,12 +156,20 @@ format_repositories()
 
 http_archive(
     name = "bazel_toolchains",
-    sha256 = "109a99384f9d08f9e75136d218ebaebc68cc810c56897aea2224c57932052d30",
-    strip_prefix = "bazel-toolchains-94d31935a2c94fe7e7c7379a0f3393e181928ff7",
+    sha256 = "4b1468b254a572dbe134cc1fd7c6eab1618a72acd339749ea343bd8f55c3b7eb",
+    strip_prefix = "bazel-toolchains-d665ccfa3e9c90fa789671bf4ef5f7c19c5715c4",
     urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/bazel-toolchains/archive/94d31935a2c94fe7e7c7379a0f3393e181928ff7.tar.gz",
-        "https://github.com/bazelbuild/bazel-toolchains/archive/94d31935a2c94fe7e7c7379a0f3393e181928ff7.tar.gz",
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-toolchains/archive/d665ccfa3e9c90fa789671bf4ef5f7c19c5715c4.tar.gz",
+        "https://github.com/bazelbuild/bazel-toolchains/archive/d665ccfa3e9c90fa789671bf4ef5f7c19c5715c4.tar.gz",
     ],
+)
+
+load("@bazel_toolchains//rules:rbe_repo.bzl", "rbe_autoconfig")
+
+# Creates toolchain configuration for remote execution with BuildKite CI
+# for rbe_ubuntu1604
+rbe_autoconfig(
+    name = "buildkite_config",
 )
 
 git_repository(

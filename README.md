@@ -83,14 +83,11 @@ for an example workspace using another scala version.
 
 ## Bazel compatible versions
 
-| bazel | rules_scala gitsha |
-|-------|--------------------|
-| 0.22.x | HEAD              |
-| 0.21.x | HEAD              |
-| 0.20.x | HEAD              |
-| 0.19.x | HEAD              |
-| 0.17.x | 37032481ed5ac2b2d88a1a3f0d80be7b14beb19c |
-| 0.16.x | 1354d935a74395b3f0870dd90a04e0376fe22587 |
+| bazel  | rules_scala gitsha |
+|--------|--------------------|
+| 0.23.x | HEAD                                     |
+| 0.22.x | f3113fb6e9e35cb8f441d2305542026d98afc0a2 |
+| 0.16.x | f3113fb6e9e35cb8f441d2305542026d98afc0a2 |
 | 0.15.x | 3b9ab9be31ac217d3337c709cb6bfeb89c8dcbb1 |
 | 0.14.x | 3b9ab9be31ac217d3337c709cb6bfeb89c8dcbb1 |
 | 0.13.x | 3c987b6ae8a453886759b132f1572c0efca2eca2 |

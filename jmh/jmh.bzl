@@ -1,57 +1,73 @@
 load("//scala:scala.bzl", "scala_binary", "scala_library")
+load(
+    "@io_bazel_rules_scala//scala:scala_maven_import_external.bzl",
+    _scala_maven_import_external = "scala_maven_import_external",
+)
 
-def jmh_repositories():
-    native.maven_jar(
+def jmh_repositories(maven_servers = ["http://central.maven.org/maven2"]):
+    _scala_maven_import_external(
         name = "io_bazel_rules_scala_org_openjdk_jmh_jmh_core",
         artifact = "org.openjdk.jmh:jmh-core:1.20",
-        sha1 = "5f9f9839bda2332e9acd06ce31ad94afa7d6d447",
+        jar_sha256 = "1688db5110ea6413bf63662113ed38084106ab1149e020c58c5ac22b91b842ca",
+        licenses = ["notice"],
+        server_urls = maven_servers,
     )
     native.bind(
         name = "io_bazel_rules_scala/dependency/jmh/jmh_core",
         actual = "@io_bazel_rules_scala_org_openjdk_jmh_jmh_core//jar",
     )
-    native.maven_jar(
+    _scala_maven_import_external(
         name = "io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_asm",
         artifact = "org.openjdk.jmh:jmh-generator-asm:1.20",
-        sha1 = "3c43040e08ae68905657a375e669f11a7352f9db",
+        jar_sha256 = "2dd4798b0c9120326310cda3864cc2e0035b8476346713d54a28d1adab1414a5",
+        licenses = ["notice"],
+        server_urls = maven_servers,
     )
     native.bind(
         name = "io_bazel_rules_scala/dependency/jmh/jmh_generator_asm",
         actual = "@io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_asm//jar",
     )
-    native.maven_jar(
+    _scala_maven_import_external(
         name = "io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_reflection",
         artifact = "org.openjdk.jmh:jmh-generator-reflection:1.20",
-        sha1 = "f2154437b42426a48d5dac0b3df59002f86aed26",
+        jar_sha256 = "57706f7c8278272594a9afc42753aaf9ba0ba05980bae0673b8195908d21204e",
+        licenses = ["notice"],
+        server_urls = maven_servers,
     )
     native.bind(
         name = "io_bazel_rules_scala/dependency/jmh/jmh_generator_reflection",
         actual =
             "@io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_reflection//jar",
     )
-    native.maven_jar(
+    _scala_maven_import_external(
         name = "io_bazel_rules_scala_org_ows2_asm_asm",
         artifact = "org.ow2.asm:asm:6.1.1",
-        sha1 = "264754515362d92acd39e8d40395f6b8dee7bc08",
+        jar_sha256 = "dd3b546415dd4bade2ebe3b47c7828ab0623ee2336604068e2d81023f9f8d833",
+        licenses = ["notice"],
+        server_urls = maven_servers,
     )
     native.bind(
         name = "io_bazel_rules_scala/dependency/jmh/org_ows2_asm_asm",
         actual = "@io_bazel_rules_scala_org_ows2_asm_asm//jar",
     )
-    native.maven_jar(
+    _scala_maven_import_external(
         name = "io_bazel_rules_scala_net_sf_jopt_simple_jopt_simple",
         artifact = "net.sf.jopt-simple:jopt-simple:5.0.3",
-        sha1 = "cdd846cfc4e0f7eefafc02c0f5dce32b9303aa2a",
+        jar_sha256 = "6f45c00908265947c39221035250024f2caec9a15c1c8cf553ebeecee289f342",
+        licenses = ["notice"],
+        server_urls = maven_servers,
     )
     native.bind(
         name =
             "io_bazel_rules_scala/dependency/jmh/net_sf_jopt_simple_jopt_simple",
         actual = "@io_bazel_rules_scala_net_sf_jopt_simple_jopt_simple//jar",
     )
-    native.maven_jar(
+    _scala_maven_import_external(
         name = "io_bazel_rules_scala_org_apache_commons_commons_math3",
         artifact = "org.apache.commons:commons-math3:3.6.1",
-        sha1 = "e4ba98f1d4b3c80ec46392f25e094a6a2e58fcbf",
+        jar_sha256 = "1e56d7b058d28b65abd256b8458e3885b674c1d588fa43cd7d1cbb9c7ef2b308",
+        licenses = ["notice"],
+        server_urls = maven_servers,
     )
     native.bind(
         name =
