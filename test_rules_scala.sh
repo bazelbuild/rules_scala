@@ -931,15 +931,6 @@ test_coverage_on() {
     diff test/coverage/expected-coverage.dat $(bazel info bazel-testlogs)/test/coverage/test-all/coverage.dat
 }
 
-test_coverage_off() {
-    # ensure coverage is disabled by default
-    bazel coverage \
-          //test/coverage/...
-    if [ ! $("$(bazel info bazel-testlogs)"/test/coverage/test-all/coverage.dat | sed '/^\s*$/d' | wc -l) -eq 0 ]; then
-        exit 1
-    fi
-}
-
 assert_file_exists() {
   if [[ -f $1 ]]; then
     echo "File $1 exists."
@@ -1040,5 +1031,4 @@ $runner test_compilation_succeeds_with_plus_one_deps_on_also_for_exports
 $runner test_plus_one_deps_only_works_for_java_info_targets
 $runner bazel test //test/... --extra_toolchains="//test_expect_failure/plus_one_deps:plus_one_deps"
 $runner test_unused_dependency_fails_even_if_also_exists_in_plus_one_deps
-$runner test_coverage_off
 $runner test_coverage_on
