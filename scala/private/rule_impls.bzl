@@ -818,7 +818,8 @@ def _scala_binary_common(
         java_wrapper,
         unused_dependency_checker_mode,
         unused_dependency_checker_ignored_targets,
-        implicit_junit_deps_needed_for_java_compilation = []):
+        implicit_junit_deps_needed_for_java_compilation = [],
+        runfiles_ext = []):
     write_manifest(ctx)
     outputs = _compile_or_empty(
         ctx,
@@ -839,7 +840,7 @@ def _scala_binary_common(
 
     runfiles = ctx.runfiles(
         transitive_files = depset(
-            [executable, java_wrapper] + ctx.files._java_runtime,
+            [executable, java_wrapper] + ctx.files._java_runtime + runfiles_ext,
             transitive = [rjars],
         ),
         collect_data = True,
@@ -1050,16 +1051,21 @@ def scala_test_impl(ctx):
         jars.jars2labels,
     )
 
-    args = " ".join([
-        "-R \"{path}\"".format(path = ctx.outputs.jar.short_path),
+    args = "\n".join([
+        "-R", ctx.outputs.jar.short_path,
         _scala_test_flags(ctx),
-        "-C io.bazel.rules.scala.JUnitXmlReporter ",
+        "-C", "io.bazel.rules.scala.JUnitXmlReporter",
     ])
+
+    argsFile = ctx.actions.declare_file("%s.args" % ctx.label.name)
+    ctx.actions.write(
+        argsFile,
+        args
+    )
 
     executable = _declare_executable(ctx)
 
-    # main_class almost has to be "org.scalatest.tools.Runner" due to args....
-    wrapper = _write_java_wrapper(ctx, args, "")
+    wrapper = _write_java_wrapper(ctx, "", "")
     out = _scala_binary_common(
         ctx,
         executable,
@@ -1071,11 +1077,15 @@ def scala_test_impl(ctx):
         unused_dependency_checker_ignored_targets =
             unused_dependency_checker_ignored_targets,
         unused_dependency_checker_mode = unused_dependency_checker_mode,
+        runfiles_ext = [argsFile]
     )
     _write_executable(
         ctx = ctx,
         executable = executable,
-        jvm_flags = ctx.attr.jvm_flags,
+        jvm_flags = [
+            "-DRULES_SCALA_WS=%s" % ctx.workspace_name,
+            "-DRULES_SCALA_ARGS_FILE=%s" % argsFile.short_path
+        ] + ctx.attr.jvm_flags,
         main_class = ctx.attr.main_class,
         rjars = out.transitive_rjars,
         wrapper = wrapper,
