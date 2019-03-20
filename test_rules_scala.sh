@@ -924,11 +924,20 @@ test_unused_dependency_fails_even_if_also_exists_in_plus_one_deps() {
   action_should_fail build --extra_toolchains="//test_expect_failure/plus_one_deps:plus_one_deps_with_unused_error" //test_expect_failure/plus_one_deps/with_unused_deps:a
 }
 
-test_coverage() {
+test_coverage_on() {
+    bazel coverage \
+          --extra_toolchains="//test/coverage:enable_code_coverage_aspect" \
+          //test/coverage/...
+    diff test/coverage/expected-coverage.dat $(bazel info bazel-testlogs)/test/coverage/test-all/coverage.dat
+}
+
+test_coverage_off() {
+    # ensure coverage is disabled by default
     bazel coverage \
           //test/coverage/...
-
-    diff test/coverage/expected-coverage.dat $(bazel info bazel-testlogs)/test/coverage/test-all/coverage.dat
+    if [ ! $("$(bazel info bazel-testlogs)"/test/coverage/test-all/coverage.dat | sed '/^\s*$/d' | wc -l) -eq 0 ]; then
+        exit 1
+    fi
 }
 
 assert_file_exists() {
@@ -946,6 +955,8 @@ dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 . "${dir}"/test_runner.sh
 runner=$(get_test_runner "${1:-local}")
 
+$runner test_coverage_off
+$runner test_coverage_on
 $runner bazel build test/...
 #$runner bazel build "test/... --all_incompatible_changes"
 $runner bazel test test/...

@@ -595,7 +595,7 @@ def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper, use_jacoco):
         wrapper.short_path,
     )
 
-    if use_jacoco:
+    if use_jacoco and _coverage_replacements_provider.is_enabled(ctx):
         classpath = ":".join(
             ["${RUNPATH}%s" % (j.short_path) for j in rjars.to_list() + ctx.files._jacocorunner + ctx.files._lcov_merger],
         )
@@ -1094,7 +1094,7 @@ def scala_test_impl(ctx):
     rjars = out.transitive_rjars
 
     coverage_runfiles = []
-    if ctx.configuration.coverage_enabled:
+    if ctx.configuration.coverage_enabled and _coverage_replacements_provider.is_enabled(ctx):
         coverage_replacements = _coverage_replacements_provider.from_ctx(
             ctx,
             base = out.coverage.replacements,
