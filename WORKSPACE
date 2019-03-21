@@ -1,5 +1,12 @@
 workspace(name = "io_bazel_rules_scala")
 
+#used to test what happens when classpath is too large
+#until https://github.com/bazelbuild/bazel/issues/6955 is resolved
+local_repository(
+    name = "java_stub_template",
+    path = "java_stub_template"
+)
+
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 load("//scala:scala.bzl", "scala_repositories")
