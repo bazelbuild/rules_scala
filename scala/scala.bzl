@@ -572,10 +572,13 @@ def scala_test_suite(
         name,
         srcs = [],
         visibility = None,
+        use_short_names = False,
         **kwargs):
     ts = []
+    i = 0
     for test_file in srcs:
-        n = "%s_test_suite_%s" % (name, _sanitize_string_for_usage(test_file))
+        i = i+1
+        n = ("%s_%s" % (name, i)) if use_short_names else ("%s_test_suite_%s" % (name, _sanitize_string_for_usage(test_file)))
         scala_test(
             name = n,
             srcs = [test_file],
