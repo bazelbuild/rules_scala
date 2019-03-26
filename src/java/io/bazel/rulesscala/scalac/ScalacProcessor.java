@@ -287,11 +287,11 @@ class ScalacProcessor implements Processor {
       } else {
         dstr = resource.destination;
       }
-      if (dstr.charAt(0) == '/') {
+      if (dstr.charAt(0) == '/' || dstr.charAt(0) == '\\') {
         // we don't want to copy to an absolute destination
         dstr = dstr.substring(1);
       }
-      if (dstr.startsWith("../")) {
+      if (dstr.startsWith("../") || dstr.startsWith("..\\")) {
         // paths to external repositories, for some reason, start with a leading ../
         // we don't want to copy the resource out of our temporary directory, so
         // instead we replace ../ with external/
