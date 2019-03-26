@@ -574,7 +574,7 @@ def _write_executable(ctx, executable, rjars, main_class, jvm_flags, wrapper):
             [("external/%s" % (j.short_path[3:]) if j.short_path.startswith("../") else j.short_path) for j in rjars.to_list()],
         )
         jvm_flags_str = ";".join(jvm_flags)
-        java_for_exe = "%s/%s" % (ctx.workspace_name, str(ctx.attr._java_runtime[java_common.JavaRuntimeInfo].java_executable_exec_path))
+        java_for_exe = str(ctx.attr._java_runtime[java_common.JavaRuntimeInfo].java_executable_exec_path)
 
         ctx.actions.run(
             outputs = [executable],
