@@ -31,7 +31,7 @@ public class LauncherFileWriter {
             .addKeyValuePair("binary_type", "Java")
             .addKeyValuePair("workspace_name", workspaceName)
             .addKeyValuePair("symlink_runfiles_enabled", "0")
-            .addKeyValuePair("java_bin_path", javaBinPath)
+            .addKeyValuePair("java_bin_path", workspaceName + "/" + javaBinPath)
             .addKeyValuePair("jar_bin_path", jarBinPath)
             .addKeyValuePair("java_start_class", javaStartClass)
             .addKeyValuePair("classpath", classpath)
