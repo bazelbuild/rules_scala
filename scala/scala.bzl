@@ -8,6 +8,10 @@ load(
     _scala_repl_impl = "scala_repl_impl",
     _scala_test_impl = "scala_test_impl",
 )
+load(
+    "@io_bazel_rules_scala//scala/private:coverage_replacements_provider.bzl",
+    _coverage_replacements_provider = "coverage_replacements_provider",
+)
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
 load(
     "@io_bazel_rules_scala//scala:scala_maven_import_external.bzl",
@@ -113,7 +117,10 @@ _common_attrs_for_plugin_bootstrapping = {
         ".srcjar",
         ".java",
     ]),
-    "deps": attr.label_list(aspects = [_collect_plus_one_deps_aspect]),
+    "deps": attr.label_list(aspects = [
+        _collect_plus_one_deps_aspect,
+        _coverage_replacements_provider.aspect,
+    ]),
     "plugins": attr.label_list(allow_files = [".jar"]),
     "runtime_deps": attr.label_list(providers = [[JavaInfo]]),
     "data": attr.label_list(allow_files = True),
@@ -167,11 +174,20 @@ _common_attrs.update({
         mandatory = False,
     ),
     "unused_dependency_checker_ignored_targets": attr.label_list(default = []),
+    "_code_coverage_instrumentation_worker": attr.label(
+        default = "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/coverage/instrumenter",
+        allow_files = True,
+        executable = True,
+        cfg = "host",
+    ),
 })
 
 _library_attrs = {
     "main_class": attr.string(),
-    "exports": attr.label_list(allow_files = False),
+    "exports": attr.label_list(
+        allow_files = False,
+        aspects = [_coverage_replacements_provider.aspect],
+    ),
 }
 
 _common_outputs = {
@@ -299,6 +315,12 @@ _scala_test_attrs = {
     ),
     "_scalatest_reporter": attr.label(
         default = Label("//scala/support:test_reporter"),
+    ),
+    "_jacocorunner": attr.label(
+        default = Label("@bazel_tools//tools/jdk:JacocoCoverage"),
+    ),
+    "_lcov_merger": attr.label(
+        default = Label("@bazel_tools//tools/test/CoverageOutputGenerator/java/com/google/devtools/coverageoutputgenerator:Main"),
     ),
 }
 
@@ -446,6 +468,22 @@ def scala_repositories(
         name = "scalac_rules_commons_io",
         artifact = "commons-io:commons-io:2.6",
         jar_sha256 = "f877d304660ac2a142f3865badfc971dec7ed73c747c7f8d5d2f5139ca736513",
+        licenses = ["notice"],
+        server_urls = maven_servers,
+    )
+
+    _scala_maven_import_external(
+        name = "io_bazel_rules_scala_org_jacoco_org_jacoco_core",
+        artifact = "org.jacoco:org.jacoco.core:0.7.5.201505241946",
+        jar_sha256 = "ecf1ad8192926438d0748bfcc3f09bebc7387d2a4184bb3a171a26084677e808",
+        licenses = ["notice"],
+        server_urls = maven_servers,
+    )
+
+    _scala_maven_import_external(
+        name = "io_bazel_rules_scala_org_ow2_asm_asm_debug_all",
+        artifact = "org.ow2.asm:asm-debug-all:5.0.1",
+        jar_sha256 = "4734de5b515a454b0096db6971fb068e5f70e6f10bbee2b3bd2fdfe5d978ed57",
         licenses = ["notice"],
         server_urls = maven_servers,
     )

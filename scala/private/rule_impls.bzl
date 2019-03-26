@@ -19,6 +19,10 @@ load(
     _ScalacProvider = "ScalacProvider",
 )
 load(
+    "@io_bazel_rules_scala//scala/private:coverage_replacements_provider.bzl",
+    _coverage_replacements_provider = "coverage_replacements_provider",
+)
+load(
     ":common.bzl",
     "add_labels_of_jars_to",
     "collect_jars",
@@ -35,6 +39,12 @@ _java_extension = ".java"
 _scala_extension = ".scala"
 
 _srcjar_extension = ".srcjar"
+
+_empty_coverage_struct = struct(
+    instrumented_files = struct(),
+    providers = [],
+    replacements = {},
+)
 
 def _adjust_resources_path_by_strip_prefix(path, resource_strip_prefix):
     if not path.startswith(resource_strip_prefix):
@@ -407,6 +417,7 @@ def _compile_or_empty(
         #  no need to build ijar when empty
         return struct(
             class_jar = ctx.outputs.jar,
+            coverage = _empty_coverage_struct,
             full_jars = [ctx.outputs.jar],
             ijar = ctx.outputs.jar,
             ijars = [ctx.outputs.jar],
@@ -491,8 +502,12 @@ def _compile_or_empty(
             full_jars += [java_jar.jar]
             ijars += [java_jar.ijar]
             source_jars += java_jar.source_jars
+
+        coverage = _jacoco_offline_instrument(ctx, ctx.outputs.jar)
+
         return struct(
             class_jar = ctx.outputs.jar,
+            coverage = coverage,
             full_jars = full_jars,
             ijar = ijar,
             ijars = ijars,
@@ -568,37 +583,72 @@ JAVA_EXEC_TO_USE=${{REAL_EXTERNAL_JAVA_BIN:-$DEFAULT_JAVABIN}}
     )
     return wrapper
 
-def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper):
+def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper, use_jacoco):
     template = ctx.attr._java_stub_template.files.to_list()[0]
 
-    # RUNPATH is defined here:
-    # https://github.com/bazelbuild/bazel/blob/0.4.5/src/main/java/com/google/devtools/build/lib/bazel/rules/java/java_stub_template.txt#L227
-    classpath = ":".join(
-        ["${RUNPATH}%s" % (j.short_path) for j in rjars.to_list()],
-    )
     jvm_flags = " ".join(
         [ctx.expand_location(f, ctx.attr.data) for f in jvm_flags],
     )
-    ctx.actions.expand_template(
-        template = template,
-        output = ctx.outputs.executable,
-        substitutions = {
-            "%classpath%": classpath,
-            "%java_start_class%": main_class,
-            "%javabin%": "export REAL_EXTERNAL_JAVA_BIN=${JAVABIN};JAVABIN=%s/%s" % (
-                _runfiles_root(ctx),
-                wrapper.short_path,
-            ),
-            "%jvm_flags%": jvm_flags,
-            "%needs_runfiles%": "",
-            "%runfiles_manifest_only%": "",
-            "%set_jacoco_metadata%": "",
-            "%set_jacoco_main_class%": "",
-            "%set_jacoco_java_runfiles_root%": "",
-            "%workspace_prefix%": ctx.workspace_name + "/",
-        },
-        is_executable = True,
+
+    javabin = "export REAL_EXTERNAL_JAVA_BIN=${JAVABIN};JAVABIN=%s/%s" % (
+        _runfiles_root(ctx),
+        wrapper.short_path,
     )
+
+    if use_jacoco and _coverage_replacements_provider.is_enabled(ctx):
+        classpath = ":".join(
+            ["${RUNPATH}%s" % (j.short_path) for j in rjars.to_list() + ctx.files._jacocorunner + ctx.files._lcov_merger],
+        )
+        jacoco_metadata_file = ctx.actions.declare_file(
+            "%s.jacoco_metadata.txt" % ctx.attr.name,
+            sibling = ctx.outputs.executable,
+        )
+        ctx.actions.write(jacoco_metadata_file, "\n".join([
+            jar.short_path.replace("../", "external/")
+            for jar in rjars
+        ]))
+        ctx.actions.expand_template(
+            template = template,
+            output = ctx.outputs.executable,
+            substitutions = {
+                "%classpath%": classpath,
+                "%javabin%": javabin,
+                "%jvm_flags%": jvm_flags,
+                "%needs_runfiles%": "",
+                "%runfiles_manifest_only%": "",
+                "%workspace_prefix%": ctx.workspace_name + "/",
+                "%java_start_class%": "com.google.testing.coverage.JacocoCoverageRunner",
+                "%set_jacoco_metadata%": "export JACOCO_METADATA_JAR=\"$JAVA_RUNFILES/{}/{}\"".format(ctx.workspace_name, jacoco_metadata_file.short_path),
+                "%set_jacoco_main_class%": """export JACOCO_MAIN_CLASS={}""".format(main_class),
+                "%set_jacoco_java_runfiles_root%": """export JACOCO_JAVA_RUNFILES_ROOT=$JAVA_RUNFILES/{}/""".format(ctx.workspace_name),
+            },
+            is_executable = True,
+        )
+        return [jacoco_metadata_file]
+    else:
+        # RUNPATH is defined here:
+        # https://github.com/bazelbuild/bazel/blob/0.4.5/src/main/java/com/google/devtools/build/lib/bazel/rules/java/java_stub_template.txt#L227
+        classpath = ":".join(
+            ["${RUNPATH}%s" % (j.short_path) for j in rjars.to_list()],
+        )
+        ctx.actions.expand_template(
+            template = template,
+            output = ctx.outputs.executable,
+            substitutions = {
+                "%classpath%": classpath,
+                "%java_start_class%": main_class,
+                "%javabin%": javabin,
+                "%jvm_flags%": jvm_flags,
+                "%needs_runfiles%": "",
+                "%runfiles_manifest_only%": "",
+                "%set_jacoco_metadata%": "",
+                "%set_jacoco_main_class%": "",
+                "%set_jacoco_java_runfiles_root%": "",
+                "%workspace_prefix%": ctx.workspace_name + "/",
+            },
+            is_executable = True,
+        )
+        return []
 
 def _collect_runtime_jars(dep_targets):
     runtime_jars = []
@@ -741,8 +791,9 @@ def _lib(
 
     return struct(
         files = depset([ctx.outputs.jar] + outputs.full_jars),  # Here is the default output
+        instrumented_files = outputs.coverage.instrumented_files,
         jars_to_labels = jars.jars2labels,
-        providers = [java_provider, jars.jars2labels],
+        providers = [java_provider, jars.jars2labels] + outputs.coverage.providers,
         runfiles = runfiles,
         scala = scalaattr,
     )
@@ -838,8 +889,10 @@ def _scala_binary_common(
     java_provider = create_java_provider(scalaattr, transitive_compile_time_jars)
 
     return struct(
+        coverage = outputs.coverage,
         files = depset([ctx.outputs.executable, ctx.outputs.jar]),
-        providers = [java_provider, jars2labels],
+        instrumented_files = outputs.coverage.instrumented_files,
+        providers = [java_provider, jars2labels] + outputs.coverage.providers,
         runfiles = runfiles,
         scala = scalaattr,
         transitive_rjars =
@@ -907,6 +960,7 @@ def scala_binary_impl(ctx):
         jvm_flags = ctx.attr.jvm_flags,
         main_class = ctx.attr.main_class,
         rjars = out.transitive_rjars,
+        use_jacoco = False,
         wrapper = wrapper,
     )
     return out
@@ -964,6 +1018,7 @@ trap finish EXIT
         jvm_flags = ["-Dscala.usejavacp=true"] + ctx.attr.jvm_flags,
         main_class = "scala.tools.nsc.MainGenericRunner",
         rjars = out.transitive_rjars,
+        use_jacoco = False,
         wrapper = wrapper,
     )
 
@@ -1035,14 +1090,38 @@ def scala_test_impl(ctx):
             unused_dependency_checker_ignored_targets,
         unused_dependency_checker_mode = unused_dependency_checker_mode,
     )
-    _write_executable(
+
+    rjars = out.transitive_rjars
+
+    coverage_runfiles = []
+    if ctx.configuration.coverage_enabled and _coverage_replacements_provider.is_enabled(ctx):
+        coverage_replacements = _coverage_replacements_provider.from_ctx(
+            ctx,
+            base = out.coverage.replacements,
+        ).replacements
+
+        rjars = depset([
+            coverage_replacements[jar] if jar in coverage_replacements else jar
+            for jar in rjars
+        ])
+        coverage_runfiles = ctx.files._jacocorunner + ctx.files._lcov_merger + coverage_replacements.values()
+
+    coverage_runfiles.extend(_write_executable(
         ctx = ctx,
         jvm_flags = ctx.attr.jvm_flags,
         main_class = ctx.attr.main_class,
-        rjars = out.transitive_rjars,
+        rjars = rjars,
+        use_jacoco = ctx.configuration.coverage_enabled,
         wrapper = wrapper,
+    ))
+
+    return struct(
+        files = out.files,
+        instrumented_files = out.instrumented_files,
+        providers = out.providers,
+        runfiles = ctx.runfiles(coverage_runfiles, transitive_files = out.runfiles.files),
+        scala = out.scala,
     )
-    return out
 
 def _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, archives):
     return struct(
@@ -1152,7 +1231,56 @@ def scala_junit_test_impl(ctx):
         jvm_flags = launcherJvmFlags + ctx.attr.jvm_flags,
         main_class = "com.google.testing.junit.runner.BazelTestRunner",
         rjars = out.transitive_rjars,
+        use_jacoco = False,
         wrapper = wrapper,
     )
 
     return out
+
+def _jacoco_offline_instrument(ctx, input_jar):
+    if not ctx.configuration.coverage_enabled or not hasattr(ctx.attr, "_code_coverage_instrumentation_worker"):
+        return _empty_coverage_struct
+
+    worker_inputs, _, worker_input_manifests = ctx.resolve_command(
+        tools = [ctx.attr._code_coverage_instrumentation_worker],
+    )
+
+    output_jar = ctx.actions.declare_file(
+        "{}-offline.jar".format(input_jar.basename.split(".")[0]),
+    )
+    in_out_pairs = [
+        (input_jar, output_jar),
+    ]
+
+    args = ctx.actions.args()
+    args.add_all(in_out_pairs, map_each = _jacoco_offline_instrument_format_each)
+    args.set_param_file_format("multiline")
+    args.use_param_file("@%s", use_always = True)
+
+    ctx.actions.run(
+        mnemonic = "JacocoInstrumenter",
+        inputs = [in_out_pair[0] for in_out_pair in in_out_pairs] + worker_inputs,
+        outputs = [in_out_pair[1] for in_out_pair in in_out_pairs],
+        executable = ctx.attr._code_coverage_instrumentation_worker.files_to_run.executable,
+        input_manifests = worker_input_manifests,
+        execution_requirements = {"supports-workers": "1"},
+        arguments = [args],
+    )
+
+    replacements = {i: o for (i, o) in in_out_pairs}
+    provider = _coverage_replacements_provider.create(
+        replacements = replacements,
+    )
+
+    return struct(
+        instrumented_files = struct(
+            dependency_attributes = _coverage_replacements_provider.dependency_attributes,
+            extensions = ["scala", "java"],
+            source_attributes = ["srcs"],
+        ),
+        providers = [provider],
+        replacements = replacements,
+    )
+
+def _jacoco_offline_instrument_format_each(in_out_pair):
+    return (["%s=%s" % (in_out_pair[0].path, in_out_pair[1].path)])
