@@ -487,24 +487,16 @@ def scala_repositories(
         licenses = ["notice"],
         server_urls = maven_servers,
     )
-
-    # Template for binary launcher
-    BAZEL_JAVA_LAUNCHER_VERSION = "0.17.1"
-    java_stub_template_url = (
-        "raw.githubusercontent.com/bazelbuild/bazel/" +
-        BAZEL_JAVA_LAUNCHER_VERSION +
-        "/src/main/java/com/google/devtools/build/lib/bazel/rules/java/" +
-        "java_stub_template.txt"
-    )
-    http_file(
-        name = "java_stub_template",
-        sha256 =
-            "39097bdc47407232e0fe7eed4f2c175c067b7eda95873cb76ffa76f1b4c18895",
-        urls = [
-            "https://mirror.bazel.build/%s" % java_stub_template_url,
-            "https://%s" % java_stub_template_url,
-        ],
-    )
+    
+    # Using this and not the bazel regular one due to issue when classpath is too long
+    # until https://github.com/bazelbuild/bazel/issues/6955 is resolved
+    if native.existing_rule("java_stub_template") == None:
+      http_archive(
+                name = "java_stub_template",
+                sha256 = "1859a37dccaee8c56b98869bf1f22f6f5b909606aff74ddcfd59e9757a038dd5",
+                urls = ["https://github.com/bazelbuild/rules_scala/archive/8b8271e3ee5709e1340b19790d0b396a0ff3dd0f.tar.gz"],
+                strip_prefix = "rules_scala-8b8271e3ee5709e1340b19790d0b396a0ff3dd0f/java_stub_template",
+      )
 
     native.bind(
         name = "io_bazel_rules_scala/dependency/com_google_protobuf/protobuf_java",
