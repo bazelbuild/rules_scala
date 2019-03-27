@@ -1,6 +1,16 @@
 workspace(name = "io_bazel_rules_scala")
 
+
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+#used to test what happens when classpath is too large
+#until https://github.com/bazelbuild/bazel/issues/6955 is resolved
+http_archive(
+    name = "java_stub_template",
+    sha256 = "1859a37dccaee8c56b98869bf1f22f6f5b909606aff74ddcfd59e9757a038dd5",
+    urls = ["https://github.com/bazelbuild/rules_scala/archive/8b8271e3ee5709e1340b19790d0b396a0ff3dd0f.tar.gz"],
+    strip_prefix = "rules_scala-8b8271e3ee5709e1340b19790d0b396a0ff3dd0f/java_stub_template",
+)
+
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 load("//scala:scala.bzl", "scala_repositories")
 

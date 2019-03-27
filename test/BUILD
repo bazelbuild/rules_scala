@@ -434,6 +434,13 @@ scala_specs2_junit_test(
     "//test:test_scala_proto_server",
 ]]
 
+sh_test(
+    name = "test_binary_run_with_large_classpath",
+    srcs = ["test_binary_run_with_large_classpath.sh"],
+    args = ["$(location //test/src/main/scala/scalarules/test/large_classpath:largeClasspath)"],
+    data = ["//test/src/main/scala/scalarules/test/large_classpath:largeClasspath"],
+)
+
 # Make sure scala_binary works in genrule environment
 genrule(
     name = "ScalaBinaryInGenrule",

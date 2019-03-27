@@ -550,16 +550,18 @@ def _path_is_absolute(path):
 def _runfiles_root(ctx):
     return "${TEST_SRCDIR}/%s" % ctx.workspace_name
 
-def _write_java_wrapper(ctx, args = "", wrapper_preamble = ""):
-    """This creates a wrapper that sets up the correct path
-         to stand in for the java command."""
-
+def _java_bin(ctx):
     java_path = str(ctx.attr._java_runtime[java_common.JavaRuntimeInfo].java_executable_runfiles_path)
     if _path_is_absolute(java_path):
         javabin = java_path
     else:
         runfiles_root = _runfiles_root(ctx)
         javabin = "%s/%s" % (runfiles_root, java_path)
+    return javabin
+
+def _write_java_wrapper(ctx, args = "", wrapper_preamble = ""):
+    """This creates a wrapper that sets up the correct path
+         to stand in for the java command."""
 
     exec_str = ""
     if wrapper_preamble == "":
@@ -576,12 +578,17 @@ JAVA_EXEC_TO_USE=${{REAL_EXTERNAL_JAVA_BIN:-$DEFAULT_JAVABIN}}
 """.format(
             preamble = wrapper_preamble,
             exec_str = exec_str,
-            javabin = javabin,
+            javabin = _java_bin(ctx),
             args = args,
         ),
         is_executable = True,
     )
     return wrapper
+
+def _jar_path_based_on_java_bin(ctx):
+    java_bin = _java_bin(ctx)
+    jar_path = java_bin.rpartition("/")[0] + "/jar"
+    return jar_path
 
 def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper, use_jacoco):
     template = ctx.attr._java_stub_template.files.to_list()[0]
@@ -613,6 +620,7 @@ def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper, use_jacoco):
             substitutions = {
                 "%classpath%": classpath,
                 "%javabin%": javabin,
+                "%jarbin%": _jar_path_based_on_java_bin(ctx),
                 "%jvm_flags%": jvm_flags,
                 "%needs_runfiles%": "",
                 "%runfiles_manifest_only%": "",
@@ -638,6 +646,7 @@ def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper, use_jacoco):
                 "%classpath%": classpath,
                 "%java_start_class%": main_class,
                 "%javabin%": javabin,
+                "%jarbin%": _jar_path_based_on_java_bin(ctx),
                 "%jvm_flags%": jvm_flags,
                 "%needs_runfiles%": "",
                 "%runfiles_manifest_only%": "",
