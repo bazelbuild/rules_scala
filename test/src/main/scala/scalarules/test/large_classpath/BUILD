@@ -1,4 +1,4 @@
-load("//scala:scala.bzl", "scala_binary", "scala_test")
+load("//scala:scala.bzl", "scala_binary")
 load(":helper.bzl", "create_dependencies", "get_dependency_labels")
 
 scala_binary(
