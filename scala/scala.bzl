@@ -12,7 +12,7 @@ load(
     "@io_bazel_rules_scala//scala/private:coverage_replacements_provider.bzl",
     _coverage_replacements_provider = "coverage_replacements_provider",
 )
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file", "http_archive")
 load(
     "@io_bazel_rules_scala//scala:scala_maven_import_external.bzl",
     _scala_maven_import_external = "scala_maven_import_external",
