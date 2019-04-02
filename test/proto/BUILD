@@ -81,7 +81,7 @@ proto_library(
         "different_root.proto",
         "different_root2.proto",
     ],
-    proto_source_root = native.package_name(),
+    proto_source_root = package_name(),
     visibility = ["//visibility:public"],
 )
 
@@ -144,4 +144,3 @@ scala_test(
         ":test_proto",
     ],
 )
-
