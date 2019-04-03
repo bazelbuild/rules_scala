@@ -251,6 +251,7 @@ class ScalacProcessor implements Processor {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
                 throws IOException {
+              file.toFile().setWritable(true);
               Files.delete(file);
               return FileVisitResult.CONTINUE;
             }
