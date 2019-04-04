@@ -4,15 +4,15 @@ sudo: required
 # xcode8 has jdk8
 osx_image: xcode8
 # Not technically required but suppresses 'Ruby' in Job status message.
-language: java
+language: sh
 
 cache:
     directories:
      - .bazel_cache
 
 os:
-  - linux
-  - osx
+#  - linux
+#  - osx
   - windows
 
 env:
@@ -20,10 +20,9 @@ env:
   # See https://github.com/bazelbuild/rules_scala/pull/622
   # we want to test the last release
   #- V=0.16.1 TEST_SCRIPT=test_lint.sh
-  - V=0.23.1 TEST_SCRIPT=test_rules_scala.sh
+  - V=0.23.1 TEST_SCRIPT=test_rules_scala
     #- V=0.14.1 TEST_SCRIPT=test_intellij_aspect.sh
-  - V=0.23.1 TEST_SCRIPT=test_reproducibility.sh
-  - V=0.23.1 TEST_SCRIPT=test_rules_scala.ps1
+  - V=0.23.1 TEST_SCRIPT=test_reproducibility
 
 
 before_install:
@@ -56,10 +55,8 @@ before_install:
 
 script:
   - |
-    if [[ "${TRAVIS_OS_NAME}" == "windows" ]] && [[ "${TEST_SCRIPT}" == *ps1 ]]; then
-      powershell
-    elif [[ "${TRAVIS_OS_NAME}" != "windows" ]] && [[ "${TEST_SCRIPT}" == *sh ]]; then
-      bash $TEST_SCRIPT ci
+    if [[ "${TRAVIS_OS_NAME}" == "windows" ]]; then
+      powershell -File ./${TEST_SCRIPT}.ps1
     else
-      bash -c "echo ${TEST_SCRIPT} skipped on ${TRAVIS_OS_NAME}"
+      bash ./${TEST_SCRIPT}.sh ci
     fi
