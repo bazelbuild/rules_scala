@@ -13,6 +13,7 @@ cache:
 os:
   - linux
   - osx
+  - windows
 
 env:
   # Linting is broken. Disable until fixed.
@@ -22,29 +23,42 @@ env:
   - V=0.23.1 TEST_SCRIPT=test_rules_scala.sh
     #- V=0.14.1 TEST_SCRIPT=test_intellij_aspect.sh
   - V=0.23.1 TEST_SCRIPT=test_reproducibility.sh
+  - V=0.23.1 TEST_SCRIPT=test_rules_scala.ps1
 
 before_install:
   - |
-    if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
-      OS=darwin
+    if [[ "${TRAVIS_OS_NAME}" == "windows" ]]; then
+      choco install bazel --version ${V}
     else
-      sysctl kernel.unprivileged_userns_clone=1
-      sudo apt-get update -q
-      sudo apt-get install libxml2-utils -y
-      OS=linux
+      if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+        OS=darwin
+      else
+        sysctl kernel.unprivileged_userns_clone=1
+        sudo apt-get update -q
+        sudo apt-get install libxml2-utils -y
+        OS=linux
+      fi
+
+      if [[ $V =~ .*rc[0-9]+.* ]]; then
+        PRE_RC=$(expr "$V" : '\([0-9.]*\)rc.*')
+        RC_PRC=$(expr "$V" : '[0-9.]*\(rc.*\)')
+        URL="https://storage.googleapis.com/bazel/${PRE_RC}/${RC_PRC}/bazel-${V}-installer-${OS}-x86_64.sh"
+      else
+        URL="https://github.com/bazelbuild/bazel/releases/download/${V}/bazel-${V}-installer-${OS}-x86_64.sh"
+      fi
+      wget -O install.sh "${URL}"
+      chmod +x install.sh
+      ./install.sh --user
+      rm -f install.sh
     fi
-    if [[ $V =~ .*rc[0-9]+.* ]]; then
-      PRE_RC=$(expr "$V" : '\([0-9.]*\)rc.*')
-      RC_PRC=$(expr "$V" : '[0-9.]*\(rc.*\)')
-      URL="https://storage.googleapis.com/bazel/${PRE_RC}/${RC_PRC}/bazel-${V}-installer-${OS}-x86_64.sh"
-    else
-      URL="https://github.com/bazelbuild/bazel/releases/download/${V}/bazel-${V}-installer-${OS}-x86_64.sh"
-    fi
-    wget -O install.sh "${URL}"
-    chmod +x install.sh
-    ./install.sh --user
-    rm -f install.sh
   - cat .bazelrc.travis >> .bazelrc
 
 script:
-  - bash $TEST_SCRIPT ci
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "windows" ]] && [[ "${TEST_SCRIPT}" == *ps1 ]]; then
+      powershell
+    elif [[ "${TRAVIS_OS_NAME}" != "windows" ]] && [[ "${TEST_SCRIPT}" == *sh ]]; then
+      bash $TEST_SCRIPT ci
+    else
+      bash -c "echo ${TEST_SCRIPT} skipped on ${TRAVIS_OS_NAME}"
+    fi
