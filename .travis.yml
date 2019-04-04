@@ -25,6 +25,7 @@ env:
   - V=0.23.1 TEST_SCRIPT=test_reproducibility.sh
   - V=0.23.1 TEST_SCRIPT=test_rules_scala.ps1
 
+
 before_install:
   - |
     if [[ "${TRAVIS_OS_NAME}" == "windows" ]]; then
