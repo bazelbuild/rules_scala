@@ -32,7 +32,7 @@ case class FocusedZipImporter(focus: Option[File], zips: List[File], zipFiles: L
         case child :: tail => loop(new File(leftPart, child), tail)
       }
       val parts = n.split("/", -1).toList
-      val newPath = loop(f, parts).toString
+      val newPath = loop(f, parts).getPath.replaceAllLiterally(File.separator, "/")
       if (parts(0) == File.pathSeparatorChar) newPath.substring(1)
       else newPath
   }
