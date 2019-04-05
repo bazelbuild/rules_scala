@@ -598,11 +598,14 @@ def _write_executable(ctx, executable, rjars, main_class, jvm_flags, wrapper, us
         jvm_flags_str = ";".join(jvm_flags)
         java_for_exe = str(ctx.attr._java_runtime[java_common.JavaRuntimeInfo].java_executable_exec_path)
 
+        cpfile = ctx.actions.declare_file("%s.classpath" % ctx.label.name)
+        ctx.actions.write(cpfile, classpath)
+
         ctx.actions.run(
             outputs = [executable],
-            inputs = [],
+            inputs = [cpfile],
             executable = ctx.attr._exe.files_to_run.executable,
-            arguments = [executable.path, ctx.workspace_name, java_for_exe, main_class, classpath, jvm_flags_str],
+            arguments = [executable.path, ctx.workspace_name, java_for_exe, main_class, cpfile.path, jvm_flags_str],
             mnemonic = "ExeLauncher",
             progress_message = "Creating exe launcher",
         )
@@ -1125,10 +1128,7 @@ def scala_test_impl(ctx):
     ])
 
     argsFile = ctx.actions.declare_file("%s.args" % ctx.label.name)
-    ctx.actions.write(
-        argsFile,
-        args
-    )
+    ctx.actions.write(argsFile, args)
 
     executable = _declare_executable(ctx)
 

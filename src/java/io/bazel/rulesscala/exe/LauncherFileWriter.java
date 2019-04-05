@@ -23,8 +23,9 @@ public class LauncherFileWriter {
     final String javaBinPath = args[2];
     final String jarBinPath = javaBinPath.substring(0, javaBinPath.lastIndexOf('/')) + "/jar.exe";
     final String javaStartClass = args[3];
-    final String classpath = args[4];
+    final String cpFile = args[4];
     final List<String> jvmFlags = Arrays.asList(args[5].split(";"));
+    final String classpath = Files.readAllLines(Paths.get(cpFile)).get(0);
 
     LaunchInfo launchInfo =
         LaunchInfo.builder()
