@@ -16,6 +16,8 @@ class UnusedDependencyChecker(val global: Global) extends Plugin { self =>
   var analyzerMode: AnalyzerMode = Error
   var currentTarget: String = "NA"
 
+  val isWindows: Boolean = System.getProperty("os.name").toLowerCase.contains("windows")
+
   override def init(options: List[String], error: (String) => Unit): Boolean = {
     var directJars: Seq[String] = Seq.empty
     var directTargets: Seq[String] = Seq.empty
@@ -66,7 +68,7 @@ class UnusedDependencyChecker(val global: Global) extends Plugin { self =>
       private def unusedDependenciesFound: Set[String] = {
         val usedJars: Set[AbstractFile] = findUsedJars
         val directJarPaths = direct.keys.toSet
-        val usedJarPaths = usedJars.map(_.path)
+        val usedJarPaths = if (!isWindows) usedJars.map(_.path) else usedJars.map(_.path.replaceAll("\\\\", "/"))
 
         val usedTargets = usedJarPaths
           .map(direct.get)
