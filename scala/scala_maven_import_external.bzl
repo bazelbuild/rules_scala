@@ -25,7 +25,7 @@ These import rules must have the following attributes:
 - "runtime_deps"
 - "exports"
 
-the code here is solely based on `jave_import_external` from bazelbuild/bazel repository and is proposed to be upstreamed back.
+the code here is solely based on `java_import_external` from bazelbuild/bazel repository and is proposed to be upstreamed back.
 
 the following macros are defined below that utilize jvm_import_external:
 

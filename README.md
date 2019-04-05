@@ -7,47 +7,46 @@
     <li><a href="#scala_library">scala_library/scala_macro_library</a></li>
     <li><a href="#scala_binary">scala_binary</a></li>
     <li><a href="#scala_test">scala_test</a></li>
+    <li><a href="#scala_repl">scala_repl</a></li>
+    <li><a href="#scala_library_suite">scala_library_suite</a></li>
+    <li><a href="#scala_test_suite">scala_test_suite</a></li>
+    <li><a href="#thrift_library">thrift_library</a></li>
     <li><a href="#scalapb_proto_library">scalapb_proto_library</a></li>
+    <li><a href="#scala_toolchain">scala_toolchain</a></li>
   </ul>
 </div>
 
 ## Overview
 
-This rule is used for building [Scala][scala] projects with Bazel. There are
-currently four rules, `scala_library`, `scala_macro_library`, `scala_binary`
-and `scala_test`.
+These rules are used for building [Scala][scala] projects with Bazel. There are
+currently rules for building binaries (and repl apps), libraries, tests, and
+protobuf and thrift libraries.
 
 ## Getting started
 
-In order to use `scala_library`, `scala_macro_library`, and `scala_binary`,
-you must have bazel 0.5.3 or later and add the following to your WORKSPACE file:
+In order to use these rules you must have bazel 0.23 or later and add the
+following to your WORKSPACE file:
 
 ```python
-
 rules_scala_version="a89d44f7ef67d93dedfc9888630f48d7723516f7" # update this as needed
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
-             name = "io_bazel_rules_scala",
-             url = "https://github.com/bazelbuild/rules_scala/archive/%s.zip"%rules_scala_version,
-             type = "zip",
-             strip_prefix= "rules_scala-%s" % rules_scala_version
-             )
+    name = "io_bazel_rules_scala",
+    strip_prefix = "rules_scala-%s" % rules_scala_version
+    type = "zip",
+    url = "https://github.com/bazelbuild/rules_scala/archive/%s.zip" % rules_scala_version,
+)
+
+load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_toolchains")
+scala_register_toolchains()
 
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
 scala_repositories()
 ```
-To use a particular tag, use the tagged number in `tag = ` and omit the `commit` attribute.
-Note that these plugins are still evolving quickly, as is bazel, so you may need to select
-the version most appropriate for you.
-
-In addition, you **must** register `scala_toolchain` - To register default empty toolcahin simply add those lines to `WORKSPACE` file:
-```python
-
-load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_toolchains")
-scala_register_toolchains()
-```
-[read more here](#scala_toolchain)
+This will load the `rules_scala` repository at the commit sha
+`rules_scala_version` into your Bazel project and register a [Scala
+toolchain](#scala_toolchain) at the default Scala version (2.11.12)
 
 Then in your BUILD file just add the following so the rules will be available:
 ```python
@@ -70,11 +69,14 @@ specify it when calling `scala_repositories`. `scala_repositories` takes a tuple
 as a parameter where `scala_version` is the scala version and `scala_version_jar_shas` is a `dict` with
 `sha256` hashes for the maven artifacts `scala_library`, `scala_reflect` and `scala_compiler`:
 ```python
-scala_repositories(("2.12.6", {
-    "scala_compiler": "3023b07cc02f2b0217b2c04f8e636b396130b3a8544a8dfad498a19c3e57a863",
-    "scala_library": "f81d7144f0ce1b8123335b72ba39003c4be2870767aca15dd0888ba3dab65e98",
-    "scala_reflect": "ffa70d522fc9f9deec14358aa674e6dd75c9dfa39d4668ef15bb52f002ce99fa"
-}))
+scala_repositories((
+    "2.12.6",
+    {
+        "scala_compiler": "3023b07cc02f2b0217b2c04f8e636b396130b3a8544a8dfad498a19c3e57a863",
+        "scala_library": "f81d7144f0ce1b8123335b72ba39003c4be2870767aca15dd0888ba3dab65e98",
+        "scala_reflect": "ffa70d522fc9f9deec14358aa674e6dd75c9dfa39d4668ef15bb52f002ce99fa"
+    }
+))
 ```
 If you're using any of the rules `twitter_scrooge`, `tut_repositories`, `scala_proto_repositories`
 or `specs2_junit_repositories` you also need to specify `scala_version` for them. See `./test_version/WORKSPACE.template`
