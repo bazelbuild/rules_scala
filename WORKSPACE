@@ -203,3 +203,17 @@ scala_maven_import_external(
         "@org_springframework_spring_core"
     ]
 )
+
+## deps for tests of compiler plugin
+scala_maven_import_external(
+    name = "org_spire_math_kind_projector",
+    artifact = scala_mvn_artifact(
+        "org.spire-math:kind-projector:0.9.10",
+        default_scala_major_version(),
+    ),
+    fetch_sources = False,
+    licenses = ["notice"],
+    server_urls = [
+        "https://repo.maven.apache.org/maven2/",
+    ],
+)

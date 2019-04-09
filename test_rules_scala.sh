@@ -711,6 +711,14 @@ test_scala_library_expect_no_recompilation_on_internal_change_of_transitive_depe
   set -e
 }
 
+test_scala_library_support_compiler_plugins() {
+  bazel build test/src/main/scala/scalarules/test/compiler_plugin:compiler_plugin
+  if [ $? -ne 0 ]; then
+    echo "'bazel build test/src/main/scala/scalarules/test/compiler_plugin:compiler_plugin' failed"
+    exit 1
+  fi
+}
+
 test_scala_library_expect_no_recompilation_on_internal_change_of_java_dependency() {
   test_scala_library_expect_no_recompilation_of_target_on_internal_change_of_dependency "C.java" "s/System.out.println(\"orig\")/System.out.println(\"altered\")/"
 }
@@ -995,6 +1003,7 @@ $runner test_unused_dependency_checker_mode_set_in_rule
 $runner test_unused_dependency_checker_mode_override_toolchain
 $runner test_scala_library_expect_no_recompilation_on_internal_change_of_transitive_dependency
 $runner test_multi_service_manifest
+$runner test_scala_library_support_compiler_plugins
 $runner test_scala_library_expect_no_recompilation_on_internal_change_of_scala_dependency
 $runner test_scala_library_expect_no_recompilation_on_internal_change_of_java_dependency
 $runner test_scala_library_expect_no_java_recompilation_on_internal_change_of_scala_sibling
