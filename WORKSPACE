@@ -1,5 +1,6 @@
 workspace(name = "io_bazel_rules_scala")
 
+
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 load("//scala:scala.bzl", "scala_repositories")
@@ -97,13 +98,6 @@ http_archive(
     strip_prefix = "protobuf-3.6.1.3",
 )
 
-http_archive(
-    name = "com_google_protobuf_java",
-    sha256 = "9510dd2afc29e7245e9e884336f848c8a6600a14ae726adb6befdb4f786f0be2",
-    urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.6.1.3.zip"],
-    strip_prefix = "protobuf-3.6.1.3",
-)
-
 new_local_repository(
     name = "test_new_local_repo",
     build_file_content =
@@ -120,6 +114,10 @@ filegroup(
 load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_unused_deps_toolchains")
 
 scala_register_unused_deps_toolchains()
+
+
+register_toolchains("@io_bazel_rules_scala//test/proto:scalapb_toolchain")
+
 
 load("//scala:scala_maven_import_external.bzl", "scala_maven_import_external", "java_import_external")
 
@@ -159,16 +157,50 @@ format_repositories()
 
 http_archive(
     name = "bazel_toolchains",
-    sha256 = "7e85a14821536bc24e04610d309002056f278113c6cc82f1059a609361812431",
-    strip_prefix = "bazel-toolchains-bc0091adceaf4642192a8dcfc46e3ae3e4560ea7",
+    sha256 = "4b1468b254a572dbe134cc1fd7c6eab1618a72acd339749ea343bd8f55c3b7eb",
+    strip_prefix = "bazel-toolchains-d665ccfa3e9c90fa789671bf4ef5f7c19c5715c4",
     urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/bazel-toolchains/archive/bc0091adceaf4642192a8dcfc46e3ae3e4560ea7.tar.gz",
-        "https://github.com/bazelbuild/bazel-toolchains/archive/bc0091adceaf4642192a8dcfc46e3ae3e4560ea7.tar.gz",
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-toolchains/archive/d665ccfa3e9c90fa789671bf4ef5f7c19c5715c4.tar.gz",
+        "https://github.com/bazelbuild/bazel-toolchains/archive/d665ccfa3e9c90fa789671bf4ef5f7c19c5715c4.tar.gz",
     ],
+)
+
+load("@bazel_toolchains//rules:rbe_repo.bzl", "rbe_autoconfig")
+
+# Creates toolchain configuration for remote execution with BuildKite CI
+# for rbe_ubuntu1604
+rbe_autoconfig(
+    name = "buildkite_config",
 )
 
 git_repository(
     name = "bazel_skylib",
     remote = "https://github.com/bazelbuild/bazel-skylib.git",
     tag = "0.6.0",
+)
+
+## deps for tests of limited deps support
+scala_maven_import_external(
+    name = "org_springframework_spring_core",
+    artifact = "org.springframework:spring-core:5.1.5.RELEASE",
+    jar_sha256 = "f771b605019eb9d2cf8f60c25c050233e39487ff54d74c93d687ea8de8b7285a",
+    licenses = ["notice"],  # Apache 2.0
+    server_urls = [
+        "https://repo1.maven.org/maven2/",
+        "https://mirror.bazel.build/repo1.maven.org/maven2",
+        ],
+)
+
+scala_maven_import_external(
+    name = "org_springframework_spring_tx",
+    artifact = "org.springframework:spring-tx:5.1.5.RELEASE",
+    jar_sha256 = "666f72b73c7e6b34e5bb92a0d77a14cdeef491c00fcb07a1e89eb62b08500135",
+    licenses = ["notice"],  # Apache 2.0
+    server_urls = [
+        "https://repo1.maven.org/maven2/",
+        "https://mirror.bazel.build/repo1.maven.org/maven2",
+        ],
+    deps = [
+        "@org_springframework_spring_core"
+    ]
 )

@@ -42,6 +42,11 @@ test_transitive_deps() {
   exit 0
 }
 
+test_override_javabin() {
+  # set the JAVABIN to nonsense
+  JAVABIN=/etc/basdf action_should_fail run test:ScalaBinary
+}
+
 test_scala_library_suite() {
   action_should_fail build test_expect_failure/scala_library_suite:library_suite_dep_on_children
 }
@@ -256,7 +261,7 @@ action_should_fail() {
   # runs the tests locally
   set +e
   TEST_ARG=$@
-  $(bazel $TEST_ARG)
+  DUMMY=$(bazel $TEST_ARG)
   RESPONSE_CODE=$?
   if [ $RESPONSE_CODE -eq 0 ]; then
     echo -e "${RED} \"bazel $TEST_ARG\" should have failed but passed. $NC"
@@ -788,21 +793,21 @@ test_unused_dependency_checker_mode_warn() {
   bazel build \
     --strict_java_deps=warn \
     //test:UnusedDependencyCheckerWarn
-    
+
   local output
   output=$(bazel build \
     --strict_java_deps=off \
     //test:UnusedDependencyCheckerWarn 2>&1
   )
-  
+
   if [ $? -ne 0 ]; then
     echo "Target with unused dependency failed to build with status $?"
     echo "$output"
     exit 1
   fi
-  
+
   local expected="warning: Target '//test:UnusedLib' is specified as a dependency to //test:UnusedDependencyCheckerWarn but isn't used, please remove it from the deps."
-  
+
   echo "$output" | grep "$expected"
   if [ $? -ne 0 ]; then
     echo "Expected output:[$output] to contain [$expected]"
@@ -899,6 +904,33 @@ test_scala_import_fetch_sources() {
   assert_file_exists $bazel_out_external_guava_21/$srcjar_name
 }
 
+test_compilation_succeeds_with_plus_one_deps_on() {
+  bazel build --extra_toolchains=//test_expect_failure/plus_one_deps:plus_one_deps //test_expect_failure/plus_one_deps/internal_deps:a
+}
+test_compilation_fails_with_plus_one_deps_undefined() {
+  action_should_fail build //test_expect_failure/plus_one_deps/internal_deps:a
+}
+test_compilation_succeeds_with_plus_one_deps_on_for_external_deps() {
+  bazel build --extra_toolchains="//test_expect_failure/plus_one_deps:plus_one_deps" //test_expect_failure/plus_one_deps/external_deps:a
+}
+test_compilation_succeeds_with_plus_one_deps_on_also_for_exports() {
+  bazel build --extra_toolchains="//test_expect_failure/plus_one_deps:plus_one_deps" //test_expect_failure/plus_one_deps/exports_deps:a
+}
+test_plus_one_deps_only_works_for_java_info_targets() {
+  #for example doesn't break scala proto which depends on proto_library
+  bazel build --extra_toolchains="//test_expect_failure/plus_one_deps:plus_one_deps" //test/proto:test_proto
+}
+test_unused_dependency_fails_even_if_also_exists_in_plus_one_deps() {
+  action_should_fail build --extra_toolchains="//test_expect_failure/plus_one_deps:plus_one_deps_with_unused_error" //test_expect_failure/plus_one_deps/with_unused_deps:a
+}
+
+test_coverage_on() {
+    bazel coverage \
+          --extra_toolchains="//test/coverage:enable_code_coverage_aspect" \
+          //test/coverage/...
+    diff test/coverage/expected-coverage.dat $(bazel info bazel-testlogs)/test/coverage/test-all/coverage.dat
+}
+
 assert_file_exists() {
   if [[ -f $1 ]]; then
     echo "File $1 exists."
@@ -991,3 +1023,12 @@ $runner test_scala_import_source_jar_should_be_fetched_when_fetch_sources_is_set
 $runner test_scala_import_source_jar_should_be_fetched_when_env_bazel_jvm_fetch_sources_is_set_to_true
 $runner test_scala_import_source_jar_should_not_be_fetched_when_env_bazel_jvm_fetch_sources_is_set_to_non_true
 $runner test_unused_dependency_checker_mode_warn
+$runner test_override_javabin
+$runner test_compilation_succeeds_with_plus_one_deps_on
+$runner test_compilation_fails_with_plus_one_deps_undefined
+$runner test_compilation_succeeds_with_plus_one_deps_on_for_external_deps
+$runner test_compilation_succeeds_with_plus_one_deps_on_also_for_exports
+$runner test_plus_one_deps_only_works_for_java_info_targets
+$runner bazel test //test/... --extra_toolchains="//test_expect_failure/plus_one_deps:plus_one_deps"
+$runner test_unused_dependency_fails_even_if_also_exists_in_plus_one_deps
+$runner test_coverage_on

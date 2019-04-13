@@ -1,0 +1,78 @@
+SF:/A1.scala
+FN:-1,A1$::<clinit> ()V
+FN:5,A1$::<init> ()V
+FN:3,A1$::a1 (Z)LB1$;
+FN:-1,A1::a1 (Z)LB1$;
+FNDA:1,A1$::<clinit> ()V
+FNDA:1,A1$::<init> ()V
+FNDA:1,A1$::a1 (Z)LB1$;
+FNDA:0,A1::a1 (Z)LB1$;
+FNF:4
+FNH:3
+BA:3,2
+BRF:1
+BRH:1
+DA:3,4
+DA:4,0
+DA:5,5
+LH:2
+LF:3
+end_of_record
+SF:/A2.scala
+FN:-1,A2$::<clinit> ()V
+FN:5,A2$::<init> ()V
+FN:3,A2$::a2 ()V
+FN:-1,A2::a2 ()V
+FNDA:1,A2$::<clinit> ()V
+FNDA:1,A2$::<init> ()V
+FNDA:1,A2$::a2 ()V
+FNDA:0,A2::a2 ()V
+FNF:4
+FNH:3
+DA:3,11
+DA:5,5
+LH:2
+LF:2
+end_of_record
+SF:/B1.scala
+FN:-1,B1$::<clinit> ()V
+FN:7,B1$::<init> ()V
+FN:4,B1$::not_called ()V
+FN:-1,B1::not_called ()V
+FNDA:1,B1$::<clinit> ()V
+FNDA:1,B1$::<init> ()V
+FNDA:0,B1$::not_called ()V
+FNDA:0,B1::not_called ()V
+FNF:4
+FNH:2
+DA:4,0
+DA:7,5
+LH:1
+LF:2
+end_of_record
+SF:/TestAll.scala
+FN:10,TestAll$$anonfun$1::<init> (LTestAll;)V
+FN:10,TestAll$$anonfun$1::apply ()V
+FN:10,TestAll$$anonfun$1::apply$mcV$sp ()V
+FN:6,TestAll$$anonfun$2::<init> (LTestAll;)V
+FN:6,TestAll$$anonfun$2::apply ()Lorg/scalatest/compatible/Assertion;
+FN:3,TestAll::<init> ()V
+FNDA:1,TestAll$$anonfun$1::<init> (LTestAll;)V
+FNDA:1,TestAll$$anonfun$1::apply ()V
+FNDA:1,TestAll$$anonfun$1::apply$mcV$sp ()V
+FNDA:1,TestAll$$anonfun$2::<init> (LTestAll;)V
+FNDA:1,TestAll$$anonfun$2::apply ()Lorg/scalatest/compatible/Assertion;
+FNDA:1,TestAll::<init> ()V
+FNF:6
+FNH:6
+BA:6,2
+BRF:1
+BRH:1
+DA:3,2
+DA:5,22
+DA:6,51
+DA:9,23
+DA:10,13
+LH:5
+LF:5
+end_of_record

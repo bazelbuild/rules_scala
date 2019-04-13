@@ -2,47 +2,39 @@ package scripts
 
 import java.nio.file.{Files, Path, Paths}
 
-class PBGenerateRequest(val jarOutput: String, val scalaPBOutput: Path, val scalaPBArgs: List[String])
+case class PBGenerateRequest(jarOutput: String, scalaPBOutput: Path, scalaPBArgs: List[String], includedProto: List[(Path, Path)], protoc: Path)
 
 object PBGenerateRequest {
 
   def from(args: java.util.List[String]): PBGenerateRequest = {
     val jarOutput = args.get(0)
-    val parsedProtoFiles = args.get(1).split(':').toList.map { rootAndFile =>
-      val parsed = rootAndFile.split(',')
-      val root = parsed(0)
-      val file = if (root.isEmpty) {
-        parsed(1)
-      } else {
-        parsed(1).substring(root.length + 1)
-      }
-      (file, Paths.get(root, file).toString)
-    }
-    // This will map the absolute path of a given proto file
-    // to a relative path that does not contain the repo prefix.
-    // This is to match the expected behavior of
-    // proto_library and java_proto_library where proto files
-    // can import other proto files using only the relative path
-    val imports = parsedProtoFiles.map { case (relPath, absolutePath) =>
-      s"-I$relPath=$absolutePath"
-    }
     val protoFiles = args.get(4).split(':')
+    val includedProto = args.get(1).drop(1).split(':').distinct.map { e =>
+      val p = e.split(',')
+      // If its an empty string then it means we are local to the current repo for the key, no op
+      (Some(p(0)).filter(_.nonEmpty), p(1))
+    }.collect {
+      // if the to compile files contains this absolute path then we are compiling it and shoudln't try move it around(duplicate files.)
+      case (Some(k), v) if !protoFiles.contains(v) => (Paths.get(k), Paths.get(v))
+    }.toList
+
     val flagOpt = args.get(2) match {
       case "-" => None
       case s if s.charAt(0) == '-' => Some(s.tail) //drop padding character
       case other => sys.error(s"expected a padding character of - (dash), but found: $other")
     }
-    val transitiveProtoPaths = args.get(3) match {
+    val transitiveProtoPaths = (args.get(3) match {
       case "-" => Nil
       case s if s.charAt(0) == '-' => s.tail.split(':').toList //drop padding character
       case other => sys.error(s"expected a padding character of - (dash), but found: $other")
-    }
+    }) ++ List(".")
 
     val tmp = Paths.get(Option(System.getProperty("java.io.tmpdir")).getOrElse("/tmp"))
     val scalaPBOutput = Files.createTempDirectory(tmp, "bazelscalapb")
     val flagPrefix = flagOpt.fold("")(_ + ":")
-    val scalaPBArgs = s"--scala_out=$flagPrefix$scalaPBOutput" :: (padWithProtoPathPrefix(transitiveProtoPaths) ++ imports ++ protoFiles)
-    new PBGenerateRequest(jarOutput, scalaPBOutput, scalaPBArgs)
+    val scalaPBArgs = s"--scala_out=$flagPrefix$scalaPBOutput" :: (padWithProtoPathPrefix(transitiveProtoPaths) ++ protoFiles)
+    val protoc = Paths.get(args.get(5))
+    new PBGenerateRequest(jarOutput, scalaPBOutput, scalaPBArgs, includedProto, protoc)
   }
 
   private def padWithProtoPathPrefix(transitiveProtoPathFlags: List[String]) =

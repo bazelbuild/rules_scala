@@ -26,16 +26,12 @@ def twitter_scrooge(
         maven_servers = ["http://central.maven.org/maven2"]):
     major_version = _extract_major_version(scala_version)
 
-    native.maven_server(
-        name = "twitter_scrooge_maven_server",
-        url = "http://mirror.bazel.build/repo1.maven.org/maven2/",
-    )
-
-    native.maven_jar(
+    _scala_maven_import_external(
         name = "libthrift",
         artifact = "org.apache.thrift:libthrift:0.8.0",
-        sha1 = "2203b4df04943f4d52c53b9608cef60c08786ef2",
-        server = "twitter_scrooge_maven_server",
+        jar_sha256 = "adea029247c3f16e55e29c1708b897812fd1fe335ac55fe3903e5d2f428ef4b3",
+        licenses = ["notice"],
+        server_urls = maven_servers,
     )
     native.bind(
         name = "io_bazel_rules_scala/dependency/thrift/libthrift",

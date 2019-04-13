@@ -83,9 +83,11 @@ for an example workspace using another scala version.
 
 ## Bazel compatible versions
 
-| bazel | rules_scala gitsha |
-|-------|--------------------|
-| 0.16.x | HEAD              |
+| bazel  | rules_scala gitsha |
+|--------|--------------------|
+| 0.23.x | HEAD                                     |
+| 0.22.x | f3113fb6e9e35cb8f441d2305542026d98afc0a2 |
+| 0.16.x | f3113fb6e9e35cb8f441d2305542026d98afc0a2 |
 | 0.15.x | 3b9ab9be31ac217d3337c709cb6bfeb89c8dcbb1 |
 | 0.14.x | 3b9ab9be31ac217d3337c709cb6bfeb89c8dcbb1 |
 | 0.13.x | 3c987b6ae8a453886759b132f1572c0efca2eca2 |
@@ -753,6 +755,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for more info.
 
 Here's a (non-exhaustive) list of companies that use `rules_scala` in production. Don't see yours? [You can add it in a PR](https://github.com/bazelbuild/rules_scala/edit/master/README.md)!
 
+* [Ascend](https://ascend.io/)
 * [Etsy](https://www.etsy.com/)
 * [Kitty Hawk](https://kittyhawk.aero/)
 * [Meetup](https://meetup.com/)
@@ -760,4 +763,3 @@ Here's a (non-exhaustive) list of companies that use `rules_scala` in production
 * [Stripe](https://stripe.com/)
 * [VSCO](https://vsco.co)
 * [Wix](https://www.wix.com/)
-
