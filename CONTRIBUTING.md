@@ -34,7 +34,7 @@ Code formatting is checked as part of the CI pipeline. To check/fix formatting
 you can use the `lint.sh` script:
 
 ```
-./ling.sh check # check formatting
+./lint.sh check # check formatting
 ./lint.sh fix   # fix formatting
 ```
 
