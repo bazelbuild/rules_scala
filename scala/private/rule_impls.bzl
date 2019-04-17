@@ -644,7 +644,7 @@ def _lib(ctx, base_classpath, non_macro_lib, unused_dependency_checker_mode,
   java_provider = create_java_provider(scalaattr, jars.transitive_compile_jars)
 
   return struct(
-      files = depset([ctx.outputs.jar]),  # Here is the default output
+      files = depset([ctx.outputs.jar] + outputs.full_jars),  # Here is the default output
       scala = scalaattr,
       providers = [java_provider, jars.jars2labels],
       runfiles = runfiles,
