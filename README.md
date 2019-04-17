@@ -57,6 +57,7 @@ You may wish to have these rules loaded by default using bazel's prelude. You ca
 To run with a persistent worker (much faster), you need to add
 ```
 build --strategy=Scalac=worker
+build --worker_sandboxing
 ```
 to your command line, or to enable by default for building/testing add it to your .bazelrc.
 
