@@ -9,7 +9,9 @@ def _scala_proto_toolchain_impl(ctx):
         code_generator = ctx.attr.code_generator,
         grpc_deps=ctx.attr.grpc_deps,
         implicit_compile_deps=ctx.attr.implicit_compile_deps,
+        extra_generator_dependencies = ctx.attr.extra_generator_dependencies,
         scalac=ctx.attr.scalac,
+        named_generators = ctx.attr.named_generators,
     )
     return [toolchain]
 
@@ -32,6 +34,10 @@ scala_proto_toolchain = rule(
             cfg = "host",
             default = Label("@io_bazel_rules_scala//src/scala/scripts:scalapb_generator"),
             allow_files=True
+        ),
+        "named_generators": attr.string_dict(),
+        "extra_generator_dependencies": attr.label_list(
+            providers = [JavaInfo]
         ),
         "grpc_deps": attr.label_list(
             providers = [JavaInfo],

@@ -153,6 +153,11 @@ def _scalapb_aspect_impl(target, ctx):
         if toolchain.with_single_line_to_string:
             flags.append("single_line_to_proto_string")
 
+        extra_generator_jars = []
+        for generator_dep in toolchain.extra_generator_dependencies:
+            jinfo = generator_dep[JavaInfo]
+            extra_generator_jars.extend(jinfo.transitive_runtime_jars.to_list())
+
         # This feels rather hacky and odd, but we can't compare the labels to ignore a target easily
         # since the @ or // forms seem to not have good equality :( , so we aim to make them absolute
         #
@@ -181,6 +186,8 @@ def _scalapb_aspect_impl(target, ctx):
                 target_ti.transitive_proto_path.to_list(),
                 flags,
                 scalapb_file,
+                toolchain.named_generators,
+                sorted(extra_generator_jars)
             )
 
             src_jars = depset([scalapb_file])

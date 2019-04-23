@@ -2,7 +2,7 @@ package scripts
 
 import java.nio.file.{Files, Path, Paths}
 
-case class PBGenerateRequest(jarOutput: String, scalaPBOutput: Path, scalaPBArgs: List[String], includedProto: List[(Path, Path)], protoc: Path)
+case class PBGenerateRequest(jarOutput: String, scalaPBOutput: Path, scalaPBArgs: List[String], includedProto: List[(Path, Path)], protoc: Path, namedGenerators: Seq[(String, String)], extraJars: List[Path])
 
 object PBGenerateRequest {
 
@@ -32,9 +32,23 @@ object PBGenerateRequest {
     val tmp = Paths.get(Option(System.getProperty("java.io.tmpdir")).getOrElse("/tmp"))
     val scalaPBOutput = Files.createTempDirectory(tmp, "bazelscalapb")
     val flagPrefix = flagOpt.fold("")(_ + ":")
-    val scalaPBArgs = s"--scala_out=$flagPrefix$scalaPBOutput" :: (padWithProtoPathPrefix(transitiveProtoPaths) ++ protoFiles)
+
+      val namedGenerators = args.get(6).drop(1).split(',').filter(_.nonEmpty).map { e =>
+      val kv = e.split('=')
+      (kv(0), kv(1))
+    }
+
+    val outputSettings = s"--scala_out=$flagPrefix$scalaPBOutput" :: namedGenerators.map{ case (k, _) =>
+      s"--${k}_out=$flagPrefix$scalaPBOutput"
+    }.toList
+
+
+    val scalaPBArgs = outputSettings ::: (padWithProtoPathPrefix(transitiveProtoPaths) ++ protoFiles)
     val protoc = Paths.get(args.get(5))
-    new PBGenerateRequest(jarOutput, scalaPBOutput, scalaPBArgs, includedProto, protoc)
+
+    val extraJars = args.get(7).drop(1).split(':').filter(_.nonEmpty).distinct.map {e => Paths.get(e)}.toList
+
+    new PBGenerateRequest(jarOutput, scalaPBOutput, scalaPBArgs, includedProto, protoc, namedGenerators, extraJars)
   }
 
   private def padWithProtoPathPrefix(transitiveProtoPathFlags: List[String]) =
