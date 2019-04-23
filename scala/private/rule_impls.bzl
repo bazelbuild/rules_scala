@@ -629,6 +629,7 @@ def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper, use_jacoco):
                 "%set_jacoco_metadata%": "export JACOCO_METADATA_JAR=\"$JAVA_RUNFILES/{}/{}\"".format(ctx.workspace_name, jacoco_metadata_file.short_path),
                 "%set_jacoco_main_class%": """export JACOCO_MAIN_CLASS={}""".format(main_class),
                 "%set_jacoco_java_runfiles_root%": """export JACOCO_JAVA_RUNFILES_ROOT=$JAVA_RUNFILES/{}/""".format(ctx.workspace_name),
+                "%set_java_coverage_new_implementation%": """export JAVA_COVERAGE_NEW_IMPLEMENTATION=YES""",
             },
             is_executable = True,
         )
@@ -654,6 +655,7 @@ def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper, use_jacoco):
                 "%set_jacoco_main_class%": "",
                 "%set_jacoco_java_runfiles_root%": "",
                 "%workspace_prefix%": ctx.workspace_name + "/",
+                "%set_java_coverage_new_implementation%": """export JAVA_COVERAGE_NEW_IMPLEMENTATION=NO""",
             },
             is_executable = True,
         )
