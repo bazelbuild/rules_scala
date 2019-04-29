@@ -2,13 +2,17 @@ package io.bazel.rulesscala.scala_test;
 
 import com.google.devtools.build.runfiles.Runfiles;
 import java.io.IOException;
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-/** This exists only as a proxy for scala tests's runner to provide access to env variables */
+/** This exists only as a proxy for scala tests's runner to:
+ * - provide access to env variables
+ * - unwrap runner's arguments from a file (passed via file to overcome command-line string limitation on Windows)
+ **/
 public class Runner {
   /**
    * This is the name of the env var set by bazel when a user provides a `--test_filter` test option
@@ -16,9 +20,9 @@ public class Runner {
   private static final String TESTBRIDGE_TEST_ONLY = "TESTBRIDGE_TEST_ONLY";
 
   /**
-   * This is the name of the system property used to pass Bazel's workspace name
+   * This is the name of the system property used to pass the main workspace name
    */
-  private static final String RULES_SCALA_WS = "RULES_SCALA_WS";
+  private static final String RULES_SCALA_MAIN_WS_NAME = "RULES_SCALA_MAIN_WS_NAME";
 
   /**
    * This is the name of the system property used to pass a short path of the file, which includes
@@ -31,32 +35,26 @@ public class Runner {
   }
 
   private static String[] extendArgs(String[] args, Map<String, String> env) throws IOException {
-    args = extendFromSystemPropArgs(args);
+    args = extendFromFileArgs(args);
     args = extendFromEnvVar(args, env, TESTBRIDGE_TEST_ONLY, "-s");
     return args;
   }
 
-  private static String[] extendFromSystemPropArgs(String[] args) throws IOException {
-    String rulesWorkspace = System.getProperty(RULES_SCALA_WS);
-    if (rulesWorkspace == null || rulesWorkspace.trim().isEmpty())
-      throw new IllegalArgumentException(RULES_SCALA_WS + " is null or empty.");
-
-    String rulesArgsKey = System.getProperty(RULES_SCALA_ARGS_FILE);
-    if (rulesArgsKey == null || rulesArgsKey.trim().isEmpty())
+  private static String[] extendFromFileArgs(String[] args) throws IOException {
+    String runnerArgsFileKey = System.getProperty(RULES_SCALA_ARGS_FILE);
+    if (runnerArgsFileKey == null || runnerArgsFileKey.trim().isEmpty())
       throw new IllegalArgumentException(RULES_SCALA_ARGS_FILE + " is null or empty.");
 
-    String rulesArgsPath = Runfiles.create().rlocation(rulesWorkspace + "/" + rulesArgsKey);
-    if (rulesArgsPath == null)
-      throw new IllegalArgumentException("rlocation value is null for key: " + rulesArgsKey);
+    String workspace = System.getProperty(RULES_SCALA_MAIN_WS_NAME);
+    if (workspace == null || workspace.trim().isEmpty())
+      throw new IllegalArgumentException(RULES_SCALA_MAIN_WS_NAME + " is null or empty.");
 
-    List<String> runnerArgs = Files.readAllLines(Paths.get(rulesArgsPath), Charset.forName("UTF-8"));
+    String runnerArgsFilePath = Runfiles.create().rlocation(workspace + "/" + runnerArgsFileKey);
+    if (runnerArgsFilePath == null)
+      throw new IllegalArgumentException("rlocation value is null for key: " + runnerArgsFileKey);
 
-    int runpathFlag = runnerArgs.indexOf("-R");
-    if (runpathFlag >= 0) {
-      String runpathKey = runnerArgs.get(runpathFlag + 1);
-      String runpath = Runfiles.create().rlocation(rulesWorkspace + "/" + runpathKey);
-      runnerArgs.set(runpathFlag + 1, runpath);
-    }
+    List<String> runnerArgs = Files.readAllLines(Paths.get(runnerArgsFilePath), Charset.forName("UTF-8"));
+    rlocateRunpathValue(workspace, runnerArgs);
 
     String[] runnerArgsArray = runnerArgs.toArray(new String[runnerArgs.size()]);
 
@@ -73,12 +71,28 @@ public class Runner {
     if (value == null) {
       return args;
     }
-    ;
     String[] flag = new String[] {flagName, value};
     String[] result = new String[args.length + flag.length];
     System.arraycopy(args, 0, result, 0, args.length);
     System.arraycopy(flag, 0, result, args.length, flag.length);
 
     return result;
+  }
+
+  /**
+   * Replaces ScalaTest Runner's runpath elements paths (see http://www.scalatest.org/user_guide/using_the_runner)
+   * with values from Bazel's runfiles
+   */
+  private static void rlocateRunpathValue(String rulesWorkspace, List<String> runnerArgs) throws IOException {
+    int runpathFlag = runnerArgs.indexOf("-R");
+    if (runpathFlag >= 0) {
+      String[] runpathElements = runnerArgs.get(runpathFlag + 1).split(File.pathSeparator);
+      Runfiles runfiles = Runfiles.create();
+      for (int i = 0; i < runpathElements.length; i++) {
+        runpathElements[i] = runfiles.rlocation(rulesWorkspace + "/" + runpathElements[i]);
+      }
+      String runpath = String.join(File.separator, runpathElements);
+      runnerArgs.set(runpathFlag + 1, runpath);
+    }
   }
 }

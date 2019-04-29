@@ -102,6 +102,13 @@ scala_test_suite(
 )
 
 scala_test_suite(
+    name = "LongTestSuiteNamesSuite",
+    size = "small",
+    srcs = glob(["longnames/**/*.scala"]),
+    use_short_names = True,
+)
+
+scala_test_suite(
     name = "TestSuitePassesKwArgs",
     size = "small",  # Not a macro, can pass test-specific attributes.
     srcs = glob(["ScalaTestData.scala"]),

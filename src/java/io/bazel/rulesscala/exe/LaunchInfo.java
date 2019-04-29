@@ -14,7 +14,6 @@
 
 package io.bazel.rulesscala.exe;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
@@ -41,7 +40,6 @@ public final class LaunchInfo {
   }
 
   /** Writes this object's entries to {@code out}, returns the total written amount in bytes. */
-  @VisibleForTesting
   long write(OutputStream out) throws IOException {
     long len = 0;
     for (Entry e : entries) {

@@ -26,6 +26,7 @@ bazel test `
     //test:HelloLibTest `
     //test:HelloLibTestSuite_test_suite_HelloLibTest.scala `
     //test:HelloLibTestSuite_test_suite_HelloLibTest2.scala `
+    //test:LongTestSuiteNamesSuite `
     //test:TestFilterTests `
     //test:no_sig `
     //test/aspect:aspect_test `
