@@ -70,11 +70,11 @@ as a parameter where `scala_version` is the scala version and `scala_version_jar
 `sha256` hashes for the maven artifacts `scala_library`, `scala_reflect` and `scala_compiler`:
 ```python
 scala_repositories((
-    "2.12.6",
+    "2.12.8",
     {
-        "scala_compiler": "3023b07cc02f2b0217b2c04f8e636b396130b3a8544a8dfad498a19c3e57a863",
-        "scala_library": "f81d7144f0ce1b8123335b72ba39003c4be2870767aca15dd0888ba3dab65e98",
-        "scala_reflect": "ffa70d522fc9f9deec14358aa674e6dd75c9dfa39d4668ef15bb52f002ce99fa"
+       "scala_compiler": "f34e9119f45abd41e85b9e121ba19dd9288b3b4af7f7047e86dc70236708d170",
+       "scala_library": "321fb55685635c931eba4bc0d7668349da3f2c09aee2de93a70566066ff25c28",
+       "scala_reflect": "4d6405395c4599ce04cea08ba082339e3e42135de9aae2923c9f5367e957315a"
     }
 ))
 ```
@@ -542,7 +542,7 @@ You first need to add the following to your WORKSPACE file:
 
 ```python
 load("@io_bazel_rules_scala//scala_proto:scala_proto.bzl", "scala_proto_repositories")
-scala_proto_repositories()
+scala_proto_repositories(scala_version = "2.12.8")
 ```
 
 Then you can import `scalapb_proto_library` in any BUILD file like this:
