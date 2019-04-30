@@ -493,9 +493,9 @@ def scala_repositories(
     if native.existing_rule("java_stub_template") == None:
       http_archive(
                 name = "java_stub_template",
-                sha256 = "1859a37dccaee8c56b98869bf1f22f6f5b909606aff74ddcfd59e9757a038dd5",
-                urls = ["https://github.com/bazelbuild/rules_scala/archive/8b8271e3ee5709e1340b19790d0b396a0ff3dd0f.tar.gz"],
-                strip_prefix = "rules_scala-8b8271e3ee5709e1340b19790d0b396a0ff3dd0f/java_stub_template",
+                sha256 = "4a72985658af01236a232b2b6dfda9bcaaa03b4da2115405bfb0de64ccd4f781",
+                urls = ["https://github.com/bazelbuild/rules_scala/archive/75217c13f73aefb9e9e90fc6346f9c7e1ceed426.zip"],
+                strip_prefix = "rules_scala-75217c13f73aefb9e9e90fc6346f9c7e1ceed426/java_stub_template",
       )
 
     native.bind(
