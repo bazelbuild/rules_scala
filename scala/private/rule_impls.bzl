@@ -133,7 +133,7 @@ def _collect_plugin_paths(plugins):
         if hasattr(p, "path"):
             paths.append(p)
         elif hasattr(p, "scala"):
-            paths.append(p.scala.outputs.jar)
+            paths.extend([j.class_jar for j in p.scala.outputs.jars])
         elif hasattr(p, "java"):
             paths.extend([j.class_jar for j in p.java.outputs.jars])
             # support http_file pointed at a jar. http_jar uses ijar,
