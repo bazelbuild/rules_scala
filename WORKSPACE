@@ -77,7 +77,7 @@ scala_maven_import_external(
     name = "com_github_jnr_jffi_native",
     artifact = "com.github.jnr:jffi:jar:native:1.2.17",
     fetch_sources = True,
-    jar_sha256 = "4eb582bc99d96c8df92fc6f0f608fd123d278223982555ba16219bf8be9f75a9",
+    artifact_sha256 = "4eb582bc99d96c8df92fc6f0f608fd123d278223982555ba16219bf8be9f75a9",
     licenses = ["notice"],
     server_urls = [
         "https://repo.maven.apache.org/maven2/",
@@ -124,7 +124,7 @@ load("//scala:scala_maven_import_external.bzl", "scala_maven_import_external", "
 scala_maven_import_external(
     name = "com_google_guava_guava_21_0",
     artifact = "com.google.guava:guava:21.0",
-    jar_sha256 = "972139718abc8a4893fa78cba8cf7b2c903f35c97aaf44fa3031b0669948b480",
+    artifact_sha256 = "972139718abc8a4893fa78cba8cf7b2c903f35c97aaf44fa3031b0669948b480",
     srcjar_sha256 = "b186965c9af0a714632fe49b33378c9670f8f074797ab466f49a67e918e116ea",
     fetch_sources = True,
     licenses = ["notice"],  # Apache 2.0
@@ -183,7 +183,7 @@ git_repository(
 scala_maven_import_external(
     name = "org_springframework_spring_core",
     artifact = "org.springframework:spring-core:5.1.5.RELEASE",
-    jar_sha256 = "f771b605019eb9d2cf8f60c25c050233e39487ff54d74c93d687ea8de8b7285a",
+    artifact_sha256 = "f771b605019eb9d2cf8f60c25c050233e39487ff54d74c93d687ea8de8b7285a",
     licenses = ["notice"],  # Apache 2.0
     server_urls = [
         "https://repo1.maven.org/maven2/",
@@ -194,7 +194,7 @@ scala_maven_import_external(
 scala_maven_import_external(
     name = "org_springframework_spring_tx",
     artifact = "org.springframework:spring-tx:5.1.5.RELEASE",
-    jar_sha256 = "666f72b73c7e6b34e5bb92a0d77a14cdeef491c00fcb07a1e89eb62b08500135",
+    artifact_sha256 = "666f72b73c7e6b34e5bb92a0d77a14cdeef491c00fcb07a1e89eb62b08500135",
     licenses = ["notice"],  # Apache 2.0
     server_urls = [
         "https://repo1.maven.org/maven2/",
