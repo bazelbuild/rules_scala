@@ -603,7 +603,7 @@ def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper, use_jacoco):
     )
 
     if use_jacoco and _coverage_replacements_provider.is_enabled(ctx):
-        classpath = ":".join(
+        classpath = ctx.configuration.host_path_separator.join(
             ["${RUNPATH}%s" % (j.short_path) for j in rjars.to_list() + ctx.files._jacocorunner + ctx.files._lcov_merger],
         )
         jacoco_metadata_file = ctx.actions.declare_file(
@@ -637,7 +637,7 @@ def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper, use_jacoco):
     else:
         # RUNPATH is defined here:
         # https://github.com/bazelbuild/bazel/blob/0.4.5/src/main/java/com/google/devtools/build/lib/bazel/rules/java/java_stub_template.txt#L227
-        classpath = ":".join(
+        classpath = ctx.configuration.host_path_separator.join(
             ["${RUNPATH}%s" % (j.short_path) for j in rjars.to_list()],
         )
         ctx.actions.expand_template(
