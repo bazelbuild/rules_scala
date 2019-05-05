@@ -618,7 +618,7 @@ def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper, use_jacoco):
             template = template,
             output = ctx.outputs.executable,
             substitutions = {
-                "%classpath%": classpath,
+                "%classpath%": "\"%s\"" % classpath,
                 "%javabin%": javabin,
                 "%jarbin%": _jar_path_based_on_java_bin(ctx),
                 "%jvm_flags%": jvm_flags,
@@ -644,7 +644,7 @@ def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper, use_jacoco):
             template = template,
             output = ctx.outputs.executable,
             substitutions = {
-                "%classpath%": classpath,
+                "%classpath%": "\"%s\"" % classpath,
                 "%java_start_class%": main_class,
                 "%javabin%": javabin,
                 "%jarbin%": _jar_path_based_on_java_bin(ctx),
