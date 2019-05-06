@@ -210,7 +210,7 @@ jvm_import_external = repository_rule(
         "rule_name": attr.string(mandatory = True),
         "licenses": attr.string_list(mandatory = True, allow_empty = False),
         "jar_urls": attr.string_list(mandatory = True, allow_empty = False),
-        "jar_sha256": attr.string(default = None, doc = "'jar_sha256' is deprecated. Please use 'artifact_sha256'"),
+        "jar_sha256": attr.string(doc = "'jar_sha256' is deprecated. Please use 'artifact_sha256'"),
         "artifact_sha256": attr.string(),
         "rule_load": attr.string(),
         "additional_rule_attrs": attr.string_dict(),
