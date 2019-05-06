@@ -55,6 +55,8 @@ def _jvm_import_external(repository_ctx):
         fail("Only use generated_linkable_rule_name if neverlink is set")
     name = repository_ctx.attr.generated_rule_name or repository_ctx.name
     urls = repository_ctx.attr.jar_urls
+    if repository_ctx.attr.jar_sha256:
+        print("'jar_sha256' is deprecated. Please use 'artifact_sha256'")
     sha = repository_ctx.attr.jar_sha256 or repository_ctx.attr.artifact_sha256
     path = repository_ctx.name + ".jar"
     for url in urls:
@@ -208,7 +210,7 @@ jvm_import_external = repository_rule(
         "rule_name": attr.string(mandatory = True),
         "licenses": attr.string_list(mandatory = True, allow_empty = False),
         "jar_urls": attr.string_list(mandatory = True, allow_empty = False),
-        "jar_sha256": attr.string(doc = "'jar_sha256' is deprecated. Please use 'artifact_sha256'"),
+        "jar_sha256": attr.string(default = None, doc = "'jar_sha256' is deprecated. Please use 'artifact_sha256'"),
         "artifact_sha256": attr.string(),
         "rule_load": attr.string(),
         "additional_rule_attrs": attr.string_dict(),
