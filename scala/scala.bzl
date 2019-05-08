@@ -67,6 +67,11 @@ _implicit_deps = {
             "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac",
         ),
     ),
+    "_exe": attr.label(
+        executable = True,
+        cfg = "host",
+        default = Label("@io_bazel_rules_scala//src/java/io/bazel/rulesscala/exe:exe"),
+    ),
 }
 
 # Single dep to allow IDEs to pickup all the implicit dependencies.
@@ -473,6 +478,14 @@ def scala_repositories(
     )
 
     _scala_maven_import_external(
+        name = "io_bazel_rules_scala_guava",
+        artifact = "com.google.guava:guava:21.0",
+        jar_sha256 = "972139718abc8a4893fa78cba8cf7b2c903f35c97aaf44fa3031b0669948b480",
+        licenses = ["notice"],
+        server_urls = maven_servers,
+    )
+
+    _scala_maven_import_external(
         name = "io_bazel_rules_scala_org_jacoco_org_jacoco_core",
         artifact = "org.jacoco:org.jacoco.core:0.7.5.201505241946",
         jar_sha256 = "ecf1ad8192926438d0748bfcc3f09bebc7387d2a4184bb3a171a26084677e808",
@@ -487,7 +500,7 @@ def scala_repositories(
         licenses = ["notice"],
         server_urls = maven_servers,
     )
-    
+
     # Using this and not the bazel regular one due to issue when classpath is too long
     # until https://github.com/bazelbuild/bazel/issues/6955 is resolved
     if native.existing_rule("java_stub_template") == None:
@@ -538,6 +551,11 @@ def scala_repositories(
         actual = "@io_bazel_rules_scala_scala_parser_combinators",
     )
 
+    native.bind(
+        name = "io_bazel_rules_scala/dependency/scala/guava",
+        actual = "@io_bazel_rules_scala_guava",
+    )
+
 def _sanitize_string_for_usage(s):
     res_array = []
     for idx in range(len(s)):
@@ -554,10 +572,13 @@ def scala_test_suite(
         name,
         srcs = [],
         visibility = None,
+        use_short_names = False,
         **kwargs):
     ts = []
+    i = 0
     for test_file in srcs:
-        n = "%s_test_suite_%s" % (name, _sanitize_string_for_usage(test_file))
+        i = i+1
+        n = ("%s_%s" % (name, i)) if use_short_names else ("%s_test_suite_%s" % (name, _sanitize_string_for_usage(test_file)))
         scala_test(
             name = n,
             srcs = [test_file],

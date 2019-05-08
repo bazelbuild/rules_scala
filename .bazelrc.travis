@@ -1,11 +1,10 @@
 # This is from Bazel's former travis setup, to avoid blowing up the RAM usage.
-startup --host_jvm_args=-Xmx2500m
-startup --host_jvm_args=-Xms2500m
+startup --host_jvm_args=-Xmx3072m
+startup --host_jvm_args=-Xms1024m
 # startup --batch # we actually start many bazels in the test script, we don't want batch
-test --ram_utilization_factor=10
 
 # Just making sure that we don't OOM with parallel builds
-build --local_resources 2048,.5,1.0
+build --local_resources 3072,.5,1.0
 
 # This is so we understand failures better
 build --verbose_failures
@@ -17,7 +16,7 @@ build --verbose_failures
 # runs stuff in a container, and since Travis already runs its script
 # in a container (unless you require sudo in your .travis.yml) this
 # fails to run tests.
-build --strategy=Scalac=worker --strategy=ScroogeRule=worker --worker_max_instances=3
+build --strategy=Scalac=worker --strategy=ScroogeRule=worker --worker_max_instances=2
 #test --test_strategy=standalone
 
 # Below this line, .travis.yml will cat the default bazelrc.
