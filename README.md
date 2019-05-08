@@ -1,20 +1,18 @@
 # Scala Rules for Bazel
 [![Build Status](https://travis-ci.org/bazelbuild/rules_scala.svg?branch=master)](https://travis-ci.org/bazelbuild/rules_scala) [![Build status](https://badge.buildkite.com/90ce5244556df74db805a3c24a703fb87458396f9e1ddd687e.svg)](https://buildkite.com/bazel/scala-rules-scala-postsubmit) [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/bazelbuild_rules_scala/Lobby)
 
-<div class="toc">
-  <h2>Rules</h2>
-  <ul>
-    <li><a href="#scala_library">scala_library/scala_macro_library</a></li>
-    <li><a href="#scala_binary">scala_binary</a></li>
-    <li><a href="#scala_test">scala_test</a></li>
-    <li><a href="#scala_repl">scala_repl</a></li>
-    <li><a href="#scala_library_suite">scala_library_suite</a></li>
-    <li><a href="#scala_test_suite">scala_test_suite</a></li>
-    <li><a href="#thrift_library">thrift_library</a></li>
-    <li><a href="#scalapb_proto_library">scalapb_proto_library</a></li>
-    <li><a href="#scala_toolchain">scala_toolchain</a></li>
-  </ul>
-</div>
+## Rules
+
+* [scala_library](docs/scala_library.md)
+* [scala_macro_library](docs/scala_macro_library.md)
+* [scala_binary](docs/scala_binary.md)
+* [scala_test](docs/scala_test.md)
+* [scala_repl](docs/scala_repl.md)
+* [scala_library_suite](docs/scala_library_suite.md)
+* [scala_test_suite](docs/scala_test_suite.md)
+* [thrift_library](docs/thrift_library.md)
+* [scalapb_proto_library](docs/scalapb_proto_library.md)
+* [scala_toolchain](docs/scala_toolchain.md)
 
 ## Overview
 
