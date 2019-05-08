@@ -1,6 +1,13 @@
 # Scala Rules for Bazel
 [![Build Status](https://travis-ci.org/bazelbuild/rules_scala.svg?branch=master)](https://travis-ci.org/bazelbuild/rules_scala) [![Build status](https://badge.buildkite.com/90ce5244556df74db805a3c24a703fb87458396f9e1ddd687e.svg)](https://buildkite.com/bazel/scala-rules-scala-postsubmit) [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/bazelbuild_rules_scala/Lobby)
 
+## Overview
+
+[Bazel](https://bazel.build/) is software for building and testing software, and can handle large,
+multi-language projects at scale.
+
+This project defines core build rules for [Scala](scala) that can be used to build, test, and package Scala projects.
+
 ## Rules
 
 * [scala_library](docs/scala_library.md)
@@ -13,12 +20,6 @@
 * [thrift_library](docs/thrift_library.md)
 * [scalapb_proto_library](docs/scalapb_proto_library.md)
 * [scala_toolchain](docs/scala_toolchain.md)
-
-## Overview
-
-These rules are used for building [Scala][scala] projects with Bazel. There are
-currently rules for building binaries (and repl apps), libraries, tests, and
-protobuf and thrift libraries.
 
 ## Getting started
 
