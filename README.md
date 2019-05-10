@@ -3,7 +3,7 @@
 
 ## Overview
 
-[Bazel](https://bazel.build/) is software for building and testing software, and can handle large,
+[Bazel](https://bazel.build/) is a tool for building and testing software and can handle large,
 multi-language projects at scale.
 
 This project defines core build rules for [Scala](https://www.scala-lang.org/) that can be used to build, test, and package Scala projects.
