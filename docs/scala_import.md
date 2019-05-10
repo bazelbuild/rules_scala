@@ -15,6 +15,9 @@ scala_import(
 `scala_import` enables the use of precompiled Scala .jar files as dependencies for other Scala rules
 like `scala_library`, similar to `java_import` from Java rules.
 
+This rule reimplements `java_import` without support for ijars, which break Scala macros.
+Generally, ijars don’t help much for external dependencies, which rarely change.
+
 ## Attributes
 
 | Attribute name        | Description                                           |
