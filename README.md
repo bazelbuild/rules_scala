@@ -20,6 +20,7 @@ This project defines core build rules for [Scala](https://www.scala-lang.org/) t
 * [thrift_library](docs/thrift_library.md)
 * [scalapb_proto_library](docs/scalapb_proto_library.md)
 * [scala_toolchain](docs/scala_toolchain.md)
+* [scala_import](docs/scala_import.md)
 
 ## Getting started
 
