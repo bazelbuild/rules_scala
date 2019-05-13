@@ -6,11 +6,12 @@ import java.nio.file.Path
 import io.bazel.rulesscala.io_utils.DeleteRecursively
 import io.bazel.rulesscala.jar.JarCreator
 import io.bazel.rulesscala.worker.{GenericWorker, Processor}
-import protocbridge.ProtocBridge
+import protocbridge.{ProtocBridge, ProtocCodeGenerator}
 import scala.collection.JavaConverters._
 import scalapb.ScalaPbCodeGenerator
 import java.nio.file.{Files, Paths}
 import scalapb.{ScalaPBC, ScalaPbCodeGenerator, ScalaPbcException}
+import java.net.URLClassLoader
 
 object ScalaPBWorker extends GenericWorker(new ScalaPBGenerator) {
 
@@ -51,10 +52,29 @@ class ScalaPBGenerator extends Processor {
     val extractRequestResult = PBGenerateRequest.from(args)
     setupIncludedProto(extractRequestResult.includedProto)
 
+    val extraClassesClassLoader = new URLClassLoader(extractRequestResult.extraJars.map { e =>
+      val f = e.toFile
+      require(f.exists, s"Expected file for classpath loading $f to exist")
+      f.toURI.toURL
+    }.toArray)
+
+    val namedGeneratorsWithTypes = extractRequestResult.namedGenerators.map { case (nme, className) =>
+      val ins = try {
+        val clazz = extraClassesClassLoader.loadClass(className + "$")
+        clazz.getField("MODULE$").get(null).asInstanceOf[ProtocCodeGenerator]
+      } catch {
+        case _: NoSuchFieldException | _: java.lang.ClassNotFoundException =>
+    val clazz = extraClassesClassLoader.loadClass(className)
+    clazz.newInstance.asInstanceOf[ProtocCodeGenerator]
+      }
+      (nme, ins)
+    }.toList
+
     val config = ScalaPBC.processArgs(extractRequestResult.scalaPBArgs.toArray)
+
     val code = ProtocBridge.runWithGenerators(
       protoc = exec(extractRequestResult.protoc),
-      namedGenerators = Seq("scala" -> ScalaPbCodeGenerator),
+      namedGenerators = namedGeneratorsWithTypes ++ Seq("scala" -> ScalaPbCodeGenerator),
       params = config.args)
 
     try {
