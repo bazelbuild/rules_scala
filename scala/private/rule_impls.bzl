@@ -216,9 +216,9 @@ CurrentTarget: {current_target}
 
         cjars_list = cjars.to_list()
         direct_jars = _join_path(cjars_list)
-        direct_targets = ",".join([labels[j.path] for j in cjars_list])
+        direct_targets = ",".join([str(labels[j.path]) for j in cjars_list])
 
-        ignored_targets = ",".join(unused_dependency_checker_ignored_targets)
+        ignored_targets = ",".join([str(d) for d in unused_dependency_checker_ignored_targets])
 
         current_target = str(target_label)
 
@@ -1130,9 +1130,11 @@ def scala_test_impl(ctx):
     )
 
     args = "\n".join([
-        "-R", ctx.outputs.jar.short_path,
+        "-R",
+        ctx.outputs.jar.short_path,
         _scala_test_flags(ctx),
-        "-C", "io.bazel.rules.scala.JUnitXmlReporter",
+        "-C",
+        "io.bazel.rules.scala.JUnitXmlReporter",
     ])
 
     argsFile = ctx.actions.declare_file("%s.args" % ctx.label.name)
@@ -1152,7 +1154,7 @@ def scala_test_impl(ctx):
         unused_dependency_checker_ignored_targets =
             unused_dependency_checker_ignored_targets,
         unused_dependency_checker_mode = unused_dependency_checker_mode,
-        runfiles_ext = [argsFile]
+        runfiles_ext = [argsFile],
     )
 
     rjars = out.transitive_rjars
@@ -1175,7 +1177,7 @@ def scala_test_impl(ctx):
         executable = executable,
         jvm_flags = [
             "-DRULES_SCALA_MAIN_WS_NAME=%s" % ctx.workspace_name,
-            "-DRULES_SCALA_ARGS_FILE=%s" % argsFile.short_path
+            "-DRULES_SCALA_ARGS_FILE=%s" % argsFile.short_path,
         ] + ctx.attr.jvm_flags,
         main_class = ctx.attr.main_class,
         rjars = rjars,
