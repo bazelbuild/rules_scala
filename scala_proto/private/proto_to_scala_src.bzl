@@ -3,7 +3,6 @@ load(
     "write_manifest_file",
 )
 load("//scala/private:rule_impls.bzl", "compile_scala")
-load("//scala_proto/private:dep_sets.bzl", "SCALAPB_DEPS", "GRPC_DEPS")
 
 
 def _root_path(f):
