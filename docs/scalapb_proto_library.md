@@ -13,8 +13,8 @@ Then you can import `scalapb_proto_library` in any `BUILD` file like this:
 ```python
 load("@io_bazel_rules_scala//scala_proto:scala_proto.bzl", "scalapb_proto_library")
 scalapb_proto_library(
-    name,
-    deps,
+    name = "my_scala_proto_lib",
+    deps = [":my_target"],
 )
 ```
 
