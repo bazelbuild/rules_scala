@@ -1,4 +1,12 @@
 
+# These are the compile/runtime dependencies needed for scalapb compilation
+# and grpc compile/runtime.
+#
+# In a complex environment you may want to update the toolchain to not refer to these anymore
+# If you are using a resolver (like bazel-deps) that can export compile + runtime jar paths
+# for you, then you should only need much shorter dependency lists. This needs to be the unrolled
+# transitive path to be used without such a facility.
+#
 DEFAULT_SCALAPB_COMPILE_DEPS = [
     "//external:io_bazel_rules_scala/dependency/proto/scalapb_runtime",
     "//external:io_bazel_rules_scala/dependency/com_google_protobuf/protobuf_java",
