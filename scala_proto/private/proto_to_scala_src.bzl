@@ -20,7 +20,7 @@ def _colon_paths(data):
 
 
 def encode_named_generators(named_generators):
-    return ",".join([k + "=" + v for (k, v) in named_generators.items()])
+    return ",".join([k + "=" + v for (k, v) in sorted(named_generators.items())])
 
 
 def proto_to_scala_src(ctx, label, code_generator, compile_proto, include_proto, transitive_proto_paths, flags, jar_output, named_generators, extra_generator_jars):
