@@ -12,7 +12,7 @@ load(
     "@io_bazel_rules_scala//scala/private:coverage_replacements_provider.bzl",
     _coverage_replacements_provider = "coverage_replacements_provider",
 )
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 load(
     "@io_bazel_rules_scala//scala:scala_maven_import_external.bzl",
     _scala_maven_import_external = "scala_maven_import_external",
@@ -503,13 +503,31 @@ def scala_repositories(
 
     # Using this and not the bazel regular one due to issue when classpath is too long
     # until https://github.com/bazelbuild/bazel/issues/6955 is resolved
-    if native.existing_rule("java_stub_template") == None:
-      http_archive(
-                name = "java_stub_template",
-                sha256 = "1859a37dccaee8c56b98869bf1f22f6f5b909606aff74ddcfd59e9757a038dd5",
-                urls = ["https://github.com/bazelbuild/rules_scala/archive/8b8271e3ee5709e1340b19790d0b396a0ff3dd0f.tar.gz"],
-                strip_prefix = "rules_scala-8b8271e3ee5709e1340b19790d0b396a0ff3dd0f/java_stub_template",
-      )
+    if not native.existing_rule("java_stub_template"):
+        http_archive(
+            name = "java_stub_template",
+            sha256 = "1859a37dccaee8c56b98869bf1f22f6f5b909606aff74ddcfd59e9757a038dd5",
+            urls = ["https://github.com/bazelbuild/rules_scala/archive/8b8271e3ee5709e1340b19790d0b396a0ff3dd0f.tar.gz"],
+            strip_prefix = "rules_scala-8b8271e3ee5709e1340b19790d0b396a0ff3dd0f/java_stub_template",
+        )
+
+    if not native.existing_rule("com_google_protobuf"):
+        http_archive(
+            name = "com_google_protobuf",
+            sha256 = "d82eb0141ad18e98de47ed7ed415daabead6d5d1bef1b8cccb6aa4d108a9008f",
+            strip_prefix = "protobuf-b4f193788c9f0f05d7e0879ea96cd738630e5d51",
+            # Commit from 2019-05-15, update to protobuf 3.8 when available.
+            url = "https://github.com/protocolbuffers/protobuf/archive/b4f193788c9f0f05d7e0879ea96cd738630e5d51.tar.gz",
+        )
+
+    if not native.existing_rule("zlib"):  # needed by com_google_protobuf
+        http_archive(
+            name = "zlib",
+            build_file = "@com_google_protobuf//:third_party/zlib.BUILD",
+            sha256 = "c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1",
+            strip_prefix = "zlib-1.2.11",
+            urls = ["https://zlib.net/zlib-1.2.11.tar.gz"],
+        )
 
     native.bind(
         name = "io_bazel_rules_scala/dependency/com_google_protobuf/protobuf_java",
@@ -577,7 +595,7 @@ def scala_test_suite(
     ts = []
     i = 0
     for test_file in srcs:
-        i = i+1
+        i = i + 1
         n = ("%s_%s" % (name, i)) if use_short_names else ("%s_test_suite_%s" % (name, _sanitize_string_for_usage(test_file)))
         scala_test(
             name = n,
