@@ -50,6 +50,22 @@ DA:7,5
 LH:1
 LF:2
 end_of_record
+SF:/C2.scala
+FN:-1,C2$::<clinit> ()V
+FN:5,C2$::<init> ()V
+FN:3,C2$::c2 (Ljava/lang/String;)Ljava/lang/String;
+FN:-1,C2::c2 (Ljava/lang/String;)Ljava/lang/String;
+FNDA:1,C2$::<clinit> ()V
+FNDA:1,C2$::<init> ()V
+FNDA:1,C2$::c2 (Ljava/lang/String;)Ljava/lang/String;
+FNDA:1,C2::c2 (Ljava/lang/String;)Ljava/lang/String;
+FNF:4
+FNH:4
+DA:3,9
+DA:5,5
+LH:2
+LF:2
+end_of_record
 SF:/TestAll.scala
 FN:10,TestAll$$anonfun$1::<init> (LTestAll;)V
 FN:10,TestAll$$anonfun$1::apply ()V
