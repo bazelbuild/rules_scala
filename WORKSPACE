@@ -91,18 +91,6 @@ maven_jar(
     sha1 = "6c6c702c89bfff3cd9e80b04d668c5e190d588c6",
 )
 
-http_archive(
-    name = "com_google_protobuf",
-    sha256 = "d82eb0141ad18e98de47ed7ed415daabead6d5d1bef1b8cccb6aa4d108a9008f",
-    strip_prefix = "protobuf-b4f193788c9f0f05d7e0879ea96cd738630e5d51",
-    # Commit from 2019-05-15, update to protobuf 3.8 when available.
-    url = "https://github.com/protocolbuffers/protobuf/archive/b4f193788c9f0f05d7e0879ea96cd738630e5d51.tar.gz",
-)
-
-load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
-
-protobuf_deps()
-
 new_local_repository(
     name = "test_new_local_repo",
     build_file_content =
