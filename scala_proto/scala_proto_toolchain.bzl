@@ -1,4 +1,4 @@
-load("//scala_proto/private:dep_sets.bzl", "SCALAPB_DEPS", "GRPC_DEPS")
+load("//scala_proto:default_dep_sets.bzl", "DEFAULT_SCALAPB_COMPILE_DEPS", "DEFAULT_SCALAPB_GRPC_DEPS")
 
 def _scala_proto_toolchain_impl(ctx):
     toolchain = platform_common.ToolchainInfo(
@@ -9,7 +9,9 @@ def _scala_proto_toolchain_impl(ctx):
         code_generator = ctx.attr.code_generator,
         grpc_deps=ctx.attr.grpc_deps,
         implicit_compile_deps=ctx.attr.implicit_compile_deps,
+        extra_generator_dependencies = ctx.attr.extra_generator_dependencies,
         scalac=ctx.attr.scalac,
+        named_generators = ctx.attr.named_generators,
     )
     return [toolchain]
 
@@ -33,17 +35,17 @@ scala_proto_toolchain = rule(
             default = Label("@io_bazel_rules_scala//src/scala/scripts:scalapb_generator"),
             allow_files=True
         ),
+        "named_generators": attr.string_dict(),
+        "extra_generator_dependencies": attr.label_list(
+            providers = [JavaInfo]
+        ),
         "grpc_deps": attr.label_list(
             providers = [JavaInfo],
-            default = GRPC_DEPS
+            default = DEFAULT_SCALAPB_GRPC_DEPS
         ),
         "implicit_compile_deps": attr.label_list(
             providers = [JavaInfo],
-            default = SCALAPB_DEPS + [
-            Label(
-                    "//external:io_bazel_rules_scala/dependency/scala/scala_library",
-                )
-            ],
+            default = DEFAULT_SCALAPB_COMPILE_DEPS,
         ),
         "scalac": attr.label(
             default = Label(

@@ -3,9 +3,7 @@ load(
     "write_manifest_file",
 )
 load("//scala/private:rule_impls.bzl", "compile_scala")
-
 load("//scala_proto/private:proto_to_scala_src.bzl", "proto_to_scala_src")
-
 
 ScalaPBAspectInfo = provider(fields = [
     "proto_info",
@@ -14,17 +12,14 @@ ScalaPBAspectInfo = provider(fields = [
     "java_info",
 ])
 
-
 ScalaPBImport = provider(fields = [
     "java_info",
     "proto_info",
 ])
 
-
 ScalaPBInfo = provider(fields = [
     "aspect_info",
 ])
-
 
 def merge_proto_infos(tis):
     return struct(
@@ -38,7 +33,6 @@ def merge_scalapb_aspect_info(scalapbs):
         proto_info = merge_proto_infos([s.proto_info for s in scalapbs]),
         java_info = java_common.merge([s.java_info for s in scalapbs]),
     )
-
 
 def _compiled_jar_file(actions, scalapb_jar):
     scalapb_jar_name = scalapb_jar.basename
@@ -135,9 +129,10 @@ def _scalapb_aspect_impl(target, ctx):
                 for d in ctx.rule.attr.deps
             ] + [target_ti],
         )
+
         # we sort so the inputs are always the same for caching
         compile_protos = sorted(target_ti.direct_sources)
-        transitive_protos = sorted(target_ti.transitive_sources)
+        transitive_protos = sorted(target_ti.transitive_sources.to_list())
 
         toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
         flags = []
@@ -153,6 +148,11 @@ def _scalapb_aspect_impl(target, ctx):
         if toolchain.with_single_line_to_string:
             flags.append("single_line_to_proto_string")
 
+        extra_generator_jars = []
+        for generator_dep in toolchain.extra_generator_dependencies:
+            jinfo = generator_dep[JavaInfo]
+            extra_generator_jars.extend(jinfo.transitive_runtime_jars.to_list())
+
         # This feels rather hacky and odd, but we can't compare the labels to ignore a target easily
         # since the @ or // forms seem to not have good equality :( , so we aim to make them absolute
         #
@@ -163,7 +163,7 @@ def _scalapb_aspect_impl(target, ctx):
             target_absolute_label = Label("@%s//%s:%s" % (ctx.workspace_name, target.label.package, target.label.name))
 
         for lbl in toolchain.blacklisted_protos:
-            if(lbl.label == target_absolute_label):
+            if (lbl.label == target_absolute_label):
                 compile_protos = False
 
         code_generator = toolchain.code_generator
@@ -181,6 +181,8 @@ def _scalapb_aspect_impl(target, ctx):
                 target_ti.transitive_proto_path.to_list(),
                 flags,
                 scalapb_file,
+                toolchain.named_generators,
+                sorted(extra_generator_jars),
             )
 
             src_jars = depset([scalapb_file])

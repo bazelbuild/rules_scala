@@ -67,6 +67,7 @@ def _aspect_impl(target, ctx):
 _aspect = aspect(
     attr_aspects = _dependency_attributes,
     implementation = _aspect_impl,
+    toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
 )
 
 def _is_enabled(ctx):

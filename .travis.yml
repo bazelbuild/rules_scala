@@ -4,7 +4,7 @@ sudo: required
 # xcode8 has jdk8
 osx_image: xcode8
 # Not technically required but suppresses 'Ruby' in Job status message.
-language: java
+language: sh
 
 cache:
     directories:
@@ -13,38 +13,54 @@ cache:
 os:
   - linux
   - osx
+  - windows
 
 env:
   # Linting is broken. Disable until fixed.
   # See https://github.com/bazelbuild/rules_scala/pull/622
   # we want to test the last release
   #- V=0.16.1 TEST_SCRIPT=test_lint.sh
-  - V=0.23.1 TEST_SCRIPT=test_rules_scala.sh
+  - V=0.23.1 TEST_SCRIPT=test_rules_scala
     #- V=0.14.1 TEST_SCRIPT=test_intellij_aspect.sh
-  - V=0.23.1 TEST_SCRIPT=test_reproducibility.sh
+  - V=0.23.1 TEST_SCRIPT=test_reproducibility
+
 
 before_install:
   - |
-    if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
-      OS=darwin
+    if [[ "${TRAVIS_OS_NAME}" == "windows" ]]; then
+      choco install jdk8 -params 'installdir=c:\\java8'
+      choco install bazel --version ${V}
     else
-      sysctl kernel.unprivileged_userns_clone=1
-      sudo apt-get update -q
-      sudo apt-get install libxml2-utils -y
-      OS=linux
+      if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+        OS=darwin
+      else
+        sudo sysctl kernel.unprivileged_userns_clone=1
+        sudo add-apt-repository -y ppa:openjdk-r/ppa
+        sudo apt-get update -q
+        sudo apt-get install openjdk-8-jdk -y
+        sudo apt-get install libxml2-utils -y
+        OS=linux
+      fi
+
+      if [[ $V =~ .*rc[0-9]+.* ]]; then
+        PRE_RC=$(expr "$V" : '\([0-9.]*\)rc.*')
+        RC_PRC=$(expr "$V" : '[0-9.]*\(rc.*\)')
+        URL="https://storage.googleapis.com/bazel/${PRE_RC}/${RC_PRC}/bazel-${V}-installer-${OS}-x86_64.sh"
+      else
+        URL="https://github.com/bazelbuild/bazel/releases/download/${V}/bazel-${V}-installer-${OS}-x86_64.sh"
+      fi
+      wget -O install.sh "${URL}"
+      chmod +x install.sh
+      ./install.sh --user
+      rm -f install.sh
     fi
-    if [[ $V =~ .*rc[0-9]+.* ]]; then
-      PRE_RC=$(expr "$V" : '\([0-9.]*\)rc.*')
-      RC_PRC=$(expr "$V" : '[0-9.]*\(rc.*\)')
-      URL="https://storage.googleapis.com/bazel/${PRE_RC}/${RC_PRC}/bazel-${V}-installer-${OS}-x86_64.sh"
-    else
-      URL="https://github.com/bazelbuild/bazel/releases/download/${V}/bazel-${V}-installer-${OS}-x86_64.sh"
-    fi
-    wget -O install.sh "${URL}"
-    chmod +x install.sh
-    ./install.sh --user
-    rm -f install.sh
   - cat .bazelrc.travis >> .bazelrc
 
 script:
-  - bash $TEST_SCRIPT ci
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "windows" ]]; then
+      powershell -Command 'Set-ExecutionPolicy RemoteSigned -scope CurrentUser'
+      powershell -File ./${TEST_SCRIPT}.ps1
+    else
+      bash ./${TEST_SCRIPT}.sh ci
+    fi

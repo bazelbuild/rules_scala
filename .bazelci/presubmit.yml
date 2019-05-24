@@ -1,6 +1,6 @@
 ---
 platforms:
-  ubuntu1404:
+  ubuntu1604:
     shell_commands:
     # Disable local disk caching on CI.
     - mv tools/bazel.rc.buildkite tools/bazel.rc
@@ -9,7 +9,7 @@ platforms:
     - "//test/..."
     test_targets:
     - "//test/..."
-  ubuntu1604:
+  ubuntu1804:
     shell_commands:
     # Disable local disk caching on CI.
     - mv tools/bazel.rc.buildkite tools/bazel.rc
