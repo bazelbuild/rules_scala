@@ -53,6 +53,15 @@ object Specs2FilteringRunnerBuilder {
 class FilteredSpecs2ClassRunner(testClass: Class[_], testFilter: Pattern)
   extends org.specs2.runner.JUnitRunner(testClass) {
 
+  override def getDescription(env: Env): Description = {
+    val root = super.getDescription(env)
+    val filtered = flatten(root).filter(matchingFilter)
+
+    val flattenedRoot = root.childlessCopy()
+    filtered.foreach(flattenedRoot.addChild)
+    flattenedRoot
+  }
+
   def matchesFilter: Boolean = {
     val fqn = testClass.getName + "#"
     val matcher = testFilter.matcher(fqn)
@@ -106,22 +115,24 @@ class FilteredSpecs2ClassRunner(testClass: Class[_], testFilter: Pattern)
     *
     *  This function returns a flat list of the descriptions and their children, starting with the root.
     */
-  private def flattenDescription(description: Description): List[Description] =
-    description.getChildren.asScala.toList.flatMap(d => d :: flattenDescription(d))
+  def flatten(root: Description): List[Description] = {
+    def flatten0(desc: Description, xs: List[Description]): List[Description] =
+      desc.childlessCopy() :: desc.getChildren.asScala.foldLeft(xs)((acc, x) => flatten0(x, acc))
 
-  private def matching(testFilter: Pattern): Description => Boolean = { d =>
-    val testCase = d.getClassName + "#" + d.getMethodName
-    testFilter.matcher(testCase).matches
+    flatten0(root, Nil)
   }
 
-  private def specs2ExamplesMatching(testFilter: Pattern, junitDescription: Description)(implicit ee: ExecutionEnv): List[String] =
-    flattenDescription(junitDescription)
-      .filter(matching(testFilter))
-      .flatMap(toDisplayName(_))
+  private def matchingFilter(desc: Description): Boolean = {
+    val testCase = desc.getClassName + "#" + desc.getMethodName
+    testFilter.toString.r.findAllIn(testCase).nonEmpty
+  }
+
+  private def specs2Examples(implicit ee: ExecutionEnv): List[String] =
+    flatten(getDescription).flatMap(toDisplayName(_))
 
   override def runWithEnv(n: RunNotifier, env: Env): Action[Stats] = {
     implicit val ee = env.executionEnv
-    val specs2MatchedExamplesRegex = specs2ExamplesMatching(testFilter, getDescription).toRegexAlternation
+    val specs2MatchedExamplesRegex = specs2Examples.toRegexAlternation
 
     val newArgs = Arguments(select = Select(_ex = specs2MatchedExamplesRegex), commandLine = CommandLine.create(testClass.getName))
     val newEnv = env.copy(arguments overrideWith newArgs)
