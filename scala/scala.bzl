@@ -32,6 +32,10 @@ load(
     "@io_bazel_rules_scala//scala:plusone.bzl",
     _collect_plus_one_deps_aspect = "collect_plus_one_deps_aspect",
 )
+load(
+    "@io_bazel_rules_scala//scala:scala_doc.bzl",
+    _scala_doc = "scala_doc",
+)
 
 _launcher_template = {
     "_java_stub_template": attr.label(
@@ -700,3 +704,5 @@ def scala_specs2_junit_test(name, **kwargs):
         suite_class = "io.bazel.rulesscala.specs2.Specs2DiscoveredTestSuite",
         **kwargs
     )
+
+scala_doc = _scala_doc
