@@ -4,7 +4,6 @@
 scala_binary(
     name,
     deps,
-    plugins,
 )
 ```
 
@@ -15,7 +14,6 @@ for targets, including sources from upstream deps. Readily hostable HTML is writ
 
 scala_doc(
     name = "scala_docs",
-    plugins = ["//external:path/to/kind-projector.jar],
     tags = ["manual"],
     deps = [
         ":target1",
@@ -39,4 +37,3 @@ pkg_tar(
 | --------------------- | ----------------------------------------------------- |
 | name                  | `Name, required` <br> A unique name for this target.
 | deps                  | `List of labels, optional` <br> Labels for which you want to create scaladoc.
-| plugins               | `List of labels, optional` <br> Scala compiler plugins to pass through to the scaladoc tool.

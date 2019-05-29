@@ -5,6 +5,7 @@ load("@io_bazel_rules_scala//scala/private:common.bzl", "collect_plugin_paths")
 ScaladocAspectInfo = provider(fields = [
     "src_files",
     "compile_jars",
+    "plugins",
 ])
 
 def _scaladoc_aspect_impl(target, ctx):
@@ -18,9 +19,14 @@ def _scaladoc_aspect_impl(target, ctx):
         # Collect compile_jars from visited targets' deps.
         compile_jars = depset(transitive = [dep[JavaInfo].compile_jars for dep in ctx.rule.attr.deps if JavaInfo in dep])
 
+        plugins = depset()
+        if hasattr(ctx.rule.attr, "plugins"):
+            plugins = depset(direct = ctx.rule.attr.plugins)
+
         return [ScaladocAspectInfo(
             src_files = src_files,
             compile_jars = compile_jars,
+            plugins = plugins,
         )]
     else:
         return []
@@ -41,7 +47,7 @@ def _scala_doc_impl(ctx):
     compile_jars = depset(transitive = [dep[ScaladocAspectInfo].compile_jars for dep in ctx.attr.deps])
 
     # Get the 'real' paths to the plugin jars.
-    plugins = collect_plugin_paths(ctx.attr.plugins)
+    plugins = collect_plugin_paths(depset(transitive = [dep[ScaladocAspectInfo].plugins for dep in ctx.attr.deps]))
 
     # Construct the full classpath depset since we need to add compiler plugins too.
     classpath = depset(transitive = [plugins, compile_jars])
@@ -73,7 +79,6 @@ scala_doc = rule(
             aspects = [scaladoc_aspect],
             providers = [JavaInfo],
         ),
-        "plugins": attr.label_list(allow_files = [".jar"]),
         "_scaladoc": attr.label(
             cfg = "host",
             executable = True,
