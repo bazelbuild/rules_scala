@@ -2,7 +2,7 @@
 
 load("@io_bazel_rules_scala//scala/private:common.bzl", "collect_plugin_paths")
 
-ScaladocAspectInfo = provider(fields = [
+_ScaladocAspectInfo = provider(fields = [
     "src_files",
     "compile_jars",
     "plugins",
@@ -23,7 +23,7 @@ def _scaladoc_aspect_impl(target, ctx):
         if hasattr(ctx.rule.attr, "plugins"):
             plugins = depset(direct = ctx.rule.attr.plugins)
 
-        return [ScaladocAspectInfo(
+        return [_ScaladocAspectInfo(
             src_files = src_files,
             compile_jars = compile_jars,
             plugins = plugins,
@@ -31,7 +31,7 @@ def _scaladoc_aspect_impl(target, ctx):
     else:
         return []
 
-scaladoc_aspect = aspect(
+_scaladoc_aspect = aspect(
     implementation = _scaladoc_aspect_impl,
     attr_aspects = ["deps"],
     required_aspect_providers = [
@@ -44,11 +44,11 @@ def _scala_doc_impl(ctx):
     output_path = ctx.actions.declare_directory("{}.html".format(ctx.attr.name))
 
     # Collect all source files and compile_jars to pass to scaladoc by way of an aspect.
-    src_files = depset(transitive = [dep[ScaladocAspectInfo].src_files for dep in ctx.attr.deps])
-    compile_jars = depset(transitive = [dep[ScaladocAspectInfo].compile_jars for dep in ctx.attr.deps])
+    src_files = depset(transitive = [dep[_ScaladocAspectInfo].src_files for dep in ctx.attr.deps])
+    compile_jars = depset(transitive = [dep[_ScaladocAspectInfo].compile_jars for dep in ctx.attr.deps])
 
     # Get the 'real' paths to the plugin jars.
-    plugins = collect_plugin_paths(depset(transitive = [dep[ScaladocAspectInfo].plugins for dep in ctx.attr.deps]))
+    plugins = collect_plugin_paths(depset(transitive = [dep[_ScaladocAspectInfo].plugins for dep in ctx.attr.deps]))
 
     # Construct the full classpath depset since we need to add compiler plugins too.
     classpath = depset(transitive = [plugins, compile_jars])
@@ -77,7 +77,7 @@ def _scala_doc_impl(ctx):
 scala_doc = rule(
     attrs = {
         "deps": attr.label_list(
-            aspects = [scaladoc_aspect],
+            aspects = [_scaladoc_aspect],
             providers = [JavaInfo],
         ),
         "_scaladoc": attr.label(
