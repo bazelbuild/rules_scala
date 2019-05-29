@@ -11,6 +11,28 @@ scala_binary(
 `scala_doc` generates [Scaladoc](https://docs.scala-lang.org/style/scaladoc.html) for sources
 for targets, including sources from upstream deps. Readily hostable HTML is written to a `name.html` output folder.
 
+## Example
+
+scala_doc(
+    name = "scala_docs",
+    plugins = ["//external:path/to/kind-projector.jar],
+    tags = ["manual"],
+    deps = [
+        ":target1",
+        ":target2",
+        ":anothertarget",
+    ],
+)
+
+# Use pkg_tar to tarball up
+# https://docs.bazel.build/versions/master/be/pkg.html#pkg_tar
+pkg_tar(
+    name = "scala_docs_archive",
+    srcs = [":scala_docs"],
+    extension = "tar.gz",
+)
+```
+
 ## Attributes
 
 | Attribute name        | Description                                           |
