@@ -10,6 +10,9 @@ scala_binary(
 `scala_doc` generates [Scaladoc](https://docs.scala-lang.org/style/scaladoc.html) for sources
 for targets, including sources from upstream deps. Readily hostable HTML is written to a `name.html` output folder.
 
+Scaladoc can be somewhat slow to build. In that case, you can tell Bazel to build this target manually,
+i.e. only when named explicitly and not through wildcards: `tags = ["manual"]`.
+
 ## Example
 
 scala_doc(
