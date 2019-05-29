@@ -15,6 +15,7 @@ i.e. only when named explicitly and not through wildcards: `tags = ["manual"]`.
 
 ## Example
 
+```python
 scala_doc(
     name = "scala_docs",
     tags = ["manual"],
