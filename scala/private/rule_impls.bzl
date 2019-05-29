@@ -26,6 +26,7 @@ load(
     ":common.bzl",
     "add_labels_of_jars_to",
     "collect_jars",
+    "collect_plugin_paths",
     "collect_srcjars",
     "create_java_provider",
     "not_sources_jar",
@@ -127,22 +128,6 @@ touch {statsfile}
         arguments = [],
     )
 
-def _collect_plugin_paths(plugins):
-    paths = []
-    for p in plugins:
-        if hasattr(p, "path"):
-            paths.append(p)
-        elif hasattr(p, "scala"):
-            paths.extend([j.class_jar for j in p.scala.outputs.jars])
-        elif hasattr(p, "java"):
-            paths.extend([j.class_jar for j in p.java.outputs.jars])
-            # support http_file pointed at a jar. http_jar uses ijar,
-            # which breaks scala macros
-
-        elif hasattr(p, "files"):
-            paths.extend([f for f in p.files if not_sources_jar(f.basename)])
-    return depset(paths)
-
 def _expand_location(ctx, flags):
     return [ctx.expand_location(f, ctx.attr.data) for f in flags]
 
@@ -172,7 +157,7 @@ def compile_scala(
         unused_dependency_checker_mode = "off",
         unused_dependency_checker_ignored_targets = []):
     # look for any plugins:
-    plugins = _collect_plugin_paths(plugins)
+    plugins = collect_plugin_paths(plugins)
     internal_plugin_jars = []
     dependency_analyzer_mode = "off"
     compiler_classpath_jars = cjars
