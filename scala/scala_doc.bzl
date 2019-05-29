@@ -40,7 +40,8 @@ scaladoc_aspect = aspect(
 )
 
 def _scala_doc_impl(ctx):
-    output_path = ctx.outputs.html
+    # scaladoc warns if you don't have the output directory already created, which is annoying.
+    output_path = ctx.actions.declare_directory("{}.html".format(ctx.attr.name))
 
     # Collect all source files and compile_jars to pass to scaladoc by way of an aspect.
     src_files = depset(transitive = [dep[ScaladocAspectInfo].src_files for dep in ctx.attr.deps])
@@ -56,7 +57,7 @@ def _scala_doc_impl(ctx):
     # See `scaladoc -help` for more information.
     args = ctx.actions.args()
     args.add("-usejavacp")
-    args.add("-d", output_path)
+    args.add("-d", output_path.path)
     args.add_all(plugins, format_each = "-Xplugin:%s")
     args.add_joined("-classpath", classpath, join_with = ":")
     args.add_all(src_files)
@@ -86,6 +87,5 @@ scala_doc = rule(
         ),
     },
     doc = "Generate Scaladoc HTML documentation for source files in from the given dependencies.",
-    outputs = {"html": "%{name}.html"},
     implementation = _scala_doc_impl,
 )
