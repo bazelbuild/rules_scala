@@ -13,11 +13,20 @@ def _scaladoc_aspect_impl(target, ctx):
 
     # We really only care about visited targets with srcs, so only look at those.
     if hasattr(ctx.rule.attr, "srcs"):
-        # Collect only Java and Scala sources enumerated in visited targets.
-        src_files = depset(direct = [file for file in ctx.rule.files.srcs if file.extension.lower() in ["java", "scala"]])
+        # Collect only Java and Scala sources enumerated in visited targets, including src_files in deps.
+        src_files = depset(
+            direct = [file for file in ctx.rule.files.srcs if file.extension.lower() in ["java", "scala"]],
+            transitive = [dep[_ScaladocAspectInfo].src_files for dep in ctx.rule.attr.deps if _ScaladocAspectInfo in dep],
+        )
 
         # Collect compile_jars from visited targets' deps.
-        compile_jars = depset(transitive = [dep[JavaInfo].compile_jars for dep in ctx.rule.attr.deps if JavaInfo in dep])
+        compile_jars = depset(
+            direct = [file for file in ctx.rule.files.deps],
+            transitive = (
+                [dep[JavaInfo].compile_jars for dep in ctx.rule.attr.deps if JavaInfo in dep] +
+                [dep[_ScaladocAspectInfo].compile_jars for dep in ctx.rule.attr.deps if _ScaladocAspectInfo in dep]
+            ),
+        )
 
         plugins = depset()
         if hasattr(ctx.rule.attr, "plugins"):
