@@ -66,6 +66,7 @@ def _scala_doc_impl(ctx):
     # See `scaladoc -help` for more information.
     args = ctx.actions.args()
     args.add("-usejavacp")
+    args.add("-nowarn")  # turn off warnings for now since they can obscure actual errors for large scala_doc targets
     args.add_all(ctx.attr.scalacopts)
     args.add("-d", output_path.path)
     args.add_all(plugins, format_each = "-Xplugin:%s")
