@@ -70,7 +70,7 @@ def _scala_doc_impl(ctx):
     args.add_all(ctx.attr.scalacopts)
     args.add("-d", output_path.path)
     args.add_all(plugins, format_each = "-Xplugin:%s")
-    args.add_joined("-classpath", classpath, join_with = ":")
+    args.add_joined("-classpath", classpath, join_with = ctx.configuration.host_path_separator)
     args.add_all(src_files)
 
     # Run the scaladoc tool!
