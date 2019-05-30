@@ -24,6 +24,10 @@ scala_doc(
         ":target2",
         ":anothertarget",
     ],
+    scalacopts = [
+        "-Ypartial-unification",
+        "-Ywarn-unused-import",
+    ],
 )
 
 # Use pkg_tar to tarball up
@@ -41,3 +45,4 @@ pkg_tar(
 | --------------------- | ----------------------------------------------------- |
 | name                  | `Name, required` <br> A unique name for this target.
 | deps                  | `List of labels, optional` <br> Labels for which you want to create scaladoc.
+| scalacopts            | `List of strings, optional` <br> Extra compiler options for this library to be passed to scalac.

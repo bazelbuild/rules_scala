@@ -66,6 +66,7 @@ def _scala_doc_impl(ctx):
     # See `scaladoc -help` for more information.
     args = ctx.actions.args()
     args.add("-usejavacp")
+    args.add_all(ctx.attr.scalacopts)
     args.add("-d", output_path.path)
     args.add_all(plugins, format_each = "-Xplugin:%s")
     args.add_joined("-classpath", classpath, join_with = ":")
@@ -89,6 +90,7 @@ scala_doc = rule(
             aspects = [_scaladoc_aspect],
             providers = [JavaInfo],
         ),
+        "scalacopts": attr.string_list(),
         "_scaladoc": attr.label(
             cfg = "host",
             executable = True,
