@@ -57,7 +57,7 @@ def _scala_doc_impl(ctx):
     compile_jars = depset(transitive = [dep[_ScaladocAspectInfo].compile_jars for dep in ctx.attr.deps])
 
     # Get the 'real' paths to the plugin jars.
-    plugins = collect_plugin_paths(depset(transitive = [dep[_ScaladocAspectInfo].plugins for dep in ctx.attr.deps]))
+    plugins = collect_plugin_paths(depset(transitive = [dep[_ScaladocAspectInfo].plugins for dep in ctx.attr.deps]).to_list())
 
     # Construct the full classpath depset since we need to add compiler plugins too.
     classpath = depset(transitive = [plugins, compile_jars])
