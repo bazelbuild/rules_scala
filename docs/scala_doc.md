@@ -1,7 +1,7 @@
 # scala_doc
 
 ```python
-scala_binary(
+scala_doc(
     name,
     deps,
 )
