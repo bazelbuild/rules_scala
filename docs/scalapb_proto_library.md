@@ -1,4 +1,7 @@
 # scalapb_proto_library
+This rule is the scala protobuf generator library. The semantics where possible are modeled
+after the `java_proto_library` rules. This as a result does use aspects for good caching and speed, this however places some limtations on how some scala authors are used to working with scalapb.
+For this we have the `direct_scalapb_proto_library`. You should avoid ideally mixing the same chain of dependencies across both rules to avoid multiple copies of the same class name with different contents getting into your classpath.
 
 To use this rule, you'll first need to add the following to your `WORKSPACE` file,
 which adds a few dependencies needed for ScalaPB:
