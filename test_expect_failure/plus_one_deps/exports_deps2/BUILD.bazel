@@ -1,0 +1,30 @@
+load("//scala:scala.bzl", "scala_library")
+scala_library(
+    name = "a",
+    srcs = ["A.scala"],
+    deps = [":b"],
+)
+scala_library(
+    name = "b",
+    srcs = ["B.scala"],
+    deps = [":c"],
+    exports = [":c"],
+)
+scala_library(
+    name = "c",
+    srcs = ["C.scala"],
+    deps = [":d"],
+)
+scala_library(
+    name = "d",
+    srcs = ["D.scala"],
+)
+scala_library(
+    name = "a_using_facade",
+    srcs = ["A.scala"],
+    deps = [":b_facade"],
+)
+scala_library(
+    name = "b_facade",
+    exports = [":b"]
+)
