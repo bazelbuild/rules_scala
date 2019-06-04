@@ -9,7 +9,7 @@ scala_library(
 )
 scala_library(
     name = "facade",
-    exports = [":exported_dep"]
+    exports = [":direct_dep"]
 )
 
 #example with target in deps & exports
