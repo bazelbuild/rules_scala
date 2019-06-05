@@ -395,6 +395,19 @@ def scala_proto_default_repositories(
     )
 
     _scala_maven_import_external(
+        name = "scala_proto_rules_disruptor",
+        artifact = "com.lmax:disruptor:3.4.2",
+        jar_sha256 = "f412ecbb235c2460b45e63584109723dea8d94b819c78c9bfc38f50cba8546c0",
+        licenses = ["notice"],
+        server_urls = maven_servers,
+    )
+
+    native.bind(
+        name = "io_bazel_rules_scala/dependency/proto/disruptor",
+        actual = "@scala_proto_rules_disruptor//jar",
+    )
+
+    _scala_maven_import_external(
         name = "scala_proto_rules_opencensus_impl_core",
         artifact = "io.opencensus:opencensus-impl-core:0.22.1",
         jar_sha256 = "04607d100e34bacdb38f93c571c5b7c642a1a6d873191e25d49899668514db68",
