@@ -929,8 +929,11 @@ test_compilation_fails_with_plus_one_deps_undefined() {
 test_compilation_succeeds_with_plus_one_deps_on_for_external_deps() {
   bazel build --extra_toolchains="//test_expect_failure/plus_one_deps:plus_one_deps" //test_expect_failure/plus_one_deps/external_deps:a
 }
-test_compilation_succeeds_with_plus_one_deps_on_also_for_exports() {
-  bazel build --extra_toolchains="//test_expect_failure/plus_one_deps:plus_one_deps" //test_expect_failure/plus_one_deps/exports_deps:a
+test_compilation_succeeds_with_plus_one_deps_on_also_for_exports_of_deps() {
+  bazel build --extra_toolchains="//test_expect_failure/plus_one_deps:plus_one_deps" //test_expect_failure/plus_one_deps/exports_of_deps/...
+}
+test_compilation_succeeds_with_plus_one_deps_on_also_for_deps_of_exports() {
+  bazel build --extra_toolchains="//test_expect_failure/plus_one_deps:plus_one_deps" //test_expect_failure/plus_one_deps/deps_of_exports/...
 }
 test_plus_one_deps_only_works_for_java_info_targets() {
   #for example doesn't break scala proto which depends on proto_library
@@ -1044,7 +1047,8 @@ $runner test_override_javabin
 $runner test_compilation_succeeds_with_plus_one_deps_on
 $runner test_compilation_fails_with_plus_one_deps_undefined
 $runner test_compilation_succeeds_with_plus_one_deps_on_for_external_deps
-$runner test_compilation_succeeds_with_plus_one_deps_on_also_for_exports
+$runner test_compilation_succeeds_with_plus_one_deps_on_also_for_exports_of_deps
+$runner test_compilation_succeeds_with_plus_one_deps_on_also_for_deps_of_exports
 $runner test_plus_one_deps_only_works_for_java_info_targets
 $runner bazel test //test/... --extra_toolchains="//test_expect_failure/plus_one_deps:plus_one_deps"
 $runner test_unused_dependency_fails_even_if_also_exists_in_plus_one_deps
