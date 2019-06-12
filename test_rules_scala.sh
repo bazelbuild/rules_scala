@@ -528,6 +528,38 @@ scala_specs2_only_filtered_test_shows_in_the_xml(){
   test -e
 }
 
+scala_specs2_all_tests_show_in_the_xml(){
+  bazel test \
+    --nocache_test_results \
+    --test_output=streamed \
+    '--test_filter=scalarules.test.junit.specs2.JunitSpecs2Test#' \
+    test:Specs2Tests
+  matches=$(grep -c -e "testcase name='specs2 tests should::run smoothly in bazel'" -e "testcase name='specs2 tests should::not run smoothly in bazel'" ./bazel-testlogs/test/Specs2Tests/test.xml)
+  if [ $matches -eq 2 ]; then
+    return 0
+  else
+    echo "Expecting two results, found a different number ($matches). Please check 'bazel-testlogs/test/Specs2Tests/test.xml'"
+    return 1
+  fi
+  test -e
+}
+
+scala_specs2_only_failed_test_shows_in_the_xml(){
+  bazel test \
+    --nocache_test_results \
+    --test_output=streamed \
+    '--test_filter=scalarules.test.junit.specs2.FailingSpecs2Test#specs2 tests should::fail$' \
+    test:Specs2Tests
+  matches=$(grep -c -e "testcase name='specs2 tests should::fail'" -e "testcase name='specs2 tests should::succeed'" ./bazel-testlogs/test/Specs2Tests/test.xml)
+  if [ $matches -eq 1 ]; then
+    return 0
+  else
+    echo "Expecting only one result, found more than one. Please check 'bazel-testlogs/test/Specs2Tests/test.xml'"
+    return 1
+  fi
+  test -e
+}
+
 scala_specs2_junit_test_test_filter_exact_match(){
   local output=$(bazel test \
     --nocache_test_results \
@@ -1002,7 +1034,9 @@ $runner scala_specs2_junit_test_test_filter_exact_match_escaped_and_sanitized
 $runner scala_specs2_junit_test_test_filter_match_multiple_methods
 $runner scala_specs2_exception_in_initializer_without_filter
 $runner scala_specs2_exception_in_initializer_terminates_without_timeout
+$runner scala_specs2_all_tests_show_in_the_xml
 $runner scala_specs2_only_filtered_test_shows_in_the_xml
+$runner scala_specs2_only_failed_test_shows_in_the_xml
 $runner scalac_jvm_flags_are_configured
 $runner javac_jvm_flags_are_configured
 $runner javac_jvm_flags_via_javacopts_are_configured
