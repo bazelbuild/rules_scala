@@ -11,6 +11,8 @@ import org.junit.runners.Suite
 import org.junit.runners.model.RunnerBuilder
 import org.specs2.concurrent.ExecutionEnv
 import org.specs2.control.Action
+import org.specs2.data.Trees._
+import org.specs2.fp.TreeLoc
 import org.specs2.main.{Arguments, CommandLine, Select}
 import org.specs2.specification.core.{Env, Fragment, SpecStructure}
 import org.specs2.specification.process.Stats
@@ -60,10 +62,15 @@ class FilteredSpecs2ClassRunner(testClass: Class[_], testFilter: Pattern)
   }
 
   private def createFilteredDescription(specStructure: SpecStructure, ee: ExecutionEnv): Description = {
-    val tree = allFragmentDescriptions(ee)
-    val desc = Description.createSuiteDescription(testClass)
-    tree.values.filter(matchingFilter).foreach(desc.addChild)
-    desc
+    val descTree = createDescriptionTree(ee).map(_._2)
+    descTree.toTree.bottomUp {
+      (description: Description, children: Stream[Description]) =>
+        children.filter(matchingFilter).foreach {
+          child => description.addChild(child)
+        }
+        description
+    }.rootLabel
+
   }
 
   def matchesFilter: Boolean = {
@@ -79,10 +86,12 @@ class FilteredSpecs2ClassRunner(testClass: Class[_], testFilter: Pattern)
     else sanitized
   }
 
+  private def createDescriptionTree(implicit ee: ExecutionEnv): TreeLoc[(Fragment, Description)] =
+    Try(allDescriptions[specs2_v4].createDescriptionTree(specStructure)(ee))
+      .getOrElse(allDescriptions[specs2_v3].createDescriptionTree(specStructure))
+
   private def allFragmentDescriptions(implicit ee: ExecutionEnv): Map[Fragment, Description] =
-    Try(allDescriptions[specs2_v4].fragmentDescriptions(specStructure)(ee))
-      .orElse(Try(allDescriptions[specs2_v3].fragmentDescriptions(specStructure)))
-      .getOrElse(Map.empty)
+    createDescriptionTree(ee).toTree.flattenLeft.toMap
 
   /**
     * Retrieves an original (un-sanitized) text of an example fragment,
@@ -129,8 +138,11 @@ class FilteredSpecs2ClassRunner(testClass: Class[_], testFilter: Pattern)
   }
 
   private def matchingFilter(desc: Description): Boolean = {
-    val testCase = desc.getClassName + "#" + desc.getMethodName
-    testFilter.toString.r.findAllIn(testCase).nonEmpty
+    if (desc.isSuite) true
+    else {
+      val testCase = desc.getClassName + "#" + Option(desc.getMethodName).mkString
+      testFilter.toString.r.findFirstIn(testCase).nonEmpty
+    }
   }
 
   private def specs2Examples(implicit ee: ExecutionEnv): List[String] =

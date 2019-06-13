@@ -17,14 +17,6 @@ class JunitSpecs2Test extends SpecWithJUnit {
   }
 }
 
-class FailingSpecs2Test extends SpecWithJUnit {
-
-  "specs2 tests" should {
-    "succeed" >> success
-    "fail" >> failure
-  }
-}
-
 class JunitSpecs2AnotherTest extends SpecWithJUnit {
 
   "other specs2 tests" should {

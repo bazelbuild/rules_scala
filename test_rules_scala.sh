@@ -548,13 +548,13 @@ scala_specs2_only_failed_test_shows_in_the_xml(){
   bazel test \
     --nocache_test_results \
     --test_output=streamed \
-    '--test_filter=scalarules.test.junit.specs2.FailingSpecs2Test#specs2 tests should::fail$' \
-    test:Specs2Tests
-  matches=$(grep -c -e "testcase name='specs2 tests should::fail'" -e "testcase name='specs2 tests should::succeed'" ./bazel-testlogs/test/Specs2Tests/test.xml)
+    '--test_filter=scalarules.test.junit.specs2.SuiteWithOneFailingTest#specs2 tests should::fail$' \
+    test_expect_failure/scala_junit_test:specs2_failing_test
+  matches=$(grep -c -e "testcase name='specs2 tests should::fail'" -e "testcase name='specs2 tests should::succeed'" ./bazel-testlogs/test_expect_failure/scala_junit_test/specs2_failing_test/test.xml)
   if [ $matches -eq 1 ]; then
     return 0
   else
-    echo "Expecting only one result, found more than one. Please check 'bazel-testlogs/test/Specs2Tests/test.xml'"
+    echo "Expecting only one result, found more than one. Please check './bazel-testlogs/test_expect_failure/scala_junit_test/specs2_failing_test/test.xml'"
     return 1
   fi
   test -e
