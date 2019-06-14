@@ -370,8 +370,8 @@ def scala_proto_default_repositories(
 
     _scala_maven_import_external(
         name = "scala_proto_rules_opencensus_api",
-        artifact = "io.opencensus:opencensus-api:0.18.0",
-        jar_sha256 = "45421ffe95271aba94686ed8d4c5070fe77dc2ff0b922688097f0dd40f1931b1",
+        artifact = "io.opencensus:opencensus-api:0.22.1",
+        jar_sha256 = "62a0503ee81856ba66e3cde65dee3132facb723a4fa5191609c84ce4cad36127",
         licenses = ["notice"],
         server_urls = maven_servers,
     )
@@ -382,9 +382,48 @@ def scala_proto_default_repositories(
     )
 
     _scala_maven_import_external(
+        name = "scala_proto_rules_opencensus_impl",
+        artifact = "io.opencensus:opencensus-impl:0.22.1",
+        jar_sha256 = "9e8b209da08d1f5db2b355e781b9b969b2e0dab934cc806e33f1ab3baed4f25a",
+        licenses = ["notice"],
+        server_urls = maven_servers,
+    )
+
+    native.bind(
+        name = "io_bazel_rules_scala/dependency/proto/opencensus_impl",
+        actual = "@scala_proto_rules_opencensus_impl//jar",
+    )
+
+    _scala_maven_import_external(
+        name = "scala_proto_rules_disruptor",
+        artifact = "com.lmax:disruptor:3.4.2",
+        jar_sha256 = "f412ecbb235c2460b45e63584109723dea8d94b819c78c9bfc38f50cba8546c0",
+        licenses = ["notice"],
+        server_urls = maven_servers,
+    )
+
+    native.bind(
+        name = "io_bazel_rules_scala/dependency/proto/disruptor",
+        actual = "@scala_proto_rules_disruptor//jar",
+    )
+
+    _scala_maven_import_external(
+        name = "scala_proto_rules_opencensus_impl_core",
+        artifact = "io.opencensus:opencensus-impl-core:0.22.1",
+        jar_sha256 = "04607d100e34bacdb38f93c571c5b7c642a1a6d873191e25d49899668514db68",
+        licenses = ["notice"],
+        server_urls = maven_servers,
+    )
+
+    native.bind(
+        name = "io_bazel_rules_scala/dependency/proto/opencensus_impl_core",
+        actual = "@scala_proto_rules_opencensus_impl_core//jar",
+    )
+
+    _scala_maven_import_external(
         name = "scala_proto_rules_opencensus_contrib_grpc_metrics",
-        artifact = "io.opencensus:opencensus-contrib-grpc-metrics:0.18.0",
-        jar_sha256 = "1f90585e777b1e0493dbf22e678303369a8d5b7c750b4eda070a34ca99271607",
+        artifact = "io.opencensus:opencensus-contrib-grpc-metrics:0.22.1",
+        jar_sha256 = "3f6f4d5bd332c516282583a01a7c940702608a49ed6e62eb87ef3b1d320d144b",
         licenses = ["notice"],
         server_urls = maven_servers,
     )
