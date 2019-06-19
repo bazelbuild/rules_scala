@@ -50,7 +50,7 @@ def collect_plugin_paths(plugins):
             # which breaks scala macros
 
         elif hasattr(p, "files"):
-            paths.extend([f for f in p.files if not_sources_jar(f.basename)])
+            paths.extend([f for f in p.files.to_list() if not_sources_jar(f.basename)])
     return depset(paths)
 
 def _collect_jars_when_dependency_analyzer_is_off(
