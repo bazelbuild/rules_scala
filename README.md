@@ -25,7 +25,7 @@ This project defines core build rules for [Scala](https://www.scala-lang.org/) t
 
 ## Getting started
 
-In order to use these rules you must have bazel 0.23 or later and add the
+In order to use these rules you must have **bazel 0.23** and add the
 following to your WORKSPACE file:
 
 ```python
