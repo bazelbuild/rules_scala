@@ -25,8 +25,8 @@ This project defines core build rules for [Scala](https://www.scala-lang.org/) t
 
 ## Getting started
 
-In order to use these rules you must have bazel 0.23 or later and add the
-following to your WORKSPACE file:
+1. [Install Bazel](https://docs.bazel.build/versions/master/install.html), see the [compatibility table](#bazel-compatible-versions).
+2. Add the following to your `WORKSPACE` file and update the `githash` if needed: 
 
 ```python
 rules_scala_version="a89d44f7ef67d93dedfc9888630f48d7723516f7" # update this as needed
