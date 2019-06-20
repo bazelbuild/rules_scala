@@ -1035,7 +1035,7 @@ $runner test_scalaopts_from_scala_toolchain
 $runner test_scala_import_library_passes_labels_of_direct_deps
 $runner java_toolchain_javacopts_are_used
 $runner test_scala_classpath_resources_expect_warning_on_namespace_conflict
-$runner bazel build //test_expect_failure/proto_source_root/... --strict_proto_deps=off
+$runner bazel build //test_expect_failure/strip_import_prefix/... --strict_proto_deps=off
 $runner scala_binary_jar_is_exposed_in_build_event_protocol
 $runner scala_test_jar_is_exposed_in_build_event_protocol
 $runner scala_junit_test_jar_is_exposed_in_build_event_protocol

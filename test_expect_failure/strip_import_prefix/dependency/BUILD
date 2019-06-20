@@ -1,6 +1,6 @@
 proto_library(
     name = "dependency",
     srcs = glob(["*.proto"]),
-    proto_source_root = package_name(),
+    strip_import_prefix = "/" + package_name(),
     visibility = ["//visibility:public"],
 )
