@@ -131,10 +131,10 @@ _common_attrs_for_plugin_bootstrapping = {
             _collect_plus_one_deps_aspect,
             _coverage_replacements_provider.aspect,
         ],
-        providers = [JavaInfo],
+        providers = [[JavaInfo]],
     ),
     "plugins": attr.label_list(allow_files = [".jar"]),
-    "runtime_deps": attr.label_list(providers = [JavaInfo]),
+    "runtime_deps": attr.label_list(providers = [[JavaInfo]]),
     "data": attr.label_list(allow_files = True),
     "resources": attr.label_list(allow_files = True),
     "resource_strip_prefix": attr.string(),
@@ -673,7 +673,7 @@ _scala_junit_test_attrs.update(_common_attrs)
 _scala_junit_test_attrs.update(_junit_resolve_deps)
 
 _scala_junit_test_attrs.update({
-    "tests_from": attr.label_list(providers = [JavaInfo]),
+    "tests_from": attr.label_list(providers = [[JavaInfo]]),
 })
 
 scala_junit_test = rule(
