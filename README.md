@@ -213,3 +213,4 @@ Here's a (non-exhaustive) list of companies that use `rules_scala` in production
 * [Stripe](https://stripe.com/)
 * [VSCO](https://vsco.co)
 * [Wix](https://www.wix.com/)
+* [IBM-CDO](https://www.ibm.com/)
