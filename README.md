@@ -29,7 +29,7 @@ This project defines core build rules for [Scala](https://www.scala-lang.org/) t
 2. Add the following to your `WORKSPACE` file and update the `githash` if needed: 
 
 ```python
-rules_scala_version="a89d44f7ef67d93dedfc9888630f48d7723516f7" # update this as needed
+rules_scala_version="69d3c5b5d9b51537231746e93b4383384c9ebcf4" # update this as needed
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
@@ -45,8 +45,8 @@ scala_register_toolchains()
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
 scala_repositories()
 
-protobuf_version="66dc42d891a4fc8e9190c524fd67961688a37bbe"
-protobuf_version_sha256="983975ab66113cbaabea4b8ec9f3a73406d89ed74db9ae75c74888e685f956f8"
+protobuf_version="09745575a923640154bcf307fba8aedff47f240a"
+protobuf_version_sha256="416212e14481cff8fd4849b1c1c1200a7f34808a54377e22d7447efdf54ad758"
 
 http_archive(
     name = "com_google_protobuf",
@@ -54,7 +54,17 @@ http_archive(
     strip_prefix = "protobuf-%s" % protobuf_version,
     sha256 = protobuf_version_sha256,
 )
+
+# bazel-skylib 0.8.0 released 2019.03.20 (https://github.com/bazelbuild/bazel-skylib/releases/tag/0.8.0)
+skylib_version = "0.8.0"
+http_archive(
+    name = "bazel_skylib",
+    type = "tar.gz",
+    url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{}/bazel-skylib.{}.tar.gz".format (skylib_version, skylib_version),
+    sha256 = "2ef429f5d7ce7111263289644d233707dba35e39696377ebab8b0bc701f7818e",
+)
 ```
+
 This will load the `rules_scala` repository at the commit sha
 `rules_scala_version` into your Bazel project and register a [Scala
 toolchain](#scala_toolchain) at the default Scala version (2.11.12)
