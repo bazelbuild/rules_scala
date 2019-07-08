@@ -24,20 +24,24 @@ def _scala_import_impl(ctx):
         ctx.label,
         jars2labels,
     )  #last to override the label of the export compile jars to the current target
+
+    current_target_providers = [JavaInfo(
+        output_jar = jar,
+        compile_jar = jar,
+        exports = ctx.attr.exports,
+        deps = ctx.attr.deps,
+        runtime_deps = ctx.attr.runtime_deps,
+        source_jar = ctx.file.srcjar,
+        neverlink = ctx.attr.neverlink
+    )
+    for jar in current_target_compile_jars]
+
     return struct(
         scala = struct(
             outputs = struct(jars = intellij_metadata),
         ),
         providers = [
-            _create_provider(
-                current_jars,
-                transitive_runtime_jars,
-                jars,
-                exports,
-                ctx.attr.neverlink,
-                ctx.file.srcjar,
-                intellij_metadata,
-            ),
+            java_common.merge(current_target_providers),
             DefaultInfo(
                 files = current_jars,
             ),
@@ -53,14 +57,14 @@ def _create_provider(
         neverlink,
         source_jar,
         intellij_metadata):
-    transitive_runtime_jars = [
+    new_transitive_runtime_jars = [
         transitive_runtime_jars,
         jars.transitive_runtime_jars,
         exports.transitive_runtime_jars,
     ]
 
     if not neverlink:
-        transitive_runtime_jars.append(current_target_compile_jars)
+        new_transitive_runtime_jars.append(current_target_compile_jars)
 
     source_jars = []
 
@@ -75,7 +79,7 @@ def _create_provider(
             output_jar = jar,
             compile_jar = jar
         )
-        for jar in jars.transitive_compile_jars
+        for jar in jars.transitive_compile_jars.to_list()
     ]
 
     deps.append([

@@ -390,13 +390,12 @@ scrooge_scala_library = rule(
 )
 
 def _scrooge_scala_import_impl(ctx):
-    scala_jars = depset(ctx.files.scala_jars)
     jars_jis = [
         JavaInfo(
             output_jar = scala_jar,
             compile_jar = scala_jar
         )
-        for scala_jar in scala_jars
+        for scala_jar in ctx.files.scala_jars
     ]
     java_info = java_common.merge(
         [imp[JavaInfo] for imp in ctx.attr._implicit_compile_deps] + jars_jis,
