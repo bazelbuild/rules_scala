@@ -489,22 +489,6 @@ def scala_repositories(
         server_urls = maven_servers,
     )
 
-    _scala_maven_import_external(
-        name = "io_bazel_rules_scala_org_jacoco_org_jacoco_core",
-        artifact = "org.jacoco:org.jacoco.core:0.7.5.201505241946",
-        jar_sha256 = "ecf1ad8192926438d0748bfcc3f09bebc7387d2a4184bb3a171a26084677e808",
-        licenses = ["notice"],
-        server_urls = maven_servers,
-    )
-
-    _scala_maven_import_external(
-        name = "io_bazel_rules_scala_org_ow2_asm_asm_debug_all",
-        artifact = "org.ow2.asm:asm-debug-all:5.0.1",
-        jar_sha256 = "4734de5b515a454b0096db6971fb068e5f70e6f10bbee2b3bd2fdfe5d978ed57",
-        licenses = ["notice"],
-        server_urls = maven_servers,
-    )
-
     # Using this and not the bazel regular one due to issue when classpath is too long
     # until https://github.com/bazelbuild/bazel/issues/6955 is resolved
     if not native.existing_rule("java_stub_template"):

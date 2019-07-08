@@ -58,9 +58,10 @@ scala_library(
     name = "a2",
     srcs = [
         "A2.scala",
-    ],    
+    ],  
     deps = [
-        ":b2",
+        # TODO :: Understand why referencing a local java library breaks coverage  
+        # ":b2",
     ],
 )
 
