@@ -70,18 +70,29 @@ def _create_provider(
         for metadata in intellij_metadata:
             source_jars.extend(metadata.source_jars)
 
-    return java_common.create_provider(
-        use_ijar = False,
-        compile_time_jars = depset(
-            transitive = [current_target_compile_jars, exports.compile_jars],
-        ),
-        transitive_compile_time_jars = depset(transitive = [
-            jars.transitive_compile_jars,
-            current_target_compile_jars,
-            exports.transitive_compile_jars,
-        ]),
-        transitive_runtime_jars = depset(transitive = transitive_runtime_jars),
-        source_jars = source_jars,
+    deps = [
+        JavaInfo(
+            output_jar = jar,
+            compile_jar = jar
+        )
+        for jar in jars.transitive_compile_jars
+    ]
+
+    deps.append([
+        JavaInfo(
+            output_jar = jar,
+            compile_jar = jar
+        )
+        for jar in transitive_runtime_jars
+    ])
+
+    return java_common.merge([
+        JavaInfo(
+            output_jar = jar,
+            deps = deps,
+            source_jars = source_jars,
+        )
+        for jar in [current_target_compile_jars, exports.compile_jars]],
     )
 
 def _add_labels_of_current_code_jars(code_jars, label, jars2labels):

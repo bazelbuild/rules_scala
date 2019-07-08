@@ -166,12 +166,27 @@ def _provider_of_dependency_label_of(dependency, path):
 
 # TODO this seems to have limited value now that JavaInfo has everything
 def create_java_provider(scalaattr, transitive_compile_time_jars):
-    return java_common.create_provider(
-        use_ijar = False,
-        compile_time_jars = scalaattr.compile_jars,
-        runtime_jars = scalaattr.transitive_runtime_jars,
-        transitive_compile_time_jars = depset(
-            transitive = [transitive_compile_time_jars, scalaattr.compile_jars],
-        ),
-        transitive_runtime_jars = scalaattr.transitive_runtime_jars,
-    )
+
+    compile_time_deps = [
+        JavaInfo(
+            output_jar = jar,
+            compile_jar = output_jar
+        )
+        for jar in transitive_compile_time_jars
+    ]
+
+    compile_providers = [
+        JavaInfo(
+            output_jar = compile_jar,
+            compile_jar = compile_jar,
+            deps = compile_time_deps)
+        for compile_jar in scalaattr.compile_jars
+    ]
+    runtime_providers = [
+        JavaInfo(
+            output_jar = runtime_jar,
+            compile_jar = compile_jar)
+        for runtime_jar in scalaattr.transitive_runtime_jars
+    ]
+
+    return java_common.merge(compile_providers, runtime_providers)

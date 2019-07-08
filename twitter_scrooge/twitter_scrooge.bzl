@@ -251,16 +251,7 @@ def _compile_scala(
 
 def _empty_java_info(deps_java_info, implicit_deps):
     merged_deps = java_common.merge(deps_java_info + implicit_deps)
-    return java_common.create_provider(
-        use_ijar = False,
-        compile_time_jars = depset(transitive = [merged_deps.compile_jars]),
-        transitive_compile_time_jars = depset(
-            transitive = [merged_deps.transitive_compile_time_jars],
-        ),
-        transitive_runtime_jars = depset(
-            transitive = [merged_deps.transitive_runtime_jars],
-        ),
-    )
+    return merged_deps
 
 ####
 # This is applied to the DAG of thrift_librarys reachable from a deps
@@ -400,14 +391,15 @@ scrooge_scala_library = rule(
 
 def _scrooge_scala_import_impl(ctx):
     scala_jars = depset(ctx.files.scala_jars)
-    jars_ji = java_common.create_provider(
-        use_ijar = False,
-        compile_time_jars = scala_jars,
-        transitive_compile_time_jars = scala_jars,
-        transitive_runtime_jars = scala_jars,
-    )
+    jars_jis = [
+        JavaInfo(
+            output_jar = scala_jar,
+            compile_jar = scala_jar
+        )
+        for scala_jar in scala_jars
+    ]
     java_info = java_common.merge(
-        [imp[JavaInfo] for imp in ctx.attr._implicit_compile_deps] + [jars_ji],
+        [imp[JavaInfo] for imp in ctx.attr._implicit_compile_deps] + jars_jis,
     )
 
     # to make the thrift_info, we only put this in the

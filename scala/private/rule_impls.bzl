@@ -318,10 +318,10 @@ StatsfileOutput: {statsfile_output}
     )
 
 def _interim_java_provider_for_java_compilation(scala_output):
-    return java_common.create_provider(
-        use_ijar = False,
-        compile_time_jars = [scala_output],
-        runtime_jars = [],
+    return JavaInfo(
+        output_jar = scala_output,
+        compile_jar = scala_output,
+        neverlink = True
     )
 
 def _scalac_provider(ctx):

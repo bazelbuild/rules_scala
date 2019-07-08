@@ -1,13 +1,8 @@
 def _custom_jvm_impl(ctx):
     print(ctx.label)
     transitive_compile_jars = _collect(ctx.attr.deps)
-    return struct(
-        providers = [
-            java_common.create_provider(
-                transitive_compile_time_jars = transitive_compile_jars,
-            ),
-        ],
-    )
+    providers = [JavaInfo(output_jar = jar, compile_jar = jar) for jar in transitive_compile_jars]
+    return [java_common.merge(providers)]
 
 def _collect(deps):
     transitive_compile_jars = depset()
