@@ -170,23 +170,24 @@ def create_java_provider(scalaattr, transitive_compile_time_jars):
     compile_time_deps = [
         JavaInfo(
             output_jar = jar,
-            compile_jar = output_jar
+            compile_jar = jar
         )
         for jar in transitive_compile_time_jars
     ]
 
     compile_providers = [
         JavaInfo(
-            output_jar = compile_jar,
-            compile_jar = compile_jar,
+            output_jar = jar,
+            compile_jar = jar,
             deps = compile_time_deps)
-        for compile_jar in scalaattr.compile_jars
+        for jar in scalaattr.compile_jars
     ]
     runtime_providers = [
         JavaInfo(
-            output_jar = runtime_jar,
-            compile_jar = compile_jar)
-        for runtime_jar in scalaattr.transitive_runtime_jars
+            output_jar = jar,
+            compile_jar = jar
+        )
+        for jar in scalaattr.transitive_runtime_jars
     ]
 
     return java_common.merge(compile_providers, runtime_providers)
