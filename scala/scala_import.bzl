@@ -28,13 +28,16 @@ def _scala_import_impl(ctx):
     current_target_providers = [JavaInfo(
         output_jar = jar,
         compile_jar = jar,
-        exports = ctx.attr.exports,
-        deps = ctx.attr.deps,
-        runtime_deps = ctx.attr.runtime_deps,
+        exports = [target[JavaInfo] for target in ctx.attr.exports],
+        deps = [target[JavaInfo] for target in ctx.attr.deps],
+        runtime_deps = [target[JavaInfo] for target in ctx.attr.runtime_deps],
         source_jar = ctx.file.srcjar,
         neverlink = ctx.attr.neverlink
     )
     for jar in current_target_compile_jars]
+
+    if not current_target_providers:
+        current_target_providers = [java_common.merge([target[JavaInfo] for target in ctx.attr.exports])]
 
     return struct(
         scala = struct(
