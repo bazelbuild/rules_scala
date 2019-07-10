@@ -4,7 +4,7 @@ def _custom_jvm_impl(ctx):
     provider = JavaInfo(output_jar = jar,
              compile_jar = jar,
              deps = [target[JavaInfo] for target in ctx.attr.deps]
-    )]
+    )
     return [provider]
 
 custom_jvm = rule(
