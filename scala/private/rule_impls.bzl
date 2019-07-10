@@ -371,10 +371,12 @@ def try_to_compile_java_jar(
         host_javabase = find_java_runtime_toolchain(ctx, ctx.attr._host_javabase),
         strict_deps = ctx.fragments.java.strict_java_deps,
     )
+
     return struct(
         ijar = provider.compile_jars.to_list().pop(),
         jar = full_java_jar,
         source_jars = provider.source_jars,
+        java_compilation_provider = provider
     )
 
 def collect_java_providers_of(deps):
@@ -394,10 +396,26 @@ def _compile_or_empty(
         jars2labels,
         implicit_junit_deps_needed_for_java_compilation,
         unused_dependency_checker_mode,
-        unused_dependency_checker_ignored_targets):
+        unused_dependency_checker_ignored_targets,
+        deps_providers = []):
     # We assume that if a srcjar is present, it is not empty
     if len(ctx.files.srcs) + len(srcjars.to_list()) == 0:
         _build_nosrc_jar(ctx)
+
+        exports = []
+        if hasattr(ctx.attr, "exports"):
+            exports = [dep[JavaInfo] for dep in ctx.attr.exports]
+        runtime_deps = []
+        if hasattr(ctx.attr, "runtime_deps"):
+            runtime_deps = [dep[JavaInfo] for dep in ctx.attr.runtime_deps]
+
+        scala_compilation_provider = JavaInfo(
+            output_jar = ctx.outputs.jar,
+            compile_jar = ctx.outputs.jar,
+            deps = deps_providers,
+            runtime_deps = runtime_deps,
+            exports = exports,
+        )
 
         #  no need to build ijar when empty
         return struct(
@@ -408,6 +426,7 @@ def _compile_or_empty(
             ijars = [ctx.outputs.jar],
             java_jar = False,
             source_jars = [],
+            merged_provider = scala_compilation_provider
         )
     else:
         in_srcjars = [
@@ -471,6 +490,22 @@ def _compile_or_empty(
             #  so set ijar == jar
             ijar = ctx.outputs.jar
 
+        exports = []
+        if hasattr(ctx.attr, "exports"):
+            exports = [dep[JavaInfo] for dep in ctx.attr.exports]
+        runtime_deps = []
+        if hasattr(ctx.attr, "runtime_deps"):
+            runtime_deps = [dep[JavaInfo] for dep in ctx.attr.runtime_deps]
+        scala_compilation_provider = JavaInfo(
+            output_jar = ctx.outputs.jar,
+            compile_jar = ijar,
+            deps = deps_providers,
+            exports = exports,
+            runtime_deps = runtime_deps,
+        )
+
+        deps_provider_merged = java_common.merge(deps_providers)
+
         # compile the java now
         java_jar = try_to_compile_java_jar(
             ctx,
@@ -490,6 +525,11 @@ def _compile_or_empty(
 
         coverage = _jacoco_offline_instrument(ctx, ctx.outputs.jar)
 
+        if java_jar:
+            merged_provider = java_common.merge([scala_compilation_provider, java_jar.java_compilation_provider])
+        else:
+            merged_provider = scala_compilation_provider
+
         return struct(
             class_jar = ctx.outputs.jar,
             coverage = coverage,
@@ -498,6 +538,7 @@ def _compile_or_empty(
             ijars = ijars,
             java_jar = java_jar,
             source_jars = source_jars,
+            merged_provider = merged_provider
         )
 
 def _build_deployable(ctx, jars_list):
@@ -720,16 +761,20 @@ def _collect_jars_from_common_ctx(
         _is_plus_one_deps_off(ctx),
     )
 
+#    deps_jars.deps_providers
+
     (
         cjars,
         transitive_rjars,
         jars2labels,
         transitive_compile_jars,
+        deps_providers
     ) = (
         deps_jars.compile_jars,
         deps_jars.transitive_runtime_jars,
         deps_jars.jars2labels,
         deps_jars.transitive_compile_jars,
+        deps_jars.deps_providers
     )
 
     transitive_rjars = depset(
@@ -742,6 +787,7 @@ def _collect_jars_from_common_ctx(
         jars2labels = jars2labels,
         transitive_compile_jars = transitive_compile_jars,
         transitive_runtime_jars = transitive_rjars,
+        deps_providers = deps_providers,
     )
 
 def _lib(
@@ -781,6 +827,7 @@ def _lib(
                           unused_dependency_checker_ignored_targets
         ],
         unused_dependency_checker_mode = unused_dependency_checker_mode,
+        deps_providers = jars.deps_providers,
     )
 
     transitive_rjars = depset(outputs.full_jars, transitive = [transitive_rjars])
@@ -817,13 +864,11 @@ def _lib(
         transitive_runtime_jars = transitive_rjars,
     )
 
-    java_provider = create_java_provider(scalaattr, jars.transitive_compile_jars)
-
     return struct(
         files = depset([ctx.outputs.jar] + outputs.full_jars),  # Here is the default output
         instrumented_files = outputs.coverage.instrumented_files,
         jars_to_labels = jars.jars2labels,
-        providers = [java_provider, jars.jars2labels] + outputs.coverage.providers,
+        providers = [outputs.merged_provider, jars.jars2labels] + outputs.coverage.providers,
         runfiles = runfiles,
         scala = scalaattr,
     )
@@ -918,14 +963,12 @@ def _scala_binary_common(
         transitive_runtime_jars = rjars,
     )
 
-    java_provider = create_java_provider(scalaattr, transitive_compile_time_jars)
-
     return struct(
         executable = executable,
         coverage = outputs.coverage,
         files = depset([executable, ctx.outputs.jar]),
         instrumented_files = outputs.coverage.instrumented_files,
-        providers = [java_provider, jars2labels] + outputs.coverage.providers,
+        providers = [outputs.merged_provider, jars2labels] + outputs.coverage.providers,
         runfiles = runfiles,
         scala = scalaattr,
         transitive_rjars =

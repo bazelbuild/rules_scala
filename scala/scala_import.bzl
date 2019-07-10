@@ -36,8 +36,8 @@ def _scala_import_impl(ctx):
     )
     for jar in current_target_compile_jars]
 
-    if not current_target_providers:
-        current_target_providers = [java_common.merge([target[JavaInfo] for target in ctx.attr.exports])]
+
+    current_target_providers = current_target_providers + [target[JavaInfo] for target in ctx.attr.exports]
 
     return struct(
         scala = struct(

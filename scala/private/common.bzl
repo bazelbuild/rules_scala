@@ -62,11 +62,14 @@ def _collect_jars_when_dependency_analyzer_is_off(
     runtime_jars = []
     jars2labels = {}
 
+    deps_providers = []
+
     for dep_target in dep_targets:
         # we require a JavaInfo for dependencies
         # must use java_import or scala_import if you have raw files
         if JavaInfo in dep_target:
             java_provider = dep_target[JavaInfo]
+            deps_providers.append(java_provider)
             compile_jars.append(java_provider.compile_jars)
             runtime_jars.append(java_provider.transitive_runtime_jars)
 
@@ -84,12 +87,14 @@ def _collect_jars_when_dependency_analyzer_is_off(
             plus_one_deps_compile_jars.append(
                 depset(transitive = [dep[JavaInfo].compile_jars for dep in dep_target[PlusOneDeps].direct_deps if JavaInfo in dep ])
             )
+            deps_providers.append([dep[JavaInfo] for dep in dep_target[PlusOneDeps].direct_deps if JavaInfo in dep ])
 
     return struct(
         compile_jars = depset(transitive = compile_jars),
         transitive_runtime_jars = depset(transitive = runtime_jars),
         jars2labels = JarsToLabelsInfo(jars_to_labels = jars2labels),
         transitive_compile_jars = depset(transitive = compile_jars + plus_one_deps_compile_jars),
+        deps_providers = deps_providers,
     )
 
 def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
@@ -97,12 +102,14 @@ def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
     jars2labels = {}
     compile_jars = []
     runtime_jars = []
+    deps_providers = []
 
     for dep_target in dep_targets:
         # we require a JavaInfo for dependencies
         # must use java_import or scala_import if you have raw files
         if JavaInfo in dep_target:
             java_provider = dep_target[JavaInfo]
+            deps_providers.append(java_provider)
             current_dep_compile_jars = java_provider.compile_jars
             current_dep_transitive_compile_jars = java_provider.transitive_compile_time_jars
             runtime_jars.append(java_provider.transitive_runtime_jars)
@@ -124,6 +131,7 @@ def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
         transitive_runtime_jars = depset(transitive = runtime_jars),
         jars2labels = JarsToLabelsInfo(jars_to_labels = jars2labels),
         transitive_compile_jars = depset(transitive = transitive_compile_jars),
+        deps_providers = deps_providers,
     )
 
 # When import mavan_jar's for scala macros we have to use the jar:file requirement
@@ -163,36 +171,3 @@ def _provider_of_dependency_label_of(dependency, path):
         return dependency[JarsToLabelsInfo].jars_to_labels.get(path)
     else:
         return None
-
-# TODO this seems to have limited value now that JavaInfo has everything
-def create_java_provider(scalaattr, transitive_compile_time_jars):
-    compile_time_deps = [
-        JavaInfo(
-            output_jar = jar,
-            compile_jar = jar,
-        )
-        #TODO: Avoid flattening the depset here.
-        for jar in transitive_compile_time_jars.to_list()
-    ]
-
-    compile_providers_neverlink = [
-        JavaInfo(
-            output_jar = jar,
-            compile_jar = jar,
-            # these are only header jars and they should not be used as runtime
-            neverlink = True)
-        for jar in scalaattr.compile_jars.to_list()
-    ]
-
-    runtime_providers = [
-        JavaInfo(
-            output_jar = jar,
-            compile_jar = jar,
-            deps = compile_time_deps
-        )
-        #TODO: Avoid flattening the depset here.
-        for jar in scalaattr.transitive_runtime_jars.to_list()
-    ]
-
-    merged_provider = java_common.merge(runtime_providers + compile_providers_neverlink)
-    return merged_provider
