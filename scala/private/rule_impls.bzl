@@ -401,20 +401,7 @@ def _compile_or_empty(
     if len(ctx.files.srcs) + len(srcjars.to_list()) == 0:
         _build_nosrc_jar(ctx)
 
-        exports = []
-        if hasattr(ctx.attr, "exports"):
-            exports = [dep[JavaInfo] for dep in ctx.attr.exports]
-        runtime_deps = []
-        if hasattr(ctx.attr, "runtime_deps"):
-            runtime_deps = [dep[JavaInfo] for dep in ctx.attr.runtime_deps]
-
-        scala_compilation_provider = JavaInfo(
-            output_jar = ctx.outputs.jar,
-            compile_jar = ctx.outputs.jar,
-            deps = deps_providers,
-            runtime_deps = runtime_deps,
-            exports = exports,
-        )
+        scala_compilation_provider = _get_scala_compilation_provider(ctx, ctx.outputs.jar, deps_providers)
 
         #  no need to build ijar when empty
         return struct(
@@ -489,21 +476,7 @@ def _compile_or_empty(
             #  so set ijar == jar
             ijar = ctx.outputs.jar
 
-        exports = []
-        if hasattr(ctx.attr, "exports"):
-            exports = [dep[JavaInfo] for dep in ctx.attr.exports]
-        runtime_deps = []
-        if hasattr(ctx.attr, "runtime_deps"):
-            runtime_deps = [dep[JavaInfo] for dep in ctx.attr.runtime_deps]
-        scala_compilation_provider = JavaInfo(
-            output_jar = ctx.outputs.jar,
-            compile_jar = ijar,
-            deps = deps_providers,
-            exports = exports,
-            runtime_deps = runtime_deps,
-        )
-
-        deps_provider_merged = java_common.merge(deps_providers)
+        scala_compilation_provider = _get_scala_compilation_provider(ctx, ijar, deps_providers)
 
         # compile the java now
         java_jar = try_to_compile_java_jar(
@@ -539,6 +512,21 @@ def _compile_or_empty(
             source_jars = source_jars,
             merged_provider = merged_provider
         )
+
+def _get_scala_compilation_provider(ctx, ijar, deps_providers):
+    exports = []
+    if hasattr(ctx.attr, "exports"):
+        exports = [dep[JavaInfo] for dep in ctx.attr.exports]
+    runtime_deps = []
+    if hasattr(ctx.attr, "runtime_deps"):
+        runtime_deps = [dep[JavaInfo] for dep in ctx.attr.runtime_deps]
+    return JavaInfo(
+        output_jar = ctx.outputs.jar,
+        compile_jar = ijar,
+        deps = deps_providers,
+        exports = exports,
+        runtime_deps = runtime_deps,
+    )
 
 def _build_deployable(ctx, jars_list):
     # This calls bazels singlejar utility.
@@ -921,6 +909,7 @@ def _scala_binary_common(
         java_wrapper,
         unused_dependency_checker_mode,
         unused_dependency_checker_ignored_targets,
+        deps_providers = [],
         implicit_junit_deps_needed_for_java_compilation = [],
         runfiles_ext = []):
     write_manifest(ctx)
@@ -936,6 +925,7 @@ def _scala_binary_common(
         unused_dependency_checker_ignored_targets =
             unused_dependency_checker_ignored_targets,
         unused_dependency_checker_mode = unused_dependency_checker_mode,
+        deps_providers = deps_providers,
     )  # no need to build an ijar for an executable
     rjars = depset(outputs.full_jars, transitive = [rjars])
 
@@ -1033,6 +1023,7 @@ def scala_binary_impl(ctx):
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
         unused_dependency_checker_mode = unused_dependency_checker_mode,
+        deps_providers = jars.deps_providers,
     )
     _write_executable(
         ctx = ctx,
@@ -1096,6 +1087,7 @@ trap finish EXIT
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
         unused_dependency_checker_mode = unused_dependency_checker_mode,
+        deps_providers = jars.deps_providers,
     )
     _write_executable(
         ctx = ctx,
@@ -1182,6 +1174,7 @@ def scala_test_impl(ctx):
             unused_dependency_checker_ignored_targets,
         unused_dependency_checker_mode = unused_dependency_checker_mode,
         runfiles_ext = [argsFile],
+        deps_providers = jars.deps_providers,
     )
 
     rjars = out.transitive_rjars
@@ -1307,6 +1300,7 @@ def scala_junit_test_impl(ctx):
         unused_dependency_checker_ignored_targets =
             unused_dependency_checker_ignored_targets,
         unused_dependency_checker_mode = unused_dependency_checker_mode,
+        deps_providers = jars.deps_providers,
     )
 
     if ctx.attr.tests_from:
