@@ -36,8 +36,10 @@ def _scala_import_impl(ctx):
     )
     for jar in current_target_compile_jars]
 
-
-    current_target_providers = current_target_providers + [target[JavaInfo] for target in ctx.attr.exports]
+    # Handle the case with no jars but with exports.
+    # TODO: Figure out if the exports providers should always be merged.
+    if not current_target_providers:
+        current_target_providers = [java_common.merge([target[JavaInfo] for target in ctx.attr.exports])]
 
     return struct(
         scala = struct(
@@ -50,56 +52,6 @@ def _scala_import_impl(ctx):
             ),
             JarsToLabelsInfo(jars_to_labels = jars2labels),
         ],
-    )
-
-def _create_provider(
-        current_target_compile_jars,
-        transitive_runtime_jars,
-        jars,
-        exports,
-        neverlink,
-        source_jar,
-        intellij_metadata):
-    new_transitive_runtime_jars = [
-        transitive_runtime_jars,
-        jars.transitive_runtime_jars,
-        exports.transitive_runtime_jars,
-    ]
-
-    if not neverlink:
-        new_transitive_runtime_jars.append(current_target_compile_jars)
-
-    source_jars = []
-
-    if source_jar:
-        source_jars.append(source_jar)
-    else:
-        for metadata in intellij_metadata:
-            source_jars.extend(metadata.source_jars)
-
-    deps = [
-        JavaInfo(
-            output_jar = jar,
-            compile_jar = jar
-        )
-        for jar in jars.transitive_compile_jars.to_list()
-    ]
-
-    deps.append([
-        JavaInfo(
-            output_jar = jar,
-            compile_jar = jar
-        )
-        for jar in transitive_runtime_jars
-    ])
-
-    return java_common.merge([
-        JavaInfo(
-            output_jar = jar,
-            deps = deps,
-            source_jars = source_jars,
-        )
-        for jar in [current_target_compile_jars, exports.compile_jars]],
     )
 
 def _add_labels_of_current_code_jars(code_jars, label, jars2labels):
