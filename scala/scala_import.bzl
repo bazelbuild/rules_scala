@@ -36,10 +36,13 @@ def _scala_import_impl(ctx):
     )
     for jar in current_target_compile_jars]
 
-    # Handle the case with no jars but with exports.
-    # TODO: Figure out if the exports providers should always be merged.
+    # Handle the case with no jars.
+    # TODO: Figure out if these providers should always be merged.
     if not current_target_providers:
-        current_target_providers = [java_common.merge([target[JavaInfo] for target in ctx.attr.exports])]
+        exports = [java_common.merge([target[JavaInfo] for target in ctx.attr.exports])]
+        deps = [java_common.merge([target[JavaInfo] for target in ctx.attr.deps])]
+        runtime_deps = [java_common.merge([target[JavaInfo] for target in ctx.attr.runtime_deps])]
+        current_target_providers = exports + deps + runtime_deps
 
     return struct(
         scala = struct(
