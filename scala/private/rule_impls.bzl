@@ -28,7 +28,6 @@ load(
     "collect_jars",
     "collect_plugin_paths",
     "collect_srcjars",
-    "create_java_provider",
     "not_sources_jar",
     "write_manifest",
 )
