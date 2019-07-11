@@ -24,6 +24,12 @@ scala_proto_toolchain(
     with_flat_package = False,
     with_grpc = True,
     with_single_line_to_string = True,
+    named_generators = {
+        'jvm_extra_protobuf_generator': 'scalarules.test.extra_protobuf_generator.ExtraProtobufGenerator',
+    },
+    extra_generator_dependencies = [
+        "//test/src/main/scala/scalarules/test/extra_protobuf_generator",
+    ],
 )
 
 toolchain(
@@ -142,5 +148,16 @@ scala_test(
     ],
     deps = [
         ":test_proto",
+    ],
+)
+
+
+scala_test(
+    name = "test_custom_object_exists",
+    srcs = [
+        "CustomGeneratedObjectTest.scala",
+    ],
+    deps = [
+        ":test_external_dep",
     ],
 )

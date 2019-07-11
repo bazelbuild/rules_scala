@@ -22,6 +22,8 @@ import scala.tools.nsc.MainClass;
 import scala.tools.nsc.reporters.ConsoleReporter;
 
 class ScalacProcessor implements Processor {
+  private static boolean isWindows = System.getProperty("os.name").toLowerCase().contains("windows");
+
   /** This is the reporter field for scalac, which we want to access */
   private static Field reporterField;
 
@@ -251,6 +253,7 @@ class ScalacProcessor implements Processor {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
                 throws IOException {
+              if (isWindows) file.toFile().setWritable(true);
               Files.delete(file);
               return FileVisitResult.CONTINUE;
             }
@@ -287,6 +290,7 @@ class ScalacProcessor implements Processor {
       } else {
         dstr = resource.destination;
       }
+
       if (dstr.charAt(0) == '/') {
         // we don't want to copy to an absolute destination
         dstr = dstr.substring(1);

@@ -26,6 +26,7 @@ load(
     ":common.bzl",
     "add_labels_of_jars_to",
     "collect_jars",
+    "collect_plugin_paths",
     "collect_srcjars",
     "create_java_provider",
     "not_sources_jar",
@@ -127,22 +128,6 @@ touch {statsfile}
         arguments = [],
     )
 
-def _collect_plugin_paths(plugins):
-    paths = []
-    for p in plugins:
-        if hasattr(p, "path"):
-            paths.append(p)
-        elif hasattr(p, "scala"):
-            paths.append(p.scala.outputs.jar)
-        elif hasattr(p, "java"):
-            paths.extend([j.class_jar for j in p.java.outputs.jars])
-            # support http_file pointed at a jar. http_jar uses ijar,
-            # which breaks scala macros
-
-        elif hasattr(p, "files"):
-            paths.extend([f for f in p.files if not_sources_jar(f.basename)])
-    return depset(paths)
-
 def _expand_location(ctx, flags):
     return [ctx.expand_location(f, ctx.attr.data) for f in flags]
 
@@ -172,7 +157,7 @@ def compile_scala(
         unused_dependency_checker_mode = "off",
         unused_dependency_checker_ignored_targets = []):
     # look for any plugins:
-    plugins = _collect_plugin_paths(plugins)
+    plugins = collect_plugin_paths(plugins)
     internal_plugin_jars = []
     dependency_analyzer_mode = "off"
     compiler_classpath_jars = cjars
@@ -216,9 +201,9 @@ CurrentTarget: {current_target}
 
         cjars_list = cjars.to_list()
         direct_jars = _join_path(cjars_list)
-        direct_targets = ",".join([labels[j.path] for j in cjars_list])
+        direct_targets = ",".join([str(labels[j.path]) for j in cjars_list])
 
-        ignored_targets = ",".join(unused_dependency_checker_ignored_targets)
+        ignored_targets = ",".join([str(d) for d in unused_dependency_checker_ignored_targets])
 
         current_target = str(target_label)
 
@@ -590,7 +575,35 @@ def _jar_path_based_on_java_bin(ctx):
     jar_path = java_bin.rpartition("/")[0] + "/jar"
     return jar_path
 
-def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper, use_jacoco):
+def _write_executable(ctx, executable, rjars, main_class, jvm_flags, wrapper, use_jacoco):
+    if (_is_windows(ctx)):
+        return _write_executable_windows(ctx, executable, rjars, main_class, jvm_flags, wrapper, use_jacoco)
+    else:
+        return _write_executable_non_windows(ctx, executable, rjars, main_class, jvm_flags, wrapper, use_jacoco)
+
+def _write_executable_windows(ctx, executable, rjars, main_class, jvm_flags, wrapper, use_jacoco):
+    # NOTE: `use_jacoco` is currently ignored on Windows.
+    # TODO: tests coverage support for Windows
+    classpath = ";".join(
+        [("external/%s" % (j.short_path[3:]) if j.short_path.startswith("../") else j.short_path) for j in rjars.to_list()],
+    )
+    jvm_flags_str = ";".join(jvm_flags)
+    java_for_exe = str(ctx.attr._java_runtime[java_common.JavaRuntimeInfo].java_executable_exec_path)
+
+    cpfile = ctx.actions.declare_file("%s.classpath" % ctx.label.name)
+    ctx.actions.write(cpfile, classpath)
+
+    ctx.actions.run(
+        outputs = [executable],
+        inputs = [cpfile],
+        executable = ctx.attr._exe.files_to_run.executable,
+        arguments = [executable.path, ctx.workspace_name, java_for_exe, main_class, cpfile.path, jvm_flags_str],
+        mnemonic = "ExeLauncher",
+        progress_message = "Creating exe launcher",
+    )
+    return []
+
+def _write_executable_non_windows(ctx, executable, rjars, main_class, jvm_flags, wrapper, use_jacoco):
     template = ctx.attr._java_stub_template.files.to_list()[0]
 
     jvm_flags = " ".join(
@@ -603,12 +616,12 @@ def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper, use_jacoco):
     )
 
     if use_jacoco and _coverage_replacements_provider.is_enabled(ctx):
-        classpath = ":".join(
+        classpath = ctx.configuration.host_path_separator.join(
             ["${RUNPATH}%s" % (j.short_path) for j in rjars.to_list() + ctx.files._jacocorunner + ctx.files._lcov_merger],
         )
         jacoco_metadata_file = ctx.actions.declare_file(
             "%s.jacoco_metadata.txt" % ctx.attr.name,
-            sibling = ctx.outputs.executable,
+            sibling = executable,
         )
         ctx.actions.write(jacoco_metadata_file, "\n".join([
             jar.short_path.replace("../", "external/")
@@ -616,9 +629,9 @@ def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper, use_jacoco):
         ]))
         ctx.actions.expand_template(
             template = template,
-            output = ctx.outputs.executable,
+            output = executable,
             substitutions = {
-                "%classpath%": classpath,
+                "%classpath%": "\"%s\"" % classpath,
                 "%javabin%": javabin,
                 "%jarbin%": _jar_path_based_on_java_bin(ctx),
                 "%jvm_flags%": jvm_flags,
@@ -637,14 +650,14 @@ def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper, use_jacoco):
     else:
         # RUNPATH is defined here:
         # https://github.com/bazelbuild/bazel/blob/0.4.5/src/main/java/com/google/devtools/build/lib/bazel/rules/java/java_stub_template.txt#L227
-        classpath = ":".join(
+        classpath = ctx.configuration.host_path_separator.join(
             ["${RUNPATH}%s" % (j.short_path) for j in rjars.to_list()],
         )
         ctx.actions.expand_template(
             template = template,
-            output = ctx.outputs.executable,
+            output = executable,
             substitutions = {
-                "%classpath%": classpath,
+                "%classpath%": "\"%s\"" % classpath,
                 "%java_start_class%": main_class,
                 "%javabin%": javabin,
                 "%jarbin%": _jar_path_based_on_java_bin(ctx),
@@ -660,6 +673,12 @@ def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper, use_jacoco):
             is_executable = True,
         )
         return []
+
+def _declare_executable(ctx):
+    if (_is_windows(ctx)):
+        return ctx.actions.declare_file("%s.exe" % ctx.label.name)
+    else:
+        return ctx.actions.declare_file(ctx.label.name)
 
 def _collect_runtime_jars(dep_targets):
     runtime_jars = []
@@ -850,6 +869,7 @@ def scala_macro_library_impl(ctx):
 # Common code shared by all scala binary implementations.
 def _scala_binary_common(
         ctx,
+        executable,
         cjars,
         rjars,
         transitive_compile_time_jars,
@@ -857,7 +877,8 @@ def _scala_binary_common(
         java_wrapper,
         unused_dependency_checker_mode,
         unused_dependency_checker_ignored_targets,
-        implicit_junit_deps_needed_for_java_compilation = []):
+        implicit_junit_deps_needed_for_java_compilation = [],
+        runfiles_ext = []):
     write_manifest(ctx)
     outputs = _compile_or_empty(
         ctx,
@@ -878,7 +899,7 @@ def _scala_binary_common(
 
     runfiles = ctx.runfiles(
         transitive_files = depset(
-            [ctx.outputs.executable, java_wrapper] + ctx.files._java_runtime,
+            [executable, java_wrapper] + ctx.files._java_runtime + runfiles_ext,
             transitive = [rjars],
         ),
         collect_data = True,
@@ -900,8 +921,9 @@ def _scala_binary_common(
     java_provider = create_java_provider(scalaattr, transitive_compile_time_jars)
 
     return struct(
+        executable = executable,
         coverage = outputs.coverage,
-        files = depset([ctx.outputs.executable, ctx.outputs.jar]),
+        files = depset([executable, ctx.outputs.jar]),
         instrumented_files = outputs.coverage.instrumented_files,
         providers = [java_provider, jars2labels] + outputs.coverage.providers,
         runfiles = runfiles,
@@ -952,8 +974,12 @@ def scala_binary_impl(ctx):
     (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
 
     wrapper = _write_java_wrapper(ctx, "", "")
+
+    executable = _declare_executable(ctx)
+
     out = _scala_binary_common(
         ctx,
+        executable,
         cjars,
         transitive_rjars,
         jars.transitive_compile_jars,
@@ -968,6 +994,7 @@ def scala_binary_impl(ctx):
     )
     _write_executable(
         ctx = ctx,
+        executable = executable,
         jvm_flags = ctx.attr.jvm_flags,
         main_class = ctx.attr.main_class,
         rjars = out.transitive_rjars,
@@ -991,6 +1018,9 @@ def scala_repl_impl(ctx):
     (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
 
     args = " ".join(ctx.attr.scalacopts)
+
+    executable = _declare_executable(ctx)
+
     wrapper = _write_java_wrapper(
         ctx,
         args,
@@ -1012,6 +1042,7 @@ trap finish EXIT
 
     out = _scala_binary_common(
         ctx,
+        executable,
         cjars,
         transitive_rjars,
         jars.transitive_compile_jars,
@@ -1026,6 +1057,7 @@ trap finish EXIT
     )
     _write_executable(
         ctx = ctx,
+        executable = executable,
         jvm_flags = ["-Dscala.usejavacp=true"] + ctx.attr.jvm_flags,
         main_class = "scala.tools.nsc.MainGenericRunner",
         rjars = out.transitive_rjars,
@@ -1082,16 +1114,23 @@ def scala_test_impl(ctx):
         jars.jars2labels,
     )
 
-    args = " ".join([
-        "-R \"{path}\"".format(path = ctx.outputs.jar.short_path),
+    args = "\n".join([
+        "-R",
+        ctx.outputs.jar.short_path,
         _scala_test_flags(ctx),
-        "-C io.bazel.rules.scala.JUnitXmlReporter ",
+        "-C",
+        "io.bazel.rules.scala.JUnitXmlReporter",
     ])
 
-    # main_class almost has to be "org.scalatest.tools.Runner" due to args....
-    wrapper = _write_java_wrapper(ctx, args, "")
+    argsFile = ctx.actions.declare_file("%s.args" % ctx.label.name)
+    ctx.actions.write(argsFile, args)
+
+    executable = _declare_executable(ctx)
+
+    wrapper = _write_java_wrapper(ctx, "", "")
     out = _scala_binary_common(
         ctx,
+        executable,
         cjars,
         transitive_rjars,
         transitive_compile_jars,
@@ -1100,6 +1139,7 @@ def scala_test_impl(ctx):
         unused_dependency_checker_ignored_targets =
             unused_dependency_checker_ignored_targets,
         unused_dependency_checker_mode = unused_dependency_checker_mode,
+        runfiles_ext = [argsFile],
     )
 
     rjars = out.transitive_rjars
@@ -1119,7 +1159,11 @@ def scala_test_impl(ctx):
 
     coverage_runfiles.extend(_write_executable(
         ctx = ctx,
-        jvm_flags = ctx.attr.jvm_flags,
+        executable = executable,
+        jvm_flags = [
+            "-DRULES_SCALA_MAIN_WS_NAME=%s" % ctx.workspace_name,
+            "-DRULES_SCALA_ARGS_FILE=%s" % argsFile.short_path,
+        ] + ctx.attr.jvm_flags,
         main_class = ctx.attr.main_class,
         rjars = rjars,
         use_jacoco = ctx.configuration.coverage_enabled,
@@ -1127,6 +1171,7 @@ def scala_test_impl(ctx):
     ))
 
     return struct(
+        executable = executable,
         files = out.files,
         instrumented_files = out.instrumented_files,
         providers = out.providers,
@@ -1204,9 +1249,12 @@ def scala_junit_test_impl(ctx):
         ctx.attr._hamcrest,
     ]
 
+    executable = _declare_executable(ctx)
+
     wrapper = _write_java_wrapper(ctx, "", "")
     out = _scala_binary_common(
         ctx,
+        executable,
         cjars,
         transitive_rjars,
         jars.transitive_compile_jars,
@@ -1239,6 +1287,7 @@ def scala_junit_test_impl(ctx):
     ]
     _write_executable(
         ctx = ctx,
+        executable = executable,
         jvm_flags = launcherJvmFlags + ctx.attr.jvm_flags,
         main_class = "com.google.testing.junit.runner.BazelTestRunner",
         rjars = out.transitive_rjars,
@@ -1295,3 +1344,6 @@ def _jacoco_offline_instrument(ctx, input_jar):
 
 def _jacoco_offline_instrument_format_each(in_out_pair):
     return (["%s=%s" % (in_out_pair[0].path, in_out_pair[1].path)])
+
+def _is_windows(ctx):
+    return ctx.configuration.host_path_separator == ";"

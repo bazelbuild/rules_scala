@@ -12,7 +12,7 @@ load(
     "@io_bazel_rules_scala//scala/private:coverage_replacements_provider.bzl",
     _coverage_replacements_provider = "coverage_replacements_provider",
 )
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 load(
     "@io_bazel_rules_scala//scala:scala_maven_import_external.bzl",
     _scala_maven_import_external = "scala_maven_import_external",
@@ -31,6 +31,10 @@ load(
 load(
     "@io_bazel_rules_scala//scala:plusone.bzl",
     _collect_plus_one_deps_aspect = "collect_plus_one_deps_aspect",
+)
+load(
+    "@io_bazel_rules_scala//scala:scala_doc.bzl",
+    _scala_doc = "scala_doc",
 )
 
 _launcher_template = {
@@ -66,6 +70,11 @@ _implicit_deps = {
         default = Label(
             "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac",
         ),
+    ),
+    "_exe": attr.label(
+        executable = True,
+        cfg = "host",
+        default = Label("@io_bazel_rules_scala//src/java/io/bazel/rulesscala/exe:exe"),
     ),
 }
 
@@ -473,6 +482,14 @@ def scala_repositories(
     )
 
     _scala_maven_import_external(
+        name = "io_bazel_rules_scala_guava",
+        artifact = "com.google.guava:guava:21.0",
+        jar_sha256 = "972139718abc8a4893fa78cba8cf7b2c903f35c97aaf44fa3031b0669948b480",
+        licenses = ["notice"],
+        server_urls = maven_servers,
+    )
+
+    _scala_maven_import_external(
         name = "io_bazel_rules_scala_org_jacoco_org_jacoco_core",
         artifact = "org.jacoco:org.jacoco.core:0.7.5.201505241946",
         jar_sha256 = "ecf1ad8192926438d0748bfcc3f09bebc7387d2a4184bb3a171a26084677e808",
@@ -487,6 +504,24 @@ def scala_repositories(
         licenses = ["notice"],
         server_urls = maven_servers,
     )
+
+    if not native.existing_rule("com_google_protobuf"):
+        http_archive(
+            name = "com_google_protobuf",
+            sha256 = "d82eb0141ad18e98de47ed7ed415daabead6d5d1bef1b8cccb6aa4d108a9008f",
+            strip_prefix = "protobuf-b4f193788c9f0f05d7e0879ea96cd738630e5d51",
+            # Commit from 2019-05-15, update to protobuf 3.8 when available.
+            url = "https://github.com/protocolbuffers/protobuf/archive/b4f193788c9f0f05d7e0879ea96cd738630e5d51.tar.gz",
+        )
+
+    if not native.existing_rule("zlib"):  # needed by com_google_protobuf
+        http_archive(
+            name = "zlib",
+            build_file = "@com_google_protobuf//:third_party/zlib.BUILD",
+            sha256 = "c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1",
+            strip_prefix = "zlib-1.2.11",
+            urls = ["https://zlib.net/zlib-1.2.11.tar.gz"],
+        )
 
     native.bind(
         name = "io_bazel_rules_scala/dependency/com_google_protobuf/protobuf_java",
@@ -528,6 +563,11 @@ def scala_repositories(
         actual = "@io_bazel_rules_scala_scala_parser_combinators",
     )
 
+    native.bind(
+        name = "io_bazel_rules_scala/dependency/scala/guava",
+        actual = "@io_bazel_rules_scala_guava",
+    )
+
 def _sanitize_string_for_usage(s):
     res_array = []
     for idx in range(len(s)):
@@ -544,10 +584,13 @@ def scala_test_suite(
         name,
         srcs = [],
         visibility = None,
+        use_short_names = False,
         **kwargs):
     ts = []
+    i = 0
     for test_file in srcs:
-        n = "%s_test_suite_%s" % (name, _sanitize_string_for_usage(test_file))
+        i = i + 1
+        n = ("%s_%s" % (name, i)) if use_short_names else ("%s_test_suite_%s" % (name, _sanitize_string_for_usage(test_file)))
         scala_test(
             name = n,
             srcs = [test_file],
@@ -651,3 +694,5 @@ def scala_specs2_junit_test(name, **kwargs):
         suite_class = "io.bazel.rulesscala.specs2.Specs2DiscoveredTestSuite",
         **kwargs
     )
+
+scala_doc = _scala_doc

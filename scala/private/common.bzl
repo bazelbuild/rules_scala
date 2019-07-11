@@ -36,6 +36,23 @@ def collect_jars(
     else:
         return _collect_jars_when_dependency_analyzer_is_on(dep_targets)
 
+def collect_plugin_paths(plugins):
+    """Get the actual jar paths of plugins as a depset."""
+    paths = []
+    for p in plugins:
+        if hasattr(p, "path"):
+            paths.append(p)
+        elif hasattr(p, "scala"):
+            paths.extend([j.class_jar for j in p.scala.outputs.jars])
+        elif hasattr(p, "java"):
+            paths.extend([j.class_jar for j in p.java.outputs.jars])
+            # support http_file pointed at a jar. http_jar uses ijar,
+            # which breaks scala macros
+
+        elif hasattr(p, "files"):
+            paths.extend([f for f in p.files.to_list() if not_sources_jar(f.basename)])
+    return depset(paths)
+
 def _collect_jars_when_dependency_analyzer_is_off(
         dep_targets,
         unused_dependency_checker_is_off,

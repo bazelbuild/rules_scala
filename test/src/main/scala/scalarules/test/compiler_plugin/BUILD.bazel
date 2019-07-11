@@ -1,0 +1,8 @@
+load("//scala:scala.bzl", "scala_library")
+
+scala_library(
+    name = "compiler_plugin",
+    srcs = ["KindProjected.scala"],
+    plugins = ["@org_spire_math_kind_projector//jar"],
+    visibility = ["//visibility:public"],
+)

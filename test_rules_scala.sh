@@ -512,6 +512,55 @@ scala_specs2_junit_test_test_filter_one_test(){
   fi
 }
 
+scala_specs2_only_filtered_test_shows_in_the_xml(){
+  bazel test \
+    --nocache_test_results \
+    --test_output=streamed \
+    '--test_filter=scalarules.test.junit.specs2.JunitSpecs2Test#specs2 tests should::run smoothly in bazel$' \
+    test:Specs2Tests
+  matches=$(grep -c -e "testcase name='specs2 tests should::run smoothly in bazel'" -e "testcase name='specs2 tests should::not run smoothly in bazel'" ./bazel-testlogs/test/Specs2Tests/test.xml)
+  if [ $matches -eq 1 ]; then
+    return 0
+  else
+    echo "Expecting only one result, found more than one. Please check 'bazel-testlogs/test/Specs2Tests/test.xml'"
+    return 1
+  fi
+  test -e
+}
+
+scala_specs2_all_tests_show_in_the_xml(){
+  bazel test \
+    --nocache_test_results \
+    --test_output=streamed \
+    '--test_filter=scalarules.test.junit.specs2.JunitSpecs2Test#' \
+    test:Specs2Tests
+  matches=$(grep -c -e "testcase name='specs2 tests should::run smoothly in bazel'" -e "testcase name='specs2 tests should::not run smoothly in bazel'" ./bazel-testlogs/test/Specs2Tests/test.xml)
+  if [ $matches -eq 2 ]; then
+    return 0
+  else
+    echo "Expecting two results, found a different number ($matches). Please check 'bazel-testlogs/test/Specs2Tests/test.xml'"
+    return 1
+  fi
+  test -e
+}
+
+scala_specs2_only_failed_test_shows_in_the_xml(){
+  set +e
+  bazel test \
+  --nocache_test_results \
+  --test_output=streamed \
+  '--test_filter=scalarules.test.junit.specs2.SuiteWithOneFailingTest#specs2 tests should::fail$' \
+  test_expect_failure/scala_junit_test:specs2_failing_test
+  echo "got results"
+  matches=$(grep -c -e "testcase name='specs2 tests should::fail'" -e "testcase name='specs2 tests should::succeed'" ./bazel-testlogs/test_expect_failure/scala_junit_test/specs2_failing_test/test.xml)
+  if [ $matches -eq 1 ]; then
+    return 0
+  else
+    echo "Expecting only one result, found more than one. Please check './bazel-testlogs/test_expect_failure/scala_junit_test/specs2_failing_test/test.xml'"
+  return 1
+  fi
+}
+
 scala_specs2_junit_test_test_filter_exact_match(){
   local output=$(bazel test \
     --nocache_test_results \
@@ -913,8 +962,11 @@ test_compilation_fails_with_plus_one_deps_undefined() {
 test_compilation_succeeds_with_plus_one_deps_on_for_external_deps() {
   bazel build --extra_toolchains="//test_expect_failure/plus_one_deps:plus_one_deps" //test_expect_failure/plus_one_deps/external_deps:a
 }
-test_compilation_succeeds_with_plus_one_deps_on_also_for_exports() {
-  bazel build --extra_toolchains="//test_expect_failure/plus_one_deps:plus_one_deps" //test_expect_failure/plus_one_deps/exports_deps:a
+test_compilation_succeeds_with_plus_one_deps_on_also_for_exports_of_deps() {
+  bazel build --extra_toolchains="//test_expect_failure/plus_one_deps:plus_one_deps" //test_expect_failure/plus_one_deps/exports_of_deps/...
+}
+test_compilation_succeeds_with_plus_one_deps_on_also_for_deps_of_exports() {
+  bazel build --extra_toolchains="//test_expect_failure/plus_one_deps:plus_one_deps" //test_expect_failure/plus_one_deps/deps_of_exports/...
 }
 test_plus_one_deps_only_works_for_java_info_targets() {
   #for example doesn't break scala proto which depends on proto_library
@@ -983,6 +1035,9 @@ $runner scala_specs2_junit_test_test_filter_exact_match_escaped_and_sanitized
 $runner scala_specs2_junit_test_test_filter_match_multiple_methods
 $runner scala_specs2_exception_in_initializer_without_filter
 $runner scala_specs2_exception_in_initializer_terminates_without_timeout
+$runner scala_specs2_all_tests_show_in_the_xml
+$runner scala_specs2_only_filtered_test_shows_in_the_xml
+$runner scala_specs2_only_failed_test_shows_in_the_xml
 $runner scalac_jvm_flags_are_configured
 $runner javac_jvm_flags_are_configured
 $runner javac_jvm_flags_via_javacopts_are_configured
@@ -1027,7 +1082,8 @@ $runner test_override_javabin
 $runner test_compilation_succeeds_with_plus_one_deps_on
 $runner test_compilation_fails_with_plus_one_deps_undefined
 $runner test_compilation_succeeds_with_plus_one_deps_on_for_external_deps
-$runner test_compilation_succeeds_with_plus_one_deps_on_also_for_exports
+$runner test_compilation_succeeds_with_plus_one_deps_on_also_for_exports_of_deps
+$runner test_compilation_succeeds_with_plus_one_deps_on_also_for_deps_of_exports
 $runner test_plus_one_deps_only_works_for_java_info_targets
 $runner bazel test //test/... --extra_toolchains="//test_expect_failure/plus_one_deps:plus_one_deps"
 $runner test_unused_dependency_fails_even_if_also_exists_in_plus_one_deps

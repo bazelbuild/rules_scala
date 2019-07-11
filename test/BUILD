@@ -3,6 +3,7 @@ package(default_testonly = 1)
 load(
     "//scala:scala.bzl",
     "scala_binary",
+    "scala_doc",
     "scala_library",
     "scala_test",
     "scala_macro_library",
@@ -102,6 +103,13 @@ scala_test_suite(
 )
 
 scala_test_suite(
+    name = "LongTestSuiteNamesSuite",
+    size = "small",
+    srcs = glob(["longnames/**/*.scala"]),
+    use_short_names = True,
+)
+
+scala_test_suite(
     name = "TestSuitePassesKwArgs",
     size = "small",  # Not a macro, can pass test-specific attributes.
     srcs = glob(["ScalaTestData.scala"]),
@@ -128,6 +136,15 @@ scala_library(
     name = "OtherLib",
     srcs = ["OtherLib.scala"],
     deps = ["ExportOnly"],
+)
+
+scala_doc(
+    name = "ScalaDoc",
+    deps = [
+        ":HelloLib",
+        ":OtherLib",
+        "//test/src/main/scala/scalarules/test/compiler_plugin",  # brings kind-projector compiler plugin with it
+    ]
 )
 
 scala_library(
