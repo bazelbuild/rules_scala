@@ -25,24 +25,33 @@ def _scala_import_impl(ctx):
         jars2labels,
     )  #last to override the label of the export compile jars to the current target
 
-    current_target_providers = [JavaInfo(
-        output_jar = jar,
-        compile_jar = jar,
-        exports = [target[JavaInfo] for target in ctx.attr.exports],
-        deps = [target[JavaInfo] for target in ctx.attr.deps],
-        runtime_deps = [target[JavaInfo] for target in ctx.attr.runtime_deps],
-        source_jar = ctx.file.srcjar,
-        neverlink = ctx.attr.neverlink
-    )
-    for jar in current_target_compile_jars]
+    current_target_providers = [
+        JavaInfo(
+            output_jar = jar,
+            compile_jar = jar,
+            exports = [target[JavaInfo] for target in ctx.attr.exports],
+            deps = [target[JavaInfo] for target in ctx.attr.deps],
+            runtime_deps = [target[JavaInfo] for target in ctx.attr.runtime_deps],
+            source_jar = ctx.file.srcjar,
+            neverlink = ctx.attr.neverlink,
+        )
+        for jar in current_target_compile_jars
+    ]
 
     # Handle the case with no jars.
     # TODO: Figure out if these providers should always be merged.
     if not current_target_providers:
-        exports = [java_common.merge([target[JavaInfo] for target in ctx.attr.exports])]
-        deps = [java_common.merge([target[JavaInfo] for target in ctx.attr.deps])]
-        runtime_deps = [java_common.merge([target[JavaInfo] for target in ctx.attr.runtime_deps])]
-        current_target_providers = exports + deps + runtime_deps
+        current_target_providers = [
+            JavaInfo(
+                output_jar = ctx.file._dummy,
+                compile_jar = ctx.file._dummy,
+                exports = [target[JavaInfo] for target in ctx.attr.exports],
+                deps = [target[JavaInfo] for target in ctx.attr.deps],
+                runtime_deps = [target[JavaInfo] for target in ctx.attr.runtime_deps],
+            ),
+        ]
+
+    #        current_target_providers = exports + deps + runtime_deps
 
     return struct(
         scala = struct(
@@ -142,5 +151,9 @@ scala_import = rule(
         "exports": attr.label_list(),
         "neverlink": attr.bool(),
         "srcjar": attr.label(allow_single_file = True),
+        "_dummy": attr.label(
+            allow_single_file = True,
+            default = Label("@io_bazel_rules_scala//scala:libdummy.jar"),
+        ),
     },
 )

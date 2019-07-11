@@ -58,3 +58,9 @@ _declare_scalac_provider(
     ],
     visibility = ["//visibility:public"],
 )
+
+java_library(
+    name = "dummy",
+    srcs = ["Dummy.java"],
+    visibility = ["//visibility:public"],
+)
