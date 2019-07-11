@@ -396,12 +396,12 @@ def _compile_or_empty(
         implicit_junit_deps_needed_for_java_compilation,
         unused_dependency_checker_mode,
         unused_dependency_checker_ignored_targets,
-        deps_providers = []):
+        deps_providers):
     # We assume that if a srcjar is present, it is not empty
     if len(ctx.files.srcs) + len(srcjars.to_list()) == 0:
         _build_nosrc_jar(ctx)
 
-        scala_compilation_provider = _get_scala_compilation_provider(ctx, ctx.outputs.jar, deps_providers)
+        scala_compilation_provider = _create_scala_compilation_provider(ctx, ctx.outputs.jar, deps_providers)
 
         #  no need to build ijar when empty
         return struct(
@@ -476,7 +476,7 @@ def _compile_or_empty(
             #  so set ijar == jar
             ijar = ctx.outputs.jar
 
-        scala_compilation_provider = _get_scala_compilation_provider(ctx, ijar, deps_providers)
+        scala_compilation_provider = _create_scala_compilation_provider(ctx, ijar, deps_providers)
 
         # compile the java now
         java_jar = try_to_compile_java_jar(
@@ -513,7 +513,7 @@ def _compile_or_empty(
             merged_provider = merged_provider
         )
 
-def _get_scala_compilation_provider(ctx, ijar, deps_providers):
+def _create_scala_compilation_provider(ctx, ijar, deps_providers):
     exports = []
     if hasattr(ctx.attr, "exports"):
         exports = [dep[JavaInfo] for dep in ctx.attr.exports]
@@ -748,8 +748,6 @@ def _collect_jars_from_common_ctx(
         _is_plus_one_deps_off(ctx),
     )
 
-#    deps_jars.deps_providers
-
     (
         cjars,
         transitive_rjars,
@@ -909,7 +907,7 @@ def _scala_binary_common(
         java_wrapper,
         unused_dependency_checker_mode,
         unused_dependency_checker_ignored_targets,
-        deps_providers = [],
+        deps_providers,
         implicit_junit_deps_needed_for_java_compilation = [],
         runfiles_ext = []):
     write_manifest(ctx)
