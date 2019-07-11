@@ -35,7 +35,7 @@ load(
 
 _launcher_template = {
     "_java_stub_template": attr.label(
-        default = Label("@java_stub_template//file"),
+        default = Label("@io_bazel_rules_scala//java_stub_template/file"),
     ),
 }
 
@@ -487,16 +487,6 @@ def scala_repositories(
         licenses = ["notice"],
         server_urls = maven_servers,
     )
-    
-    # Using this and not the bazel regular one due to issue when classpath is too long
-    # until https://github.com/bazelbuild/bazel/issues/6955 is resolved
-    if native.existing_rule("java_stub_template") == None:
-      http_archive(
-                name = "java_stub_template",
-                sha256 = "4a72985658af01236a232b2b6dfda9bcaaa03b4da2115405bfb0de64ccd4f781",
-                urls = ["https://github.com/bazelbuild/rules_scala/archive/75217c13f73aefb9e9e90fc6346f9c7e1ceed426.zip"],
-                strip_prefix = "rules_scala-75217c13f73aefb9e9e90fc6346f9c7e1ceed426/java_stub_template",
-      )
 
     native.bind(
         name = "io_bazel_rules_scala/dependency/com_google_protobuf/protobuf_java",
