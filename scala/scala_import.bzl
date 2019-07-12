@@ -25,33 +25,12 @@ def _scala_import_impl(ctx):
         jars2labels,
     )  #last to override the label of the export compile jars to the current target
 
-    current_target_providers = [
-        JavaInfo(
-            output_jar = jar,
-            compile_jar = jar,
-            exports = [target[JavaInfo] for target in ctx.attr.exports],
-            deps = [target[JavaInfo] for target in ctx.attr.deps],
-            runtime_deps = [target[JavaInfo] for target in ctx.attr.runtime_deps],
-            source_jar = ctx.file.srcjar,
-            neverlink = ctx.attr.neverlink,
-        )
-        for jar in current_target_compile_jars
-    ]
+    current_target_providers = [_new_java_info(ctx, jar) for jar in current_target_compile_jars]
 
     # Handle the case with no jars.
-    # TODO: Figure out if these providers should always be merged.
+    # TODO(#8867): Migrate away from the placeholder jar hack when #8867 is fixed.
     if not current_target_providers:
-        current_target_providers = [
-            JavaInfo(
-                output_jar = ctx.file._dummy,
-                compile_jar = ctx.file._dummy,
-                exports = [target[JavaInfo] for target in ctx.attr.exports],
-                deps = [target[JavaInfo] for target in ctx.attr.deps],
-                runtime_deps = [target[JavaInfo] for target in ctx.attr.runtime_deps],
-            ),
-        ]
-
-    #        current_target_providers = exports + deps + runtime_deps
+        current_target_providers = [_new_java_info(ctx, ctx.file._placeholder_jar)]
 
     return struct(
         scala = struct(
@@ -64,6 +43,17 @@ def _scala_import_impl(ctx):
             ),
             JarsToLabelsInfo(jars_to_labels = jars2labels),
         ],
+    )
+
+def _new_java_info(ctx, jar):
+    return JavaInfo(
+        output_jar = jar,
+        compile_jar = jar,
+        exports = [target[JavaInfo] for target in ctx.attr.exports],
+        deps = [target[JavaInfo] for target in ctx.attr.deps],
+        runtime_deps = [target[JavaInfo] for target in ctx.attr.runtime_deps],
+        source_jar = ctx.file.srcjar,
+        neverlink = ctx.attr.neverlink,
     )
 
 def _add_labels_of_current_code_jars(code_jars, label, jars2labels):
@@ -151,9 +141,9 @@ scala_import = rule(
         "exports": attr.label_list(),
         "neverlink": attr.bool(),
         "srcjar": attr.label(allow_single_file = True),
-        "_dummy": attr.label(
+        "_placeholder_jar": attr.label(
             allow_single_file = True,
-            default = Label("@io_bazel_rules_scala//scala:libdummy.jar"),
+            default = Label("@io_bazel_rules_scala//scala:libPlaceHolderClassToCreateEmptyJarForScalaImport.jar"),
         ),
     },
 )

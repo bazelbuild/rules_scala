@@ -249,10 +249,6 @@ def _compile_scala(
         compile_jar = output,
     )
 
-def _empty_java_info(deps_java_info, implicit_deps):
-    merged_deps = java_common.merge(deps_java_info + implicit_deps)
-    return merged_deps
-
 ####
 # This is applied to the DAG of thrift_librarys reachable from a deps
 # or a scrooge_scala_library. Each thrift_library will be one scrooge
@@ -313,7 +309,7 @@ def _scrooge_aspect_impl(target, ctx):
         # this target is only an aggregation target
         src_jars = depset()
         outs = depset()
-        java_info = _empty_java_info(deps, imps)
+        java_info = java_common.merge(deps + imps)
 
     return [
         ScroogeAspectInfo(

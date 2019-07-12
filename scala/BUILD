@@ -60,7 +60,7 @@ _declare_scalac_provider(
 )
 
 java_library(
-    name = "dummy",
-    srcs = ["Dummy.java"],
+    name = "PlaceHolderClassToCreateEmptyJarForScalaImport",
+    srcs = ["PlaceHolderClassToCreateEmptyJarForScalaImport.java"],
     visibility = ["//visibility:public"],
 )

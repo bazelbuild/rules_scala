@@ -98,9 +98,6 @@ def _compile_scala(
         compile_jar = output,
     )
 
-def _empty_java_info(deps_java_info, implicit_deps):
-    return java_common.merge(deps_java_info + implicit_deps)
-
 ####
 # This is applied to the DAG of proto_librarys reachable from a deps
 # or a scalapb_scala_library. Each proto_library will be one scalapb
@@ -201,7 +198,7 @@ def _scalapb_aspect_impl(target, ctx):
             # this target is only an aggregation target
             src_jars = depset()
             outs = depset()
-            java_info = _empty_java_info(deps, imps)
+            java_info = java_common.merge(deps + imps)
 
     return [
         ScalaPBAspectInfo(
