@@ -1,23 +1,16 @@
-def _custom_jvm_impl(ctx):
-    print(ctx.label)
-    transitive_compile_jars = _collect(ctx.attr.deps)
-    return struct(
-        providers = [
-            java_common.create_provider(
-                transitive_compile_time_jars = transitive_compile_jars,
-            ),
-        ],
+#This rule is an example for a jvm rule that doesn't support Jars2Labels
+def _custom_jvm_impl(ctx):   
+    jar = ctx.file.main
+    provider = JavaInfo(output_jar = jar,
+             compile_jar = jar,
+             deps = [target[JavaInfo] for target in ctx.attr.deps]
     )
-
-def _collect(deps):
-    transitive_compile_jars = depset()
-    for dep_target in deps:
-        transitive_compile_jars += dep_target[JavaInfo].transitive_compile_time_jars
-    return transitive_compile_jars
+    return [provider]
 
 custom_jvm = rule(
     implementation = _custom_jvm_impl,
     attrs = {
+        "main": attr.label(allow_single_file = True), #just used so we'll be able to build the JavaInfo with a "main" jar
         "deps": attr.label_list(),
     },
 )
