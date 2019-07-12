@@ -212,7 +212,7 @@ def _compile_scala(
         label.name + "_scalac.statsfile",
         sibling = scrooge_jar,
     )
-    merged_deps = java_common.merge(deps_java_info + implicit_deps)
+    merged_deps = java_common.merge(_concat_lists(deps_java_info, implicit_deps))
 
     # this only compiles scala, not the ijar, but we don't
     # want the ijar for generated code anyway: any change
@@ -248,6 +248,12 @@ def _compile_scala(
         output_jar = output,
         compile_jar = output,
     )
+
+def _concat_lists(list1, list2):
+    all_providers = []
+    all_providers.extend(list1)
+    all_providers.extend(list2)
+    return all_providers
 
 ####
 # This is applied to the DAG of thrift_librarys reachable from a deps
@@ -309,7 +315,7 @@ def _scrooge_aspect_impl(target, ctx):
         # this target is only an aggregation target
         src_jars = depset()
         outs = depset()
-        java_info = java_common.merge(deps + imps)
+        java_info = java_common.merge(_concat_lists(deps, imps))
 
     return [
         ScroogeAspectInfo(
@@ -366,7 +372,7 @@ def _scrooge_scala_library_impl(ctx):
     )
     if ctx.attr.exports:
         exports = [exp[JavaInfo] for exp in ctx.attr.exports]
-        all_java = java_common.merge(exports + [aspect_info.java_info])
+        all_java = java_common.merge(_concat_lists(exports, [aspect_info.java_info]))
     else:
         all_java = aspect_info.java_info
 
