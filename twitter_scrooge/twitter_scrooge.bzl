@@ -372,7 +372,8 @@ def _scrooge_scala_library_impl(ctx):
     )
     if ctx.attr.exports:
         exports = [exp[JavaInfo] for exp in ctx.attr.exports]
-        all_java = java_common.merge(_concat_lists(exports, [aspect_info.java_info]))
+        exports.append(aspect_info.java_info)
+        all_java = java_common.merge(exports)
     else:
         all_java = aspect_info.java_info
 
