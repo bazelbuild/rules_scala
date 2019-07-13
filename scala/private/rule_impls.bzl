@@ -991,6 +991,7 @@ def _pack_source_jar(ctx):
 
 def _pack_source_jars(ctx):
     source_jar = _pack_source_jar(ctx)
+    #_pack_source_jar may return None if java_common.pack_sources returned None (and it can)
     return [source_jar] if source_jar else []
 
 def scala_binary_impl(ctx):
