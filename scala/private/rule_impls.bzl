@@ -1236,13 +1236,8 @@ def _serialize_archives_short_path(archives):
 def _get_test_archive_jars(ctx, test_archives):
     flattened_list = []
     for archive in test_archives:
-        # because we (rules_scala) use the legacy JavaInfo (java_common.create_provider)
-        # runtime_output_jars contains more jars than needed
-        if hasattr(archive, "scala"):
-            jars = [jar.class_jar for jar in archive.scala.outputs.jars]
-        else:
-            jars = archive[JavaInfo].runtime_output_jars
-        flattened_list.extend(jars)
+        class_jars = [java_output.class_jar for java_output in archive[JavaInfo].outputs.jars]
+        flattened_list.extend(class_jars)
     return flattened_list
 
 def scala_junit_test_impl(ctx):
