@@ -401,7 +401,7 @@ def _compile_or_empty(
     if len(ctx.files.srcs) + len(srcjars.to_list()) == 0:
         _build_nosrc_jar(ctx)
 
-        scala_compilation_provider = _create_scala_compilation_provider(ctx, ctx.outputs.jar, deps_providers)
+        scala_compilation_provider = _create_scala_compilation_provider(ctx, ctx.outputs.jar, None, deps_providers)
 
         #  no need to build ijar when empty
         return struct(
@@ -476,7 +476,8 @@ def _compile_or_empty(
             #  so set ijar == jar
             ijar = ctx.outputs.jar
 
-        scala_compilation_provider = _create_scala_compilation_provider(ctx, ijar, deps_providers)
+        source_jar = _pack_source_jar(ctx)
+        scala_compilation_provider = _create_scala_compilation_provider(ctx, ijar, source_jar, deps_providers)
 
         # compile the java now
         java_jar = try_to_compile_java_jar(
@@ -513,7 +514,7 @@ def _compile_or_empty(
             merged_provider = merged_provider
         )
 
-def _create_scala_compilation_provider(ctx, ijar, deps_providers):
+def _create_scala_compilation_provider(ctx, ijar, source_jar, deps_providers):
     exports = []
     if hasattr(ctx.attr, "exports"):
         exports = [dep[JavaInfo] for dep in ctx.attr.exports]
@@ -523,6 +524,7 @@ def _create_scala_compilation_provider(ctx, ijar, deps_providers):
     return JavaInfo(
         output_jar = ctx.outputs.jar,
         compile_jar = ijar,
+        source_jar = source_jar,
         deps = deps_providers,
         exports = exports,
         runtime_deps = runtime_deps,
@@ -962,9 +964,7 @@ def _scala_binary_common(
             rjars,  #calling rules need this for the classpath in the launcher
     )
 
-def _pack_source_jars(ctx):
-    source_jars = []
-
+def _pack_source_jar(ctx):
     # collect .scala sources and pack a source jar for Scala
     scala_sources = [
         f
@@ -986,10 +986,13 @@ def _pack_source_jars(ctx):
         java_toolchain = find_java_toolchain(ctx, ctx.attr._java_toolchain),
         host_javabase = find_java_runtime_toolchain(ctx, ctx.attr._host_javabase),
     )
-    if scala_source_jar:
-        source_jars.append(scala_source_jar)
 
-    return source_jars
+    return scala_source_jar
+
+def _pack_source_jars(ctx):
+    source_jar = _pack_source_jar(ctx)
+    #_pack_source_jar may return None if java_common.pack_sources returned None (and it can)
+    return [source_jar] if source_jar else []
 
 def scala_binary_impl(ctx):
     scalac_provider = _scalac_provider(ctx)
