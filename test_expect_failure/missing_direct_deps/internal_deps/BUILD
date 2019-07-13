@@ -44,7 +44,6 @@ scala_library(
 
 custom_jvm(
     name = "direct_java_provider_dependency",
-    main = "//test/src/main/resources/scalarules/test:hellos-and-byes.jar", #just any jar would do
     deps = ["transitive_dependency"],
 )
 
