@@ -25,11 +25,10 @@ def _scala_import_impl(ctx):
         jars2labels,
     )  #last to override the label of the export compile jars to the current target
 
-    current_target_providers = [_new_java_info(ctx, jar) for jar in current_target_compile_jars]
-
-    # Handle the case with no jars.
-    # TODO(#8867): Migrate away from the placeholder jar hack when #8867 is fixed.
-    if not current_target_providers:
+    if current_target_compile_jars:
+        current_target_providers = [_new_java_info(ctx, jar) for jar in current_target_compile_jars]
+    else:
+        # TODO(#8867): Migrate away from the placeholder jar hack when #8867 is fixed.
         current_target_providers = [_new_java_info(ctx, ctx.file._placeholder_jar)]
 
     return struct(
