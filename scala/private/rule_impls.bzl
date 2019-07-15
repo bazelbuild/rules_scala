@@ -1239,7 +1239,7 @@ def _serialize_archives_short_path(archives):
 def _get_test_archive_jars(ctx, test_archives):
     flattened_list = []
     for archive in test_archives:
-        class_jars = [java_output.class_jar for java_output in archive[JavaInfo].outputs.jars]
+        class_jars = archive[JavaInfo].runtime_output_jars
         flattened_list.extend(class_jars)
     return flattened_list
 
