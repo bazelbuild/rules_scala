@@ -39,6 +39,11 @@ class ScalaPBGenerator extends Processor {
       val relativePath = root.relativize(fullPath)
 
       relativePath.toFile.getParentFile.mkdirs
+      // After bazel 0.28 or so, it seems like this shouldn't be required anymore with the virtual imports
+
+      if(relativePath.exists)
+        System.err.println(s"Copying ${fullPath} to ${relativePath}")
+
       Files.copy(fullPath, relativePath)
     }
   }
