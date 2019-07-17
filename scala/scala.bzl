@@ -126,10 +126,13 @@ _common_attrs_for_plugin_bootstrapping = {
         ".srcjar",
         ".java",
     ]),
-    "deps": attr.label_list(aspects = [
-        _collect_plus_one_deps_aspect,
-        _coverage_replacements_provider.aspect,
-    ]),
+    "deps": attr.label_list(
+        aspects = [
+            _collect_plus_one_deps_aspect,
+            _coverage_replacements_provider.aspect,
+        ],
+        providers = [[JavaInfo]],
+    ),
     "plugins": attr.label_list(allow_files = [".jar"]),
     "runtime_deps": attr.label_list(providers = [[JavaInfo]]),
     "data": attr.label_list(allow_files = True),
