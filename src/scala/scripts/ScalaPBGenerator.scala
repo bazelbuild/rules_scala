@@ -41,10 +41,9 @@ class ScalaPBGenerator extends Processor {
 
       relativePath.toFile.getParentFile.mkdirs
       Try(Files.copy(fullPath, relativePath)) match {
-        case Failure(err) if err.isInstanceOf[FileAlreadyExistsException] =>
+        case Failure(err: FileAlreadyExistsException) =>
           Console.println(s"File already exists, skipping: ${err.getMessage}")
-        case Failure(err) =>
-          sys.error(err.getMessage)
+        case Failure(err) => throw err
         case _ => ()
       }
     }
