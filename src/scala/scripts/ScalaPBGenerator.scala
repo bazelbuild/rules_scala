@@ -1,7 +1,7 @@
 package scripts
 
 import java.io.PrintStream
-import java.nio.file.Path
+import java.nio.file.{Path, FileAlreadyExistsException}
 
 import io.bazel.rulesscala.io_utils.DeleteRecursively
 import io.bazel.rulesscala.jar.JarCreator
@@ -12,6 +12,7 @@ import scalapb.ScalaPbCodeGenerator
 import java.nio.file.{Files, Paths}
 import scalapb.{ScalaPBC, ScalaPbCodeGenerator, ScalaPbcException}
 import java.net.URLClassLoader
+import scala.util.{Try, Failure}
 
 object ScalaPBWorker extends GenericWorker(new ScalaPBGenerator) {
 
@@ -39,7 +40,12 @@ class ScalaPBGenerator extends Processor {
       val relativePath = root.relativize(fullPath)
 
       relativePath.toFile.getParentFile.mkdirs
-      Files.copy(fullPath, relativePath)
+      Try(Files.copy(fullPath, relativePath)) match {
+        case Failure(err: FileAlreadyExistsException) =>
+          Console.println(s"File already exists, skipping: ${err.getMessage}")
+        case Failure(err) => throw err
+        case _ => ()
+      }
     }
   }
   def deleteDir(path: Path): Unit =
