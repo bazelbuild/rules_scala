@@ -29,7 +29,7 @@ def twitter_scrooge(
     _scala_maven_import_external(
         name = "libthrift",
         artifact = "org.apache.thrift:libthrift:0.8.0",
-        jar_sha256 = "adea029247c3f16e55e29c1708b897812fd1fe335ac55fe3903e5d2f428ef4b3",
+        artifact_sha256 = "adea029247c3f16e55e29c1708b897812fd1fe335ac55fe3903e5d2f428ef4b3",
         licenses = ["notice"],
         server_urls = maven_servers,
     )
@@ -61,7 +61,7 @@ def twitter_scrooge(
             "com.twitter:scrooge-core:18.6.0",
             major_version,
         ),
-        jar_sha256 = scala_version_jar_shas["scrooge_core"],
+        artifact_sha256 = scala_version_jar_shas["scrooge_core"],
         licenses = ["notice"],
         server_urls = maven_servers,
     )
@@ -77,7 +77,7 @@ def twitter_scrooge(
             "com.twitter:scrooge-generator:18.6.0",
             major_version,
         ),
-        jar_sha256 = scala_version_jar_shas["scrooge_generator"],
+        artifact_sha256 = scala_version_jar_shas["scrooge_generator"],
         licenses = ["notice"],
         server_urls = maven_servers,
     )
@@ -92,7 +92,7 @@ def twitter_scrooge(
             "com.twitter:util-core:18.6.0",
             major_version,
         ),
-        jar_sha256 = scala_version_jar_shas["util_core"],
+        artifact_sha256 = scala_version_jar_shas["util_core"],
         licenses = ["notice"],
         server_urls = maven_servers,
     )
@@ -107,7 +107,7 @@ def twitter_scrooge(
             "com.twitter:util-logging:18.6.0",
             major_version,
         ),
-        jar_sha256 = scala_version_jar_shas["util_logging"],
+        artifact_sha256 = scala_version_jar_shas["util_logging"],
         licenses = ["notice"],
         server_urls = maven_servers,
     )

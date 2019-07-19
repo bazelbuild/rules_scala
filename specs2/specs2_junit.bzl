@@ -40,7 +40,7 @@ def specs2_junit_repositories(
             "org.specs2:specs2-junit:" + specs2_version(),
             major_version,
         ),
-        jar_sha256 = scala_jar_shas[major_version]["specs2_junit"],
+        artifact_sha256 = scala_jar_shas[major_version]["specs2_junit"],
         licenses = ["notice"],
         server_urls = maven_servers,
     )
