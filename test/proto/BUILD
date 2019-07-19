@@ -20,16 +20,16 @@ scala_proto_toolchain(
         "//test/proto:blacklisted_proto",
         "//test/proto:other_blacklisted_proto",
     ],
+    extra_generator_dependencies = [
+        "//test/src/main/scala/scalarules/test/extra_protobuf_generator",
+    ],
+    named_generators = {
+        "jvm_extra_protobuf_generator": "scalarules.test.extra_protobuf_generator.ExtraProtobufGenerator",
+    },
     visibility = ["//visibility:public"],
     with_flat_package = False,
     with_grpc = True,
     with_single_line_to_string = True,
-    named_generators = {
-        'jvm_extra_protobuf_generator': 'scalarules.test.extra_protobuf_generator.ExtraProtobufGenerator',
-    },
-    extra_generator_dependencies = [
-        "//test/src/main/scala/scalarules/test/extra_protobuf_generator",
-    ],
 )
 
 toolchain(
@@ -82,19 +82,19 @@ scalapb_proto_library(
 
 # Test that the `proto_source_root` attribute is handled properly
 proto_library(
-    name = "proto_source_root",
+    name = "strip_import_prefix",
     srcs = [
         "different_root.proto",
         "different_root2.proto",
     ],
-    proto_source_root = package_name(),
+    strip_import_prefix = "",
     visibility = ["//visibility:public"],
 )
 
 scalapb_proto_library(
-    name = "test_proto_source_root",
+    name = "test_strip_import_prefix",
     visibility = ["//visibility:public"],
-    deps = [":proto_source_root"],
+    deps = [":strip_import_prefix"],
 )
 
 proto_library(
@@ -157,7 +157,6 @@ scala_test(
         ":test_proto",
     ],
 )
-
 
 scala_test(
     name = "test_custom_object_exists",
