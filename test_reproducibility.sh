@@ -12,7 +12,7 @@ md5_util() {
 }
 
 non_deploy_jar_md5_sum() {
-    find bazel-bin/test -name "*.jar" ! -name "*_deploy.jar" | xargs -n 1 -P 5 $(md5_util) | sort
+    find bazel-bin/test -name "*.jar" ! -name "*_deploy.jar" ! -path 'bazel-bin/test/jmh/*' | xargs -n 1 -P 5 $(md5_util) | sort
 }
 
 test_build_is_identical() {
