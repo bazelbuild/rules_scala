@@ -1333,10 +1333,6 @@ def _jacoco_offline_instrument(ctx, input_jar):
     if not ctx.configuration.coverage_enabled or not hasattr(ctx.attr, "_code_coverage_instrumentation_worker"):
         return _empty_coverage_struct
 
-    worker_inputs, _, worker_input_manifests = ctx.resolve_command(
-        tools = [ctx.attr._code_coverage_instrumentation_worker],
-    )
-
     output_jar = ctx.actions.declare_file(
         "{}-offline.jar".format(input_jar.basename.split(".")[0]),
     )
@@ -1351,10 +1347,9 @@ def _jacoco_offline_instrument(ctx, input_jar):
 
     ctx.actions.run(
         mnemonic = "JacocoInstrumenter",
-        inputs = [in_out_pair[0] for in_out_pair in in_out_pairs] + worker_inputs,
+        inputs = [in_out_pair[0] for in_out_pair in in_out_pairs],
         outputs = [in_out_pair[1] for in_out_pair in in_out_pairs],
-        executable = ctx.attr._code_coverage_instrumentation_worker.files_to_run.executable,
-        input_manifests = worker_input_manifests,
+        executable = ctx.attr._code_coverage_instrumentation_worker.files_to_run,
         execution_requirements = {"supports-workers": "1"},
         arguments = [args],
     )
