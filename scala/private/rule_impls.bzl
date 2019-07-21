@@ -867,6 +867,8 @@ def get_unused_dependency_checker_mode(ctx):
         return ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].unused_dependency_checker_mode
 
 def scala_library_impl(ctx):
+    if ctx.attr.jvm_flags:
+        print("'jvm_flags' for scala_library is deprecated. It does nothing today and will be removed from scala_library to avoid confusion.")
     scalac_provider = _scalac_provider(ctx)
     unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
     return _lib(
