@@ -39,7 +39,7 @@ load(
 
 _launcher_template = {
     "_java_stub_template": attr.label(
-        default = Label("@java_stub_template//file"),
+        default = Label("@io_bazel_rules_scala//java_stub_template/file"),
     ),
 }
 
@@ -126,10 +126,13 @@ _common_attrs_for_plugin_bootstrapping = {
         ".srcjar",
         ".java",
     ]),
-    "deps": attr.label_list(aspects = [
-        _collect_plus_one_deps_aspect,
-        _coverage_replacements_provider.aspect,
-    ]),
+    "deps": attr.label_list(
+        aspects = [
+            _collect_plus_one_deps_aspect,
+            _coverage_replacements_provider.aspect,
+        ],
+        providers = [[JavaInfo]],
+    ),
     "plugins": attr.label_list(allow_files = [".jar"]),
     "runtime_deps": attr.label_list(providers = [[JavaInfo]]),
     "data": attr.label_list(allow_files = True),
@@ -488,16 +491,6 @@ def scala_repositories(
         licenses = ["notice"],
         server_urls = maven_servers,
     )
-
-    # Using this and not the bazel regular one due to issue when classpath is too long
-    # until https://github.com/bazelbuild/bazel/issues/6955 is resolved
-    if not native.existing_rule("java_stub_template"):
-        http_archive(
-            name = "java_stub_template",
-            sha256 = "1859a37dccaee8c56b98869bf1f22f6f5b909606aff74ddcfd59e9757a038dd5",
-            urls = ["https://github.com/bazelbuild/rules_scala/archive/8b8271e3ee5709e1340b19790d0b396a0ff3dd0f.tar.gz"],
-            strip_prefix = "rules_scala-8b8271e3ee5709e1340b19790d0b396a0ff3dd0f/java_stub_template",
-        )
 
     if not native.existing_rule("com_google_protobuf"):
         http_archive(

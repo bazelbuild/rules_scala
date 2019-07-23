@@ -14,12 +14,8 @@ def _export_scalac_repositories_from_toolchain_to_jvm_impl(ctx):
     default_repl_classpath_files = _files_of(
         default_repl_classpath_deps,
     ).to_list()
-    java_common_provider = java_common.create_provider(
-        use_ijar = False,
-        compile_time_jars = default_repl_classpath_files,
-        runtime_jars = default_repl_classpath_files,
-    )
-    return [java_common_provider]
+    providers = [JavaInfo(output_jar = jar, compile_jar = jar) for jar in default_repl_classpath_files]
+    return [java_common.merge(providers)]
 
 export_scalac_repositories_from_toolchain_to_jvm = rule(
     _export_scalac_repositories_from_toolchain_to_jvm_impl,
