@@ -437,7 +437,7 @@ def scala_repositories(
             major_version = major_version,
             extra_jar_version = scala_version_extra_jars["scalatest"]["version"],
         ),
-        jar_sha256 = scala_version_extra_jars["scalatest"]["sha256"],
+        artifact_sha256 = scala_version_extra_jars["scalatest"]["sha256"],
         licenses = ["notice"],
         server_urls = maven_servers,
     )
@@ -447,7 +447,7 @@ def scala_repositories(
             major_version = major_version,
             extra_jar_version = scala_version_extra_jars["scalactic"]["version"],
         ),
-        jar_sha256 = scala_version_extra_jars["scalactic"]["sha256"],
+        artifact_sha256 = scala_version_extra_jars["scalactic"]["sha256"],
         licenses = ["notice"],
         server_urls = maven_servers,
     )
@@ -458,7 +458,7 @@ def scala_repositories(
             major_version = major_version,
             extra_jar_version = scala_version_extra_jars["scala_xml"]["version"],
         ),
-        jar_sha256 = scala_version_extra_jars["scala_xml"]["sha256"],
+        artifact_sha256 = scala_version_extra_jars["scala_xml"]["sha256"],
         licenses = ["notice"],
         server_urls = maven_servers,
     )
@@ -470,7 +470,7 @@ def scala_repositories(
                 major_version = major_version,
                 extra_jar_version = scala_version_extra_jars["scala_parser_combinators"]["version"],
             ),
-        jar_sha256 = scala_version_extra_jars["scala_parser_combinators"]["sha256"],
+        artifact_sha256 = scala_version_extra_jars["scala_parser_combinators"]["sha256"],
         licenses = ["notice"],
         server_urls = maven_servers,
     )
@@ -479,7 +479,7 @@ def scala_repositories(
     _scala_maven_import_external(
         name = "scalac_rules_commons_io",
         artifact = "commons-io:commons-io:2.6",
-        jar_sha256 = "f877d304660ac2a142f3865badfc971dec7ed73c747c7f8d5d2f5139ca736513",
+        artifact_sha256 = "f877d304660ac2a142f3865badfc971dec7ed73c747c7f8d5d2f5139ca736513",
         licenses = ["notice"],
         server_urls = maven_servers,
     )
@@ -487,7 +487,7 @@ def scala_repositories(
     _scala_maven_import_external(
         name = "io_bazel_rules_scala_guava",
         artifact = "com.google.guava:guava:21.0",
-        jar_sha256 = "972139718abc8a4893fa78cba8cf7b2c903f35c97aaf44fa3031b0669948b480",
+        artifact_sha256 = "972139718abc8a4893fa78cba8cf7b2c903f35c97aaf44fa3031b0669948b480",
         licenses = ["notice"],
         server_urls = maven_servers,
     )
