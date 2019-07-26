@@ -58,5 +58,5 @@ def scala_tut_doc(**kw):
         srcs = [src],
         outs = ["%s_tut.md" % name],
         tools = [tool],
-        cmd = "./$(location %s) $(location %s) \"$@\"" % (tool, src),
+        cmd = "./$(location %s) $(location %s) \"$@\" >/dev/null" % (tool, src),
     )
