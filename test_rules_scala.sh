@@ -887,6 +887,18 @@ test_scala_classpath_resources_expect_warning_on_namespace_conflict() {
   fi
 }
 
+scala_pb_library_targets_do_not_have_host_deps() {
+  set -e
+  bazel build test/proto:test_binary_to_ensure_no_host_deps
+  LINES=$(find bazel-bin/test/proto/test_binary_to_ensure_no_host_deps.runfiles  -name '*.jar' -exec readlink {} \; | grep 'bazel-out/host' | wc -l)
+  if [ "$LINES" != "0" ]; then
+    echo "Host deps exist in output of target"
+    echo "Possibly toolchains limitation?"
+    find bazel-bin/test/proto/test_binary_to_ensure_no_host_deps.runfiles  -name '*.jar' -exec readlink {} \; | grep 'bazel-out/host'
+    exit 1
+  fi
+}
+
 scala_binary_common_jar_is_exposed_in_build_event_protocol() {
   local target=$1
   set +e
@@ -1088,3 +1100,4 @@ $runner test_plus_one_deps_only_works_for_java_info_targets
 $runner bazel test //test/... --extra_toolchains="//test_expect_failure/plus_one_deps:plus_one_deps"
 $runner test_unused_dependency_fails_even_if_also_exists_in_plus_one_deps
 $runner test_coverage_on
+$runner scala_pb_library_targets_do_not_have_host_deps
