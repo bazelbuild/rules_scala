@@ -890,9 +890,12 @@ test_scala_classpath_resources_expect_warning_on_namespace_conflict() {
 scala_pb_library_targets_do_not_have_host_deps() {
   set -e
   bazel build test/proto:test_binary_to_ensure_no_host_deps
-  LINES=$(find bazel-bin/test/proto/test_binary_to_ensure_no_host_deps.runfiles  -name '*.jar' -exec readlink {} \; | grep 'bazel-out/host' | wc -l)
-  if [ "$LINES" != "0" ]; then
-    echo "Host deps exist in output of target"
+  set +e
+  find bazel-bin/test/proto/test_binary_to_ensure_no_host_deps.runfiles  -name '*.jar' -exec readlink {} \; | grep 'bazel-out/host'
+  RET=$?
+  set -e
+  if [ "$RET" == "0" ]; then
+    echo "Host deps exist in output of target:"
     echo "Possibly toolchains limitation?"
     find bazel-bin/test/proto/test_binary_to_ensure_no_host_deps.runfiles  -name '*.jar' -exec readlink {} \; | grep 'bazel-out/host'
     exit 1
