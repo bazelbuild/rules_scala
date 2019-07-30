@@ -1,4 +1,6 @@
 load("//scala_proto:scala_proto_toolchain.bzl", "scala_proto_toolchain")
+load("//scala_proto:default_dep_sets.bzl", "DEFAULT_SCALAPB_COMPILE_DEPS", "DEFAULT_SCALAPB_GRPC_DEPS")
+
 
 toolchain_type(
     name = "toolchain_type",
@@ -34,5 +36,18 @@ toolchain(
     name = "enable_all_options_toolchain",
     toolchain = ":enable_all_options_toolchain_impl",
     toolchain_type = "@io_bazel_rules_scala//scala_proto:toolchain_type",
+    visibility = ["//visibility:public"],
+)
+
+
+java_library(
+    name="default_scalapb_compile_dependencies",
+    exports = DEFAULT_SCALAPB_COMPILE_DEPS,
+    visibility = ["//visibility:public"],
+)
+
+java_library(
+    name="default_scalapb_grpc_dependencies",
+    exports = DEFAULT_SCALAPB_GRPC_DEPS,
     visibility = ["//visibility:public"],
 )

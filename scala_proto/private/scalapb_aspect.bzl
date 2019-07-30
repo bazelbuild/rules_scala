@@ -133,11 +133,11 @@ def _scalapb_aspect_impl(target, ctx):
 
         toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
         flags = []
-        imps = [j[JavaInfo] for j in toolchain.implicit_compile_deps]
+        imps = [j[JavaInfo] for j in ctx.attr._implicit_compile_deps]
 
         if toolchain.with_grpc:
             flags.append("grpc")
-            imps.extend([j[JavaInfo] for j in toolchain.grpc_deps])
+            imps.extend([j[JavaInfo] for j in ctx.attr._grpc_deps])
 
         if toolchain.with_flat_package:
             flags.append("flat_package")
@@ -224,6 +224,12 @@ scalapb_aspect = aspect(
     ],
     attrs = {
         "_protoc": attr.label(executable = True, cfg = "host", default = "@com_google_protobuf//:protoc"),
+        "_implicit_compile_deps": attr.label_list(cfg = "target", default = [
+                "//external:io_bazel_rules_scala/dependency/proto/implicit_compile_deps",
+            ]),
+        "_grpc_deps": attr.label_list(cfg = "target", default = [
+                "//external:io_bazel_rules_scala/dependency/proto/grpc_deps",
+            ])
     },
     toolchains = [
         "@io_bazel_rules_scala//scala:toolchain_type",

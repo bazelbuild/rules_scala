@@ -114,6 +114,13 @@ scalapb_proto_library(
     deps = [":test2"],
 )
 
+scala_binary(
+    name = "test_binary_to_ensure_no_host_deps",
+    main_class = "a.b.c",
+    visibility = ["//visibility:public"],
+    deps = [":test_proto_nogrpc"],
+)
+
 java_proto_library(
     name = "test_proto_java_lib",
     deps = [
