@@ -177,7 +177,7 @@ def compile_scala(
 
         transitive_cjars_list = transitive_compile_jars.to_list()
         indirect_jars = _join_path(transitive_cjars_list)
-        indirect_targets = ",".join([labels[j.path] for j in transitive_cjars_list])
+        indirect_targets = ",".join([str(labels[j.path]) for j in transitive_cjars_list])
 
         current_target = str(target_label)
 
