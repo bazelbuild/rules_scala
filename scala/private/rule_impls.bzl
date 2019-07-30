@@ -655,7 +655,7 @@ def _write_executable_non_windows(ctx, executable, rjars, main_class, jvm_flags,
         )
         ctx.actions.write(jacoco_metadata_file, "\n".join([
             jar.short_path.replace("../", "external/")
-            for jar in rjars
+            for jar in rjars.to_list()
         ]))
         ctx.actions.expand_template(
             template = template,
