@@ -15,7 +15,6 @@ load(
 )
 
 def register_default_proto_dependencies():
-    print("here")
     if native.existing_rule("io_bazel_rules_scala/dependency/proto/grpc_deps") == None:
         native.bind(
             name = "io_bazel_rules_scala/dependency/proto/grpc_deps",
