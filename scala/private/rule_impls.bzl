@@ -1191,7 +1191,7 @@ def scala_test_impl(ctx):
 
         rjars = depset([
             coverage_replacements[jar] if jar in coverage_replacements else jar
-            for jar in rjars
+            for jar in rjars.to_list()
         ])
         coverage_runfiles = ctx.files._jacocorunner + ctx.files._lcov_merger + coverage_replacements.values()
 
