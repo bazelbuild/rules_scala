@@ -312,7 +312,7 @@ StatsfileOutput: {statsfile_output}
         # consume the flags on startup.
         arguments = [
             "--jvm_flag=%s" % f
-            for f in _expand_location(ctx, scalac_jvm_flags)
+            for f in _expand_location(ctx, scalac_jvm_flags) + ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scalac_jvm_flags
         ] + ["@" + argfile.path],
     )
 
