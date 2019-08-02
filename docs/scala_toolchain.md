@@ -84,5 +84,14 @@ scala_register_toolchains()
         </p>
       </td>
     </tr>
+    <tr>
+      <td><code>enable_code_coverage_aspect</code></td>
+      <td>
+        <p><code>"on" or "off"; optional; defaults to "off"</code></p>
+        <p>
+            This enables instrumenting tests with jacoco code coverage.
+        </p>
+      </td>
+    </tr>
   </tbody>
 </table>
