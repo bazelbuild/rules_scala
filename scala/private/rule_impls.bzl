@@ -294,6 +294,13 @@ StatsfileOutput: {statsfile_output}
         resource_jars + [manifest, argfile] + scalac_inputs
     )
 
+    # scalac_jvm_flags passed in on the target override scalac_jvm_flags passed in on the
+    # toolchain
+    if scalac_jvm_flags:
+        final_scalac_jvm_flags = _expand_location(ctx, scalac_jvm_flags)
+    else:
+        final_scalac_jvm_flags = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scalac_jvm_flags
+
     ctx.actions.run(
         inputs = ins,
         outputs = outs,
@@ -312,7 +319,7 @@ StatsfileOutput: {statsfile_output}
         # consume the flags on startup.
         arguments = [
             "--jvm_flag=%s" % f
-            for f in _expand_location(ctx, scalac_jvm_flags)
+            for f in final_scalac_jvm_flags
         ] + ["@" + argfile.path],
     )
 

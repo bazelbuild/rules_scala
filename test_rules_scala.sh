@@ -825,6 +825,18 @@ test_scalaopts_from_scala_toolchain() {
   action_should_fail build --extra_toolchains="//test_expect_failure/scalacopts_from_toolchain:failing_scala_toolchain" //test_expect_failure/scalacopts_from_toolchain:failing_build
 }
 
+test_scalac_jvm_flags_from_scala_toolchain_fails() {
+  action_should_fail build --extra_toolchains="//test_expect_failure/scalac_jvm_opts:failing_scala_toolchain" //test_expect_failure/scalac_jvm_opts:empty_build
+}
+
+test_scalac_jvm_flags_from_scala_toolchain_passes() {
+  bazel build --extra_toolchains="//test_expect_failure/scalac_jvm_opts:passing_scala_toolchain" //test_expect_failure/scalac_jvm_opts:empty_build
+}
+
+test_scalac_jvm_flags_on_target_overrides_toolchain_passes() {
+  bazel build --extra_toolchains="//test_expect_failure/scalac_jvm_opts:failing_scala_toolchain" //test_expect_failure/scalac_jvm_opts:empty_overriding_build
+}
+
 test_unused_dependency_checker_mode_set_in_rule() {
   action_should_fail build //test_expect_failure/unused_dependency_checker:failing_build
 }
@@ -1104,3 +1116,6 @@ $runner bazel test //test/... --extra_toolchains="//test_expect_failure/plus_one
 $runner test_unused_dependency_fails_even_if_also_exists_in_plus_one_deps
 $runner test_coverage_on
 $runner scala_pb_library_targets_do_not_have_host_deps
+$runner test_scalac_jvm_flags_on_target_overrides_toolchain_passes
+$runner test_scalac_jvm_flags_from_scala_toolchain_passes
+$runner test_scalac_jvm_flags_from_scala_toolchain_fails
