@@ -1,3 +1,0 @@
-package test_expect_failure.scala_test_jvm_flags
-
-class Empty

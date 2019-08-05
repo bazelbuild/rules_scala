@@ -31,12 +31,12 @@ toolchain(
 
 scala_test(
     name = "empty_test",
-    srcs = ["Empty.scala"],
+    srcs = ["EmptyTest.scala"],
 )
 
 scala_test(
     name = "empty_overriding_test",
-    srcs = ["Empty.scala"],
+    srcs = ["EmptyTest.scala"],
     # This overrides the option passed in on the toolchain, and should BUILD, even if
     # the `failing_scala_toolchain` is used.
     jvm_flags = ["-Xmx1G"],
