@@ -838,15 +838,15 @@ test_scalac_jvm_flags_on_target_overrides_toolchain_passes() {
 }
 
 test_scala_test_jvm_flags_from_scala_toolchain_fails() {
-  action_should_fail test --extra_toolchains="//test_expect_failure/scala_test_jvm_flags:failing_scala_toolchain" //test_expect_failure/scala_test_jvm_flags:empty_build
+  action_should_fail test --extra_toolchains="//test_expect_failure/scala_test_jvm_flags:failing_scala_toolchain" //test_expect_failure/scala_test_jvm_flags:empty_test
 }
 
 test_scala_test_jvm_flags_from_scala_toolchain_passes() {
-  bazel test --extra_toolchains="//test_expect_failure/scala_test_jvm_flags:passing_scala_toolchain" //test_expect_failure/scala_test_jvm_flags:empty_build
+  bazel test --extra_toolchains="//test_expect_failure/scala_test_jvm_flags:passing_scala_toolchain" //test_expect_failure/scala_test_jvm_flags:empty_test
 }
 
 test_scala_test_jvm_flags_on_target_overrides_toolchain_passes() {
-  bazel test --extra_toolchains="//test_expect_failure/scala_test_jvm_flags:failing_scala_toolchain" //test_expect_failure/scala_test_jvm_flags:empty_overriding_build
+  bazel test --extra_toolchains="//test_expect_failure/scala_test_jvm_flags:failing_scala_toolchain" //test_expect_failure/scala_test_jvm_flags:empty_overriding_test
 }
 
 test_unused_dependency_checker_mode_set_in_rule() {

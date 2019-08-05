@@ -30,12 +30,12 @@ toolchain(
 )
 
 scala_test(
-    name = "empty_build",
+    name = "empty_test",
     srcs = ["Empty.scala"],
 )
 
 scala_test(
-    name = "empty_overriding_build",
+    name = "empty_overriding_test",
     srcs = ["Empty.scala"],
     # This overrides the option passed in on the toolchain, and should BUILD, even if
     # the `failing_scala_toolchain` is used.
