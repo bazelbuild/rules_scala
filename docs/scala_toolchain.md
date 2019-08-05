@@ -63,6 +63,9 @@ scala_register_toolchains()
         <p>
           Extra compiler options for this binary to be passed to scalac. 
         </p>
+        <p>
+          This is overridden by the `scalac_jvm_flags` attribute on individual targets.
+        </p>
       </td>
     </tr>
     <tr>

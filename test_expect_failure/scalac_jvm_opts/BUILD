@@ -10,7 +10,7 @@ scala_toolchain(
 
 scala_toolchain(
     name = "passing_toolchain_impl",
-    # This will pass because 5G is enough
+    # This will pass because 1G is enough
     scalac_jvm_flags = ["-Xmx1G"],
     visibility = ["//visibility:public"],
 )
@@ -32,4 +32,12 @@ toolchain(
 scala_library(
     name = "empty_build",
     srcs = ["Empty.scala"],
+)
+
+scala_library(
+    name = "empty_overriding_build",
+    srcs = ["Empty.scala"],
+    # This overrides the option passed in on the toolchain, and should BUILD, even if
+    # the `failing_scala_toolchain` is used.
+    scalac_jvm_flags = ["-Xmx1G"],
 )
