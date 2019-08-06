@@ -304,7 +304,7 @@ StatsfileOutput: {statsfile_output}
     # scalac_jvm_flags passed in on the target override scalac_jvm_flags passed in on the
     # toolchain
     final_scalac_jvm_flags = _first_non_empty(
-        _expand_location(ctx, scalac_jvm_flags),
+        scalac_jvm_flags,
         ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scalac_jvm_flags
     )
 
@@ -326,7 +326,7 @@ StatsfileOutput: {statsfile_output}
         # consume the flags on startup.
         arguments = [
             "--jvm_flag=%s" % f
-            for f in final_scalac_jvm_flags
+            for f in _expand_location(ctx, final_scalac_jvm_flags)
         ] + ["@" + argfile.path],
     )
 
@@ -1222,7 +1222,7 @@ def scala_test_impl(ctx):
         jvm_flags = [
             "-DRULES_SCALA_MAIN_WS_NAME=%s" % ctx.workspace_name,
             "-DRULES_SCALA_ARGS_FILE=%s" % argsFile.short_path,
-        ] + final_jvm_flags,
+        ] + _expand_location(ctx, final_jvm_flags),
         main_class = ctx.attr.main_class,
         rjars = rjars,
         use_jacoco = ctx.configuration.coverage_enabled,
