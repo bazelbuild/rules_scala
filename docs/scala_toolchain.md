@@ -63,9 +63,6 @@ scala_register_toolchains()
         <p>
           Extra compiler options for this binary to be passed to scalac. 
         </p>
-        <p>
-          This is overridden by the `scalac_jvm_flags` attribute on individual targets.
-        </p>
       </td>
     </tr>
     <tr>
@@ -74,6 +71,21 @@ scala_register_toolchains()
         <p><code>List of strings; optional</code></p>
         <p>
           List of JVM flags to be passed to scalac. For example <code>["-Xmx5G"]</code> could be passed to control memory usage of Scalac.
+        </p>
+        <p>
+          This is overridden by the <code>scalac_jvm_flags</code> attribute on individual targets.
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td><code>scala_test_jvm_flags</code></td>
+      <td>
+        <p><code>List of strings; optional</code></p>
+        <p>
+          List of JVM flags to be passed to the ScalaTest runner. For example <code>["-Xmx5G"]</code> could be passed to control memory usage of the ScalaTest runner.
+        </p>
+        <p>
+          This is overridden by the <code>jvm_flags</code> attribute on individual targets.
         </p>
       </td>
     </tr>
