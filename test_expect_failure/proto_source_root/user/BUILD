@@ -6,7 +6,7 @@ load(
 proto_library(
     name = "user",
     srcs = glob(["*.proto"]),
-    proto_source_root = package_name(),
+    strip_import_prefix = "",
     deps = ["//test_expect_failure/proto_source_root/dependency"],
 )
 
