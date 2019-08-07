@@ -12,13 +12,6 @@ scala_toolchain(
     visibility = ["//visibility:public"],
 )
 
-scala_toolchain(
-    name = "passing_toolchain_impl",
-    # This will pass because 1G is enough
-    scalac_jvm_flags = ["-Xmx1G"],
-    visibility = ["//visibility:public"],
-)
-
 toolchain(
     name = "failing_scala_toolchain",
     toolchain = "failing_toolchain_impl",
@@ -26,36 +19,7 @@ toolchain(
     visibility = ["//visibility:public"],
 )
 
-toolchain(
-    name = "passing_scala_toolchain",
-    toolchain = "passing_toolchain_impl",
-    toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
-    visibility = ["//visibility:public"],
-)
-
 scala_library(
     name = "empty_build",
     srcs = ["Empty.scala"],
-)
-
-scala_library(
-    name = "empty_overriding_build",
-    srcs = ["Empty.scala"],
-    # This overrides the option passed in on the toolchain, and should BUILD, even if
-    # the `failing_scala_toolchain` is used.
-    scalac_jvm_flags = ["-Xmx1G"],
-)
-
-proto_library(
-    name = "test",
-    srcs = ["test.proto"],
-    visibility = ["//visibility:public"],
-)
-
-# This is a regression test for a bug that broke compiling scalapb targets when
-# `scalac_jvm_flags` was set on the toolchain.
-scalapb_proto_library(
-    name = "proto",
-    visibility = ["//visibility:public"],
-    deps = [":test"],
 )
