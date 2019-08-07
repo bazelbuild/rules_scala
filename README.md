@@ -108,7 +108,8 @@ for an example workspace using another scala version.
 
 | bazel  | rules_scala gitsha |
 |--------|--------------------|
-| 0.23.x | HEAD                                     |
+| 0.28.0 | HEAD               |
+| 0.23.x | ca655e5a330cbf1d66ce1d9baa63522752ec6011 |                                     |
 | 0.22.x | f3113fb6e9e35cb8f441d2305542026d98afc0a2 |
 | 0.16.x | f3113fb6e9e35cb8f441d2305542026d98afc0a2 |
 | 0.15.x | 3b9ab9be31ac217d3337c709cb6bfeb89c8dcbb1 |
