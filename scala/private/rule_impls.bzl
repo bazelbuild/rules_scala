@@ -334,7 +334,7 @@ def _interim_java_provider_for_java_compilation(scala_output):
     return JavaInfo(
         output_jar = scala_output,
         compile_jar = scala_output,
-        neverlink = True,
+        neverlink = True
     )
 
 def _scalac_provider(ctx):
@@ -389,7 +389,7 @@ def try_to_compile_java_jar(
         ijar = provider.compile_jars.to_list().pop(),
         jar = full_java_jar,
         source_jars = provider.source_jars,
-        java_compilation_provider = provider,
+        java_compilation_provider = provider
     )
 
 def collect_java_providers_of(deps):
@@ -426,7 +426,7 @@ def _compile_or_empty(
             ijars = [ctx.outputs.jar],
             java_jar = False,
             source_jars = [],
-            merged_provider = scala_compilation_provider,
+            merged_provider = scala_compilation_provider
         )
     else:
         in_srcjars = [
@@ -525,7 +525,7 @@ def _compile_or_empty(
             ijars = ijars,
             java_jar = java_jar,
             source_jars = source_jars,
-            merged_provider = merged_provider,
+            merged_provider = merged_provider
         )
 
 def _create_scala_compilation_provider(ctx, ijar, source_jar, deps_providers):
@@ -769,13 +769,13 @@ def _collect_jars_from_common_ctx(
         transitive_rjars,
         jars2labels,
         transitive_compile_jars,
-        deps_providers,
+        deps_providers
     ) = (
         deps_jars.compile_jars,
         deps_jars.transitive_runtime_jars,
         deps_jars.jars2labels,
         deps_jars.transitive_compile_jars,
-        deps_jars.deps_providers,
+        deps_jars.deps_providers
     )
 
     transitive_rjars = depset(
@@ -1007,7 +1007,6 @@ def _pack_source_jar(ctx):
 
 def _pack_source_jars(ctx):
     source_jar = _pack_source_jar(ctx)
-
     #_pack_source_jar may return None if java_common.pack_sources returned None (and it can)
     return [source_jar] if source_jar else []
 
