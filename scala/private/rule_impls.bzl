@@ -128,7 +128,11 @@ touch {statsfile}
     )
 
 def _expand_location(ctx, flags):
-    return [ctx.expand_location(f, ctx.attr.data) for f in flags]
+    if hasattr(ctx.attr, "data"):
+        data = ctx.attr.data
+    else:
+        data = []
+    return [ctx.expand_location(f, data) for f in flags]
 
 def _join_path(args, sep = ","):
     return sep.join([f.path for f in args])

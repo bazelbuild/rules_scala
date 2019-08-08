@@ -830,11 +830,15 @@ test_scalac_jvm_flags_from_scala_toolchain_fails() {
 }
 
 test_scalac_jvm_flags_from_scala_toolchain_passes() {
-  bazel build --extra_toolchains="//test_expect_failure/scalac_jvm_opts:passing_scala_toolchain" //test_expect_failure/scalac_jvm_opts:empty_build
+  bazel build --extra_toolchains="//manual_test/scalac_jvm_opts:passing_scala_toolchain" //manual_test/scalac_jvm_opts:empty_build
 }
 
 test_scalac_jvm_flags_on_target_overrides_toolchain_passes() {
-  bazel build --extra_toolchains="//test_expect_failure/scalac_jvm_opts:failing_scala_toolchain" //test_expect_failure/scalac_jvm_opts:empty_overriding_build
+  bazel build --extra_toolchains="//manual_test/scalac_jvm_opts:failing_scala_toolchain" //manual_test/scalac_jvm_opts:empty_overriding_build
+}
+
+test_scalac_jvm_flags_work_with_scalapb() {
+  bazel build --extra_toolchains="//manual_test/scalac_jvm_opts:passing_scala_toolchain" //manual_test/scalac_jvm_opts:proto
 }
 
 test_scala_test_jvm_flags_from_scala_toolchain_fails() {
@@ -842,11 +846,11 @@ test_scala_test_jvm_flags_from_scala_toolchain_fails() {
 }
 
 test_scala_test_jvm_flags_from_scala_toolchain_passes() {
-  bazel test --extra_toolchains="//test_expect_failure/scala_test_jvm_flags:passing_scala_toolchain" //test_expect_failure/scala_test_jvm_flags:empty_test
+  bazel test --extra_toolchains="//manual_test/scala_test_jvm_flags:passing_scala_toolchain" //manual_test/scala_test_jvm_flags:empty_test
 }
 
 test_scala_test_jvm_flags_on_target_overrides_toolchain_passes() {
-  bazel test --extra_toolchains="//test_expect_failure/scala_test_jvm_flags:failing_scala_toolchain" //test_expect_failure/scala_test_jvm_flags:empty_overriding_test
+  bazel test --extra_toolchains="//manual_test/scala_test_jvm_flags:failing_scala_toolchain" //manual_test/scala_test_jvm_flags:empty_overriding_test
 }
 
 test_unused_dependency_checker_mode_set_in_rule() {
@@ -1131,6 +1135,7 @@ $runner scala_pb_library_targets_do_not_have_host_deps
 $runner test_scalac_jvm_flags_on_target_overrides_toolchain_passes
 $runner test_scalac_jvm_flags_from_scala_toolchain_passes
 $runner test_scalac_jvm_flags_from_scala_toolchain_fails
+$runner test_scalac_jvm_flags_work_with_scalapb
 $runner test_scala_test_jvm_flags_on_target_overrides_toolchain_passes
 $runner test_scala_test_jvm_flags_from_scala_toolchain_passes
 $runner test_scala_test_jvm_flags_from_scala_toolchain_fails
