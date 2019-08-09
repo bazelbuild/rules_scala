@@ -77,7 +77,7 @@ def jmh_repositories(maven_servers = ["http://central.maven.org/maven2"]):
 
 def _scala_construct_runtime_classpath(deps):
     scala_targets = [d.scala for d in deps if hasattr(d, "scala")]
-    java_targets = [d.java for d in deps if hasattr(d, "java")]
+    java_targets = [d[JavaInfo] for d in deps if hasattr(d, "JavaInfo")]
     files = []
     for scala in scala_targets:
         files.append(scala.transitive_runtime_jars)
