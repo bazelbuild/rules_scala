@@ -21,12 +21,12 @@ load(
     _collect_plus_one_deps_aspect = "collect_plus_one_deps_aspect",
 )
 load(
-    "@io_bazel_rules_scala//scala:scala_doc.bzl",
-    _scala_doc = "scala_doc",
+    "@io_bazel_rules_scala//scala/private:macros/scala_repositories.bzl",
+    _scala_repositories = "scala_repositories",
 )
 load(
-    "@io_bazel_rules_scala//scala:scala_repositories.bzl",
-    _scala_repositories = "scala_repositories",
+    "@io_bazel_rules_scala//scala/private:rules/scala_doc.bzl",
+    _scala_doc = "scala_doc",
 )
 
 _launcher_template = {
