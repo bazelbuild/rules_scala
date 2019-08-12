@@ -76,13 +76,9 @@ def jmh_repositories(maven_servers = ["http://central.maven.org/maven2"]):
     )
 
 def _scala_construct_runtime_classpath(deps):
-    scala_targets = [d.scala for d in deps if hasattr(d, "scala")]
-    java_targets = [d.java for d in deps if hasattr(d, "java")]
     files = []
-    for scala in scala_targets:
-        files.append(scala.transitive_runtime_jars)
-    for java in java_targets:
-        files.append(java.transitive_runtime_deps)
+    [files.append(target[JavaInfo].transitive_runtime_deps) for target in deps if JavaInfo in target]
+
     return depset(transitive = files)
 
 def _scala_generate_benchmark(ctx):
