@@ -18,13 +18,13 @@ def register_default_proto_dependencies():
     if native.existing_rule("io_bazel_rules_scala/dependency/proto/grpc_deps") == None:
         native.bind(
             name = "io_bazel_rules_scala/dependency/proto/grpc_deps",
-            actual = "@io_bazel_rules_scala//scala_proto:default_scalapb_compile_dependencies",
+            actual = "@io_bazel_rules_scala//scala_proto:default_scalapb_grpc_dependencies",
         )
 
     if native.existing_rule("io_bazel_rules_scala/dependency/proto/implicit_compile_deps") == None:
         native.bind(
             name = "io_bazel_rules_scala/dependency/proto/implicit_compile_deps",
-            actual = "@io_bazel_rules_scala//scala_proto:default_scalapb_grpc_dependencies",
+            actual = "@io_bazel_rules_scala//scala_proto:default_scalapb_compile_dependencies",
         )
 
 
