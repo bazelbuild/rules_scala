@@ -1,10 +1,7 @@
 dist: xenial
 sudo: required
-language: generic
-osx_image: xcode10.1
-
-# Not technically required but suppresses 'Ruby' in Job status message.
 language: sh
+osx_image: xcode10.1
 
 cache:
   directories:
@@ -33,7 +30,7 @@ _windows: &windows
 jobs:
   include:
     # test_rules_scala
-    - stage: test_rules_scala
+    - stage: test
       <<: *linux
       env: TEST_SCRIPT=test_rules_scala
     - <<: *osx
