@@ -1,10 +1,7 @@
-# trusty beta image has jdk8, gcc4.8.4
-dist: trusty
+dist: xenial
 sudo: required
-# xcode8 has jdk8
-osx_image: xcode8
-# Not technically required but suppresses 'Ruby' in Job status message.
-language: sh
+language: generic
+osx_image: xcode10.1
 
 cache:
     directories:
