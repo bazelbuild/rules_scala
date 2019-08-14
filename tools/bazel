@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -e
 
-workspace="$(cd "$(dirname "$0")"/..; pwd)"
-
 default_bazel_version='0.28.1'
 
 if [ "$BUILDKITE" = true ]; then
