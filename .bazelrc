@@ -1,0 +1,4 @@
+common:v0.28 --config=noop
+
+# pick something trivial as a noop
+common:noop --logging=3
