@@ -5,7 +5,10 @@ workspace="$(cd "$(dirname "$0")"/..; pwd)"
 
 default_bazel_version='0.28.1'
 
-case $(uname -s) in
+if [ "$BUILDKITE" = true ]; then
+    bazel_version='host'
+else
+    case $(uname -s) in
     Darwin|Linux)
 	# shellcheck disable=SC2153
 	if [ -z "$BAZEL_VERSION" ]; then
@@ -18,7 +21,8 @@ case $(uname -s) in
 	# windows, presumably
 	bazel_version='host'
 	;;
-esac
+    esac
+fi
 
 case "$bazel_version" in
     'host')
@@ -80,27 +84,4 @@ if [ -z "$bazel" ]; then
     fi
 fi
 
-extra_command_args=()
-
-# shellcheck disable=SC2034
-IFS=. read -r major minor patch < <(echo "$bazel_version")
-extra_command_args+=("--config=v$major.$minor")
-
-for (( i=1; i<=$#; i++ ))
-do
-    case "${!i}" in
-        -*)
-            ;;
-        *)
-            n=$((i + 1))
-            set -- "${@:1:$i}" "${extra_command_args[@]}" "${@:$n}"
-            break
-            ;;
-    esac
-done
-
-disk_cache="$workspace"/.bazel_cache
-mkdir -p "$disk_cache"
-
-# (>&2 echo :: exec "$bazel" "$@")
 exec "$bazel" "$@"
