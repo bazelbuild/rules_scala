@@ -1,59 +1,44 @@
-dist: xenial
+# trusty beta image has jdk8, gcc4.8.4
+dist: trusty
 sudo: required
+# xcode8 has jdk8
+osx_image: xcode8
+# Not technically required but suppresses 'Ruby' in Job status message.
 language: sh
-osx_image: xcode10.1
 
 cache:
-  directories:
-    - ~/.bazel_binaries
-    - .bazel_cache
+    directories:
+     - .bazel_cache
+     - ~/.bazel_binaries
 
 os:
   - linux
   - osx
   - windows
 
-_linux: &linux
-  os: linux
-_osx: &osx
-  os: osx
-  osx_image: xcode10.1
-_windows: &windows
-  os: windows
-  before_install:
-    - |
-      if [[ "${TRAVIS_OS_NAME}" == "windows" ]]; then
-        choco install jdk8 -params 'installdir=c:\\java8'
-        choco install bazel --version ${V}
-      fi
+env:
+  # Linting is broken. Disable until fixed.
+  # See https://github.com/bazelbuild/rules_scala/pull/622
+  # we want to test the last release
+  #- V=0.16.1 TEST_SCRIPT=test_lint.sh
+  - TEST_SCRIPT=test_rules_scala
+  #- V=0.14.1 TEST_SCRIPT=test_intellij_aspect.sh
+  - TEST_SCRIPT=test_reproducibility
 
-jobs:
-  include:
-    # test_rules_scala
-    - stage: test
-      <<: *linux
-      env: TEST_SCRIPT=test_rules_scala
-    - <<: *osx
-      env: TEST_SCRIPT=test_rules_scala
-    - <<: *windows
-      env: TEST_SCRIPT=test_rules_scala
-    # test_reproducibility
-    - stage: test_reproducibility
-      <<: *linux
-      env: TEST_SCRIPT=test_reproducibility
-    - <<: *osx
-      env: TEST_SCRIPT=test_reproducibility
-    - <<: *windows
-      env: TEST_SCRIPT=test_reproducibility
 
 before_install:
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "windows" ]]; then
+      choco install jdk8 -params 'installdir=c:\\java8'
+      choco install bazel --version ${V}
+    fi
   - cat .bazelrc.travis >> .bazelrc
 
 script:
   - |
     if [[ "${TRAVIS_OS_NAME}" == "windows" ]]; then
       powershell -Command 'Set-ExecutionPolicy RemoteSigned -scope CurrentUser'
-      powershell -File ./${TEST_SCRIPT}.ps1
+      BAZEL_VERSION=host powershell -File ./${TEST_SCRIPT}.ps1
     else
       bash ./${TEST_SCRIPT}.sh ci
     fi
