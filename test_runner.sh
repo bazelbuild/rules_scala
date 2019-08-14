@@ -12,7 +12,7 @@ run_test_ci() {
   local TEST_ARG=$@
   local log_file=output_$$.log
   echo "running test $TEST_ARG"
-  $TEST_ARG &>$log_file &
+  eval $TEST_ARG &>$log_file &
   local test_pid=$!
   SECONDS=0
   test_pulse_printer $! $TIMOUT $TEST_ARG &

@@ -30,7 +30,7 @@ before_install:
   - |
     if [[ "${TRAVIS_OS_NAME}" == "windows" ]]; then
       choco install jdk8 -params 'installdir=c:\\java8'
-      choco install bazel --version 0.28.1
+      choco install bazel --version 0.28.0
     fi
   - cat .bazelrc.travis >> .bazelrc
 
