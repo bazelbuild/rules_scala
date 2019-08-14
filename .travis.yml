@@ -1,6 +1,6 @@
 dist: xenial
 sudo: required
-language: generic
+language: sh
 osx_image: xcode10.1
 
 cache:
