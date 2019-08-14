@@ -2,6 +2,9 @@
 
 set -e
 
+# ci stopgap: ensure tools/bazel is run for `bazel` invocations
+PATH="$(cd "$(dirname "$0")"/..; pwd)"/tools:$PATH
+
 test_disappearing_class() {
   git checkout test_expect_failure/disappearing_class/ClassProvider.scala
   bazel build test_expect_failure/disappearing_class:uses_class

@@ -2,6 +2,9 @@
 
 set -e
 
+# ci stopgap: ensure tools/bazel is run for `bazel` invocations
+PATH="$(cd "$(dirname "$0")"/..; pwd)"/tools:$PATH
+
 md5_util() {
     if [[ "$OSTYPE" == "darwin"* ]]; then
         _md5_util="md5"
