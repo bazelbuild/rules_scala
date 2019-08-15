@@ -1,6 +1,5 @@
 load(
     "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
-    _scala_binary_impl = "scala_binary_impl",
     _scala_junit_test_impl = "scala_junit_test_impl",
     _scala_library_for_plugin_bootstrapping_impl = "scala_library_for_plugin_bootstrapping_impl",
     _scala_library_impl = "scala_library_impl",
@@ -23,6 +22,10 @@ load(
 load(
     "@io_bazel_rules_scala//scala/private:macros/scala_repositories.bzl",
     _scala_repositories = "scala_repositories",
+)
+load(
+    "@io_bazel_rules_scala//scala/private:rules/scala_binary.bzl",
+    _scala_binary = "scala_binary",
 )
 load(
     "@io_bazel_rules_scala//scala/private:rules/scala_doc.bzl",
@@ -279,28 +282,6 @@ scala_macro_library = rule(
     implementation = _scala_macro_library_impl,
 )
 
-_scala_binary_attrs = {
-    "main_class": attr.string(mandatory = True),
-    "classpath_resources": attr.label_list(allow_files = True),
-}
-
-_scala_binary_attrs.update(_launcher_template)
-
-_scala_binary_attrs.update(_implicit_deps)
-
-_scala_binary_attrs.update(_common_attrs)
-
-_scala_binary_attrs.update(_resolve_deps)
-
-scala_binary = rule(
-    attrs = _scala_binary_attrs,
-    executable = True,
-    fragments = ["java"],
-    outputs = _common_outputs,
-    toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
-    implementation = _scala_binary_impl,
-)
-
 _scala_test_attrs = {
     "main_class": attr.string(
         default = "io.bazel.rulesscala.scala_test.Runner",
@@ -491,6 +472,8 @@ def scala_specs2_junit_test(name, **kwargs):
         suite_class = "io.bazel.rulesscala.specs2.Specs2DiscoveredTestSuite",
         **kwargs
     )
+
+scala_binary = _scala_binary
 
 scala_doc = _scala_doc
 
