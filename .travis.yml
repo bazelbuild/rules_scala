@@ -3,6 +3,11 @@ sudo: required
 language: sh
 osx_image: xcode10.1
 
+addons:
+  apt:
+    packages:
+    - libxml2-utils
+
 cache:
     directories:
      - .bazel_cache
@@ -28,8 +33,6 @@ before_install:
     if [[ "${TRAVIS_OS_NAME}" == "windows" ]]; then
       choco install jdk8 -params 'installdir=c:\\java8'
       choco install bazel --version 0.28.0
-    else
-      sudo apt-get install -y libxml2-utils
     fi
   - cat .bazelrc.travis >> .bazelrc
 
