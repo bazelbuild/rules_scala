@@ -1,6 +1,14 @@
 """Builds Scala binaries"""
 
 load(
+    "@io_bazel_rules_scala//scala/private:common_attributes.bzl",
+    "common_attrs",
+    "implicit_deps",
+    "launcher_template",
+    "resolve_deps",
+)
+load("@io_bazel_rules_scala//scala/private:common_outputs.bzl", "common_outputs")
+load(
     "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
     "collect_jars_from_common_ctx",
     "declare_executable",
@@ -59,19 +67,19 @@ _scala_binary_attrs = {
     "classpath_resources": attr.label_list(allow_files = True),
 }
 
-_scala_binary_attrs.update(_launcher_template)
+_scala_binary_attrs.update(launcher_template)
 
-_scala_binary_attrs.update(_implicit_deps)
+_scala_binary_attrs.update(implicit_deps)
 
-_scala_binary_attrs.update(_common_attrs)
+_scala_binary_attrs.update(common_attrs)
 
-_scala_binary_attrs.update(_resolve_deps)
+_scala_binary_attrs.update(resolve_deps)
 
 scala_binary = rule(
     attrs = _scala_binary_attrs,
     executable = True,
     fragments = ["java"],
-    outputs = _common_outputs,
+    outputs = common_outputs,
     toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
     implementation = _scala_binary_impl,
 )

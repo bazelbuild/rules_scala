@@ -887,21 +887,21 @@ def get_unused_dependency_checker_mode(ctx):
 def scala_library_impl(ctx):
     if ctx.attr.jvm_flags:
         print("'jvm_flags' for scala_library is deprecated. It does nothing today and will be removed from scala_library to avoid confusion.")
-    scalac_provider = scalac_provider(ctx)
+    _scalac_provider = scalac_provider(ctx)
     unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
     return _lib(
         ctx,
-        scalac_provider.default_classpath,
+        _scalac_provider.default_classpath,
         True,
         unused_dependency_checker_mode,
         ctx.attr.unused_dependency_checker_ignored_targets,
     )
 
 def scala_library_for_plugin_bootstrapping_impl(ctx):
-    scalac_provider = scalac_provider(ctx)
+    _scalac_provider = scalac_provider(ctx)
     return _lib(
         ctx,
-        scalac_provider.default_classpath,
+        _scalac_provider.default_classpath,
         True,
         unused_dependency_checker_ignored_targets = [],
         unused_dependency_checker_mode = "off",
