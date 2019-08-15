@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+set -e
+
+default_bazel_version='0.28.1'
+
+if [ "$BUILDKITE" = true ]; then
+    bazel_version='host'
+else
+    case $(uname -s) in
+    Darwin|Linux)
+	# shellcheck disable=SC2153
+	if [ -z "$BAZEL_VERSION" ]; then
+	    bazel_version="$default_bazel_version"
+	else
+	    bazel_version="$BAZEL_VERSION"
+	fi
+        ;;
+    *)
+	# windows, presumably
+	bazel_version='host'
+	;;
+    esac
+fi
+
+case "$bazel_version" in
+    'host')
+        bazel_version=$("$BAZEL_REAL" version | awk '/Build label/ {print $3}' | cut -d '-' -f 1)
+        bazel="$BAZEL_REAL"
+        ;;
+    '0.28.1')
+        darwin_sha='5d50ae13ba01a224ddf54cfd818289bee5b38e551cca22bffc79b89f377d2095'
+        linux_sha='a2a7e4cb38d7bc774a5bbfab4d45293f5f2158eb6caf0128792cc1148732a4e6'
+        ;;
+    *)
+        echo "The requested Bazel version '$bazel_version' is not supported"
+        exit 1
+        ;;
+esac
+
+if [ -z "$bazel" ]; then
+    bazel_bin_loc=~/.bazel_binaries
+    bazel=$bazel_bin_loc/$bazel_version/bin/bazel-real
+
+    if ! [ -f "$bazel" ]; then
+	case $(uname -s) in
+            Darwin)
+		platform='darwin'
+		sha=$darwin_sha
+		;;
+            Linux)
+		platform='linux'
+		sha=$linux_sha
+		;;
+            *)
+		echo 'Your OS is not supported for automatic bazel installs.'
+		exit 1
+		;;
+	esac
+	remote_source=https://github.com/bazelbuild/bazel/releases/download
+	installer_name="bazel-$bazel_version-installer-$platform-x86_64.sh"
+	url="$remote_source/$bazel_version/$installer_name"
+	(
+            tmp_dir=$(mktemp -d)
+	    # shellcheck disable=SC2064
+            trap "rm -rf $tmp_dir" EXIT
+            cd "$tmp_dir"
+            (>&2 echo "downloading installer from")
+            (>&2 echo "$url")
+            curl -o installer.sh -L "$url"
+            generated_sha=$(shasum -a 256 installer.sh | awk '{print $1}')
+            if [ "$generated_sha" != "$sha" ]; then
+		echo "Sha 256 does not match, expected: $sha"
+		echo "But found $generated_sha"
+		echo "Recommend you: update the sha to the expected"
+		echo "and then re-run this script"
+		exit 1
+            fi
+	    mkdir -p $bazel_bin_loc
+            chmod +x installer.sh
+            ./installer.sh --base="$bazel_bin_loc"/"$bazel_version" --bin="$bazel_bin_loc"/"$bazel_version"/bin_t
+	) >&2
+    fi
+fi
+
+exec "$bazel" "$@"

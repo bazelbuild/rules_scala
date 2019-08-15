@@ -2,6 +2,11 @@
 
 set -e
 
+if ! bazel_loc="$(type -p 'bazel')" || [[ -z "$bazel_loc" ]]; then
+  export PATH="$(cd "$(dirname "$0")"; pwd)"/tools:$PATH
+  echo 'Using ./tools/bazel directly for bazel calls'
+fi
+
 test_disappearing_class() {
   git checkout test_expect_failure/disappearing_class/ClassProvider.scala
   bazel build test_expect_failure/disappearing_class:uses_class
