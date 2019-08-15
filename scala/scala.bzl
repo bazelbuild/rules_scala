@@ -78,10 +78,6 @@ _library_attrs = {
     ),
 }
 
-_library_outputs = {}
-
-_library_outputs.update(common_outputs)
-
 _scala_library_attrs = {}
 
 _scala_library_attrs.update(implicit_deps)
@@ -95,7 +91,7 @@ _scala_library_attrs.update(resolve_deps)
 scala_library = rule(
     attrs = _scala_library_attrs,
     fragments = ["java"],
-    outputs = _library_outputs,
+    outputs = common_outputs,
     toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
     implementation = _scala_library_impl,
 )
@@ -118,7 +114,7 @@ _scala_library_for_plugin_bootstrapping_attrs.update(
 scala_library_for_plugin_bootstrapping = rule(
     attrs = _scala_library_for_plugin_bootstrapping_attrs,
     fragments = ["java"],
-    outputs = _library_outputs,
+    outputs = common_outputs,
     toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
     implementation = _scala_library_for_plugin_bootstrapping_impl,
 )
