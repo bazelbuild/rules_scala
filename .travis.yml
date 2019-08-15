@@ -18,13 +18,34 @@ os:
   - osx
   - windows
 
+###
+#
+# Want to update/change bazel versions?
+#
+# 1. Update the bazel_version case statement in
+#    ./tools/bazel to include hashes for the bazel version
+#    you're targeting.
+#
+# 2. either
+#    - If you're updating the default bazel version, change
+#      default_bazel_version in ./tools/bazel.
+#    or
+#    - If you want to add an additional bazel version to the build
+#      matrix, set BAZEL_VERSION=<desired-version> along side
+#      TEST_SCRIPT below.
+#
+# 3. If you need to update the Windows version, adjust
+#    the windows specific install code below.
+#
+###
+
 env:
   # Linting is broken. Disable until fixed.
   # See https://github.com/bazelbuild/rules_scala/pull/622
   # we want to test the last release
-  #- V=0.16.1 TEST_SCRIPT=test_lint.sh
+  #- TEST_SCRIPT=test_lint.sh
   - TEST_SCRIPT=test_rules_scala
-  #- V=0.14.1 TEST_SCRIPT=test_intellij_aspect.sh
+  #- TEST_SCRIPT=test_intellij_aspect.sh
   - TEST_SCRIPT=test_reproducibility
 
 
