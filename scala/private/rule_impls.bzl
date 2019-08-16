@@ -341,7 +341,7 @@ def _interim_java_provider_for_java_compilation(scala_output):
         neverlink = True
     )
 
-def scalac_provider(ctx):
+def get_scalac_provider(ctx):
     return ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scalac_provider_attr[_ScalacProvider]
 
 def try_to_compile_java_jar(
@@ -358,7 +358,7 @@ def try_to_compile_java_jar(
         implicit_junit_deps_needed_for_java_compilation,
     )
     providers_of_dependencies += collect_java_providers_of(
-        scalac_provider(ctx).default_classpath,
+        get_scalac_provider(ctx).default_classpath,
     )
     scala_sources_java_provider = _interim_java_provider_for_java_compilation(
         scala_output,
@@ -887,7 +887,7 @@ def get_unused_dependency_checker_mode(ctx):
 def scala_library_impl(ctx):
     if ctx.attr.jvm_flags:
         print("'jvm_flags' for scala_library is deprecated. It does nothing today and will be removed from scala_library to avoid confusion.")
-    _scalac_provider = scalac_provider(ctx)
+    _scalac_provider = get_scalac_provider(ctx)
     unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
     return _lib(
         ctx,
@@ -898,7 +898,7 @@ def scala_library_impl(ctx):
     )
 
 def scala_library_for_plugin_bootstrapping_impl(ctx):
-    _scalac_provider = scalac_provider(ctx)
+    _scalac_provider = get_scalac_provider(ctx)
     return _lib(
         ctx,
         _scalac_provider.default_classpath,
@@ -908,7 +908,7 @@ def scala_library_for_plugin_bootstrapping_impl(ctx):
     )
 
 def scala_macro_library_impl(ctx):
-    _scalac_provider = scalac_provider(ctx)
+    _scalac_provider = get_scalac_provider(ctx)
     unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
     return _lib(
         ctx,
@@ -1015,7 +1015,7 @@ def _pack_source_jars(ctx):
     return [source_jar] if source_jar else []
 
 def scala_repl_impl(ctx):
-    _scalac_provider = scalac_provider(ctx)
+    _scalac_provider = get_scalac_provider(ctx)
 
     unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
     unused_dependency_checker_is_off = unused_dependency_checker_mode == "off"
@@ -1094,7 +1094,7 @@ def scala_test_impl(ctx):
     if len(ctx.attr.suites) != 0:
         print("suites attribute is deprecated. All scalatest test suites are run")
 
-    _scalac_provider = scalac_provider(ctx)
+    _scalac_provider = get_scalac_provider(ctx)
 
     unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
     unused_dependency_checker_ignored_targets = [
@@ -1232,7 +1232,7 @@ def scala_junit_test_impl(ctx):
         fail(
             "Setting at least one of the attributes ('prefixes','suffixes') is required",
         )
-    _scalac_provider = scalac_provider(ctx)
+    _scalac_provider = get_scalac_provider(ctx)
 
     unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
     unused_dependency_checker_ignored_targets = [

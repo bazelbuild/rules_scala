@@ -12,21 +12,21 @@ load(
     "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
     "collect_jars_from_common_ctx",
     "declare_executable",
+    "get_scalac_provider",
     "get_unused_dependency_checker_mode",
     "scala_binary_common",
-    "scalac_provider",
     "write_executable",
     "write_java_wrapper",
 )
 
 def _scala_binary_impl(ctx):
-    _scalac_provider = scalac_provider(ctx)
+    scalac_provider = get_scalac_provider(ctx)
     unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
     unused_dependency_checker_is_off = unused_dependency_checker_mode == "off"
 
     jars = collect_jars_from_common_ctx(
         ctx,
-        _scalac_provider.default_classpath,
+        scalac_provider.default_classpath,
         unused_dependency_checker_is_off = unused_dependency_checker_is_off,
     )
     (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
@@ -45,7 +45,7 @@ def _scala_binary_impl(ctx):
         wrapper,
         unused_dependency_checker_ignored_targets = [
             target.label
-            for target in _scalac_provider.default_classpath +
+            for target in scalac_provider.default_classpath +
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
         unused_dependency_checker_mode = unused_dependency_checker_mode,
