@@ -61,7 +61,7 @@ script:
   - |
     if [[ "${TRAVIS_OS_NAME}" == "windows" ]]; then
       powershell -Command 'Set-ExecutionPolicy RemoteSigned -scope CurrentUser'
-      BAZEL_VERSION=host bash ./${TEST_SCRIPT}.sh ci
-    else
-      bash ./${TEST_SCRIPT}.sh ci
+      export JAVA_HOME='c:\\\\java8'
+      export BAZEL_VERSION=host
     fi
+    bash ./${TEST_SCRIPT}.sh ci
