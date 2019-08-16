@@ -17,6 +17,12 @@ Before you start working on a larger contribution, you should get in touch
 with us first. Use the issue tracker to explain your idea so we can help and
 possibly guide you.
 
+### Code organization
+
+Core Scala rules (including their implementations) and macros go in [./scala/private/rules/](./scala/private/rules/)
+and [./scala/private/macros/](./scala/private/macros/), respectively, and are re-exported for public use
+in [./scala/scala.bzl](./scala/scala.bzl).
+
 ### Code reviews and other contributions.
 **All submissions, including submissions by project members, require review.**
 Please follow the instructions in [the contributors documentation](http://bazel.io/contributing.html).

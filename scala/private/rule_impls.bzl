@@ -341,7 +341,7 @@ def _interim_java_provider_for_java_compilation(scala_output):
         neverlink = True
     )
 
-def _scalac_provider(ctx):
+def get_scalac_provider(ctx):
     return ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scalac_provider_attr[_ScalacProvider]
 
 def try_to_compile_java_jar(
@@ -358,7 +358,7 @@ def try_to_compile_java_jar(
         implicit_junit_deps_needed_for_java_compilation,
     )
     providers_of_dependencies += collect_java_providers_of(
-        _scalac_provider(ctx).default_classpath,
+        get_scalac_provider(ctx).default_classpath,
     )
     scala_sources_java_provider = _interim_java_provider_for_java_compilation(
         scala_output,
@@ -592,7 +592,7 @@ def _java_bin(ctx):
         javabin = "%s/%s" % (runfiles_root, java_path)
     return javabin
 
-def _write_java_wrapper(ctx, args = "", wrapper_preamble = ""):
+def write_java_wrapper(ctx, args = "", wrapper_preamble = ""):
     """This creates a wrapper that sets up the correct path
          to stand in for the java command."""
 
@@ -623,13 +623,13 @@ def _jar_path_based_on_java_bin(ctx):
     jar_path = java_bin.rpartition("/")[0] + "/jar"
     return jar_path
 
-def _write_executable(ctx, executable, rjars, main_class, jvm_flags, wrapper, use_jacoco):
+def write_executable(ctx, executable, rjars, main_class, jvm_flags, wrapper, use_jacoco):
     if (_is_windows(ctx)):
-        return _write_executable_windows(ctx, executable, rjars, main_class, jvm_flags, wrapper, use_jacoco)
+        return write_executable_windows(ctx, executable, rjars, main_class, jvm_flags, wrapper, use_jacoco)
     else:
-        return _write_executable_non_windows(ctx, executable, rjars, main_class, jvm_flags, wrapper, use_jacoco)
+        return write_executable_non_windows(ctx, executable, rjars, main_class, jvm_flags, wrapper, use_jacoco)
 
-def _write_executable_windows(ctx, executable, rjars, main_class, jvm_flags, wrapper, use_jacoco):
+def write_executable_windows(ctx, executable, rjars, main_class, jvm_flags, wrapper, use_jacoco):
     # NOTE: `use_jacoco` is currently ignored on Windows.
     # TODO: tests coverage support for Windows
     classpath = ";".join(
@@ -651,7 +651,7 @@ def _write_executable_windows(ctx, executable, rjars, main_class, jvm_flags, wra
     )
     return []
 
-def _write_executable_non_windows(ctx, executable, rjars, main_class, jvm_flags, wrapper, use_jacoco):
+def write_executable_non_windows(ctx, executable, rjars, main_class, jvm_flags, wrapper, use_jacoco):
     template = ctx.attr._java_stub_template.files.to_list()[0]
 
     jvm_flags = " ".join(
@@ -722,7 +722,7 @@ def _write_executable_non_windows(ctx, executable, rjars, main_class, jvm_flags,
         )
         return []
 
-def _declare_executable(ctx):
+def declare_executable(ctx):
     if (_is_windows(ctx)):
         return ctx.actions.declare_file("%s.exe" % ctx.label.name)
     else:
@@ -753,7 +753,7 @@ def _is_plus_one_deps_off(ctx):
 # Extract very common code out from dependency analysis into single place
 # automatically adds dependency on scala-library and scala-reflect
 # collects jars from deps, runtime jars from runtime_deps, and
-def _collect_jars_from_common_ctx(
+def collect_jars_from_common_ctx(
         ctx,
         base_classpath,
         extra_deps = [],
@@ -808,7 +808,7 @@ def _lib(
     srcjars = collect_srcjars(ctx.attr.deps)
 
     unused_dependency_checker_is_off = unused_dependency_checker_mode == "off"
-    jars = _collect_jars_from_common_ctx(
+    jars = collect_jars_from_common_ctx(
         ctx,
         base_classpath,
         unused_dependency_checker_is_off = unused_dependency_checker_is_off,
@@ -887,7 +887,7 @@ def get_unused_dependency_checker_mode(ctx):
 def scala_library_impl(ctx):
     if ctx.attr.jvm_flags:
         print("'jvm_flags' for scala_library is deprecated. It does nothing today and will be removed from scala_library to avoid confusion.")
-    scalac_provider = _scalac_provider(ctx)
+    scalac_provider = get_scalac_provider(ctx)
     unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
     return _lib(
         ctx,
@@ -898,7 +898,7 @@ def scala_library_impl(ctx):
     )
 
 def scala_library_for_plugin_bootstrapping_impl(ctx):
-    scalac_provider = _scalac_provider(ctx)
+    scalac_provider = get_scalac_provider(ctx)
     return _lib(
         ctx,
         scalac_provider.default_classpath,
@@ -908,7 +908,7 @@ def scala_library_for_plugin_bootstrapping_impl(ctx):
     )
 
 def scala_macro_library_impl(ctx):
-    scalac_provider = _scalac_provider(ctx)
+    scalac_provider = get_scalac_provider(ctx)
     unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
     return _lib(
         ctx,
@@ -919,7 +919,7 @@ def scala_macro_library_impl(ctx):
     )
 
 # Common code shared by all scala binary implementations.
-def _scala_binary_common(
+def scala_binary_common(
         ctx,
         executable,
         cjars,
@@ -1014,57 +1014,14 @@ def _pack_source_jars(ctx):
     #_pack_source_jar may return None if java_common.pack_sources returned None (and it can)
     return [source_jar] if source_jar else []
 
-def scala_binary_impl(ctx):
-    scalac_provider = _scalac_provider(ctx)
-    unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
-    unused_dependency_checker_is_off = unused_dependency_checker_mode == "off"
-
-    jars = _collect_jars_from_common_ctx(
-        ctx,
-        scalac_provider.default_classpath,
-        unused_dependency_checker_is_off = unused_dependency_checker_is_off,
-    )
-    (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
-
-    wrapper = _write_java_wrapper(ctx, "", "")
-
-    executable = _declare_executable(ctx)
-
-    out = _scala_binary_common(
-        ctx,
-        executable,
-        cjars,
-        transitive_rjars,
-        jars.transitive_compile_jars,
-        jars.jars2labels,
-        wrapper,
-        unused_dependency_checker_ignored_targets = [
-            target.label
-            for target in scalac_provider.default_classpath +
-                          ctx.attr.unused_dependency_checker_ignored_targets
-        ],
-        unused_dependency_checker_mode = unused_dependency_checker_mode,
-        deps_providers = jars.deps_providers,
-    )
-    _write_executable(
-        ctx = ctx,
-        executable = executable,
-        jvm_flags = ctx.attr.jvm_flags,
-        main_class = ctx.attr.main_class,
-        rjars = out.transitive_rjars,
-        use_jacoco = False,
-        wrapper = wrapper,
-    )
-    return out
-
 def scala_repl_impl(ctx):
-    scalac_provider = _scalac_provider(ctx)
+    scalac_provider = get_scalac_provider(ctx)
 
     unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
     unused_dependency_checker_is_off = unused_dependency_checker_mode == "off"
 
     # need scala-compiler for MainGenericRunner below
-    jars = _collect_jars_from_common_ctx(
+    jars = collect_jars_from_common_ctx(
         ctx,
         scalac_provider.default_repl_classpath,
         unused_dependency_checker_is_off = unused_dependency_checker_is_off,
@@ -1073,9 +1030,9 @@ def scala_repl_impl(ctx):
 
     args = " ".join(ctx.attr.scalacopts)
 
-    executable = _declare_executable(ctx)
+    executable = declare_executable(ctx)
 
-    wrapper = _write_java_wrapper(
+    wrapper = write_java_wrapper(
         ctx,
         args,
         wrapper_preamble = """
@@ -1094,7 +1051,7 @@ trap finish EXIT
 """,
     )
 
-    out = _scala_binary_common(
+    out = scala_binary_common(
         ctx,
         executable,
         cjars,
@@ -1110,7 +1067,7 @@ trap finish EXIT
         unused_dependency_checker_mode = unused_dependency_checker_mode,
         deps_providers = jars.deps_providers,
     )
-    _write_executable(
+    write_executable(
         ctx = ctx,
         executable = executable,
         jvm_flags = ["-Dscala.usejavacp=true"] + ctx.attr.jvm_flags,
@@ -1137,7 +1094,7 @@ def scala_test_impl(ctx):
     if len(ctx.attr.suites) != 0:
         print("suites attribute is deprecated. All scalatest test suites are run")
 
-    scalac_provider = _scalac_provider(ctx)
+    scalac_provider = get_scalac_provider(ctx)
 
     unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
     unused_dependency_checker_ignored_targets = [
@@ -1148,7 +1105,7 @@ def scala_test_impl(ctx):
     unused_dependency_checker_is_off = unused_dependency_checker_mode == "off"
 
     scalatest_base_classpath = scalac_provider.default_classpath + [ctx.attr._scalatest]
-    jars = _collect_jars_from_common_ctx(
+    jars = collect_jars_from_common_ctx(
         ctx,
         scalatest_base_classpath,
         extra_runtime_deps = [
@@ -1180,10 +1137,10 @@ def scala_test_impl(ctx):
     argsFile = ctx.actions.declare_file("%s.args" % ctx.label.name)
     ctx.actions.write(argsFile, args)
 
-    executable = _declare_executable(ctx)
+    executable = declare_executable(ctx)
 
-    wrapper = _write_java_wrapper(ctx, "", "")
-    out = _scala_binary_common(
+    wrapper = write_java_wrapper(ctx, "", "")
+    out = scala_binary_common(
         ctx,
         executable,
         cjars,
@@ -1219,8 +1176,8 @@ def scala_test_impl(ctx):
         ctx.attr.jvm_flags,
         ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scala_test_jvm_flags
     )
-    
-    coverage_runfiles.extend(_write_executable(
+
+    coverage_runfiles.extend(write_executable(
         ctx = ctx,
         executable = executable,
         jvm_flags = [
@@ -1275,7 +1232,7 @@ def scala_junit_test_impl(ctx):
         fail(
             "Setting at least one of the attributes ('prefixes','suffixes') is required",
         )
-    scalac_provider = _scalac_provider(ctx)
+    scalac_provider = get_scalac_provider(ctx)
 
     unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
     unused_dependency_checker_ignored_targets = [
@@ -1290,7 +1247,7 @@ def scala_junit_test_impl(ctx):
     ]
     unused_dependency_checker_is_off = unused_dependency_checker_mode == "off"
 
-    jars = _collect_jars_from_common_ctx(
+    jars = collect_jars_from_common_ctx(
         ctx,
         scalac_provider.default_classpath,
         extra_deps = [
@@ -1307,10 +1264,10 @@ def scala_junit_test_impl(ctx):
         ctx.attr._hamcrest,
     ]
 
-    executable = _declare_executable(ctx)
+    executable = declare_executable(ctx)
 
-    wrapper = _write_java_wrapper(ctx, "", "")
-    out = _scala_binary_common(
+    wrapper = write_java_wrapper(ctx, "", "")
+    out = scala_binary_common(
         ctx,
         executable,
         cjars,
@@ -1344,7 +1301,7 @@ def scala_junit_test_impl(ctx):
         test_suite.printFlag,
         test_suite.testSuiteFlag,
     ]
-    _write_executable(
+    write_executable(
         ctx = ctx,
         executable = executable,
         jvm_flags = launcherJvmFlags + ctx.attr.jvm_flags,
