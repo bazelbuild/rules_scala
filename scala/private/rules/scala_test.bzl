@@ -1,3 +1,5 @@
+"""Rules for writing tests with ScalaTest"""
+
 load(
     "@io_bazel_rules_scala//scala/private:common_attributes.bzl",
     "common_attrs",
