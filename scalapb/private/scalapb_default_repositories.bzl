@@ -9,7 +9,7 @@ load(
     _scala_maven_import_external = "scala_maven_import_external",
 )
 
-def scala_proto_default_repositories(
+def scalapb_default_repositories(
         scala_version = _default_scala_version(),
         maven_servers = ["http://central.maven.org/maven2"]):
     major_version = _extract_major_version(scala_version)
