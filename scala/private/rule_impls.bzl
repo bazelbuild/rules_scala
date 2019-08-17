@@ -127,7 +127,7 @@ touch {statsfile}
         arguments = [],
     )
 
-def _expand_location(ctx, flags):
+def expand_location(ctx, flags):
     if hasattr(ctx.attr, "data"):
         data = ctx.attr.data
     else:
@@ -138,7 +138,7 @@ def _join_path(args, sep = ","):
     return sep.join([f.path for f in args])
 
 # Return the first non-empty arg. If all are empty, return the last.
-def _first_non_empty(*args):
+def first_non_empty(*args):
     for arg in args:
         if arg:
             return arg
@@ -307,7 +307,7 @@ StatsfileOutput: {statsfile_output}
 
     # scalac_jvm_flags passed in on the target override scalac_jvm_flags passed in on the
     # toolchain
-    final_scalac_jvm_flags = _first_non_empty(
+    final_scalac_jvm_flags = first_non_empty(
         scalac_jvm_flags,
         ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scalac_jvm_flags
     )
@@ -330,7 +330,7 @@ StatsfileOutput: {statsfile_output}
         # consume the flags on startup.
         arguments = [
             "--jvm_flag=%s" % f
-            for f in _expand_location(ctx, final_scalac_jvm_flags)
+            for f in expand_location(ctx, final_scalac_jvm_flags)
         ] + ["@" + argfile.path],
     )
 
@@ -372,7 +372,7 @@ def try_to_compile_java_jar(
         source_jars = all_srcjars.to_list(),
         source_files = java_srcs,
         output = full_java_jar,
-        javac_opts = _expand_location(
+        javac_opts = expand_location(
             ctx,
             ctx.attr.javacopts + ctx.attr.javac_jvm_flags +
             java_common.default_javac_opts(
@@ -1078,126 +1078,6 @@ trap finish EXIT
     )
 
     return out
-
-def _scala_test_flags(ctx):
-    # output report test duration
-    flags = "-oD"
-    if ctx.attr.full_stacktraces:
-        flags += "F"
-    else:
-        flags += "S"
-    if not ctx.attr.colors:
-        flags += "W"
-    return flags
-
-def scala_test_impl(ctx):
-    if len(ctx.attr.suites) != 0:
-        print("suites attribute is deprecated. All scalatest test suites are run")
-
-    scalac_provider = get_scalac_provider(ctx)
-
-    unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
-    unused_dependency_checker_ignored_targets = [
-        target.label
-        for target in scalac_provider.default_classpath +
-                      ctx.attr.unused_dependency_checker_ignored_targets
-    ]
-    unused_dependency_checker_is_off = unused_dependency_checker_mode == "off"
-
-    scalatest_base_classpath = scalac_provider.default_classpath + [ctx.attr._scalatest]
-    jars = collect_jars_from_common_ctx(
-        ctx,
-        scalatest_base_classpath,
-        extra_runtime_deps = [
-            ctx.attr._scalatest_reporter,
-            ctx.attr._scalatest_runner,
-        ],
-        unused_dependency_checker_is_off = unused_dependency_checker_is_off,
-    )
-    (
-        cjars,
-        transitive_rjars,
-        transitive_compile_jars,
-        jars_to_labels,
-    ) = (
-        jars.compile_jars,
-        jars.transitive_runtime_jars,
-        jars.transitive_compile_jars,
-        jars.jars2labels,
-    )
-
-    args = "\n".join([
-        "-R",
-        ctx.outputs.jar.short_path,
-        _scala_test_flags(ctx),
-        "-C",
-        "io.bazel.rules.scala.JUnitXmlReporter",
-    ])
-
-    argsFile = ctx.actions.declare_file("%s.args" % ctx.label.name)
-    ctx.actions.write(argsFile, args)
-
-    executable = declare_executable(ctx)
-
-    wrapper = write_java_wrapper(ctx, "", "")
-    out = scala_binary_common(
-        ctx,
-        executable,
-        cjars,
-        transitive_rjars,
-        transitive_compile_jars,
-        jars_to_labels,
-        wrapper,
-        unused_dependency_checker_ignored_targets =
-            unused_dependency_checker_ignored_targets,
-        unused_dependency_checker_mode = unused_dependency_checker_mode,
-        runfiles_ext = [argsFile],
-        deps_providers = jars.deps_providers,
-    )
-
-    rjars = out.transitive_rjars
-
-    coverage_runfiles = []
-    if ctx.configuration.coverage_enabled and _coverage_replacements_provider.is_enabled(ctx):
-        coverage_replacements = _coverage_replacements_provider.from_ctx(
-            ctx,
-            base = out.coverage.replacements,
-        ).replacements
-
-        rjars = depset([
-            coverage_replacements[jar] if jar in coverage_replacements else jar
-            for jar in rjars.to_list()
-        ])
-        coverage_runfiles = ctx.files._jacocorunner + ctx.files._lcov_merger + coverage_replacements.values()
-
-    # jvm_flags passed in on the target override scala_test_jvm_flags passed in on the
-    # toolchain
-    final_jvm_flags = _first_non_empty(
-        ctx.attr.jvm_flags,
-        ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scala_test_jvm_flags
-    )
-
-    coverage_runfiles.extend(write_executable(
-        ctx = ctx,
-        executable = executable,
-        jvm_flags = [
-            "-DRULES_SCALA_MAIN_WS_NAME=%s" % ctx.workspace_name,
-            "-DRULES_SCALA_ARGS_FILE=%s" % argsFile.short_path,
-        ] + _expand_location(ctx, final_jvm_flags),
-        main_class = ctx.attr.main_class,
-        rjars = rjars,
-        use_jacoco = ctx.configuration.coverage_enabled,
-        wrapper = wrapper,
-    ))
-
-    return struct(
-        executable = executable,
-        files = out.files,
-        instrumented_files = out.instrumented_files,
-        providers = out.providers,
-        runfiles = ctx.runfiles(coverage_runfiles, transitive_files = out.runfiles.files),
-        scala = out.scala,
-    )
 
 def _gen_test_suite_flags_based_on_prefixes_and_suffixes(ctx, archives):
     return struct(

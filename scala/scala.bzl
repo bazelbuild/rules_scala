@@ -5,7 +5,6 @@ load(
     _scala_library_impl = "scala_library_impl",
     _scala_macro_library_impl = "scala_macro_library_impl",
     _scala_repl_impl = "scala_repl_impl",
-    _scala_test_impl = "scala_test_impl",
 )
 load(
     "@io_bazel_rules_scala//scala/private:common_attributes.bzl",
@@ -40,20 +39,10 @@ load(
     "@io_bazel_rules_scala//scala/private:rules/scala_doc.bzl",
     _scala_doc = "scala_doc",
 )
-
-_test_resolve_deps = {
-    "_scala_toolchain": attr.label_list(
-        default = [
-            Label(
-                "//external:io_bazel_rules_scala/dependency/scala/scala_library",
-            ),
-            Label(
-                "//external:io_bazel_rules_scala/dependency/scalatest/scalatest",
-            ),
-        ],
-        allow_files = False,
-    ),
-}
+load(
+    "@io_bazel_rules_scala//scala/private:rules/scala_test.bzl",
+    _scala_test = "scala_test",
+)
 
 _junit_resolve_deps = {
     "_scala_toolchain": attr.label_list(
@@ -150,51 +139,6 @@ scala_macro_library = rule(
     outputs = common_outputs,
     toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
     implementation = _scala_macro_library_impl,
-)
-
-_scala_test_attrs = {
-    "main_class": attr.string(
-        default = "io.bazel.rulesscala.scala_test.Runner",
-    ),
-    "suites": attr.string_list(),
-    "colors": attr.bool(default = True),
-    "full_stacktraces": attr.bool(default = True),
-    "_scalatest": attr.label(
-        default = Label(
-            "//external:io_bazel_rules_scala/dependency/scalatest/scalatest",
-        ),
-    ),
-    "_scalatest_runner": attr.label(
-        cfg = "host",
-        default = Label("//src/java/io/bazel/rulesscala/scala_test:runner"),
-    ),
-    "_scalatest_reporter": attr.label(
-        default = Label("//scala/support:test_reporter"),
-    ),
-    "_jacocorunner": attr.label(
-        default = Label("@bazel_tools//tools/jdk:JacocoCoverage"),
-    ),
-    "_lcov_merger": attr.label(
-        default = Label("@bazel_tools//tools/test/CoverageOutputGenerator/java/com/google/devtools/coverageoutputgenerator:Main"),
-    ),
-}
-
-_scala_test_attrs.update(launcher_template)
-
-_scala_test_attrs.update(implicit_deps)
-
-_scala_test_attrs.update(common_attrs)
-
-_scala_test_attrs.update(_test_resolve_deps)
-
-scala_test = rule(
-    attrs = _scala_test_attrs,
-    executable = True,
-    fragments = ["java"],
-    outputs = common_outputs,
-    test = True,
-    toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
-    implementation = _scala_test_impl,
 )
 
 _scala_repl_attrs = {}
@@ -348,3 +292,5 @@ scala_binary = _scala_binary
 scala_doc = _scala_doc
 
 scala_repositories = _scala_repositories
+
+scala_test = _scala_test
