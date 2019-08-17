@@ -99,7 +99,7 @@ scala_repositories((
     }
 ))
 ```
-If you're using any of the rules `twitter_scrooge`, `tut_repositories`, `scala_proto_repositories`
+If you're using any of the rules `twitter_scrooge`, `tut_repositories`, `scalapb_repositories`
 or `specs2_junit_repositories` you also need to specify `scala_version` for them. See `./test_version/WORKSPACE.template`
 for an example workspace using another scala version.
 
@@ -109,12 +109,24 @@ for an example workspace using another scala version.
 | bazel  | rules_scala gitsha |
 |--------|--------------------|
 | 0.28.0 | HEAD               |
-| 0.23.x | ca655e5a330cbf1d66ce1d9baa63522752ec6011 |                                     |
+| 0.23.x | ca655e5a330cbf1d66ce1d9baa63522752ec6011 |
 | 0.22.x | f3113fb6e9e35cb8f441d2305542026d98afc0a2 |
 | 0.16.x | f3113fb6e9e35cb8f441d2305542026d98afc0a2 |
 | 0.15.x | 3b9ab9be31ac217d3337c709cb6bfeb89c8dcbb1 |
 | 0.14.x | 3b9ab9be31ac217d3337c709cb6bfeb89c8dcbb1 |
 | 0.13.x | 3c987b6ae8a453886759b132f1572c0efca2eca2 |
+
+## Upgrades & Breaking Changes
+
+Breaking changes do occur and we try our best to deprecate
+functionaltiy before removing it. To assist in making upgrades easier,
+we suggest you incrementally upgrade rules_scala in your codebase by
+stepping through specific commits where large changes occurred.
+
+| commit                                   | date    | change  |
+|------------------------------------------|---------|---------|
+| HEAD                                     | current |
+| e2f8e8b0331a926936f60bf21cb9e39e0c58bbb7 | 2019-08 | `scala_proto_` prefix deprecated in favor of `scalapb_` prefix |
 
 ## Usage with [bazel-deps](https://github.com/johnynek/bazel-deps)
 
