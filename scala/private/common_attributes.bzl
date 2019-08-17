@@ -135,17 +135,3 @@ resolve_deps = {
         allow_files = False,
     ),
 }
-
-test_resolve_deps = {
-    "_scala_toolchain": attr.label_list(
-        default = [
-            Label(
-                "//external:io_bazel_rules_scala/dependency/scala/scala_library",
-            ),
-            Label(
-                "//external:io_bazel_rules_scala/dependency/scalatest/scalatest",
-            ),
-        ],
-        allow_files = False,
-    ),
-}

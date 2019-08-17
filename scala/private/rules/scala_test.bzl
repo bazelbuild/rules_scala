@@ -5,7 +5,6 @@ load(
     "common_attrs",
     "implicit_deps",
     "launcher_template",
-    "test_resolve_deps",
 )
 load("@io_bazel_rules_scala//scala/private:common.bzl", "sanitize_string_for_usage")
 load("@io_bazel_rules_scala//scala/private:common_outputs.bzl", "common_outputs")
@@ -173,13 +172,27 @@ _scala_test_attrs = {
     ),
 }
 
+_test_resolve_deps = {
+    "_scala_toolchain": attr.label_list(
+        default = [
+            Label(
+                "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+            ),
+            Label(
+                "//external:io_bazel_rules_scala/dependency/scalatest/scalatest",
+            ),
+        ],
+        allow_files = False,
+    ),
+}
+
 _scala_test_attrs.update(launcher_template)
 
 _scala_test_attrs.update(implicit_deps)
 
 _scala_test_attrs.update(common_attrs)
 
-_scala_test_attrs.update(test_resolve_deps)
+_scala_test_attrs.update(_test_resolve_deps)
 
 scala_test = rule(
     attrs = _scala_test_attrs,
