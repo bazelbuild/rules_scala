@@ -11,6 +11,6 @@ class ScalaLibOnlyResourcesTest extends SpecWithJUnit {
   }
 
   private def get(s: String): String =
-    scala.io.Source.fromInputStream(getClass.getResourceAsStream(s)).mkString
+    scala.io.Source.fromInputStream(getClass.getResourceAsStream(s)).mkString.trim
 
 }
