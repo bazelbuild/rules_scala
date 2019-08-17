@@ -14,6 +14,7 @@ load(
     "launcher_template",
     "resolve_deps",
 )
+load("@io_bazel_rules_scala//scala/private:common.bzl", "sanitize_string_for_usage")
 load("@io_bazel_rules_scala//scala/private:common_outputs.bzl", "common_outputs")
 load(
     "@io_bazel_rules_scala//scala/private:coverage_replacements_provider.bzl",
@@ -42,6 +43,7 @@ load(
 load(
     "@io_bazel_rules_scala//scala/private:rules/scala_test.bzl",
     _scala_test = "scala_test",
+    _scala_test_suite = "scala_test_suite",
 )
 
 _junit_resolve_deps = {
@@ -160,39 +162,6 @@ scala_repl = rule(
     implementation = _scala_repl_impl,
 )
 
-def _sanitize_string_for_usage(s):
-    res_array = []
-    for idx in range(len(s)):
-        c = s[idx]
-        if c.isalnum() or c == ".":
-            res_array.append(c)
-        else:
-            res_array.append("_")
-    return "".join(res_array)
-
-# This auto-generates a test suite based on the passed set of targets
-# we will add a root test_suite with the name of the passed name
-def scala_test_suite(
-        name,
-        srcs = [],
-        visibility = None,
-        use_short_names = False,
-        **kwargs):
-    ts = []
-    i = 0
-    for test_file in srcs:
-        i = i + 1
-        n = ("%s_%s" % (name, i)) if use_short_names else ("%s_test_suite_%s" % (name, _sanitize_string_for_usage(test_file)))
-        scala_test(
-            name = n,
-            srcs = [test_file],
-            visibility = visibility,
-            unused_dependency_checker_mode = "off",
-            **kwargs
-        )
-        ts.append(n)
-    native.test_suite(name = name, tests = ts, visibility = visibility)
-
 # Scala library suite generates a series of scala libraries
 # then it depends on them with a meta one which exports all the sub targets
 def scala_library_suite(
@@ -203,7 +172,7 @@ def scala_library_suite(
         **kwargs):
     ts = []
     for src_file in srcs:
-        n = "%s_lib_%s" % (name, _sanitize_string_for_usage(src_file))
+        n = "%s_lib_%s" % (name, sanitize_string_for_usage(src_file))
         scala_library(
             name = n,
             srcs = [src_file],
@@ -287,10 +256,9 @@ def scala_specs2_junit_test(name, **kwargs):
         **kwargs
     )
 
+# Re-export private rules for public consumption
 scala_binary = _scala_binary
-
 scala_doc = _scala_doc
-
 scala_repositories = _scala_repositories
-
 scala_test = _scala_test
+scala_test_suite = _scala_test_suite

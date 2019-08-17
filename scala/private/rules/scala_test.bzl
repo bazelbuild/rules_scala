@@ -5,6 +5,7 @@ load(
     "launcher_template",
     "test_resolve_deps",
 )
+load("@io_bazel_rules_scala//scala/private:common.bzl", "sanitize_string_for_usage")
 load("@io_bazel_rules_scala//scala/private:common_outputs.bzl", "common_outputs")
 load(
     "@io_bazel_rules_scala//scala/private:coverage_replacements_provider.bzl",
@@ -187,3 +188,26 @@ scala_test = rule(
     toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
     implementation = _scala_test_impl,
 )
+
+# This auto-generates a test suite based on the passed set of targets
+# we will add a root test_suite with the name of the passed name
+def scala_test_suite(
+        name,
+        srcs = [],
+        visibility = None,
+        use_short_names = False,
+        **kwargs):
+    ts = []
+    i = 0
+    for test_file in srcs:
+        i = i + 1
+        n = ("%s_%s" % (name, i)) if use_short_names else ("%s_test_suite_%s" % (name, sanitize_string_for_usage(test_file)))
+        scala_test(
+            name = n,
+            srcs = [test_file],
+            visibility = visibility,
+            unused_dependency_checker_mode = "off",
+            **kwargs
+        )
+        ts.append(n)
+    native.test_suite(name = name, tests = ts, visibility = visibility)
