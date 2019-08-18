@@ -38,7 +38,7 @@ def scala_proto_repositories(
 
 
 
-def _scalapb_proto_library_impl(ctx):
+def _scala_proto_library_impl(ctx):
     aspect_info = merge_scalapb_aspect_info(
         [dep[ScalaPBAspectInfo] for dep in ctx.attr.deps],
     )
@@ -50,10 +50,14 @@ def _scalapb_proto_library_impl(ctx):
         DefaultInfo(files = aspect_info.output_files),
     ]
 
-scalapb_proto_library = rule(
-    implementation = _scalapb_proto_library_impl,
+scala_proto_library = rule(
+    implementation = _scala_proto_library_impl,
     attrs = {
         "deps": attr.label_list(aspects = [scalapb_aspect]),
     },
     provides = [DefaultInfo, ScalaPBInfo, JavaInfo],
 )
+
+
+def scalapb_proto_library(**kwargs):
+    scala_proto_library(**kwargs)
