@@ -5,7 +5,6 @@ load(
     _scala_library_impl = "scala_library_impl",
     _scala_macro_library_impl = "scala_macro_library_impl",
     _scala_repl_impl = "scala_repl_impl",
-    _scala_test_impl = "scala_test_impl",
 )
 load(
     "@io_bazel_rules_scala//scala/private:common_attributes.bzl",
@@ -15,6 +14,7 @@ load(
     "launcher_template",
     "resolve_deps",
 )
+load("@io_bazel_rules_scala//scala/private:common.bzl", "sanitize_string_for_usage")
 load("@io_bazel_rules_scala//scala/private:common_outputs.bzl", "common_outputs")
 load(
     "@io_bazel_rules_scala//scala/private:coverage_replacements_provider.bzl",
@@ -40,20 +40,11 @@ load(
     "@io_bazel_rules_scala//scala/private:rules/scala_doc.bzl",
     _scala_doc = "scala_doc",
 )
-
-_test_resolve_deps = {
-    "_scala_toolchain": attr.label_list(
-        default = [
-            Label(
-                "//external:io_bazel_rules_scala/dependency/scala/scala_library",
-            ),
-            Label(
-                "//external:io_bazel_rules_scala/dependency/scalatest/scalatest",
-            ),
-        ],
-        allow_files = False,
-    ),
-}
+load(
+    "@io_bazel_rules_scala//scala/private:rules/scala_test.bzl",
+    _scala_test = "scala_test",
+    _scala_test_suite = "scala_test_suite",
+)
 
 _junit_resolve_deps = {
     "_scala_toolchain": attr.label_list(
@@ -152,51 +143,6 @@ scala_macro_library = rule(
     implementation = _scala_macro_library_impl,
 )
 
-_scala_test_attrs = {
-    "main_class": attr.string(
-        default = "io.bazel.rulesscala.scala_test.Runner",
-    ),
-    "suites": attr.string_list(),
-    "colors": attr.bool(default = True),
-    "full_stacktraces": attr.bool(default = True),
-    "_scalatest": attr.label(
-        default = Label(
-            "//external:io_bazel_rules_scala/dependency/scalatest/scalatest",
-        ),
-    ),
-    "_scalatest_runner": attr.label(
-        cfg = "host",
-        default = Label("//src/java/io/bazel/rulesscala/scala_test:runner"),
-    ),
-    "_scalatest_reporter": attr.label(
-        default = Label("//scala/support:test_reporter"),
-    ),
-    "_jacocorunner": attr.label(
-        default = Label("@bazel_tools//tools/jdk:JacocoCoverage"),
-    ),
-    "_lcov_merger": attr.label(
-        default = Label("@bazel_tools//tools/test/CoverageOutputGenerator/java/com/google/devtools/coverageoutputgenerator:Main"),
-    ),
-}
-
-_scala_test_attrs.update(launcher_template)
-
-_scala_test_attrs.update(implicit_deps)
-
-_scala_test_attrs.update(common_attrs)
-
-_scala_test_attrs.update(_test_resolve_deps)
-
-scala_test = rule(
-    attrs = _scala_test_attrs,
-    executable = True,
-    fragments = ["java"],
-    outputs = common_outputs,
-    test = True,
-    toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
-    implementation = _scala_test_impl,
-)
-
 _scala_repl_attrs = {}
 
 _scala_repl_attrs.update(launcher_template)
@@ -216,39 +162,6 @@ scala_repl = rule(
     implementation = _scala_repl_impl,
 )
 
-def _sanitize_string_for_usage(s):
-    res_array = []
-    for idx in range(len(s)):
-        c = s[idx]
-        if c.isalnum() or c == ".":
-            res_array.append(c)
-        else:
-            res_array.append("_")
-    return "".join(res_array)
-
-# This auto-generates a test suite based on the passed set of targets
-# we will add a root test_suite with the name of the passed name
-def scala_test_suite(
-        name,
-        srcs = [],
-        visibility = None,
-        use_short_names = False,
-        **kwargs):
-    ts = []
-    i = 0
-    for test_file in srcs:
-        i = i + 1
-        n = ("%s_%s" % (name, i)) if use_short_names else ("%s_test_suite_%s" % (name, _sanitize_string_for_usage(test_file)))
-        scala_test(
-            name = n,
-            srcs = [test_file],
-            visibility = visibility,
-            unused_dependency_checker_mode = "off",
-            **kwargs
-        )
-        ts.append(n)
-    native.test_suite(name = name, tests = ts, visibility = visibility)
-
 # Scala library suite generates a series of scala libraries
 # then it depends on them with a meta one which exports all the sub targets
 def scala_library_suite(
@@ -259,7 +172,7 @@ def scala_library_suite(
         **kwargs):
     ts = []
     for src_file in srcs:
-        n = "%s_lib_%s" % (name, _sanitize_string_for_usage(src_file))
+        n = "%s_lib_%s" % (name, sanitize_string_for_usage(src_file))
         scala_library(
             name = n,
             srcs = [src_file],
@@ -343,8 +256,9 @@ def scala_specs2_junit_test(name, **kwargs):
         **kwargs
     )
 
+# Re-export private rules for public consumption
 scala_binary = _scala_binary
-
 scala_doc = _scala_doc
-
 scala_repositories = _scala_repositories
+scala_test = _scala_test
+scala_test_suite = _scala_test_suite

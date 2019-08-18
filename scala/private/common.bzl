@@ -162,3 +162,13 @@ def _provider_of_dependency_label_of(dependency, path):
         return dependency[JarsToLabelsInfo].jars_to_labels.get(path)
     else:
         return None
+
+def sanitize_string_for_usage(s):
+    res_array = []
+    for idx in range(len(s)):
+        c = s[idx]
+        if c.isalnum() or c == ".":
+            res_array.append(c)
+        else:
+            res_array.append("_")
+    return "".join(res_array)
