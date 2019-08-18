@@ -4,7 +4,6 @@ load(
     _scala_library_for_plugin_bootstrapping_impl = "scala_library_for_plugin_bootstrapping_impl",
     _scala_library_impl = "scala_library_impl",
     _scala_macro_library_impl = "scala_macro_library_impl",
-    _scala_repl_impl = "scala_repl_impl",
 )
 load(
     "@io_bazel_rules_scala//scala/private:common_attributes.bzl",
@@ -39,6 +38,10 @@ load(
 load(
     "@io_bazel_rules_scala//scala/private:rules/scala_doc.bzl",
     _scala_doc = "scala_doc",
+)
+load(
+    "@io_bazel_rules_scala//scala/private:rules/scala_repl.bzl",
+    _scala_repl = "scala_repl",
 )
 load(
     "@io_bazel_rules_scala//scala/private:rules/scala_test.bzl",
@@ -143,25 +146,6 @@ scala_macro_library = rule(
     implementation = _scala_macro_library_impl,
 )
 
-_scala_repl_attrs = {}
-
-_scala_repl_attrs.update(launcher_template)
-
-_scala_repl_attrs.update(implicit_deps)
-
-_scala_repl_attrs.update(common_attrs)
-
-_scala_repl_attrs.update(resolve_deps)
-
-scala_repl = rule(
-    attrs = _scala_repl_attrs,
-    executable = True,
-    fragments = ["java"],
-    outputs = common_outputs,
-    toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
-    implementation = _scala_repl_impl,
-)
-
 # Scala library suite generates a series of scala libraries
 # then it depends on them with a meta one which exports all the sub targets
 def scala_library_suite(
@@ -259,6 +243,7 @@ def scala_specs2_junit_test(name, **kwargs):
 # Re-export private rules for public consumption
 scala_binary = _scala_binary
 scala_doc = _scala_doc
+scala_repl = _scala_repl
 scala_repositories = _scala_repositories
 scala_test = _scala_test
 scala_test_suite = _scala_test_suite
