@@ -37,9 +37,6 @@ def _scala_test_flags(ctx):
     return flags
 
 def _scala_test_impl(ctx):
-    if len(ctx.attr.suites) != 0:
-        print("suites attribute is deprecated. All scalatest test suites are run")
-
     scalac_provider = get_scalac_provider(ctx)
 
     unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
