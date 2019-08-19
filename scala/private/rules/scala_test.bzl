@@ -146,7 +146,6 @@ _scala_test_attrs = {
     "main_class": attr.string(
         default = "io.bazel.rulesscala.scala_test.Runner",
     ),
-    "suites": attr.string_list(),
     "colors": attr.bool(default = True),
     "full_stacktraces": attr.bool(default = True),
     "_scalatest": attr.label(
