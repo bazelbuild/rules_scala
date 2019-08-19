@@ -1,6 +1,5 @@
 load(
     "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
-    _scala_junit_test_impl = "scala_junit_test_impl",
     _scala_library_for_plugin_bootstrapping_impl = "scala_library_for_plugin_bootstrapping_impl",
     _scala_library_impl = "scala_library_impl",
     _scala_macro_library_impl = "scala_macro_library_impl",
@@ -10,7 +9,6 @@ load(
     "common_attrs",
     "common_attrs_for_plugin_bootstrapping",
     "implicit_deps",
-    "launcher_template",
     "resolve_deps",
 )
 load("@io_bazel_rules_scala//scala/private:common.bzl", "sanitize_string_for_usage")
@@ -22,10 +20,6 @@ load(
 load(
     "@io_bazel_rules_scala//specs2:specs2_junit.bzl",
     _specs2_junit_dependencies = "specs2_junit_dependencies",
-)
-load(
-    "@io_bazel_rules_scala//scala:plusone.bzl",
-    _collect_plus_one_deps_aspect = "collect_plus_one_deps_aspect",
 )
 load(
     "@io_bazel_rules_scala//scala/private:macros/scala_repositories.bzl",
@@ -40,6 +34,10 @@ load(
     _scala_doc = "scala_doc",
 )
 load(
+    "@io_bazel_rules_scala//scala/private:rules/scala_junit_test.bzl",
+    _scala_junit_test = "scala_junit_test",
+)
+load(
     "@io_bazel_rules_scala//scala/private:rules/scala_repl.bzl",
     _scala_repl = "scala_repl",
 )
@@ -48,21 +46,6 @@ load(
     _scala_test = "scala_test",
     _scala_test_suite = "scala_test_suite",
 )
-
-_junit_resolve_deps = {
-    "_scala_toolchain": attr.label_list(
-        default = [
-            Label(
-                "//external:io_bazel_rules_scala/dependency/scala/scala_library",
-            ),
-            Label("//external:io_bazel_rules_scala/dependency/junit/junit"),
-            Label(
-                "//external:io_bazel_rules_scala/dependency/hamcrest/hamcrest_core",
-            ),
-        ],
-        allow_files = False,
-    ),
-}
 
 _library_attrs = {
     "main_class": attr.string(),
@@ -173,62 +156,8 @@ def scala_library_suite(
         deps = ts,
     )
 
-_scala_junit_test_attrs = {
-    "prefixes": attr.string_list(default = []),
-    "suffixes": attr.string_list(default = []),
-    "suite_label": attr.label(
-        default = Label(
-            "//src/java/io/bazel/rulesscala/test_discovery:test_discovery",
-        ),
-    ),
-    "suite_class": attr.string(
-        default = "io.bazel.rulesscala.test_discovery.DiscoveredTestSuite",
-    ),
-    "print_discovered_classes": attr.bool(
-        default = False,
-        mandatory = False,
-    ),
-    "_junit": attr.label(
-        default = Label(
-            "//external:io_bazel_rules_scala/dependency/junit/junit",
-        ),
-    ),
-    "_hamcrest": attr.label(
-        default = Label(
-            "//external:io_bazel_rules_scala/dependency/hamcrest/hamcrest_core",
-        ),
-    ),
-    "_bazel_test_runner": attr.label(
-        default = Label(
-            "@io_bazel_rules_scala//scala:bazel_test_runner_deploy",
-        ),
-        allow_files = True,
-    ),
-}
-
-_scala_junit_test_attrs.update(launcher_template)
-
-_scala_junit_test_attrs.update(implicit_deps)
-
-_scala_junit_test_attrs.update(common_attrs)
-
-_scala_junit_test_attrs.update(_junit_resolve_deps)
-
-_scala_junit_test_attrs.update({
-    "tests_from": attr.label_list(providers = [[JavaInfo]]),
-})
-
-scala_junit_test = rule(
-    attrs = _scala_junit_test_attrs,
-    fragments = ["java"],
-    outputs = common_outputs,
-    test = True,
-    toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
-    implementation = _scala_junit_test_impl,
-)
-
 def scala_specs2_junit_test(name, **kwargs):
-    scala_junit_test(
+    _scala_junit_test(
         name = name,
         deps = _specs2_junit_dependencies() + kwargs.pop("deps", []),
         unused_dependency_checker_ignored_targets =
@@ -243,6 +172,7 @@ def scala_specs2_junit_test(name, **kwargs):
 # Re-export private rules for public consumption
 scala_binary = _scala_binary
 scala_doc = _scala_doc
+scala_junit_test = _scala_junit_test
 scala_repl = _scala_repl
 scala_repositories = _scala_repositories
 scala_test = _scala_test
