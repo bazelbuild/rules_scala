@@ -228,7 +228,7 @@ jvm_import_external = repository_rule(
         ),
         "extra_build_file_content": attr.string(),
     },
-    environ = [_FETCH_SOURCES_ENV_VAR_NAME]
+    environ = [_FETCH_SOURCES_ENV_VAR_NAME],
 )
 
 def scala_maven_import_external(

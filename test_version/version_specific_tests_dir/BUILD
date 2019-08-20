@@ -3,12 +3,12 @@ package(default_testonly = 1)
 load(
     "@io_bazel_rules_scala//scala:scala.bzl",
     "scala_binary",
+    "scala_junit_test",
     "scala_library",
-    "scala_test",
     "scala_macro_library",
     "scala_repl",
-    "scala_junit_test",
     "scala_specs2_junit_test",
+    "scala_test",
 )
 load(
     "@io_bazel_rules_scala//scala_proto:scala_proto.bzl",

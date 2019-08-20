@@ -7,9 +7,10 @@ scala_library(
     srcs = ["A.scala"],
     deps = [":facade"],
 )
+
 scala_library(
     name = "facade",
-    exports = [":direct_dep"]
+    exports = [":direct_dep"],
 )
 
 #example with target in deps & exports
@@ -18,11 +19,12 @@ scala_library(
     srcs = ["A.scala"],
     deps = [":direct_dep"],
 )
+
 scala_library(
     name = "direct_dep",
     srcs = ["B.scala"],
-    deps = [":exported_dep"],
     exports = [":exported_dep"],
+    deps = [":exported_dep"],
 )
 
 #common
@@ -31,8 +33,8 @@ scala_library(
     srcs = ["C.scala"],
     deps = [":plus_one_dep_of_exported"],
 )
+
 scala_library(
     name = "plus_one_dep_of_exported",
     srcs = ["D.scala"],
 )
-

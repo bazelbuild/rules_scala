@@ -6,6 +6,7 @@ scala_toolchain(
     enable_code_coverage_aspect = "on",
     visibility = ["//visibility:public"],
 )
+
 toolchain(
     name = "enable_code_coverage_aspect",
     toolchain = "enable_code_coverage_aspect_impl",
@@ -17,11 +18,11 @@ scala_test(
     name = "test-all",
     srcs = [
         "TestAll.scala",
-    ],    
+    ],
     deps = [
         ":a1",
         ":a2",
-        ":b1",        
+        ":b1",
     ],
 )
 
@@ -30,11 +31,11 @@ java_test(
     srcs = [
         "TestB2.java",
     ],
+    tags = ["manual"],
     test_class = "TestB2",
     deps = [
         ":b2",
     ],
-    tags = ["manual"],
 )
 
 scala_library(
@@ -58,9 +59,9 @@ scala_library(
     name = "a2",
     srcs = [
         "A2.scala",
-    ],  
+    ],
     deps = [
-        # TODO :: Understand why referencing a local java library breaks coverage  
+        # TODO :: Understand why referencing a local java library breaks coverage
         # ":b2",
     ],
 )
@@ -81,12 +82,12 @@ java_library(
     ],
     deps = [
         ":c2",
-    ],    
+    ],
 )
 
 scala_library(
     name = "c2",
     srcs = [
         "C2.scala",
-    ],    
+    ],
 )

@@ -78,6 +78,7 @@ def jmh_repositories(maven_servers = ["http://central.maven.org/maven2"]):
 def _scala_generate_benchmark(ctx):
     # we use required providers to ensure JavaInfo exists
     info = ctx.attr.src[JavaInfo]
+
     # TODO, if we emit more than one jar, which scala_library does not,
     # this might fail. We could possibly extend the BenchmarkGenerator
     # to accept more than one jar to scan, and then allow multiple labels
@@ -85,6 +86,7 @@ def _scala_generate_benchmark(ctx):
     outs = info.outputs.jars
     if len(outs) != 1:
         print("expected exactly 1 output jar in: " + ctx.label)
+
     # just try to take the first one and see if that works
     class_jar = outs[0].class_jar
     classpath = info.transitive_runtime_deps

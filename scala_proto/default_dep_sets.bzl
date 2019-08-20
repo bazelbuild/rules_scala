@@ -1,4 +1,3 @@
-
 # These are the compile/runtime dependencies needed for scalapb compilation
 # and grpc compile/runtime.
 #
@@ -40,4 +39,3 @@ DEFAULT_SCALAPB_GRPC_DEPS = [
     "//external:io_bazel_rules_scala/dependency/proto/netty_common",
     "//external:io_bazel_rules_scala/dependency/proto/netty_handler_proxy",
 ]
-

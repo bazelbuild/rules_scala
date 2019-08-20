@@ -8,11 +8,10 @@ def _scala_proto_toolchain_impl(ctx):
         blacklisted_protos = ctx.attr.blacklisted_protos,
         code_generator = ctx.attr.code_generator,
         extra_generator_dependencies = ctx.attr.extra_generator_dependencies,
-        scalac=ctx.attr.scalac,
+        scalac = ctx.attr.scalac,
         named_generators = ctx.attr.named_generators,
     )
     return [toolchain]
-
 
 # Args:
 #     with_grpc: Enables generation of grpc service bindings for services
@@ -26,16 +25,16 @@ scala_proto_toolchain = rule(
         "with_grpc": attr.bool(),
         "with_flat_package": attr.bool(),
         "with_single_line_to_string": attr.bool(),
-        "blacklisted_protos": attr.label_list(default=[]),
+        "blacklisted_protos": attr.label_list(default = []),
         "code_generator": attr.label(
             executable = True,
             cfg = "host",
             default = Label("@io_bazel_rules_scala//src/scala/scripts:scalapb_generator"),
-            allow_files=True
+            allow_files = True,
         ),
         "named_generators": attr.string_dict(),
         "extra_generator_dependencies": attr.label_list(
-            providers = [JavaInfo]
+            providers = [JavaInfo],
         ),
         "scalac": attr.label(
             default = Label(
@@ -44,6 +43,3 @@ scala_proto_toolchain = rule(
         ),
     },
 )
-
-
-

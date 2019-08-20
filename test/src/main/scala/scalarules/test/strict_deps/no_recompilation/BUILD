@@ -1,6 +1,6 @@
 package(default_visibility = ["//visibility:public"])
 
-load("//scala:scala.bzl", "scala_library", "scala_test", "scala_binary")
+load("//scala:scala.bzl", "scala_binary", "scala_library", "scala_test")
 
 scala_library(
     name = "transitive_dependency_user",

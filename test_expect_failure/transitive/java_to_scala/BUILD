@@ -1,4 +1,4 @@
-load("//scala:scala.bzl", "scala_library", "scala_export_to_java")
+load("//scala:scala.bzl", "scala_export_to_java", "scala_library")
 
 scala_library(
     name = "a",

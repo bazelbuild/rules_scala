@@ -396,7 +396,7 @@ def _scrooge_scala_import_impl(ctx):
     jars_jis = [
         JavaInfo(
             output_jar = scala_jar,
-            compile_jar = scala_jar
+            compile_jar = scala_jar,
         )
         for scala_jar in ctx.files.scala_jars
     ]
