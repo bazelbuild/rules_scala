@@ -21,8 +21,8 @@ load(
 load(
     "@io_bazel_rules_scala//scala/private:rules/scala_library.bzl",
     _scala_library = "scala_library",
-    _scala_library_suite = "scala_library_suite",
     _scala_library_for_plugin_bootstrapping = "scala_library_for_plugin_bootstrapping",
+    _scala_library_suite = "scala_library_suite",
     _scala_macro_library = "scala_macro_library",
 )
 load(
@@ -52,8 +52,8 @@ def scala_specs2_junit_test(name, **kwargs):
 scala_binary = _scala_binary
 scala_doc = _scala_doc
 scala_junit_test = _scala_junit_test
-scala_library_for_plugin_bootstrapping = _scala_library_for_plugin_bootstrapping
 scala_library = _scala_library
+scala_library_for_plugin_bootstrapping = _scala_library_for_plugin_bootstrapping
 scala_library_suite = _scala_library_suite
 scala_macro_library = _scala_macro_library
 scala_repl = _scala_repl
