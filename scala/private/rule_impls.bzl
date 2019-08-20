@@ -884,29 +884,6 @@ def get_unused_dependency_checker_mode(ctx):
     else:
         return ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].unused_dependency_checker_mode
 
-def scala_library_impl(ctx):
-    if ctx.attr.jvm_flags:
-        print("'jvm_flags' for scala_library is deprecated. It does nothing today and will be removed from scala_library to avoid confusion.")
-    scalac_provider = get_scalac_provider(ctx)
-    unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
-    return lib(
-        ctx,
-        scalac_provider.default_classpath,
-        True,
-        unused_dependency_checker_mode,
-        ctx.attr.unused_dependency_checker_ignored_targets,
-    )
-
-def scala_library_for_plugin_bootstrapping_impl(ctx):
-    scalac_provider = get_scalac_provider(ctx)
-    return lib(
-        ctx,
-        scalac_provider.default_classpath,
-        True,
-        unused_dependency_checker_ignored_targets = [],
-        unused_dependency_checker_mode = "off",
-    )
-
 # Common code shared by all scala binary implementations.
 def scala_binary_common(
         ctx,

@@ -1,19 +1,4 @@
 load(
-    "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
-    _scala_library_for_plugin_bootstrapping_impl = "scala_library_for_plugin_bootstrapping_impl",
-    _scala_library_impl = "scala_library_impl",
-)
-load(
-    "@io_bazel_rules_scala//scala/private:common_attributes.bzl",
-    "common_attrs",
-    "common_attrs_for_plugin_bootstrapping",
-    "implicit_deps",
-    "library_attrs",
-    "resolve_deps",
-)
-load("@io_bazel_rules_scala//scala/private:common.bzl", "sanitize_string_for_usage")
-load("@io_bazel_rules_scala//scala/private:common_outputs.bzl", "common_outputs")
-load(
     "@io_bazel_rules_scala//specs2:specs2_junit.bzl",
     _specs2_junit_dependencies = "specs2_junit_dependencies",
 )
@@ -34,7 +19,10 @@ load(
     _scala_junit_test = "scala_junit_test",
 )
 load(
-    "@io_bazel_rules_scala//scala/private:rules/scala_macro_library.bzl",
+    "@io_bazel_rules_scala//scala/private:rules/scala_library.bzl",
+    _scala_library = "scala_library",
+    _scala_library_suite = "scala_library_suite",
+    _scala_library_for_plugin_bootstrapping = "scala_library_for_plugin_bootstrapping",
     _scala_macro_library = "scala_macro_library",
 )
 load(
@@ -46,74 +34,6 @@ load(
     _scala_test = "scala_test",
     _scala_test_suite = "scala_test_suite",
 )
-
-_scala_library_attrs = {}
-
-_scala_library_attrs.update(implicit_deps)
-
-_scala_library_attrs.update(common_attrs)
-
-_scala_library_attrs.update(library_attrs)
-
-_scala_library_attrs.update(resolve_deps)
-
-scala_library = rule(
-    attrs = _scala_library_attrs,
-    fragments = ["java"],
-    outputs = common_outputs,
-    toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
-    implementation = _scala_library_impl,
-)
-
-# the scala compiler plugin used for dependency analysis is compiled using `scala_library`.
-# in order to avoid cyclic dependencies `scala_library_for_plugin_bootstrapping` was created for this purpose,
-# which does not contain plugin related attributes, and thus avoids the cyclic dependency issue
-_scala_library_for_plugin_bootstrapping_attrs = {}
-
-_scala_library_for_plugin_bootstrapping_attrs.update(implicit_deps)
-
-_scala_library_for_plugin_bootstrapping_attrs.update(library_attrs)
-
-_scala_library_for_plugin_bootstrapping_attrs.update(resolve_deps)
-
-_scala_library_for_plugin_bootstrapping_attrs.update(
-    common_attrs_for_plugin_bootstrapping,
-)
-
-scala_library_for_plugin_bootstrapping = rule(
-    attrs = _scala_library_for_plugin_bootstrapping_attrs,
-    fragments = ["java"],
-    outputs = common_outputs,
-    toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
-    implementation = _scala_library_for_plugin_bootstrapping_impl,
-)
-
-# Scala library suite generates a series of scala libraries
-# then it depends on them with a meta one which exports all the sub targets
-def scala_library_suite(
-        name,
-        srcs = [],
-        exports = [],
-        visibility = None,
-        **kwargs):
-    ts = []
-    for src_file in srcs:
-        n = "%s_lib_%s" % (name, sanitize_string_for_usage(src_file))
-        scala_library(
-            name = n,
-            srcs = [src_file],
-            visibility = visibility,
-            exports = exports,
-            unused_dependency_checker_mode = "off",
-            **kwargs
-        )
-        ts.append(n)
-    scala_library(
-        name = name,
-        visibility = visibility,
-        exports = exports + ts,
-        deps = ts,
-    )
 
 def scala_specs2_junit_test(name, **kwargs):
     _scala_junit_test(
@@ -132,6 +52,9 @@ def scala_specs2_junit_test(name, **kwargs):
 scala_binary = _scala_binary
 scala_doc = _scala_doc
 scala_junit_test = _scala_junit_test
+scala_library_for_plugin_bootstrapping = _scala_library_for_plugin_bootstrapping
+scala_library = _scala_library
+scala_library_suite = _scala_library_suite
 scala_macro_library = _scala_macro_library
 scala_repl = _scala_repl
 scala_repositories = _scala_repositories

@@ -125,14 +125,6 @@ launcher_template = {
 }
 
 
-library_attrs = {
-    "main_class": attr.string(),
-    "exports": attr.label_list(
-        allow_files = False,
-        aspects = [_coverage_replacements_provider.aspect],
-    ),
-}
-
 # Single dep to allow IDEs to pickup all the implicit dependencies.
 resolve_deps = {
     "_scala_toolchain": attr.label_list(
