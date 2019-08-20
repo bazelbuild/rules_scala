@@ -9,14 +9,11 @@ load(
     "common_attrs",
     "common_attrs_for_plugin_bootstrapping",
     "implicit_deps",
+    "library_attrs",
     "resolve_deps",
 )
 load("@io_bazel_rules_scala//scala/private:common.bzl", "sanitize_string_for_usage")
 load("@io_bazel_rules_scala//scala/private:common_outputs.bzl", "common_outputs")
-load(
-    "@io_bazel_rules_scala//scala/private:coverage_replacements_provider.bzl",
-    _coverage_replacements_provider = "coverage_replacements_provider",
-)
 load(
     "@io_bazel_rules_scala//specs2:specs2_junit.bzl",
     _specs2_junit_dependencies = "specs2_junit_dependencies",
@@ -47,21 +44,13 @@ load(
     _scala_test_suite = "scala_test_suite",
 )
 
-_library_attrs = {
-    "main_class": attr.string(),
-    "exports": attr.label_list(
-        allow_files = False,
-        aspects = [_coverage_replacements_provider.aspect],
-    ),
-}
-
 _scala_library_attrs = {}
 
 _scala_library_attrs.update(implicit_deps)
 
 _scala_library_attrs.update(common_attrs)
 
-_scala_library_attrs.update(_library_attrs)
+_scala_library_attrs.update(library_attrs)
 
 _scala_library_attrs.update(resolve_deps)
 
@@ -80,7 +69,7 @@ _scala_library_for_plugin_bootstrapping_attrs = {}
 
 _scala_library_for_plugin_bootstrapping_attrs.update(implicit_deps)
 
-_scala_library_for_plugin_bootstrapping_attrs.update(_library_attrs)
+_scala_library_for_plugin_bootstrapping_attrs.update(library_attrs)
 
 _scala_library_for_plugin_bootstrapping_attrs.update(resolve_deps)
 
@@ -105,7 +94,7 @@ _scala_macro_library_attrs.update(implicit_deps)
 
 _scala_macro_library_attrs.update(common_attrs)
 
-_scala_macro_library_attrs.update(_library_attrs)
+_scala_macro_library_attrs.update(library_attrs)
 
 _scala_macro_library_attrs.update(resolve_deps)
 
