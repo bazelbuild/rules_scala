@@ -149,6 +149,33 @@ load("//private:format.bzl", "format_repositories")
 format_repositories()
 
 http_archive(
+	name = "io_bazel_rules_go",
+        sha256 = "45409e6c4f748baa9e05f8f6ab6efaa05739aa064e3ab94e5a1a09849c51806a",
+	url = "https://github.com/bazelbuild/rules_go/releases/download/0.18.7/rules_go-0.18.7.tar.gz",
+    )
+
+http_archive(
+        name = "com_github_bazelbuild_buildtools",
+        strip_prefix = "buildtools-f27d1753c8b3210d9e87cdc9c45bc2739ae2c2db",
+        url = "https://github.com/bazelbuild/buildtools/archive/f27d1753c8b3210d9e87cdc9c45bc2739ae2c2db.zip",
+        sha256 = "cdaac537b56375f658179ee2f27813cac19542443f4722b6730d84e4125355e6",
+)
+
+
+load(
+    "@io_bazel_rules_go//go:deps.bzl",
+    "go_register_toolchains",
+    "go_rules_dependencies",
+)
+
+go_rules_dependencies()
+go_register_toolchains()
+
+load("@com_github_bazelbuild_buildtools//buildifier:deps.bzl", "buildifier_dependencies")
+
+buildifier_dependencies()
+
+http_archive(
     name = "bazel_toolchains",
     sha256 = "5962fe677a43226c409316fcb321d668fc4b7fa97cb1f9ef45e7dc2676097b26",
     strip_prefix = "bazel-toolchains-be10bee3010494721f08a0fccd7f57411a1e773e",
@@ -173,6 +200,7 @@ git_repository(
 )
 
 ## deps for tests of limited deps support
+
 scala_maven_import_external(
     name = "org_springframework_spring_core",
     artifact = "org.springframework:spring-core:5.1.5.RELEASE",

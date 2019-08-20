@@ -70,25 +70,3 @@ def format_repositories():
         ],
         jar_sha256 = ("7b839bb7534a173f0ed0cd0e9a583181d20850fcec8cf6e3800e4420a1fad184"),
     )
-
-    http_file(
-        name = "io_bazel_buildifier_linux",
-        urls = [
-            "https://github.com/bazelbuild/buildtools/releases/download/0.11.1/buildifier",
-        ],
-        sha256 = (
-            "d7d41def74991a34dfd2ac8a73804ff11c514c024a901f64ab07f45a3cf0cfef"
-        ),
-        executable = True,
-    )
-
-    http_file(
-        name = "io_bazel_buildifier_darwin",
-        urls = [
-            "https://github.com/bazelbuild/buildtools/releases/download/0.11.1/buildifier.osx",
-        ],
-        sha256 = (
-            "3cbd708ff77f36413cfaef89cd5790a1137da5dfc3d9b3b3ca3fac669fbc298b"
-        ),
-        executable = True,
-    )
