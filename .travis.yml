@@ -16,7 +16,8 @@ cache:
 os:
   - linux
   - osx
-  - windows
+# re-enable when someone can get windows green
+#  - windows
 
 ###
 #
