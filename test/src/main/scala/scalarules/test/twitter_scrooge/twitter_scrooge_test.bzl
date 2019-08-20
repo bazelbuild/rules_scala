@@ -16,7 +16,7 @@ def _scrooge_transitive_outputs(ctx):
         depset([out.class_jar.basename for out in ctx.attr.dep[JavaInfo].outputs.jars]),
     )
 
-    unittest.end(env)
+    return unittest.end(env)
 
 scrooge_transitive_outputs_test = unittest.make(
     _scrooge_transitive_outputs,

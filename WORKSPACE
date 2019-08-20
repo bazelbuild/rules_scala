@@ -182,18 +182,16 @@ http_archive(
     ],
 )
 
+load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
+
+bazel_skylib_workspace()
+
 load("@bazel_toolchains//rules:rbe_repo.bzl", "rbe_autoconfig")
 
 # Creates toolchain configuration for remote execution with BuildKite CI
 # for rbe_ubuntu1604
 rbe_autoconfig(
     name = "buildkite_config",
-)
-
-git_repository(
-    name = "bazel_skylib",
-    remote = "https://github.com/bazelbuild/bazel-skylib.git",
-    tag = "0.6.0",
 )
 
 ## deps for tests of limited deps support
