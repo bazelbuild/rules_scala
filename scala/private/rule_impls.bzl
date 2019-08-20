@@ -795,7 +795,7 @@ def collect_jars_from_common_ctx(
         deps_providers = deps_providers,
     )
 
-def _lib(
+def lib(
         ctx,
         base_classpath,
         non_macro_lib,
@@ -889,7 +889,7 @@ def scala_library_impl(ctx):
         print("'jvm_flags' for scala_library is deprecated. It does nothing today and will be removed from scala_library to avoid confusion.")
     scalac_provider = get_scalac_provider(ctx)
     unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
-    return _lib(
+    return lib(
         ctx,
         scalac_provider.default_classpath,
         True,
@@ -899,23 +899,12 @@ def scala_library_impl(ctx):
 
 def scala_library_for_plugin_bootstrapping_impl(ctx):
     scalac_provider = get_scalac_provider(ctx)
-    return _lib(
+    return lib(
         ctx,
         scalac_provider.default_classpath,
         True,
         unused_dependency_checker_ignored_targets = [],
         unused_dependency_checker_mode = "off",
-    )
-
-def scala_macro_library_impl(ctx):
-    scalac_provider = get_scalac_provider(ctx)
-    unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
-    return _lib(
-        ctx,
-        scalac_provider.default_macro_classpath,
-        False,  # don't build the ijar for macros
-        unused_dependency_checker_mode,
-        ctx.attr.unused_dependency_checker_ignored_targets,
     )
 
 # Common code shared by all scala binary implementations.

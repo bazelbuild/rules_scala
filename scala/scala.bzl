@@ -2,7 +2,6 @@ load(
     "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
     _scala_library_for_plugin_bootstrapping_impl = "scala_library_for_plugin_bootstrapping_impl",
     _scala_library_impl = "scala_library_impl",
-    _scala_macro_library_impl = "scala_macro_library_impl",
 )
 load(
     "@io_bazel_rules_scala//scala/private:common_attributes.bzl",
@@ -33,6 +32,10 @@ load(
 load(
     "@io_bazel_rules_scala//scala/private:rules/scala_junit_test.bzl",
     _scala_junit_test = "scala_junit_test",
+)
+load(
+    "@io_bazel_rules_scala//scala/private:rules/scala_macro_library.bzl",
+    _scala_macro_library = "scala_macro_library",
 )
 load(
     "@io_bazel_rules_scala//scala/private:rules/scala_repl.bzl",
@@ -85,39 +88,6 @@ scala_library_for_plugin_bootstrapping = rule(
     implementation = _scala_library_for_plugin_bootstrapping_impl,
 )
 
-_scala_macro_library_attrs = {
-    "main_class": attr.string(),
-    "exports": attr.label_list(allow_files = False),
-}
-
-_scala_macro_library_attrs.update(implicit_deps)
-
-_scala_macro_library_attrs.update(common_attrs)
-
-_scala_macro_library_attrs.update(library_attrs)
-
-_scala_macro_library_attrs.update(resolve_deps)
-
-# Set unused_dependency_checker_mode default to off for scala_macro_library
-_scala_macro_library_attrs["unused_dependency_checker_mode"] = attr.string(
-    default = "off",
-    values = [
-        "warn",
-        "error",
-        "off",
-        "",
-    ],
-    mandatory = False,
-)
-
-scala_macro_library = rule(
-    attrs = _scala_macro_library_attrs,
-    fragments = ["java"],
-    outputs = common_outputs,
-    toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
-    implementation = _scala_macro_library_impl,
-)
-
 # Scala library suite generates a series of scala libraries
 # then it depends on them with a meta one which exports all the sub targets
 def scala_library_suite(
@@ -162,6 +132,7 @@ def scala_specs2_junit_test(name, **kwargs):
 scala_binary = _scala_binary
 scala_doc = _scala_doc
 scala_junit_test = _scala_junit_test
+scala_macro_library = _scala_macro_library
 scala_repl = _scala_repl
 scala_repositories = _scala_repositories
 scala_test = _scala_test
