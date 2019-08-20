@@ -43,7 +43,7 @@ env:
   # Linting is broken. Disable until fixed.
   # See https://github.com/bazelbuild/rules_scala/pull/622
   # we want to test the last release
-  #- TEST_SCRIPT=test_lint.sh
+  - TEST_SCRIPT=test_lint.sh
   - TEST_SCRIPT=test_rules_scala
   #- TEST_SCRIPT=test_intellij_aspect.sh
   - TEST_SCRIPT=test_reproducibility
