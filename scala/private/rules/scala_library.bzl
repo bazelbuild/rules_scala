@@ -1,4 +1,11 @@
-load("@io_bazel_rules_scala//scala/private:common.bzl", "sanitize_string_for_usage")
+load("@io_bazel_rules_scala//scala:providers.bzl", "create_scala_provider")
+load(
+    "@io_bazel_rules_scala//scala/private:common.bzl",
+    "collect_jars",
+    "collect_srcjars",
+    "sanitize_string_for_usage",
+    "write_manifest",
+)
 load(
     "@io_bazel_rules_scala//scala/private:common_attributes.bzl",
     "common_attrs",
@@ -13,9 +20,12 @@ load(
 )
 load(
     "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
+    "build_deployable",
+    "collect_jars_from_common_ctx",
+    "compile_or_empty",
     "get_scalac_provider",
     "get_unused_dependency_checker_mode",
-    "lib",
+    "pack_source_jars",
 )
 
 ##
@@ -30,6 +40,89 @@ _library_attrs = {
     ),
 }
 
+def _lib(
+        ctx,
+        base_classpath,
+        non_macro_lib,
+        unused_dependency_checker_mode,
+        unused_dependency_checker_ignored_targets):
+    # Build up information from dependency-like attributes
+
+    # This will be used to pick up srcjars from non-scala library
+    # targets (like thrift code generation)
+    srcjars = collect_srcjars(ctx.attr.deps)
+
+    unused_dependency_checker_is_off = unused_dependency_checker_mode == "off"
+    jars = collect_jars_from_common_ctx(
+        ctx,
+        base_classpath,
+        unused_dependency_checker_is_off = unused_dependency_checker_is_off,
+    )
+
+    (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
+
+    write_manifest(ctx)
+    outputs = compile_or_empty(
+        ctx,
+        ctx.outputs.manifest,
+        cjars,
+        srcjars,
+        non_macro_lib,
+        jars.transitive_compile_jars,
+        jars.jars2labels.jars_to_labels,
+        [],
+        unused_dependency_checker_ignored_targets = [
+            target.label
+            for target in base_classpath + ctx.attr.exports +
+                          unused_dependency_checker_ignored_targets
+        ],
+        unused_dependency_checker_mode = unused_dependency_checker_mode,
+        deps_providers = jars.deps_providers,
+    )
+
+    transitive_rjars = depset(outputs.full_jars, transitive = [transitive_rjars])
+
+    build_deployable(ctx, transitive_rjars.to_list())
+
+    # Using transitive_files since transitive_rjars a depset and avoiding linearization
+    runfiles = ctx.runfiles(
+        transitive_files = transitive_rjars,
+        collect_data = True,
+    )
+
+    # Add information from exports (is key that AFTER all build actions/runfiles analysis)
+    # Since after, will not show up in deploy_jar or old jars runfiles
+    # Notice that compile_jars is intentionally transitive for exports
+    exports_jars = collect_jars(ctx.attr.exports)
+    transitive_rjars = depset(
+        transitive = [transitive_rjars, exports_jars.transitive_runtime_jars],
+    )
+
+    source_jars = pack_source_jars(ctx) + outputs.source_jars
+
+    scalaattr = create_scala_provider(
+        class_jar = outputs.class_jar,
+        compile_jars = depset(
+            outputs.ijars,
+            transitive = [exports_jars.compile_jars],
+        ),
+        deploy_jar = ctx.outputs.deploy_jar,
+        full_jars = outputs.full_jars,
+        ijar = outputs.ijar,
+        source_jars = source_jars,
+        statsfile = ctx.outputs.statsfile,
+        transitive_runtime_jars = transitive_rjars,
+    )
+
+    return struct(
+        files = depset([ctx.outputs.jar] + outputs.full_jars),  # Here is the default output
+        instrumented_files = outputs.coverage.instrumented_files,
+        jars_to_labels = jars.jars2labels,
+        providers = [outputs.merged_provider, jars.jars2labels] + outputs.coverage.providers,
+        runfiles = runfiles,
+        scala = scalaattr,
+    )
+
 ##
 # scala_library
 ##
@@ -39,7 +132,7 @@ def _scala_library_impl(ctx):
         print("'jvm_flags' for scala_library is deprecated. It does nothing today and will be removed from scala_library to avoid confusion.")
     scalac_provider = get_scalac_provider(ctx)
     unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
-    return lib(
+    return _lib(
         ctx,
         scalac_provider.default_classpath,
         True,
@@ -98,7 +191,7 @@ def scala_library_suite(
 
 def _scala_library_for_plugin_bootstrapping_impl(ctx):
     scalac_provider = get_scalac_provider(ctx)
-    return lib(
+    return _lib(
         ctx,
         scalac_provider.default_classpath,
         True,
@@ -136,7 +229,7 @@ scala_library_for_plugin_bootstrapping = rule(
 def _scala_macro_library_impl(ctx):
     scalac_provider = get_scalac_provider(ctx)
     unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
-    return lib(
+    return _lib(
         ctx,
         scalac_provider.default_macro_classpath,
         False,  # don't build the ijar for macros
