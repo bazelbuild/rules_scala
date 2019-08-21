@@ -548,22 +548,22 @@ def _create_scala_compilation_provider(ctx, ijar, source_jar, deps_providers):
         runtime_deps = runtime_deps,
     )
 
-def build_deployable(ctx, jars_list):
+def merge_jars(main_class, actions, deploy_jar, singlejar_executable, label, jars_list):
     # This calls bazels singlejar utility.
     # For a full list of available command line options see:
     # https://github.com/bazelbuild/bazel/blob/master/src/java_tools/singlejar/java/com/google/devtools/build/singlejar/SingleJar.java#L311
     # Use --compression to reduce size of deploy jars.
     args = ["--compression", "--normalize", "--sources"]
     args.extend([j.path for j in jars_list])
-    if getattr(ctx.attr, "main_class", ""):
-        args.extend(["--main_class", ctx.attr.main_class])
-    args.extend(["--output", ctx.outputs.deploy_jar.path])
-    ctx.actions.run(
+    if main_class:
+        args.extend(["--main_class", main_class])
+    args.extend(["--output", deploy_jar.path])
+    actions.run(
         inputs = jars_list,
-        outputs = [ctx.outputs.deploy_jar],
-        executable = ctx.executable._singlejar,
+        outputs = [deploy_jar],
+        executable = singlejar_executable,
         mnemonic = "ScalaDeployJar",
-        progress_message = "scala deployable %s" % ctx.label,
+        progress_message = "scala deployable %s" % label,
         arguments = args,
     )
 
@@ -832,7 +832,14 @@ def scala_binary_common(
     )  # no need to build an ijar for an executable
     rjars = depset(outputs.full_jars, transitive = [rjars])
 
-    build_deployable(ctx, rjars.to_list())
+    merge_jars(
+        main_class = getattr(ctx.attr, "main_class", ""),
+        actions = ctx.actions,
+        deploy_jar = ctx.outputs.deploy_jar,
+        singlejar_executable = ctx.executable._singlejar,
+        label = ctx.label,
+        jars_list = rjars.to_list(),
+    )
 
     runfiles = ctx.runfiles(
         transitive_files = depset(
