@@ -403,7 +403,7 @@ def collect_java_providers_of(deps):
             providers.append(dep[JavaInfo])
     return providers
 
-def _compile_or_empty(
+def compile_or_empty(
         ctx,
         manifest,
         jars,
@@ -548,7 +548,7 @@ def _create_scala_compilation_provider(ctx, ijar, source_jar, deps_providers):
         runtime_deps = runtime_deps,
     )
 
-def _build_deployable(ctx, jars_list):
+def build_deployable(ctx, jars_list):
     # This calls bazels singlejar utility.
     # For a full list of available command line options see:
     # https://github.com/bazelbuild/bazel/blob/master/src/java_tools/singlejar/java/com/google/devtools/build/singlejar/SingleJar.java#L311
@@ -795,128 +795,11 @@ def collect_jars_from_common_ctx(
         deps_providers = deps_providers,
     )
 
-def _lib(
-        ctx,
-        base_classpath,
-        non_macro_lib,
-        unused_dependency_checker_mode,
-        unused_dependency_checker_ignored_targets):
-    # Build up information from dependency-like attributes
-
-    # This will be used to pick up srcjars from non-scala library
-    # targets (like thrift code generation)
-    srcjars = collect_srcjars(ctx.attr.deps)
-
-    unused_dependency_checker_is_off = unused_dependency_checker_mode == "off"
-    jars = collect_jars_from_common_ctx(
-        ctx,
-        base_classpath,
-        unused_dependency_checker_is_off = unused_dependency_checker_is_off,
-    )
-
-    (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
-
-    write_manifest(ctx)
-    outputs = _compile_or_empty(
-        ctx,
-        ctx.outputs.manifest,
-        cjars,
-        srcjars,
-        non_macro_lib,
-        jars.transitive_compile_jars,
-        jars.jars2labels.jars_to_labels,
-        [],
-        unused_dependency_checker_ignored_targets = [
-            target.label
-            for target in base_classpath + ctx.attr.exports +
-                          unused_dependency_checker_ignored_targets
-        ],
-        unused_dependency_checker_mode = unused_dependency_checker_mode,
-        deps_providers = jars.deps_providers,
-    )
-
-    transitive_rjars = depset(outputs.full_jars, transitive = [transitive_rjars])
-
-    _build_deployable(ctx, transitive_rjars.to_list())
-
-    # Using transitive_files since transitive_rjars a depset and avoiding linearization
-    runfiles = ctx.runfiles(
-        transitive_files = transitive_rjars,
-        collect_data = True,
-    )
-
-    # Add information from exports (is key that AFTER all build actions/runfiles analysis)
-    # Since after, will not show up in deploy_jar or old jars runfiles
-    # Notice that compile_jars is intentionally transitive for exports
-    exports_jars = collect_jars(ctx.attr.exports)
-    transitive_rjars = depset(
-        transitive = [transitive_rjars, exports_jars.transitive_runtime_jars],
-    )
-
-    source_jars = _pack_source_jars(ctx) + outputs.source_jars
-
-    scalaattr = create_scala_provider(
-        class_jar = outputs.class_jar,
-        compile_jars = depset(
-            outputs.ijars,
-            transitive = [exports_jars.compile_jars],
-        ),
-        deploy_jar = ctx.outputs.deploy_jar,
-        full_jars = outputs.full_jars,
-        ijar = outputs.ijar,
-        source_jars = source_jars,
-        statsfile = ctx.outputs.statsfile,
-        transitive_runtime_jars = transitive_rjars,
-    )
-
-    return struct(
-        files = depset([ctx.outputs.jar] + outputs.full_jars),  # Here is the default output
-        instrumented_files = outputs.coverage.instrumented_files,
-        jars_to_labels = jars.jars2labels,
-        providers = [outputs.merged_provider, jars.jars2labels] + outputs.coverage.providers,
-        runfiles = runfiles,
-        scala = scalaattr,
-    )
-
 def get_unused_dependency_checker_mode(ctx):
     if ctx.attr.unused_dependency_checker_mode:
         return ctx.attr.unused_dependency_checker_mode
     else:
         return ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].unused_dependency_checker_mode
-
-def scala_library_impl(ctx):
-    if ctx.attr.jvm_flags:
-        print("'jvm_flags' for scala_library is deprecated. It does nothing today and will be removed from scala_library to avoid confusion.")
-    scalac_provider = get_scalac_provider(ctx)
-    unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
-    return _lib(
-        ctx,
-        scalac_provider.default_classpath,
-        True,
-        unused_dependency_checker_mode,
-        ctx.attr.unused_dependency_checker_ignored_targets,
-    )
-
-def scala_library_for_plugin_bootstrapping_impl(ctx):
-    scalac_provider = get_scalac_provider(ctx)
-    return _lib(
-        ctx,
-        scalac_provider.default_classpath,
-        True,
-        unused_dependency_checker_ignored_targets = [],
-        unused_dependency_checker_mode = "off",
-    )
-
-def scala_macro_library_impl(ctx):
-    scalac_provider = get_scalac_provider(ctx)
-    unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
-    return _lib(
-        ctx,
-        scalac_provider.default_macro_classpath,
-        False,  # don't build the ijar for macros
-        unused_dependency_checker_mode,
-        ctx.attr.unused_dependency_checker_ignored_targets,
-    )
 
 # Common code shared by all scala binary implementations.
 def scala_binary_common(
@@ -933,7 +816,7 @@ def scala_binary_common(
         implicit_junit_deps_needed_for_java_compilation = [],
         runfiles_ext = []):
     write_manifest(ctx)
-    outputs = _compile_or_empty(
+    outputs = compile_or_empty(
         ctx,
         ctx.outputs.manifest,
         cjars,
@@ -949,7 +832,7 @@ def scala_binary_common(
     )  # no need to build an ijar for an executable
     rjars = depset(outputs.full_jars, transitive = [rjars])
 
-    _build_deployable(ctx, rjars.to_list())
+    build_deployable(ctx, rjars.to_list())
 
     runfiles = ctx.runfiles(
         transitive_files = depset(
@@ -959,7 +842,7 @@ def scala_binary_common(
         collect_data = True,
     )
 
-    source_jars = _pack_source_jars(ctx) + outputs.source_jars
+    source_jars = pack_source_jars(ctx) + outputs.source_jars
 
     scalaattr = create_scala_provider(
         class_jar = outputs.class_jar,
@@ -1009,7 +892,7 @@ def _pack_source_jar(ctx):
 
     return scala_source_jar
 
-def _pack_source_jars(ctx):
+def pack_source_jars(ctx):
     source_jar = _pack_source_jar(ctx)
     #_pack_source_jar may return None if java_common.pack_sources returned None (and it can)
     return [source_jar] if source_jar else []
