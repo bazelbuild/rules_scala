@@ -1,7 +1,6 @@
 dist: xenial
 sudo: required
 language: sh
-osx_image: xcode10.1
 
 addons:
   apt:
@@ -13,11 +12,13 @@ cache:
      - .bazel_cache
      - ~/.bazel_binaries
 
-os:
-  - linux
-  - osx
-# re-enable when someone can get windows green
-#  - windows
+_linux: &linux
+  os: linux
+_osx: &osx
+  os: osx
+  osx_image: xcode10.1
+_windows:
+  os: windows
 
 ###
 #
@@ -40,15 +41,21 @@ os:
 #
 ###
 
-env:
-  # Linting is broken. Disable until fixed.
-  # See https://github.com/bazelbuild/rules_scala/pull/622
-  # we want to test the last release
-  - TEST_SCRIPT=test_lint
-  - TEST_SCRIPT=test_rules_scala
-  #- TEST_SCRIPT=test_intellij_aspect.sh
-  - TEST_SCRIPT=test_reproducibility
-
+jobs:
+  include:
+# Lint
+    - stage: test
+      <<: *linux
+      env: TEST_SCRIPT=test_lint
+# Test
+    - <<: *linux
+      env: TEST_SCRIPT=test_rules_scala
+    - <<: *linux
+      env: TEST_SCRIPT=test_reproducibility
+    - <<: *osx
+      env: TEST_SCRIPT=test_rules_scala
+    - <<: *osx
+      env: TEST_SCRIPT=test_reproducibility
 
 before_install:
   - |
