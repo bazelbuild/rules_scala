@@ -1,6 +1,5 @@
 workspace(name = "io_bazel_rules_scala")
 
-
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 load("//scala:scala.bzl", "scala_repositories")
@@ -8,7 +7,7 @@ load("//scala:scala.bzl", "scala_repositories")
 scala_repositories()
 
 load("//scala:scala_maven_import_external.bzl", "scala_maven_import_external")
-load("//twitter_scrooge:twitter_scrooge.bzl", "twitter_scrooge", "scrooge_scala_library")
+load("//twitter_scrooge:twitter_scrooge.bzl", "scrooge_scala_library", "twitter_scrooge")
 
 twitter_scrooge()
 
@@ -28,7 +27,7 @@ load("//specs2:specs2_junit.bzl", "specs2_junit_repositories")
 
 specs2_junit_repositories()
 
-load("//scala:scala_cross_version.bzl", "scala_mvn_artifact", "default_scala_major_version")
+load("//scala:scala_cross_version.bzl", "default_scala_major_version", "scala_mvn_artifact")
 
 # test adding a scala jar:
 maven_jar(
@@ -76,8 +75,8 @@ maven_jar(
 scala_maven_import_external(
     name = "com_github_jnr_jffi_native",
     artifact = "com.github.jnr:jffi:jar:native:1.2.17",
-    fetch_sources = True,
     artifact_sha256 = "4eb582bc99d96c8df92fc6f0f608fd123d278223982555ba16219bf8be9f75a9",
+    fetch_sources = True,
     licenses = ["notice"],
     server_urls = [
         "https://repo.maven.apache.org/maven2/",
@@ -108,23 +107,21 @@ load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_unused_deps_
 
 scala_register_unused_deps_toolchains()
 
-
 register_toolchains("@io_bazel_rules_scala//test/proto:scalapb_toolchain")
 
-
-load("//scala:scala_maven_import_external.bzl", "scala_maven_import_external", "java_import_external")
+load("//scala:scala_maven_import_external.bzl", "java_import_external", "scala_maven_import_external")
 
 scala_maven_import_external(
     name = "com_google_guava_guava_21_0",
     artifact = "com.google.guava:guava:21.0",
     artifact_sha256 = "972139718abc8a4893fa78cba8cf7b2c903f35c97aaf44fa3031b0669948b480",
-    srcjar_sha256 = "b186965c9af0a714632fe49b33378c9670f8f074797ab466f49a67e918e116ea",
     fetch_sources = True,
     licenses = ["notice"],  # Apache 2.0
     server_urls = [
         "https://repo1.maven.org/maven2/",
         "https://mirror.bazel.build/repo1.maven.org/maven2",
-        ],
+    ],
+    srcjar_sha256 = "b186965c9af0a714632fe49b33378c9670f8f074797ab466f49a67e918e116ea",
 )
 
 # bazel's java_import_external has been altered in rules_scala to be a macro based on jvm_import_external
@@ -149,6 +146,33 @@ load("//private:format.bzl", "format_repositories")
 format_repositories()
 
 http_archive(
+    name = "io_bazel_rules_go",
+    sha256 = "45409e6c4f748baa9e05f8f6ab6efaa05739aa064e3ab94e5a1a09849c51806a",
+    url = "https://github.com/bazelbuild/rules_go/releases/download/0.18.7/rules_go-0.18.7.tar.gz",
+)
+
+http_archive(
+    name = "com_github_bazelbuild_buildtools",
+    sha256 = "cdaac537b56375f658179ee2f27813cac19542443f4722b6730d84e4125355e6",
+    strip_prefix = "buildtools-f27d1753c8b3210d9e87cdc9c45bc2739ae2c2db",
+    url = "https://github.com/bazelbuild/buildtools/archive/f27d1753c8b3210d9e87cdc9c45bc2739ae2c2db.zip",
+)
+
+load(
+    "@io_bazel_rules_go//go:deps.bzl",
+    "go_register_toolchains",
+    "go_rules_dependencies",
+)
+
+go_rules_dependencies()
+
+go_register_toolchains()
+
+load("@com_github_bazelbuild_buildtools//buildifier:deps.bzl", "buildifier_dependencies")
+
+buildifier_dependencies()
+
+http_archive(
     name = "bazel_toolchains",
     sha256 = "5962fe677a43226c409316fcb321d668fc4b7fa97cb1f9ef45e7dc2676097b26",
     strip_prefix = "bazel-toolchains-be10bee3010494721f08a0fccd7f57411a1e773e",
@@ -158,6 +182,10 @@ http_archive(
     ],
 )
 
+load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
+
+bazel_skylib_workspace()
+
 load("@bazel_toolchains//rules:rbe_repo.bzl", "rbe_autoconfig")
 
 # Creates toolchain configuration for remote execution with BuildKite CI
@@ -166,13 +194,8 @@ rbe_autoconfig(
     name = "buildkite_config",
 )
 
-git_repository(
-    name = "bazel_skylib",
-    remote = "https://github.com/bazelbuild/bazel-skylib.git",
-    tag = "0.6.0",
-)
-
 ## deps for tests of limited deps support
+
 scala_maven_import_external(
     name = "org_springframework_spring_core",
     artifact = "org.springframework:spring-core:5.1.5.RELEASE",
@@ -181,7 +204,7 @@ scala_maven_import_external(
     server_urls = [
         "https://repo1.maven.org/maven2/",
         "https://mirror.bazel.build/repo1.maven.org/maven2",
-        ],
+    ],
 )
 
 scala_maven_import_external(
@@ -192,10 +215,10 @@ scala_maven_import_external(
     server_urls = [
         "https://repo1.maven.org/maven2/",
         "https://mirror.bazel.build/repo1.maven.org/maven2",
-        ],
+    ],
     deps = [
-        "@org_springframework_spring_core"
-    ]
+        "@org_springframework_spring_core",
+    ],
 )
 
 ## deps for tests of compiler plugin

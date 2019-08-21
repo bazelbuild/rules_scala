@@ -1,4 +1,4 @@
-load("//scala:scala.bzl", "scala_binary", "scala_library", "scala_test", "scala_macro_library")
+load("//scala:scala.bzl", "scala_binary", "scala_library", "scala_macro_library", "scala_test")
 
 scala_library(
     name = "uses_class",

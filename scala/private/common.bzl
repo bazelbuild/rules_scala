@@ -80,7 +80,7 @@ def _collect_jars_when_dependency_analyzer_is_off(
 
         if (not plus_one_deps_is_off) and (PlusOneDeps in dep_target):
             plus_one_deps_compile_jars.append(
-                depset(transitive = [dep[JavaInfo].compile_jars for dep in dep_target[PlusOneDeps].direct_deps if JavaInfo in dep ])
+                depset(transitive = [dep[JavaInfo].compile_jars for dep in dep_target[PlusOneDeps].direct_deps if JavaInfo in dep]),
             )
 
     return struct(

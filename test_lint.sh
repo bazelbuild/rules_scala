@@ -2,4 +2,4 @@
 
 set -eou pipefail
 
-FMT_SKYLINT=false ./lint.sh check
+./tools/bazel run //tools:buildifier@check

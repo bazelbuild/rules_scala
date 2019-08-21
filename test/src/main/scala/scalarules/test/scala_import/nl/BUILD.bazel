@@ -4,7 +4,7 @@ load("//scala:scala_import.bzl", "scala_import")
 scala_import(
     name = "scala_import_never_link",
     jars = [
-        "scala_import_never_link.jar"
+        "scala_import_never_link.jar",
     ],
     neverlink = 1,
 )

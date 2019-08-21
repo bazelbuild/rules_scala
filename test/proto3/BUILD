@@ -7,7 +7,7 @@ genrule(
     name = "generated",
     srcs = ["test.proto"],
     outs = ["generated.proto"],
-    cmd = "cp $(SRCS) \"$@\""
+    cmd = "cp $(SRCS) \"$@\"",
 )
 
 proto_library(

@@ -4,14 +4,14 @@ load(
     "//scala:scala.bzl",
     "scala_binary",
     "scala_doc",
+    "scala_junit_test",
     "scala_library",
-    "scala_test",
+    "scala_library_suite",
     "scala_macro_library",
     "scala_repl",
-    "scala_test_suite",
-    "scala_library_suite",
-    "scala_junit_test",
     "scala_specs2_junit_test",
+    "scala_test",
+    "scala_test_suite",
 )
 load(
     "//scala_proto:scala_proto.bzl",
@@ -144,12 +144,12 @@ scala_doc(
         ":HelloLib",
         ":OtherLib",
         "//test/src/main/scala/scalarules/test/compiler_plugin",  # brings kind-projector compiler plugin with it
-    ]
+    ],
 )
 
 scala_library(
     name = "UnusedLib",
-    srcs = ["UnusedLib.scala"]
+    srcs = ["UnusedLib.scala"],
 )
 
 scala_library(
@@ -165,7 +165,7 @@ scala_library(
     unused_dependency_checker_mode = "warn",
     deps = [
         "ExportOnly",
-        "UnusedLib"
+        "UnusedLib",
     ],
 )
 
@@ -297,14 +297,14 @@ genrule(
     name = "MixJavaScalaLibTestOutputs",
     outs = ["mix_java_scala_lib_test_rule_outputs.txt"],
     cmd = "echo $(locations MixJavaScalaLib) > $@",
-    tools = [":MixJavaScalaLib"]
+    tools = [":MixJavaScalaLib"],
 )
 
 sh_test(
     name = "MixJavaScalaLibTest",
     srcs = ["test_scala_library_outputs_mixed_java_scala_jars.sh"],
     args = ["$(location MixJavaScalaLibTestOutputs) MixJavaScalaLib"],
-    data = ["MixJavaScalaLibTestOutputs"]
+    data = ["MixJavaScalaLibTestOutputs"],
 )
 
 #needed to test java sources are compiled
@@ -417,9 +417,9 @@ scala_specs2_junit_test(
     name = "Specs2Tests_unused_dependency_checker",
     size = "small",
     srcs = ["src/main/scala/scalarules/test/junit/specs2/Specs2Tests.scala"],
-    unused_dependency_checker_mode = "error",
-    unused_dependency_checker_ignored_targets = [":JUnitRuntimeDep"],
     suffixes = ["Test"],
+    unused_dependency_checker_ignored_targets = [":JUnitRuntimeDep"],
+    unused_dependency_checker_mode = "error",
     deps = [
         ":JUnitCompileTimeDep",
         ":JUnitRuntimeDep",
@@ -631,8 +631,8 @@ scalapb_proto_library(
     name = "test_proto_scala_import_dep",
     visibility = ["//visibility:public"],
     deps = [
-        "@com_github_jnr_jffi_native",
         "//test/proto:test2",
+        "@com_github_jnr_jffi_native",
     ],
 )
 
@@ -658,9 +658,8 @@ scala_junit_test(
     name = "JunitSeparateTarget_test_runner",
     size = "small",
     suffixes = ["Test"],
-    runtime_deps = [":JunitSeparateTarget"],
     tests_from = [":JunitSeparateTarget"],
-
+    runtime_deps = [":JunitSeparateTarget"],
 )
 
 java_library(
@@ -673,9 +672,8 @@ scala_junit_test(
     name = "JunitJavaSeparateTarget_test_runner",
     size = "small",
     suffixes = ["Test"],
-    runtime_deps = [":JunitJavaSeparateTarget"],
     tests_from = [":JunitJavaSeparateTarget"],
-
+    runtime_deps = [":JunitJavaSeparateTarget"],
 )
 
 scala_library(
@@ -687,40 +685,39 @@ scala_library(
 scala_library(
     name = "JunitSeparateTargetWithDependencyOnTest",
     srcs = ["src/main/scala/scalarules/test/junit/separate_target/JunitSeparateTargetTest.scala"],
-    deps = ["//external:io_bazel_rules_scala/dependency/junit/junit"],
     runtime_deps = [":TargetWithTestThatShouldNotRun"],
+    deps = ["//external:io_bazel_rules_scala/dependency/junit/junit"],
 )
 
 scala_junit_test(
     name = "JunitSeparateTargetTransitiveDependencyShouldNotRun_test_runner",
     size = "small",
     suffixes = ["Test"],
-    runtime_deps = [":JunitSeparateTargetWithDependencyOnTest"],
     tests_from = [":JunitSeparateTargetWithDependencyOnTest"],
-
+    runtime_deps = [":JunitSeparateTargetWithDependencyOnTest"],
 )
 
 java_library(
     name = "JunitSeparateJavaTargetWithDependencyOnTest",
     srcs = ["src/main/scala/scalarules/test/junit/separate_target/JunitJavaSeparateTargetTest.java"],
-    deps = ["//external:io_bazel_rules_scala/dependency/junit/junit"],
     runtime_deps = [":TargetWithTestThatShouldNotRun"],
+    deps = ["//external:io_bazel_rules_scala/dependency/junit/junit"],
 )
 
 scala_junit_test(
     name = "JunitSeparateJavaTargetTransitiveDependencyShouldNotRun_test_runner",
     size = "small",
     suffixes = ["Test"],
-    runtime_deps = [":JunitSeparateJavaTargetWithDependencyOnTest"],
     tests_from = [":JunitSeparateJavaTargetWithDependencyOnTest"],
-
+    runtime_deps = [":JunitSeparateJavaTargetWithDependencyOnTest"],
 )
 
 scala_library(
     name = "JunitMixedSeparateTarget",
-    srcs = ["src/main/scala/scalarules/test/junit/separate_target/SomeScalaClass.scala",
-            "src/main/scala/scalarules/test/junit/separate_target/JunitJavaSeparateTargetTest.java"
-            ],
+    srcs = [
+        "src/main/scala/scalarules/test/junit/separate_target/JunitJavaSeparateTargetTest.java",
+        "src/main/scala/scalarules/test/junit/separate_target/SomeScalaClass.scala",
+    ],
     deps = ["//external:io_bazel_rules_scala/dependency/junit/junit"],
 )
 
@@ -728,7 +725,6 @@ scala_junit_test(
     name = "JunitMixedSeparateTarget_test_runner",
     size = "small",
     suffixes = ["Test"],
-    runtime_deps = [":JunitMixedSeparateTarget"],
     tests_from = [":JunitMixedSeparateTarget"],
-
+    runtime_deps = [":JunitMixedSeparateTarget"],
 )
