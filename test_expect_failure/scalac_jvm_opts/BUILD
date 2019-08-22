@@ -2,7 +2,7 @@ load("//scala:scala_toolchain.bzl", "scala_toolchain")
 load("//scala:scala.bzl", "scala_library")
 load(
     "//scala_proto:scala_proto.bzl",
-    "scalapb_proto_library",
+    "scala_proto_library",
 )
 
 scala_toolchain(

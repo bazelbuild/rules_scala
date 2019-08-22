@@ -1,6 +1,6 @@
 load(
     "//scala_proto:scala_proto.bzl",
-    "scalapb_proto_library",
+    "scala_proto_library",
 )
 
 genrule(
@@ -16,7 +16,7 @@ proto_library(
     visibility = ["//visibility:public"],
 )
 
-scalapb_proto_library(
+scala_proto_library(
     name = "test_generated_proto",
     visibility = ["//visibility:public"],
     deps = [":generated-proto-lib"],

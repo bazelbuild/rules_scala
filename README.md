@@ -18,7 +18,7 @@ This project defines core build rules for [Scala](https://www.scala-lang.org/) t
 * [scala_library_suite](docs/scala_library_suite.md)
 * [scala_test_suite](docs/scala_test_suite.md)
 * [thrift_library](docs/thrift_library.md)
-* [scalapb_proto_library](docs/scalapb_proto_library.md)
+* [scala_proto_library](docs/scala_proto_library.md)
 * [scala_toolchain](docs/scala_toolchain.md)
 * [scala_import](docs/scala_import.md)
 * [scala_doc](docs/scala_doc.md)
