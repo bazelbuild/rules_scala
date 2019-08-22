@@ -83,12 +83,12 @@ def _lib(
     transitive_rjars = depset(outputs.full_jars, transitive = [transitive_rjars])
 
     merge_jars(
-        main_class = getattr(ctx.attr, "main_class", ""),
         actions = ctx.actions,
         deploy_jar = ctx.outputs.deploy_jar,
         singlejar_executable = ctx.executable._singlejar,
         label = ctx.label,
         jars_list = transitive_rjars.to_list(),
+        main_class = getattr(ctx.attr, "main_class", ""),
     )
 
     # Using transitive_files since transitive_rjars a depset and avoiding linearization

@@ -548,11 +548,21 @@ def _create_scala_compilation_provider(ctx, ijar, source_jar, deps_providers):
         runtime_deps = runtime_deps,
     )
 
-def merge_jars(main_class, actions, deploy_jar, singlejar_executable, label, jars_list):
-    # This calls bazels singlejar utility.
-    # For a full list of available command line options see:
-    # https://github.com/bazelbuild/bazel/blob/master/src/java_tools/singlejar/java/com/google/devtools/build/singlejar/SingleJar.java#L311
-    # Use --compression to reduce size of deploy jars.
+def merge_jars(actions, deploy_jar, singlejar_executable, label, jars_list, main_class = ""):
+    """Calls Bazel's singlejar utility.
+
+    For a full list of available command line options see:
+    https://github.com/bazelbuild/bazel/blob/697d219526bffbecd29f29b402c9122ec5d9f2ee/src/java_tools/singlejar/java/com/google/devtools/build/singlejar/SingleJar.java#L337
+    Use --compression to reduce size of deploy jars.
+
+    Args:
+        actions: The actions module from ctx: https://docs.bazel.build/versions/master/skylark/lib/actions.html
+        deploy_jar: The deploy jar, usually defined in ctx.outputs.
+        singlejar_executable: The singlejar executable file.
+        label: The label of the target, usually from ctx.label.
+        jars_list: The jars to pass to singlejar.
+        main_class: The main class to run, if any. Defaults to an empty string.
+    """
     args = ["--compression", "--normalize", "--sources"]
     args.extend([j.path for j in jars_list])
     if main_class:
@@ -833,12 +843,12 @@ def scala_binary_common(
     rjars = depset(outputs.full_jars, transitive = [rjars])
 
     merge_jars(
-        main_class = getattr(ctx.attr, "main_class", ""),
         actions = ctx.actions,
         deploy_jar = ctx.outputs.deploy_jar,
         singlejar_executable = ctx.executable._singlejar,
         label = ctx.label,
         jars_list = rjars.to_list(),
+        main_class = getattr(ctx.attr, "main_class", ""),
     )
 
     runfiles = ctx.runfiles(
