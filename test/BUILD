@@ -15,7 +15,7 @@ load(
 )
 load(
     "//scala_proto:scala_proto.bzl",
-    "scalapb_proto_library",
+    "scala_proto_library",
 )
 
 # The examples below show how to combine Scala and Java rules.
@@ -618,7 +618,7 @@ scala_binary(
     deps = [":lib_with_scala_proto_dep"],
 )
 
-scalapb_proto_library(
+scala_proto_library(
     name = "test_proto_scala_dep",
     visibility = ["//visibility:public"],
     deps = [
@@ -627,7 +627,7 @@ scalapb_proto_library(
     ],
 )
 
-scalapb_proto_library(
+scala_proto_library(
     name = "test_proto_scala_import_dep",
     visibility = ["//visibility:public"],
     deps = [

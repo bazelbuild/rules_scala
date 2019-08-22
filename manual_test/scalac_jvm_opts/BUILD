@@ -2,7 +2,7 @@ load("//scala:scala_toolchain.bzl", "scala_toolchain")
 load("//scala:scala.bzl", "scala_library")
 load(
     "//scala_proto:scala_proto.bzl",
-    "scalapb_proto_library",
+    "scala_proto_library",
 )
 
 scala_toolchain(
@@ -54,7 +54,7 @@ proto_library(
 
 # This is a regression test for a bug that broke compiling scalapb targets when
 # `scalac_jvm_flags` was set on the toolchain.
-scalapb_proto_library(
+scala_proto_library(
     name = "proto",
     visibility = ["//visibility:public"],
     deps = [":test"],
