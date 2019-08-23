@@ -548,7 +548,7 @@ def _create_scala_compilation_provider(ctx, ijar, source_jar, deps_providers):
         runtime_deps = runtime_deps,
     )
 
-def merge_jars(actions, deploy_jar, singlejar_executable, label, jars_list, main_class = ""):
+def merge_jars(actions, deploy_jar, singlejar_executable, jars_list, main_class = "", progress_message = ""):
     """Calls Bazel's singlejar utility.
 
     For a full list of available command line options see:
@@ -559,9 +559,9 @@ def merge_jars(actions, deploy_jar, singlejar_executable, label, jars_list, main
         actions: The actions module from ctx: https://docs.bazel.build/versions/master/skylark/lib/actions.html
         deploy_jar: The deploy jar, usually defined in ctx.outputs.
         singlejar_executable: The singlejar executable file.
-        label: The label of the target, usually from ctx.label.
         jars_list: The jars to pass to singlejar.
         main_class: The main class to run, if any. Defaults to an empty string.
+        progress_message: A progress message to display when Bazel executes this action. Defaults to an empty string.
     """
     args = ["--compression", "--normalize", "--sources"]
     args.extend([j.path for j in jars_list])
@@ -573,7 +573,7 @@ def merge_jars(actions, deploy_jar, singlejar_executable, label, jars_list, main
         outputs = [deploy_jar],
         executable = singlejar_executable,
         mnemonic = "ScalaDeployJar",
-        progress_message = "scala deployable %s" % label,
+        progress_message = progress_message,
         arguments = args,
     )
 
@@ -846,9 +846,9 @@ def scala_binary_common(
         actions = ctx.actions,
         deploy_jar = ctx.outputs.deploy_jar,
         singlejar_executable = ctx.executable._singlejar,
-        label = ctx.label,
         jars_list = rjars.to_list(),
         main_class = getattr(ctx.attr, "main_class", ""),
+        progress_message = "Merging Scala binary jar: %s" % ctx.label,
     )
 
     runfiles = ctx.runfiles(

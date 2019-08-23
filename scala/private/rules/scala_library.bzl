@@ -86,9 +86,9 @@ def _lib(
         actions = ctx.actions,
         deploy_jar = ctx.outputs.deploy_jar,
         singlejar_executable = ctx.executable._singlejar,
-        label = ctx.label,
         jars_list = transitive_rjars.to_list(),
         main_class = getattr(ctx.attr, "main_class", ""),
+        progress_message = "Merging Scala library jar: %s" % ctx.label,
     )
 
     # Using transitive_files since transitive_rjars a depset and avoiding linearization
