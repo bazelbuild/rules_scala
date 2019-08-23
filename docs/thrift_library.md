@@ -13,7 +13,7 @@ thrift_library(
 
 `thrift_library` generates a thrift source zip file.
 
-It should be consumed by a thrift compiler like `scrooge_scala_library` in its `deps`.
+It should be consumed by a thrift compiler like `thrift_scala_library` in its `deps`.
 
 <table class="table table-condensed table-bordered table-params">
   <colgroup>
@@ -43,7 +43,7 @@ It should be consumed by a thrift compiler like `scrooge_scala_library` in its `
       <td><code>deps</code></td>
       <td>
         <p><code>List of labels, optional</code></p>
-        <p>List of other thrift dependencies that this thrift depends on.  Also can include `scroogle_scala_import`
+        <p>List of other thrift dependencies that this thrift depends on.  Also can include `thrift_scala_import`
         targets, containing additional `thrift_jars` (which will be compiled) and/or `scala_jars` needed at compile time (such as Finagle).</p>
       </td>
     </tr>

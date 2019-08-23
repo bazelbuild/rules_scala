@@ -99,7 +99,7 @@ scala_repositories((
     }
 ))
 ```
-If you're using any of the rules `twitter_scrooge`, `tut_repositories`, `scala_proto_repositories`
+If you're using any of the rules `scala_thrift_repositories`, `tut_repositories`, `scala_proto_repositories`
 or `specs2_junit_repositories` you also need to specify `scala_version` for them. See `./test_version/WORKSPACE.template`
 for an example workspace using another scala version.
 
