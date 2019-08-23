@@ -20,11 +20,11 @@ load(
 )
 load(
     "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
-    "merge_jars",
     "collect_jars_from_common_ctx",
     "compile_or_empty",
     "get_scalac_provider",
     "get_unused_dependency_checker_mode",
+    "merge_jars",
     "pack_source_jars",
 )
 
