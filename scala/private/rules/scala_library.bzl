@@ -20,11 +20,11 @@ load(
 )
 load(
     "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
-    "build_deployable",
     "collect_jars_from_common_ctx",
     "compile_or_empty",
     "get_scalac_provider",
     "get_unused_dependency_checker_mode",
+    "merge_jars",
     "pack_source_jars",
 )
 
@@ -82,7 +82,14 @@ def _lib(
 
     transitive_rjars = depset(outputs.full_jars, transitive = [transitive_rjars])
 
-    build_deployable(ctx, transitive_rjars.to_list())
+    merge_jars(
+        actions = ctx.actions,
+        deploy_jar = ctx.outputs.deploy_jar,
+        singlejar_executable = ctx.executable._singlejar,
+        jars_list = transitive_rjars.to_list(),
+        main_class = getattr(ctx.attr, "main_class", ""),
+        progress_message = "Merging Scala library jar: %s" % ctx.label,
+    )
 
     # Using transitive_files since transitive_rjars a depset and avoiding linearization
     runfiles = ctx.runfiles(
