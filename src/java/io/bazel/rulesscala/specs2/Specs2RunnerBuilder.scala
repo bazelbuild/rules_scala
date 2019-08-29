@@ -57,11 +57,11 @@ class FilteredSpecs2ClassRunner(testClass: Class[_], testFilter: Pattern)
   extends org.specs2.runner.JUnitRunner(testClass) {
 
   override def getDescription(env: Env): Description = {
-    try createFilteredDescription(specStructure, env.specs2ExecutionEnv)
+    try createFilteredDescription(env.specs2ExecutionEnv)
     catch { case NonFatal(t) => env.shutdown; throw t; }
   }
 
-  private def createFilteredDescription(specStructure: SpecStructure, ee: ExecutionEnv): Description = {
+  private def createFilteredDescription(ee: ExecutionEnv): Description = {
     val descTree = createDescriptionTree(ee).map(_._2)
     descTree.toTree.bottomUp {
       (description: Description, children: Stream[Description]) =>
