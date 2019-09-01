@@ -39,14 +39,15 @@ will choose a course of action. If we cannot all agree, if 2/3 or more support
 merging a change, it will be done, otherwise we bias to no-merge.
 
 ## Reporting bugs
-We welcome bug reports but keep in mind this is a community driven OSS project.
-There is no one currently paid to try to fix bugs that have been filed. The
-contributors and maintainers are happy to help coach new contributors to fix
-bugs. In most cases, bug fixes should be simple since these rules have been used
-in production at multiple companies for several years now.
+We welcome bug reports and aspire to create an environment in which bug fixes are easy to contribute.
+There is currently no one paid to fix bugs that have been filed, so patience
+and direct contributions are greatly appreciated. The contributors and maintainers
+are happy to help coach prospective contributors in fixing bugs.
 
-An ideal bug report will be a PR that adds a failing test to the repo. This
-makes it easiest for another contributor to try to make that test green.
+An ideal bug report should include an issue filed in GitHub that is linked to a
+corresponding PR that adds a failing test to the repo. That way: we can track the issue,
+have a goalpost test to turn green, and also have an enduring test case to
+protect against regressions.
 
 ## Proposing designs
 For any change to design or the code that will span many PRs, we recommend
