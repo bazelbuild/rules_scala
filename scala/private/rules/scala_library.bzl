@@ -135,6 +135,11 @@ def _lib(
 ##
 
 def _scala_library_impl(ctx):
+    if hasattr(ctx.attr, "jvm_flags"):
+        fail(
+            msg = "'jvm_flags' for scala_library is deprecated. It does nothing today and will be removed from scala_library to avoid confusion.",
+            attr = "jvm_flags",
+        )
     scalac_provider = get_scalac_provider(ctx)
     unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
     return _lib(

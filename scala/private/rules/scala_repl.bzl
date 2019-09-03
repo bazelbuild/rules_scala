@@ -84,7 +84,9 @@ trap finish EXIT
 
     return out
 
-_scala_repl_attrs = {}
+_scala_repl_attrs = {
+    "jvm_flags": attr.string_list(),
+}
 
 _scala_repl_attrs.update(launcher_template)
 

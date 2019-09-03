@@ -147,6 +147,7 @@ _scala_junit_test_attrs = {
         default = False,
         mandatory = False,
     ),
+    "jvm_flags": attr.string_list(),
     "_junit": attr.label(
         default = Label(
             "//external:io_bazel_rules_scala/dependency/junit/junit",
