@@ -65,6 +65,7 @@ def _scala_binary_impl(ctx):
 _scala_binary_attrs = {
     "main_class": attr.string(mandatory = True),
     "classpath_resources": attr.label_list(allow_files = True),
+    "jvm_flags": attr.string_list(),
 }
 
 _scala_binary_attrs.update(launcher_template)

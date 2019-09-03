@@ -148,6 +148,7 @@ _scala_test_attrs = {
     ),
     "colors": attr.bool(default = True),
     "full_stacktraces": attr.bool(default = True),
+    "jvm_flags": attr.string_list(),
     "_scalatest": attr.label(
         default = Label(
             "//external:io_bazel_rules_scala/dependency/scalatest/scalatest",

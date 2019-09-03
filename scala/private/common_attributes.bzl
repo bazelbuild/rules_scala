@@ -30,7 +30,6 @@ common_attrs_for_plugin_bootstrapping = {
     "resource_jars": attr.label_list(allow_files = True),
     "scalacopts": attr.string_list(),
     "javacopts": attr.string_list(),
-    "jvm_flags": attr.string_list(),
     "scalac_jvm_flags": attr.string_list(),
     "javac_jvm_flags": attr.string_list(),
     "expect_java_output": attr.bool(
