@@ -287,10 +287,6 @@ scala_library(
     srcs = glob(["src/main/scala/scalarules/test/mix_java_scala/*.scala"]) + glob([
         "src/main/scala/scalarules/test/mix_java_scala/*.java",
     ]),
-    jvm_flags = [
-        "-Xms1G",
-        "-Xmx4G",
-    ],
 )
 
 genrule(
@@ -323,10 +319,6 @@ scala_library(
         # srcjar created with `jar -cfM Baz.srcjar Baz.java`
         "src/main/scala/scalarules/test/mix_java_scala/*.srcjar",
     ]),
-    jvm_flags = [
-        "-Xms1G",
-        "-Xmx4G",
-    ],
 )
 
 #needed to test java sources are compiled
