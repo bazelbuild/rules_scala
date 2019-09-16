@@ -44,12 +44,14 @@ def twitter_scrooge(
             "scrooge_core": "00351f73b555d61cfe7320ef3b1367a9641e694cfb8dfa8a733cfcf49df872e8",
             "scrooge_generator": "0f0027e815e67985895a6f3caa137f02366ceeea4966498f34fb82cabb11dee6",
             "util_core": "5336da4846dfc3db8ffe5ae076be1021828cfee35aa17bda9af461e203cf265c",
+            "finagle_core": "0c0ffa761633b44299a4973467da6d65c57ad01afe6fc93b4a8a0eeb068d5643",
         },
         "2.12": {
             "util_logging": "c0cba01705e9321b3444adcd4a9ce27c2acefd27e14c13b5aec2c318ce1b4fdf",
             "scrooge_core": "02a6d7cf9fe8d872dfabd20298e4315d677748708e153d8b464fd5abac9a7430",
             "scrooge_generator": "e7d5da1e3f0e494d3c81a26f44f3e3dc92d7efd757133de8c71758646fd5a833",
             "util_core": "65bb92e70f95cbbfc640e54a5823a16154eac1a2631dc0211347e085aaa6ed0b",
+            "finagle_core": "cc3371e4a53633461e71bc497838751cad33fedb0de8eb320e88965500f4b1bc",
         },
     }
 
@@ -99,6 +101,21 @@ def twitter_scrooge(
     native.bind(
         name = "io_bazel_rules_scala/dependency/thrift/util_core",
         actual = "@io_bazel_rules_scala_util_core",
+    )
+
+    _scala_maven_import_external(
+        name = "io_bazel_rules_scala_finagle_core",
+        artifact = _scala_mvn_artifact(
+            "com.twitter:finagle-core:18.6.0",
+            major_version,
+        ),
+        artifact_sha256 = scala_version_jar_shas["finagle_core"],
+        licenses = ["notice"],
+        server_urls = maven_servers,
+    )
+    native.bind(
+        name = "io_bazel_rules_scala/dependency/thrift/finagle_core",
+        actual = "@io_bazel_rules_scala_finagle_core",
     )
 
     _scala_maven_import_external(
@@ -355,6 +372,9 @@ scrooge_aspect = aspect(
                 ),
                 Label(
                     "//external:io_bazel_rules_scala/dependency/thrift/util_core",
+                ),
+                Label(
+                    "//external:io_bazel_rules_scala/dependency/thrift/finagle_core",
                 ),
             ],
         ),

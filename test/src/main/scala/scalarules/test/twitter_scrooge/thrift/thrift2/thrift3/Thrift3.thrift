@@ -7,3 +7,7 @@ struct Struct3 {
 struct Struct3Extra {
   1: string msg
 }
+
+exception CustomException {
+  1: string code
+}

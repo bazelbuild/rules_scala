@@ -12,6 +12,7 @@ scala_library(
         "//external:io_bazel_rules_scala/dependency/thrift/scrooge_generator",
         "//external:io_bazel_rules_scala/dependency/thrift/util_core",
         "//external:io_bazel_rules_scala/dependency/thrift/util_logging",
+        "//external:io_bazel_rules_scala/dependency/thrift/finagle_core",
     ],
 )
 
