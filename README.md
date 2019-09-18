@@ -26,7 +26,7 @@ This project defines core build rules for [Scala](https://www.scala-lang.org/) t
 ## Getting started
 
 1. [Install Bazel](https://docs.bazel.build/versions/master/install.html), see the [compatibility table](#bazel-compatible-versions).
-2. Add the following to your `WORKSPACE` file and update the `githash` if needed: 
+2. Add the following to your `WORKSPACE` file and update the `githash` if needed:
 
 ```python
 rules_scala_version="69d3c5b5d9b51537231746e93b4383384c9ebcf4" # update this as needed
@@ -144,6 +144,9 @@ replacements:
       target:
         "@io_bazel_rules_scala_scala_xml//:io_bazel_rules_scala_scala_xml"
 ```
+
+## Generating Finagle Services from Thrift files via Scrooge
+See [docs](docs/thrift_to_finagle_via_scrooge.md)
 
 ## [Experimental] Using strict-deps
 Bazel pushes towards explicit and minimal dependencies to keep BUILD file hygiene and allow for targets to refactor their dependencies without fear of downstream breaking.
