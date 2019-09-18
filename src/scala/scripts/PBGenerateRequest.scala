@@ -6,17 +6,17 @@ case class PBGenerateRequest(jarOutput: String, scalaPBOutput: Path, scalaPBArgs
 
 object PBGenerateRequest {
 
-  def from(args: java.util.List[String]): PBGenerateRequest = {
+  def from(tmpDir: Path)(args: java.util.List[String]): PBGenerateRequest = {
     val jarOutput = args.get(0)
     val protoFiles = args.get(4).split(':')
+    val protoFilesToBuild = protoFiles.map { e => s"${tmpDir.toFile.toString}/$e"}
+
     val includedProto = args.get(1).drop(1).split(':').distinct.map { e =>
       val p = e.split(',')
       // If its an empty string then it means we are local to the current repo for the key, no op
-      (Some(p(0)).filter(_.nonEmpty), p(1))
-    }.collect {
-      // if the to compile files contains this absolute path then we are compiling it and shoudln't try move it around(duplicate files.)
-      case (Some(k), v) if !protoFiles.contains(v) => (Paths.get(k), Paths.get(v))
-    }.toList
+      val absolutePath = Some(p(0)).filter(_.nonEmpty).getOrElse(p(1))
+      (Paths.get(absolutePath), Paths.get(p(1)))
+    }.toList ++ protoFiles.map { p => (Paths.get(p), Paths.get(p))}
 
     val flagOpt = args.get(2) match {
       case "-" => None
@@ -27,7 +27,7 @@ object PBGenerateRequest {
       case "-" => Nil
       case s if s.charAt(0) == '-' => s.tail.split(':').toList //drop padding character
       case other => sys.error(s"expected a padding character of - (dash), but found: $other")
-    }) ++ List(".")
+    }) ++ List("")
 
     val tmp = Paths.get(Option(System.getProperty("java.io.tmpdir")).getOrElse("/tmp"))
     val scalaPBOutput = Files.createTempDirectory(tmp, "bazelscalapb")
@@ -43,7 +43,8 @@ object PBGenerateRequest {
     }.toList
 
 
-    val scalaPBArgs = outputSettings ::: (padWithProtoPathPrefix(transitiveProtoPaths) ++ protoFiles)
+    val scalaPBArgs = outputSettings ::: (padWithProtoPathPrefix(tmpDir)(transitiveProtoPaths) ++ protoFilesToBuild)
+
     val protoc = Paths.get(args.get(5))
 
     val extraJars = args.get(7).drop(1).split(':').filter(_.nonEmpty).distinct.map {e => Paths.get(e)}.toList
@@ -51,7 +52,7 @@ object PBGenerateRequest {
     new PBGenerateRequest(jarOutput, scalaPBOutput, scalaPBArgs, includedProto, protoc, namedGenerators, extraJars)
   }
 
-  private def padWithProtoPathPrefix(transitiveProtoPathFlags: List[String]) =
-    transitiveProtoPathFlags.map("--proto_path="+_)
+  private def padWithProtoPathPrefix(tmpDir: Path)(transitiveProtoPathFlags: List[String]) =
+    transitiveProtoPathFlags.map(s"--proto_path=${tmpDir.toFile.toString}/"+_).map(_.stripSuffix("."))
 
 }

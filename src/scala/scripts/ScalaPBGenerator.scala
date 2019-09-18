@@ -34,15 +34,16 @@ object ScalaPBWorker extends GenericWorker(new ScalaPBGenerator) {
 }
 
 class ScalaPBGenerator extends Processor {
-  def setupIncludedProto(includedProto: List[(Path, Path)]): Unit = {
+  def setupIncludedProto(tmpRoot: Path, includedProto: List[(Path, Path)]): Unit = {
     includedProto.foreach { case (root, fullPath) =>
       require(fullPath.toFile.exists, s"Path $fullPath does not exist, which it should as a dependency of this rule")
-      val relativePath = root.relativize(fullPath)
+      val relativePath = if(root == fullPath) fullPath else root.relativize(fullPath)
+      val targetPath = tmpRoot.resolve(relativePath)
 
-      relativePath.toFile.getParentFile.mkdirs
-      Try(Files.copy(fullPath, relativePath)) match {
+      targetPath.toFile.getParentFile.mkdirs
+      Try(Files.copy(fullPath, targetPath)) match {
         case Failure(err: FileAlreadyExistsException) =>
-          Console.println(s"File already exists, skipping: ${err.getMessage}")
+          Console.println(s"File already exists, skipping copy from $fullPath to $targetPath: ${err.getMessage}")
         case Failure(err) => throw err
         case _ => ()
       }
@@ -55,8 +56,10 @@ class ScalaPBGenerator extends Processor {
     }
 
   def processRequest(args: java.util.List[String]) {
-    val extractRequestResult = PBGenerateRequest.from(args)
-    setupIncludedProto(extractRequestResult.includedProto)
+    val tmpRoot = Files.createTempDirectory("proto_builder")
+
+    val extractRequestResult = PBGenerateRequest.from(tmpRoot)(args)
+    setupIncludedProto(tmpRoot, extractRequestResult.includedProto)
 
     val extraClassesClassLoader = new URLClassLoader(extractRequestResult.extraJars.map { e =>
       val f = e.toFile
@@ -93,6 +96,16 @@ class ScalaPBGenerator extends Processor {
     }
   }
 
-  protected def exec(protoc: Path): Seq[String] => Int = (args: Seq[String]) =>
-    new ProcessBuilder(protoc.toString +: args: _*).inheritIO().start().waitFor()
+  protected def exec(protoc: Path): Seq[String] => Int = (args: Seq[String]) => {
+    val tmpFile = Files.createTempFile("stdout", "log")
+    try {
+      val ret = new ProcessBuilder(protoc.toString +: args: _*).redirectErrorStream(true).redirectOutput(ProcessBuilder.Redirect.to(tmpFile.toFile)).start().waitFor()
+      Try {
+        scala.io.Source.fromFile(tmpFile.toFile).getLines.foreach{System.out.println}
+      }
+      ret
+    } finally {
+      tmpFile.toFile.delete
+    }
+  }
 }
