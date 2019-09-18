@@ -6,17 +6,45 @@ case class PBGenerateRequest(jarOutput: String, scalaPBOutput: Path, scalaPBArgs
 
 object PBGenerateRequest {
 
+  // If there is a virtual import in the path, then
+  // the path under there is pretty friendly already to protoc
+  def stripToVirtual(e: String): String = {
+    val v = "/_virtual_imports/"
+    val idx = e.indexOf(v)
+    if(idx >= 0) {
+      e.drop(idx + v.size)
+    } else e
+  }
+
   def from(tmpDir: Path)(args: java.util.List[String]): PBGenerateRequest = {
     val jarOutput = args.get(0)
     val protoFiles = args.get(4).split(':')
-    val protoFilesToBuild = protoFiles.map { e => s"${tmpDir.toFile.toString}/$e"}
+    val protoFilesToBuild = protoFiles.map { e => s"${tmpDir.toFile.toString}/${stripToVirtual(e)}"}
 
-    val includedProto = args.get(1).drop(1).split(':').distinct.map { e =>
-      val p = e.split(',')
-      // If its an empty string then it means we are local to the current repo for the key, no op
-      val absolutePath = Some(p(0)).filter(_.nonEmpty).getOrElse(p(1))
-      (Paths.get(absolutePath), Paths.get(p(1)))
-    }.toList ++ protoFiles.map { p => (Paths.get(p), Paths.get(p))}
+    val includedProtoSplit: List[(String, String)] = args.get(1).drop(1).split(':').map { e =>
+      val arr = e.split(',')
+      (arr(0), arr(1))
+    }.toList
+    val includedProto: List[(Path, Path)] = (includedProtoSplit ++ protoFiles.toList.map { e => ("", e)}).distinct.map { case (repoPath, protoPath) =>
+      // repoPath shoudl refer to the external repo root. If there is _virtual_imports this will
+      // be in here too.
+      //
+      // If virtual imports are present we are going to prefer that for calculating our target
+      // path. If not we will use relative to the external repo base.
+      // if not that, just use thhe path we have.
+
+      if(protoPath.contains("_virtual_imports")) {
+        (Paths.get(protoPath), Paths.get(stripToVirtual(protoPath)))
+      } else if (repoPath.nonEmpty) {
+        // We have a repo specified
+        // if the repo path and the file path are the same, no-op
+        // otherwise get a relative path.
+        val relativePath: Path = if(repoPath == protoPath) Paths.get(protoPath) else Paths.get(repoPath).relativize(Paths.get(protoPath))
+        (Paths.get(protoPath), relativePath)
+      } else {
+        (Paths.get(protoPath), Paths.get(protoPath))
+      }
+    }.toList
 
     val flagOpt = args.get(2) match {
       case "-" => None

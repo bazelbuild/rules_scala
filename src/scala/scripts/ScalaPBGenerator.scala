@@ -35,15 +35,14 @@ object ScalaPBWorker extends GenericWorker(new ScalaPBGenerator) {
 
 class ScalaPBGenerator extends Processor {
   def setupIncludedProto(tmpRoot: Path, includedProto: List[(Path, Path)]): Unit = {
-    includedProto.foreach { case (root, fullPath) =>
-      require(fullPath.toFile.exists, s"Path $fullPath does not exist, which it should as a dependency of this rule")
-      val relativePath = if(root == fullPath) fullPath else root.relativize(fullPath)
-      val targetPath = tmpRoot.resolve(relativePath)
+    includedProto.foreach { case (srcPath, relativeTargetPath) =>
+      require(srcPath.toFile.exists, s"Path $srcPath does not exist, which it should as a dependency of this rule")
+      val targetPath = tmpRoot.resolve(relativeTargetPath)
 
       targetPath.toFile.getParentFile.mkdirs
-      Try(Files.copy(fullPath, targetPath)) match {
+      Try(Files.copy(srcPath, targetPath)) match {
         case Failure(err: FileAlreadyExistsException) =>
-          Console.println(s"File already exists, skipping copy from $fullPath to $targetPath: ${err.getMessage}")
+          Console.println(s"File already exists, skipping copy from $srcPath to $targetPath: ${err.getMessage}")
         case Failure(err) => throw err
         case _ => ()
       }
