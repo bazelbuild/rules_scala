@@ -92,6 +92,7 @@ class ScalaPBGenerator extends Processor {
         }
         JarCreator.buildJar(Array(extractRequestResult.jarOutput, extractRequestResult.scalaPBOutput.toString))
     } finally {
+      deleteDir(tmpRoot)
       deleteDir(extractRequestResult.scalaPBOutput)
     }
   }
