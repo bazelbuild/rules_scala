@@ -81,6 +81,6 @@ object PBGenerateRequest {
   }
 
   private def padWithProtoPathPrefix(tmpDir: Path)(transitiveProtoPathFlags: List[String]) =
-    transitiveProtoPathFlags.map(s"--proto_path=${tmpDir.toFile.toString}/"+_).map(_.stripSuffix("."))
+    transitiveProtoPathFlags.map(stripToVirtual).map(s"--proto_path=${tmpDir.toFile.toString}/"+_).map(_.stripSuffix("."))
 
 }
