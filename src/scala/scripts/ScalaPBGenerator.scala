@@ -34,20 +34,6 @@ object ScalaPBWorker extends GenericWorker(new ScalaPBGenerator) {
 }
 
 class ScalaPBGenerator extends Processor {
-  def setupIncludedProto(includedProto: List[(Path, Path)]): Unit = {
-    includedProto.foreach { case (root, fullPath) =>
-      require(fullPath.toFile.exists, s"Path $fullPath does not exist, which it should as a dependency of this rule")
-      val relativePath = root.relativize(fullPath)
-
-      relativePath.toFile.getParentFile.mkdirs
-      Try(Files.copy(fullPath, relativePath)) match {
-        case Failure(err: FileAlreadyExistsException) =>
-          Console.println(s"File already exists, skipping: ${err.getMessage}")
-        case Failure(err) => throw err
-        case _ => ()
-      }
-    }
-  }
   def deleteDir(path: Path): Unit =
     try DeleteRecursively.run(path)
     catch {
@@ -56,8 +42,6 @@ class ScalaPBGenerator extends Processor {
 
   def processRequest(args: java.util.List[String]) {
     val extractRequestResult = PBGenerateRequest.from(args)
-    setupIncludedProto(extractRequestResult.includedProto)
-
     val extraClassesClassLoader = new URLClassLoader(extractRequestResult.extraJars.map { e =>
       val f = e.toFile
       require(f.exists, s"Expected file for classpath loading $f to exist")

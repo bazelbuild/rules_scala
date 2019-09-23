@@ -6,6 +6,25 @@ case class PBGenerateRequest(jarOutput: String, scalaPBOutput: Path, scalaPBArgs
 
 object PBGenerateRequest {
 
+  // This little function fixes a problem, where external/com_google_protobuf is not found. The com_google_protobuf
+  // is special in a way that it also brings-in protoc and also google well-known proto files. This, possibly,
+  // confuses Bazel and external/com_google_protobuf is not made available for target builds. Actual causes are unknown
+  // and this fixTransitiveProtoPath fixes this problem in the following way:
+  //  (1) We have a list of all required .proto files; this is a tuple list (root -> full path), for example:
+  //        bazel-out/k8-fastbuild/bin -> bazel-out/k8-fastbuild/bin/external/com_google_protobuf/google/protobuf/source_context.proto
+  //  (2) Convert the full path to relative from the root:
+  //        bazel-out/k8-fastbuild/bin -> external/com_google_protobuf/google/protobuf/source_context.proto
+  //  (3) From all the included protos we find the first one that is located within dir we are processing -- relative
+  //      path starts with the dir we are processing
+  //  (4) If found -- the include folder is "orphan" and is not anchored in either host or target. To fix we prepend
+  //      root. If not found, return original. This works as long as "external/com_google_protobuf" is available in
+  //      target root.
+  def fixTransitiveProtoPath(includedProto: List[(Path, Path)])(orig: String): String = includedProto
+      .map  { case (root, full) => (root, root.relativize(full)) }
+      .find { case (_, rel)     => rel.toString.startsWith(orig) }
+      .map  { case (root, _)    => root.toString + "/" + orig    }
+      .getOrElse(orig)
+
   def from(args: java.util.List[String]): PBGenerateRequest = {
     val jarOutput = args.get(0)
     val protoFiles = args.get(4).split(':')
@@ -27,13 +46,13 @@ object PBGenerateRequest {
       case "-" => Nil
       case s if s.charAt(0) == '-' => s.tail.split(':').toList //drop padding character
       case other => sys.error(s"expected a padding character of - (dash), but found: $other")
-    }) ++ List(".")
+    }).map(fixTransitiveProtoPath(includedProto)) ++ List(".")
 
     val tmp = Paths.get(Option(System.getProperty("java.io.tmpdir")).getOrElse("/tmp"))
     val scalaPBOutput = Files.createTempDirectory(tmp, "bazelscalapb")
     val flagPrefix = flagOpt.fold("")(_ + ":")
 
-      val namedGenerators = args.get(6).drop(1).split(',').filter(_.nonEmpty).map { e =>
+    val namedGenerators = args.get(6).drop(1).split(',').filter(_.nonEmpty).map { e =>
       val kv = e.split('=')
       (kv(0), kv(1))
     }
