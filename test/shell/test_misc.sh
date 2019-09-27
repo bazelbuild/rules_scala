@@ -45,6 +45,7 @@ test_transitive_deps() {
 }
 
 test_repl() {
+  bazel build $(bazel query 'kind(scala_repl, //test/...)')
   echo "import scalarules.test._; HelloLib.printMessage(\"foo\")" | bazel-bin/test/HelloLibRepl | grep "foo java" &&
   echo "import scalarules.test._; TestUtil.foo" | bazel-bin/test/HelloLibTestRepl | grep "bar" &&
   echo "import scalarules.test._; ScalaLibBinary.main(Array())" | bazel-bin/test/ScalaLibBinaryRepl | grep "A hui hou" &&
