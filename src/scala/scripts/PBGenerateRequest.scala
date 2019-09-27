@@ -19,10 +19,15 @@ object PBGenerateRequest {
   //  (4) If found -- the include folder is "orphan" and is not anchored in either host or target. To fix we prepend
   //      root. If not found, return original. This works as long as "external/com_google_protobuf" is available in
   //      target root.
-  def fixTransitiveProtoPath(includedRelProto: List[(String, String)], orig: String): String =
-    includedRelProto.find { case (_, rel) => rel.startsWith(orig) } match {
-      case Some((root, _)) => s"$root/$orig"
-      case None => orig
+  def fixTransitiveProtoPath(includedProto: List[(Path, Path)]): String => String = {
+    val includedRelProto = includedProto.map { case (root, full) => (root.toString, root.relativize(full).toString) }
+
+    { orig =>
+      includedRelProto.find { case (_, rel) => rel.startsWith(orig) } match {
+        case Some((root, _)) => s"$root/$orig"
+        case None => orig
+      }
+    }
   }
 
   def from(args: java.util.List[String]): PBGenerateRequest = {
@@ -43,13 +48,11 @@ object PBGenerateRequest {
       case other => sys.error(s"expected a padding character of - (dash), but found: $other")
     }
 
-    val includedRelProto = includedProto.map { case (root, full) => (root.toString, root.relativize(full).toString) }
-
     val transitiveProtoPaths: List[String] = (args.get(3) match {
       case "-" => Nil
       case s if s.charAt(0) == '-' => s.tail.split(':').toList //drop padding character
       case other => sys.error(s"expected a padding character of - (dash), but found: $other")
-    }).map(fixTransitiveProtoPath(includedRelProto, _)) ++ List(".")
+    }).map(fixTransitiveProtoPath(includedProto)) ++ List(".")
 
     val tmp = Paths.get(Option(System.getProperty("java.io.tmpdir")).getOrElse("/tmp"))
     val scalaPBOutput = Files.createTempDirectory(tmp, "bazelscalapb")
