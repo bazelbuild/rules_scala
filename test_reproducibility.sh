@@ -30,9 +30,9 @@ test_build_is_identical() {
     diff hash1 hash2
 }
 
-dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+test_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/test/shell
 # shellcheck source=./test_runner.sh
-. "${dir}"/test_runner.sh
+. "${test_dir}"/test_runner.sh
 runner=$(get_test_runner "${1:-local}")
 
 
