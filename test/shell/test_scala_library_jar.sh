@@ -22,7 +22,7 @@ scala_library_jar_without_srcs_must_include_filegroup_resources(){
 }
 
 scala_library_jar_without_srcs_must_fail_on_mismatching_resource_strip_prefix() {
-  action_should_fail build test_expect_failure/wrong_resource_strip_prefix:noSrcsJarWithWrongStripPrefix
+  action_should_fail build test_expect_failure/mismatching_resource_strip_prefix:noSrcsJarWithWrongStripPrefix
 }
 
 $runner scala_library_jar_without_srcs_must_fail_on_mismatching_resource_strip_prefix
