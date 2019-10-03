@@ -11,7 +11,7 @@ test_scala_import_fetch_sources_with_env_bazel_jvm_fetch_sources_set_to() {
   local expect_failure=$2
 
   if [[ ${expect_failure} ]]; then
-    action_should_fail test_scala_import_fetch_sources
+    test_scala_import_fetch_sources $expect_failure
   else
     test_scala_import_fetch_sources
   fi
@@ -22,21 +22,32 @@ test_scala_import_fetch_sources_with_env_bazel_jvm_fetch_sources_set_to() {
 test_scala_import_fetch_sources() {
   local srcjar_name="guava-21.0-src.jar"
   local bazel_out_external_guava_21=$(bazel info output_base)/external/com_google_guava_guava_21_0
+  local expect_failure=$1
 
   set -e
   bazel build //test/src/main/scala/scalarules/test/fetch_sources/...
   set +e
 
-  assert_file_exists $bazel_out_external_guava_21/$srcjar_name
+  assert_file_exists $expect_failure $bazel_out_external_guava_21/$srcjar_name
 }
 
 assert_file_exists() {
-  if [[ -f $1 ]]; then
-    echo "File $1 exists."
-    exit 0
+  if [[ $1 ]]; then
+    if [[ -f $2 ]]; then
+      echo "File $2 exists but we expect no source jars."
+      exit 1
+    else
+      echo "File $2 does not exist."
+      exit 0
+    fi
   else
-    echo "File $1 does not exist."
-    exit 1
+    if [[ -f $2 ]]; then
+      echo "File $2 exists."
+      exit 0
+    else
+      echo "File $2 does not exist but we expect it to exist."
+      exit 1
+    fi
   fi
 }
 
@@ -49,7 +60,7 @@ test_scala_import_source_jar_should_be_fetched_when_env_bazel_jvm_fetch_sources_
 }
 
 test_scala_import_source_jar_should_not_be_fetched_when_env_bazel_jvm_fetch_sources_is_set_to_non_true() {
-  test_scala_import_fetch_sources_with_env_bazel_jvm_fetch_sources_set_to "false" "and expect no source jars"
+  test_scala_import_fetch_sources_with_env_bazel_jvm_fetch_sources_set_to "false" "true"
 }
 
 $runner test_scala_import_source_jar_should_be_fetched_when_fetch_sources_is_set_to_true
