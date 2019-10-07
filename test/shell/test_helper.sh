@@ -55,6 +55,7 @@ action_should_fail_with_message() {
     exit 1
   elif [ $GREP_RES -ne 0 ]; then
     echo -e "${RED} \"bazel $TEST_ARG\" should have failed with message \"$MSG\" but did not. $NC"
+    exit 1
   else
     exit 0
   fi
