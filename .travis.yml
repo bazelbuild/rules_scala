@@ -50,6 +50,7 @@ jobs:
 # Test
     - <<: *linux
       env: TEST_SCRIPT=test_rules_scala
+      env: BAZEL_VERSION=1.0.o
     - <<: *linux
       env: TEST_SCRIPT=test_reproducibility
     - <<: *osx
