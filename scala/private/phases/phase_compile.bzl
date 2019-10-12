@@ -192,6 +192,7 @@ def _compile_or_empty(
             ctx.outputs.jar,
             manifest,
             ctx.outputs.statsfile,
+            ctx.outputs.diagnosticsfile,
             sources,
             jars,
             all_srcjars,

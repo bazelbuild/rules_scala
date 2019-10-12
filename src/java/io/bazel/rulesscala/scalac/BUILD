@@ -21,10 +21,12 @@ java_binary(
     visibility = ["//visibility:public"],
     deps = [
         ":exported_scalac_repositories_from_toolchain_to_jvm",
+        "@com_illicitonion_scalac_composite_reporter//jar",
         "//external:io_bazel_rules_scala/dependency/commons_io/commons_io",
         "//third_party/bazel/src/main/protobuf:worker_protocol_java_proto",
         "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/jar",
         "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/worker",
+        "@io_bazel_rules_scala//src/protobuf/io/bazel/rules_scala:diagnostics_java_proto",
     ],
 )
 
@@ -32,6 +34,7 @@ filegroup(
     name = "scalac_files",
     srcs = [
         "CompileOptions.java",
+        "ProtoReporter.java",
         "Resource.java",
         "ScalacWorker.java",
     ],

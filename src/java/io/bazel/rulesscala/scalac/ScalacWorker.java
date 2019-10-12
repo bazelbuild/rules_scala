@@ -1,5 +1,6 @@
 package io.bazel.rulesscala.scalac;
 
+import com.illicitonion.scalac.reporters.CompositeReporter;
 import io.bazel.rulesscala.jar.JarCreator;
 import io.bazel.rulesscala.worker.Worker;
 import java.io.File;
@@ -23,9 +24,12 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import org.apache.commons.io.IOUtils;
+import scala.tools.nsc.Global;
 import scala.tools.nsc.Driver;
 import scala.tools.nsc.MainClass;
+import scala.tools.nsc.Settings;
 import scala.tools.nsc.reporters.ConsoleReporter;
+import scala.tools.nsc.reporters.Reporter;
 
 class ScalacWorker implements Worker.Interface {
   private static boolean isWindows = System.getProperty("os.name").toLowerCase().contains("windows");
@@ -219,7 +223,7 @@ class ScalacWorker implements Worker.Interface {
   }
 
   private static void compileScalaSources(CompileOptions ops, String[] scalaSources, Path tmpPath)
-      throws IllegalAccessException {
+      throws IllegalAccessException, IOException  {
 
     String[] pluginParams = getPluginParamsFrom(ops);
 
@@ -228,7 +232,35 @@ class ScalacWorker implements Worker.Interface {
     String[] compilerArgs =
         merge(ops.scalaOpts, ops.pluginArgs, constParams, pluginParams, scalaSources);
 
-    MainClass comp = new MainClass();
+    MainClass comp = new MainClass() {
+      private Global compiler;
+
+      @Override
+      public Global newCompiler() {
+        if (compiler == null) {
+          Settings settings = super.settings();
+          ConsoleReporter consoleReporter = new ConsoleReporter(settings);
+          Reporter[] reporters;
+          if (ops.diagnosticsFile == null) {
+            reporters = new Reporter[] { consoleReporter };
+          } else {
+	        Path path = Paths.get(ops.diagnosticsFile);
+            try {
+              Files.deleteIfExists(path);
+              Files.createFile(path);
+            } catch (IOException e) {
+              throw new RuntimeException("Could not delete/make diagnostics proto file", e);
+            }
+            reporters = new Reporter[] {
+                consoleReporter,
+                new ProtoReporter(settings),
+            };
+          }
+          compiler = new Global(settings, new CompositeReporter(reporters));
+        }
+        return compiler;
+      }
+    };
     long start = System.currentTimeMillis();
     try {
       comp.process(compilerArgs);
@@ -251,11 +283,24 @@ class ScalacWorker implements Worker.Interface {
       throw new RuntimeException("Unable to write statsfile to " + ops.statsfile, ex);
     }
 
-    ConsoleReporter reporter = (ConsoleReporter) reporterField.get(comp);
+    CompositeReporter compositeReporter = (CompositeReporter) reporterField.get(comp);
 
-    if (reporter.hasErrors()) {
-      reporter.printSummary();
-      reporter.flush();
+    boolean buildFailed = false;
+    for (Reporter reporter : compositeReporter.reporters()) {
+      if (reporter instanceof ConsoleReporter) {
+        ConsoleReporter consoleReporter = (ConsoleReporter) reporter;
+        if (consoleReporter.hasErrors()) {
+          consoleReporter.printSummary();
+          consoleReporter.flush();
+          buildFailed = true;
+        }
+      }
+      if (reporter instanceof ProtoReporter) {
+        ProtoReporter protoReporter = (ProtoReporter) reporter;
+        protoReporter.writeTo(Paths.get(ops.diagnosticsFile));
+      }
+    }
+    if (buildFailed) {
       throw new RuntimeException("Build failed");
     }
   }

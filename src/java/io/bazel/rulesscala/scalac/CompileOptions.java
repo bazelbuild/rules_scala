@@ -29,6 +29,7 @@ public class CompileOptions {
   public final String currentTarget;
   public final String statsfile;
   public final String dependencyTrackingMethod;
+  public final /*@Nullable*/ String diagnosticsFile;
 
   public CompileOptions(List<String> args) {
     Map<String, String> argMap = buildArgMap(args);
@@ -66,6 +67,7 @@ public class CompileOptions {
     dependencyTrackingMethod = getOrElse(argMap, "DependencyTrackingMethod", "high-level");
 
     statsfile = getOrError(argMap, "StatsfileOutput", "Missing required arg StatsfileOutput");
+    diagnosticsFile = getOrElse(argMap, "DiagnosticsFile", null);
   }
 
   private static List<Resource> getResources(Map<String, String> args) {
