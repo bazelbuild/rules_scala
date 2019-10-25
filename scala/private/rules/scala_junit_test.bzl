@@ -1,5 +1,6 @@
 """Rules for writing tests with JUnit"""
 
+load("@bazel_skylib//lib:dicts.bzl", _dicts = "dicts")
 load(
     "@io_bazel_rules_scala//scala/private:common_attributes.bzl",
     "common_attrs",
@@ -9,6 +10,7 @@ load(
 load("@io_bazel_rules_scala//scala/private:common_outputs.bzl", "common_outputs")
 load(
     "@io_bazel_rules_scala//scala/private:phases/phases.bzl",
+    "extras_phases",
     "phase_binary_final",
     "phase_common_init",
     "phase_common_java_wrapper",
@@ -106,11 +108,21 @@ _scala_junit_test_attrs.update({
     "tests_from": attr.label_list(providers = [[JavaInfo]]),
 })
 
-scala_junit_test = rule(
-    attrs = _scala_junit_test_attrs,
-    fragments = ["java"],
-    outputs = common_outputs,
-    test = True,
-    toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
-    implementation = _scala_junit_test_impl,
-)
+def make_scala_junit_test(*extras):
+    return rule(
+        attrs = _dicts.add(
+            _scala_junit_test_attrs,
+            extras_phases(extras),
+            *[extra["attrs"] for extra in extras]
+        ),
+        fragments = ["java"],
+        outputs = _dicts.add(
+            common_outputs,
+            *[extra["outputs"] for extra in extras]
+        ),
+        test = True,
+        toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
+        implementation = _scala_junit_test_impl,
+    )
+
+scala_junit_test = make_scala_junit_test()
