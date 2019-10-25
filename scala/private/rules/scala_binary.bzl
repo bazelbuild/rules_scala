@@ -9,58 +9,36 @@ load(
 )
 load("@io_bazel_rules_scala//scala/private:common_outputs.bzl", "common_outputs")
 load(
-    "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
-    "collect_jars_from_common_ctx",
-    "declare_executable",
-    "get_scalac_provider",
-    "get_unused_dependency_checker_mode",
-    "scala_binary_common",
-    "write_executable",
-    "write_java_wrapper",
+    "@io_bazel_rules_scala//scala/private:phases/phases.bzl",
+    "phase_binary_compile",
+    "phase_binary_final",
+    "phase_common_collect_jars",
+    "phase_common_init",
+    "phase_common_java_wrapper",
+    "phase_common_runfiles",
+    "phase_common_scala_provider",
+    "phase_common_write_executable",
+    "phase_declare_executable",
+    "phase_merge_jars",
+    "phase_unused_deps_checker",
+    "run_phases",
 )
 
 def _scala_binary_impl(ctx):
-    scalac_provider = get_scalac_provider(ctx)
-    unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
-    unused_dependency_checker_is_off = unused_dependency_checker_mode == "off"
-
-    jars = collect_jars_from_common_ctx(
-        ctx,
-        scalac_provider.default_classpath,
-        unused_dependency_checker_is_off = unused_dependency_checker_is_off,
-    )
-    (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
-
-    wrapper = write_java_wrapper(ctx, "", "")
-
-    executable = declare_executable(ctx)
-
-    out = scala_binary_common(
-        ctx,
-        executable,
-        cjars,
-        transitive_rjars,
-        jars.transitive_compile_jars,
-        jars.jars2labels,
-        wrapper,
-        unused_dependency_checker_ignored_targets = [
-            target.label
-            for target in scalac_provider.default_classpath +
-                          ctx.attr.unused_dependency_checker_ignored_targets
-        ],
-        unused_dependency_checker_mode = unused_dependency_checker_mode,
-        deps_providers = jars.deps_providers,
-    )
-    write_executable(
-        ctx = ctx,
-        executable = executable,
-        jvm_flags = ctx.attr.jvm_flags,
-        main_class = ctx.attr.main_class,
-        rjars = out.transitive_rjars,
-        use_jacoco = False,
-        wrapper = wrapper,
-    )
-    return out
+    return run_phases(ctx, [
+        ("init", phase_common_init),
+        ("unused_deps_checker", phase_unused_deps_checker),
+        ("collect_jars", phase_common_collect_jars),
+        ("java_wrapper", phase_common_java_wrapper),
+        ("declare_executable", phase_declare_executable),
+        # no need to build an ijar for an executable
+        ("compile", phase_binary_compile),
+        ("merge_jars", phase_merge_jars),
+        ("runfiles", phase_common_runfiles),
+        ("scala_provider", phase_common_scala_provider),
+        ("write_executable", phase_common_write_executable),
+        ("final", phase_binary_final),
+    ]).final
 
 _scala_binary_attrs = {
     "main_class": attr.string(mandatory = True),
