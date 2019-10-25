@@ -9,80 +9,37 @@ load(
 )
 load("@io_bazel_rules_scala//scala/private:common_outputs.bzl", "common_outputs")
 load(
-    "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
-    "collect_jars_from_common_ctx",
-    "declare_executable",
-    "get_scalac_provider",
-    "get_unused_dependency_checker_mode",
-    "scala_binary_common",
-    "write_executable",
-    "write_java_wrapper",
+    "@io_bazel_rules_scala//scala/private:phases/phases.bzl",
+    "phase_binary_final",
+    "phase_common_init",
+    "phase_common_runfiles",
+    "phase_common_scala_provider",
+    "phase_declare_executable",
+    "phase_merge_jars",
+    "phase_repl_collect_jars",
+    "phase_repl_compile",
+    "phase_repl_java_wrapper",
+    "phase_repl_write_executable",
+    "phase_unused_deps_checker",
+    "run_phases",
 )
 
 def _scala_repl_impl(ctx):
-    scalac_provider = get_scalac_provider(ctx)
-
-    unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
-    unused_dependency_checker_is_off = unused_dependency_checker_mode == "off"
-
-    # need scala-compiler for MainGenericRunner below
-    jars = collect_jars_from_common_ctx(
-        ctx,
-        scalac_provider.default_repl_classpath,
-        unused_dependency_checker_is_off = unused_dependency_checker_is_off,
-    )
-    (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
-
-    args = " ".join(ctx.attr.scalacopts)
-
-    executable = declare_executable(ctx)
-
-    wrapper = write_java_wrapper(
-        ctx,
-        args,
-        wrapper_preamble = """
-# save stty like in bin/scala
-saved_stty=$(stty -g 2>/dev/null)
-if [[ ! $? ]]; then
-  saved_stty=""
-fi
-function finish() {
-  if [[ "$saved_stty" != "" ]]; then
-    stty $saved_stty
-    saved_stty=""
-  fi
-}
-trap finish EXIT
-""",
-    )
-
-    out = scala_binary_common(
-        ctx,
-        executable,
-        cjars,
-        transitive_rjars,
-        jars.transitive_compile_jars,
-        jars.jars2labels,
-        wrapper,
-        unused_dependency_checker_ignored_targets = [
-            target.label
-            for target in scalac_provider.default_repl_classpath +
-                          ctx.attr.unused_dependency_checker_ignored_targets
-        ],
-        unused_dependency_checker_mode = unused_dependency_checker_mode,
-        deps_providers = jars.deps_providers,
-    )
-    write_executable(
-        ctx = ctx,
-        executable = executable,
-        jvm_flags = ["-Dscala.usejavacp=true"] + ctx.attr.jvm_flags,
-        main_class = "scala.tools.nsc.MainGenericRunner",
-        rjars = out.transitive_rjars,
-        use_jacoco = False,
-        wrapper = wrapper,
-    )
-
-    return out
+    return run_phases(ctx, [
+        ("init", phase_common_init),
+        ("unused_deps_checker", phase_unused_deps_checker),
+        # need scala-compiler for MainGenericRunner below
+        ("collect_jars", phase_repl_collect_jars),
+        ("java_wrapper", phase_repl_java_wrapper),
+        ("declare_executable", phase_declare_executable),
+        # no need to build an ijar for an executable
+        ("compile", phase_repl_compile),
+        ("merge_jars", phase_merge_jars),
+        ("runfiles", phase_common_runfiles),
+        ("scala_provider", phase_common_scala_provider),
+        ("write_executable", phase_repl_write_executable),
+        ("final", phase_binary_final),
+    ]).final
 
 _scala_repl_attrs = {
     "jvm_flags": attr.string_list(),
