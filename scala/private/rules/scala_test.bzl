@@ -1,5 +1,6 @@
 """Rules for writing tests with ScalaTest"""
 
+load("@bazel_skylib//lib:dicts.bzl", _dicts = "dicts")
 load(
     "@io_bazel_rules_scala//scala/private:common_attributes.bzl",
     "common_attrs",
@@ -10,6 +11,7 @@ load("@io_bazel_rules_scala//scala/private:common.bzl", "sanitize_string_for_usa
 load("@io_bazel_rules_scala//scala/private:common_outputs.bzl", "common_outputs")
 load(
     "@io_bazel_rules_scala//scala/private:phases/phases.bzl",
+    "extras_phases",
     "phase_common_init",
     "phase_common_java_wrapper",
     "phase_common_scala_provider",
@@ -91,15 +93,25 @@ _scala_test_attrs.update(common_attrs)
 
 _scala_test_attrs.update(_test_resolve_deps)
 
-scala_test = rule(
-    attrs = _scala_test_attrs,
-    executable = True,
-    fragments = ["java"],
-    outputs = common_outputs,
-    test = True,
-    toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
-    implementation = _scala_test_impl,
-)
+def make_scala_test(*extras):
+    return rule(
+        attrs = _dicts.add(
+            _scala_test_attrs,
+            extras_phases(extras),
+            *[extra["attrs"] for extra in extras]
+        ),
+        executable = True,
+        fragments = ["java"],
+        outputs = _dicts.add(
+            common_outputs,
+            *[extra["outputs"] for extra in extras]
+        ),
+        test = True,
+        toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
+        implementation = _scala_test_impl,
+    )
+
+scala_test = make_scala_test()
 
 # This auto-generates a test suite based on the passed set of targets
 # we will add a root test_suite with the name of the passed name

@@ -1,3 +1,4 @@
+load("@bazel_skylib//lib:dicts.bzl", _dicts = "dicts")
 load(
     "@io_bazel_rules_scala//scala/private:common.bzl",
     "sanitize_string_for_usage",
@@ -16,6 +17,7 @@ load(
 )
 load(
     "@io_bazel_rules_scala//scala/private:phases/phases.bzl",
+    "extras_phases",
     "phase_common_collect_jars",
     "phase_library_compile",
     "phase_library_final",
@@ -70,13 +72,23 @@ _scala_library_attrs.update(_library_attrs)
 
 _scala_library_attrs.update(resolve_deps)
 
-scala_library = rule(
-    attrs = _scala_library_attrs,
-    fragments = ["java"],
-    outputs = common_outputs,
-    toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
-    implementation = _scala_library_impl,
-)
+def make_scala_library(*extras):
+    return rule(
+        attrs = _dicts.add(
+            _scala_library_attrs,
+            extras_phases(extras),
+            *[extra["attrs"] for extra in extras]
+        ),
+        fragments = ["java"],
+        outputs = _dicts.add(
+            common_outputs,
+            *[extra["outputs"] for extra in extras]
+        ),
+        toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
+        implementation = _scala_library_impl,
+    )
+
+scala_library = make_scala_library()
 
 # Scala library suite generates a series of scala libraries
 # then it depends on them with a meta one which exports all the sub targets
@@ -135,13 +147,23 @@ _scala_library_for_plugin_bootstrapping_attrs.update(
     common_attrs_for_plugin_bootstrapping,
 )
 
-scala_library_for_plugin_bootstrapping = rule(
-    attrs = _scala_library_for_plugin_bootstrapping_attrs,
-    fragments = ["java"],
-    outputs = common_outputs,
-    toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
-    implementation = _scala_library_for_plugin_bootstrapping_impl,
-)
+def make_scala_library_for_plugin_bootstrapping(*extras):
+    return rule(
+        attrs = _dicts.add(
+            _scala_library_for_plugin_bootstrapping_attrs,
+            extras_phases(extras),
+            *[extra["attrs"] for extra in extras]
+        ),
+        fragments = ["java"],
+        outputs = _dicts.add(
+            common_outputs,
+            *[extra["outputs"] for extra in extras]
+        ),
+        toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
+        implementation = _scala_library_for_plugin_bootstrapping_impl,
+    )
+
+scala_library_for_plugin_bootstrapping = make_scala_library_for_plugin_bootstrapping()
 
 ##
 # scala_macro_library
@@ -184,10 +206,20 @@ _scala_macro_library_attrs["unused_dependency_checker_mode"] = attr.string(
     mandatory = False,
 )
 
-scala_macro_library = rule(
-    attrs = _scala_macro_library_attrs,
-    fragments = ["java"],
-    outputs = common_outputs,
-    toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
-    implementation = _scala_macro_library_impl,
-)
+def make_scala_macro_library(*extras):
+    return rule(
+        attrs = _dicts.add(
+            _scala_macro_library_attrs,
+            extras_phases(extras),
+            *[extra["attrs"] for extra in extras]
+        ),
+        fragments = ["java"],
+        outputs = _dicts.add(
+            common_outputs,
+            *[extra["outputs"] for extra in extras]
+        ),
+        toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
+        implementation = _scala_macro_library_impl,
+    )
+
+scala_macro_library = make_scala_macro_library()

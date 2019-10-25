@@ -57,3 +57,10 @@ declare_scalac_provider = rule(
         "default_macro_classpath": attr.label_list(allow_files = True),
     },
 )
+
+ScalaRulePhase = provider(
+    doc = "A Scala compiler plugin",
+    fields = {
+        "phases": "the phases to add",
+    },
+)

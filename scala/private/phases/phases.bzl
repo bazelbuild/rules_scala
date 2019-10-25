@@ -1,5 +1,6 @@
 load(
     "@io_bazel_rules_scala//scala/private:phases/api.bzl",
+    _extras_phases = "extras_phases",
     _run_phases = "run_phases",
 )
 load(
@@ -64,6 +65,7 @@ load("@io_bazel_rules_scala//scala/private:phases/phase_coverage_runfiles.bzl", 
 
 # API
 run_phases = _run_phases
+extras_phases = _extras_phases
 
 # init
 phase_common_init = _phase_common_init

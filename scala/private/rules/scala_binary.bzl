@@ -1,5 +1,6 @@
 """Builds Scala binaries"""
 
+load("@bazel_skylib//lib:dicts.bzl", _dicts = "dicts")
 load(
     "@io_bazel_rules_scala//scala/private:common_attributes.bzl",
     "common_attrs",
@@ -10,6 +11,7 @@ load(
 load("@io_bazel_rules_scala//scala/private:common_outputs.bzl", "common_outputs")
 load(
     "@io_bazel_rules_scala//scala/private:phases/phases.bzl",
+    "extras_phases",
     "phase_binary_compile",
     "phase_binary_final",
     "phase_common_collect_jars",
@@ -54,11 +56,21 @@ _scala_binary_attrs.update(common_attrs)
 
 _scala_binary_attrs.update(resolve_deps)
 
-scala_binary = rule(
-    attrs = _scala_binary_attrs,
-    executable = True,
-    fragments = ["java"],
-    outputs = common_outputs,
-    toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
-    implementation = _scala_binary_impl,
-)
+def make_scala_binary(*extras):
+    return rule(
+        attrs = _dicts.add(
+            _scala_binary_attrs,
+            extras_phases(extras),
+            *[extra["attrs"] for extra in extras]
+        ),
+        executable = True,
+        fragments = ["java"],
+        outputs = _dicts.add(
+            common_outputs,
+            *[extra["outputs"] for extra in extras]
+        ),
+        toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
+        implementation = _scala_binary_impl,
+    )
+
+scala_binary = make_scala_binary()
