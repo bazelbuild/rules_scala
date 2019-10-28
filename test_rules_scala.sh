@@ -30,6 +30,7 @@ $runner bazel test //test/... --extra_toolchains="//test_expect_failure/plus_one
 . "${test_dir}"/test_junit.sh
 . "${test_dir}"/test_misc.sh
 . "${test_dir}"/test_phase.sh
+. "${test_dir}"/test_scalafmt.sh
 . "${test_dir}"/test_scala_binary.sh
 . "${test_dir}"/test_scalac_jvm_flags.sh
 . "${test_dir}"/test_scala_classpath.sh

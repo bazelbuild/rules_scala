@@ -39,6 +39,38 @@ load("//specs2:specs2_junit.bzl", "specs2_junit_repositories")
 
 specs2_junit_repositories()
 
+load("//scala/scalafmt:scalafmt.bzl", "scalafmt_default_config", "scalafmt_repositories")
+
+scalafmt_repositories()
+
+scalafmt_default_config()
+
+RULES_JVM_EXTERNAL_TAG = "2.9"
+
+http_archive(
+    name = "rules_jvm_external",
+    sha256 = "e5b97a31a3e8feed91636f42e19b11c49487b85e5de2f387c999ea14d77c7f45",
+    strip_prefix = "rules_jvm_external-{}".format(RULES_JVM_EXTERNAL_TAG),
+    type = "zip",
+    url = "https://github.com/bazelbuild/rules_jvm_external/archive/{}.zip".format(RULES_JVM_EXTERNAL_TAG),
+)
+
+load("@rules_jvm_external//:defs.bzl", "maven_install")
+
+maven_install(
+    name = "scalafmt",
+    artifacts = [
+        "net.sourceforge.argparse4j:argparse4j:0.8.1",
+        "org.scalameta:parsers_2.11:4.2.0",
+        "com.geirsson:metaconfig-core_2.11:0.8.3",
+        "org.scalameta:scalafmt-core_2.11:jar:2.0.0",
+    ],
+    fetch_sources = True,
+    repositories = [
+        "http://central.maven.org/maven2",
+    ],
+)
+
 load("//scala:scala_cross_version.bzl", "default_scala_major_version", "scala_mvn_artifact")
 
 # test adding a scala jar:
