@@ -12,7 +12,6 @@ load(
     "@io_bazel_rules_scala//scala/private:phases/phases.bzl",
     "extras_phases",
     "phase_binary_final",
-    "phase_common_init",
     "phase_common_java_wrapper",
     "phase_common_runfiles",
     "phase_common_scala_provider",
@@ -22,7 +21,9 @@ load(
     "phase_junit_test_write_executable",
     "phase_jvm_flags",
     "phase_merge_jars",
+    "phase_scalac_provider",
     "phase_unused_deps_checker",
+    "phase_write_manifest",
     "run_phases",
 )
 
@@ -32,7 +33,8 @@ def _scala_junit_test_impl(ctx):
             "Setting at least one of the attributes ('prefixes','suffixes') is required",
         )
     return run_phases(ctx, [
-        ("init", phase_common_init),
+        ("scalac_provider", phase_scalac_provider),
+        ("write_manifest", phase_write_manifest),
         ("unused_deps_checker", phase_unused_deps_checker),
         ("collect_jars", phase_junit_test_collect_jars),
         ("java_wrapper", phase_common_java_wrapper),

@@ -15,20 +15,22 @@ load(
     "phase_binary_compile",
     "phase_binary_final",
     "phase_common_collect_jars",
-    "phase_common_init",
     "phase_common_java_wrapper",
     "phase_common_runfiles",
     "phase_common_scala_provider",
     "phase_common_write_executable",
     "phase_declare_executable",
     "phase_merge_jars",
+    "phase_scalac_provider",
     "phase_unused_deps_checker",
+    "phase_write_manifest",
     "run_phases",
 )
 
 def _scala_binary_impl(ctx):
     return run_phases(ctx, [
-        ("init", phase_common_init),
+        ("scalac_provider", phase_scalac_provider),
+        ("write_manifest", phase_write_manifest),
         ("unused_deps_checker", phase_unused_deps_checker),
         ("collect_jars", phase_common_collect_jars),
         ("java_wrapper", phase_common_java_wrapper),

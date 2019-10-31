@@ -18,18 +18,21 @@ load(
 load(
     "@io_bazel_rules_scala//scala/private:phases/phases.bzl",
     "extras_phases",
+    "phase_collect_exports_jars",
+    "phase_collect_srcjars",
     "phase_common_collect_jars",
     "phase_library_compile",
     "phase_library_final",
     "phase_library_for_plugin_bootstrapping_collect_jars",
     "phase_library_for_plugin_bootstrapping_compile",
-    "phase_library_init",
     "phase_library_runfiles",
     "phase_library_scala_provider",
     "phase_macro_library_collect_jars",
     "phase_macro_library_compile",
     "phase_merge_jars",
+    "phase_scalac_provider",
     "phase_unused_deps_checker",
+    "phase_write_manifest",
     "run_phases",
 )
 
@@ -52,7 +55,10 @@ _library_attrs = {
 def _scala_library_impl(ctx):
     # Build up information from dependency-like attributes
     return run_phases(ctx, [
-        ("init", phase_library_init),
+        ("scalac_provider", phase_scalac_provider),
+        ("collect_srcjars", phase_collect_srcjars),
+        ("collect_exports_jars", phase_collect_exports_jars),
+        ("write_manifest", phase_write_manifest),
         ("unused_deps_checker", phase_unused_deps_checker),
         ("collect_jars", phase_common_collect_jars),
         ("compile", phase_library_compile),
@@ -123,7 +129,10 @@ def scala_library_suite(
 
 def _scala_library_for_plugin_bootstrapping_impl(ctx):
     return run_phases(ctx, [
-        ("init", phase_library_init),
+        ("scalac_provider", phase_scalac_provider),
+        ("collect_srcjars", phase_collect_srcjars),
+        ("collect_exports_jars", phase_collect_exports_jars),
+        ("write_manifest", phase_write_manifest),
         ("collect_jars", phase_library_for_plugin_bootstrapping_collect_jars),
         ("compile", phase_library_for_plugin_bootstrapping_compile),
         ("merge_jars", phase_merge_jars),
@@ -171,7 +180,10 @@ scala_library_for_plugin_bootstrapping = make_scala_library_for_plugin_bootstrap
 
 def _scala_macro_library_impl(ctx):
     return run_phases(ctx, [
-        ("init", phase_library_init),
+        ("scalac_provider", phase_scalac_provider),
+        ("collect_srcjars", phase_collect_srcjars),
+        ("collect_exports_jars", phase_collect_exports_jars),
+        ("write_manifest", phase_write_manifest),
         ("unused_deps_checker", phase_unused_deps_checker),
         ("collect_jars", phase_macro_library_collect_jars),
         ("compile", phase_macro_library_compile),
