@@ -10,7 +10,7 @@ load(
 
 def phase_test_collect_jars(ctx, p):
     args = struct(
-        base_classpath = p.init.scalac_provider.default_classpath + [ctx.attr._scalatest],
+        base_classpath = p.scalac_provider.default_classpath + [ctx.attr._scalatest],
         extra_runtime_deps = [
             ctx.attr._scalatest_reporter,
             ctx.attr._scalatest_runner,
@@ -20,13 +20,13 @@ def phase_test_collect_jars(ctx, p):
 
 def phase_repl_collect_jars(ctx, p):
     args = struct(
-        base_classpath = p.init.scalac_provider.default_repl_classpath,
+        base_classpath = p.scalac_provider.default_repl_classpath,
     )
     return phase_common_collect_jars(ctx, p, args)
 
 def phase_macro_library_collect_jars(ctx, p):
     args = struct(
-        base_classpath = p.init.scalac_provider.default_macro_classpath,
+        base_classpath = p.scalac_provider.default_macro_classpath,
     )
     return phase_common_collect_jars(ctx, p, args)
 
@@ -50,7 +50,7 @@ def phase_library_for_plugin_bootstrapping_collect_jars(ctx, p):
 def phase_common_collect_jars(ctx, p, _args = struct()):
     return _phase_collect_jars(
         ctx,
-        _args.base_classpath if hasattr(_args, "base_classpath") else p.init.scalac_provider.default_classpath,
+        _args.base_classpath if hasattr(_args, "base_classpath") else p.scalac_provider.default_classpath,
         _args.extra_deps if hasattr(_args, "extra_deps") else [],
         _args.extra_runtime_deps if hasattr(_args, "extra_runtime_deps") else [],
         _args.unused_dependency_checker_mode if hasattr(_args, "unused_dependency_checker_mode") else p.unused_deps_checker,

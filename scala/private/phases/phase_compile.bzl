@@ -13,7 +13,7 @@ def phase_binary_compile(ctx, p):
     args = struct(
         unused_dependency_checker_ignored_targets = [
             target.label
-            for target in p.init.scalac_provider.default_classpath +
+            for target in p.scalac_provider.default_classpath +
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
     )
@@ -21,11 +21,11 @@ def phase_binary_compile(ctx, p):
 
 def phase_library_compile(ctx, p):
     args = struct(
-        srcjars = p.init.srcjars,
+        srcjars = p.collect_srcjars,
         buildijar = True,
         unused_dependency_checker_ignored_targets = [
             target.label
-            for target in p.init.scalac_provider.default_classpath + ctx.attr.exports +
+            for target in p.scalac_provider.default_classpath + ctx.attr.exports +
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
     )
@@ -36,7 +36,7 @@ def phase_library_for_plugin_bootstrapping_compile(ctx, p):
         buildijar = True,
         unused_dependency_checker_ignored_targets = [
             target.label
-            for target in p.init.scalac_provider.default_classpath + ctx.attr.exports
+            for target in p.scalac_provider.default_classpath + ctx.attr.exports
         ],
         unused_dependency_checker_mode = "off",
     )
@@ -46,7 +46,7 @@ def phase_macro_library_compile(ctx, p):
     args = struct(
         unused_dependency_checker_ignored_targets = [
             target.label
-            for target in p.init.scalac_provider.default_macro_classpath + ctx.attr.exports +
+            for target in p.scalac_provider.default_macro_classpath + ctx.attr.exports +
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
     )
@@ -60,7 +60,7 @@ def phase_junit_test_compile(ctx, p):
         ],
         unused_dependency_checker_ignored_targets = [
             target.label
-            for target in p.init.scalac_provider.default_classpath +
+            for target in p.scalac_provider.default_classpath +
                           ctx.attr.unused_dependency_checker_ignored_targets
         ] + [
             ctx.attr._junit.label,
@@ -75,7 +75,7 @@ def phase_repl_compile(ctx, p):
     args = struct(
         unused_dependency_checker_ignored_targets = [
             target.label
-            for target in p.init.scalac_provider.default_repl_classpath +
+            for target in p.scalac_provider.default_repl_classpath +
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
     )
@@ -85,7 +85,7 @@ def phase_test_compile(ctx, p):
     args = struct(
         unused_dependency_checker_ignored_targets = [
             target.label
-            for target in p.init.scalac_provider.default_classpath +
+            for target in p.scalac_provider.default_classpath +
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
     )

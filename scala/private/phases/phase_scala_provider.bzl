@@ -11,11 +11,11 @@ load(
 def phase_library_scala_provider(ctx, p):
     args = struct(
         rjars = depset(
-            transitive = [p.compile.rjars, p.init.exports_jars.transitive_runtime_jars],
+            transitive = [p.compile.rjars, p.collect_exports_jars.transitive_runtime_jars],
         ),
         compile_jars = depset(
             p.compile.ijars,
-            transitive = [p.init.exports_jars.compile_jars],
+            transitive = [p.collect_exports_jars.compile_jars],
         ),
     )
     return phase_common_scala_provider(ctx, p, args)
