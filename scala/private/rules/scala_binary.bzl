@@ -28,21 +28,26 @@ load(
 )
 
 def _scala_binary_impl(ctx):
-    return run_phases(ctx, [
-        ("scalac_provider", phase_scalac_provider),
-        ("write_manifest", phase_write_manifest),
-        ("unused_deps_checker", phase_unused_deps_checker),
-        ("collect_jars", phase_common_collect_jars),
-        ("java_wrapper", phase_common_java_wrapper),
-        ("declare_executable", phase_declare_executable),
-        # no need to build an ijar for an executable
-        ("compile", phase_binary_compile),
-        ("merge_jars", phase_merge_jars),
-        ("runfiles", phase_common_runfiles),
-        ("scala_provider", phase_common_scala_provider),
-        ("write_executable", phase_common_write_executable),
+    return run_phases(
+        ctx,
+        # customizable phases
+        [
+            ("scalac_provider", phase_scalac_provider),
+            ("write_manifest", phase_write_manifest),
+            ("unused_deps_checker", phase_unused_deps_checker),
+            ("collect_jars", phase_common_collect_jars),
+            ("java_wrapper", phase_common_java_wrapper),
+            ("declare_executable", phase_declare_executable),
+            # no need to build an ijar for an executable
+            ("compile", phase_binary_compile),
+            ("merge_jars", phase_merge_jars),
+            ("runfiles", phase_common_runfiles),
+            ("scala_provider", phase_common_scala_provider),
+            ("write_executable", phase_common_write_executable),
+        ],
+        # fixed phase
         ("final", phase_binary_final),
-    ]).final
+    ).final
 
 _scala_binary_attrs = {
     "main_class": attr.string(mandatory = True),
