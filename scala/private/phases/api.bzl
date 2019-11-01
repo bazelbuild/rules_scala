@@ -9,7 +9,11 @@ def _adjust_phases(phases, adjustments):
     phases = phases[:]
     for (relation, peer_name, name, function) in adjustments:
         for idx, (needle, _) in enumerate(phases):
-            if needle == peer_name:
+            if relation in ["^", "first"]:
+                phases.insert(0, (name, function))
+            elif relation in ["$", "last"]:
+                phases.append((name, function))
+            elif needle == peer_name:
                 if relation in ["-", "before"]:
                     phases.insert(idx, (name, function))
                 elif relation in ["+", "after"]:
@@ -18,7 +22,7 @@ def _adjust_phases(phases, adjustments):
                     phases[idx] = (name, function)
     return phases
 
-def run_phases(ctx, phases):
+def run_phases(ctx, customizable_phases, fixed_phase):
     phase_providers = [
         p[_ScalaRulePhase]
         for p in ctx.attr._phase_providers
@@ -26,11 +30,11 @@ def run_phases(ctx, phases):
     ]
 
     if phase_providers != []:
-        phases = _adjust_phases(phases, [p for pp in phase_providers for p in pp.phases])
+        customizable_phases = _adjust_phases(customizable_phases, [p for pp in phase_providers for p in pp.phases])
 
     global_provider = {}
     current_provider = struct(**global_provider)
-    for (name, function) in phases:
+    for (name, function) in customizable_phases + [fixed_phase]:
         new_provider = function(ctx, current_provider)
         if new_provider != None:
             global_provider[name] = new_provider

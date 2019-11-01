@@ -28,22 +28,27 @@ load(
 )
 
 def _scala_repl_impl(ctx):
-    return run_phases(ctx, [
-        ("scalac_provider", phase_scalac_provider),
-        ("write_manifest", phase_write_manifest),
-        ("unused_deps_checker", phase_unused_deps_checker),
-        # need scala-compiler for MainGenericRunner below
-        ("collect_jars", phase_repl_collect_jars),
-        ("java_wrapper", phase_repl_java_wrapper),
-        ("declare_executable", phase_declare_executable),
-        # no need to build an ijar for an executable
-        ("compile", phase_repl_compile),
-        ("merge_jars", phase_merge_jars),
-        ("runfiles", phase_common_runfiles),
-        ("scala_provider", phase_common_scala_provider),
-        ("write_executable", phase_repl_write_executable),
+    return run_phases(
+        ctx,
+        # customizable phases
+        [
+            ("scalac_provider", phase_scalac_provider),
+            ("write_manifest", phase_write_manifest),
+            ("unused_deps_checker", phase_unused_deps_checker),
+            # need scala-compiler for MainGenericRunner below
+            ("collect_jars", phase_repl_collect_jars),
+            ("java_wrapper", phase_repl_java_wrapper),
+            ("declare_executable", phase_declare_executable),
+            # no need to build an ijar for an executable
+            ("compile", phase_repl_compile),
+            ("merge_jars", phase_merge_jars),
+            ("runfiles", phase_common_runfiles),
+            ("scala_provider", phase_common_scala_provider),
+            ("write_executable", phase_repl_write_executable),
+        ],
+        # fixed phase
         ("final", phase_binary_final),
-    ]).final
+    ).final
 
 _scala_repl_attrs = {
     "jvm_flags": attr.string_list(),
