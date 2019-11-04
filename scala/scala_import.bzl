@@ -33,9 +33,6 @@ def _scala_import_impl(ctx):
         current_target_providers = [_new_java_info(ctx, ctx.file._placeholder_jar)]
 
     return struct(
-        scala = struct(
-            outputs = struct(jars = intellij_metadata),
-        ),
         providers = [
             java_common.merge(current_target_providers),
             DefaultInfo(

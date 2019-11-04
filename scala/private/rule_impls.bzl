@@ -879,7 +879,6 @@ def scala_binary_common(
         instrumented_files = outputs.coverage.instrumented_files,
         providers = [outputs.merged_provider, jars2labels] + outputs.coverage.providers,
         runfiles = runfiles,
-        scala = scalaattr,
         transitive_rjars =
             rjars,  #calling rules need this for the classpath in the launcher
     )

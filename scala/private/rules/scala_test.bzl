@@ -139,7 +139,6 @@ def _scala_test_impl(ctx):
         instrumented_files = out.instrumented_files,
         providers = out.providers,
         runfiles = ctx.runfiles(coverage_runfiles, transitive_files = out.runfiles.files),
-        scala = out.scala,
     )
 
 _scala_test_attrs = {

@@ -127,7 +127,6 @@ def _lib(
         jars_to_labels = jars.jars2labels,
         providers = [outputs.merged_provider, jars.jars2labels] + outputs.coverage.providers,
         runfiles = runfiles,
-        scala = scalaattr,
     )
 
 ##
