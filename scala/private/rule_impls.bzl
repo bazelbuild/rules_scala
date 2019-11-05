@@ -515,9 +515,22 @@ def compile_or_empty(
             source_jars += java_jar.source_jars
 
         coverage = _jacoco_offline_instrument(ctx, ctx.outputs.jar)
+        
+        if (scala_compilation_provider.compilation_info is None):
+            fail("scala_compilation_provider.compilation_info is None")
+        if (scala_compilation_provider.compilation_info.runtime_classpath is None):
+            fail("scala_compilation_provider.compilation_info.runtime_classpath is None")
 
         if java_jar:
+            if (java_jar.java_compilation_provider.compilation_info is None):
+                fail("java_jar.java_compilation_provider.compilation_info is None")
+            if (java_jar.java_compilation_provider.compilation_info.runtime_classpath is None):
+                fail("java_jar.java_compilation_provider.compilation_info.runtime_classpath is None")
             merged_provider = java_common.merge([scala_compilation_provider, java_jar.java_compilation_provider])
+            if (merged_provider.compilation_info is None):
+                fail("merged_provider.compilation_info is None")
+            if (merged_provider.compilation_info.runtime_classpath is None):
+                fail("merged_provider.compilation_info.runtime_classpath is None")
         else:
             merged_provider = scala_compilation_provider
 
