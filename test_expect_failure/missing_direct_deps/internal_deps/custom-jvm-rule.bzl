@@ -7,10 +7,10 @@ def _custom_jvm_impl(ctx):
         compile_jar = jar,
         deps = [target[JavaInfo] for target in ctx.attr.deps],
     )
-    if (provider.compilation_info is None):
-        fail("provider.compilation_info is None")
-    if (provider.compilation_info.runtime_classpath is None):
-        fail("provider.compilation_info.runtime_classpath is None")
+    if (provider.compilation_info == None):
+        fail("provider.compilation_info == None")
+    if (provider.compilation_info.runtime_classpath == None):
+        fail("provider.compilation_info.runtime_classpath == None")
     return [provider]
 
 custom_jvm = rule(
