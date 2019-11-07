@@ -5,14 +5,14 @@ scala_binary(
     name = "formatted-binary",
     srcs = ["formatted.scala"],
     format = True,
-    main_class = "test.scalafmt.FormatTest",
+    main_class = "scalarules.test.scalafmt.Format",
 )
 
 scala_binary(
     name = "unformatted-binary",
-    srcs = ["unformatted.tmp.scala"],
+    srcs = ["unformatted.scala"],
     format = True,
-    main_class = "test.scalafmt.FormatTest",
+    main_class = "scalarules.test.scalafmt.Format",
 )
 
 ### scala_library ###
@@ -24,32 +24,19 @@ scala_library(
 
 scala_library(
     name = "unformatted-library",
-    srcs = ["unformatted.tmp.scala"],
+    srcs = ["unformatted.scala"],
     format = True,
 )
 
 ### scala_test ###
 scala_test(
     name = "formatted-test",
-    srcs = ["formatted.scala"],
+    srcs = ["formatted-test.scala"],
     format = True,
 )
 
 scala_test(
     name = "unformatted-test",
-    srcs = ["unformatted.tmp.scala"],
-    format = True,
-)
-
-### utf8 encoding test ###
-scala_library(
-    name = "formatted-utf8-library",
-    srcs = ["formatted-utf8.scala"],
-    format = True,
-)
-
-scala_library(
-    name = "unformatted-utf8-library",
-    srcs = ["unformatted-utf8.tmp.scala"],
+    srcs = ["unformatted-test.scala"],
     format = True,
 )

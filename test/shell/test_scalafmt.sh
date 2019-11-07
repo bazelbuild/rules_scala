@@ -6,10 +6,12 @@ runner=$(get_test_runner "${1:-local}")
 
 run_non_default_formatting() {
   set +e
+
+  FILE_PATH="$( dirname $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd ) )"/scalafmt
   RULE_TYPE=$1
   FILENAME="formatted"
-  if [[ $RULE_TYPE = utf8* ]]; then
-    FILENAME="formatted-utf8"
+  if [[ $RULE_TYPE = test ]]; then
+    FILENAME="formatted-test"
   fi
     
   bazel run //test/scalafmt:formatted-$RULE_TYPE.format-test
@@ -17,23 +19,26 @@ run_non_default_formatting() {
     echo -e "${RED} formatted-$RULE_TYPE.format-test should be a formatted target. $NC"
     exit 1
   fi
-  cp test/scalafmt/un${FILENAME}.template.scala test/scalafmt/un${FILENAME}.tmp.scala
+
   bazel run //test/scalafmt:unformatted-$RULE_TYPE.format-test
   if [ $? -eq 0 ]; then
     echo -e "${RED} unformatted-$RULE_TYPE.format-test should be an unformatted target. $NC"
     exit 1
   fi
+
   bazel run //test/scalafmt:unformatted-$RULE_TYPE.format
   if [ $? -ne 0 ]; then
     echo -e "${RED} unformatted-$RULE_TYPE.format should run formatting. $NC"
     exit 1
   fi
-  diff test/scalafmt/${FILENAME}.scala test/scalafmt/un${FILENAME}.tmp.scala
+
+  diff $FILE_PATH/un${FILENAME}.scala $FILE_PATH/${FILENAME}.scala
   if [ $? -ne 0 ]; then
-    echo -e "${RED} ${FILENAME}.scala should be the same as un${FILENAME}.tmp.scala after formatting. $NC"
+    echo -e "${RED} un${FILENAME}.scala should be the same as ${FILENAME}.scala after formatting. $NC"
     exit 1
   fi
-  rm test/scalafmt/un${FILENAME}.tmp.scala
+
+  cp $FILE_PATH/un${FILENAME}.template.scala $FILE_PATH/un${FILENAME}.scala
 }
 
 test_scalafmt_binary() {
@@ -48,11 +53,6 @@ test_scalafmt_test() {
   run_non_default_formatting test
 }
 
-test_scalafmt_utf8_library() {
-  run_non_default_formatting utf8-library
-}
-
 $runner test_scalafmt_binary
 $runner test_scalafmt_library
 $runner test_scalafmt_test
-$runner test_scalafmt_utf8_library
