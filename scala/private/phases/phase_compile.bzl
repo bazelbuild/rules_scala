@@ -110,6 +110,7 @@ def _phase_compile(
         p,
         srcjars,
         buildijar,
+        # TODO: generalize this hack
         implicit_junit_deps_needed_for_java_compilation,
         unused_dependency_checker_ignored_targets,
         unused_dependency_checker_mode):
@@ -134,6 +135,7 @@ def _phase_compile(
         deps_providers,
     )
 
+    # TODO: simplify the return values and use provider
     return struct(
         class_jar = out.class_jar,
         coverage = out.coverage,
