@@ -11,6 +11,7 @@ load(
 
 def phase_binary_compile(ctx, p):
     args = struct(
+        buildijar = False,
         unused_dependency_checker_ignored_targets = [
             target.label
             for target in p.scalac_provider.default_classpath +
@@ -22,7 +23,6 @@ def phase_binary_compile(ctx, p):
 def phase_library_compile(ctx, p):
     args = struct(
         srcjars = p.collect_srcjars,
-        buildijar = True,
         unused_dependency_checker_ignored_targets = [
             target.label
             for target in p.scalac_provider.default_classpath + ctx.attr.exports +
@@ -33,7 +33,6 @@ def phase_library_compile(ctx, p):
 
 def phase_library_for_plugin_bootstrapping_compile(ctx, p):
     args = struct(
-        buildijar = True,
         unused_dependency_checker_ignored_targets = [
             target.label
             for target in p.scalac_provider.default_classpath + ctx.attr.exports
@@ -44,6 +43,7 @@ def phase_library_for_plugin_bootstrapping_compile(ctx, p):
 
 def phase_macro_library_compile(ctx, p):
     args = struct(
+        buildijar = False,
         unused_dependency_checker_ignored_targets = [
             target.label
             for target in p.scalac_provider.default_macro_classpath + ctx.attr.exports +
@@ -54,6 +54,7 @@ def phase_macro_library_compile(ctx, p):
 
 def phase_junit_test_compile(ctx, p):
     args = struct(
+        buildijar = False,
         implicit_junit_deps_needed_for_java_compilation = [
             ctx.attr._junit,
             ctx.attr._hamcrest,
@@ -73,6 +74,7 @@ def phase_junit_test_compile(ctx, p):
 
 def phase_repl_compile(ctx, p):
     args = struct(
+        buildijar = False,
         unused_dependency_checker_ignored_targets = [
             target.label
             for target in p.scalac_provider.default_repl_classpath +
@@ -83,6 +85,7 @@ def phase_repl_compile(ctx, p):
 
 def phase_test_compile(ctx, p):
     args = struct(
+        buildijar = False,
         unused_dependency_checker_ignored_targets = [
             target.label
             for target in p.scalac_provider.default_classpath +
@@ -96,7 +99,7 @@ def phase_common_compile(ctx, p, _args = struct()):
         ctx,
         p,
         _args.srcjars if hasattr(_args, "srcjars") else depset(),
-        _args.buildijar if hasattr(_args, "buildijar") else False,
+        _args.buildijar if hasattr(_args, "buildijar") else True,
         _args.implicit_junit_deps_needed_for_java_compilation if hasattr(_args, "implicit_junit_deps_needed_for_java_compilation") else [],
         _args.unused_dependency_checker_ignored_targets if hasattr(_args, "unused_dependency_checker_ignored_targets") else [],
         _args.unused_dependency_checker_mode if hasattr(_args, "unused_dependency_checker_mode") else p.unused_deps_checker,
