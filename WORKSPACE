@@ -42,7 +42,7 @@ jvm_maven_import_external(
         "com.twitter:scalding-date:0.17.0",
         default_scala_major_version(),
     ),
-    artifact_sha256 = "",
+    artifact_sha256 = "bf743cd6d224a4568d6486a2b794143e23145d2afd7a1d2de412d49e45bdb308",
     server_urls = MAVEN_SERVER_URLS,
 )
 
@@ -53,7 +53,7 @@ jvm_maven_import_external(
         "org.typelevel:cats-core:0.9.0",
         default_scala_major_version(),
     ),
-    artifact_sha256 = "",
+    artifact_sha256 = "3fda7a27114b0d178107ace5c2cf04e91e9951810690421768e65038999ffca5",
     server_urls = MAVEN_SERVER_URLS,
 )
 
@@ -64,7 +64,7 @@ jvm_maven_import_external(
         "org.psywerx.hairyfotr:linter:0.1.13",
         default_scala_major_version(),
     ),
-    artifact_sha256 = "",
+    artifact_sha256 = "9444dd78684c0cc89d070af0f5ca3f3ae7d56b2a4d7ac1c038f8218ad4d66fad",
     server_urls = MAVEN_SERVER_URLS,
 )
 
@@ -72,7 +72,7 @@ jvm_maven_import_external(
 jvm_maven_import_external(
     name = "com_google_guava_guava_21_0_with_file",
     artifact = "com.google.guava:guava:21.0",
-    artifact_sha256= "",
+    artifact_sha256= "972139718abc8a4893fa78cba8cf7b2c903f35c97aaf44fa3031b0669948b480",
     server_urls = MAVEN_SERVER_URLS,
 )
 
@@ -97,7 +97,7 @@ scala_maven_import_external(
 jvm_maven_import_external(
     name = "org_apache_commons_commons_lang_3_5",
     artifact = "org.apache.commons:commons-lang3:3.5",
-    artifact_sha256 = "",
+    artifact_sha256 = "8ac96fc686512d777fca85e144f196cd7cfe0c0aec23127229497d1a38ff651c",
     server_urls = MAVEN_SERVER_URLS,
 )
 
