@@ -59,7 +59,7 @@ declare_scalac_provider = rule(
 )
 
 ScalaRulePhase = provider(
-    doc = "A Scala compiler plugin",
+    doc = "A custom phase plugin",
     fields = {
         "phases": "the phases to add",
     },
