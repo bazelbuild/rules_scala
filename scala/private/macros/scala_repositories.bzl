@@ -136,7 +136,10 @@ def scala_repositories(
             sha256 = "d82eb0141ad18e98de47ed7ed415daabead6d5d1bef1b8cccb6aa4d108a9008f",
             strip_prefix = "protobuf-b4f193788c9f0f05d7e0879ea96cd738630e5d51",
             # Commit from 2019-05-15, update to protobuf 3.8 when available.
-            url = "https://github.com/protocolbuffers/protobuf/archive/b4f193788c9f0f05d7e0879ea96cd738630e5d51.tar.gz",
+            urls = [
+                "https://mirror.bazel.build/github.com/protocolbuffers/protobuf/archive/b4f193788c9f0f05d7e0879ea96cd738630e5d51.tar.gz",
+                "https://github.com/protocolbuffers/protobuf/archive/b4f193788c9f0f05d7e0879ea96cd738630e5d51.tar.gz",
+            ],
         )
 
     if not native.existing_rule("zlib"):  # needed by com_google_protobuf
@@ -145,7 +148,10 @@ def scala_repositories(
             build_file = "@com_google_protobuf//:third_party/zlib.BUILD",
             sha256 = "c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1",
             strip_prefix = "zlib-1.2.11",
-            urls = ["https://zlib.net/zlib-1.2.11.tar.gz"],
+            urls = [
+                "https://mirror.bazel.build/zlib.net/zlib-1.2.11.tar.gz",
+                "https://zlib.net/zlib-1.2.11.tar.gz",
+            ],
         )
 
     native.bind(
