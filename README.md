@@ -108,6 +108,7 @@ for an example workspace using another scala version.
 
 | bazel  | rules_scala gitsha |
 |--------|--------------------|
+| 1.2.0  | HEAD               |
 | 1.1.0  | HEAD               |
 | 1.0.0  | HEAD               |
 | 0.28.0 | HEAD               |
