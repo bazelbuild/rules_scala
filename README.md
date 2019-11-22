@@ -26,7 +26,7 @@ This project defines core build rules for [Scala](https://www.scala-lang.org/) t
 ## Getting started
 
 1. [Install Bazel](https://docs.bazel.build/versions/master/install.html), see the [compatibility table](#bazel-compatible-versions).
-2. Add the following to your `WORKSPACE` file and update the `githash` if needed: 
+2. Add the following to your `WORKSPACE` file and update the `githash` if needed:
 
 ```python
 rules_scala_version="69d3c5b5d9b51537231746e93b4383384c9ebcf4" # update this as needed
@@ -108,6 +108,7 @@ for an example workspace using another scala version.
 
 | bazel  | rules_scala gitsha |
 |--------|--------------------|
+| 1.1.0  | HEAD               |
 | 1.0.0  | HEAD               |
 | 0.28.0 | HEAD               |
 | 0.23.x | ca655e5a330cbf1d66ce1d9baa63522752ec6011 |                                     |
