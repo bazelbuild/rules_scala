@@ -16,7 +16,7 @@ _linux: &linux
   os: linux
 _osx: &osx
   os: osx
-  osx_image: xcode10.1
+  osx_image: xcode11.2
 _windows:
   os: windows
 
