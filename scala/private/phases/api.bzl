@@ -29,12 +29,11 @@ def run_phases(ctx, builtin_customizable_phases, fixed_phase):
         if _ScalaRulePhase in p
     ]
 
-    if phase_providers != []:
-        builtin_customizable_phases = _adjust_phases(builtin_customizable_phases, [p for pp in phase_providers for p in pp.custom_phases])
+    adjusted_phases = _adjust_phases(builtin_customizable_phases, [p for pp in phase_providers for p in pp.custom_phases])
 
     global_provider = {}
     current_provider = struct(**global_provider)
-    for (name, function) in builtin_customizable_phases + [fixed_phase]:
+    for (name, function) in adjusted_phases + [fixed_phase]:
         new_provider = function(ctx, current_provider)
         if new_provider != None:
             global_provider[name] = new_provider
