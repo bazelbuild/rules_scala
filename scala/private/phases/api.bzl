@@ -24,12 +24,19 @@ def _adjust_phases(phases, adjustments):
 
 def run_phases(ctx, builtin_customizable_phases, fixed_phase):
     phase_providers = [
-        p[_ScalaRulePhase]
-        for p in ctx.attr._phase_providers
-        if _ScalaRulePhase in p
+        phase_provider[_ScalaRulePhase]
+        for phase_provider in ctx.attr._phase_providers
+        if _ScalaRulePhase in phase_provider
     ]
 
-    adjusted_phases = _adjust_phases(builtin_customizable_phases, [p for pp in phase_providers for p in pp.custom_phases])
+    adjusted_phases = _adjust_phases(
+        builtin_customizable_phases,
+        [
+            phase
+            for phase_provider in phase_providers
+            for phase in phase_provider.custom_phases
+        ],
+    )
 
     global_provider = {}
     current_provider = struct(**global_provider)
@@ -44,7 +51,11 @@ def run_phases(ctx, builtin_customizable_phases, fixed_phase):
 def extras_phases(extras):
     return {
         "_phase_providers": attr.label_list(
-            default = [pp for extra in extras for pp in extra["phase_providers"]],
+            default = [
+                phase_provider
+                for extra in extras
+                for phase_provider in extra["phase_providers"]
+            ],
             providers = [_ScalaRulePhase],
         ),
     }
