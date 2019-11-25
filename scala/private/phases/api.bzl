@@ -30,7 +30,7 @@ def run_phases(ctx, builtin_customizable_phases, fixed_phase):
     ]
 
     if phase_providers != []:
-        builtin_customizable_phases = _adjust_phases(builtin_customizable_phases, [p for pp in phase_providers for p in pp.phases])
+        builtin_customizable_phases = _adjust_phases(builtin_customizable_phases, [p for pp in phase_providers for p in pp.custom_phases])
 
     global_provider = {}
     current_provider = struct(**global_provider)

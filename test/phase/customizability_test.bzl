@@ -30,7 +30,7 @@ ext_add_phase_customizability_test = {
 def _add_phase_customizability_test_singleton_implementation(ctx):
     return [
         _ScalaRulePhase(
-            phases = [
+            custom_phases = [
                 ("$", "", "customizability_test", _phase_customizability_test),
             ],
         ),
