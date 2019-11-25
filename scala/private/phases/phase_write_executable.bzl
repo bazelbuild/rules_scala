@@ -25,23 +25,26 @@ def phase_test_write_executable(ctx, p):
         ] + expand_location(ctx, final_jvm_flags),
         use_jacoco = ctx.configuration.coverage_enabled,
     )
-    return phase_common_write_executable(ctx, p, args)
+    return _phase_deafult_write_executable(ctx, p, args)
 
 def phase_repl_write_executable(ctx, p):
     args = struct(
         jvm_flags = ["-Dscala.usejavacp=true"] + ctx.attr.jvm_flags,
         main_class = "scala.tools.nsc.MainGenericRunner",
     )
-    return phase_common_write_executable(ctx, p, args)
+    return _phase_deafult_write_executable(ctx, p, args)
 
 def phase_junit_test_write_executable(ctx, p):
     args = struct(
         jvm_flags = p.jvm_flags + ctx.attr.jvm_flags,
         main_class = "com.google.testing.junit.runner.BazelTestRunner",
     )
-    return phase_common_write_executable(ctx, p, args)
+    return _phase_deafult_write_executable(ctx, p, args)
 
-def phase_common_write_executable(ctx, p, _args = struct()):
+def phase_common_write_executable(ctx, p):
+    return _phase_deafult_write_executable(ctx, p)
+
+def _phase_deafult_write_executable(ctx, p, _args = struct()):
     return _phase_write_executable(
         ctx,
         p,

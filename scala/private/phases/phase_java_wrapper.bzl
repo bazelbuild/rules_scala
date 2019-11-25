@@ -26,9 +26,12 @@ function finish() {
 trap finish EXIT
 """,
     )
-    return phase_common_java_wrapper(ctx, p, args)
+    return _phase_default_java_wrapper(ctx, p, args)
 
-def phase_common_java_wrapper(ctx, p, _args = struct()):
+def phase_common_java_wrapper(ctx, p):
+    return _phase_default_java_wrapper(ctx, p)
+
+def _phase_default_java_wrapper(ctx, p, _args = struct()):
     return _phase_java_wrapper(
         ctx,
         _args.args if hasattr(_args, "args") else "",

@@ -8,7 +8,7 @@ def phase_library_runfiles(ctx, p):
         # Using transitive_files since transitive_rjars a depset and avoiding linearization
         transitive_files = p.compile.rjars,
     )
-    return phase_common_runfiles(ctx, p, args)
+    return _phase_default_runfiles(ctx, p, args)
 
 def phase_test_runfiles(ctx, p):
     args = "\n".join([
@@ -29,9 +29,12 @@ def phase_test_runfiles(ctx, p):
         ),
         args_file = args_file,
     )
-    return phase_common_runfiles(ctx, p, args)
+    return _phase_default_runfiles(ctx, p, args)
 
-def phase_common_runfiles(ctx, p, _args = struct()):
+def phase_common_runfiles(ctx, p):
+    return _phase_default_runfiles(ctx, p)
+
+def _phase_default_runfiles(ctx, p, _args = struct()):
     return _phase_runfiles(
         ctx,
         _args.transitive_files if hasattr(_args, "transitive_files") else depset(

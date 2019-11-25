@@ -19,9 +19,12 @@ def phase_library_scala_provider(ctx, p):
         ),
         ijar = p.compile.ijar,
     )
-    return phase_common_scala_provider(ctx, p, args)
+    return _phase_default_scala_provider(ctx, p, args)
 
-def phase_common_scala_provider(ctx, p, _args = struct()):
+def phase_common_scala_provider(ctx, p):
+    return _phase_default_scala_provider(ctx, p)
+
+def _phase_default_scala_provider(ctx, p, _args = struct()):
     return _phase_scala_provider(
         ctx,
         p,

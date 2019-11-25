@@ -18,7 +18,7 @@ def phase_binary_compile(ctx, p):
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
     )
-    return phase_common_compile(ctx, p, args)
+    return _phase_default_compile(ctx, p, args)
 
 def phase_library_compile(ctx, p):
     args = struct(
@@ -29,7 +29,7 @@ def phase_library_compile(ctx, p):
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
     )
-    return phase_common_compile(ctx, p, args)
+    return _phase_default_compile(ctx, p, args)
 
 def phase_library_for_plugin_bootstrapping_compile(ctx, p):
     args = struct(
@@ -39,7 +39,7 @@ def phase_library_for_plugin_bootstrapping_compile(ctx, p):
         ],
         unused_dependency_checker_mode = "off",
     )
-    return phase_common_compile(ctx, p, args)
+    return _phase_default_compile(ctx, p, args)
 
 def phase_macro_library_compile(ctx, p):
     args = struct(
@@ -50,7 +50,7 @@ def phase_macro_library_compile(ctx, p):
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
     )
-    return phase_common_compile(ctx, p, args)
+    return _phase_default_compile(ctx, p, args)
 
 def phase_junit_test_compile(ctx, p):
     args = struct(
@@ -70,7 +70,7 @@ def phase_junit_test_compile(ctx, p):
             ctx.attr._bazel_test_runner.label,
         ],
     )
-    return phase_common_compile(ctx, p, args)
+    return _phase_default_compile(ctx, p, args)
 
 def phase_repl_compile(ctx, p):
     args = struct(
@@ -81,7 +81,7 @@ def phase_repl_compile(ctx, p):
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
     )
-    return phase_common_compile(ctx, p, args)
+    return _phase_default_compile(ctx, p, args)
 
 def phase_test_compile(ctx, p):
     args = struct(
@@ -92,9 +92,12 @@ def phase_test_compile(ctx, p):
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
     )
-    return phase_common_compile(ctx, p, args)
+    return _phase_default_compile(ctx, p, args)
 
-def phase_common_compile(ctx, p, _args = struct()):
+def phase_common_compile(ctx, p):
+    return _phase_default_compile(ctx, p)
+
+def _phase_default_compile(ctx, p, _args = struct()):
     return _phase_compile(
         ctx,
         p,
