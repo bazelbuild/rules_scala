@@ -1,5 +1,5 @@
 load(
-    "//scala:providers.bzl",
+    "//scala:advanced_usage/providers.bzl",
     _ScalaRulePhase = "ScalaRulePhase",
 )
 load(
@@ -7,7 +7,7 @@ load(
     _phase_customizability_test = "phase_customizability_test",
 )
 load(
-    "//scala:scala.bzl",
+    "//scala:advanced_usage/scala.bzl",
     _make_scala_binary = "make_scala_binary",
     _make_scala_library = "make_scala_library",
     _make_scala_test = "make_scala_test",

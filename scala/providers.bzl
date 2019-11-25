@@ -57,10 +57,3 @@ declare_scalac_provider = rule(
         "default_macro_classpath": attr.label_list(allow_files = True),
     },
 )
-
-ScalaRulePhase = provider(
-    doc = "A custom phase plugin",
-    fields = {
-        "phases": "the phases to add",
-    },
-)
