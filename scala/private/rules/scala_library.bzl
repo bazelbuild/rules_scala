@@ -60,13 +60,13 @@ def _scala_library_impl(ctx):
         [
             ("scalac_provider", phase_scalac_provider),
             ("collect_srcjars", phase_collect_srcjars),
-            ("collect_exports_jars", phase_collect_exports_jars),
             ("write_manifest", phase_write_manifest),
             ("unused_deps_checker", phase_unused_deps_checker),
             ("collect_jars", phase_common_collect_jars),
             ("compile", phase_library_compile),
             ("merge_jars", phase_merge_jars),
             ("runfiles", phase_library_runfiles),
+            ("collect_exports_jars", phase_collect_exports_jars),
             ("scala_provider", phase_library_scala_provider),
         ],
         # fixed phase
@@ -139,12 +139,12 @@ def _scala_library_for_plugin_bootstrapping_impl(ctx):
         [
             ("scalac_provider", phase_scalac_provider),
             ("collect_srcjars", phase_collect_srcjars),
-            ("collect_exports_jars", phase_collect_exports_jars),
             ("write_manifest", phase_write_manifest),
             ("collect_jars", phase_library_for_plugin_bootstrapping_collect_jars),
             ("compile", phase_library_for_plugin_bootstrapping_compile),
             ("merge_jars", phase_merge_jars),
             ("runfiles", phase_library_runfiles),
+            ("collect_exports_jars", phase_collect_exports_jars),
             ("scala_provider", phase_library_scala_provider),
         ],
         # fixed phase
@@ -195,13 +195,13 @@ def _scala_macro_library_impl(ctx):
         [
             ("scalac_provider", phase_scalac_provider),
             ("collect_srcjars", phase_collect_srcjars),
-            ("collect_exports_jars", phase_collect_exports_jars),
             ("write_manifest", phase_write_manifest),
             ("unused_deps_checker", phase_unused_deps_checker),
             ("collect_jars", phase_macro_library_collect_jars),
             ("compile", phase_macro_library_compile),
             ("merge_jars", phase_merge_jars),
             ("runfiles", phase_library_runfiles),
+            ("collect_exports_jars", phase_collect_exports_jars),
             ("scala_provider", phase_library_scala_provider),
         ],
         # fixed phase
