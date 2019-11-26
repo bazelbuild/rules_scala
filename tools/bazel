@@ -31,9 +31,9 @@ case "$bazel_version" in
         darwin_sha='5d50ae13ba01a224ddf54cfd818289bee5b38e551cca22bffc79b89f377d2095'
         linux_sha='a2a7e4cb38d7bc774a5bbfab4d45293f5f2158eb6caf0128792cc1148732a4e6'
         ;;
-    '1.2.0')
-        darwin_sha='14da01972d16f43db1962dfc5246bef33e2d619dddeb1ce133ec0c8c18627610'
-        linux_sha='181b57714200fa5579e12fe3ab4e6f3fd7f6827dff4ec16ff5190302130216af'
+    '1.2.1')
+        darwin_sha='59e469bf1d8d1615b67856ea17e761be05e9c92b462e55c0354cd78145b480d5'
+        linux_sha='ae6249e25b0f5a06d79fad90325477dd56275657951cf7aa6a3cbcd79fc4d749'
         ;;
     *)
         echo "The requested Bazel version '$bazel_version' is not supported"
