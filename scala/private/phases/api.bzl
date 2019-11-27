@@ -16,6 +16,7 @@ def _adjust_phases(phases, adjustments):
     if len(adjustments) == 0:
         return phases
     phases = phases[:]
+
     # relation: the position to add a new phase
     # peer_name: the existing phase to compare the position with
     # name: the name of the new phase
@@ -61,6 +62,7 @@ def run_phases(ctx, builtin_customizable_phases, fixed_phase):
     for (name, function) in adjusted_phases + [fixed_phase]:
         # Run a phase
         new_provider = function(ctx, current_provider)
+
         # If a phase returns data, append it to global_provider
         # for later phases to access
         if new_provider != None:
