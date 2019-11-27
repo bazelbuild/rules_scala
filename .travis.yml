@@ -51,19 +51,19 @@ jobs:
     - <<: *linux
       env: TEST_SCRIPT=test_rules_scala BAZEL_VERSION=0.28.1
     - <<: *linux
-      env: TEST_SCRIPT=test_rules_scala BAZEL_VERSION=1.1.0
+      env: TEST_SCRIPT=test_rules_scala BAZEL_VERSION=1.2.1
     - <<: *linux
       env: TEST_SCRIPT=test_reproducibility BAZEL_VERSION=0.28.1
     - <<: *linux
-      env: TEST_SCRIPT=test_reproducibility BAZEL_VERSION=1.1.0
+      env: TEST_SCRIPT=test_reproducibility BAZEL_VERSION=1.2.1
     - <<: *osx
       env: TEST_SCRIPT=test_rules_scala BAZEL_VERSION=0.28.1
     - <<: *osx
-      env: TEST_SCRIPT=test_rules_scala BAZEL_VERSION=1.1.0
+      env: TEST_SCRIPT=test_rules_scala BAZEL_VERSION=1.2.1
     - <<: *osx
       env: TEST_SCRIPT=test_reproducibility BAZEL_VERSION=0.28.1
     - <<: *osx
-      env: TEST_SCRIPT=test_reproducibility BAZEL_VERSION=1.1.0
+      env: TEST_SCRIPT=test_reproducibility BAZEL_VERSION=1.2.1
 
 before_install:
   - |
