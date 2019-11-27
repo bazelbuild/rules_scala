@@ -49,19 +49,19 @@ jobs:
       env: TEST_SCRIPT=test_lint
 # Test
     - <<: *linux
-      env: TEST_SCRIPT=test_rules_scala
+      env: TEST_SCRIPT=test_rules_scala BAZEL_VERSION=0.28.1
     - <<: *linux
       env: TEST_SCRIPT=test_rules_scala BAZEL_VERSION=1.2.1
     - <<: *linux
-      env: TEST_SCRIPT=test_reproducibility
+      env: TEST_SCRIPT=test_reproducibility BAZEL_VERSION=0.28.1
     - <<: *linux
       env: TEST_SCRIPT=test_reproducibility BAZEL_VERSION=1.2.1
     - <<: *osx
-      env: TEST_SCRIPT=test_rules_scala
+      env: TEST_SCRIPT=test_rules_scala BAZEL_VERSION=0.28.1
     - <<: *osx
       env: TEST_SCRIPT=test_rules_scala BAZEL_VERSION=1.2.1
     - <<: *osx
-      env: TEST_SCRIPT=test_reproducibility
+      env: TEST_SCRIPT=test_reproducibility BAZEL_VERSION=0.28.1
     - <<: *osx
       env: TEST_SCRIPT=test_reproducibility BAZEL_VERSION=1.2.1
 
