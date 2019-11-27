@@ -88,17 +88,19 @@ Rules scala supports all minor versions of Scala 2.11/2.12. By default `Scala 2.
 version you need to
 specify it when calling `scala_repositories`. `scala_repositories` takes a tuple `(scala_version, scala_version_jar_shas)`
 as a parameter where `scala_version` is the scala version and `scala_version_jar_shas` is a `dict` with
-`sha256` hashes for the maven artifacts `scala_library`, `scala_reflect` and `scala_compiler`:
+`sha256` hashes for the maven artifacts `scala_compiler`, `scala_library`, and `scala_reflect`:
+
 ```python
 scala_repositories((
-    "2.12.8",
+    "2.12.10",
     {
-       "scala_compiler": "f34e9119f45abd41e85b9e121ba19dd9288b3b4af7f7047e86dc70236708d170",
-       "scala_library": "321fb55685635c931eba4bc0d7668349da3f2c09aee2de93a70566066ff25c28",
-       "scala_reflect": "4d6405395c4599ce04cea08ba082339e3e42135de9aae2923c9f5367e957315a"
+       "scala_compiler": "cedc3b9c39d215a9a3ffc0cc75a1d784b51e9edc7f13051a1b4ad5ae22cfbc0c",
+       "scala_library": "0a57044d10895f8d3dd66ad4286891f607169d948845ac51e17b4c1cf0ab569d",
+       "scala_reflect": "56b609e1bab9144fb51525bfa01ccd72028154fc40a58685a1e9adcbe7835730"
     }
 ))
 ```
+
 If you're using any of the rules `twitter_scrooge`, `tut_repositories`, `scala_proto_repositories`
 or `specs2_junit_repositories` you also need to specify `scala_version` for them. See `./test_version/WORKSPACE.template`
 for an example workspace using another scala version.

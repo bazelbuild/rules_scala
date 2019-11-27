@@ -5,7 +5,7 @@ which adds a few dependencies needed for ScalaPB:
 
 ```python
 load("@io_bazel_rules_scala//scala_proto:scala_proto.bzl", "scala_proto_repositories")
-scala_proto_repositories(scala_version = "2.12.8") # or whatever scala_version you're on
+scala_proto_repositories(scala_version = "2.12.10") # or whatever scala_version you're on
 ```
 
 Then you can import `scala_proto_library` in any `BUILD` file like this:
