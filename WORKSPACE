@@ -72,7 +72,7 @@ jvm_maven_import_external(
 jvm_maven_import_external(
     name = "com_google_guava_guava_21_0_with_file",
     artifact = "com.google.guava:guava:21.0",
-    artifact_sha256= "972139718abc8a4893fa78cba8cf7b2c903f35c97aaf44fa3031b0669948b480",
+    artifact_sha256 = "972139718abc8a4893fa78cba8cf7b2c903f35c97aaf44fa3031b0669948b480",
     server_urls = MAVEN_SERVER_URLS,
 )
 
@@ -239,10 +239,10 @@ scala_maven_import_external(
         "org.spire-math:kind-projector:0.9.10",
         default_scala_major_version(),
     ),
+    artifact_sha256 = "897460d4488b7dd6ac9198937d6417b36cc6ec8ab3693fdf2c532652f26c4373",
     fetch_sources = False,
     licenses = ["notice"],
     server_urls = [
         "https://repo.maven.apache.org/maven2/",
     ],
-    artifact_sha256 = "897460d4488b7dd6ac9198937d6417b36cc6ec8ab3693fdf2c532652f26c4373"
 )
