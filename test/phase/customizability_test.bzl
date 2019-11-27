@@ -1,3 +1,7 @@
+"""
+This test makes sure custom phases can be inserted to the desired position through phase API
+"""
+
 load(
     "//scala:advanced_usage/providers.bzl",
     _ScalaRulePhase = "ScalaRulePhase",
@@ -13,6 +17,7 @@ load(
     _make_scala_test = "make_scala_test",
 )
 
+# Inputs for the customizable rules
 ext_add_phase_customizability_test = {
     "attrs": {
         "custom_content": attr.string(
@@ -27,6 +32,7 @@ ext_add_phase_customizability_test = {
     ],
 }
 
+# The rule implementation for phase provider
 def _add_phase_customizability_test_singleton_implementation(ctx):
     return [
         _ScalaRulePhase(
@@ -36,6 +42,7 @@ def _add_phase_customizability_test_singleton_implementation(ctx):
         ),
     ]
 
+# The rule for phase provider
 add_phase_customizability_test_singleton = rule(
     implementation = _add_phase_customizability_test_singleton_implementation,
 )

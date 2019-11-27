@@ -1,3 +1,8 @@
+"""
+Re-expose the customizable rules
+It is used only when you intend to add functionalities to existing default rules
+"""
+
 load(
     "@io_bazel_rules_scala//scala/private:rules/scala_binary.bzl",
     _make_scala_binary = "make_scala_binary",

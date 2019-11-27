@@ -1,3 +1,7 @@
+"""
+Re-expose all the phase APIs and built-in phases
+"""
+
 load(
     "@io_bazel_rules_scala//scala/private:phases/api.bzl",
     _extras_phases = "extras_phases",
