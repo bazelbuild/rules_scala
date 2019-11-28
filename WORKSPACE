@@ -95,12 +95,6 @@ scala_maven_import_external(
     srcjar_sha256 = "5e586357a289f5fe896f7b48759e1c16d9fa419333156b496696887e613d7a19",
 )
 
-# maven_jar(
-#     name = "org_apache_commons_commons_lang_3_5",
-#     artifact = "org.apache.commons:commons-lang3:3.5",
-#     sha1 = "6c6c702c89bfff3cd9e80b04d668c5e190d588c6",
-# )
-
 new_local_repository(
     name = "test_new_local_repo",
     build_file_content =
