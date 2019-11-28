@@ -28,43 +28,54 @@ load("//specs2:specs2_junit.bzl", "specs2_junit_repositories")
 specs2_junit_repositories()
 
 load("//scala:scala_cross_version.bzl", "default_scala_major_version", "scala_mvn_artifact")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-# test adding a scala jar:
-maven_jar(
-    name = "com_twitter__scalding_date",
-    artifact = scala_mvn_artifact(
-        "com.twitter:scalding-date:0.17.0",
-        default_scala_major_version(),
-    ),
-    sha1 = "420fb0c4f737a24b851c4316ee0362095710caa5",
+RULES_JVM_EXTERNAL_TAG = "2.10"
+
+RULES_JVM_EXTERNAL_SHA = "1bbf2e48d07686707dd85357e9a94da775e1dbd7c464272b3664283c9c716d26"
+
+http_archive(
+    name = "rules_jvm_external",
+    sha256 = RULES_JVM_EXTERNAL_SHA,
+    strip_prefix = "rules_jvm_external-%s" % RULES_JVM_EXTERNAL_TAG,
+    url = "https://github.com/bazelbuild/rules_jvm_external/archive/%s.zip" % RULES_JVM_EXTERNAL_TAG,
 )
 
-# For testing that we don't include sources jars to the classpath
-maven_jar(
-    name = "org_typelevel__cats_core",
-    artifact = scala_mvn_artifact(
-        "org.typelevel:cats-core:0.9.0",
-        default_scala_major_version(),
-    ),
-    sha1 = "b2f8629c6ec834d8b6321288c9fe77823f1e1314",
+load("@rules_jvm_external//:defs.bzl", "maven_install")
+
+maven_install(
+    name = "maven",
+    artifacts = [
+        scala_mvn_artifact(
+            "com.twitter:scalding-date:0.17.0",
+            default_scala_major_version(),
+        ),
+        scala_mvn_artifact(
+            "org.typelevel:cats-core:0.9.0",
+            default_scala_major_version(),
+        ),
+        scala_mvn_artifact(
+            "org.psywerx.hairyfotr:linter:0.1.13",
+            default_scala_major_version(),
+        ),
+        "com.google.guava:guava:21.0",
+        "org.apache.commons:commons-lang3:3.5",
+    ],
+    fetch_sources = True,
+    # See https://github.com/bazelbuild/rules_jvm_external/#repository-aliases
+    # This can be removed if none of your external dependencies uses `maven_jar`.
+    generate_compat_repositories = True,
+    repositories = [
+        "https://jcenter.bintray.com",
+        "https://maven.google.com",
+        "https://repo1.maven.org/maven2",
+    ],
+    version_conflict_policy = "pinned",
 )
 
-# test of a plugin
-maven_jar(
-    name = "org_psywerx_hairyfotr__linter",
-    artifact = scala_mvn_artifact(
-        "org.psywerx.hairyfotr:linter:0.1.13",
-        default_scala_major_version(),
-    ),
-    sha1 = "e5b3e2753d0817b622c32aedcb888bcf39e275b4",
-)
+load("@maven//:compat.bzl", "compat_repositories")
 
-# test of strict deps (scalac plugin UT + E2E)
-maven_jar(
-    name = "com_google_guava_guava_21_0_with_file",
-    artifact = "com.google.guava:guava:21.0",
-    sha1 = "3a3d111be1be1b745edfa7d91678a12d7ed38709",
-)
+compat_repositories()
 
 # test of import external
 # scala maven import external decodes maven artifacts to its parts
@@ -84,11 +95,11 @@ scala_maven_import_external(
     srcjar_sha256 = "5e586357a289f5fe896f7b48759e1c16d9fa419333156b496696887e613d7a19",
 )
 
-maven_jar(
-    name = "org_apache_commons_commons_lang_3_5",
-    artifact = "org.apache.commons:commons-lang3:3.5",
-    sha1 = "6c6c702c89bfff3cd9e80b04d668c5e190d588c6",
-)
+# maven_jar(
+#     name = "org_apache_commons_commons_lang_3_5",
+#     artifact = "org.apache.commons:commons-lang3:3.5",
+#     sha1 = "6c6c702c89bfff3cd9e80b04d668c5e190d588c6",
+# )
 
 new_local_repository(
     name = "test_new_local_repo",

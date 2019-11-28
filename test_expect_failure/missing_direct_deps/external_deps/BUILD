@@ -31,5 +31,5 @@ scala_library(
     srcs = [
         "B.scala",
     ],
-    deps = ["@com_google_guava_guava_21_0_with_file//jar"],
+    deps = ["@maven//:com_google_guava_guava"],
 )

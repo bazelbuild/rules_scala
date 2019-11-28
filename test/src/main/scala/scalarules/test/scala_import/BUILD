@@ -5,8 +5,8 @@ load("//scala:scala_import.bzl", "scala_import")
 scala_import(
     name = "guava_and_commons_lang",
     jars = [
-        "@com_google_guava_guava_21_0_with_file//jar:file",
-        "@org_apache_commons_commons_lang_3_5//jar:file",
+        "@maven//:com_google_guava_guava",
+        "@maven//:org_apache_commons_commons_lang3",
     ],
 )
 
@@ -44,7 +44,7 @@ scala_specs2_junit_test(
 #filter source jars
 scala_import(
     name = "cats",
-    jars = ["@org_typelevel__cats_core//jar:file"],
+    jars = ["@maven//:org_typelevel_cats_core_2_11"],
 )
 
 scala_library(
@@ -77,11 +77,11 @@ scala_specs2_junit_test(
     runtime_deps = [":cats_and_guava_and_commons_lang_as_runtime_deps"],
 )
 
-java_import(
+java_library(
     name = "guava_and_commons_lang_java_import",
-    jars = [
-        "@com_google_guava_guava_21_0_with_file//jar:file",
-        "@org_apache_commons_commons_lang_3_5//jar:file",
+    exports = [
+        "@maven//:com_google_guava_guava",
+        "@maven//:org_apache_commons_commons_lang3",
     ],
 )
 
