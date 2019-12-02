@@ -19,21 +19,21 @@ def _adjust_phases(phases, adjustments):
 
     # relation: the position to add a new phase
     # peer_name: the existing phase to compare the position with
-    # name: the name of the new phase
-    # function: the function of the new phase
-    for (relation, peer_name, name, function) in adjustments:
+    # phase_name: the name of the new phase, also used to access phase information
+    # phase_function: the function of the new phase
+    for (relation, peer_name, phase_name, phase_function) in adjustments:
         for idx, (needle, _) in enumerate(phases):
             if relation in ["^", "first"]:
-                phases.insert(0, (name, function))
+                phases.insert(0, (phase_name, phase_function))
             elif relation in ["$", "last"]:
-                phases.append((name, function))
+                phases.append((phase_name, phase_function))
             elif needle == peer_name:
                 if relation in ["-", "before"]:
-                    phases.insert(idx, (name, function))
+                    phases.insert(idx, (phase_name, phase_function))
                 elif relation in ["+", "after"]:
-                    phases.insert(idx + 1, (name, function))
+                    phases.insert(idx + 1, (phase_name, phase_function))
                 elif relation in ["=", "replace"]:
-                    phases[idx] = (name, function)
+                    phases[idx] = (phase_name, phase_function)
     return phases
 
 # Execute phases
