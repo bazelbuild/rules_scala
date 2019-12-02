@@ -5,21 +5,21 @@ Phases increase configurability. Rule implementations are defined as a list of p
 
 The biggest benefit of phases is that it is customizable. If default phase A is not doing what you expect, you may switch it with your self-defined phase A. One use case is to write your own compilation phase with your favorite Scala compiler. You may also extend the default phase list for more functionality. One use case is to check the Scala format.
 
-## Who needs customizable phases
-Customizable phases is an advanced feature for people who want the rules to do more. If you are an experienced Bazel rules developer, we make this powerful API public for you to do custom work without impacting other users. If you have no experience on writing Bazel rules, we are happy to help but be aware it may be frucstrating at first.
+## Who needs customizable phase?
+Customizable phase is an advanced feature for people who want the rules to do more. If you are an experienced Bazel rules developer, we make this powerful API public for you to do custom work without impacting other users. If you have no experience on writing Bazel rules, we are happy to help but be aware it may be frucstrating at first.
 
 If you don't need to customize your rules and just need the default setup to work correctly, then just load the following file for default rules:
 ```
 load("@io_bazel_rules_scala//scala:scala.bzl")
 ```
 
-## As a Consumer
+## As a consumer
 You need to load the following 2 files:
 ```
-load("@io_bazel_rules_scala//scala:advanced_usage/providers.bzl", _ScalaRulePhase = "ScalaRulePhase")
-load("@io_bazel_rules_scala//scala:advanced_usage/scala.bzl", _make_scala_binary = "make_scala_binary")
+load("@io_bazel_rules_scala//scala:advanced_usage/providers.bzl", "ScalaRulePhase")
+load("@io_bazel_rules_scala//scala:advanced_usage/scala.bzl", "make_scala_binary")
 ```
-`ScalaRulePhase` is a phase provider to pass in custom phase. Rules with `make_` prefix, like `make_scala_binary`, are customizable rules. `make_<RULES>`s take a dictionary as input. It currently supports appending `attrs` and `outputs` to default rules, as well as modifying the phase list.
+`ScalaRulePhase` is a phase provider to pass in custom phase. Rules with `make_` prefix, like `make_scala_binary`, are customizable rules. `make_<RULE_NAME>`s take a dictionary as input. It currently supports appending `attrs` and `outputs` to default rules, as well as modifying the phase list.
 
 For example:
 ```
@@ -37,13 +37,13 @@ ext_add_custom_phase = {
     ],
 }
 
-custom_scala_binary = _make_scala_binary(ext_add_custom_phase)
+custom_scala_binary = make_scala_binary(ext_add_custom_phase)
 ```
-The usage of `attrs` and `outputs` is straight forward. `make_<RULES>`s append these 2 fields to the default rules definition. All items in `attrs` can be accessed by `ctx.attr`, and all items in `outputs` can be accessed by `ctx.outputs`. `phase_providers` takes a list of targets which define how do you want to modify phase list.
+`make_<RULE_NAME>`s append `attrs` and `outputs` to the default rules definition. All items in `attrs` can be accessed by `ctx.attr`, and all items in `outputs` can be accessed by `ctx.outputs`. `phase_providers` takes a list of targets which define how you want to modify phase list.
 ```
 def _add_custom_phase_singleton_implementation(ctx):
     return [
-        _ScalaRulePhase(
+        ScalaRulePhase(
             custom_phases = [
                 ("last", "", "custom_write_extra_file", phase_custom_write_extra_file),
             ],
@@ -54,7 +54,7 @@ add_custom_phase_singleton = rule(
     implementation = _add_custom_phase_singleton_implementation,
 )
 ```
-`add_custom_phase_singleton` is a simple rule solely to pass in custom phases using `_ScalaRulePhase`. The `custom_phases` field in `_ScalaRulePhase` take a list of tuples. Each tuple has 4 elements:
+`add_custom_phase_singleton` is a rule solely to pass in custom phases using `ScalaRulePhase`. The `custom_phases` field in `ScalaRulePhase` takes a list of tuples. Each tuple has 4 elements:
 ```
 (relation, peer_name, phase_name, phase_function)
 ```
@@ -101,7 +101,37 @@ def phase_jar(ctx, p):
 ```
 You are able to access information like `p.jar.class_jar` in `phase_custom_write_extra_file`. You can provide the information for later phases in the same way, then they can access it by `p.custom_write_extra_file.<FIELD_NAME>`.
 
-## As a Contributor
+You should be able to define the files above entirely in your own workspace without making change to the [bazelbuild/rules_scala](https://github.com/bazelbuild/rules_scala). If you believe your custom phase will be valuable to the community, please refer to [As a contributor](#as-a-contributor). Pull requests are welcome.
+
+## As a contributor
+Besides the basics in [As a consumer](#as-a-consumer), the followings help you understand how phases are setup if you plan to contribute to [bazelbuild/rules_scala](https://github.com/bazelbuild/rules_scala).
+
 These are the relevant files
- - `scala/private/phases/api.bzl`
- - `scala/private/phases/phases.bzl`
+ - `scala/private/phases/api.bzl`: the API of executing and modifying the phase list
+ - `scala/private/phases/phases.bzl`: re-expose phases for convenience
+ - `scala/private/phases/phase_<PHASE_NAME>.bzl`: all the phase definitions
+
+Currently phase architecture is used by 7 rules:
+ - scala_library
+ - scala_macro_library
+ - scala_library_for_plugin_bootstrapping
+ - scala_binary
+ - scala_test
+ - scala_junit_test
+ - scala_repl
+
+In each of the rule implementation, it calls `run_phases` and returns the information from `phase_final`, which groups the final returns of the rule. To prevent users from accidently removing `phase_final` from the list, we make it a non-customizable phase.
+
+To make a new phase, you have to define a new `phase_<PHASE_NAME>.bzl` in `scala/private/phases/`. Function definition should have 2 arguments, `ctx` and `p`. You may expose the information for later phases by returning a `struct`. In some phases, there are multiple phase functions since different rules may take slightly different input arguemnts. You may want to re-expose the phase definition in `scala/private/phases/phases.bzl`, so it's more convenient to access in rule files.
+
+In the rule implementations, put your new phase in `builtin_customizable_phases` list. The phases are executed sequentially, the order matters if the new phase depends on previous phases.
+
+### Phase naming convention
+Files in `scala/private/phases/`
+ - `phase_<PHASE_NAME>.bzl`: phase definition file
+
+Function names in `phase_<PHASE_NAME>.bzl`
+ - `phase_<RULE_NAME>_<PHASE_NAME>`: function with custom inputs of specific rule
+ - `phase_common_<PHASE_NAME>`: function without custom inputs
+ - `_phase_default_<PHASE_NAME>`: private function that takes `_args` for custom inputs
+ - `_phase_<PHASE_NAME>`: private function with the actual logic
