@@ -24,24 +24,53 @@ output_file_should_contain_message() {
     exit 0
   fi
 }
+
 test_scala_binary_with_extra_phase() {
   output_file_should_contain_message \
     "This is custom content" \
-    build //test/phase:HelloBinary.custom-output
+    build //test/phase/add_phase_to_all_rules:HelloBinary.custom-output
 }
 
 test_scala_library_with_extra_phase_and_custom_content() {
   output_file_should_contain_message \
     "This is custom content in library" \
-    build //test/phase:HelloLibrary.custom-output
+    build //test/phase/add_phase_to_all_rules:HelloLibrary.custom-output
+}
+
+test_scala_library_for_plugin_bootstrapping_with_extra_phase_and_custom_content() {
+  output_file_should_contain_message \
+    "This is custom content in library_for_plugin_bootstrapping" \
+    build //test/phase/add_phase_to_all_rules:HelloLibraryForPluginBootstrapping.custom-output
+}
+
+test_scala_macro_library_with_extra_phase_and_custom_content() {
+  output_file_should_contain_message \
+    "This is custom content in macro_library" \
+    build //test/phase/add_phase_to_all_rules:HelloMacroLibrary.custom-output
 }
 
 test_scala_test_with_extra_phase_and_custom_content() {
   output_file_should_contain_message \
     "This is custom content in test" \
-    build //test/phase:HelloTest.custom-output
+    build //test/phase/add_phase_to_all_rules:HelloTest.custom-output
+}
+
+test_scala_junit_test_with_extra_phase_and_custom_content() {
+  output_file_should_contain_message \
+    "This is custom content in junit_test" \
+    build //test/phase/add_phase_to_all_rules:HelloJunitTest.custom-output
+}
+
+test_scala_repl_with_extra_phase_and_custom_content() {
+  output_file_should_contain_message \
+    "This is custom content in repl" \
+    build //test/phase/add_phase_to_all_rules:HelloRepl.custom-output
 }
 
 $runner test_scala_binary_with_extra_phase
 $runner test_scala_library_with_extra_phase_and_custom_content
+$runner test_scala_library_for_plugin_bootstrapping_with_extra_phase_and_custom_content
+$runner test_scala_macro_library_with_extra_phase_and_custom_content
 $runner test_scala_test_with_extra_phase_and_custom_content
+$runner test_scala_junit_test_with_extra_phase_and_custom_content
+$runner test_scala_repl_with_extra_phase_and_custom_content
