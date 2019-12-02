@@ -2,7 +2,7 @@
 
 ## Contents
 *  [Overview](#overview)
-*  [Who needs customizable phase?](#who-needs-customizable-phase?)
+*  [Who needs customizable phase](#who-needs-customizable-phase)
 *  [As a consumer](#as-a-consumer)
 *  [As a contributor](#as-a-contributor)
    *  [Phase naming convention](#phase-naming-convention)
@@ -12,7 +12,7 @@ Phases increase configurability. Rule implementations are defined as a list of p
 
 The biggest benefit of phases is that it is customizable. If default phase A is not doing what you expect, you may switch it with your self-defined phase A. One use case is to write your own compilation phase with your favorite Scala compiler. You may also extend the default phase list for more functionalities. One use case is to check the Scala format.
 
-## Who needs customizable phase?
+## Who needs customizable phase
 Customizable phase is an advanced feature for people who want the rules to do more. If you are an experienced Bazel rules developer, we make this powerful API public for you to do custom work without impacting other consumers. If you have no experience on writing Bazel rules, we are happy to help but be aware it may be frucstrating at first.
 
 If you don't need to customize your rules and just need the default setup to work correctly, then just load the following file for default rules:
@@ -145,4 +145,4 @@ Function names in `phase_<PHASE_NAME>.bzl`
  - `_phase_default_<PHASE_NAME>`: private function that takes `_args` for custom inputs
  - `_phase_<PHASE_NAME>`: private function with the actual logic
 
-See [phase_compile](scala/private/phases/phase_compile.bzl) for example.
+See `phase_compile.bzl` for example.
