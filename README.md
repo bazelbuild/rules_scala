@@ -189,12 +189,13 @@ Unused dependency checking can either be enabled globally for all targets using 
 in these cases you can enable unused dependency checking globally through a toolchain and override individual misbehaving targets
 using the attribute.
 
-## Advanced Configurable Rules
+## Advanced configurable rules
 To make the ruleset more flexible and configurable, we introduce a phase architecture. By using a phase architecture, where rule implementations are defined as a list of phases that are executed sequentially, functionality can easily be added (or modified) by adding (or swapping) phases.
 
-Phases provide two major benefits:
- - Contributors are able to implement new functionality by creating additional default phases. Phases also give us more clear idea what steps are shared across rules.
+Phases provide 3 major benefits:
  - Consumers are able to configure the rules to their specific use cases by defining new phases within their workspace without impacting other consumers.
+ - Contributors are able to implement new functionalities by creating additional default phases.
+ - Phases give us more clear idea what steps are shared across rules.
 
 See [Customizable Phase](docs/customizable_phase.md) for more info.
 
