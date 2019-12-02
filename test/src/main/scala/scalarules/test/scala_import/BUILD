@@ -5,8 +5,8 @@ load("//scala:scala_import.bzl", "scala_import")
 scala_import(
     name = "guava_and_commons_lang",
     jars = [
-        "@com_google_guava_guava_21_0_with_file//jar:file",
-        "@org_apache_commons_commons_lang_3_5//jar:file",
+        "@com_google_guava_guava_21_0_with_file//:guava-21.0.jar",
+        "@org_apache_commons_commons_lang_3_5//:commons-lang3-3.5.jar",
     ],
 )
 
@@ -41,23 +41,19 @@ scala_specs2_junit_test(
     deps = [":relate"],
 )
 
-#filter source jars
-scala_import(
-    name = "cats",
-    jars = ["@org_typelevel__cats_core//jar:file"],
-)
-
 scala_library(
     name = "source_jar_not_oncp",
     srcs = ["ReferCatsImplicits.scala"],
-    deps = [":cats"],
+    # jvm_maven_import_external doesn't fetch source jars automatically
+    deps = ["@org_typelevel__cats_core//jar"],
 )
 
 ##Runtime deps
 scala_import(
     name = "indirection_for_transitive_runtime_deps",
     jars = [],
-    runtime_deps = [":cats"],
+    # jvm_maven_import_external doesn't fetch source jars automatically
+    deps = ["@org_typelevel__cats_core//jar"],
 )
 
 scala_import(
@@ -80,8 +76,8 @@ scala_specs2_junit_test(
 java_import(
     name = "guava_and_commons_lang_java_import",
     jars = [
-        "@com_google_guava_guava_21_0_with_file//jar:file",
-        "@org_apache_commons_commons_lang_3_5//jar:file",
+        "@com_google_guava_guava_21_0_with_file//:guava-21.0.jar",
+        "@org_apache_commons_commons_lang_3_5//:commons-lang3-3.5.jar",
     ],
 )
 

@@ -2,6 +2,7 @@ workspace(name = "io_bazel_rules_scala")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+load("@bazel_tools//tools/build_defs/repo:jvm.bzl", "jvm_maven_import_external")
 load("//scala:scala.bzl", "scala_repositories")
 
 scala_repositories()
@@ -29,41 +30,50 @@ specs2_junit_repositories()
 
 load("//scala:scala_cross_version.bzl", "default_scala_major_version", "scala_mvn_artifact")
 
+MAVEN_SERVER_URLS = [
+    "https://jcenter.bintray.com",
+    "https://repo1.maven.org/maven2",
+]
+
 # test adding a scala jar:
-maven_jar(
+jvm_maven_import_external(
     name = "com_twitter__scalding_date",
     artifact = scala_mvn_artifact(
         "com.twitter:scalding-date:0.17.0",
         default_scala_major_version(),
     ),
-    sha1 = "420fb0c4f737a24b851c4316ee0362095710caa5",
+    artifact_sha256 = "bf743cd6d224a4568d6486a2b794143e23145d2afd7a1d2de412d49e45bdb308",
+    server_urls = MAVEN_SERVER_URLS,
 )
 
 # For testing that we don't include sources jars to the classpath
-maven_jar(
+jvm_maven_import_external(
     name = "org_typelevel__cats_core",
     artifact = scala_mvn_artifact(
         "org.typelevel:cats-core:0.9.0",
         default_scala_major_version(),
     ),
-    sha1 = "b2f8629c6ec834d8b6321288c9fe77823f1e1314",
+    artifact_sha256 = "3fda7a27114b0d178107ace5c2cf04e91e9951810690421768e65038999ffca5",
+    server_urls = MAVEN_SERVER_URLS,
 )
 
 # test of a plugin
-maven_jar(
+jvm_maven_import_external(
     name = "org_psywerx_hairyfotr__linter",
     artifact = scala_mvn_artifact(
         "org.psywerx.hairyfotr:linter:0.1.13",
         default_scala_major_version(),
     ),
-    sha1 = "e5b3e2753d0817b622c32aedcb888bcf39e275b4",
+    artifact_sha256 = "9444dd78684c0cc89d070af0f5ca3f3ae7d56b2a4d7ac1c038f8218ad4d66fad",
+    server_urls = MAVEN_SERVER_URLS,
 )
 
 # test of strict deps (scalac plugin UT + E2E)
-maven_jar(
+jvm_maven_import_external(
     name = "com_google_guava_guava_21_0_with_file",
     artifact = "com.google.guava:guava:21.0",
-    sha1 = "3a3d111be1be1b745edfa7d91678a12d7ed38709",
+    artifact_sha256 = "972139718abc8a4893fa78cba8cf7b2c903f35c97aaf44fa3031b0669948b480",
+    server_urls = MAVEN_SERVER_URLS,
 )
 
 # test of import external
@@ -84,10 +94,11 @@ scala_maven_import_external(
     srcjar_sha256 = "5e586357a289f5fe896f7b48759e1c16d9fa419333156b496696887e613d7a19",
 )
 
-maven_jar(
+jvm_maven_import_external(
     name = "org_apache_commons_commons_lang_3_5",
     artifact = "org.apache.commons:commons-lang3:3.5",
-    sha1 = "6c6c702c89bfff3cd9e80b04d668c5e190d588c6",
+    artifact_sha256 = "8ac96fc686512d777fca85e144f196cd7cfe0c0aec23127229497d1a38ff651c",
+    server_urls = MAVEN_SERVER_URLS,
 )
 
 new_local_repository(
@@ -228,6 +239,7 @@ scala_maven_import_external(
         "org.spire-math:kind-projector:0.9.10",
         default_scala_major_version(),
     ),
+    artifact_sha256 = "897460d4488b7dd6ac9198937d6417b36cc6ec8ab3693fdf2c532652f26c4373",
     fetch_sources = False,
     licenses = ["notice"],
     server_urls = [
