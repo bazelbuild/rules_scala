@@ -47,8 +47,8 @@ customizability_test_scala_test(
 
 customizability_test_scala_junit_test(
     name = "HelloJunitTest",
-    srcs = ["HelloTest.scala"],
-    prefixes = ["custom_phase"],
+    srcs = ["HelloJunitTest.scala"],
+    suffixes = ["Test"],
     custom_content = "This is custom content in junit_test",
 )
 
