@@ -67,13 +67,13 @@ def make_scala_repl(*extras):
         attrs = _dicts.add(
             _scala_repl_attrs,
             extras_phases(extras),
-            *[extra["attrs"] for extra in extras]
+            *[extra["attrs"] for extra in extras if "attrs" in extra]
         ),
         executable = True,
         fragments = ["java"],
         outputs = _dicts.add(
             common_outputs,
-            *[extra["outputs"] for extra in extras]
+            *[extra["outputs"] for extra in extras if "outputs" in extra]
         ),
         toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
         implementation = _scala_repl_impl,

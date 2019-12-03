@@ -120,12 +120,12 @@ def make_scala_junit_test(*extras):
         attrs = _dicts.add(
             _scala_junit_test_attrs,
             extras_phases(extras),
-            *[extra["attrs"] for extra in extras]
+            *[extra["attrs"] for extra in extras if "attrs" in extra]
         ),
         fragments = ["java"],
         outputs = _dicts.add(
             common_outputs,
-            *[extra["outputs"] for extra in extras]
+            *[extra["outputs"] for extra in extras if "outputs" in extra]
         ),
         test = True,
         toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],

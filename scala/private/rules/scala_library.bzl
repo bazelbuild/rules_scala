@@ -88,12 +88,12 @@ def make_scala_library(*extras):
         attrs = _dicts.add(
             _scala_library_attrs,
             extras_phases(extras),
-            *[extra["attrs"] for extra in extras]
+            *[extra["attrs"] for extra in extras if "attrs" in extra]
         ),
         fragments = ["java"],
         outputs = _dicts.add(
             common_outputs,
-            *[extra["outputs"] for extra in extras]
+            *[extra["outputs"] for extra in extras if "outputs" in extra]
         ),
         toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
         implementation = _scala_library_impl,
@@ -171,12 +171,12 @@ def make_scala_library_for_plugin_bootstrapping(*extras):
         attrs = _dicts.add(
             _scala_library_for_plugin_bootstrapping_attrs,
             extras_phases(extras),
-            *[extra["attrs"] for extra in extras]
+            *[extra["attrs"] for extra in extras if "attrs" in extra]
         ),
         fragments = ["java"],
         outputs = _dicts.add(
             common_outputs,
-            *[extra["outputs"] for extra in extras]
+            *[extra["outputs"] for extra in extras if "outputs" in extra]
         ),
         toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
         implementation = _scala_library_for_plugin_bootstrapping_impl,
@@ -238,12 +238,12 @@ def make_scala_macro_library(*extras):
         attrs = _dicts.add(
             _scala_macro_library_attrs,
             extras_phases(extras),
-            *[extra["attrs"] for extra in extras]
+            *[extra["attrs"] for extra in extras if "attrs" in extra]
         ),
         fragments = ["java"],
         outputs = _dicts.add(
             common_outputs,
-            *[extra["outputs"] for extra in extras]
+            *[extra["outputs"] for extra in extras if "outputs" in extra]
         ),
         toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
         implementation = _scala_macro_library_impl,
