@@ -1,5 +1,5 @@
 load(":sculpt.bzl", "sculpt_json")
-load("@io_bazel_rules_scala//scala:scala.bzl", "scala_binary")
+load("@io_bazel_rules_scala//scala:scala.bzl", "scala_binary", "scala_library")
 
 sculpt_json(
     name = "example",
@@ -23,3 +23,22 @@ java_binary(
     visibility = ["//visibility:public"],
     )
 
+scala_library(
+    name = "dagify",
+    srcs = ["Dagify.scala"],
+    )
+
+scala_library(
+    name = "sculpt_processor",
+    srcs = ["SculptProcessor.scala"],
+    deps = [
+      ":dagify",
+      "@io_bazel_rules_scala_spray_json",
+      "@sculpt//:sculpt",
+    ])
+
+java_binary(
+    name = "sculpt_processor_runner",
+    runtime_deps = [":sculpt_processor"],
+    main_class = "io.bazel.rules_scala.target_split.SculptProcessor",
+    )

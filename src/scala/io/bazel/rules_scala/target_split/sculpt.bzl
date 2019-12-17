@@ -4,7 +4,7 @@ def make_sculpt():
   new_git_repository(
       name = "sculpt",
       remote = "https://github.com/johnynek/scala-sculpt.git",
-      commit = "722c598fa38113f0641dc7806709682ca2534f6f",
+      commit = "d7fa6084f47034caea115bce9a38ff5e68fbfb08",
       build_file_content = """
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_library")
 
