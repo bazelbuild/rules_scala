@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-default_bazel_version='0.28.1'
+default_bazel_version='1.2.1'
 
 if [ "$BUILDKITE" = true ]; then
     bazel_version='host'

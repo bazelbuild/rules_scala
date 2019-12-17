@@ -30,6 +30,10 @@ def _default_scala_extra_jars():
                 "version": "1.0.4",
                 "sha256": "0dfaafce29a9a245b0a9180ec2c1073d2bd8f0330f03a9f1f6a74d1bc83f62d6",
             },
+            "io_spray_spray_json": {
+                "version": "1.3.5",
+                "sha256": "6f341db92de96d4c4a768f478aa44662ecfecdb6d8d94facaf8e23cd00f59a93",
+            },
         },
         "2.12": {
             "scalatest": {
@@ -47,6 +51,10 @@ def _default_scala_extra_jars():
             "scala_parser_combinators": {
                 "version": "1.0.4",
                 "sha256": "282c78d064d3e8f09b3663190d9494b85e0bb7d96b0da05994fe994384d96111",
+            },
+            "io_spray_spray_json": {
+                "version": "1.3.5",
+                "sha256": "0dfaafce29a9a245b0a9180ec2c1073d2bd8f0330f03a9f1f6a74d1bc83f62d6",
             },
         },
     }
@@ -109,6 +117,18 @@ def scala_repositories(
                 extra_jar_version = scala_version_extra_jars["scala_parser_combinators"]["version"],
             ),
         artifact_sha256 = scala_version_extra_jars["scala_parser_combinators"]["sha256"],
+        licenses = ["notice"],
+        server_urls = maven_servers,
+    )
+
+    _scala_maven_import_external(
+        name = "io_bazel_rules_scala_spray_json",
+        artifact =
+            "io.spray:spray-json_{major_version}:{extra_jar_version}".format(
+                major_version = major_version,
+                extra_jar_version = scala_version_extra_jars["io_spray_spray_json"]["version"],
+            ),
+        artifact_sha256 = scala_version_extra_jars["io_spray_spray_json"]["sha256"],
         licenses = ["notice"],
         server_urls = maven_servers,
     )
