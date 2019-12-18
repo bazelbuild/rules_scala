@@ -2,6 +2,7 @@ package io.bazel.rules_scala.target_split
 
 import com.lightbend.tools.sculpt.model.{EntityKind, FullDependency, ModelJsonProtocol, Path => SPath, DependencyKind}
 import scala.collection.immutable.SortedSet
+import java.io.{File, PrintWriter}
 import java.nio.file.{Files, Path, Paths}
 
 object SculptProcessor {
@@ -92,7 +93,7 @@ object SculptProcessor {
     }
   }
 
-  def dagToLibraries(target: String, root: Path, d: Graph.Dagify[Path]): List[BazelGen.ScalaLibrary] = {
+  def dagToLibraries(target: String, root: String, d: Graph.Dagify[Path]): List[BazelGen.ScalaLibrary] = {
 
     def isSrcFile(p: Path): Boolean = {
       val pstr = p.toString
@@ -117,7 +118,14 @@ object SculptProcessor {
           c.filter { p =>
               p.toString.endsWith(".scala") || p.toString.endsWith(".java")
             }
-            .map { root.relativize(_).toString }
+            .map { p =>
+              val pstr = p.toString
+              val idx = pstr.indexOf(root)
+              if (idx < 0) sys.error(s"$pstr did not contain $root")
+              else {
+                pstr.substring(idx + root.length + 1)
+              }
+            }
             .toList
 
         val deps = d
@@ -136,7 +144,7 @@ object SculptProcessor {
   }
 
   def main(args: Array[String]): Unit = {
-    val (posArgs, mapArgs) = parseArgs(args.toList)
+    val (_, mapArgs) = parseArgs(args.toList)
 
     val target_name = mapArgs("target_name").head
 
@@ -146,13 +154,35 @@ object SculptProcessor {
         loadFullDeps(Paths.get(path))
       }
 
-    val packageRoot = Paths.get(mapArgs("package_root").head)
+    val packageRoot = mapArgs("package_root").head
+    val pw = new PrintWriter(new File(mapArgs("output").head))
+
+    val deps = mapArgs.getOrElse("deps", Nil)
+    val exports = mapArgs.getOrElse("exports", Nil)
+
+    println(mapArgs)
 
     val graph = fileGraph(fds)
     val dag = Graph.dagifyGraph(graph)
 
-    dagToLibraries(target_name, packageRoot, dag).foreach { lib =>
-      println(lib.render + "\n\n")
+
+    val targs = dagToLibraries(target_name, packageRoot, dag)
+
+
+    targs.foreach { lib0 =>
+      val lib = lib0.copy(deps = (deps ::: lib0.deps).distinct.sorted)
+      pw.println(lib.render + "\n\n")
     }
+
+    val exportTarget =
+      BazelGen.ScalaLibrary(
+        name = target_name,
+        srcs = Nil,
+        deps = Nil,
+        exports = (targs.map { t => ":" + t.name } ::: exports).sorted,
+        visibility = Nil
+      )
+    pw.println(exportTarget.render + "\n\n")
+    pw.close()
   }
 }

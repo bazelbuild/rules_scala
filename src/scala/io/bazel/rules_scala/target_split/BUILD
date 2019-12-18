@@ -11,6 +11,20 @@ sculpt_json(
     ],
     )
 
+
+
+scala_library(
+    name = "example0_scala",
+    srcs = ["File0.scala"],
+    )
+
+scala_library(
+    name = "example_scala",
+    srcs = ["File1.scala", "File2.scala"],
+    deps = [":example0_scala"],
+    exports = [":example0_scala"],
+    )
+
 java_binary(
     name = "scalac_runner",
     runtime_deps = [
@@ -47,4 +61,5 @@ java_binary(
     name = "sculpt_processor_runner",
     runtime_deps = [":sculpt_processor"],
     main_class = "io.bazel.rules_scala.target_split.SculptProcessor",
+    visibility = ["//visibility:public"],
     )

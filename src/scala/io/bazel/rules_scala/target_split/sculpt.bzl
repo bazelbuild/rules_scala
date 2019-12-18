@@ -22,23 +22,31 @@ scala_library(
 """,
   )
 
+def run_sculpt(actions, outjson_file, sculpt, scalac, dep_files, src_files):
+    args = actions.args()
+    args.add("-Xplugin:" + sculpt[0].path)
+    args.add("-Xplugin-require:sculpt")
+    args.add("-P:sculpt:out=" + outjson_file.path)
+    args.add("-usejavacp")
+    args.add_joined("-toolcp", dep_files, join_with = ":")
+    args.add_joined("-classpath", dep_files, join_with = ":")
+    args.add_all([f.path for f in src_files])
+
+    actions.run(
+        outputs = [outjson_file],
+        inputs = src_files + dep_files + sculpt,
+        arguments = [args],
+        executable = scalac)
+
 def sculpt_json_impl(ctx):
     outjson = ctx.actions.declare_file(ctx.label.name + "_sculpt.json")
-    args = ctx.actions.args()
-
-    args.add("-Xplugin:" + ctx.files._sculpt_plugin[0].path)
-    args.add("-Xplugin-require:sculpt")
-    args.add("-P:sculpt:out=" + outjson.path)
-    args.add("-usejavacp")
-    args.add_joined("-toolcp", ctx.files.deps, join_with = ":")
-    args.add_all([f.path for f in ctx.files.srcs])
-
-    ctx.actions.run(
-        outputs = [outjson],
-        inputs = ctx.files.srcs + ctx.files._sculpt_plugin,
-        arguments = [args],
-        executable = ctx.executable._scalac_runner)
-
+    run_sculpt(
+        ctx.actions,
+        outjson,
+        ctx.files._sculpt_plugin,
+        ctx.executable._scalac_runner,
+        ctx.files.deps,
+        ctx.files.srcs)
     return [DefaultInfo(files = depset([outjson]))]
 
 sculpt_json = rule(
@@ -63,3 +71,79 @@ sculpt_json = rule(
     }
 )
 
+# return the path of the json file
+def sculpt_json_for(target, ctx):
+    outname = target.label.name + "_sculpt.json"
+    outjson = ctx.actions.declare_file(outname)
+    run_sculpt(
+        ctx.actions,
+        outjson,
+        ctx.files._sculpt_plugin,
+        ctx.executable._scalac_runner,
+        ctx.rule.files.deps,
+        ctx.rule.files.srcs)
+
+    return outjson
+
+def run_processor(actions, sculpt_proc, target_short_name, json_file, pack_root_path, deps, exports, out_file):
+    args = actions.args()
+    args.add("--target_name")
+    args.add(target_short_name)
+    args.add("--sculpt_json")
+    args.add(json_file.path)
+    args.add("--package_root")
+    args.add(pack_root_path)
+    args.add_joined("--deps", deps, join_with = " ")
+    args.add_joined("--exports", exports, join_with = " ")
+    args.add("--output")
+    args.add(out_file.path)
+
+    actions.run(
+        outputs = [out_file],
+        inputs = [json_file],
+        arguments = [args],
+        executable = sculpt_proc)
+
+def split_build_for(target, ctx, json_file):
+    outname = target.label.name + "_split.BUILD"
+    outbuild = ctx.actions.declare_file(outname)
+    run_processor(
+        ctx.actions,
+        ctx.executable._sculpt_processor,
+        target.label.name,
+        json_file,
+        target.label.package,
+        [str(d.label) for d in ctx.rule.attr.deps],
+        [str(e.label) for e in ctx.rule.attr.exports],
+        outbuild)
+
+    return outbuild
+
+def sculpt_aspect_impl(target, ctx):
+    json_file = sculpt_json_for(target, ctx)
+    build_file = split_build_for(target, ctx, json_file)
+
+    return [DefaultInfo(files = depset([json_file, build_file])),
+            OutputGroupInfo(build_files = depset([build_file]))]
+
+sculpt_aspect = aspect(
+    implementation = sculpt_aspect_impl,
+    attr_aspects = [],
+    attrs = {
+        "_sculpt_processor": attr.label(
+            default = Label("@io_bazel_rules_scala//src/scala/io/bazel/rules_scala/target_split:sculpt_processor_runner"),
+            executable = True,
+            cfg = "host",
+        ),
+      "_scalac_runner": attr.label(
+          default = Label("@io_bazel_rules_scala//src/scala/io/bazel/rules_scala/target_split:scalac_runner"),
+          allow_files = True,
+          executable = True,
+          cfg = "host",
+        ),
+      "_sculpt_plugin": attr.label(
+          default = Label("@sculpt//:sculpt.jar"),
+          allow_files = True,
+        ),
+    }
+)

@@ -1,5 +1,5 @@
 package example
 
 object File1 {
-  val message: String = "this is file 1"
+  val message: String = File0.ident("this is file 1")
 }
