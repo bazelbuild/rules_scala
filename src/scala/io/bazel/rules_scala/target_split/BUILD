@@ -29,9 +29,15 @@ scala_library(
     )
 
 scala_library(
+    name = "bazelgen",
+    srcs = ["BazelGen.scala"],
+    )
+
+scala_library(
     name = "sculpt_processor",
     srcs = ["SculptProcessor.scala"],
     deps = [
+      ":bazelgen",
       ":dagify",
       "@io_bazel_rules_scala_spray_json",
       "@sculpt//:sculpt",

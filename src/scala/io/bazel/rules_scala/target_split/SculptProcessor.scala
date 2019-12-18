@@ -1,9 +1,11 @@
 package io.bazel.rules_scala.target_split
 
 import com.lightbend.tools.sculpt.model.{EntityKind, FullDependency, ModelJsonProtocol, Path => SPath, DependencyKind}
+import scala.collection.immutable.SortedSet
 import java.nio.file.{Files, Path, Paths}
 
 object SculptProcessor {
+
   def loadFullDeps(p: Path): Seq[FullDependency] = {
     // narrow implicit scope
     import ModelJsonProtocol._
@@ -47,7 +49,7 @@ object SculptProcessor {
     def getFile(spath: SPath): Option[Path] =
       pathToFile.get(spath) match {
         case None =>
-          println(s"warning: $spath file is unknown")
+          System.err.println(s"warning: $spath file is unknown")
           None
         case some => some
       }
@@ -66,11 +68,91 @@ object SculptProcessor {
     }
   }
 
+  def parseArgs(list: List[String]): (List[String], Map[String, List[String]]) = {
+    def isKey(s: String): Boolean = s.startsWith("-")
+    list match {
+      case Nil => (Nil, Map.empty)
+      case h :: t =>
+        if (isKey(h)) {
+          val kh = h.dropWhile(_ == '-')
+          val values = t.takeWhile(!isKey(_))
+          val next = t.dropWhile(!isKey(_))
+          val (tailPos, tailArgs) = parseArgs(next)
+          val a1 = tailArgs.get(kh) match {
+            case None => values
+            case Some(right) => values ::: right
+          }
+          (tailPos, tailArgs.updated(kh, a1))
+        }
+        else {
+          // this is an arg
+          val (tailPos, tailArgs) = parseArgs(t)
+          (h :: tailPos, tailArgs)
+        }
+    }
+  }
+
+  def dagToLibraries(target: String, root: Path, d: Graph.Dagify[Path]): List[BazelGen.ScalaLibrary] = {
+
+    def isSrcFile(p: Path): Boolean = {
+      val pstr = p.toString
+      pstr.endsWith(".scala") || pstr.endsWith(".java")
+    }
+
+    val clusterToName: Map[SortedSet[Path], Option[String]] =
+      d.clusterMembers
+        .iterator
+        .zipWithIndex
+        .map { case (k, idx) =>
+          val v =
+            if (k.exists(isSrcFile)) Some(target + idx.toString)
+            else None
+          (k, v)
+        }
+        .toMap
+
+    def clusterToLib(c: SortedSet[Path]): Option[BazelGen.ScalaLibrary] = {
+      clusterToName(c).map { name =>
+        val srcs =
+          c.filter { p =>
+              p.toString.endsWith(".scala") || p.toString.endsWith(".java")
+            }
+            .map { root.relativize(_).toString }
+            .toList
+
+        val deps = d
+          .clusterDeps
+          .getOrElse(c, Nil)
+          .iterator
+          .flatMap(clusterToName(_))
+          .map(":" + _)
+          .toList
+
+        BazelGen.ScalaLibrary(name, srcs, deps, visibility = Nil, exports = Nil)
+      }
+    }
+
+    d.clusterMembers.iterator.flatMap(clusterToLib).toList
+  }
+
   def main(args: Array[String]): Unit = {
-    val fds = loadFullDeps(Paths.get(args(0)))
+    val (posArgs, mapArgs) = parseArgs(args.toList)
+
+    val target_name = mapArgs("target_name").head
+
+    val fds = mapArgs
+      .getOrElse("sculpt_json", Nil)
+      .flatMap { path =>
+        loadFullDeps(Paths.get(path))
+      }
+
+    val packageRoot = Paths.get(mapArgs("package_root").head)
 
     val graph = fileGraph(fds)
     val dag = Graph.dagifyGraph(graph)
-    println(dag.clusterDeps)
+
+    dagToLibraries(target_name, packageRoot, dag).foreach { lib =>
+      println(lib.render + "\n\n")
+    }
   }
 }
