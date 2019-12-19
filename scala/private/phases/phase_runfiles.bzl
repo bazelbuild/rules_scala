@@ -10,7 +10,7 @@ def phase_library_runfiles(ctx, p):
     )
     return _phase_default_runfiles(ctx, p, args)
 
-def phase_test_runfiles(ctx, p):
+def phase_scalatest_runfiles(ctx, p):
     args = "\n".join([
         "-R",
         ctx.outputs.jar.short_path,

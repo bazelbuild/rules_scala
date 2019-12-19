@@ -25,7 +25,7 @@ def phase_library_final(ctx, p):
         scala = p.scala_provider,
     )
 
-def phase_test_final(ctx, p):
+def phase_scalatest_final(ctx, p):
     coverage_runfiles = p.coverage_runfiles.coverage_runfiles
     coverage_runfiles.extend(p.write_executable)
     return struct(

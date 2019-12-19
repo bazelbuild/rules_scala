@@ -10,7 +10,7 @@ load(
     "write_executable",
 )
 
-def phase_test_write_executable(ctx, p):
+def phase_scalatest_write_executable(ctx, p):
     # jvm_flags passed in on the target override scala_test_jvm_flags passed in on the
     # toolchain
     final_jvm_flags = first_non_empty(

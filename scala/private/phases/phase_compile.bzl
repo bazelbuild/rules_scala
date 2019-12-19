@@ -83,7 +83,7 @@ def phase_repl_compile(ctx, p):
     )
     return _phase_default_compile(ctx, p, args)
 
-def phase_test_compile(ctx, p):
+def phase_scalatest_compile(ctx, p):
     args = struct(
         buildijar = False,
         unused_dependency_checker_ignored_targets = [

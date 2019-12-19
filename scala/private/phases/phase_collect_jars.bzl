@@ -8,7 +8,7 @@ load(
     "collect_jars_from_common_ctx",
 )
 
-def phase_test_collect_jars(ctx, p):
+def phase_scalatest_collect_jars(ctx, p):
     args = struct(
         base_classpath = p.scalac_provider.default_classpath + [ctx.attr._scalatest],
         extra_runtime_deps = [

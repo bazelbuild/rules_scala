@@ -12,7 +12,7 @@ load(
     _phase_common_write_executable = "phase_common_write_executable",
     _phase_junit_test_write_executable = "phase_junit_test_write_executable",
     _phase_repl_write_executable = "phase_repl_write_executable",
-    _phase_test_write_executable = "phase_test_write_executable",
+    _phase_scalatest_write_executable = "phase_scalatest_write_executable",
 )
 load(
     "@io_bazel_rules_scala//scala/private:phases/phase_java_wrapper.bzl",
@@ -26,7 +26,7 @@ load(
     _phase_library_for_plugin_bootstrapping_collect_jars = "phase_library_for_plugin_bootstrapping_collect_jars",
     _phase_macro_library_collect_jars = "phase_macro_library_collect_jars",
     _phase_repl_collect_jars = "phase_repl_collect_jars",
-    _phase_test_collect_jars = "phase_test_collect_jars",
+    _phase_scalatest_collect_jars = "phase_scalatest_collect_jars",
 )
 load(
     "@io_bazel_rules_scala//scala/private:phases/phase_compile.bzl",
@@ -37,7 +37,7 @@ load(
     _phase_library_for_plugin_bootstrapping_compile = "phase_library_for_plugin_bootstrapping_compile",
     _phase_macro_library_compile = "phase_macro_library_compile",
     _phase_repl_compile = "phase_repl_compile",
-    _phase_test_compile = "phase_test_compile",
+    _phase_scalatest_compile = "phase_scalatest_compile",
 )
 load(
     "@io_bazel_rules_scala//scala/private:phases/phase_scala_provider.bzl",
@@ -48,13 +48,13 @@ load(
     "@io_bazel_rules_scala//scala/private:phases/phase_runfiles.bzl",
     _phase_common_runfiles = "phase_common_runfiles",
     _phase_library_runfiles = "phase_library_runfiles",
-    _phase_test_runfiles = "phase_test_runfiles",
+    _phase_scalatest_runfiles = "phase_scalatest_runfiles",
 )
 load(
     "@io_bazel_rules_scala//scala/private:phases/phase_final.bzl",
     _phase_binary_final = "phase_binary_final",
     _phase_library_final = "phase_library_final",
-    _phase_test_final = "phase_test_final",
+    _phase_scalatest_final = "phase_scalatest_final",
 )
 load("@io_bazel_rules_scala//scala/private:phases/phase_scalac_provider.bzl", _phase_scalac_provider = "phase_scalac_provider")
 load("@io_bazel_rules_scala//scala/private:phases/phase_write_manifest.bzl", _phase_write_manifest = "phase_write_manifest")
@@ -98,7 +98,7 @@ phase_jvm_flags = _phase_jvm_flags
 phase_coverage_runfiles = _phase_coverage_runfiles
 
 # write_executable
-phase_test_write_executable = _phase_test_write_executable
+phase_scalatest_write_executable = _phase_scalatest_write_executable
 phase_repl_write_executable = _phase_repl_write_executable
 phase_junit_test_write_executable = _phase_junit_test_write_executable
 phase_common_write_executable = _phase_common_write_executable
@@ -108,7 +108,7 @@ phase_repl_java_wrapper = _phase_repl_java_wrapper
 phase_common_java_wrapper = _phase_common_java_wrapper
 
 # collect_jars
-phase_test_collect_jars = _phase_test_collect_jars
+phase_scalatest_collect_jars = _phase_scalatest_collect_jars
 phase_repl_collect_jars = _phase_repl_collect_jars
 phase_macro_library_collect_jars = _phase_macro_library_collect_jars
 phase_junit_test_collect_jars = _phase_junit_test_collect_jars
@@ -122,7 +122,7 @@ phase_library_for_plugin_bootstrapping_compile = _phase_library_for_plugin_boots
 phase_macro_library_compile = _phase_macro_library_compile
 phase_junit_test_compile = _phase_junit_test_compile
 phase_repl_compile = _phase_repl_compile
-phase_test_compile = _phase_test_compile
+phase_scalatest_compile = _phase_scalatest_compile
 phase_common_compile = _phase_common_compile
 
 # scala_provider
@@ -131,10 +131,10 @@ phase_common_scala_provider = _phase_common_scala_provider
 
 # runfiles
 phase_library_runfiles = _phase_library_runfiles
-phase_test_runfiles = _phase_test_runfiles
+phase_scalatest_runfiles = _phase_scalatest_runfiles
 phase_common_runfiles = _phase_common_runfiles
 
 # final
 phase_binary_final = _phase_binary_final
 phase_library_final = _phase_library_final
-phase_test_final = _phase_test_final
+phase_scalatest_final = _phase_scalatest_final
