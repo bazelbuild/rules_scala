@@ -249,4 +249,5 @@ scala_maven_import_external(
 
 # here is the source build for sculpt
 load("@io_bazel_rules_scala//src/scala/io/bazel/rules_scala/target_split:sculpt.bzl", "make_sculpt")
+
 make_sculpt()
