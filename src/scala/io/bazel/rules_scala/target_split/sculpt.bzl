@@ -27,7 +27,7 @@ scala_library(
 """,
     )
 
-def run_sculpt(actions, outjson_file, sculpt, scalac, scalacopts, plugins, deps, src_files):
+def run_sculpt(actions, outjson_file, sculpt, scalac, scalacopts, plugins, resources, deps, src_files):
     dep_files = collect_jars(deps).transitive_compile_jars.to_list()
     plugin_jars = collect_plugin_paths(plugins).to_list()
 
@@ -47,7 +47,7 @@ def run_sculpt(actions, outjson_file, sculpt, scalac, scalacopts, plugins, deps,
 
     actions.run(
         outputs = [outjson_file],
-        inputs = src_files + dep_files + plugin_jars + sculpt,
+        inputs = src_files + dep_files + plugin_jars + sculpt + resources,
         arguments = [args],
         executable = scalac,
     )
@@ -61,6 +61,7 @@ def sculpt_json_impl(ctx):
         ctx.executable._scalac_runner,
         ctx.attr.scalacopts,
         ctx.attr.plugins,
+        ctx.files.resources,
         ctx.attr.deps,
         ctx.files.srcs,
     )
@@ -75,6 +76,7 @@ sculpt_json = rule(
         "deps": attr.label_list(
             providers = [[JavaInfo]],
         ),
+        "resources": attr.label_list(),
         "scalacopts": attr.string_list(),
         "plugins": attr.label_list(),
         "_scalac_runner": attr.label(
@@ -101,6 +103,7 @@ def sculpt_json_for(target, ctx):
         ctx.executable._scalac_runner,
         ctx.rule.attr.scalacopts,
         ctx.rule.attr.plugins,
+        ctx.rule.files.resources,
         ctx.rule.attr.deps,
         ctx.rule.files.srcs,
     )
@@ -115,8 +118,10 @@ def run_processor(actions, sculpt_proc, target_short_name, json_file, pack_root_
     args.add(json_file.path)
     args.add("--package_root")
     args.add(pack_root_path)
-    args.add_joined("--deps", deps, join_with = " ")
-    args.add_joined("--exports", exports, join_with = " ")
+    args.add("--deps")
+    args.add_all(deps)
+    args.add("--exports")
+    args.add_all(exports)
     args.add("--output")
     args.add(out_file.path)
 

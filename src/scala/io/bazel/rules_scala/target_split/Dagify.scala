@@ -96,6 +96,23 @@ object Graph {
         (c, deps)
       }.toMap
 
+    lazy val topological: List[List[Cluster]] = {
+      def loop(prev: List[Cluster], rest: List[Cluster], acc: List[List[Cluster]]): List[List[Cluster]] =
+        if (rest.isEmpty) acc.reverse.map(_.sorted)
+        else {
+          // everyone that can reach the prev is in the next group
+          val (next, notyet) = rest.partition { c =>
+            val cdeps = clusterDeps(c)
+            // are all of the deps already seen?
+            prev.forall(cdeps)
+          }
+
+          loop(next reverse_::: prev, notyet, next :: acc)
+        }
+
+        loop(Nil, clusterMembers.toList, Nil)
+    }
+
     /**
      * if the original A graph was a DAG, then all the clusters are singletons
      */

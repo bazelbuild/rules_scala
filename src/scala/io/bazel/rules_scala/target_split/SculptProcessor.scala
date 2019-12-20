@@ -100,17 +100,51 @@ object SculptProcessor {
       pstr.endsWith(".scala") || pstr.endsWith(".java")
     }
 
+    // how many digits do we have
+    def digits(n: Int, acc: Int): Int =
+      if (n > 10) digits(n/10, acc + 1)
+      else acc
+
+    val fileCount = d.clusterMembers.count(_.exists(isSrcFile))
+
+    val digitCount = digits(fileCount, 1)
+
+    def idxToStr(i: Int): String = {
+      val i0 = i.toString
+      val padding = "0" * (digitCount - i0.length)
+      padding + i0
+    }
+
     val clusterToName: Map[SortedSet[Path], Option[String]] =
-      d.clusterMembers
+      d.topological
         .iterator
-        .zipWithIndex
-        .map { case (k, idx) =>
-          val v =
-            if (k.exists(isSrcFile)) Some(target + idx.toString)
-            else None
-          (k, v)
+        .flatten
+        .foldLeft((0, Map.empty[SortedSet[Path], Option[String]])) {
+          case ((idx, acc), k) =>
+            val isSrc = k.exists(isSrcFile)
+
+            val v =
+              if (!isSrc) None
+              else {
+                val idxStr = idxToStr(idx)
+                // try to give a decent name:
+                if (k.nonEmpty) {
+                  // take the first file to give a name
+                  val fn = k.head.getFileName.toString
+                  val nm =
+                    if (fn.endsWith(".scala")) fn.dropRight(6)
+                    else fn
+                  Some(s"${target}${idxStr}_$nm")
+                }
+                else {
+                  Some(target + idxStr)
+                }
+              }
+
+            val idx1 = if (isSrc) (idx + 1) else idx
+            (idx1, acc.updated(k, v))
         }
-        .toMap
+        ._2
 
     def clusterToLib(c: SortedSet[Path]): Option[BazelGen.ScalaLibrary] = {
       clusterToName(c).map { name =>
@@ -140,7 +174,7 @@ object SculptProcessor {
       }
     }
 
-    d.clusterMembers.iterator.flatMap(clusterToLib).toList
+    d.topological.iterator.flatten.flatMap(clusterToLib).toList
   }
 
   def main(args: Array[String]): Unit = {
