@@ -1,3 +1,5 @@
-package usage
+package trivial
 
-object Usage
+object Trivial {
+  // feel free to reuse this file for other plugin tests
+}
