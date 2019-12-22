@@ -1,20 +1,20 @@
 load("//scala:scala.bzl", "scala_library")
 
 scala_library(
-    name = "usage",
-    srcs = ["usage.scala"],
+    name = "check_expand_location",
+    srcs = ["trivial.scala"],
     plugins = [
-        ":plugin_deploy.jar",
+        ":check_expand_location_plugin_deploy.jar",
     ],
     scalacopts = [
-        "-P:diablerie:location=$(location :plugin_deploy.jar)",
+        "-P:diablerie:location=$(location :check_expand_location_plugin_deploy.jar)",
     ],
 )
 
 scala_library(
-    name = "plugin",
+    name = "check_expand_location_plugin",
     srcs = [
-        "plugin.scala",
+        "check_expand_location_plugin.scala",
     ],
     resource_strip_prefix = package_name(),
     resources = [
