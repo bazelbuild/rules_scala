@@ -3,6 +3,18 @@ workspace(name = "io_bazel_rules_scala")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 load("@bazel_tools//tools/build_defs/repo:jvm.bzl", "jvm_maven_import_external")
+
+http_archive(
+    name = "com_github_bazelbuild_buildtools",
+    sha256 = "cdaac537b56375f658179ee2f27813cac19542443f4722b6730d84e4125355e6",
+    strip_prefix = "buildtools-f27d1753c8b3210d9e87cdc9c45bc2739ae2c2db",
+    url = "https://github.com/bazelbuild/buildtools/archive/f27d1753c8b3210d9e87cdc9c45bc2739ae2c2db.zip",
+)
+
+load("@com_github_bazelbuild_buildtools//buildifier:deps.bzl", "buildifier_dependencies")
+
+buildifier_dependencies()
+
 load("//scala:scala.bzl", "scala_repositories")
 
 scala_repositories()
@@ -162,13 +174,6 @@ http_archive(
     url = "https://github.com/bazelbuild/rules_go/releases/download/0.18.7/rules_go-0.18.7.tar.gz",
 )
 
-http_archive(
-    name = "com_github_bazelbuild_buildtools",
-    sha256 = "cdaac537b56375f658179ee2f27813cac19542443f4722b6730d84e4125355e6",
-    strip_prefix = "buildtools-f27d1753c8b3210d9e87cdc9c45bc2739ae2c2db",
-    url = "https://github.com/bazelbuild/buildtools/archive/f27d1753c8b3210d9e87cdc9c45bc2739ae2c2db.zip",
-)
-
 load(
     "@io_bazel_rules_go//go:deps.bzl",
     "go_register_toolchains",
@@ -178,10 +183,6 @@ load(
 go_rules_dependencies()
 
 go_register_toolchains()
-
-load("@com_github_bazelbuild_buildtools//buildifier:deps.bzl", "buildifier_dependencies")
-
-buildifier_dependencies()
 
 http_archive(
     name = "bazel_toolchains",

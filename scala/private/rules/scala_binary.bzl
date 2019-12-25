@@ -1,5 +1,6 @@
 """Builds Scala binaries"""
 
+load("@bazel_skylib//lib:dicts.bzl", _dicts = "dicts")
 load(
     "@io_bazel_rules_scala//scala/private:common_attributes.bzl",
     "common_attrs",
@@ -9,58 +10,44 @@ load(
 )
 load("@io_bazel_rules_scala//scala/private:common_outputs.bzl", "common_outputs")
 load(
-    "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
-    "collect_jars_from_common_ctx",
-    "declare_executable",
-    "get_scalac_provider",
-    "get_unused_dependency_checker_mode",
-    "scala_binary_common",
-    "write_executable",
-    "write_java_wrapper",
+    "@io_bazel_rules_scala//scala/private:phases/phases.bzl",
+    "extras_phases",
+    "phase_binary_compile",
+    "phase_binary_final",
+    "phase_common_collect_jars",
+    "phase_common_java_wrapper",
+    "phase_common_runfiles",
+    "phase_common_scala_provider",
+    "phase_common_write_executable",
+    "phase_declare_executable",
+    "phase_merge_jars",
+    "phase_scalac_provider",
+    "phase_unused_deps_checker",
+    "phase_write_manifest",
+    "run_phases",
 )
 
 def _scala_binary_impl(ctx):
-    scalac_provider = get_scalac_provider(ctx)
-    unused_dependency_checker_mode = get_unused_dependency_checker_mode(ctx)
-    unused_dependency_checker_is_off = unused_dependency_checker_mode == "off"
-
-    jars = collect_jars_from_common_ctx(
+    return run_phases(
         ctx,
-        scalac_provider.default_classpath,
-        unused_dependency_checker_is_off = unused_dependency_checker_is_off,
-    )
-    (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
-
-    wrapper = write_java_wrapper(ctx, "", "")
-
-    executable = declare_executable(ctx)
-
-    out = scala_binary_common(
-        ctx,
-        executable,
-        cjars,
-        transitive_rjars,
-        jars.transitive_compile_jars,
-        jars.jars2labels,
-        wrapper,
-        unused_dependency_checker_ignored_targets = [
-            target.label
-            for target in scalac_provider.default_classpath +
-                          ctx.attr.unused_dependency_checker_ignored_targets
+        # customizable phases
+        [
+            ("scalac_provider", phase_scalac_provider),
+            ("write_manifest", phase_write_manifest),
+            ("unused_deps_checker", phase_unused_deps_checker),
+            ("collect_jars", phase_common_collect_jars),
+            ("java_wrapper", phase_common_java_wrapper),
+            ("declare_executable", phase_declare_executable),
+            # no need to build an ijar for an executable
+            ("compile", phase_binary_compile),
+            ("merge_jars", phase_merge_jars),
+            ("runfiles", phase_common_runfiles),
+            ("scala_provider", phase_common_scala_provider),
+            ("write_executable", phase_common_write_executable),
         ],
-        unused_dependency_checker_mode = unused_dependency_checker_mode,
-        deps_providers = jars.deps_providers,
-    )
-    write_executable(
-        ctx = ctx,
-        executable = executable,
-        jvm_flags = ctx.attr.jvm_flags,
-        main_class = ctx.attr.main_class,
-        rjars = out.transitive_rjars,
-        use_jacoco = False,
-        wrapper = wrapper,
-    )
-    return out
+        # fixed phase
+        ("final", phase_binary_final),
+    ).final
 
 _scala_binary_attrs = {
     "main_class": attr.string(mandatory = True),
@@ -76,11 +63,21 @@ _scala_binary_attrs.update(common_attrs)
 
 _scala_binary_attrs.update(resolve_deps)
 
-scala_binary = rule(
-    attrs = _scala_binary_attrs,
-    executable = True,
-    fragments = ["java"],
-    outputs = common_outputs,
-    toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
-    implementation = _scala_binary_impl,
-)
+def make_scala_binary(*extras):
+    return rule(
+        attrs = _dicts.add(
+            _scala_binary_attrs,
+            extras_phases(extras),
+            *[extra["attrs"] for extra in extras if "attrs" in extra]
+        ),
+        executable = True,
+        fragments = ["java"],
+        outputs = _dicts.add(
+            common_outputs,
+            *[extra["outputs"] for extra in extras if "outputs" in extra]
+        ),
+        toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
+        implementation = _scala_binary_impl,
+    )
+
+scala_binary = make_scala_binary()
