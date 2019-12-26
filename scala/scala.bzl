@@ -7,6 +7,10 @@ load(
     _scala_repositories = "scala_repositories",
 )
 load(
+    "//3rdparty:workspace.bzl",
+    _maven_dependencies = "maven_dependencies",
+)
+load(
     "@io_bazel_rules_scala//scala/private:rules/scala_binary.bzl",
     _scala_binary = "scala_binary",
 )
@@ -58,5 +62,6 @@ scala_library_suite = _scala_library_suite
 scala_macro_library = _scala_macro_library
 scala_repl = _scala_repl
 scala_repositories = _scala_repositories
+maven_dependencies = _maven_dependencies
 scala_test = _scala_test
 scala_test_suite = _scala_test_suite

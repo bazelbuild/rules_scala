@@ -1,4 +1,99 @@
-# Scala Rules for Bazel
+# Bloop integration
+
+Added option for compilation using bloop vs the scala compiler directly.
+The bulk of the change can be found in scala/private/phases/phase_bloop.bzl and scala/bloop/bloop/BloopRunner.scala
+
+## Dependency graphs
+
+I will reference the following dependency graphs:
+1) ABC: C -> B -> A
+
+## Motivation
+
+Jorge has a good blog post about the motivations and different strategies to take: https://jorge.vican.me/posts/integrate-bloop-with-bazel-and-pants.html
+
+Metals with VSCode also seemed to work automatically in my [own repo](https://github.com/psilospore/local_rules_scala). It possibly sees that there's a .bloop
+To see how it's used, the cases I've tested out, and what it generates in .bloop you can see it in the above repo.
+
+## Intro
+
+I'm still trying to understand Bazel so this was a learning process. I could probably do some things better.
+
+The goal is that every target should have it's own bloop config under `[Repo path]/.bloop/`.
+I use the format `[package]:[target].json`.
+
+Consider a bazel project with the following dependency graph in package `//ABC`: C_run -> C -> B -> A
+
+`//ABC:B` a bazel target with a dependency on A, could be modeled as `.bloop/ABC:B.json` with the following content:
+```json
+{
+    "version" : "1.1.2",
+    "project" : {
+        "name" : "ABC:B",
+        "directory" : "/Users/syedajafri/dev/bazelExample",
+        "sources" : [
+            "/Users/syedajafri/dev/bazelExample/ABC/B.scala"
+        ],
+        "dependencies" : [
+            "ABC:A"
+        ],
+        "classpath" : [
+            "/private/var/tmp/_bazel_syedajafri/ad86228950bcb07c687f46ad51824bd1/execroot/__main__/bazel-out/darwin-fastbuild/bin/ABC/A.jar",
+            "/private/var/tmp/_bazel_syedajafri/ad86228950bcb07c687f46ad51824bd1/execroot/__main__/external/io_bazel_rules_scala_scala_library/scala-library-2.12.10.jar",
+            "/private/var/tmp/_bazel_syedajafri/ad86228950bcb07c687f46ad51824bd1/execroot/__main__/external/io_bazel_rules_scala_scala_reflect/scala-reflect-2.12.10.jar"
+        ],
+        "out" : "/Users/syedajafri/dev/bazelExample/.bloop/out/ABC:B",
+        "classesDir" : "/Users/syedajafri/dev/bazelExample/.bloop/out/ABC:B/classes",
+        "scala" : {
+            "organization" : "org.scala-lang",
+            "name" : "scala-compiler",
+            "version" : "2.12.10",
+            "options" : [
+            ],
+            "jars" : [
+                "/private/var/tmp/_bazel_syedajafri/ad86228950bcb07c687f46ad51824bd1/external/io_bazel_rules_scala_scala_compiler/scala-compiler-2.12.10.jar",
+                "/private/var/tmp/_bazel_syedajafri/ad86228950bcb07c687f46ad51824bd1/external/io_bazel_rules_scala_scala_reflect/scala-reflect-2.12.10.jar",
+                "/private/var/tmp/_bazel_syedajafri/ad86228950bcb07c687f46ad51824bd1/external/io_bazel_rules_scala_scala_library/scala-library-2.12.10.jar"
+            ]
+        }
+    }
+}
+```
+
+With this I could run `bloop compile ABC:B` or send a BSP request to compile ABC:B.
+Doing so generates classfiles in `/Users/syedajafri/dev/bazelExample/.bloop/out/ABC:B/classes` for this case.
+
+BloopRunner handles creating that config file (needs dependent bloop projects, dependent jars, etc), sending a BSP request, and packaging up a jar.
+phase_bloop is a phase that can optionally replace the compile phase invoking BloopRunner and returning that jar.
+
+## TODOs
+
+I'll leave some comments.
+
+I have the repo directory hardcoded `/Users/syedajafri/dev/bazelExample`. Not sure how to find that out.
+
+### Others
+
+- [ ] Consider separating bloop config generation and compilation. Attempt here: phase-bloop-seperate-config-phase-attempt
+- [ ] Support scala 2.11. bloop-launcher is only available for 2.12 right now.
+- [ ] Java. Any guidance on how I could support that as well?
+- [ ] Ittai plans on returning a provider later on. So what I return in compile may change a bit but not much I hope.
+- [ ] Might have to convert `/` to `_` for packages 2 subdirectories deep
+- [ ] Probably not: Consider adding classes to classpath instead of jar.
+- [ ] Would I not want to use bazel deps? What's the right way?
+- [ ] Do some cleaning. Delete dump.bzl and printlns.
+
+My approach may not work with incremental compilations because I'm using jars but Jorge may look into making that work.
+
+If I separate bloop config generation and compilation I could have:
+1) Performance increase. I can generate the config in parallel but not the BSP compilation requests.
+e.g. if I have graph ABC then generate bloop config at one time in parallel but send BSP in the order A, B, C.
+2) Metals support without bloop compilation. I spoke with Ittai a bit about that but I might have to research that option more.
+
+Maybe we can look at doing that on the next iteration. 
+
+----
+
 [![Build Status](https://travis-ci.org/bazelbuild/rules_scala.svg?branch=master)](https://travis-ci.org/bazelbuild/rules_scala) [![Build status](https://badge.buildkite.com/90ce5244556df74db805a3c24a703fb87458396f9e1ddd687e.svg)](https://buildkite.com/bazel/scala-rules-scala-postsubmit) [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/bazelbuild_rules_scala/Lobby)
 
 ## Overview
