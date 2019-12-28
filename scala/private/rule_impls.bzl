@@ -167,6 +167,7 @@ def compile_scala(
         unused_dependency_checker_mode = "off",
         unused_dependency_checker_ignored_targets = []):
     # look for any plugins:
+    input_plugins = plugins
     plugins = collect_plugin_paths(plugins)
     internal_plugin_jars = []
     dependency_analyzer_mode = "off"
@@ -238,8 +239,7 @@ CurrentTarget: {current_target}
     compiler_classpath = _join_path(compiler_classpath_jars.to_list(), separator)
 
     toolchain = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"]
-    scalacopts_expansion_targets = getattr(ctx.attr, "plugins", [])
-    scalacopts = [ctx.expand_location(v, scalacopts_expansion_targets) for v in toolchain.scalacopts + in_scalacopts]
+    scalacopts = [ctx.expand_location(v, input_plugins) for v in toolchain.scalacopts + in_scalacopts]
 
     scalac_args = """
 Classpath: {cp}
