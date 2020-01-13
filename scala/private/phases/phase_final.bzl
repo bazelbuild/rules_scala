@@ -10,7 +10,6 @@ def phase_binary_final(ctx, p):
         runfiles= p.runfiles.runfiles
         )
     return struct(
-        coverage = p.compile.coverage,
         providers = [defaultInfo, p.compile.merged_provider, p.collect_jars.jars2labels] + p.compile.coverage.providers,
     )
 
@@ -20,7 +19,6 @@ def phase_library_final(ctx, p):
         runfiles= p.runfiles.runfiles
         )
     return struct(
-        jars_to_labels = p.collect_jars.jars2labels,
         providers = [defaultInfo, p.compile.merged_provider, p.collect_jars.jars2labels] + p.compile.coverage.providers,
     )
 
