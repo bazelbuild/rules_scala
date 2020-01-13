@@ -14,7 +14,6 @@ load(
     "extras_phases",
     "phase_binary_final",
     "phase_common_runfiles",
-    "phase_common_scala_provider",
     "phase_declare_executable",
     "phase_merge_jars",
     "phase_repl_collect_jars",
@@ -43,7 +42,6 @@ def _scala_repl_impl(ctx):
             ("compile", phase_repl_compile),
             ("merge_jars", phase_merge_jars),
             ("runfiles", phase_common_runfiles),
-            ("scala_provider", phase_common_scala_provider),
             ("write_executable", phase_repl_write_executable),
         ],
         # fixed phase

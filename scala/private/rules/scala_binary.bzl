@@ -17,7 +17,6 @@ load(
     "phase_common_collect_jars",
     "phase_common_java_wrapper",
     "phase_common_runfiles",
-    "phase_common_scala_provider",
     "phase_common_write_executable",
     "phase_declare_executable",
     "phase_merge_jars",
@@ -42,7 +41,6 @@ def _scala_binary_impl(ctx):
             ("compile", phase_binary_compile),
             ("merge_jars", phase_merge_jars),
             ("runfiles", phase_common_runfiles),
-            ("scala_provider", phase_common_scala_provider),
             ("write_executable", phase_common_write_executable),
         ],
         # fixed phase

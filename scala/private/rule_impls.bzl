@@ -15,7 +15,6 @@
 
 load(
     "@io_bazel_rules_scala//scala:providers.bzl",
-    "create_scala_provider",
     _ScalacProvider = "ScalacProvider",
 )
 load(
