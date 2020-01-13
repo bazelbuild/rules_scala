@@ -872,10 +872,11 @@ def _jacoco_offline_instrument(ctx, input_jar):
         replacements = replacements,
     )
     instrumented_files_provider = coverage_common.instrumented_files_info(
-                                          ctx,
-                                          source_attributes = ["srcs"],
-                                          dependency_attributes = _coverage_replacements_provider.dependency_attributes,
-                                          extensions = ["scala", "java"])
+        ctx,
+        source_attributes = ["srcs"],
+        dependency_attributes = _coverage_replacements_provider.dependency_attributes,
+        extensions = ["scala", "java"],
+    )
     return struct(
         providers = [provider, instrumented_files_provider],
         replacements = replacements,
