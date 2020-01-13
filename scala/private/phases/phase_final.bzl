@@ -11,7 +11,6 @@ def phase_binary_final(ctx, p):
         )
     return struct(
         coverage = p.compile.coverage,
-        instrumented_files = p.compile.coverage.instrumented_files,
         providers = [defaultInfo, p.compile.merged_provider, p.collect_jars.jars2labels] + p.compile.coverage.providers,
     )
 
@@ -21,7 +20,6 @@ def phase_library_final(ctx, p):
         runfiles= p.runfiles.runfiles
         )
     return struct(
-        instrumented_files = p.compile.coverage.instrumented_files,
         jars_to_labels = p.collect_jars.jars2labels,
         providers = [defaultInfo, p.compile.merged_provider, p.collect_jars.jars2labels] + p.compile.coverage.providers,
     )
@@ -35,6 +33,5 @@ def phase_scalatest_final(ctx, p):
         runfiles= ctx.runfiles(coverage_runfiles, transitive_files = p.runfiles.runfiles.files)
         )
     return struct(
-        instrumented_files = p.compile.coverage.instrumented_files,
         providers = [defaultInfo, p.compile.merged_provider, p.collect_jars.jars2labels] + p.compile.coverage.providers,
     )
