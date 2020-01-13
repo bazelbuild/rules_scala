@@ -13,7 +13,6 @@ def phase_binary_final(ctx, p):
         coverage = p.compile.coverage,
         instrumented_files = p.compile.coverage.instrumented_files,
         providers = [defaultInfo, p.compile.merged_provider, p.collect_jars.jars2labels] + p.compile.coverage.providers,
-        transitive_rjars = p.compile.rjars,  #calling rules need this for the classpath in the launcher
     )
 
 def phase_library_final(ctx, p):
