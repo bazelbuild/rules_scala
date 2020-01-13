@@ -40,7 +40,7 @@ _scala_extension = ".scala"
 _srcjar_extension = ".srcjar"
 
 _empty_coverage_struct = struct(
-    instrumented_files = struct(),
+    instrumented_files = None,
     providers = [],
     replacements = {},
 )
@@ -871,14 +871,13 @@ def _jacoco_offline_instrument(ctx, input_jar):
     provider = _coverage_replacements_provider.create(
         replacements = replacements,
     )
-
+    instrumented_files_provider = coverage_common.instrumented_files_info(
+                                          ctx,
+                                          source_attributes = ["srcs"],
+                                          dependency_attributes = _coverage_replacements_provider.dependency_attributes,
+                                          extensions = ["scala", "java"])
     return struct(
-        instrumented_files = struct(
-            dependency_attributes = _coverage_replacements_provider.dependency_attributes,
-            extensions = ["scala", "java"],
-            source_attributes = ["srcs"],
-        ),
-        providers = [provider],
+        providers = [provider, instrumented_files_provider],
         replacements = replacements,
     )
 
