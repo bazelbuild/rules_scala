@@ -7,7 +7,7 @@ def phase_jvm_flags(ctx, p):
     if ctx.attr.tests_from:
         archives = _get_test_archive_jars(ctx, ctx.attr.tests_from)
     else:
-        archives = [archive.class_jar for archive in p.scala_provider.outputs.jars]
+        archives = p.compile.merged_provider.runtime_output_jars
 
     serialized_archives = _serialize_archives_short_path(archives)
     test_suite = _gen_test_suite_flags_based_on_prefixes_and_suffixes(
