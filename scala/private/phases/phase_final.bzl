@@ -11,7 +11,6 @@ def phase_binary_final(ctx, p):
         instrumented_files = p.compile.coverage.instrumented_files,
         providers = [p.compile.merged_provider, p.collect_jars.jars2labels] + p.compile.coverage.providers,
         runfiles = p.runfiles.runfiles,
-        scala = p.scala_provider,
         transitive_rjars = p.compile.rjars,  #calling rules need this for the classpath in the launcher
     )
 
@@ -22,7 +21,6 @@ def phase_library_final(ctx, p):
         jars_to_labels = p.collect_jars.jars2labels,
         providers = [p.compile.merged_provider, p.collect_jars.jars2labels] + p.compile.coverage.providers,
         runfiles = p.runfiles.runfiles,
-        scala = p.scala_provider,
     )
 
 def phase_scalatest_final(ctx, p):
@@ -34,5 +32,4 @@ def phase_scalatest_final(ctx, p):
         instrumented_files = p.compile.coverage.instrumented_files,
         providers = [p.compile.merged_provider, p.collect_jars.jars2labels] + p.compile.coverage.providers,
         runfiles = ctx.runfiles(coverage_runfiles, transitive_files = p.runfiles.runfiles.files),
-        scala = p.scala_provider,
     )

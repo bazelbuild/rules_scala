@@ -40,11 +40,6 @@ load(
     _phase_scalatest_compile = "phase_scalatest_compile",
 )
 load(
-    "@io_bazel_rules_scala//scala/private:phases/phase_scala_provider.bzl",
-    _phase_common_scala_provider = "phase_common_scala_provider",
-    _phase_library_scala_provider = "phase_library_scala_provider",
-)
-load(
     "@io_bazel_rules_scala//scala/private:phases/phase_runfiles.bzl",
     _phase_common_runfiles = "phase_common_runfiles",
     _phase_library_runfiles = "phase_library_runfiles",
@@ -124,10 +119,6 @@ phase_junit_test_compile = _phase_junit_test_compile
 phase_repl_compile = _phase_repl_compile
 phase_scalatest_compile = _phase_scalatest_compile
 phase_common_compile = _phase_common_compile
-
-# scala_provider
-phase_library_scala_provider = _phase_library_scala_provider
-phase_common_scala_provider = _phase_common_scala_provider
 
 # runfiles
 phase_library_runfiles = _phase_library_runfiles
