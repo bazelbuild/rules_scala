@@ -6,8 +6,8 @@
 def phase_scalafmt(ctx, p):
     if ctx.attr.format:
         manifest, files = _build_format(ctx)
-        _format_runner(ctx, manifest, files)
-        _format_tester(ctx, manifest, files)
+        _formatter(ctx, manifest, files, ctx.file._runner, ctx.outputs.scalafmt_runner)
+        _formatter(ctx, manifest, files, ctx.file._testrunner, ctx.outputs.scalafmt_testrunner)
     else:
         ctx.actions.write(
             output = ctx.outputs.scalafmt_runner,
@@ -52,30 +52,16 @@ def _build_format(ctx):
 
     return manifest, files
 
-def _format_runner(ctx, manifest, files):
+def _formatter(ctx, manifest, files, input_runner, output_runner):
     ctx.actions.run_shell(
-        inputs = [ctx.file._runner, manifest] + files,
-        outputs = [ctx.outputs.scalafmt_runner],
+        inputs = [input_runner, manifest] + files,
+        outputs = [output_runner],
         command = "cat $1 | sed -e s#%workspace%#$2# -e s#%manifest%#$3# > $4",
         arguments = [
-            ctx.file._runner.path,
+            input_runner.path,
             ctx.workspace_name,
             manifest.short_path,
-            ctx.outputs.scalafmt_runner.path,
-        ],
-        execution_requirements = {},
-    )
-
-def _format_tester(ctx, manifest, files):
-    ctx.actions.run_shell(
-        inputs = [ctx.file._testrunner, manifest] + files,
-        outputs = [ctx.outputs.scalafmt_testrunner],
-        command = "cat $1 | sed -e s#%workspace%#$2# -e s#%manifest%#$3# > $4",
-        arguments = [
-            ctx.file._testrunner.path,
-            ctx.workspace_name,
-            manifest.short_path,
-            ctx.outputs.scalafmt_testrunner.path,
+            output_runner.path,
         ],
         execution_requirements = {},
     )
