@@ -14,7 +14,7 @@ filegroup(
 
 scala_binary(
     name = "scalafmt",
-    srcs = glob(["scalafmt/ScalafmtRunner.scala"]),
+    srcs = ["scalafmt/ScalafmtRunner.scala"],
     main_class = "io.bazel.rules_scala.scalafmt.ScalafmtRunner",
     visibility = ["//visibility:public"],
     deps = [
