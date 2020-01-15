@@ -29,7 +29,7 @@ def register_default_proto_dependencies():
 
 def scala_proto_repositories(
         scala_version = _default_scala_version(),
-        maven_servers = ["http://central.maven.org/maven2"]):
+        maven_servers = ["https://repo.maven.apache.org/maven2"]):
     ret = scala_proto_default_repositories(scala_version, maven_servers)
     register_default_proto_dependencies()
     return ret

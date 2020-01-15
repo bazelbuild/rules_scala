@@ -4,7 +4,7 @@ load(
     _scala_maven_import_external = "scala_maven_import_external",
 )
 
-def jmh_repositories(maven_servers = ["http://central.maven.org/maven2"]):
+def jmh_repositories(maven_servers = ["https://repo.maven.apache.org/maven2"]):
     _scala_maven_import_external(
         name = "io_bazel_rules_scala_org_openjdk_jmh_jmh_core",
         artifact = "org.openjdk.jmh:jmh-core:1.20",

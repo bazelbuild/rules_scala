@@ -56,7 +56,7 @@ def scala_repositories(
             _default_scala_version(),
             _default_scala_version_jar_shas(),
         ),
-        maven_servers = ["http://central.maven.org/maven2"],
+        maven_servers = ["https://repo.maven.apache.org/maven2"],
         scala_extra_jars = _default_scala_extra_jars()):
     (scala_version, scala_version_jar_shas) = scala_version_shas
     major_version = _extract_major_version(scala_version)

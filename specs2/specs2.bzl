@@ -14,7 +14,7 @@ def specs2_version():
 
 def specs2_repositories(
         scala_version = _default_scala_version(),
-        maven_servers = ["http://central.maven.org/maven2"]):
+        maven_servers = ["https://repo.maven.apache.org/maven2"]):
     major_version = _extract_major_version(scala_version)
 
     scala_jar_shas = {
