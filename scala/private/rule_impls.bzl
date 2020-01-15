@@ -634,7 +634,7 @@ def _jar_path_based_on_java_bin(ctx):
     return jar_path
 
 def write_executable(ctx, executable, rjars, main_class, jvm_flags, wrapper, use_jacoco):
-    if (_is_windows(ctx)):
+    if (is_windows(ctx)):
         return write_executable_windows(ctx, executable, rjars, main_class, jvm_flags, wrapper, use_jacoco)
     else:
         return write_executable_non_windows(ctx, executable, rjars, main_class, jvm_flags, wrapper, use_jacoco)
@@ -731,12 +731,6 @@ def write_executable_non_windows(ctx, executable, rjars, main_class, jvm_flags, 
             is_executable = True,
         )
         return []
-
-def declare_executable(ctx):
-    if (_is_windows(ctx)):
-        return ctx.actions.declare_file("%s.exe" % ctx.label.name)
-    else:
-        return ctx.actions.declare_file(ctx.label.name)
 
 def _collect_runtime_jars(dep_targets):
     runtime_jars = []
@@ -885,5 +879,5 @@ def _jacoco_offline_instrument(ctx, input_jar):
 def _jacoco_offline_instrument_format_each(in_out_pair):
     return (["%s=%s" % (in_out_pair[0].path, in_out_pair[1].path)])
 
-def _is_windows(ctx):
+def is_windows(ctx):
     return ctx.configuration.host_path_separator == ";"
