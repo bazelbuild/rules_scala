@@ -23,7 +23,7 @@ _jar_extension = ".jar"
 
 def twitter_scrooge(
         scala_version = _default_scala_version(),
-        maven_servers = ["http://central.maven.org/maven2"]):
+        maven_servers = ["https://repo.maven.apache.org/maven2"]):
     major_version = _extract_major_version(scala_version)
 
     _scala_maven_import_external(
