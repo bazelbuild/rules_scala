@@ -26,7 +26,6 @@ load(
     "add_labels_of_jars_to",
     "collect_jars",
     "collect_plugin_paths",
-    "collect_srcjars",
     "not_sources_jar",
     "write_manifest",
 )

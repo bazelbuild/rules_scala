@@ -13,13 +13,6 @@ def write_manifest_file(actions, output_file, main_class):
 
     actions.write(output = output_file, content = manifest)
 
-def collect_srcjars(targets):
-    srcjars = []
-    for target in targets:
-        if hasattr(target, "srcjars"):
-            srcjars.append(target.srcjars.srcjar)
-    return depset(srcjars)
-
 def collect_jars(
         dep_targets,
         dependency_analyzer_is_off = True,
