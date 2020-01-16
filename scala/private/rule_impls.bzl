@@ -291,7 +291,7 @@ def _path_is_absolute(path):
 def _runfiles_root(ctx):
     return "${TEST_SRCDIR}/%s" % ctx.workspace_name
 
-def _java_bin(ctx):
+def java_bin(ctx):
     java_path = str(ctx.attr._java_runtime[java_common.JavaRuntimeInfo].java_executable_runfiles_path)
     if _path_is_absolute(java_path):
         javabin = java_path
@@ -300,35 +300,9 @@ def _java_bin(ctx):
         javabin = "%s/%s" % (runfiles_root, java_path)
     return javabin
 
-def write_java_wrapper(ctx, args = "", wrapper_preamble = ""):
-    """This creates a wrapper that sets up the correct path
-         to stand in for the java command."""
-
-    exec_str = ""
-    if wrapper_preamble == "":
-        exec_str = "exec "
-
-    wrapper = ctx.actions.declare_file(ctx.label.name + "_wrapper.sh")
-    ctx.actions.write(
-        output = wrapper,
-        content = """#!/usr/bin/env bash
-{preamble}
-DEFAULT_JAVABIN={javabin}
-JAVA_EXEC_TO_USE=${{REAL_EXTERNAL_JAVA_BIN:-$DEFAULT_JAVABIN}}
-{exec_str}$JAVA_EXEC_TO_USE "$@" {args}
-""".format(
-            preamble = wrapper_preamble,
-            exec_str = exec_str,
-            javabin = _java_bin(ctx),
-            args = args,
-        ),
-        is_executable = True,
-    )
-    return wrapper
-
 def _jar_path_based_on_java_bin(ctx):
-    java_bin = _java_bin(ctx)
-    jar_path = java_bin.rpartition("/")[0] + "/jar"
+    java_bin_var = java_bin(ctx)
+    jar_path = java_bin_var.rpartition("/")[0] + "/jar"
     return jar_path
 
 def write_executable(ctx, executable, rjars, main_class, jvm_flags, wrapper, use_jacoco):
