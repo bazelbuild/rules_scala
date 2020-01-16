@@ -13,7 +13,6 @@ load(
     _adjust_resources_path_by_default_prefixes = "adjust_resources_path_by_default_prefixes",
     _compile_scala = "compile_scala",
     _expand_location = "expand_location",
-    _get_scalac_provider = "get_scalac_provider",
 )
 
 _java_extension = ".java"
@@ -142,6 +141,7 @@ def _phase_compile(
     transitive_compile_jars = p.collect_jars.transitive_compile_jars
     jars2labels = p.collect_jars.jars2labels.jars_to_labels
     deps_providers = p.collect_jars.deps_providers
+    default_classpath = p.scalac_provider.default_classpath
 
     out = _compile_or_empty(
         ctx,
@@ -155,6 +155,7 @@ def _phase_compile(
         unused_dependency_checker_mode,
         unused_dependency_checker_ignored_targets,
         deps_providers,
+        default_classpath,
     )
 
     # TODO: simplify the return values and use provider
@@ -181,7 +182,8 @@ def _compile_or_empty(
         implicit_junit_deps_needed_for_java_compilation,
         unused_dependency_checker_mode,
         unused_dependency_checker_ignored_targets,
-        deps_providers):
+        deps_providers,
+        default_classpath):
     # We assume that if a srcjar is present, it is not empty
     if len(ctx.files.srcs) + len(srcjars.to_list()) == 0:
         _build_nosrc_jar(ctx)
@@ -271,6 +273,7 @@ def _compile_or_empty(
             all_srcjars,
             java_srcs,
             implicit_junit_deps_needed_for_java_compilation,
+            default_classpath,
         )
 
         full_jars = [ctx.outputs.jar]
@@ -429,7 +432,8 @@ def _try_to_compile_java_jar(
         scala_output,
         all_srcjars,
         java_srcs,
-        implicit_junit_deps_needed_for_java_compilation):
+        implicit_junit_deps_needed_for_java_compilation,
+        default_classpath):
     if not java_srcs and (not (all_srcjars and ctx.attr.expect_java_output)):
         return False
 
@@ -438,7 +442,7 @@ def _try_to_compile_java_jar(
         implicit_junit_deps_needed_for_java_compilation,
     )
     providers_of_dependencies += _collect_java_providers_of(
-        _get_scalac_provider(ctx).default_classpath,
+       default_classpath,
     )
     scala_sources_java_provider = _interim_java_provider_for_java_compilation(
         scala_output,
