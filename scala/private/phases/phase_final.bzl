@@ -19,11 +19,9 @@ def phase_library_final(ctx, p):
     return [defaultInfo, p.compile.merged_provider, p.collect_jars.jars2labels] + p.compile.coverage.providers
 
 def phase_scalatest_final(ctx, p):
-    coverage_runfiles = p.coverage_runfiles.coverage_runfiles
-    coverage_runfiles.extend(p.write_executable)
     defaultInfo = DefaultInfo(
         executable = p.declare_executable,
         files = depset([p.declare_executable, ctx.outputs.jar]),
-        runfiles = ctx.runfiles(coverage_runfiles, transitive_files = p.runfiles.runfiles.files),
+        runfiles = ctx.runfiles(p.coverage_runfiles.coverage_runfiles, transitive_files = p.runfiles.runfiles.files),
     )
     return [defaultInfo, p.compile.merged_provider, p.collect_jars.jars2labels] + p.compile.coverage.providers
