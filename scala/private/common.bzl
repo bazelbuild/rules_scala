@@ -1,10 +1,6 @@
 load("@io_bazel_rules_scala//scala:jars_to_labels.bzl", "JarsToLabelsInfo")
 load("@io_bazel_rules_scala//scala:plusone.bzl", "PlusOneDeps")
 
-def write_manifest(ctx):
-    main_class = getattr(ctx.attr, "main_class", None)
-    write_manifest_file(ctx.actions, ctx.outputs.manifest, main_class)
-
 def write_manifest_file(actions, output_file, main_class):
     # TODO(bazel-team): I don't think this classpath is what you want
     manifest = "Class-Path: \n"
