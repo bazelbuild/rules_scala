@@ -3,7 +3,7 @@ load(
     _scala_maven_import_external = "scala_maven_import_external",
 )
 
-def junit_repositories(maven_servers = ["https://central.maven.org/maven2"]):
+def junit_repositories(maven_servers = ["https://repo1.maven.org/maven2"]):
     _scala_maven_import_external(
         name = "io_bazel_rules_scala_junit_junit",
         artifact = "junit:junit:4.12",
