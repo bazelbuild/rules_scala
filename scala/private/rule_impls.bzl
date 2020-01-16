@@ -14,10 +14,6 @@
 """Rules for supporting the Scala language."""
 
 load(
-    "@io_bazel_rules_scala//scala:providers.bzl",
-    _ScalacProvider = "ScalacProvider",
-)
-load(
     "@io_bazel_rules_scala//scala/private:coverage_replacements_provider.bzl",
     _coverage_replacements_provider = "coverage_replacements_provider",
 )
@@ -249,9 +245,6 @@ StatsfileOutput: {statsfile_output}
             for f in expand_location(ctx, final_scalac_jvm_flags)
         ] + ["@" + argfile.path],
     )
-
-def get_scalac_provider(ctx):
-    return ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scalac_provider_attr[_ScalacProvider]
 
 def merge_jars(actions, deploy_jar, singlejar_executable, jars_list, main_class = "", progress_message = ""):
     """Calls Bazel's singlejar utility.

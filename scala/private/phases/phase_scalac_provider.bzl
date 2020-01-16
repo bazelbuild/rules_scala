@@ -4,9 +4,10 @@
 # DOCUMENT THIS
 #
 load(
-    "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
-    "get_scalac_provider",
+    "@io_bazel_rules_scala//scala:providers.bzl",
+    _ScalacProvider = "ScalacProvider",
 )
 
 def phase_scalac_provider(ctx, p):
-    return get_scalac_provider(ctx)
+    return ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scalac_provider_attr[_ScalacProvider]
+
