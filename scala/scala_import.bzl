@@ -32,18 +32,13 @@ def _scala_import_impl(ctx):
         # TODO(#8867): Migrate away from the placeholder jar hack when #8867 is fixed.
         current_target_providers = [_new_java_info(ctx, ctx.file._placeholder_jar)]
 
-    return struct(
-        scala = struct(
-            outputs = struct(jars = intellij_metadata),
+    return [
+        java_common.merge(current_target_providers),
+        DefaultInfo(
+            files = current_jars,
         ),
-        providers = [
-            java_common.merge(current_target_providers),
-            DefaultInfo(
-                files = current_jars,
-            ),
-            JarsToLabelsInfo(jars_to_labels = jars2labels),
-        ],
-    )
+        JarsToLabelsInfo(jars_to_labels = jars2labels),
+    ]
 
 def _new_java_info(ctx, jar):
     return JavaInfo(
