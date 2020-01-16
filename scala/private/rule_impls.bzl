@@ -442,11 +442,5 @@ def collect_jars_from_common_ctx(
         deps_providers = deps_providers,
     )
 
-def get_unused_dependency_checker_mode(ctx):
-    if ctx.attr.unused_dependency_checker_mode:
-        return ctx.attr.unused_dependency_checker_mode
-    else:
-        return ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].unused_dependency_checker_mode
-
 def is_windows(ctx):
     return ctx.configuration.host_path_separator == ";"
