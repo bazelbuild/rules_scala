@@ -19,7 +19,6 @@ load(
 )
 load(
     ":common.bzl",
-    _collect_jars = "collect_jars",
     _collect_plugin_paths = "collect_plugin_paths",
 )
 
@@ -140,7 +139,7 @@ CurrentTarget: {current_target}
             ignored_targets = ignored_targets,
             current_target = current_target,
         )
-    if is_dependency_analyzer_off(ctx) and not _is_plus_one_deps_off(ctx):
+    if is_dependency_analyzer_off(ctx) and not is_plus_one_deps_off(ctx):
         compiler_classpath_jars = transitive_compile_jars
 
     plugins_list = plugins.to_list()
@@ -375,14 +374,6 @@ def write_executable_non_windows(ctx, executable, rjars, main_class, jvm_flags, 
         )
         return []
 
-def _collect_runtime_jars(dep_targets):
-    runtime_jars = []
-
-    for dep_target in dep_targets:
-        runtime_jars.append(dep_target[JavaInfo].transitive_runtime_jars)
-
-    return runtime_jars
-
 def is_dependency_analyzer_on(ctx):
     if (hasattr(ctx.attr, "_dependency_analyzer_plugin") and
         # when the strict deps FT is removed the "default" check
@@ -394,53 +385,8 @@ def is_dependency_analyzer_on(ctx):
 def is_dependency_analyzer_off(ctx):
     return not is_dependency_analyzer_on(ctx)
 
-def _is_plus_one_deps_off(ctx):
+def is_plus_one_deps_off(ctx):
     return ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].plus_one_deps_mode == "off"
-
-# Extract very common code out from dependency analysis into single place
-# automatically adds dependency on scala-library and scala-reflect
-# collects jars from deps, runtime jars from runtime_deps, and
-def collect_jars_from_common_ctx(
-        ctx,
-        base_classpath,
-        extra_deps = [],
-        extra_runtime_deps = [],
-        unused_dependency_checker_is_off = True):
-    dependency_analyzer_is_off = is_dependency_analyzer_off(ctx)
-
-    deps_jars = _collect_jars(
-        ctx.attr.deps + extra_deps + base_classpath,
-        dependency_analyzer_is_off,
-        unused_dependency_checker_is_off,
-        _is_plus_one_deps_off(ctx),
-    )
-
-    (
-        cjars,
-        transitive_rjars,
-        jars2labels,
-        transitive_compile_jars,
-        deps_providers,
-    ) = (
-        deps_jars.compile_jars,
-        deps_jars.transitive_runtime_jars,
-        deps_jars.jars2labels,
-        deps_jars.transitive_compile_jars,
-        deps_jars.deps_providers,
-    )
-
-    transitive_rjars = depset(
-        transitive = [transitive_rjars] +
-                     _collect_runtime_jars(ctx.attr.runtime_deps + extra_runtime_deps),
-    )
-
-    return struct(
-        compile_jars = cjars,
-        jars2labels = jars2labels,
-        transitive_compile_jars = transitive_compile_jars,
-        transitive_runtime_jars = transitive_rjars,
-        deps_providers = deps_providers,
-    )
 
 def is_windows(ctx):
     return ctx.configuration.host_path_separator == ";"

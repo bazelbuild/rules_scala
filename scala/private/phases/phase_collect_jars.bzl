@@ -5,7 +5,12 @@
 #
 load(
     "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
-    "collect_jars_from_common_ctx",
+    "is_dependency_analyzer_off",
+    "is_plus_one_deps_off",
+)
+load(
+    "@io_bazel_rules_scala//scala/private:common.bzl",
+    "collect_jars",
 )
 
 def phase_scalatest_collect_jars(ctx, p):
@@ -65,10 +70,63 @@ def _phase_collect_jars(
         extra_deps,
         extra_runtime_deps,
         unused_dependency_checker_mode):
-    return collect_jars_from_common_ctx(
+    return _collect_jars_from_common_ctx(
         ctx,
         base_classpath,
         extra_deps,
         extra_runtime_deps,
         unused_dependency_checker_mode == "off",
     )
+# Extract very common code out from dependency analysis into single place
+# automatically adds dependency on scala-library and scala-reflect
+# collects jars from deps, runtime jars from runtime_deps, and
+def _collect_jars_from_common_ctx(
+        ctx,
+        base_classpath,
+        extra_deps = [],
+        extra_runtime_deps = [],
+        unused_dependency_checker_is_off = True):
+    dependency_analyzer_is_off = is_dependency_analyzer_off(ctx)
+
+    deps_jars = collect_jars(
+        ctx.attr.deps + extra_deps + base_classpath,
+        dependency_analyzer_is_off,
+        unused_dependency_checker_is_off,
+        is_plus_one_deps_off(ctx),
+    )
+
+    (
+        cjars,
+        transitive_rjars,
+        jars2labels,
+        transitive_compile_jars,
+        deps_providers,
+    ) = (
+        deps_jars.compile_jars,
+        deps_jars.transitive_runtime_jars,
+        deps_jars.jars2labels,
+        deps_jars.transitive_compile_jars,
+        deps_jars.deps_providers,
+    )
+
+    transitive_rjars = depset(
+        transitive = [transitive_rjars] +
+                     _collect_runtime_jars(ctx.attr.runtime_deps + extra_runtime_deps),
+    )
+
+    return struct(
+        compile_jars = cjars,
+        jars2labels = jars2labels,
+        transitive_compile_jars = transitive_compile_jars,
+        transitive_runtime_jars = transitive_rjars,
+        deps_providers = deps_providers,
+    )
+
+def _collect_runtime_jars(dep_targets):
+    runtime_jars = []
+
+    for dep_target in dep_targets:
+        runtime_jars.append(dep_target[JavaInfo].transitive_runtime_jars)
+
+    return runtime_jars
+
