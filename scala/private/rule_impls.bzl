@@ -23,14 +23,9 @@ load(
 )
 load(
     ":common.bzl",
-    "add_labels_of_jars_to",
-    "collect_jars",
-    "collect_plugin_paths",
-    "not_sources_jar",
-    "write_manifest",
+    _collect_jars = "collect_jars",
+    _collect_plugin_paths = "collect_plugin_paths",
 )
-load("@io_bazel_rules_scala//scala:jars_to_labels.bzl", "JarsToLabelsInfo")
-load("@bazel_tools//tools/jdk:toolchain_utils.bzl", "find_java_runtime_toolchain", "find_java_toolchain")
 
 def adjust_resources_path_by_default_prefixes(path):
     #  Here we are looking to find out the offset of this resource inside
@@ -88,7 +83,7 @@ def compile_scala(
         unused_dependency_checker_ignored_targets = []):
     # look for any plugins:
     input_plugins = plugins
-    plugins = collect_plugin_paths(plugins)
+    plugins = _collect_plugin_paths(plugins)
     internal_plugin_jars = []
     dependency_analyzer_mode = "off"
     compiler_classpath_jars = cjars
@@ -475,7 +470,7 @@ def collect_jars_from_common_ctx(
         unused_dependency_checker_is_off = True):
     dependency_analyzer_is_off = is_dependency_analyzer_off(ctx)
 
-    deps_jars = collect_jars(
+    deps_jars = _collect_jars(
         ctx.attr.deps + extra_deps + base_classpath,
         dependency_analyzer_is_off,
         unused_dependency_checker_is_off,
