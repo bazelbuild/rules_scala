@@ -18,7 +18,7 @@ load(
 
 def specs2_junit_repositories(
         scala_version = _default_scala_version(),
-        maven_servers = ["https://central.maven.org/maven2"]):
+        maven_servers = ["https://repo1.maven.org/maven2"]):
     major_version = _extract_major_version(scala_version)
 
     specs2_repositories(scala_version, maven_servers)

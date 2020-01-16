@@ -16,7 +16,7 @@ load(
 
 def scala_proto_repositories(
         scala_version = _default_scala_version(),
-        maven_servers = ["https://central.maven.org/maven2"]):
+        maven_servers = ["https://repo1.maven.org/maven2"]):
     return scala_proto_default_repositories(scala_version, maven_servers)
 
 def _scalapb_proto_library_impl(ctx):
