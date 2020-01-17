@@ -42,13 +42,6 @@ def _phase_java_wrapper(
         ctx,
         args,
         wrapper_preamble):
-    return write_java_wrapper(
-        ctx,
-        args,
-        wrapper_preamble,
-    )
-
-def write_java_wrapper(ctx, args = "", wrapper_preamble = ""):
     """This creates a wrapper that sets up the correct path
          to stand in for the java command."""
 
