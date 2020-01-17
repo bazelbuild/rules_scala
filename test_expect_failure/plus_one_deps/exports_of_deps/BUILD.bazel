@@ -1,0 +1,26 @@
+load("//scala:scala.bzl", "scala_library")
+
+#Make sure that plus-one-deps exported targets are also propagated (in addition to the plus-one-dep outputs)
+scala_library(
+    name = "test_target",
+    srcs = ["A.scala"],
+    deps = [":direct_dep"],
+)
+
+scala_library(
+    name = "direct_dep",
+    srcs = ["B.scala"],
+    deps = [":plus_one_dep"],
+)
+
+scala_library(
+    name = "plus_one_dep",
+    srcs = ["C.scala"],
+    exports = ["exported_dep"],
+    deps = [":exported_dep"],
+)
+
+scala_library(
+    name = "exported_dep",
+    srcs = ["D.scala"],
+)

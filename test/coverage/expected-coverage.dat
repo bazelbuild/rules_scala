@@ -20,7 +20,7 @@ LF:3
 end_of_record
 SF:/A2.scala
 FN:-1,A2$::<clinit> ()V
-FN:5,A2$::<init> ()V
+FN:7,A2$::<init> ()V
 FN:3,A2$::a2 ()V
 FN:-1,A2::a2 ()V
 FNDA:1,A2$::<clinit> ()V
@@ -29,8 +29,8 @@ FNDA:1,A2$::a2 ()V
 FNDA:0,A2::a2 ()V
 FNF:4
 FNH:3
-DA:3,11
-DA:5,5
+DA:3,4
+DA:7,5
 LH:2
 LF:2
 end_of_record
@@ -48,22 +48,6 @@ FNH:2
 DA:4,0
 DA:7,5
 LH:1
-LF:2
-end_of_record
-SF:/C2.scala
-FN:-1,C2$::<clinit> ()V
-FN:5,C2$::<init> ()V
-FN:3,C2$::c2 (Ljava/lang/String;)Ljava/lang/String;
-FN:-1,C2::c2 (Ljava/lang/String;)Ljava/lang/String;
-FNDA:1,C2$::<clinit> ()V
-FNDA:1,C2$::<init> ()V
-FNDA:1,C2$::c2 (Ljava/lang/String;)Ljava/lang/String;
-FNDA:1,C2::c2 (Ljava/lang/String;)Ljava/lang/String;
-FNF:4
-FNH:4
-DA:3,9
-DA:5,5
-LH:2
 LF:2
 end_of_record
 SF:/TestAll.scala

@@ -13,9 +13,10 @@ def _scala_import_impl(ctx):
         intellij_metadata,
     ) = (target_data.code_jars, target_data.intellij_metadata)
     current_jars = depset(current_target_compile_jars)
-    exports = _collect(ctx.attr.exports)
-    transitive_runtime_jars = _collect_runtime(ctx.attr.runtime_deps)
-    jars = _collect(ctx.attr.deps)
+    exports = java_common.merge([export[JavaInfo] for export in ctx.attr.exports])
+    transitive_runtime_jars = \
+        java_common.merge([dep[JavaInfo] for dep in ctx.attr.runtime_deps]) \
+            .transitive_runtime_jars
     jars2labels = {}
     _collect_labels(ctx.attr.deps, jars2labels)
     _collect_labels(ctx.attr.exports, jars2labels)  #untested
@@ -24,64 +25,30 @@ def _scala_import_impl(ctx):
         ctx.label,
         jars2labels,
     )  #last to override the label of the export compile jars to the current target
-    return struct(
-        scala = struct(
-            outputs = struct(jars = intellij_metadata),
-        ),
-        providers = [
-            _create_provider(
-                current_jars,
-                transitive_runtime_jars,
-                jars,
-                exports,
-                ctx.attr.neverlink,
-                ctx.file.srcjar,
-                intellij_metadata,
-            ),
-            DefaultInfo(
-                files = current_jars,
-            ),
-            JarsToLabelsInfo(jars_to_labels = jars2labels),
-        ],
-    )
 
-def _create_provider(
-        current_target_compile_jars,
-        transitive_runtime_jars,
-        jars,
-        exports,
-        neverlink,
-        source_jar,
-        intellij_metadata):
-    transitive_runtime_jars = [
-        transitive_runtime_jars,
-        jars.transitive_runtime_jars,
-        exports.transitive_runtime_jars,
+    if current_target_compile_jars:
+        current_target_providers = [_new_java_info(ctx, jar) for jar in current_target_compile_jars]
+    else:
+        # TODO(#8867): Migrate away from the placeholder jar hack when #8867 is fixed.
+        current_target_providers = [_new_java_info(ctx, ctx.file._placeholder_jar)]
+
+    return [
+        java_common.merge(current_target_providers),
+        DefaultInfo(
+            files = current_jars,
+        ),
+        JarsToLabelsInfo(jars_to_labels = jars2labels),
     ]
 
-    if not neverlink:
-        transitive_runtime_jars.append(current_target_compile_jars)
-
-    source_jars = []
-
-    if source_jar:
-        source_jars.append(source_jar)
-    else:
-        for metadata in intellij_metadata:
-            source_jars.extend(metadata.source_jars)
-
-    return java_common.create_provider(
-        use_ijar = False,
-        compile_time_jars = depset(
-            transitive = [current_target_compile_jars, exports.compile_jars],
-        ),
-        transitive_compile_time_jars = depset(transitive = [
-            jars.transitive_compile_jars,
-            current_target_compile_jars,
-            exports.transitive_compile_jars,
-        ]),
-        transitive_runtime_jars = depset(transitive = transitive_runtime_jars),
-        source_jars = source_jars,
+def _new_java_info(ctx, jar):
+    return JavaInfo(
+        output_jar = jar,
+        compile_jar = jar,
+        exports = [target[JavaInfo] for target in ctx.attr.exports],
+        deps = [target[JavaInfo] for target in ctx.attr.deps],
+        runtime_deps = [target[JavaInfo] for target in ctx.attr.runtime_deps],
+        source_jar = ctx.file.srcjar,
+        neverlink = ctx.attr.neverlink,
     )
 
 def _add_labels_of_current_code_jars(code_jars, label, jars2labels):
@@ -122,24 +89,6 @@ def _filter_out_non_code_jars(files):
 def _is_source_jar(file):
     return file.basename.endswith("-sources.jar")
 
-# TODO: it seems this could be reworked to use java_common.merge
-def _collect(deps):
-    transitive_compile_jars = []
-    runtime_jars = []
-    compile_jars = []
-
-    for dep_target in deps:
-        java_provider = dep_target[JavaInfo]
-        compile_jars.append(java_provider.compile_jars)
-        transitive_compile_jars.append(java_provider.transitive_compile_time_jars)
-        runtime_jars.append(java_provider.transitive_runtime_jars)
-
-    return struct(
-        transitive_runtime_jars = depset(transitive = runtime_jars),
-        transitive_compile_jars = depset(transitive = transitive_compile_jars),
-        compile_jars = depset(transitive = compile_jars),
-    )
-
 def _collect_labels(deps, jars2labels):
     for dep_target in deps:
         if JarsToLabelsInfo in dep_target:
@@ -149,14 +98,6 @@ def _collect_labels(deps, jars2labels):
         java_provider = dep_target[JavaInfo]
         for jar in java_provider.compile_jars.to_list():
             jars2labels[jar.path] = dep_target.label
-
-def _collect_runtime(runtime_deps):
-    jar_deps = []
-    for dep_target in runtime_deps:
-        java_provider = dep_target[JavaInfo]
-        jar_deps.append(java_provider.transitive_runtime_jars)
-
-    return depset(transitive = jar_deps)
 
 scala_import = rule(
     implementation = _scala_import_impl,
@@ -169,5 +110,9 @@ scala_import = rule(
         "exports": attr.label_list(),
         "neverlink": attr.bool(),
         "srcjar": attr.label(allow_single_file = True),
+        "_placeholder_jar": attr.label(
+            allow_single_file = True,
+            default = Label("@io_bazel_rules_scala//scala:libPlaceHolderClassToCreateEmptyJarForScalaImport.jar"),
+        ),
     },
 )

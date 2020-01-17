@@ -1,6 +1,6 @@
 load(
     "//scala_proto:scala_proto.bzl",
-    "scalapb_proto_library",
+    "scala_proto_library",
 )
 load(
     "//scala:scala.bzl",
@@ -20,16 +20,16 @@ scala_proto_toolchain(
         "//test/proto:blacklisted_proto",
         "//test/proto:other_blacklisted_proto",
     ],
+    extra_generator_dependencies = [
+        "//test/src/main/scala/scalarules/test/extra_protobuf_generator",
+    ],
+    named_generators = {
+        "jvm_extra_protobuf_generator": "scalarules.test.extra_protobuf_generator.ExtraProtobufGenerator",
+    },
     visibility = ["//visibility:public"],
     with_flat_package = False,
     with_grpc = True,
     with_single_line_to_string = True,
-    named_generators = {
-        'jvm_extra_protobuf_generator': 'scalarules.test.extra_protobuf_generator.ExtraProtobufGenerator',
-    },
-    extra_generator_dependencies = [
-        "//test/src/main/scala/scalarules/test/extra_protobuf_generator",
-    ],
 )
 
 toolchain(
@@ -74,7 +74,7 @@ proto_library(
     ],
 )
 
-scalapb_proto_library(
+scala_proto_library(
     name = "test_external_dep",
     visibility = ["//visibility:public"],
     deps = [":test_external_dep_proto"],
@@ -82,19 +82,19 @@ scalapb_proto_library(
 
 # Test that the `proto_source_root` attribute is handled properly
 proto_library(
-    name = "proto_source_root",
+    name = "strip_import_prefix",
     srcs = [
         "different_root.proto",
         "different_root2.proto",
     ],
-    proto_source_root = package_name(),
+    strip_import_prefix = "",
     visibility = ["//visibility:public"],
 )
 
-scalapb_proto_library(
-    name = "test_proto_source_root",
+scala_proto_library(
+    name = "test_strip_import_prefix",
     visibility = ["//visibility:public"],
-    deps = [":proto_source_root"],
+    deps = [":strip_import_prefix"],
 )
 
 proto_library(
@@ -108,10 +108,17 @@ proto_library(
     ],
 )
 
-scalapb_proto_library(
+scala_proto_library(
     name = "test_proto_nogrpc",
     visibility = ["//visibility:public"],
     deps = [":test2"],
+)
+
+scala_binary(
+    name = "test_binary_to_ensure_no_host_deps",
+    main_class = "a.b.c",
+    visibility = ["//visibility:public"],
+    deps = [":test_proto_nogrpc"],
 )
 
 java_proto_library(
@@ -122,7 +129,7 @@ java_proto_library(
     ],
 )
 
-scalapb_proto_library(
+scala_proto_library(
     name = "test_proto_java_conversions",
     visibility = ["//visibility:public"],
     deps = [
@@ -131,7 +138,7 @@ scalapb_proto_library(
     ],
 )
 
-scalapb_proto_library(
+scala_proto_library(
     name = "test_proto",
     visibility = ["//visibility:public"],
     deps = [
@@ -150,7 +157,6 @@ scala_test(
         ":test_proto",
     ],
 )
-
 
 scala_test(
     name = "test_custom_object_exists",

@@ -18,19 +18,30 @@ This project defines core build rules for [Scala](https://www.scala-lang.org/) t
 * [scala_library_suite](docs/scala_library_suite.md)
 * [scala_test_suite](docs/scala_test_suite.md)
 * [thrift_library](docs/thrift_library.md)
-* [scalapb_proto_library](docs/scalapb_proto_library.md)
+* [scala_proto_library](docs/scala_proto_library.md)
 * [scala_toolchain](docs/scala_toolchain.md)
 * [scala_import](docs/scala_import.md)
+* [scala_doc](docs/scala_doc.md)
 
 ## Getting started
 
-In order to use these rules you must have bazel 0.23 or later and add the
-following to your WORKSPACE file:
+1. [Install Bazel](https://docs.bazel.build/versions/master/install.html), see the [compatibility table](#bazel-compatible-versions).
+2. Add the following to your `WORKSPACE` file and update the `githash` if needed:
 
 ```python
-rules_scala_version="a89d44f7ef67d93dedfc9888630f48d7723516f7" # update this as needed
-
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+# bazel-skylib 0.8.0 released 2019.03.20 (https://github.com/bazelbuild/bazel-skylib/releases/tag/0.8.0)
+skylib_version = "0.8.0"
+http_archive(
+    name = "bazel_skylib",
+    type = "tar.gz",
+    url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{}/bazel-skylib.{}.tar.gz".format (skylib_version, skylib_version),
+    sha256 = "2ef429f5d7ce7111263289644d233707dba35e39696377ebab8b0bc701f7818e",
+)
+
+rules_scala_version="69d3c5b5d9b51537231746e93b4383384c9ebcf4" # update this as needed
+
 http_archive(
     name = "io_bazel_rules_scala",
     strip_prefix = "rules_scala-%s" % rules_scala_version,
@@ -44,8 +55,8 @@ scala_register_toolchains()
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
 scala_repositories()
 
-protobuf_version="66dc42d891a4fc8e9190c524fd67961688a37bbe"
-protobuf_version_sha256="983975ab66113cbaabea4b8ec9f3a73406d89ed74db9ae75c74888e685f956f8"
+protobuf_version="09745575a923640154bcf307fba8aedff47f240a"
+protobuf_version_sha256="416212e14481cff8fd4849b1c1c1200a7f34808a54377e22d7447efdf54ad758"
 
 http_archive(
     name = "com_google_protobuf",
@@ -54,6 +65,7 @@ http_archive(
     sha256 = protobuf_version_sha256,
 )
 ```
+
 This will load the `rules_scala` repository at the commit sha
 `rules_scala_version` into your Bazel project and register a [Scala
 toolchain](#scala_toolchain) at the default Scala version (2.11.12)
@@ -77,17 +89,19 @@ Rules scala supports all minor versions of Scala 2.11/2.12. By default `Scala 2.
 version you need to
 specify it when calling `scala_repositories`. `scala_repositories` takes a tuple `(scala_version, scala_version_jar_shas)`
 as a parameter where `scala_version` is the scala version and `scala_version_jar_shas` is a `dict` with
-`sha256` hashes for the maven artifacts `scala_library`, `scala_reflect` and `scala_compiler`:
+`sha256` hashes for the maven artifacts `scala_compiler`, `scala_library`, and `scala_reflect`:
+
 ```python
 scala_repositories((
-    "2.12.8",
+    "2.12.10",
     {
-       "scala_compiler": "f34e9119f45abd41e85b9e121ba19dd9288b3b4af7f7047e86dc70236708d170",
-       "scala_library": "321fb55685635c931eba4bc0d7668349da3f2c09aee2de93a70566066ff25c28",
-       "scala_reflect": "4d6405395c4599ce04cea08ba082339e3e42135de9aae2923c9f5367e957315a"
+       "scala_compiler": "cedc3b9c39d215a9a3ffc0cc75a1d784b51e9edc7f13051a1b4ad5ae22cfbc0c",
+       "scala_library": "0a57044d10895f8d3dd66ad4286891f607169d948845ac51e17b4c1cf0ab569d",
+       "scala_reflect": "56b609e1bab9144fb51525bfa01ccd72028154fc40a58685a1e9adcbe7835730"
     }
 ))
 ```
+
 If you're using any of the rules `twitter_scrooge`, `tut_repositories`, `scala_proto_repositories`
 or `specs2_junit_repositories` you also need to specify `scala_version` for them. See `./test_version/WORKSPACE.template`
 for an example workspace using another scala version.
@@ -97,7 +111,10 @@ for an example workspace using another scala version.
 
 | bazel  | rules_scala gitsha |
 |--------|--------------------|
-| 0.23.x | HEAD                                     |
+| 2.0.0  | HEAD               |
+| 1.1.0  | HEAD               |
+| 0.28.1 | bd0c388125e12f4f173648fc4474f73160a5c628 |
+| 0.23.x | ca655e5a330cbf1d66ce1d9baa63522752ec6011 |
 | 0.22.x | f3113fb6e9e35cb8f441d2305542026d98afc0a2 |
 | 0.16.x | f3113fb6e9e35cb8f441d2305542026d98afc0a2 |
 | 0.15.x | 3b9ab9be31ac217d3337c709cb6bfeb89c8dcbb1 |
@@ -174,6 +191,16 @@ Unused dependency checking can either be enabled globally for all targets using 
 in these cases you can enable unused dependency checking globally through a toolchain and override individual misbehaving targets
 using the attribute.
 
+## Advanced configurable rules
+To make the ruleset more flexible and configurable, we introduce a phase architecture. By using a phase architecture, where rule implementations are defined as a list of phases that are executed sequentially, functionality can easily be added (or modified) by adding (or swapping) phases.
+
+Phases provide 3 major benefits:
+ - Consumers are able to configure the rules to their specific use cases by defining new phases within their workspace without impacting other consumers.
+ - Contributors are able to implement new functionalities by creating additional default phases.
+ - Phases give us more clear idea what steps are shared across rules.
+
+See [Customizable Phase](docs/customizable_phase.md) for more info.
+
 ## Building from source
 Test & Build:
 ```
@@ -204,7 +231,9 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for more info.
 Here's a (non-exhaustive) list of companies that use `rules_scala` in production. Don't see yours? [You can add it in a PR](https://github.com/bazelbuild/rules_scala/edit/master/README.md)!
 
 * [Ascend](https://ascend.io/)
+* [Canva](https://www.canva.com/)
 * [Etsy](https://www.etsy.com/)
+* [Grand Rounds](http://grandrounds.com/)
 * [Kitty Hawk](https://kittyhawk.aero/)
 * [Meetup](https://meetup.com/)
 * [Spotify](https://www.spotify.com/)

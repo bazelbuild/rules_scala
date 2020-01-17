@@ -1,4 +1,3 @@
-
 # These are the compile/runtime dependencies needed for scalapb compilation
 # and grpc compile/runtime.
 #
@@ -24,6 +23,9 @@ DEFAULT_SCALAPB_GRPC_DEPS = [
     "//external:io_bazel_rules_scala/dependency/proto/grpc_context",
     "//external:io_bazel_rules_scala/dependency/proto/guava",
     "//external:io_bazel_rules_scala/dependency/proto/opencensus_api",
+    "//external:io_bazel_rules_scala/dependency/proto/opencensus_impl",
+    "//external:io_bazel_rules_scala/dependency/proto/disruptor",
+    "//external:io_bazel_rules_scala/dependency/proto/opencensus_impl_core",
     "//external:io_bazel_rules_scala/dependency/proto/opencensus_contrib_grpc_metrics",
     "//external:io_bazel_rules_scala/dependency/proto/google_instrumentation",
     "//external:io_bazel_rules_scala/dependency/proto/netty_codec",
@@ -37,4 +39,3 @@ DEFAULT_SCALAPB_GRPC_DEPS = [
     "//external:io_bazel_rules_scala/dependency/proto/netty_common",
     "//external:io_bazel_rules_scala/dependency/proto/netty_handler_proxy",
 ]
-

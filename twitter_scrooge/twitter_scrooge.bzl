@@ -23,13 +23,13 @@ _jar_extension = ".jar"
 
 def twitter_scrooge(
         scala_version = _default_scala_version(),
-        maven_servers = ["https://repo1.maven.org/maven2"]):
+        maven_servers = ["https://repo.maven.apache.org/maven2"]):
     major_version = _extract_major_version(scala_version)
 
     _scala_maven_import_external(
         name = "libthrift",
         artifact = "org.apache.thrift:libthrift:0.8.0",
-        jar_sha256 = "adea029247c3f16e55e29c1708b897812fd1fe335ac55fe3903e5d2f428ef4b3",
+        artifact_sha256 = "adea029247c3f16e55e29c1708b897812fd1fe335ac55fe3903e5d2f428ef4b3",
         licenses = ["notice"],
         server_urls = maven_servers,
     )
@@ -61,7 +61,7 @@ def twitter_scrooge(
             "com.twitter:scrooge-core:18.6.0",
             major_version,
         ),
-        jar_sha256 = scala_version_jar_shas["scrooge_core"],
+        artifact_sha256 = scala_version_jar_shas["scrooge_core"],
         licenses = ["notice"],
         server_urls = maven_servers,
     )
@@ -77,7 +77,7 @@ def twitter_scrooge(
             "com.twitter:scrooge-generator:18.6.0",
             major_version,
         ),
-        jar_sha256 = scala_version_jar_shas["scrooge_generator"],
+        artifact_sha256 = scala_version_jar_shas["scrooge_generator"],
         licenses = ["notice"],
         server_urls = maven_servers,
     )
@@ -92,7 +92,7 @@ def twitter_scrooge(
             "com.twitter:util-core:18.6.0",
             major_version,
         ),
-        jar_sha256 = scala_version_jar_shas["util_core"],
+        artifact_sha256 = scala_version_jar_shas["util_core"],
         licenses = ["notice"],
         server_urls = maven_servers,
     )
@@ -107,7 +107,7 @@ def twitter_scrooge(
             "com.twitter:util-logging:18.6.0",
             major_version,
         ),
-        jar_sha256 = scala_version_jar_shas["util_logging"],
+        artifact_sha256 = scala_version_jar_shas["util_logging"],
         licenses = ["notice"],
         server_urls = maven_servers,
     )
@@ -212,7 +212,7 @@ def _compile_scala(
         label.name + "_scalac.statsfile",
         sibling = scrooge_jar,
     )
-    merged_deps = java_common.merge(deps_java_info + implicit_deps)
+    merged_deps = java_common.merge(_concat_lists(deps_java_info, implicit_deps))
 
     # this only compiles scala, not the ijar, but we don't
     # want the ijar for generated code anyway: any change
@@ -249,18 +249,11 @@ def _compile_scala(
         compile_jar = output,
     )
 
-def _empty_java_info(deps_java_info, implicit_deps):
-    merged_deps = java_common.merge(deps_java_info + implicit_deps)
-    return java_common.create_provider(
-        use_ijar = False,
-        compile_time_jars = depset(transitive = [merged_deps.compile_jars]),
-        transitive_compile_time_jars = depset(
-            transitive = [merged_deps.transitive_compile_time_jars],
-        ),
-        transitive_runtime_jars = depset(
-            transitive = [merged_deps.transitive_runtime_jars],
-        ),
-    )
+def _concat_lists(list1, list2):
+    all_providers = []
+    all_providers.extend(list1)
+    all_providers.extend(list2)
+    return all_providers
 
 ####
 # This is applied to the DAG of thrift_librarys reachable from a deps
@@ -322,7 +315,7 @@ def _scrooge_aspect_impl(target, ctx):
         # this target is only an aggregation target
         src_jars = depset()
         outs = depset()
-        java_info = _empty_java_info(deps, imps)
+        java_info = java_common.merge(_concat_lists(deps, imps))
 
     return [
         ScroogeAspectInfo(
@@ -379,7 +372,8 @@ def _scrooge_scala_library_impl(ctx):
     )
     if ctx.attr.exports:
         exports = [exp[JavaInfo] for exp in ctx.attr.exports]
-        all_java = java_common.merge(exports + [aspect_info.java_info])
+        exports.append(aspect_info.java_info)
+        all_java = java_common.merge(exports)
     else:
         all_java = aspect_info.java_info
 
@@ -399,15 +393,15 @@ scrooge_scala_library = rule(
 )
 
 def _scrooge_scala_import_impl(ctx):
-    scala_jars = depset(ctx.files.scala_jars)
-    jars_ji = java_common.create_provider(
-        use_ijar = False,
-        compile_time_jars = scala_jars,
-        transitive_compile_time_jars = scala_jars,
-        transitive_runtime_jars = scala_jars,
-    )
+    jars_jis = [
+        JavaInfo(
+            output_jar = scala_jar,
+            compile_jar = scala_jar,
+        )
+        for scala_jar in ctx.files.scala_jars
+    ]
     java_info = java_common.merge(
-        [imp[JavaInfo] for imp in ctx.attr._implicit_compile_deps] + [jars_ji],
+        [imp[JavaInfo] for imp in ctx.attr._implicit_compile_deps] + jars_jis,
     )
 
     # to make the thrift_info, we only put this in the

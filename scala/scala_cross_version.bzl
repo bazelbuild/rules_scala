@@ -61,7 +61,7 @@ def new_scala_default_repository(
     _scala_maven_import_external(
         name = "io_bazel_rules_scala_scala_library",
         artifact = "org.scala-lang:scala-library:{}".format(scala_version),
-        jar_sha256 = scala_version_jar_shas["scala_library"],
+        artifact_sha256 = scala_version_jar_shas["scala_library"],
         licenses = ["notice"],
         server_urls = maven_servers,
         fetch_sources = fetch_sources,
@@ -69,7 +69,7 @@ def new_scala_default_repository(
     _scala_maven_import_external(
         name = "io_bazel_rules_scala_scala_compiler",
         artifact = "org.scala-lang:scala-compiler:{}".format(scala_version),
-        jar_sha256 = scala_version_jar_shas["scala_compiler"],
+        artifact_sha256 = scala_version_jar_shas["scala_compiler"],
         licenses = ["notice"],
         server_urls = maven_servers,
         fetch_sources = fetch_sources,
@@ -77,7 +77,7 @@ def new_scala_default_repository(
     _scala_maven_import_external(
         name = "io_bazel_rules_scala_scala_reflect",
         artifact = "org.scala-lang:scala-reflect:{}".format(scala_version),
-        jar_sha256 = scala_version_jar_shas["scala_reflect"],
+        artifact_sha256 = scala_version_jar_shas["scala_reflect"],
         licenses = ["notice"],
         server_urls = maven_servers,
         fetch_sources = fetch_sources,

@@ -30,6 +30,6 @@ scala_library(
 scala_benchmark_jmh(
     name = "test_benchmark",
     srcs = ["TestBenchmark.scala"],
+    data = ["data.txt"],
     deps = [":add_numbers"],
-    data = ["data.txt"]
 )

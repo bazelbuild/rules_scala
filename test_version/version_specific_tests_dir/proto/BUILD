@@ -1,6 +1,6 @@
 load(
     "@io_bazel_rules_scala//scala_proto:scala_proto.bzl",
-    "scalapb_proto_library",
+    "scala_proto_library",
 )
 
 proto_library(
@@ -28,7 +28,7 @@ proto_library(
     ],
 )
 
-scalapb_proto_library(
+scala_proto_library(
     name = "test_proto_nogrpc",
     visibility = ["//visibility:public"],
     deps = [":test2"],
@@ -42,7 +42,7 @@ java_proto_library(
     ],
 )
 
-scalapb_proto_library(
+scala_proto_library(
     name = "test_proto_java_conversions",
     visibility = ["//visibility:public"],
     deps = [
@@ -52,7 +52,7 @@ scalapb_proto_library(
     ],
 )
 
-scalapb_proto_library(
+scala_proto_library(
     name = "test_proto",
     visibility = ["//visibility:public"],
     deps = [":test_service"],

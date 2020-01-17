@@ -1,0 +1,40 @@
+load("//scala:scala.bzl", "scala_library")
+#Make sure that plus-one-deps from exports of direct deps also propagate
+
+#example with target only in exports
+scala_library(
+    name = "test_target_using_facade",
+    srcs = ["A.scala"],
+    deps = [":facade"],
+)
+
+scala_library(
+    name = "facade",
+    exports = [":direct_dep"],
+)
+
+#example with target in deps & exports
+scala_library(
+    name = "test_target",
+    srcs = ["A.scala"],
+    deps = [":direct_dep"],
+)
+
+scala_library(
+    name = "direct_dep",
+    srcs = ["B.scala"],
+    exports = [":exported_dep"],
+    deps = [":exported_dep"],
+)
+
+#common
+scala_library(
+    name = "exported_dep",
+    srcs = ["C.scala"],
+    deps = [":plus_one_dep_of_exported"],
+)
+
+scala_library(
+    name = "plus_one_dep_of_exported",
+    srcs = ["D.scala"],
+)

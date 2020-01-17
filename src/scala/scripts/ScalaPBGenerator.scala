@@ -1,7 +1,7 @@
 package scripts
 
 import java.io.PrintStream
-import java.nio.file.Path
+import java.nio.file.{Path, FileAlreadyExistsException}
 
 import io.bazel.rulesscala.io_utils.DeleteRecursively
 import io.bazel.rulesscala.jar.JarCreator
@@ -12,6 +12,7 @@ import scalapb.ScalaPbCodeGenerator
 import java.nio.file.{Files, Paths}
 import scalapb.{ScalaPBC, ScalaPbCodeGenerator, ScalaPbcException}
 import java.net.URLClassLoader
+import scala.util.{Try, Failure}
 
 object ScalaPBWorker extends GenericWorker(new ScalaPBGenerator) {
 
@@ -33,15 +34,6 @@ object ScalaPBWorker extends GenericWorker(new ScalaPBGenerator) {
 }
 
 class ScalaPBGenerator extends Processor {
-  def setupIncludedProto(includedProto: List[(Path, Path)]): Unit = {
-    includedProto.foreach { case (root, fullPath) =>
-      require(fullPath.toFile.exists, s"Path $fullPath does not exist, which it should as a dependency of this rule")
-      val relativePath = root.relativize(fullPath)
-
-      relativePath.toFile.getParentFile.mkdirs
-      Files.copy(fullPath, relativePath)
-    }
-  }
   def deleteDir(path: Path): Unit =
     try DeleteRecursively.run(path)
     catch {
@@ -50,8 +42,6 @@ class ScalaPBGenerator extends Processor {
 
   def processRequest(args: java.util.List[String]) {
     val extractRequestResult = PBGenerateRequest.from(args)
-    setupIncludedProto(extractRequestResult.includedProto)
-
     val extraClassesClassLoader = new URLClassLoader(extractRequestResult.extraJars.map { e =>
       val f = e.toFile
       require(f.exists, s"Expected file for classpath loading $f to exist")

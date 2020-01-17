@@ -1,23 +1,21 @@
+#This rule is an example for a jvm rule that doesn't support Jars2Labels
 def _custom_jvm_impl(ctx):
-    print(ctx.label)
-    transitive_compile_jars = _collect(ctx.attr.deps)
-    return struct(
-        providers = [
-            java_common.create_provider(
-                transitive_compile_time_jars = transitive_compile_jars,
-            ),
-        ],
+    # TODO(#8867): Migrate away from the placeholder jar hack when #8867 is fixed.
+    jar = ctx.file._placeholder_jar
+    provider = JavaInfo(
+        output_jar = jar,
+        compile_jar = jar,
+        deps = [target[JavaInfo] for target in ctx.attr.deps],
     )
-
-def _collect(deps):
-    transitive_compile_jars = depset()
-    for dep_target in deps:
-        transitive_compile_jars += dep_target[JavaInfo].transitive_compile_time_jars
-    return transitive_compile_jars
+    return [provider]
 
 custom_jvm = rule(
     implementation = _custom_jvm_impl,
     attrs = {
         "deps": attr.label_list(),
+        "_placeholder_jar": attr.label(
+            allow_single_file = True,
+            default = Label("@io_bazel_rules_scala//scala:libPlaceHolderClassToCreateEmptyJarForScalaImport.jar"),
+        ),
     },
 )

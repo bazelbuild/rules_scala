@@ -61,7 +61,7 @@ def _compile_scala(
         label.name + "_scalac.statsfile",
         sibling = scalapb_jar,
     )
-    merged_deps = java_common.merge(deps_java_info + implicit_deps)
+    merged_deps = java_common.merge(_concat_lists(deps_java_info, implicit_deps))
 
     # this only compiles scala, not the ijar, but we don't
     # want the ijar for generated code anyway: any change
@@ -98,9 +98,6 @@ def _compile_scala(
         compile_jar = output,
     )
 
-def _empty_java_info(deps_java_info, implicit_deps):
-    return java_common.merge(deps_java_info + implicit_deps)
-
 ####
 # This is applied to the DAG of proto_librarys reachable from a deps
 # or a scalapb_scala_library. Each proto_library will be one scalapb
@@ -136,11 +133,11 @@ def _scalapb_aspect_impl(target, ctx):
 
         toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
         flags = []
-        imps = [j[JavaInfo] for j in toolchain.implicit_compile_deps]
+        imps = [j[JavaInfo] for j in ctx.attr._implicit_compile_deps]
 
         if toolchain.with_grpc:
             flags.append("grpc")
-            imps.extend([j[JavaInfo] for j in toolchain.grpc_deps])
+            imps.extend([j[JavaInfo] for j in ctx.attr._grpc_deps])
 
         if toolchain.with_flat_package:
             flags.append("flat_package")
@@ -201,7 +198,7 @@ def _scalapb_aspect_impl(target, ctx):
             # this target is only an aggregation target
             src_jars = depset()
             outs = depset()
-            java_info = _empty_java_info(deps, imps)
+            java_info = java_common.merge(_concat_lists(deps, imps))
 
     return [
         ScalaPBAspectInfo(
@@ -212,6 +209,12 @@ def _scalapb_aspect_impl(target, ctx):
         ),
     ]
 
+def _concat_lists(list1, list2):
+    all_providers = []
+    all_providers.extend(list1)
+    all_providers.extend(list2)
+    return all_providers
+
 scalapb_aspect = aspect(
     implementation = _scalapb_aspect_impl,
     attr_aspects = ["deps"],
@@ -221,6 +224,12 @@ scalapb_aspect = aspect(
     ],
     attrs = {
         "_protoc": attr.label(executable = True, cfg = "host", default = "@com_google_protobuf//:protoc"),
+        "_implicit_compile_deps": attr.label_list(cfg = "target", default = [
+            "//external:io_bazel_rules_scala/dependency/proto/implicit_compile_deps",
+        ]),
+        "_grpc_deps": attr.label_list(cfg = "target", default = [
+            "//external:io_bazel_rules_scala/dependency/proto/grpc_deps",
+        ]),
     },
     toolchains = [
         "@io_bazel_rules_scala//scala:toolchain_type",

@@ -58,3 +58,9 @@ _declare_scalac_provider(
     ],
     visibility = ["//visibility:public"],
 )
+
+java_library(
+    name = "PlaceHolderClassToCreateEmptyJarForScalaImport",
+    srcs = ["PlaceHolderClassToCreateEmptyJarForScalaImport.java"],
+    visibility = ["//visibility:public"],
+)

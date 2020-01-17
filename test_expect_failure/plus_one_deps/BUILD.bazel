@@ -1,25 +1,28 @@
 load("//scala:scala_toolchain.bzl", "scala_toolchain")
+
 scala_toolchain(
     name = "plus_one_deps_impl",
     plus_one_deps_mode = "on",
     visibility = ["//visibility:public"],
 )
+
 toolchain(
     name = "plus_one_deps",
     toolchain = "plus_one_deps_impl",
     toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
     visibility = ["//visibility:public"],
 )
+
 scala_toolchain(
     name = "plus_one_deps_with_unused_error_impl",
-    unused_dependency_checker_mode = "error",
     plus_one_deps_mode = "on",
+    unused_dependency_checker_mode = "error",
     visibility = ["//visibility:public"],
 )
+
 toolchain(
     name = "plus_one_deps_with_unused_error",
     toolchain = "plus_one_deps_with_unused_error_impl",
     toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
     visibility = ["//visibility:public"],
 )
-

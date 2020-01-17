@@ -3,16 +3,16 @@ package(default_testonly = 1)
 load(
     "@io_bazel_rules_scala//scala:scala.bzl",
     "scala_binary",
+    "scala_junit_test",
     "scala_library",
-    "scala_test",
     "scala_macro_library",
     "scala_repl",
-    "scala_junit_test",
     "scala_specs2_junit_test",
+    "scala_test",
 )
 load(
     "@io_bazel_rules_scala//scala_proto:scala_proto.bzl",
-    "scalapb_proto_library",
+    "scala_proto_library",
 )
 
 # The examples below show how to combine Scala and Java rules.
@@ -172,7 +172,7 @@ scala_binary(
     deps = [":lib_with_scala_proto_dep"],
 )
 
-scalapb_proto_library(
+scala_proto_library(
     name = "test_proto_scala_dep",
     visibility = ["//visibility:public"],
     deps = [

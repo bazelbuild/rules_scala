@@ -1,10 +1,10 @@
 load(":aspect.bzl", "aspect_test")
 load(
     "//scala:scala.bzl",
-    "scala_library",
-    "scala_test",
     "scala_junit_test",
+    "scala_library",
     "scala_specs2_junit_test",
+    "scala_test",
 )
 
 aspect_test(

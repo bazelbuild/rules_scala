@@ -2,6 +2,11 @@
 
 set -e
 
+if ! bazel_loc="$(type -p 'bazel')" || [[ -z "$bazel_loc" ]]; then
+  export PATH="$(cd "$(dirname "$0")"; pwd)"/tools:$PATH
+  echo 'Using ./tools/bazel directly for bazel calls'
+fi
+
 md5_util() {
     if [[ "$OSTYPE" == "darwin"* ]]; then
         _md5_util="md5"
@@ -12,7 +17,7 @@ md5_util() {
 }
 
 non_deploy_jar_md5_sum() {
-    find bazel-bin/test -name "*.jar" ! -name "*_deploy.jar" | xargs -n 1 -P 5 $(md5_util) | sort
+    find bazel-bin/test -name "*.jar" ! -name "*_deploy.jar" ! -path 'bazel-bin/test/jmh/*' | xargs -n 1 -P 5 $(md5_util) | sort
 }
 
 test_build_is_identical() {
@@ -25,9 +30,9 @@ test_build_is_identical() {
     diff hash1 hash2
 }
 
-dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+test_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/test/shell
 # shellcheck source=./test_runner.sh
-. "${dir}"/test_runner.sh
+. "${test_dir}"/test_runner.sh
 runner=$(get_test_runner "${1:-local}")
 
 

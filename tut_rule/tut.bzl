@@ -30,7 +30,7 @@ def tut_repositories(
             "org.tpolecat:tut-core:0.4.8",
             major_version,
         ),
-        jar_sha256 = scala_jar_shas[major_version]["tut_core"],
+        artifact_sha256 = scala_jar_shas[major_version]["tut_core"],
         licenses = ["notice"],
         server_urls = server_urls,
     )
@@ -58,5 +58,5 @@ def scala_tut_doc(**kw):
         srcs = [src],
         outs = ["%s_tut.md" % name],
         tools = [tool],
-        cmd = "./$(location %s) $(location %s) \"$@\"" % (tool, src),
+        cmd = "./$(location %s) $(location %s) \"$@\" >/dev/null" % (tool, src),
     )

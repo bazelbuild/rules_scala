@@ -3,21 +3,24 @@ package io.bazel.rulesscala.specs2
 import java.util
 import java.util.regex.Pattern
 
-import io.bazel.rulesscala.test_discovery._
 import io.bazel.rulesscala.test_discovery.FilteredRunnerBuilder.FilteringRunnerBuilder
+import io.bazel.rulesscala.test_discovery._
 import org.junit.runner.notification.RunNotifier
 import org.junit.runner.{Description, RunWith, Runner}
 import org.junit.runners.Suite
 import org.junit.runners.model.RunnerBuilder
 import org.specs2.concurrent.ExecutionEnv
 import org.specs2.control.Action
+import org.specs2.data.Trees._
+import org.specs2.fp.TreeLoc
 import org.specs2.main.{Arguments, CommandLine, Select}
-import org.specs2.specification.core.Env
+import org.specs2.specification.core.{Env, Fragment, SpecStructure}
 import org.specs2.specification.process.Stats
 
-import scala.language.reflectiveCalls
 import scala.collection.JavaConverters._
+import scala.language.reflectiveCalls
 import scala.util.Try
+import scala.util.control.NonFatal
 
 @RunWith(classOf[Specs2PrefixSuffixTestDiscoveringSuite])
 class Specs2DiscoveredTestSuite
@@ -53,6 +56,23 @@ object Specs2FilteringRunnerBuilder {
 class FilteredSpecs2ClassRunner(testClass: Class[_], testFilter: Pattern)
   extends org.specs2.runner.JUnitRunner(testClass) {
 
+  override def getDescription(env: Env): Description = {
+    try createFilteredDescription(specStructure, env.specs2ExecutionEnv)
+    catch { case NonFatal(t) => env.shutdown; throw t; }
+  }
+
+  private def createFilteredDescription(specStructure: SpecStructure, ee: ExecutionEnv): Description = {
+    val descTree = createDescriptionTree(ee).map(_._2)
+    descTree.toTree.bottomUp {
+      (description: Description, children: Stream[Description]) =>
+        children.filter(matchingFilter).foreach {
+          child => description.addChild(child)
+        }
+        description
+    }.rootLabel
+
+  }
+
   def matchesFilter: Boolean = {
     val fqn = testClass.getName + "#"
     val matcher = testFilter.matcher(fqn)
@@ -66,6 +86,13 @@ class FilteredSpecs2ClassRunner(testClass: Class[_], testFilter: Pattern)
     else sanitized
   }
 
+  private def createDescriptionTree(implicit ee: ExecutionEnv): TreeLoc[(Fragment, Description)] =
+    Try(allDescriptions[specs2_v4].createDescriptionTree(specStructure)(ee))
+      .getOrElse(allDescriptions[specs2_v3].createDescriptionTree(specStructure))
+
+  private def allFragmentDescriptions(implicit ee: ExecutionEnv): Map[Fragment, Description] =
+    createDescriptionTree(ee).toTree.flattenLeft.toMap
+
   /**
     * Retrieves an original (un-sanitized) text of an example fragment,
     * used later as a regex string for specs2 matching.
@@ -73,13 +100,13 @@ class FilteredSpecs2ClassRunner(testClass: Class[_], testFilter: Pattern)
     * This is done by matching the actual (sanitized) string with the sanitized version
     * of the original example text.
     */
-  private def specs2Description(desc: String)(implicit ee: ExecutionEnv): String =
-    Try { allDescriptions[specs2_v4].fragmentDescriptions(specStructure)(ee) }
-      .getOrElse(allDescriptions[specs2_v3].fragmentDescriptions(specStructure))
+  private def specs2Description(desc: String)(implicit ee: ExecutionEnv): String = {
+    allFragmentDescriptions
       .keys
       .map(fragment => fragment.description.show)
       .find(sanitize(_) == desc)
       .getOrElse(desc)
+  }
 
   private def toDisplayName(description: Description)(implicit ee: ExecutionEnv): Option[String] = for {
     name <- Option(description.getMethodName)
@@ -106,22 +133,24 @@ class FilteredSpecs2ClassRunner(testClass: Class[_], testFilter: Pattern)
     *
     *  This function returns a flat list of the descriptions and their children, starting with the root.
     */
-  private def flattenDescription(description: Description): List[Description] =
-    description.getChildren.asScala.toList.flatMap(d => d :: flattenDescription(d))
-
-  private def matching(testFilter: Pattern): Description => Boolean = { d =>
-    val testCase = d.getClassName + "#" + d.getMethodName
-    testFilter.matcher(testCase).matches
+  def flattenChildren(root: Description): List[Description] = {
+    root.getChildren.asScala.toList.flatMap(d => d :: flattenChildren(d))
   }
 
-  private def specs2ExamplesMatching(testFilter: Pattern, junitDescription: Description)(implicit ee: ExecutionEnv): List[String] =
-    flattenDescription(junitDescription)
-      .filter(matching(testFilter))
-      .flatMap(toDisplayName(_))
+  private def matchingFilter(desc: Description): Boolean = {
+    if (desc.isSuite) true
+    else {
+      val testCase = desc.getClassName + "#" + Option(desc.getMethodName).mkString
+      testFilter.toString.r.findFirstIn(testCase).nonEmpty
+    }
+  }
+
+  private def specs2Examples(implicit ee: ExecutionEnv): List[String] =
+    flattenChildren(getDescription).flatMap(toDisplayName(_))
 
   override def runWithEnv(n: RunNotifier, env: Env): Action[Stats] = {
     implicit val ee = env.executionEnv
-    val specs2MatchedExamplesRegex = specs2ExamplesMatching(testFilter, getDescription).toRegexAlternation
+    val specs2MatchedExamplesRegex = specs2Examples.toRegexAlternation
 
     val newArgs = Arguments(select = Select(_ex = specs2MatchedExamplesRegex), commandLine = CommandLine.create(testClass.getName))
     val newEnv = env.copy(arguments overrideWith newArgs)
