@@ -70,17 +70,6 @@ def _phase_write_executable(
     executable = p.declare_executable
     wrapper = p.java_wrapper
 
-    return _write_executable(
-        ctx,
-        executable,
-        rjars,
-        main_class,
-        jvm_flags,
-        wrapper,
-        use_jacoco,
-    )
-
-def _write_executable(ctx, executable, rjars, main_class, jvm_flags, wrapper, use_jacoco):
     if (is_windows(ctx)):
         return _write_executable_windows(ctx, executable, rjars, main_class, jvm_flags, wrapper, use_jacoco)
     else:
