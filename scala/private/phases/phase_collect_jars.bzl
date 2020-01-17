@@ -64,29 +64,16 @@ def _phase_default_collect_jars(ctx, p, _args = struct()):
         _args.unused_dependency_checker_mode if hasattr(_args, "unused_dependency_checker_mode") else p.unused_deps_checker,
     )
 
+# Extract very common code out from dependency analysis into single place
+# automatically adds dependency on scala-library and scala-reflect
+# collects jars from deps, runtime jars from runtime_deps, and
 def _phase_collect_jars(
         ctx,
         base_classpath,
         extra_deps,
         extra_runtime_deps,
         unused_dependency_checker_mode):
-    return _collect_jars_from_common_ctx(
-        ctx,
-        base_classpath,
-        extra_deps,
-        extra_runtime_deps,
-        unused_dependency_checker_mode == "off",
-    )
-
-# Extract very common code out from dependency analysis into single place
-# automatically adds dependency on scala-library and scala-reflect
-# collects jars from deps, runtime jars from runtime_deps, and
-def _collect_jars_from_common_ctx(
-        ctx,
-        base_classpath,
-        extra_deps = [],
-        extra_runtime_deps = [],
-        unused_dependency_checker_is_off = True):
+    unused_dependency_checker_is_off = unused_dependency_checker_mode == "off"
     dependency_analyzer_is_off = is_dependency_analyzer_off(ctx)
 
     deps_jars = collect_jars(
