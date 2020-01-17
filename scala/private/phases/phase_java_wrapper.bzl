@@ -47,6 +47,7 @@ def _phase_java_wrapper(
         args,
         wrapper_preamble,
     )
+
 def write_java_wrapper(ctx, args = "", wrapper_preamble = ""):
     """This creates a wrapper that sets up the correct path
          to stand in for the java command."""
@@ -72,4 +73,3 @@ JAVA_EXEC_TO_USE=${{REAL_EXTERNAL_JAVA_BIN:-$DEFAULT_JAVABIN}}
         is_executable = True,
     )
     return wrapper
-

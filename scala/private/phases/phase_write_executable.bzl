@@ -8,8 +8,8 @@ load(
     "expand_location",
     "first_non_empty",
     "is_windows",
-    "runfiles_root",
     "java_bin",
+    "runfiles_root",
 )
 load(
     "@io_bazel_rules_scala//scala/private:coverage_replacements_provider.bzl",
@@ -183,4 +183,3 @@ def _jar_path_based_on_java_bin(ctx):
     java_bin_var = java_bin(ctx)
     jar_path = java_bin_var.rpartition("/")[0] + "/jar"
     return jar_path
-

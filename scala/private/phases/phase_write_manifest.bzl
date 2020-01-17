@@ -11,4 +11,3 @@ load(
 def phase_write_manifest(ctx, p):
     main_class = getattr(ctx.attr, "main_class", None)
     _write_manifest_file(ctx.actions, ctx.outputs.manifest, main_class)
-

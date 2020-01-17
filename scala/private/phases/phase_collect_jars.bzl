@@ -77,6 +77,7 @@ def _phase_collect_jars(
         extra_runtime_deps,
         unused_dependency_checker_mode == "off",
     )
+
 # Extract very common code out from dependency analysis into single place
 # automatically adds dependency on scala-library and scala-reflect
 # collects jars from deps, runtime jars from runtime_deps, and
@@ -129,4 +130,3 @@ def _collect_runtime_jars(dep_targets):
         runtime_jars.append(dep_target[JavaInfo].transitive_runtime_jars)
 
     return runtime_jars
-

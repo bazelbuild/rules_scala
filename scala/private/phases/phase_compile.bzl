@@ -442,7 +442,7 @@ def _try_to_compile_java_jar(
         implicit_junit_deps_needed_for_java_compilation,
     )
     providers_of_dependencies += _collect_java_providers_of(
-       default_classpath,
+        default_classpath,
     )
     scala_sources_java_provider = _interim_java_provider_for_java_compilation(
         scala_output,

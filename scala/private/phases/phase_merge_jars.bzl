@@ -42,4 +42,3 @@ def _merge_jars(actions, deploy_jar, singlejar_executable, jars_list, main_class
         progress_message = progress_message,
         arguments = args,
     )
-
