@@ -36,7 +36,7 @@ public class LauncherFileWriter {
             .addKeyValuePair("jar_bin_path", jarBinPath)
             .addKeyValuePair("java_start_class", javaStartClass)
             .addKeyValuePair("classpath", classpath)
-            .addJoinedValues("jvm_flags", " ", jvmFlags)
+            .addJoinedValues("jvm_flags", "\t", jvmFlags)
             .build();
 
     Path launcher = Paths.get(Runfiles.create().rlocation("bazel_tools/tools/launcher/launcher.exe"));
