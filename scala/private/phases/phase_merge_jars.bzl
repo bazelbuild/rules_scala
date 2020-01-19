@@ -24,7 +24,7 @@ def phase_merge_jars(ctx, p):
     args.add_all(["--output", deploy_jar.path])
 
     args.set_param_file_format("multiline")
-    args.use_param_file("@%s", use_always = True)
+    args.use_param_file("@%s")
     ctx.actions.run(
         inputs = runtime_jars,
         outputs = [deploy_jar],
