@@ -303,6 +303,33 @@ sh_test(
     data = ["MixJavaScalaLibTestOutputs"],
 )
 
+scala_binary(
+    name = "MixJavaScalaBinary",
+    srcs = ["src/main/scala/scalarules/test/MixJavaScalaLibBinary.scala"] +
+    glob(["src/main/scala/scalarules/test/mix_java_scala/*.scala"]) +
+    glob(["src/main/scala/scalarules/test/mix_java_scala/*.java"]),
+    main_class = "scalarules.test.JavaBinary",
+)
+
+scala_test(
+    name = "MixJavaScalaScalaTest",
+    size = "small",
+    srcs = ["HelloLibTest.scala"] + glob(["src/main/scala/scalarules/test/mix_java_scala/*.scala"]) +
+    glob(["src/main/scala/scalarules/test/mix_java_scala/*.java"]),
+    deps = [
+        ":HelloLib",
+    ],
+)
+
+scala_junit_test(
+    name = "MixJavaScalaJunitTest",
+    size = "small",
+    srcs = ["src/main/scala/scalarules/test/junit/JunitTests.scala", "OtherJavaLib.java"],
+    suffixes = ["Test"],
+    runtime_deps = [":JUnitRuntimeDep"],
+    deps = [":JUnitCompileTimeDep"],
+)
+
 #needed to test java sources are compiled
 scala_binary(
     name = "MixJavaScalaLibBinary",
