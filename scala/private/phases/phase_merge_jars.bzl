@@ -12,19 +12,27 @@ def phase_merge_jars(ctx, p):
     Use --compression to reduce size of deploy jars.
     """
     deploy_jar = ctx.outputs.deploy_jar
-    jars_list = p.compile.rjars.to_list()
+    runtime_jars = p.compile.rjars
     main_class = getattr(ctx.attr, "main_class", "")
     progress_message = "Merging Scala jar: %s" % ctx.label
-    args = ["--compression", "--normalize", "--sources"]
-    args.extend([j.path for j in jars_list])
+    args = ctx.actions.args()
+    args.add_all(["--compression", "--normalize", "--sources"])
+    args.add_all(runtime_jars, map_each = _fileToPath)
+
     if main_class:
-        args.extend(["--main_class", main_class])
-    args.extend(["--output", deploy_jar.path])
+        args.add_all(["--main_class", main_class])
+    args.add_all(["--output", deploy_jar.path])
+
+    args.set_param_file_format("multiline")
+    args.use_param_file("@%s")
     ctx.actions.run(
-        inputs = jars_list,
+        inputs = runtime_jars,
         outputs = [deploy_jar],
         executable = ctx.executable._singlejar,
         mnemonic = "ScalaDeployJar",
         progress_message = progress_message,
-        arguments = args,
+        arguments = [args],
     )
+
+def _fileToPath(file):
+    return file.path

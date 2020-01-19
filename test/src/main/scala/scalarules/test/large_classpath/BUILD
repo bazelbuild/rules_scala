@@ -1,4 +1,4 @@
-load("//scala:scala.bzl", "scala_binary")
+load("//scala:scala.bzl", "scala_binary", "scala_library")
 load(":helper.bzl", "create_dependencies", "get_dependency_labels")
 
 scala_binary(
@@ -8,12 +8,17 @@ scala_binary(
     unused_dependency_checker_mode = "off",
     visibility = ["//visibility:public"],
     deps = get_dependency_labels(
-        amount = 250,
+        amount = 1000,
         length = 20,
     ),
 )
 
+scala_library(
+    name = "triggerDeployJarCreation",
+    data = [":largeClasspath_deploy.jar"],
+)
+
 create_dependencies(
-    amount = 250,
+    amount = 1000,
     length = 20,
 )
