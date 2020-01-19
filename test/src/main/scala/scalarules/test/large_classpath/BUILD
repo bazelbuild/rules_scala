@@ -14,8 +14,8 @@ scala_binary(
 )
 
 scala_library(
-    name="triggerDeployJarCreation",
-    data = [":largeClasspath_deploy.jar"]
+    name = "triggerDeployJarCreation",
+    data = [":largeClasspath_deploy.jar"],
 )
 
 create_dependencies(
