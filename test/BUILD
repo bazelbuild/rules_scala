@@ -314,8 +314,7 @@ scala_binary(
 scala_test(
     name = "MixJavaScalaScalaTest",
     size = "small",
-    srcs = ["HelloLibTest.scala"] + glob(["src/main/scala/scalarules/test/mix_java_scala/*.scala"]) +
-    glob(["src/main/scala/scalarules/test/mix_java_scala/*.java"]),
+    srcs = ["HelloLibTest.scala", "OtherJavaLib.java"],
     deps = [
         ":HelloLib",
     ],
@@ -324,10 +323,8 @@ scala_test(
 scala_junit_test(
     name = "MixJavaScalaJunitTest",
     size = "small",
-    srcs = ["src/main/scala/scalarules/test/junit/JunitTests.scala", "OtherJavaLib.java"],
+    srcs = ["src/main/scala/scalarules/test/junit/HelloWorldJunitTest.scala", "OtherJavaLib.java"],
     suffixes = ["Test"],
-    runtime_deps = [":JUnitRuntimeDep"],
-    deps = [":JUnitCompileTimeDep"],
 )
 
 #needed to test java sources are compiled
