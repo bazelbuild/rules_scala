@@ -4,6 +4,7 @@ scala_library(
     name = "noSrcsWithResources",
     resource_strip_prefix = "test/src/main/scala/scalarules/test/resources/strip",
     resources = ["nosrc_jar_resource.txt"],
+    visibility = ["//visibility:public"],
 )
 
 scala_specs2_junit_test(
@@ -13,4 +14,13 @@ scala_specs2_junit_test(
     suffixes = ["Test"],
     unused_dependency_checker_mode = "off",
     deps = [":noSrcsWithResources"],
+)
+
+scala_specs2_junit_test(
+    name = "resouceStripPrefixFromExternalRepoTest",
+    size = "small",
+    srcs = ["ResourceStripPrefixTest.scala"],
+    suffixes = ["Test"],
+    unused_dependency_checker_mode = "off",
+    deps = ["@io_bazel_rules_scala//test/src/main/scala/scalarules/test/resources/strip:noSrcsWithResources"],
 )

@@ -480,9 +480,12 @@ def _try_to_compile_java_jar(
         java_compilation_provider = provider,
     )
 
-def _adjust_resources_path(path, resource_strip_prefix):
+def _adjust_resources_path(resource, resource_strip_prefix):
+    path = resource.path
     if resource_strip_prefix:
-        return _adjust_resources_path_by_strip_prefix(path, resource_strip_prefix)
+        root = resource.owner.workspace_root + "/" if (resource.owner.workspace_root) else ""
+        prefix = root + resource_strip_prefix
+        return _adjust_resources_path_by_strip_prefix(path, prefix)
     else:
         return _adjust_resources_path_by_default_prefixes(path)
 
@@ -490,7 +493,7 @@ def _add_resources_cmd(ctx):
     res_cmd = []
     for f in ctx.files.resources:
         c_dir, res_path = _adjust_resources_path(
-            f.short_path,
+            f,
             ctx.attr.resource_strip_prefix,
         )
         target_path = res_path
@@ -506,7 +509,7 @@ def _add_resources_cmd(ctx):
 
 def _adjust_resources_path_by_strip_prefix(path, resource_strip_prefix):
     if not path.startswith(resource_strip_prefix):
-        fail("Resource file %s is not under the specified prefix to strip" % path)
+        fail("Resource file %s is not under the specified prefix %s to strip" % (path, resource_strip_prefix))
 
     clean_path = path[len(resource_strip_prefix):]
     return resource_strip_prefix, clean_path
