@@ -125,11 +125,6 @@ def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
 def not_sources_jar(name):
     return "-sources.jar" not in name
 
-def filter_not_sources(deps):
-    return depset(
-        [dep for dep in deps.to_list() if not_sources_jar(dep.basename)],
-    )
-
 def add_labels_of_jars_to(jars2labels, dependency, all_jars, direct_jars):
     for jar in direct_jars:
         jars2labels[jar.path] = dependency.label
