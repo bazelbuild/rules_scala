@@ -12,12 +12,10 @@ def phase_scalafmt(ctx, p):
         ctx.actions.write(
             output = ctx.outputs.scalafmt_runner,
             content = "",
-            is_executable = True,
         )
         ctx.actions.write(
             output = ctx.outputs.scalafmt_testrunner,
             content = "",
-            is_executable = True,
         )
 
 def _build_format(ctx):
