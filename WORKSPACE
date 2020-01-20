@@ -40,34 +40,11 @@ load("//specs2:specs2_junit.bzl", "specs2_junit_repositories")
 
 specs2_junit_repositories()
 
-load("//scala/scalafmt:scalafmt.bzl", "scalafmt_default_config", "scalafmt_repositories")
+load("//scala/scalafmt:scalafmt_repositories.bzl", "scalafmt_default_config", "scalafmt_repositories")
 
 scalafmt_repositories()
 
 scalafmt_default_config()
-
-RULES_JVM_EXTERNAL_TAG = "3.1"
-
-http_archive(
-    name = "rules_jvm_external",
-    sha256 = "e246373de2353f3d34d35814947aa8b7d0dd1a58c2f7a6c41cfeaff3007c2d14",
-    strip_prefix = "rules_jvm_external-{}".format(RULES_JVM_EXTERNAL_TAG),
-    type = "zip",
-    url = "https://github.com/bazelbuild/rules_jvm_external/archive/{}.zip".format(RULES_JVM_EXTERNAL_TAG),
-)
-
-load("@rules_jvm_external//:defs.bzl", "maven_install")
-
-maven_install(
-    name = "scalafmt",
-    artifacts = [
-        "org.scalameta:scalafmt-core_2.11:2.0.0",
-    ],
-    fetch_sources = True,
-    repositories = [
-        "http://central.maven.org/maven2",
-    ],
-)
 
 load("//scala:scala_cross_version.bzl", "default_scala_major_version", "scala_mvn_artifact")
 

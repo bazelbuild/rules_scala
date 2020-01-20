@@ -19,10 +19,10 @@ scala_binary(
     visibility = ["//visibility:public"],
     deps = [
         "//external:io_bazel_rules_scala/scalafmt/argparse4j",
-        "//external:io_bazel_rules_scala/scalafmt/geirsson_metaconfig_core",
-        "//external:io_bazel_rules_scala/scalafmt/scalafmt_parsers",
         "//src/java/io/bazel/rulesscala/worker",
-        "@scalafmt//:org_scalameta_scalafmt_core_2_11",
+        "@com_geirsson_metaconfig_core_2_11",
+        "@org_scalameta_parsers_2_11",
+        "@org_scalameta_scalafmt_core_2_11",
     ],
 )
 
