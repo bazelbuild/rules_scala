@@ -9,14 +9,8 @@ def phase_scalafmt(ctx, p):
         _formatter(ctx, manifest, files, ctx.file._runner, ctx.outputs.scalafmt_runner)
         _formatter(ctx, manifest, files, ctx.file._testrunner, ctx.outputs.scalafmt_testrunner)
     else:
-        ctx.actions.write(
-            output = ctx.outputs.scalafmt_runner,
-            content = "",
-        )
-        ctx.actions.write(
-            output = ctx.outputs.scalafmt_testrunner,
-            content = "",
-        )
+        _write_empty_content(ctx, ctx.outputs.scalafmt_runner)
+        _write_empty_content(ctx, ctx.outputs.scalafmt_testrunner)
 
 def _build_format(ctx):
     files = []
@@ -62,4 +56,10 @@ def _formatter(ctx, manifest, files, input_runner, output_runner):
             output_runner.path,
         ],
         execution_requirements = {},
+    )
+
+def _write_empty_content(ctx, output_runner):
+    ctx.actions.write(
+        output = output_runner,
+        content = "",
     )
