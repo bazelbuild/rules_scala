@@ -18,9 +18,9 @@ scala_binary(
     main_class = "io.bazel.rules_scala.scalafmt.ScalafmtRunner",
     visibility = ["//visibility:public"],
     deps = [
-        "//external:io_bazel_rules_scala/scalafmt/argparse4j",
         "//src/java/io/bazel/rulesscala/worker",
         "@com_geirsson_metaconfig_core_2_11",
+        "@net_sourceforge_argparse4j_argparse4j",
         "@org_scalameta_parsers_2_11",
         "@org_scalameta_scalafmt_core_2_11",
     ],

@@ -293,14 +293,9 @@ def scalafmt_repositories(maven_servers = ["https://repo.maven.apache.org/maven2
     )
 
     _scala_maven_import_external(
-        name = "argparse4j",
+        name = "net_sourceforge_argparse4j_argparse4j",
         artifact = "net.sourceforge.argparse4j:argparse4j:0.8.1",
         artifact_sha256 = "98cb5468cac609f3bc07856f2e34088f50dc114181237c48d20ca69c3265d044",
         licenses = ["notice"],
         server_urls = maven_servers,
-    )
-
-    native.bind(
-        name = "io_bazel_rules_scala/scalafmt/argparse4j",
-        actual = "@argparse4j",
     )
