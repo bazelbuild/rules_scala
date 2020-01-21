@@ -48,6 +48,7 @@ def _formatter(ctx, manifest, files, input_runner, output_runner):
     ctx.actions.run_shell(
         inputs = [input_runner, manifest] + files,
         outputs = [output_runner],
+        # replace %workspace% and %manifest% in input_runner and rewrite it to output_runner
         command = "cat $1 | sed -e s#%workspace%#$2# -e s#%manifest%#$3# > $4",
         arguments = [
             input_runner.path,
