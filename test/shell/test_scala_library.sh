@@ -169,11 +169,6 @@ test_scala_library_expect_better_failure_message_on_missing_transitive_dependenc
   test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" $test_target "--strict_java_deps=error"
 }
 
-test_scala_library_resource_strip_prefix_from_external_repo() {
-  cd "$dir"/../../third_party/resource_strip_prefix
-  bazel test //...
-}
-
 $runner test_scala_library_suite
 $runner test_scala_library_expect_failure_on_missing_direct_internal_deps
 $runner test_scala_library_expect_failure_on_missing_direct_external_deps_jar
@@ -189,4 +184,3 @@ $runner test_scala_library_expect_no_java_recompilation_on_internal_change_of_sc
 $runner test_scala_library_expect_failure_on_missing_direct_java
 $runner test_scala_library_expect_failure_on_java_in_src_jar_when_disabled
 $runner test_scala_library_expect_better_failure_message_on_missing_transitive_dependency_labels_from_other_jvm_rules
-$runner test_scala_library_resource_strip_prefix_from_external_repo
