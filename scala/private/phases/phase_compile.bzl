@@ -3,6 +3,7 @@
 #
 # DOCUMENT THIS
 #
+load("@bazel_skylib//lib:paths.bzl", _paths = "paths")
 load("@bazel_tools//tools/jdk:toolchain_utils.bzl", "find_java_runtime_toolchain", "find_java_toolchain")
 load(
     "@io_bazel_rules_scala//scala/private:coverage_replacements_provider.bzl",
@@ -480,17 +481,17 @@ def _try_to_compile_java_jar(
         java_compilation_provider = provider,
     )
 
-def _adjust_resources_path(path, resource_strip_prefix):
+def _adjust_resources_path(resource, resource_strip_prefix):
     if resource_strip_prefix:
-        return _adjust_resources_path_by_strip_prefix(path, resource_strip_prefix)
+        return _adjust_resources_path_by_strip_prefix(resource, resource_strip_prefix)
     else:
-        return _adjust_resources_path_by_default_prefixes(path)
+        return _adjust_resources_path_by_default_prefixes(resource.path)
 
 def _add_resources_cmd(ctx):
     res_cmd = []
     for f in ctx.files.resources:
         c_dir, res_path = _adjust_resources_path(
-            f.short_path,
+            f,
             ctx.attr.resource_strip_prefix,
         )
         target_path = res_path
@@ -504,12 +505,14 @@ def _add_resources_cmd(ctx):
         res_cmd.extend([line])
     return "".join(res_cmd)
 
-def _adjust_resources_path_by_strip_prefix(path, resource_strip_prefix):
-    if not path.startswith(resource_strip_prefix):
-        fail("Resource file %s is not under the specified prefix to strip" % path)
+def _adjust_resources_path_by_strip_prefix(resource, resource_strip_prefix):
+    path = resource.path
+    prefix = _paths.join(resource.owner.workspace_root, resource_strip_prefix)
+    if not path.startswith(prefix):
+        fail("Resource file %s is not under the specified prefix %s to strip" % (path, prefix))
 
-    clean_path = path[len(resource_strip_prefix):]
-    return resource_strip_prefix, clean_path
+    clean_path = path[len(prefix):]
+    return prefix, clean_path
 
 def _collect_java_providers_of(deps):
     providers = []
