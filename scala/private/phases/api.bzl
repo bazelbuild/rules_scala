@@ -22,18 +22,19 @@ def _adjust_phases(phases, adjustments):
     # phase_name: the name of the new phase, also used to access phase information
     # phase_function: the function of the new phase
     for (relation, peer_name, phase_name, phase_function) in adjustments:
-        for idx, (needle, _) in enumerate(phases):
-            if relation in ["^", "first"]:
-                phases.insert(0, (phase_name, phase_function))
-            elif relation in ["$", "last"]:
-                phases.append((phase_name, phase_function))
-            elif needle == peer_name:
-                if relation in ["-", "before"]:
-                    phases.insert(idx, (phase_name, phase_function))
-                elif relation in ["+", "after"]:
-                    phases.insert(idx + 1, (phase_name, phase_function))
-                elif relation in ["=", "replace"]:
-                    phases[idx] = (phase_name, phase_function)
+        if relation in ["^", "first"]:
+            phases.insert(0, (phase_name, phase_function))
+        elif relation in ["$", "last"]:
+            phases.append((phase_name, phase_function))
+        else:
+            for idx, (needle, _) in enumerate(phases):
+                if needle == peer_name:
+                    if relation in ["-", "before"]:
+                        phases.insert(idx, (phase_name, phase_function))
+                    elif relation in ["+", "after"]:
+                        phases.insert(idx + 1, (phase_name, phase_function))
+                    elif relation in ["=", "replace"]:
+                        phases[idx] = (phase_name, phase_function)
     return phases
 
 # Execute phases
@@ -59,6 +60,7 @@ def run_phases(ctx, builtin_customizable_phases, fixed_phase):
     # A placeholder for data shared with later phases
     global_provider = {}
     current_provider = struct(**global_provider)
+    rule_providers = []
     for (name, function) in adjusted_phases + [fixed_phase]:
         # Run a phase
         new_provider = function(ctx, current_provider)
@@ -66,11 +68,13 @@ def run_phases(ctx, builtin_customizable_phases, fixed_phase):
         # If a phase returns data, append it to global_provider
         # for later phases to access
         if new_provider != None:
+            if (hasattr(new_provider, "rule_providers")):
+                rule_providers.extend(new_provider.rule_providers)
             global_provider[name] = new_provider
             current_provider = struct(**global_provider)
 
     # The final return of rules implementation
-    return current_provider
+    return rule_providers + current_provider.final
 
 # A method to pass in phase provider
 def extras_phases(extras):

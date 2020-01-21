@@ -69,7 +69,7 @@ def _scala_library_impl(ctx):
         ],
         # fixed phase
         ("final", phase_library_final),
-    ).final
+    )
 
 _scala_library_attrs = {}
 
@@ -146,7 +146,7 @@ def _scala_library_for_plugin_bootstrapping_impl(ctx):
         ],
         # fixed phase
         ("final", phase_library_final),
-    ).final
+    )
 
 # the scala compiler plugin used for dependency analysis is compiled using `scala_library`.
 # in order to avoid cyclic dependencies `scala_library_for_plugin_bootstrapping` was created for this purpose,
@@ -202,7 +202,7 @@ def _scala_macro_library_impl(ctx):
         ],
         # fixed phase
         ("final", phase_library_final),
-    ).final
+    )
 
 _scala_macro_library_attrs = {
     "main_class": attr.string(),

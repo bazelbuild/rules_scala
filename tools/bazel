@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-default_bazel_version='1.1.0'
+default_bazel_version='2.0.0'
 
 if [ "$BUILDKITE" = true ]; then
     bazel_version='host'
@@ -30,6 +30,10 @@ case "$bazel_version" in
     '1.1.0')
         darwin_sha='1a552f4ce194860fbbd50eeb319f81788ddf50a849e92378eec72231cc64ef65'
         linux_sha='14301099c87568db302d59a5d3585f5eb8a6250ac2c6bb0367c56e623ff6e65f'
+        ;;
+    '1.2.1')
+        darwin_sha='59e469bf1d8d1615b67856ea17e761be05e9c92b462e55c0354cd78145b480d5'
+        linux_sha='ae6249e25b0f5a06d79fad90325477dd56275657951cf7aa6a3cbcd79fc4d749'
         ;;
     '2.0.0')
         darwin_sha='c675fa27d99a3114d681db10eb03ded547c40f702b2048c99b8f4ea8e89b9356'

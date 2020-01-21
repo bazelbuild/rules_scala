@@ -46,7 +46,7 @@ def _scala_repl_impl(ctx):
         ],
         # fixed phase
         ("final", phase_binary_final),
-    ).final
+    )
 
 _scala_repl_attrs = {
     "jvm_flags": attr.string_list(),
