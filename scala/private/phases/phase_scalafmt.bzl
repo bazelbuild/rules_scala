@@ -20,15 +20,8 @@ def _build_format(ctx):
         if src.path.endswith(".scala") and src.is_source:
             file = ctx.actions.declare_file("{}.fmt.output".format(src.short_path))
             files.append(file)
-            args = ctx.actions.args()
-            args.add("--config")
-            args.add(ctx.file.config.path)
-            args.add(src.path)
-            args.add(file.path)
-            args.set_param_file_format("multiline")
-            args.use_param_file("@%s", use_always = True)
             ctx.actions.run(
-                arguments = ["--jvm_flag=-Dfile.encoding=UTF-8", args],
+                arguments = ["--jvm_flag=-Dfile.encoding=UTF-8", _format_args(ctx, src, file)],
                 executable = ctx.executable._fmt,
                 outputs = [file],
                 input_manifests = runner_manifests,
@@ -64,3 +57,13 @@ def _write_empty_content(ctx, output_runner):
         output = output_runner,
         content = "",
     )
+
+def _format_args(ctx, src, file):
+    args = ctx.actions.args()
+    args.add("--config")
+    args.add(ctx.file.config.path)
+    args.add(src.path)
+    args.add(file.path)
+    args.set_param_file_format("multiline")
+    args.use_param_file("@%s", use_always = True)
+    return args
