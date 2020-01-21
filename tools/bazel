@@ -27,10 +27,6 @@ case "$bazel_version" in
         bazel_version=$("$BAZEL_REAL" version | awk '/Build label/ {print $3}' | cut -d '-' -f 1)
         bazel="$BAZEL_REAL"
         ;;
-    '1.1.0')
-        darwin_sha='1a552f4ce194860fbbd50eeb319f81788ddf50a849e92378eec72231cc64ef65'
-        linux_sha='14301099c87568db302d59a5d3585f5eb8a6250ac2c6bb0367c56e623ff6e65f'
-        ;;
     '2.0.0')
         darwin_sha='c675fa27d99a3114d681db10eb03ded547c40f702b2048c99b8f4ea8e89b9356'
         linux_sha='2fbdc9c0e3d376697caf0ee3673b7c9475214068c55a01b9744891e131f90b87'
