@@ -45,7 +45,7 @@ def _scala_binary_impl(ctx):
         ],
         # fixed phase
         ("final", phase_binary_final),
-    ).final
+    )
 
 _scala_binary_attrs = {
     "main_class": attr.string(mandatory = True),

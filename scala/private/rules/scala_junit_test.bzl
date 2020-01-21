@@ -50,7 +50,7 @@ def _scala_junit_test_impl(ctx):
         ],
         # fixed phase
         ("final", phase_binary_final),
-    ).final
+    )
 
 _scala_junit_test_attrs = {
     "prefixes": attr.string_list(default = []),

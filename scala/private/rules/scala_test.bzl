@@ -47,7 +47,7 @@ def _scala_test_impl(ctx):
         ],
         # fixed phase
         ("final", phase_scalatest_final),
-    ).final
+    )
 
 _scala_test_attrs = {
     "main_class": attr.string(
