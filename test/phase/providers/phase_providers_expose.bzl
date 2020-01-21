@@ -28,7 +28,7 @@ CustomProviderExposedByPhase = provider()
 
 def _phase_expose_provider(ctx, p):
     return struct(
-        rule_providers = [CustomProviderExposedByPhase()],
+        external_providers = [CustomProviderExposedByPhase()],
     )
 
 def _rule_that_needs_custom_provider_impl(ctx):

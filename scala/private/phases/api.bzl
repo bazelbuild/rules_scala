@@ -63,7 +63,7 @@ def run_phases(ctx, builtin_customizable_phases, fixed_phase):
     # A placeholder for data shared with later phases
     global_provider = {}
     current_provider = struct(**global_provider)
-    rule_providers = []
+    acculmulated_external_providers = []
     for (name, function) in adjusted_phases + [fixed_phase]:
         # Run a phase
         new_provider = function(ctx, current_provider)
@@ -71,13 +71,13 @@ def run_phases(ctx, builtin_customizable_phases, fixed_phase):
         # If a phase returns data, append it to global_provider
         # for later phases to access
         if new_provider != None:
-            if (hasattr(new_provider, "rule_providers")):
-                rule_providers.extend(new_provider.rule_providers)
+            if (hasattr(new_provider, "external_providers")):
+                acculmulated_external_providers.extend(new_provider.external_providers)
             global_provider[name] = new_provider
             current_provider = struct(**global_provider)
 
     # The final return of rules implementation
-    return rule_providers + current_provider.final
+    return acculmulated_external_providers + current_provider.final
 
 # A method to pass in phase provider
 def extras_phases(extras):
