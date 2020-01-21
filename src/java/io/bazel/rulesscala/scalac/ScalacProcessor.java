@@ -274,9 +274,9 @@ class ScalacProcessor implements Processor {
       Path source = Paths.get(e.getKey());
       Resource resource = e.getValue();
       Path shortPath = Paths.get(resource.shortPath);
-      String dstr;
+      String dstr = resource.destination;
       // Check if we need to modify resource destination path
-      if (!"".equals(resourceStripPrefix)) {
+//      if (!"".equals(resourceStripPrefix)) {
         /**
          * NOTE: We are not using the Resource Hash Value as the destination path when
          * `resource_strip_prefix` present. The path in the hash value is computed by the
@@ -286,10 +286,12 @@ class ScalacProcessor implements Processor {
          * use that as the new destination path Refer Bazel -> BazelJavaRuleClasses.java#L227 for
          * details
          */
-        dstr = getResourcePath(shortPath, resourceStripPrefix);
-      } else {
-        dstr = resource.destination;
-      }
+//        dstr = getResourcePath(shortPath, resourceStripPrefix);
+//      } else {
+//        dstr = resource.destination;
+//      }
+
+      dstr = resource.destination;
 
       if (dstr.charAt(0) == '/') {
         // we don't want to copy to an absolute destination

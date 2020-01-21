@@ -167,3 +167,14 @@ scala_test(
         ":test_external_dep",
     ],
 )
+
+scala_test(
+    name = "test_pack_protos",
+    srcs = [
+        "PackProtosTest.scala",
+    ],
+    deps = [
+        ":test_proto_nogrpc",
+    ],
+    unused_dependency_checker_mode = "off",
+)

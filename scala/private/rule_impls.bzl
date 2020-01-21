@@ -13,6 +13,7 @@
 # limitations under the License.
 """Rules for supporting the Scala language."""
 
+load("@bazel_skylib//lib:paths.bzl", _paths = "paths")
 load(
     "@io_bazel_rules_scala//scala/private:coverage_replacements_provider.bzl",
     _coverage_replacements_provider = "coverage_replacements_provider",
@@ -21,6 +22,24 @@ load(
     ":common.bzl",
     _collect_plugin_paths = "collect_plugin_paths",
 )
+
+def adjust_resources_path(resource, resource_strip_prefix):
+    if resource_strip_prefix:
+        return _adjust_resources_path_by_strip_prefix(resource, resource_strip_prefix)
+    else:
+        return adjust_resources_path_by_default_prefixes(resource.path)
+
+def _adjust_resources_path_by_strip_prefix(resource, resource_strip_prefix):
+    # TODO: should be a better way how to strip prefix
+#    root = (resource.owner.workspace_root if (resource.owner) else resource.root.path) + "/"
+    root = resource.root.path + "/"
+    path = resource.path[len(root):] if resource.path.startswith(root) else resource.path
+    prefix = resource_strip_prefix[len(root):] if resource_strip_prefix.startswith(root) else resource_strip_prefix
+    if not path.startswith(prefix):
+        fail("Resource file %s is not under the specified prefix %s to strip" % (path, prefix))
+
+    clean_path = path[len(prefix):]
+    return prefix, clean_path
 
 def adjust_resources_path_by_default_prefixes(path):
     #  Here we are looking to find out the offset of this resource inside
@@ -185,7 +204,7 @@ StatsfileOutput: {statsfile_output}
         resource_src = ",".join([f.path for f in resources]),
         resource_short_paths = ",".join([f.short_path for f in resources]),
         resource_dest = ",".join([
-            adjust_resources_path_by_default_prefixes(f.short_path)[1]
+            adjust_resources_path(f, resource_strip_prefix)[1]
             for f in resources
         ]),
         resource_strip_prefix = resource_strip_prefix,
