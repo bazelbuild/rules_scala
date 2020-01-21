@@ -18,7 +18,7 @@ def _build_format(ctx):
     manifest_content = []
     for src in ctx.files.srcs:
         if src.path.endswith(".scala") and src.is_source:
-            file = ctx.actions.declare_file(src.short_path)
+            file = ctx.actions.declare_file("{}.fmt.output".format(src.short_path))
             files.append(file)
             args = ctx.actions.args()
             args.add("--config")
