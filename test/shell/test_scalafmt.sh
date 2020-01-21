@@ -12,6 +12,8 @@ run_non_default_formatting() {
   FILENAME="formatted"
   if [[ $RULE_TYPE = test ]]; then
     FILENAME="formatted-test"
+  elif [[ $RULE_TYPE = custom-conf ]]; then
+    FILENAME="formatted-custom-conf"
   fi
     
   bazel run //test/scalafmt:formatted-$RULE_TYPE.format-test
@@ -52,7 +54,11 @@ test_scalafmt_library() {
 test_scalafmt_test() {
   run_non_default_formatting test
 }
+test_custom_conf() {
+  run_non_default_formatting custom-conf
+}
 
 $runner test_scalafmt_binary
 $runner test_scalafmt_library
 $runner test_scalafmt_test
+$runner test_custom_conf

@@ -5,6 +5,12 @@ load(
     "scalafmt_scala_test",
 )
 
+filegroup(
+    name = "custom-conf",
+    srcs = [".scalafmt.conf"],
+    visibility = ["//visibility:public"],
+)
+
 ### scala_binary ###
 scalafmt_scala_binary(
     name = "formatted-binary",
@@ -44,4 +50,19 @@ scalafmt_scala_test(
     name = "unformatted-test",
     srcs = ["unformatted-test.scala"],
     format = True,
+)
+
+### custom config ###
+scalafmt_scala_library(
+    name = "formatted-custom-conf",
+    srcs = ["formatted-custom-conf.scala"],
+    format = True,
+    config = ":custom-conf",
+)
+
+scalafmt_scala_library(
+    name = "unformatted-custom-conf",
+    srcs = ["unformatted-custom-conf.scala"],
+    format = True,
+    config = ":custom-conf",
 )
