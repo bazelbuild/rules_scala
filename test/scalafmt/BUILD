@@ -56,13 +56,13 @@ scalafmt_scala_test(
 scalafmt_scala_library(
     name = "formatted-custom-conf",
     srcs = ["formatted-custom-conf.scala"],
-    format = True,
     config = ":custom-conf",
+    format = True,
 )
 
 scalafmt_scala_library(
     name = "unformatted-custom-conf",
     srcs = ["unformatted-custom-conf.scala"],
-    format = True,
     config = ":custom-conf",
+    format = True,
 )
