@@ -1,0 +1,1 @@
+workspace(name = "strip_resource_external_workspace")

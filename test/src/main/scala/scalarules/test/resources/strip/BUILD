@@ -22,5 +22,5 @@ scala_specs2_junit_test(
     srcs = ["ResourceStripPrefixTest.scala"],
     suffixes = ["Test"],
     unused_dependency_checker_mode = "off",
-    deps = ["@io_bazel_rules_scala//test/src/main/scala/scalarules/test/resources/strip:noSrcsWithResources"],
+    deps = ["@strip_resource_external_workspace//strip:noSrcsWithResources"],
 )
