@@ -4,7 +4,6 @@ scala_library(
     name = "noSrcsWithResources",
     resource_strip_prefix = "test/src/main/scala/scalarules/test/resources/strip",
     resources = ["nosrc_jar_resource.txt"],
-    visibility = ["//visibility:public"],
 )
 
 scala_specs2_junit_test(
