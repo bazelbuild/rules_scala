@@ -1,0 +1,15 @@
+load(":phase_providers_expose.bzl", "phase_expose_provider_singleton", "rule_that_needs_custom_provider", "scala_library_that_exposes_custom_provider")
+
+scala_library_that_exposes_custom_provider(
+    name = "scala_library_that_exposes_custom_provider",
+)
+
+rule_that_needs_custom_provider(
+    name = "rule_that_needs_custom_provider",
+    dep = ":scala_library_that_exposes_custom_provider",
+)
+
+phase_expose_provider_singleton(
+    name = "phase_expose_provider_singleton_target",
+    visibility = ["//visibility:public"],
+)
