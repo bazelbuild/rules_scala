@@ -31,10 +31,13 @@ def _adjust_phases(phases, adjustments):
                 if needle == peer_name:
                     if relation in ["-", "before"]:
                         phases.insert(idx, (phase_name, phase_function))
+                        break
                     elif relation in ["+", "after"]:
                         phases.insert(idx + 1, (phase_name, phase_function))
+                        break
                     elif relation in ["=", "replace"]:
                         phases[idx] = (phase_name, phase_function)
+                        break
     return phases
 
 # Execute phases
