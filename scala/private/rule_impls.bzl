@@ -23,35 +23,21 @@ load(
     _collect_plugin_paths = "collect_plugin_paths",
 )
 
+def _strip_prefix(target, prefix):
+    return target[len(prefix):] if target.startswith(prefix) else target
+
 def adjust_resources_path(resource, resource_strip_prefix):
     path = _adjust_resources_path_by_strip_prefix(resource, resource_strip_prefix) if resource_strip_prefix else _adjust_resources_path_by_default_prefixes(resource.path)
     return _strip_prefix(path, "/")
 
-def _strip_prefix(target, prefix):
-    return target[len(prefix):] if target.startswith(prefix) else target
-
 def _adjust_resources_path_by_strip_prefix(resource, resource_strip_prefix):
-    # TODO: should be a better way how to strip prefix
-#    root = (resource.owner.workspace_root if (resource.owner) else resource.root.path) + "/"
-    print("-------------------")
-    print("workspace-root: " + resource.owner.workspace_root)
-    print("root-path: " + resource.root.path)
-    print("res-path: " + resource.path)
-    print("res-short-path: " + resource.short_path)
-    print("given-prefix: " + resource_strip_prefix)
-    root = resource.root.path + "/"
     path = resource.path
     path = _strip_prefix(path, resource.owner.workspace_root + "/")
-    print("resolved-path: " + path)
-    path = _strip_prefix(path, root)
+    path = _strip_prefix(path, resource.root.path + "/")
     prefix = _strip_prefix(resource_strip_prefix, resource.root.path + "/")
     if not path.startswith(prefix):
         fail("Resource file %s is not under the specified prefix %s to strip" % (path, prefix))
-
-    clean_path = path[len(prefix):]
-    print("clean-path: " + clean_path)
-    print("clean-prefix: " + prefix)
-    return clean_path
+    return path[len(prefix):]
 
 def _adjust_resources_path_by_default_prefixes(path):
     #  Here we are looking to find out the offset of this resource inside
