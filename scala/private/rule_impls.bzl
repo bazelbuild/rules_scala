@@ -53,7 +53,7 @@ def _adjust_resources_path_by_strip_prefix(resource, resource_strip_prefix):
     clean_path = path[len(prefix):]
     print("clean-path: " + clean_path)
     print("clean-prefix: " + prefix)
-    return prefix, clean_path
+    return clean_path
 
 def adjust_resources_path_by_default_prefixes(path):
     #  Here we are looking to find out the offset of this resource inside
@@ -61,14 +61,14 @@ def adjust_resources_path_by_default_prefixes(path):
     #  and then the sub path inside it
     dir_1, dir_2, rel_path = path.partition("resources")
     if rel_path:
-        return dir_1 + dir_2, rel_path
+        return rel_path
 
     #  The same as the above but just looking for java
     (dir_1, dir_2, rel_path) = path.partition("java")
     if rel_path:
-        return dir_1 + dir_2, rel_path
+        return rel_path
 
-    return "", path
+    return path
 
 def expand_location(ctx, flags):
     if hasattr(ctx.attr, "data"):
@@ -218,7 +218,7 @@ StatsfileOutput: {statsfile_output}
         resource_src = ",".join([f.path for f in resources]),
         resource_short_paths = ",".join([f.short_path for f in resources]),
         resource_dest = ",".join([
-            adjust_resources_path(f, resource_strip_prefix)[1]
+            adjust_resources_path(f, resource_strip_prefix)
             for f in resources
         ]),
         resource_strip_prefix = resource_strip_prefix,

@@ -494,11 +494,10 @@ def _try_to_compile_java_jar(
 def _add_resources_cmd(ctx):
     res_cmd = []
     for f in ctx.files.resources:
-        c_dir, res_path = _adjust_resources_path(
+        target_path = _adjust_resources_path(
             f,
             ctx.attr.resource_strip_prefix,
         )
-        target_path = res_path
         if target_path[0] == "/":
             target_path = target_path[1:]
         line = "{target_path}={res_path}\n".format(
