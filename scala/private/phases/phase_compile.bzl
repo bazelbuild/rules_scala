@@ -4,6 +4,7 @@
 # DOCUMENT THIS
 #
 load("@bazel_skylib//lib:paths.bzl", _paths = "paths")
+load("@bazel_skylib//lib:dicts.bzl", "dicts")
 load("@bazel_tools//tools/jdk:toolchain_utils.bzl", "find_java_runtime_toolchain", "find_java_toolchain")
 load(
     "@io_bazel_rules_scala//scala/private:coverage_replacements_provider.bzl",
@@ -23,9 +24,10 @@ _scala_extension = ".scala"
 _srcjar_extension = ".srcjar"
 
 _empty_coverage_struct = struct(
-    instrumented_files = None,
-    providers = [],
-    replacements = {},
+    external = struct(
+        replacements = {},
+    ),
+    providers_dict = {},
 )
 
 def phase_binary_compile(ctx, p):
@@ -162,7 +164,7 @@ def _phase_compile(
     # TODO: simplify the return values and use provider
     return struct(
         class_jar = out.class_jar,
-        coverage = out.coverage,
+        coverage = out.coverage.external,
         full_jars = out.full_jars,
         ijar = out.ijar,
         ijars = out.ijars,
@@ -170,7 +172,9 @@ def _phase_compile(
         java_jar = out.java_jar,
         source_jars = _pack_source_jars(ctx) + out.source_jars,
         merged_provider = out.merged_provider,
-        external_providers = [out.merged_provider] + out.coverage.providers,
+        external_providers = dicts.add(out.coverage.providers_dict, {
+            "JavaInfo": out.merged_provider,
+        }),
     )
 
 def _compile_or_empty(
@@ -422,8 +426,13 @@ def _jacoco_offline_instrument(ctx, input_jar):
         extensions = ["scala", "java"],
     )
     return struct(
-        providers = [provider, instrumented_files_provider],
-        replacements = replacements,
+        external = struct(
+            replacements = replacements,
+        ),
+        providers_dict = {
+            "_CoverageReplacements": provider,
+            "InstrumentedFilesInfo": instrumented_files_provider,
+        },
     )
 
 def _jacoco_offline_instrument_format_each(in_out_pair):

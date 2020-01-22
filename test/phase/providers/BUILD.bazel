@@ -21,7 +21,7 @@ rule_that_has_phases_which_override_providers(
 
 rule_that_verifies_providers_are_overriden(
     name = "PhaseOverridesProviderTest",
-    dep = ":PhaseOverridesProvider"
+    dep = ":PhaseOverridesProvider",
 )
 
 phase_override_provider_singleton(

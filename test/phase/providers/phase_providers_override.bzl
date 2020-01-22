@@ -27,29 +27,29 @@ OverrideProvider = provider(fields = ["content"])
 
 def _phase_original(ctx, p):
     return struct(
-        external_providers = [
-            OverrideProvider(
-                content = "original"
+        external_providers = {
+            "OverrideProvider": OverrideProvider(
+                content = "original",
             ),
-        ],
+        },
     )
 
 def _phase_override(ctx, p):
     return struct(
-        external_providers = [
-            OverrideProvider(
-                content = "override"
+        external_providers = {
+            "OverrideProvider": OverrideProvider(
+                content = "override",
             ),
-        ],
+        },
     )
 
 def _rule_that_verifies_providers_are_overriden_impl(ctx):
     if (ctx.attr.dep[OverrideProvider].content != "override"):
         fail(
             "expected OverrideProvider of {label} to have content 'override' but got '{content}'".format(
-                    label = ctx.label,
-                    content = ctx.attr.dep[OverrideProvider].content
-            )
+                label = ctx.label,
+                content = ctx.attr.dep[OverrideProvider].content,
+            ),
         )
     return []
 
