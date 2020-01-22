@@ -34,13 +34,13 @@ run_non_default_formatting() {
     exit 1
   fi
 
-  diff $FILE_PATH/un${FILENAME}.scala $FILE_PATH/${FILENAME}.scala
+  diff $FILE_PATH/unformatted/un${FILENAME}.scala $FILE_PATH/formatted/${FILENAME}.scala
   if [ $? -ne 0 ]; then
     echo -e "${RED} un${FILENAME}.scala should be the same as ${FILENAME}.scala after formatting. $NC"
     exit 1
   fi
 
-  cp $FILE_PATH/un${FILENAME}.template.scala $FILE_PATH/un${FILENAME}.scala
+  cp $FILE_PATH/unformatted/un${FILENAME}.template.scala $FILE_PATH/unformatted/un${FILENAME}.scala
 }
 
 test_scalafmt_binary() {

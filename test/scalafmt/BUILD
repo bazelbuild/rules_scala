@@ -14,14 +14,14 @@ filegroup(
 ### scala_binary ###
 scalafmt_scala_binary(
     name = "formatted-binary",
-    srcs = ["formatted.scala"],
+    srcs = ["formatted/formatted.scala"],
     format = True,
     main_class = "scalarules.test.scalafmt.Format",
 )
 
 scalafmt_scala_binary(
     name = "unformatted-binary",
-    srcs = ["unformatted.scala"],
+    srcs = ["unformatted/unformatted.scala"],
     format = True,
     main_class = "scalarules.test.scalafmt.Format",
 )
@@ -29,40 +29,40 @@ scalafmt_scala_binary(
 ### scala_library ###
 scalafmt_scala_library(
     name = "formatted-library",
-    srcs = ["formatted.scala"],
+    srcs = ["formatted/formatted.scala"],
     format = True,
 )
 
 scalafmt_scala_library(
     name = "unformatted-library",
-    srcs = ["unformatted.scala"],
+    srcs = ["unformatted/unformatted.scala"],
     format = True,
 )
 
 ### scala_test ###
 scalafmt_scala_test(
     name = "formatted-test",
-    srcs = ["formatted-test.scala"],
+    srcs = ["formatted/formatted-test.scala"],
     format = True,
 )
 
 scalafmt_scala_test(
     name = "unformatted-test",
-    srcs = ["unformatted-test.scala"],
+    srcs = ["unformatted/unformatted-test.scala"],
     format = True,
 )
 
 ### custom config ###
 scalafmt_scala_library(
     name = "formatted-custom-conf",
-    srcs = ["formatted-custom-conf.scala"],
+    srcs = ["formatted/formatted-custom-conf.scala"],
     config = ":custom-conf",
     format = True,
 )
 
 scalafmt_scala_library(
     name = "unformatted-custom-conf",
-    srcs = ["unformatted-custom-conf.scala"],
+    srcs = ["unformatted/unformatted-custom-conf.scala"],
     config = ":custom-conf",
     format = True,
 )
