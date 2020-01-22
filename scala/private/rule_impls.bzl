@@ -24,7 +24,7 @@ load(
 )
 
 def adjust_resources_path(resource, resource_strip_prefix):
-    path = _adjust_resources_path_by_strip_prefix(resource, resource_strip_prefix) if resource_strip_prefix else adjust_resources_path_by_default_prefixes(resource.path)
+    path = _adjust_resources_path_by_strip_prefix(resource, resource_strip_prefix) if resource_strip_prefix else _adjust_resources_path_by_default_prefixes(resource.path)
     return _strip_prefix(path, "/")
 
 def _strip_prefix(target, prefix):
@@ -53,7 +53,7 @@ def _adjust_resources_path_by_strip_prefix(resource, resource_strip_prefix):
     print("clean-prefix: " + prefix)
     return clean_path
 
-def adjust_resources_path_by_default_prefixes(path):
+def _adjust_resources_path_by_default_prefixes(path):
     #  Here we are looking to find out the offset of this resource inside
     #  any resources folder. We want to return the root to the resources folder
     #  and then the sub path inside it
