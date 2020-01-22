@@ -16,6 +16,7 @@ def _build_format(ctx):
     files = []
     manifest_content = []
     for src in ctx.files.srcs:
+        # only format scala source files, not generated files
         if src.path.endswith(".scala") and src.is_source:
             file = ctx.actions.declare_file("{}.fmt.output".format(src.short_path))
             files.append(file)
@@ -29,19 +30,21 @@ def _build_format(ctx):
             )
             manifest_content.append("{} {}".format(src.short_path, file.short_path))
 
+    # record the source path and the formatted file path
+    # so that we know where to copy the formatted file to replace the source file
     manifest = ctx.actions.declare_file("format/{}/manifest.txt".format(ctx.label.name))
     ctx.actions.write(manifest, "\n".join(manifest_content) + "\n")
 
     return manifest, files
 
-def _formatter(ctx, manifest, files, input_runner, output_runner):
+def _formatter(ctx, manifest, files, template, output_runner):
     ctx.actions.run_shell(
-        inputs = [input_runner, manifest] + files,
+        inputs = [template, manifest] + files,
         outputs = [output_runner],
-        # replace %workspace% and %manifest% in input_runner and rewrite it to output_runner
+        # replace %workspace% and %manifest% in template and rewrite it to output_runner
         command = "cat $1 | sed -e s#%workspace%#$2# -e s#%manifest%#$3# > $4",
         arguments = [
-            input_runner.path,
+            template.path,
             ctx.workspace_name,
             manifest.short_path,
             output_runner.path,
@@ -50,6 +53,7 @@ def _formatter(ctx, manifest, files, input_runner, output_runner):
     )
 
 def _write_empty_content(ctx, output_runner):
+    # generate empty output if format=false
     ctx.actions.write(
         output = output_runner,
         content = "",
