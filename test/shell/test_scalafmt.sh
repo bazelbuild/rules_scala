@@ -4,7 +4,7 @@ dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 . "${dir}"/test_helper.sh
 runner=$(get_test_runner "${1:-local}")
 
-run_non_default_formatting() {
+run_formatting() {
   set +e
 
   FILE_PATH="$( dirname $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd ) )"/scalafmt
@@ -44,18 +44,18 @@ run_non_default_formatting() {
 }
 
 test_scalafmt_binary() {
-  run_non_default_formatting binary
+  run_formatting binary
 }
 
 test_scalafmt_library() {
-  run_non_default_formatting library
+  run_formatting library
 }
 
 test_scalafmt_test() {
-  run_non_default_formatting test
+  run_formatting test
 }
 test_custom_conf() {
-  run_non_default_formatting custom-conf
+  run_formatting custom-conf
 }
 
 $runner test_scalafmt_binary
