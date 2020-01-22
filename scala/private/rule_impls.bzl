@@ -29,16 +29,30 @@ def adjust_resources_path(resource, resource_strip_prefix):
     else:
         return adjust_resources_path_by_default_prefixes(resource.path)
 
+def _strip_prefix(target, prefix):
+    return target[len(prefix):] if target.startswith(prefix) else target
+
 def _adjust_resources_path_by_strip_prefix(resource, resource_strip_prefix):
     # TODO: should be a better way how to strip prefix
 #    root = (resource.owner.workspace_root if (resource.owner) else resource.root.path) + "/"
+    print("-------------------")
+    print("workspace-root: " + resource.owner.workspace_root)
+    print("root-path: " + resource.root.path)
+    print("res-path: " + resource.path)
+    print("res-short-path: " + resource.short_path)
+    print("given-prefix: " + resource_strip_prefix)
     root = resource.root.path + "/"
-    path = resource.path[len(root):] if resource.path.startswith(root) else resource.path
-    prefix = resource_strip_prefix[len(root):] if resource_strip_prefix.startswith(root) else resource_strip_prefix
+    path = resource.path
+    path = _strip_prefix(path, resource.owner.workspace_root + "/")
+    print("resolved-path: " + path)
+    path = _strip_prefix(path, root)
+    prefix = _strip_prefix(resource_strip_prefix, resource.root.path + "/")
     if not path.startswith(prefix):
         fail("Resource file %s is not under the specified prefix %s to strip" % (path, prefix))
 
     clean_path = path[len(prefix):]
+    print("clean-path: " + clean_path)
+    print("clean-prefix: " + prefix)
     return prefix, clean_path
 
 def adjust_resources_path_by_default_prefixes(path):
