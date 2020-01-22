@@ -498,8 +498,6 @@ def _add_resources_cmd(ctx):
             f,
             ctx.attr.resource_strip_prefix,
         )
-        if target_path[0] == "/":
-            target_path = target_path[1:]
         line = "{target_path}={res_path}\n".format(
             target_path = target_path,
             res_path = f.path,

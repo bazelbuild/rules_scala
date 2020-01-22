@@ -24,10 +24,8 @@ load(
 )
 
 def adjust_resources_path(resource, resource_strip_prefix):
-    if resource_strip_prefix:
-        return _adjust_resources_path_by_strip_prefix(resource, resource_strip_prefix)
-    else:
-        return adjust_resources_path_by_default_prefixes(resource.path)
+    path = _adjust_resources_path_by_strip_prefix(resource, resource_strip_prefix) if resource_strip_prefix else adjust_resources_path_by_default_prefixes(resource.path)
+    return _strip_prefix(path, "/")
 
 def _strip_prefix(target, prefix):
     return target[len(prefix):] if target.startswith(prefix) else target
