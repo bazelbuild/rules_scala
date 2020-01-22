@@ -70,7 +70,7 @@ class ScalacProcessor implements Processor {
       }
 
       /** Copy the resources */
-      copyResources(ops.resourceFiles, ops.resourceStripPrefix, tmpPath);
+      copyResources(ops.resourceFiles, tmpPath);
 
       /** Extract and copy resources from resource jars */
       copyResourceJars(ops.resourceJars, tmpPath);
@@ -268,30 +268,10 @@ class ScalacProcessor implements Processor {
     }
   }
 
-  private static void copyResources(
-      Map<String, Resource> resources, String resourceStripPrefix, Path dest) throws IOException {
+  private static void copyResources(Map<String, Resource> resources, Path dest) throws IOException {
     for (Entry<String, Resource> e : resources.entrySet()) {
       Path source = Paths.get(e.getKey());
-      Resource resource = e.getValue();
-      Path shortPath = Paths.get(resource.shortPath);
-      String dstr = resource.destination;
-      // Check if we need to modify resource destination path
-//      if (!"".equals(resourceStripPrefix)) {
-        /**
-         * NOTE: We are not using the Resource Hash Value as the destination path when
-         * `resource_strip_prefix` present. The path in the hash value is computed by the
-         * `_adjust_resources_path` in `scala.bzl`. These are the default paths, ie, path that are
-         * automatically computed when there is no `resource_strip_prefix` present. But when
-         * `resource_strip_prefix` is present, we need to strip the prefix from the Source Path and
-         * use that as the new destination path Refer Bazel -> BazelJavaRuleClasses.java#L227 for
-         * details
-         */
-//        dstr = getResourcePath(shortPath, resourceStripPrefix);
-//      } else {
-//        dstr = resource.destination;
-//      }
-
-      dstr = resource.destination;
+      String dstr = e.getValue().destination;
 
       if (dstr.charAt(0) == '/') {
         // we don't want to copy to an absolute destination
