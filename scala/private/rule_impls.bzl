@@ -197,7 +197,6 @@ ResourceDests: {resource_dest}
 ResourceJars: {resource_jars}
 ResourceSrcs: {resource_src}
 ResourceShortPaths: {resource_short_paths}
-ResourceStripPrefix: {resource_strip_prefix}
 ScalacOpts: {scala_opts}
 SourceJars: {srcjars}
 DependencyAnalyzerMode: {dependency_analyzer_mode}
@@ -221,7 +220,6 @@ StatsfileOutput: {statsfile_output}
             adjust_resources_path(f, resource_strip_prefix)
             for f in resources
         ]),
-        resource_strip_prefix = resource_strip_prefix,
         resource_jars = _join_path(resource_jars),
         dependency_analyzer_mode = dependency_analyzer_mode,
         unused_dependency_checker_mode = unused_dependency_checker_mode,

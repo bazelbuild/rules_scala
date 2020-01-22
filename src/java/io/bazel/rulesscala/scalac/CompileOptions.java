@@ -16,7 +16,6 @@ public class CompileOptions {
   public final String[] sourceJars;
   public final String[] javaFiles;
   public final Map<String, Resource> resourceFiles;
-  public final String resourceStripPrefix;
   public final String[] resourceJars;
   public final String[] classpathResourceFiles;
   public final String[] directJars;
@@ -50,7 +49,6 @@ public class CompileOptions {
 
     sourceJars = getCommaList(argMap, "SourceJars");
     resourceFiles = getResources(argMap);
-    resourceStripPrefix = getOrEmpty(argMap, "ResourceStripPrefix");
     resourceJars = getCommaList(argMap, "ResourceJars");
     classpathResourceFiles = getCommaList(argMap, "ClasspathResourceSrcs");
 
