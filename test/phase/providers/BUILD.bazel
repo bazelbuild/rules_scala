@@ -1,4 +1,5 @@
 load(":phase_providers_expose.bzl", "phase_expose_provider_singleton", "rule_that_needs_custom_provider", "scala_library_that_exposes_custom_provider")
+load(":phase_providers_override.bzl", "phase_override_provider_singleton", "rule_that_has_phases_which_override_providers", "rule_that_verifies_providers_are_overriden")
 
 scala_library_that_exposes_custom_provider(
     name = "scala_library_that_exposes_custom_provider",
@@ -11,5 +12,19 @@ rule_that_needs_custom_provider(
 
 phase_expose_provider_singleton(
     name = "phase_expose_provider_singleton_target",
+    visibility = ["//visibility:public"],
+)
+
+rule_that_has_phases_which_override_providers(
+    name = "PhaseOverridesProvider",
+)
+
+rule_that_verifies_providers_are_overriden(
+    name = "PhaseOverridesProviderTest",
+    dep = ":PhaseOverridesProvider"
+)
+
+phase_override_provider_singleton(
+    name = "phase_override_provider_singleton_target",
     visibility = ["//visibility:public"],
 )
