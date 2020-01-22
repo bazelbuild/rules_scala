@@ -4,6 +4,19 @@ dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 . "${dir}"/test_helper.sh
 runner=$(get_test_runner "${1:-local}")
 
+backup_unformatted_file() {
+  FILE_PATH=$1
+  FILENAME=$2
+  cp $FILE_PATH/unformatted/un${FILENAME}.scala $FILE_PATH/unformatted/un${FILENAME}.backup.scala
+}
+
+restore_unformatted_file_before_exit() {
+  FILE_PATH=$1
+  FILENAME=$2
+  cp $FILE_PATH/unformatted/un${FILENAME}.backup.scala $FILE_PATH/unformatted/un${FILENAME}.scala
+  rm -f $FILE_PATH/unformatted/un${FILENAME}.backup.scala
+}
+
 run_formatting() {
   set +e
 
@@ -28,19 +41,22 @@ run_formatting() {
     exit 1
   fi
 
+  backup_unformatted_file $FILE_PATH $FILENAME
+  # format unformatted*.scala
   bazel run //test/scalafmt:unformatted-$RULE_TYPE.format
   if [ $? -ne 0 ]; then
     echo -e "${RED} unformatted-$RULE_TYPE.format should run formatting. $NC"
+    restore_unformatted_file_before_exit $FILE_PATH $FILENAME
     exit 1
   fi
 
   diff $FILE_PATH/unformatted/un${FILENAME}.scala $FILE_PATH/formatted/${FILENAME}.scala
   if [ $? -ne 0 ]; then
     echo -e "${RED} un${FILENAME}.scala should be the same as ${FILENAME}.scala after formatting. $NC"
+    restore_unformatted_file_before_exit $FILE_PATH $FILENAME
     exit 1
   fi
-
-  cp $FILE_PATH/unformatted/un${FILENAME}.template.scala $FILE_PATH/unformatted/un${FILENAME}.scala
+  restore_unformatted_file_before_exit $FILE_PATH $FILENAME
 }
 
 test_scalafmt_binary() {

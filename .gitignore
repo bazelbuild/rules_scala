@@ -7,3 +7,4 @@ hash2
 .bazel_cache
 .ijwb
 .metals
+*.backup.scala
