@@ -200,10 +200,7 @@ StatsfileOutput: {statsfile_output}
         # the resource paths need to be aligned in order
         resource_src = ",".join([f.path for f in resources]),
         resource_short_paths = ",".join([f.short_path for f in resources]),
-        resource_dest = ",".join([
-            adjust_resources_path(f, resource_strip_prefix)
-            for f in resources
-        ]),
+        resource_dest = ",".join([adjust_resources_path(f, resource_strip_prefix) for f in resources]),
         resource_jars = _join_path(resource_jars),
         dependency_analyzer_mode = dependency_analyzer_mode,
         unused_dependency_checker_mode = unused_dependency_checker_mode,
