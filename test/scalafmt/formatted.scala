@@ -6,7 +6,7 @@ object Format {
       "小心這個測試",
       "このテストに注意してください",
       "이 시험에 조심하십시오",
-      "😁✊🚀🍟💯", //mind the trailing commas
+      "😁✊🚀🍟💯"
     )
   }
 }
