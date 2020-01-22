@@ -60,7 +60,6 @@ def _write_empty_content(ctx, output_runner):
 
 def _format_args(ctx, src, file):
     args = ctx.actions.args()
-    args.add("--config")
     args.add(ctx.file.config.path)
     args.add(src.path)
     args.add(file.path)
