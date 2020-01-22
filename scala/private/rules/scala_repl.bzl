@@ -12,7 +12,7 @@ load("@io_bazel_rules_scala//scala/private:common_outputs.bzl", "common_outputs"
 load(
     "@io_bazel_rules_scala//scala/private:phases/phases.bzl",
     "extras_phases",
-    "phase_binary_final",
+    "phase_binary_default_info",
     "phase_common_runfiles",
     "phase_declare_executable",
     "phase_merge_jars",
@@ -43,9 +43,8 @@ def _scala_repl_impl(ctx):
             ("merge_jars", phase_merge_jars),
             ("runfiles", phase_common_runfiles),
             ("write_executable", phase_repl_write_executable),
+            ("default_info", phase_binary_default_info),
         ],
-        # fixed phase
-        ("final", phase_binary_final),
     )
 
 _scala_repl_attrs = {

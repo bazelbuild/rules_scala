@@ -108,6 +108,7 @@ def _phase_collect_jars(
         transitive_compile_jars = transitive_compile_jars,
         transitive_runtime_jars = transitive_rjars,
         deps_providers = deps_providers,
+        external_providers = [jars2labels],
     )
 
 def _collect_runtime_jars(dep_targets):

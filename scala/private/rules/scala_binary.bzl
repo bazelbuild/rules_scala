@@ -13,7 +13,7 @@ load(
     "@io_bazel_rules_scala//scala/private:phases/phases.bzl",
     "extras_phases",
     "phase_binary_compile",
-    "phase_binary_final",
+    "phase_binary_default_info",
     "phase_common_collect_jars",
     "phase_common_java_wrapper",
     "phase_common_runfiles",
@@ -42,9 +42,8 @@ def _scala_binary_impl(ctx):
             ("merge_jars", phase_merge_jars),
             ("runfiles", phase_common_runfiles),
             ("write_executable", phase_common_write_executable),
+            ("default_info", phase_binary_default_info),
         ],
-        # fixed phase
-        ("final", phase_binary_final),
     )
 
 _scala_binary_attrs = {

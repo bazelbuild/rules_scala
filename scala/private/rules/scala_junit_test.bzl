@@ -11,7 +11,7 @@ load("@io_bazel_rules_scala//scala/private:common_outputs.bzl", "common_outputs"
 load(
     "@io_bazel_rules_scala//scala/private:phases/phases.bzl",
     "extras_phases",
-    "phase_binary_final",
+    "phase_binary_default_info",
     "phase_common_java_wrapper",
     "phase_common_runfiles",
     "phase_declare_executable",
@@ -47,9 +47,8 @@ def _scala_junit_test_impl(ctx):
             ("runfiles", phase_common_runfiles),
             ("jvm_flags", phase_jvm_flags),
             ("write_executable", phase_junit_test_write_executable),
+            ("default_info", phase_binary_default_info),
         ],
-        # fixed phase
-        ("final", phase_binary_final),
     )
 
 _scala_junit_test_attrs = {

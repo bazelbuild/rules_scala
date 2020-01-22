@@ -46,10 +46,10 @@ load(
     _phase_scalatest_runfiles = "phase_scalatest_runfiles",
 )
 load(
-    "@io_bazel_rules_scala//scala/private:phases/phase_final.bzl",
-    _phase_binary_final = "phase_binary_final",
-    _phase_library_final = "phase_library_final",
-    _phase_scalatest_final = "phase_scalatest_final",
+    "@io_bazel_rules_scala//scala/private:phases/phase_default_info.bzl",
+    _phase_binary_default_info = "phase_binary_default_info",
+    _phase_library_default_info = "phase_library_default_info",
+    _phase_scalatest_default_info = "phase_scalatest_default_info",
 )
 load("@io_bazel_rules_scala//scala/private:phases/phase_scalac_provider.bzl", _phase_scalac_provider = "phase_scalac_provider")
 load("@io_bazel_rules_scala//scala/private:phases/phase_write_manifest.bzl", _phase_write_manifest = "phase_write_manifest")
@@ -125,7 +125,7 @@ phase_library_runfiles = _phase_library_runfiles
 phase_scalatest_runfiles = _phase_scalatest_runfiles
 phase_common_runfiles = _phase_common_runfiles
 
-# final
-phase_binary_final = _phase_binary_final
-phase_library_final = _phase_library_final
-phase_scalatest_final = _phase_scalatest_final
+# default_info
+phase_binary_default_info = _phase_binary_default_info
+phase_library_default_info = _phase_library_default_info
+phase_scalatest_default_info = _phase_scalatest_default_info
