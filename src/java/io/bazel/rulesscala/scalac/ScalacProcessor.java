@@ -310,24 +310,6 @@ class ScalacProcessor implements Processor {
     }
   }
 
-  private static String getResourcePath(Path source, String resourceStripPrefix)
-      throws RuntimeException {
-    String sourcePath = source.toString();
-    // convert strip prefix to a Path first and back to handle different file systems
-    String resourceStripPrefixPath = Paths.get(resourceStripPrefix).toString();
-    // check if the Resource file is under the specified prefix to strip
-    if (!sourcePath.startsWith(resourceStripPrefixPath)) {
-      // Resource File is not under the specified prefix to strip
-      throw new RuntimeException(
-          "Resource File "
-              + sourcePath
-              + " is not under the specified strip prefix "
-              + resourceStripPrefix);
-    }
-    String newResPath = sourcePath.substring(resourceStripPrefix.length());
-    return newResPath;
-  }
-
   private static void copyResourceJars(String[] resourceJars, Path dest) throws IOException {
     for (String jarPath : resourceJars) {
       extractJar(jarPath, dest.toString(), null);
