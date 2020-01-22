@@ -14,7 +14,6 @@ def phase_scalafmt(ctx, p):
 
 def _build_format(ctx):
     files = []
-    runner_inputs, _, runner_manifests = ctx.resolve_command(tools = [ctx.attr._fmt])
     manifest_content = []
     for src in ctx.files.srcs:
         if src.path.endswith(".scala") and src.is_source:
@@ -24,9 +23,7 @@ def _build_format(ctx):
                 arguments = ["--jvm_flag=-Dfile.encoding=UTF-8", _format_args(ctx, src, file)],
                 executable = ctx.executable._fmt,
                 outputs = [file],
-                input_manifests = runner_manifests,
                 inputs = [ctx.file.config, src],
-                tools = runner_inputs,
                 execution_requirements = {"supports-workers": "1"},
                 mnemonic = "ScalaFmt",
             )
