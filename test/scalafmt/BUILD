@@ -14,14 +14,14 @@ filegroup(
 ### scala_binary ###
 scalafmt_scala_binary(
     name = "formatted-binary",
-    srcs = ["formatted/formatted.scala"],
+    srcs = ["formatted/formatted-encoding.scala"],
     format = True,
     main_class = "scalarules.test.scalafmt.Format",
 )
 
 scalafmt_scala_binary(
     name = "unformatted-binary",
-    srcs = ["unformatted/unformatted.scala"],
+    srcs = ["unformatted/unformatted-encoding.scala"],
     format = True,
     main_class = "scalarules.test.scalafmt.Format",
 )
@@ -29,13 +29,13 @@ scalafmt_scala_binary(
 ### scala_library ###
 scalafmt_scala_library(
     name = "formatted-library",
-    srcs = ["formatted/formatted.scala"],
+    srcs = ["formatted/formatted-encoding.scala"],
     format = True,
 )
 
 scalafmt_scala_library(
     name = "unformatted-library",
-    srcs = ["unformatted/unformatted.scala"],
+    srcs = ["unformatted/unformatted-encoding.scala"],
     format = True,
 )
 
