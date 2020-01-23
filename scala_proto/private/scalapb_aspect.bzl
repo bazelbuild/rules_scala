@@ -53,8 +53,7 @@ def _compile_scala(
         deps_java_info,
         implicit_deps,
         resources,
-        resource_strip_prefix
-        ):
+        resource_strip_prefix):
     manifest = ctx.actions.declare_file(
         label.name + "_MANIFEST.MF",
         sibling = scalapb_jar,
@@ -197,7 +196,7 @@ def _scalapb_aspect_impl(target, ctx):
                 deps,
                 imps,
                 compile_protos,
-                "" if target_ti.proto_source_root == "." else target_ti.proto_source_root
+                "" if target_ti.proto_source_root == "." else target_ti.proto_source_root,
             )
         else:
             # this target is only an aggregation target

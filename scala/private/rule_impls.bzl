@@ -36,6 +36,7 @@ def _adjust_resources_path_by_strip_prefix(resource, resource_strip_prefix):
     path = resource.path
     path = _strip_prefix(path, resource.owner.workspace_root + "/")
     path = _strip_prefix(path, resource.root.path + "/")
+
     # proto_library translates strip_import_prefix to proto_source_root which includes root so we have to strip it
     prefix = _strip_prefix(resource_strip_prefix, resource.root.path + "/")
     if not path.startswith(prefix):
