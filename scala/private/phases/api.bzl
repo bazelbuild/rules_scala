@@ -6,6 +6,7 @@ load(
     "@io_bazel_rules_scala//scala:advanced_usage/providers.bzl",
     _ScalaRulePhase = "ScalaRulePhase",
 )
+load("@bazel_skylib//lib:dicts.bzl", "dicts")
 
 # A method to modify the built-in phase list
 # - Insert new phases to the first/last position
@@ -63,7 +64,7 @@ def run_phases(ctx, builtin_customizable_phases):
     # A placeholder for data shared with later phases
     global_provider = {}
     current_provider = struct(**global_provider)
-    acculmulated_external_providers = []
+    acculmulated_external_providers = {}
     for (name, function) in adjusted_phases:
         # Run a phase
         new_provider = function(ctx, current_provider)
@@ -72,12 +73,15 @@ def run_phases(ctx, builtin_customizable_phases):
         # for later phases to access
         if new_provider != None:
             if (hasattr(new_provider, "external_providers")):
-                acculmulated_external_providers.extend(new_provider.external_providers)
+                acculmulated_external_providers = dicts.add(
+                    acculmulated_external_providers,
+                    new_provider.external_providers,
+                )
             global_provider[name] = new_provider
             current_provider = struct(**global_provider)
 
     # The final return of rules implementation
-    return acculmulated_external_providers
+    return acculmulated_external_providers.values()
 
 # A method to pass in phase provider
 def extras_phases(extras):

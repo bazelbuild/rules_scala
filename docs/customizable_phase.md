@@ -128,9 +128,12 @@ Currently phase architecture is used by 7 rules:
  - scala_junit_test
  - scala_repl
 
-If you need to expose providers to downstream targets you need to return an array of providers from your phase under the `external_providers` attribute.
+If you need to expose providers to downstream targets you need to return a dict of providers (provider-name to provider instance) from your phase under the `external_providers` attribute.
 
-In each of the rule implementations, it calls `run_phases` and returns an accumulated `external_providers` array declared by the phases.
+If you need to override a provider returned by a previous phase you can adjust your phase to be after it and return the same key from your phase and it will override it.
+Note you probably have a good reason to override since you're meddling with the public return value of a different phase.
+
+In each of the rule implementations, it calls `run_phases` and returns the accumulated values of the `external_providers` dict declared by the phases.
 
 To make a new phase, you have to define a new `phase_<PHASE_NAME>.bzl` in `scala/private/phases/`. Function definition should have 2 arguments, `ctx` and `p`. You may expose the information for later phases by returning a `struct`. In some phases, there are multiple phase functions since different rules may take slightly different input arguemnts. You may want to re-expose the phase definition in `scala/private/phases/phases.bzl`, so it's more convenient to access in rule files.
 
