@@ -8,7 +8,7 @@ load(
     _java_bin = "java_bin",
 )
 
-def phase_repl_java_wrapper(ctx, p):
+def phase_java_wrapper_repl(ctx, p):
     args = struct(
         args = " ".join(ctx.attr.scalacopts),
         wrapper_preamble = """
@@ -26,12 +26,12 @@ function finish() {
 trap finish EXIT
 """,
     )
-    return _phase_default_java_wrapper(ctx, p, args)
+    return _phase_java_wrapper_default(ctx, p, args)
 
-def phase_common_java_wrapper(ctx, p):
-    return _phase_default_java_wrapper(ctx, p)
+def phase_java_wrapper_common(ctx, p):
+    return _phase_java_wrapper_default(ctx, p)
 
-def _phase_default_java_wrapper(ctx, p, _args = struct()):
+def _phase_java_wrapper_default(ctx, p, _args = struct()):
     return _phase_java_wrapper(
         ctx,
         _args.args if hasattr(_args, "args") else "",

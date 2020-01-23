@@ -28,7 +28,7 @@ _empty_coverage_struct = struct(
     replacements = {},
 )
 
-def phase_binary_compile(ctx, p):
+def phase_compile_binary(ctx, p):
     args = struct(
         buildijar = False,
         unused_dependency_checker_ignored_targets = [
@@ -37,9 +37,9 @@ def phase_binary_compile(ctx, p):
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
     )
-    return _phase_default_compile(ctx, p, args)
+    return _phase_compile_default(ctx, p, args)
 
-def phase_library_compile(ctx, p):
+def phase_compile_library(ctx, p):
     args = struct(
         srcjars = p.collect_srcjars,
         unused_dependency_checker_ignored_targets = [
@@ -48,9 +48,9 @@ def phase_library_compile(ctx, p):
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
     )
-    return _phase_default_compile(ctx, p, args)
+    return _phase_compile_default(ctx, p, args)
 
-def phase_library_for_plugin_bootstrapping_compile(ctx, p):
+def phase_compile_library_for_plugin_bootstrapping(ctx, p):
     args = struct(
         unused_dependency_checker_ignored_targets = [
             target.label
@@ -58,9 +58,9 @@ def phase_library_for_plugin_bootstrapping_compile(ctx, p):
         ],
         unused_dependency_checker_mode = "off",
     )
-    return _phase_default_compile(ctx, p, args)
+    return _phase_compile_default(ctx, p, args)
 
-def phase_macro_library_compile(ctx, p):
+def phase_compile_macro_library(ctx, p):
     args = struct(
         buildijar = False,
         unused_dependency_checker_ignored_targets = [
@@ -69,9 +69,9 @@ def phase_macro_library_compile(ctx, p):
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
     )
-    return _phase_default_compile(ctx, p, args)
+    return _phase_compile_default(ctx, p, args)
 
-def phase_junit_test_compile(ctx, p):
+def phase_compile_junit_test(ctx, p):
     args = struct(
         buildijar = False,
         implicit_junit_deps_needed_for_java_compilation = [
@@ -89,9 +89,9 @@ def phase_junit_test_compile(ctx, p):
             ctx.attr._bazel_test_runner.label,
         ],
     )
-    return _phase_default_compile(ctx, p, args)
+    return _phase_compile_default(ctx, p, args)
 
-def phase_repl_compile(ctx, p):
+def phase_compile_repl(ctx, p):
     args = struct(
         buildijar = False,
         unused_dependency_checker_ignored_targets = [
@@ -100,9 +100,9 @@ def phase_repl_compile(ctx, p):
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
     )
-    return _phase_default_compile(ctx, p, args)
+    return _phase_compile_default(ctx, p, args)
 
-def phase_scalatest_compile(ctx, p):
+def phase_compile_scalatest(ctx, p):
     args = struct(
         buildijar = False,
         unused_dependency_checker_ignored_targets = [
@@ -111,12 +111,12 @@ def phase_scalatest_compile(ctx, p):
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
     )
-    return _phase_default_compile(ctx, p, args)
+    return _phase_compile_default(ctx, p, args)
 
-def phase_common_compile(ctx, p):
-    return _phase_default_compile(ctx, p)
+def phase_compile_common(ctx, p):
+    return _phase_compile_default(ctx, p)
 
-def _phase_default_compile(ctx, p, _args = struct()):
+def _phase_compile_default(ctx, p, _args = struct()):
     return _phase_compile(
         ctx,
         p,

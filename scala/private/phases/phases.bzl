@@ -9,47 +9,47 @@ load(
 )
 load(
     "@io_bazel_rules_scala//scala/private:phases/phase_write_executable.bzl",
-    _phase_common_write_executable = "phase_common_write_executable",
-    _phase_junit_test_write_executable = "phase_junit_test_write_executable",
-    _phase_repl_write_executable = "phase_repl_write_executable",
-    _phase_scalatest_write_executable = "phase_scalatest_write_executable",
+    _phase_write_executable_common = "phase_write_executable_common",
+    _phase_write_executable_junit_test = "phase_write_executable_junit_test",
+    _phase_write_executable_repl = "phase_write_executable_repl",
+    _phase_write_executable_scalatest = "phase_write_executable_scalatest",
 )
 load(
     "@io_bazel_rules_scala//scala/private:phases/phase_java_wrapper.bzl",
-    _phase_common_java_wrapper = "phase_common_java_wrapper",
-    _phase_repl_java_wrapper = "phase_repl_java_wrapper",
+    _phase_java_wrapper_common = "phase_java_wrapper_common",
+    _phase_java_wrapper_repl = "phase_java_wrapper_repl",
 )
 load(
     "@io_bazel_rules_scala//scala/private:phases/phase_collect_jars.bzl",
-    _phase_common_collect_jars = "phase_common_collect_jars",
-    _phase_junit_test_collect_jars = "phase_junit_test_collect_jars",
-    _phase_library_for_plugin_bootstrapping_collect_jars = "phase_library_for_plugin_bootstrapping_collect_jars",
-    _phase_macro_library_collect_jars = "phase_macro_library_collect_jars",
-    _phase_repl_collect_jars = "phase_repl_collect_jars",
-    _phase_scalatest_collect_jars = "phase_scalatest_collect_jars",
+    _phase_collect_jars_common = "phase_collect_jars_common",
+    _phase_collect_jars_junit_test = "phase_collect_jars_junit_test",
+    _phase_collect_jars_library_for_plugin_bootstrapping = "phase_collect_jars_library_for_plugin_bootstrapping",
+    _phase_collect_jars_macro_library = "phase_collect_jars_macro_library",
+    _phase_collect_jars_repl = "phase_collect_jars_repl",
+    _phase_collect_jars_scalatest = "phase_collect_jars_scalatest",
 )
 load(
     "@io_bazel_rules_scala//scala/private:phases/phase_compile.bzl",
-    _phase_binary_compile = "phase_binary_compile",
-    _phase_common_compile = "phase_common_compile",
-    _phase_junit_test_compile = "phase_junit_test_compile",
-    _phase_library_compile = "phase_library_compile",
-    _phase_library_for_plugin_bootstrapping_compile = "phase_library_for_plugin_bootstrapping_compile",
-    _phase_macro_library_compile = "phase_macro_library_compile",
-    _phase_repl_compile = "phase_repl_compile",
-    _phase_scalatest_compile = "phase_scalatest_compile",
+    _phase_compile_binary = "phase_compile_binary",
+    _phase_compile_common = "phase_compile_common",
+    _phase_compile_junit_test = "phase_compile_junit_test",
+    _phase_compile_library = "phase_compile_library",
+    _phase_compile_library_for_plugin_bootstrapping = "phase_compile_library_for_plugin_bootstrapping",
+    _phase_compile_macro_library = "phase_compile_macro_library",
+    _phase_compile_repl = "phase_compile_repl",
+    _phase_compile_scalatest = "phase_compile_scalatest",
 )
 load(
     "@io_bazel_rules_scala//scala/private:phases/phase_runfiles.bzl",
-    _phase_common_runfiles = "phase_common_runfiles",
-    _phase_library_runfiles = "phase_library_runfiles",
-    _phase_scalatest_runfiles = "phase_scalatest_runfiles",
+    _phase_runfiles_common = "phase_runfiles_common",
+    _phase_runfiles_library = "phase_runfiles_library",
+    _phase_runfiles_scalatest = "phase_runfiles_scalatest",
 )
 load(
     "@io_bazel_rules_scala//scala/private:phases/phase_default_info.bzl",
-    _phase_binary_default_info = "phase_binary_default_info",
-    _phase_library_default_info = "phase_library_default_info",
-    _phase_scalatest_default_info = "phase_scalatest_default_info",
+    _phase_default_info_binary = "phase_default_info_binary",
+    _phase_default_info_library = "phase_default_info_library",
+    _phase_default_info_scalatest = "phase_default_info_scalatest",
 )
 load("@io_bazel_rules_scala//scala/private:phases/phase_scalac_provider.bzl", _phase_scalac_provider = "phase_scalac_provider")
 load("@io_bazel_rules_scala//scala/private:phases/phase_write_manifest.bzl", _phase_write_manifest = "phase_write_manifest")
@@ -93,39 +93,39 @@ phase_jvm_flags = _phase_jvm_flags
 phase_coverage_runfiles = _phase_coverage_runfiles
 
 # write_executable
-phase_scalatest_write_executable = _phase_scalatest_write_executable
-phase_repl_write_executable = _phase_repl_write_executable
-phase_junit_test_write_executable = _phase_junit_test_write_executable
-phase_common_write_executable = _phase_common_write_executable
+phase_write_executable_scalatest = _phase_write_executable_scalatest
+phase_write_executable_repl = _phase_write_executable_repl
+phase_write_executable_junit_test = _phase_write_executable_junit_test
+phase_write_executable_common = _phase_write_executable_common
 
 # java_wrapper
-phase_repl_java_wrapper = _phase_repl_java_wrapper
-phase_common_java_wrapper = _phase_common_java_wrapper
+phase_java_wrapper_repl = _phase_java_wrapper_repl
+phase_java_wrapper_common = _phase_java_wrapper_common
 
 # collect_jars
-phase_scalatest_collect_jars = _phase_scalatest_collect_jars
-phase_repl_collect_jars = _phase_repl_collect_jars
-phase_macro_library_collect_jars = _phase_macro_library_collect_jars
-phase_junit_test_collect_jars = _phase_junit_test_collect_jars
-phase_library_for_plugin_bootstrapping_collect_jars = _phase_library_for_plugin_bootstrapping_collect_jars
-phase_common_collect_jars = _phase_common_collect_jars
+phase_collect_jars_scalatest = _phase_collect_jars_scalatest
+phase_collect_jars_repl = _phase_collect_jars_repl
+phase_collect_jars_macro_library = _phase_collect_jars_macro_library
+phase_collect_jars_junit_test = _phase_collect_jars_junit_test
+phase_collect_jars_library_for_plugin_bootstrapping = _phase_collect_jars_library_for_plugin_bootstrapping
+phase_collect_jars_common = _phase_collect_jars_common
 
 # compile
-phase_binary_compile = _phase_binary_compile
-phase_library_compile = _phase_library_compile
-phase_library_for_plugin_bootstrapping_compile = _phase_library_for_plugin_bootstrapping_compile
-phase_macro_library_compile = _phase_macro_library_compile
-phase_junit_test_compile = _phase_junit_test_compile
-phase_repl_compile = _phase_repl_compile
-phase_scalatest_compile = _phase_scalatest_compile
-phase_common_compile = _phase_common_compile
+phase_compile_binary = _phase_compile_binary
+phase_compile_library = _phase_compile_library
+phase_compile_library_for_plugin_bootstrapping = _phase_compile_library_for_plugin_bootstrapping
+phase_compile_macro_library = _phase_compile_macro_library
+phase_compile_junit_test = _phase_compile_junit_test
+phase_compile_repl = _phase_compile_repl
+phase_compile_scalatest = _phase_compile_scalatest
+phase_compile_common = _phase_compile_common
 
 # runfiles
-phase_library_runfiles = _phase_library_runfiles
-phase_scalatest_runfiles = _phase_scalatest_runfiles
-phase_common_runfiles = _phase_common_runfiles
+phase_runfiles_library = _phase_runfiles_library
+phase_runfiles_scalatest = _phase_runfiles_scalatest
+phase_runfiles_common = _phase_runfiles_common
 
 # default_info
-phase_binary_default_info = _phase_binary_default_info
-phase_library_default_info = _phase_library_default_info
-phase_scalatest_default_info = _phase_scalatest_default_info
+phase_default_info_binary = _phase_default_info_binary
+phase_default_info_library = _phase_default_info_library
+phase_default_info_scalatest = _phase_default_info_scalatest

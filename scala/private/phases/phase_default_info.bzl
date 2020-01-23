@@ -3,7 +3,7 @@
 #
 # DOCUMENT THIS
 #
-def phase_binary_default_info(ctx, p):
+def phase_default_info_binary(ctx, p):
     return struct(
         external_providers = [
             DefaultInfo(
@@ -14,7 +14,7 @@ def phase_binary_default_info(ctx, p):
         ],
     )
 
-def phase_library_default_info(ctx, p):
+def phase_default_info_library(ctx, p):
     return struct(
         external_providers = [
             DefaultInfo(
@@ -24,7 +24,7 @@ def phase_library_default_info(ctx, p):
         ],
     )
 
-def phase_scalatest_default_info(ctx, p):
+def phase_default_info_scalatest(ctx, p):
     return struct(
         external_providers = [
             DefaultInfo(
