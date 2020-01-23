@@ -22,7 +22,7 @@ load(
     "phase_collect_srcjars",
     "phase_common_collect_jars",
     "phase_library_compile",
-    "phase_library_final",
+    "phase_library_default_info",
     "phase_library_for_plugin_bootstrapping_collect_jars",
     "phase_library_for_plugin_bootstrapping_compile",
     "phase_library_runfiles",
@@ -66,9 +66,8 @@ def _scala_library_impl(ctx):
             ("merge_jars", phase_merge_jars),
             ("runfiles", phase_library_runfiles),
             ("collect_exports_jars", phase_collect_exports_jars),
+            ("default_info", phase_library_default_info),
         ],
-        # fixed phase
-        ("final", phase_library_final),
     )
 
 _scala_library_attrs = {}
@@ -143,9 +142,8 @@ def _scala_library_for_plugin_bootstrapping_impl(ctx):
             ("merge_jars", phase_merge_jars),
             ("runfiles", phase_library_runfiles),
             ("collect_exports_jars", phase_collect_exports_jars),
+            ("default_info", phase_library_default_info),
         ],
-        # fixed phase
-        ("final", phase_library_final),
     )
 
 # the scala compiler plugin used for dependency analysis is compiled using `scala_library`.
@@ -199,9 +197,8 @@ def _scala_macro_library_impl(ctx):
             ("merge_jars", phase_merge_jars),
             ("runfiles", phase_library_runfiles),
             ("collect_exports_jars", phase_collect_exports_jars),
+            ("default_info", phase_library_default_info),
         ],
-        # fixed phase
-        ("final", phase_library_final),
     )
 
 _scala_macro_library_attrs = {

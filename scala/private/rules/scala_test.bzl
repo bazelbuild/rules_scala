@@ -19,7 +19,7 @@ load(
     "phase_scalac_provider",
     "phase_scalatest_collect_jars",
     "phase_scalatest_compile",
-    "phase_scalatest_final",
+    "phase_scalatest_default_info",
     "phase_scalatest_runfiles",
     "phase_scalatest_write_executable",
     "phase_unused_deps_checker",
@@ -44,9 +44,8 @@ def _scala_test_impl(ctx):
             ("runfiles", phase_scalatest_runfiles),
             ("coverage_runfiles", phase_coverage_runfiles),
             ("write_executable", phase_scalatest_write_executable),
+            ("default_info", phase_scalatest_default_info),
         ],
-        # fixed phase
-        ("final", phase_scalatest_final),
     )
 
 _scala_test_attrs = {

@@ -170,6 +170,7 @@ def _phase_compile(
         java_jar = out.java_jar,
         source_jars = _pack_source_jars(ctx) + out.source_jars,
         merged_provider = out.merged_provider,
+        external_providers = [out.merged_provider] + out.coverage.providers,
     )
 
 def _compile_or_empty(

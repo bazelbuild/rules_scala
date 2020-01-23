@@ -41,7 +41,7 @@ def _adjust_phases(phases, adjustments):
     return phases
 
 # Execute phases
-def run_phases(ctx, builtin_customizable_phases, fixed_phase):
+def run_phases(ctx, builtin_customizable_phases):
     # Loading custom phases
     # Phases must be passed in by provider
     phase_providers = [
@@ -64,7 +64,7 @@ def run_phases(ctx, builtin_customizable_phases, fixed_phase):
     global_provider = {}
     current_provider = struct(**global_provider)
     acculmulated_external_providers = []
-    for (name, function) in adjusted_phases + [fixed_phase]:
+    for (name, function) in adjusted_phases:
         # Run a phase
         new_provider = function(ctx, current_provider)
 
@@ -77,7 +77,7 @@ def run_phases(ctx, builtin_customizable_phases, fixed_phase):
             current_provider = struct(**global_provider)
 
     # The final return of rules implementation
-    return acculmulated_external_providers + current_provider.final
+    return acculmulated_external_providers
 
 # A method to pass in phase provider
 def extras_phases(extras):
