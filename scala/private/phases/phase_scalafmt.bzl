@@ -53,7 +53,6 @@ def _formatter(ctx, manifest, files, template, output_runner):
     )
 
 def _write_empty_content(ctx, output_runner):
-    # generate empty output if format=false
     ctx.actions.write(
         output = output_runner,
         content = "",
