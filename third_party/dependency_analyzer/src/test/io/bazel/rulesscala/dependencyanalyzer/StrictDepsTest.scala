@@ -1,14 +1,10 @@
 package third_party.dependency_analyzer.src.test.io.bazel.rulesscala.dependencyanalyzer
 
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.scalatest._
 import java.nio.file.Paths
-
 import third_party.utils.src.test.io.bazel.rulesscala.utils.TestUtil._
 
-@RunWith(classOf[JUnit4])
-class DependencyAnalyzerTest {
+class StrictDepsTest extends FunSuite {
   val pluginName = "dependency_analyzer"
 
   def compileWithDependencyAnalyzer(code: String, withDirect: List[String] = Nil, withIndirect: List[(String, String)] = Nil): List[String] = {
@@ -26,7 +22,9 @@ class DependencyAnalyzerTest {
       constructParam("direct-jars", withDirect),
       constructParam("indirect-jars", withIndirect.map(_._1)),
       constructParam("indirect-targets", withIndirect.map(_._2)),
-      constructParam("current-target", Seq(defaultTarget))
+      constructParam("current-target", Seq(defaultTarget)),
+      constructParam("strict-deps-mode", Seq("error")),
+      constructParam("dependency-tracking-method", Seq("high-level"))
     ).mkString(" ")
 
     val extraClasspath = withDirect ++ withIndirect.map(_._1)
@@ -34,9 +32,7 @@ class DependencyAnalyzerTest {
     runCompiler(code, compileOptions, extraClasspath, toolboxPluginOptions)
   }
 
-
-  @Test
-  def `error on indirect dependency target`(): Unit = {
+  test("error on indirect dependency target") {
     val testCode =
       """object Foo {
         |  org.apache.commons.lang3.ArrayUtils.EMPTY_BOOLEAN_ARRAY.length
@@ -49,8 +45,7 @@ class DependencyAnalyzerTest {
     compileWithDependencyAnalyzer(testCode, withIndirect = indirect).expectErrorOn(commonsTarget)
   }
 
-  @Test
-  def `error on multiple indirect dependency targets`(): Unit = {
+  test("error on multiple indirect dependency targets") {
     val testCode =
       """object Foo {
         |  org.apache.commons.lang3.ArrayUtils.EMPTY_BOOLEAN_ARRAY.length
@@ -65,8 +60,7 @@ class DependencyAnalyzerTest {
     compileWithDependencyAnalyzer(testCode, withIndirect = indirect).expectErrorOn(commonsTarget, guavaTarget)
   }
 
-  @Test
-  def `do not give error on direct dependency target`(): Unit = {
+  test("do not give error on direct dependency target") {
     val testCode =
       """object Foo {
         |  org.apache.commons.lang3.ArrayUtils.EMPTY_BOOLEAN_ARRAY.length
