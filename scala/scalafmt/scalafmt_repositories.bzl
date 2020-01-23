@@ -10,7 +10,7 @@ def scalafmt_default_config(path = ".scalafmt.conf"):
     build.append("    srcs = [\"{}\"],".format(path))
     build.append("    visibility = [\"//visibility:public\"],")
     build.append(")")
-    native.new_local_repository(name = "scalafmt_default", build_file_content = "\n".join(build), path = "scala/scalafmt/conf")
+    native.new_local_repository(name = "scalafmt_default", build_file_content = "\n".join(build), path = "")
 
 def scalafmt_repositories(maven_servers = ["https://repo.maven.apache.org/maven2"]):
     _scala_maven_import_external(
