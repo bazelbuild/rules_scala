@@ -16,7 +16,7 @@ load(
     _coverage_replacements_provider = "coverage_replacements_provider",
 )
 
-def phase_scalatest_write_executable(ctx, p):
+def phase_write_executable_scalatest(ctx, p):
     # jvm_flags passed in on the target override scala_test_jvm_flags passed in on the
     # toolchain
     final_jvm_flags = first_non_empty(
@@ -31,26 +31,26 @@ def phase_scalatest_write_executable(ctx, p):
         ] + expand_location(ctx, final_jvm_flags),
         use_jacoco = ctx.configuration.coverage_enabled,
     )
-    return _phase_deafult_write_executable(ctx, p, args)
+    return _phase_write_executable_default(ctx, p, args)
 
-def phase_repl_write_executable(ctx, p):
+def phase_write_executable_repl(ctx, p):
     args = struct(
         jvm_flags = ["-Dscala.usejavacp=true"] + ctx.attr.jvm_flags,
         main_class = "scala.tools.nsc.MainGenericRunner",
     )
-    return _phase_deafult_write_executable(ctx, p, args)
+    return _phase_write_executable_default(ctx, p, args)
 
-def phase_junit_test_write_executable(ctx, p):
+def phase_write_executable_junit_test(ctx, p):
     args = struct(
         jvm_flags = p.jvm_flags + ctx.attr.jvm_flags,
         main_class = "com.google.testing.junit.runner.BazelTestRunner",
     )
-    return _phase_deafult_write_executable(ctx, p, args)
+    return _phase_write_executable_default(ctx, p, args)
 
-def phase_common_write_executable(ctx, p):
-    return _phase_deafult_write_executable(ctx, p)
+def phase_write_executable_common(ctx, p):
+    return _phase_write_executable_default(ctx, p)
 
-def _phase_deafult_write_executable(ctx, p, _args = struct()):
+def _phase_write_executable_default(ctx, p, _args = struct()):
     return _phase_write_executable(
         ctx,
         p,

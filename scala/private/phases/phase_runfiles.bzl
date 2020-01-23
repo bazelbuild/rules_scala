@@ -3,14 +3,14 @@
 #
 # DOCUMENT THIS
 #
-def phase_library_runfiles(ctx, p):
+def phase_runfiles_library(ctx, p):
     args = struct(
         # Using transitive_files since transitive_rjars a depset and avoiding linearization
         transitive_files = p.compile.rjars,
     )
-    return _phase_default_runfiles(ctx, p, args)
+    return _phase_runfiles_default(ctx, p, args)
 
-def phase_scalatest_runfiles(ctx, p):
+def phase_runfiles_scalatest(ctx, p):
     args = "\n".join([
         "-R",
         ctx.outputs.jar.short_path,
@@ -29,12 +29,12 @@ def phase_scalatest_runfiles(ctx, p):
         ),
         args_file = args_file,
     )
-    return _phase_default_runfiles(ctx, p, args)
+    return _phase_runfiles_default(ctx, p, args)
 
-def phase_common_runfiles(ctx, p):
-    return _phase_default_runfiles(ctx, p)
+def phase_runfiles_common(ctx, p):
+    return _phase_runfiles_default(ctx, p)
 
-def _phase_default_runfiles(ctx, p, _args = struct()):
+def _phase_runfiles_default(ctx, p, _args = struct()):
     return _phase_runfiles(
         ctx,
         _args.transitive_files if hasattr(_args, "transitive_files") else depset(
