@@ -2,7 +2,6 @@ load(
     "//scala/private:common.bzl",
     "write_manifest_file",
 )
-load("//scala/private:rule_impls.bzl", "compile_scala")
 
 def _root_path(f):
     if f.is_source:
