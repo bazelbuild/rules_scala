@@ -3,7 +3,6 @@
 #
 # DOCUMENT THIS
 #
-load("@bazel_skylib//lib:paths.bzl", _paths = "paths")
 load("@bazel_skylib//lib:dicts.bzl", "dicts")
 load("@bazel_tools//tools/jdk:toolchain_utils.bzl", "find_java_runtime_toolchain", "find_java_toolchain")
 load(
