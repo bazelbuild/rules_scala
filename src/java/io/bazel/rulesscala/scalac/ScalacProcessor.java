@@ -70,7 +70,7 @@ class ScalacProcessor implements Processor {
       }
 
       /** Copy the resources */
-      copyResources(ops.resourceFiles, ops.resourceStripPrefix, tmpPath);
+      copyResources(ops.resourceFiles, tmpPath);
 
       /** Extract and copy resources from resource jars */
       copyResourceJars(ops.resourceJars, tmpPath);
@@ -268,44 +268,11 @@ class ScalacProcessor implements Processor {
     }
   }
 
-  private static void copyResources(
-      Map<String, Resource> resources, String resourceStripPrefix, Path dest) throws IOException {
-    for (Entry<String, Resource> e : resources.entrySet()) {
-      Path source = Paths.get(e.getKey());
-      Resource resource = e.getValue();
-      Path shortPath = Paths.get(resource.shortPath);
-      String dstr;
-      // Check if we need to modify resource destination path
-      if (!"".equals(resourceStripPrefix)) {
-        /**
-         * NOTE: We are not using the Resource Hash Value as the destination path when
-         * `resource_strip_prefix` present. The path in the hash value is computed by the
-         * `_adjust_resources_path` in `scala.bzl`. These are the default paths, ie, path that are
-         * automatically computed when there is no `resource_strip_prefix` present. But when
-         * `resource_strip_prefix` is present, we need to strip the prefix from the Source Path and
-         * use that as the new destination path Refer Bazel -> BazelJavaRuleClasses.java#L227 for
-         * details
-         */
-        dstr = getResourcePath(shortPath, resourceStripPrefix);
-      } else {
-        dstr = resource.destination;
-      }
-
-      if (dstr.charAt(0) == '/') {
-        // we don't want to copy to an absolute destination
-        dstr = dstr.substring(1);
-      }
-      if (dstr.startsWith("../")) {
-        // paths to external repositories, for some reason, start with a leading ../
-        // we don't want to copy the resource out of our temporary directory, so
-        // instead we replace ../ with external/
-        // since "external" is a bit of reserved directory in bazel for these kinds
-        // of purposes, we don't expect a collision in the paths.
-        dstr = "external" + dstr.substring(2);
-      }
-      Path target = dest.resolve(dstr);
-      File tfile = target.getParent().toFile();
-      tfile.mkdirs();
+  private static void copyResources(List<Resource> resources, Path dest) throws IOException {
+    for (Resource r : resources) {
+      Path source = Paths.get(r.source);
+      Path target = dest.resolve(r.target);
+      target.getParent().toFile().mkdirs();
       Files.copy(source, target);
     }
   }
@@ -326,24 +293,6 @@ class ScalacProcessor implements Processor {
         Files.copy(source, target);
       }
     }
-  }
-
-  private static String getResourcePath(Path source, String resourceStripPrefix)
-      throws RuntimeException {
-    String sourcePath = source.toString();
-    // convert strip prefix to a Path first and back to handle different file systems
-    String resourceStripPrefixPath = Paths.get(resourceStripPrefix).toString();
-    // check if the Resource file is under the specified prefix to strip
-    if (!sourcePath.startsWith(resourceStripPrefixPath)) {
-      // Resource File is not under the specified prefix to strip
-      throw new RuntimeException(
-          "Resource File "
-              + sourcePath
-              + " is not under the specified strip prefix "
-              + resourceStripPrefix);
-    }
-    String newResPath = sourcePath.substring(resourceStripPrefix.length());
-    return newResPath;
   }
 
   private static void copyResourceJars(String[] resourceJars, Path dest) throws IOException {

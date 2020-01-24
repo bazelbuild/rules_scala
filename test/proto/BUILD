@@ -167,3 +167,79 @@ scala_test(
         ":test_external_dep",
     ],
 )
+
+proto_library(
+    name = "standalone_proto",
+    srcs = ["standalone.proto"],
+)
+
+proto_library(
+    name = "standalone_proto_strip_import_prefix_partial",
+    srcs = ["standalone.proto"],
+    strip_import_prefix = "/test",
+)
+
+proto_library(
+    name = "standalone_proto_strip_import_prefix_package",
+    srcs = ["standalone.proto"],
+    strip_import_prefix = "/" + package_name(),
+)
+
+proto_library(
+    name = "standalone_proto_with_import_prefix",
+    srcs = ["standalone.proto"],
+    import_prefix = "prefix",
+)
+
+proto_library(
+    name = "standalone_proto_with_custom_prefix",
+    srcs = ["standalone.proto"],
+    import_prefix = "prefix",
+    strip_import_prefix = "/test",
+)
+
+proto_library(
+    name = "nested_proto",
+    srcs = ["some/path/nested.proto"],
+)
+
+proto_library(
+    name = "nested_proto_strip_import_prefix_relative",
+    srcs = ["some/path/nested.proto"],
+    strip_import_prefix = "some",
+)
+
+proto_library(
+    name = "nested_proto_with_import_prefix",
+    srcs = ["some/path/nested.proto"],
+    import_prefix = "prefix",
+)
+
+proto_library(
+    name = "nested_proto_with_custom_prefix",
+    srcs = ["some/path/nested.proto"],
+    import_prefix = "prefix",
+    strip_import_prefix = "some",
+)
+
+scala_proto_library(
+    name = "pack_protos_lib",
+    deps = [
+        ":nested_proto",
+        ":nested_proto_strip_import_prefix_relative",
+        ":nested_proto_with_custom_prefix",
+        ":nested_proto_with_import_prefix",
+        ":standalone_proto",
+        ":standalone_proto_strip_import_prefix_package",
+        ":standalone_proto_strip_import_prefix_partial",
+        ":standalone_proto_with_custom_prefix",
+        ":standalone_proto_with_import_prefix",
+    ],
+)
+
+scala_test(
+    name = "test_pack_protos",
+    srcs = ["PackProtosTest.scala"],
+    unused_dependency_checker_mode = "off",
+    deps = [":pack_protos_lib"],
+)

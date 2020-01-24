@@ -1,11 +1,11 @@
 package io.bazel.rulesscala.scalac;
 
 public class Resource {
-  public final String destination;
-  public final String shortPath;
+  public final String target;
+  public final String source;
 
-  public Resource(String destination, String shortPath) {
-    this.destination = destination;
-    this.shortPath = shortPath;
+  public Resource(String target, String source) {
+    this.target = target;
+    this.source = source;
   }
 }

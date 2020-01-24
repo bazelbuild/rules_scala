@@ -21,21 +21,7 @@ load(
     ":common.bzl",
     _collect_plugin_paths = "collect_plugin_paths",
 )
-
-def adjust_resources_path_by_default_prefixes(path):
-    #  Here we are looking to find out the offset of this resource inside
-    #  any resources folder. We want to return the root to the resources folder
-    #  and then the sub path inside it
-    dir_1, dir_2, rel_path = path.partition("resources")
-    if rel_path:
-        return dir_1 + dir_2, rel_path
-
-    #  The same as the above but just looking for java
-    (dir_1, dir_2, rel_path) = path.partition("java")
-    if rel_path:
-        return dir_1 + dir_2, rel_path
-
-    return "", path
+load(":resources.bzl", _resource_paths = "paths")
 
 def expand_location(ctx, flags):
     if hasattr(ctx.attr, "data"):
@@ -150,6 +136,7 @@ CurrentTarget: {current_target}
 
     toolchain = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"]
     scalacopts = [ctx.expand_location(v, input_plugins) for v in toolchain.scalacopts + in_scalacopts]
+    resource_paths = _resource_paths(resources, resource_strip_prefix)
 
     scalac_args = """
 Classpath: {cp}
@@ -160,11 +147,9 @@ Manifest: {manifest}
 Plugins: {plugin_arg}
 PrintCompileTime: {print_compile_time}
 ExpectJavaOutput: {expect_java_output}
-ResourceDests: {resource_dest}
+ResourceTargets: {resource_targets}
+ResourceSources: {resource_sources}
 ResourceJars: {resource_jars}
-ResourceSrcs: {resource_src}
-ResourceShortPaths: {resource_short_paths}
-ResourceStripPrefix: {resource_strip_prefix}
 ScalacOpts: {scala_opts}
 SourceJars: {srcjars}
 DependencyAnalyzerMode: {dependency_analyzer_mode}
@@ -182,13 +167,8 @@ StatsfileOutput: {statsfile_output}
         files = _join_path(sources),
         srcjars = _join_path(all_srcjars.to_list()),
         # the resource paths need to be aligned in order
-        resource_src = ",".join([f.path for f in resources]),
-        resource_short_paths = ",".join([f.short_path for f in resources]),
-        resource_dest = ",".join([
-            adjust_resources_path_by_default_prefixes(f.short_path)[1]
-            for f in resources
-        ]),
-        resource_strip_prefix = resource_strip_prefix,
+        resource_targets = ",".join([p[0] for p in resource_paths]),
+        resource_sources = ",".join([p[1] for p in resource_paths]),
         resource_jars = _join_path(resource_jars),
         dependency_analyzer_mode = dependency_analyzer_mode,
         unused_dependency_checker_mode = unused_dependency_checker_mode,
