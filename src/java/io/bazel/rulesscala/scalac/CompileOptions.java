@@ -1,5 +1,6 @@
 package io.bazel.rulesscala.scalac;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +16,7 @@ public class CompileOptions {
   public final String[] files;
   public final String[] sourceJars;
   public final String[] javaFiles;
-  public final Map<String, Resource> resourceFiles;
+  public final List<Resource> resourceFiles;
   public final String[] resourceJars;
   public final String[] classpathResourceFiles;
   public final String[] directJars;
@@ -65,29 +66,21 @@ public class CompileOptions {
     statsfile = getOrError(argMap, "StatsfileOutput", "Missing required arg StatsfileOutput");
   }
 
-  private static Map<String, Resource> getResources(Map<String, String> args) {
-    String[] keys = getCommaList(args, "ResourceSrcs");
-    String[] dests = getCommaList(args, "ResourceDests");
-    String[] shortPaths = getCommaList(args, "ResourceShortPaths");
+  private static List<Resource> getResources(Map<String, String> args) {
+    String[] targets = getCommaList(args, "ResourceTargets");
+    String[] sources = getCommaList(args, "ResourceSources");
 
-    if (keys.length != dests.length)
+    if (targets.length != sources.length)
       throw new RuntimeException(
           String.format(
-              "mismatch in resources: keys: %s dests: %s",
-              getOrEmpty(args, "ResourceSrcs"), getOrEmpty(args, "ResourceDests")));
+              "mismatch in resources: targets: %s sources: %s",
+              getOrEmpty(args, "ResourceTargets"), getOrEmpty(args, "ResourceSources")));
 
-    if (keys.length != shortPaths.length)
-      throw new RuntimeException(
-          String.format(
-              "mismatch in resources: keys: %s shortPaths: %s",
-              getOrEmpty(args, "ResourceSrcs"), getOrEmpty(args, "ResourceShortPaths")));
-
-    HashMap<String, Resource> res = new HashMap();
-    for (int idx = 0; idx < keys.length; idx++) {
-      Resource resource = new Resource(dests[idx], shortPaths[idx]);
-      res.put(keys[idx], resource);
+    List<Resource> resources = new ArrayList<Resource>();
+    for (int idx = 0; idx < targets.length; idx++) {
+      resources.add(new Resource(targets[idx], sources[idx]));
     }
-    return res;
+    return resources;
   }
 
   private static HashMap<String, String> buildArgMap(List<String> lines) {

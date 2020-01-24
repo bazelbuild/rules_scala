@@ -11,10 +11,10 @@ load(
 )
 load(
     "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
-    _adjust_resources_path = "adjust_resources_path",
     _compile_scala = "compile_scala",
     _expand_location = "expand_location",
 )
+load(":resources.bzl", _resource_paths = "paths")
 
 _java_extension = ".java"
 
@@ -491,18 +491,9 @@ def _try_to_compile_java_jar(
     )
 
 def _add_resources_cmd(ctx):
-    res_cmd = []
-    for f in ctx.files.resources:
-        target_path = _adjust_resources_path(
-            f,
-            ctx.attr.resource_strip_prefix,
-        )
-        line = "{target_path}={res_path}\n".format(
-            target_path = target_path,
-            res_path = f.path,
-        )
-        res_cmd.extend([line])
-    return "".join(res_cmd)
+    paths = _resource_paths(ctx.files.resources, ctx.attr.resource_strip_prefix)
+    lines = ["{target}={source}\n".format(target = p[0], source = p[1]) for p in paths]
+    return "".join(lines)
 
 def _collect_java_providers_of(deps):
     providers = []

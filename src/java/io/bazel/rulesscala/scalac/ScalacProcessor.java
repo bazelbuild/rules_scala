@@ -268,10 +268,10 @@ class ScalacProcessor implements Processor {
     }
   }
 
-  private static void copyResources(Map<String, Resource> resources, Path dest) throws IOException {
-    for (Entry<String, Resource> e : resources.entrySet()) {
-      Path source = Paths.get(e.getKey());
-      Path target = dest.resolve(e.getValue().destination);
+  private static void copyResources(List<Resource> resources, Path dest) throws IOException {
+    for (Resource r : resources) {
+      Path source = Paths.get(r.source);
+      Path target = dest.resolve(r.target);
       target.getParent().toFile().mkdirs();
       Files.copy(source, target);
     }
