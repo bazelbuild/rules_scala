@@ -23,5 +23,6 @@ scala_test(
     srcs = ["test.scala"],
     deps = [
         ":library",
+        "//external:io_bazel_rules_scala/dependency/scalatest/scalatest",
     ],
 )

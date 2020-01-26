@@ -27,7 +27,7 @@ load(
     _make_scala_library = "make_scala_library",
 )
 load(
-    "@io_bazel_rules_scala//scala/private:rules/scala_test.bzl",
+    "@io_bazel_rules_scala//scala/private:rules/unstable_scala_test.bzl",
     _make_scala_test = "make_scala_test",
 )
 

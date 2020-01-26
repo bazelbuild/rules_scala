@@ -130,6 +130,15 @@ def scala_repositories(
         server_urls = maven_servers,
     )
 
+    # used by the experimental scala_test rule
+    _scala_maven_import_external(
+        name = "io_bazel_rules_scala_classgraph",
+        artifact = "io.github.classgraph:classgraph:jar:4.8.60",
+        artifact_sha256 = "dacf7d7fec4088e674ee98155adbb74f30af2f8b64f8990d37c223d8b9047b72",
+        licenses = ["notice"],
+        server_urls = maven_servers,
+    )
+
     if not native.existing_rule("com_google_protobuf"):
         http_archive(
             name = "com_google_protobuf",
