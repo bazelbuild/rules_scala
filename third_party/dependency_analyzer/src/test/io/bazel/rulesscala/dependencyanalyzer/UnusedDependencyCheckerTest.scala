@@ -1,7 +1,6 @@
-package third_party.unused_dependency_checker.src.test.io.bazel.rulesscala.dependencyanalyzer
+package third_party.dependency_analyzer.src.test.io.bazel.rulesscala.dependencyanalyzer
 
 import java.nio.file.Paths
-
 import org.scalatest._
 import third_party.utils.src.test.io.bazel.rulesscala.utils.TestUtil._
 
@@ -9,18 +8,20 @@ class UnusedDependencyCheckerTest extends FunSuite {
   def compileWithUnusedDependencyChecker(code: String, withDirect: List[(String, String)] = Nil): List[String] = {
     val toolboxPluginOptions: String = {
       val jar = System.getProperty("plugin.jar.location")
-      val start = jar.indexOf("/third_party/unused_dependency_checker")
+      val start = jar.indexOf("/third_party/dependency_analyzer")
       // this substring is needed due to issue: https://github.com/bazelbuild/bazel/issues/2475
       val jarInRelationToBaseDir = jar.substring(start, jar.length)
       val pluginPath = Paths.get(baseDir, jarInRelationToBaseDir).toAbsolutePath
       s"-Xplugin:$pluginPath -Jdummy=${pluginPath.toFile.lastModified}"
     }
 
-    val constructParam: (String, Iterable[String]) => String = constructPluginParam("unused-dependency-checker")
+    val constructParam: (String, Iterable[String]) => String = constructPluginParam("dependency-analyzer")
     val compileOptions = List(
       constructParam("direct-jars", withDirect.map(_._1)),
       constructParam("direct-targets", withDirect.map(_._2)),
-      constructParam("current-target", Seq(defaultTarget))
+      constructParam("current-target", Seq(defaultTarget)),
+      constructParam("dependency-tracking-method", Seq("high-level")),
+      constructParam("unused-deps-mode", Seq("error"))
     ).mkString(" ")
 
     val extraClasspath = withDirect.map(_._1)

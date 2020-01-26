@@ -6,6 +6,9 @@ scala_library_for_plugin_bootstrapping(
     name = "dependency_analyzer",
     srcs = [
         "io/bazel/rulesscala/dependencyanalyzer/DependencyAnalyzer.scala",
+        "io/bazel/rulesscala/dependencyanalyzer/DependencyAnalyzerSettings.scala",
+        "io/bazel/rulesscala/dependencyanalyzer/HighLevelCrawlUsedJarFinder.scala",
+        "io/bazel/rulesscala/dependencyanalyzer/OptionsParser.scala",
     ],
     resources = ["resources/scalac-plugin.xml"],
     visibility = ["//visibility:public"],
