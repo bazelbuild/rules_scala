@@ -44,17 +44,17 @@ java_import(
 _declare_scalac_provider(
     name = "scalac_default",
     default_classpath = [
-        "@io_bazel_rules_scala_scala_library",
-        "@io_bazel_rules_scala_scala_reflect",
+        "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+        "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
     ],
     default_macro_classpath = [
-        "@io_bazel_rules_scala_scala_library",
-        "@io_bazel_rules_scala_scala_reflect",
+        "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+        "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
     ],
     default_repl_classpath = [
-        "@io_bazel_rules_scala_scala_library",
-        "@io_bazel_rules_scala_scala_reflect",
-        "@io_bazel_rules_scala_scala_compiler",
+        "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+        "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
+        "//external:io_bazel_rules_scala/dependency/scala/scala_compiler",
     ],
     visibility = ["//visibility:public"],
 )

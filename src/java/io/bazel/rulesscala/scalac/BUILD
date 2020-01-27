@@ -23,7 +23,7 @@ java_binary(
         "@io_bazel_rules_scala//src/java/com/google/devtools/build/lib:worker",
         "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/jar",
         "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/worker",
-        "@scalac_rules_commons_io//jar",
+        "//external:io_bazel_rules_scala/dependency/scalac_rules_commons_io",
     ],
 )
 

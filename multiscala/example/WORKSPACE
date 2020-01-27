@@ -1,0 +1,64 @@
+load("//repositories:bazel_skylib.bzl", "load_bazel_skylib")
+load_bazel_skylib()
+
+load("//repositories:rules_jvm_external.bzl", "load_rules_jvm_external")
+load_rules_jvm_external()
+
+load("//repositories:rules_scala.bzl", "load_rules_scala")
+load_rules_scala()
+
+load(
+    "@io_bazel_rules_scala//multiscala:configuration.bzl",
+    "multiscala_configuration",
+    "multiscala_configure"
+)
+
+multiscala_configuration({
+    "scala": {
+        "2.11": {
+            "minor": "12",
+        },
+        "2.12": {
+            "minor": "10",
+        },
+        "2.13": {
+            "minor": "1",
+            "scala_bootstrap_toolchain": {
+                "scalacopts": [
+                    "-deprecation:true",
+                    "-encoding",
+                    "UTF-8",
+                    "-feature",
+                    "-unchecked",
+                    "-Xfatal-warnings",
+                    "-Xsource:2.13",
+                ],
+            },
+        },
+    },
+    "default": "2.12",
+    "scalatest": "3.1.0",
+    "scala-xml": "1.2.0",
+    "scala-parser-combinators": "1.1.2",
+    "scala_bootstrap_toolchain": {
+        "scalacopts": [
+            "-deprecation:true",
+            "-encoding",
+            "UTF-8",
+            "-feature",
+            "-unchecked",
+            "-Xfatal-warnings",
+            "-Xfuture",
+            "-Xsource:2.12",
+            "-Ypartial-unification",
+        ],
+    },
+    "scala_toolchain": {
+        "unused_dependency_checker_mode": "error",
+    },
+})
+
+load("@io_bazel_rules_scala//multiscala:repositories.bzl", "create_repositories")
+create_repositories()
+load("@io_bazel_rules_scala//multiscala:configure.bzl", "multiscala_configure")
+multiscala_configure()
