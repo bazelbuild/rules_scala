@@ -7,6 +7,12 @@ load_rules_jvm_external()
 load("//repositories:rules_scala.bzl", "load_rules_scala")
 load_rules_scala()
 
+load("//repositories:rules_proto.bzl", "load_rules_proto")
+load_rules_proto()
+
+load("//repositories:rules_python.bzl", "load_rules_python")
+load_rules_python()
+
 load(
     "@io_bazel_rules_scala//multiscala:configuration.bzl",
     "multiscala_configuration",

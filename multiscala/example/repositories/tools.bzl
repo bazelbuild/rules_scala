@@ -11,10 +11,12 @@ def github_release(name, repository, release, sha256):
     )
 
 def github_archive(name, repository, sha256, tag):
+    (org, repo) = repository.split("/")
+    without_v = tag[1:] if tag.startswith("v") else tag
     http_archive(
         name = name,
         sha256 = sha256,
-        strip_prefix = "{name}-{tag}".format(name = name, tag = tag),
+        strip_prefix = "{repo}-{without_v}".format(repo = repo, without_v = without_v),
         urls = [
             "https://github.com/{repository}/archive/{tag}.zip".format(repository = repository, tag = tag),
         ],

@@ -1,4 +1,3 @@
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load(":tools.bzl", _github_archive = "github_archive")
 
 def load_rules_jvm_external():
