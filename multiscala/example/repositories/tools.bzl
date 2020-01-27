@@ -1,11 +1,12 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 def github_release(name, repository, release, sha256):
+    (org, repo) = repository.split("/")
     http_archive(
         name = name,
         sha256 = sha256,
         urls = [
-            "https://github.com/{repository}/releases/download/{release}/{repository}-{release}.tar.gz".format(repository = repository, release = release),
+            "https://github.com/{repository}/releases/download/{release}/{repo}-{release}.tar.gz".format(repository = repository, repo = repo, release = release),
         ],
     )
 
