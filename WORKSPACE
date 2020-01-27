@@ -47,6 +47,29 @@ MAVEN_SERVER_URLS = [
     "https://repo1.maven.org/maven2",
 ]
 
+# bazel, for testing compiling proto across repo boundaries
+bazel_version = "2.0.0"
+
+bazel_sha256 = "6ecac334b1bfa33d4713c8a3d2de1377e69bb165e17125e386ac5c36ddb6cd2b"
+
+http_archive(
+    name = "io_bazel",
+    patch_cmds = [
+        """find ./ -type f -name BUILD | xargs sed -i.bak -e 's/visibility = \[[^]]*\]/visibility = \["\/\/visibility:public"\]/g'""",
+    ],
+    sha256 = bazel_sha256,
+    strip_prefix = "bazel-%s" % bazel_version,
+    type = "zip",
+    url = "https://github.com/bazelbuild/bazel/archive/%s.zip" % bazel_version,
+)
+
+# this is needed indirectly by @io_bazel
+http_archive(
+    name = "rules_python",
+    sha256 = "aa96a691d3a8177f3215b14b0edc9641787abaaa30363a080165d06ab65e1161",
+    url = "https://github.com/bazelbuild/rules_python/releases/download/0.0.1/rules_python-0.0.1.tar.gz",
+)
+
 # test adding a scala jar:
 jvm_maven_import_external(
     name = "com_twitter__scalding_date",
