@@ -201,42 +201,8 @@ Phases provide 3 major benefits:
 
 See [Customizable Phase](docs/customizable_phase.md) for more info.
 
-## Scala Format
-A phase extension `phase_scalafmt` can format Scala source code via [Scalafmt](https://scalameta.org/scalafmt/).
-
-Add this snippet to `WORKSPACE`
-```
-load("//scala/scalafmt:scalafmt_repositories.bzl", "scalafmt_default_config", "scalafmt_repositories")
-scalafmt_default_config()
-scalafmt_repositories()
-```
-
-To add this phase to the rules, you have to pass the extension to rule macros. Take `scala_binary` for example,
-```
-load("//scala:advanced_usage/scala.bzl", "make_scala_binary")
-load("//scala/scalafmt:phase_scalafmt_ext.bzl", "ext_scalafmt")
-
-scalafmt_scala_binary = make_scala_binary(ext_scalafmt)
-```
-Then use `scalafmt_scala_binary` as normal.
-
-The extension adds 2 additional attributes to the rule
- - `format`: enable formatting
- - `config`: the Scalafmt configuration file
-
-When `format` is set to `true`, you can do
-```
-bazel run <TARGET>.format
-```
-to format the source code, and do
-```
-bazel run <TARGET>.format-test
-```
-to check the format (without modifying source code).
-
-The extension provides default configuration, but there are 2 ways to use custom configuration.
- - Put `.scalafmt.conf` at root of your workspace
- - Pass `.scalafmt.conf` in via `config` attribute
+### Phase extensions
+ - [Scala Format](docs/phase_scalafmt.md)
 
 ## Building from source
 Test & Build:
