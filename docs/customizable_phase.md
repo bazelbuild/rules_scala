@@ -144,9 +144,9 @@ Files in `scala/private/phases/`
  - `phase_<PHASE_NAME>.bzl`: phase definition file
 
 Function names in `phase_<PHASE_NAME>.bzl`
- - `phase_<RULE_NAME>_<PHASE_NAME>`: function with custom inputs of specific rule
- - `phase_common_<PHASE_NAME>`: function without custom inputs
- - `_phase_default_<PHASE_NAME>`: private function that takes `_args` for custom inputs
+ - `phase_<PHASE_NAME>_<RULE_NAME>`: function with custom inputs of specific rule
+ - `phase_<PHASE_NAME>_common`: function without custom inputs
+ - `_phase_<PHASE_NAME>_default`: private function that takes `_args` for custom inputs
  - `_phase_<PHASE_NAME>`: private function with the actual logic
 
 See `phase_compile.bzl` for example.
