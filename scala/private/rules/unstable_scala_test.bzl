@@ -16,7 +16,7 @@ load(
     "phase_compile_scalatest",
     "phase_coverage_runfiles",
     "phase_declare_executable",
-    "phase_default_info_scalatest",
+    "phase_default_info",
     "phase_java_wrapper_common",
     "phase_merge_jars",
     "phase_runfiles_common",
@@ -46,7 +46,7 @@ def _scala_test_impl(ctx):
             ("runfiles", phase_runfiles_common),
             ("coverage_runfiles", phase_coverage_runfiles),
             ("write_executable", phase_write_executable_common),
-            ("default_info", phase_default_info_scalatest),
+            ("default_info", phase_default_info),
         ],
     )
 
@@ -62,6 +62,9 @@ _scala_test_attrs = {
     ),
     "_lcov_merger": attr.label(
         default = Label("@bazel_tools//tools/test/CoverageOutputGenerator/java/com/google/devtools/coverageoutputgenerator:Main"),
+    ),
+    "_discover_tests_worker": attr.label(
+        default = Label("@io_bazel_rules_scala//src/scala/io/bazel/rules_scala/discover_tests_worker"),
     ),
 }
 
