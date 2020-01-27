@@ -67,7 +67,7 @@ def _phase_write_executable(
         jvm_flags,
         use_jacoco,
         main_class):
-    executable = p.declare_executable
+    executable = p.declare_executable.executable
     wrapper = p.java_wrapper
 
     if (is_windows(ctx)):
