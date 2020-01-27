@@ -32,7 +32,10 @@ def phase_default_info(ctx, p):
             "DefaultInfo": DefaultInfo(
                 executable = executable,
                 files = depset(transitive = files),
-                runfiles = ctx.runfiles(transitive_files = depset(transitive = runfiles)),
+                # TODO:
+                # Per Bazel documentation, we should avoid using collect_data. The core phases need to be updated
+                # before we can make the adjustment.
+                runfiles = ctx.runfiles(transitive_files = depset(transitive = runfiles), collect_data = True),
             ),
         },
     )
