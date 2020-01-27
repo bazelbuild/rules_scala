@@ -14,6 +14,10 @@ ext_scalafmt = {
             default = "@scalafmt_default//:config",
             doc = "The Scalafmt configuration file.",
         ),
+        "format": attr.bool(
+            default = False,
+            doc = "Switch of enabling formatting."
+        ),
         "_fmt": attr.label(
             cfg = "host",
             default = "//scala/scalafmt",
@@ -26,9 +30,6 @@ ext_scalafmt = {
         "_testrunner": attr.label(
             allow_single_file = True,
             default = "//scala/scalafmt:testrunner",
-        ),
-        "format": attr.bool(
-            default = False,
         ),
     },
     "outputs": {
