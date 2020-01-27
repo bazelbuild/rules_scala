@@ -127,4 +127,4 @@ def _maybe_register_default_toolchains(configuration):
                 "scala",
                 # "scalatest"
         ]:
-            native.register_toolchains("@io_bazel_rules_scala//multiscala:"+toolchain_label(toolchain, version))
+            native.register_toolchains("@io_bazel_rules_scala//unstable/multiscala:"+toolchain_label(toolchain, version))

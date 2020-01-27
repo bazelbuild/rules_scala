@@ -14,7 +14,7 @@ load("//repositories:rules_python.bzl", "load_rules_python")
 load_rules_python()
 
 load(
-    "@io_bazel_rules_scala//multiscala:configuration.bzl",
+    "@io_bazel_rules_scala//unstable/multiscala:configuration.bzl",
     "multiscala_configuration",
     "multiscala_configure"
 )
@@ -64,7 +64,7 @@ multiscala_configuration({
     },
 })
 
-load("@io_bazel_rules_scala//multiscala:repositories.bzl", "create_repositories")
+load("@io_bazel_rules_scala//unstable/multiscala:repositories.bzl", "create_repositories")
 create_repositories()
-load("@io_bazel_rules_scala//multiscala:configure.bzl", "multiscala_configure")
+load("@io_bazel_rules_scala//unstable/multiscala:configure.bzl", "multiscala_configure")
 multiscala_configure()

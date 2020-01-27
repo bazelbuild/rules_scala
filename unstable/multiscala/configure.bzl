@@ -1,5 +1,5 @@
 load("@io_bazel_rules_scala_configuration//:configuration.bzl", _configuration = "configuration")
-load("@io_bazel_rules_scala//multiscala:toolchains.bzl", _toolchain_label = "toolchain_label")
+load("@io_bazel_rules_scala//unstable/multiscala:toolchains.bzl", _toolchain_label = "toolchain_label")
 
 def multiscala_configure():
     _maybe_register_default_toolchains()
@@ -15,4 +15,4 @@ def _maybe_register_default_toolchains():
                 "scala",
                 # "scalatest"
         ]:
-            native.register_toolchains("@io_bazel_rules_scala//multiscala:"+_toolchain_label(toolchain, version))
+            native.register_toolchains("@io_bazel_rules_scala//unstable/multiscala:"+_toolchain_label(toolchain, version))
