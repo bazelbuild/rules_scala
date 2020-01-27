@@ -24,7 +24,7 @@ def phase_runfiles_scalatest(ctx, p):
 
     args = struct(
         transitive_files = depset(
-            [p.declare_executable, p.java_wrapper] + ctx.files._java_runtime + runfiles_ext,
+            [p.java_wrapper] + ctx.files._java_runtime + runfiles_ext,
             transitive = [p.compile.rjars],
         ),
         args_file = args_file,

@@ -66,13 +66,6 @@ common_attrs.update({
         ],
         mandatory = False,
     ),
-    "_unused_dependency_checker_plugin": attr.label(
-        default = Label(
-            "@io_bazel_rules_scala//third_party/unused_dependency_checker/src/main:unused_dependency_checker",
-        ),
-        allow_files = [".jar"],
-        mandatory = False,
-    ),
     "unused_dependency_checker_ignored_targets": attr.label_list(default = []),
     "_code_coverage_instrumentation_worker": attr.label(
         default = "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/coverage/instrumenter",

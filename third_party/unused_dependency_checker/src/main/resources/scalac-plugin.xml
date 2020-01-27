@@ -1,4 +1,0 @@
-<plugin>
-    <name>unused-dependency-checker</name>
-    <classname>third_party.unused_dependency_checker.src.main.io.bazel.rulesscala.unused_dependency_checker.UnusedDependencyChecker</classname>
-</plugin>
