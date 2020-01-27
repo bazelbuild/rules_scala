@@ -1,3 +1,8 @@
 load(":toolchains.bzl", "create_toolchains")
 
 create_toolchains()
+
+toolchain_type(
+    name = "test_toolchain_type",
+    visibility = ["//visibility:public"],
+)

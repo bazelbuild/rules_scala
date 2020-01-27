@@ -9,6 +9,7 @@ load("@bazel_skylib//lib:sets.bzl", _sets = "sets")
 # default configuration: public for user examination (if desired?)
 default_configuration = {
     "compatability_labels": True,
+    "default": "2.11",
     "repositories": [
         "https://jcenter.bintray.com/",
         "https://maven.google.com",
@@ -90,10 +91,10 @@ def _merge_dicts(*dicts, exclude = None):
                         configuration.get(key, {}),
                         input[key],
                     )
+                elif field_type == "NoneType":
+                    pass  # None means delete ...
                 else:
                     fail([key, field_type])
-            else:
-                configuration[key] = configuration[key]
 
     return configuration
 
@@ -135,5 +136,16 @@ def multiscala_configuration(configuration = default_configuration):
         starlark_string = starlark_string,
     )
 
-def toolchain_label(toolchain, version):
-    return "{toolchain}_{version}_toolchain".format(toolchain = toolchain, version = version["mvn"])
+def toolchain_label(toolchain, version, in_package = False):
+    return "{package}{toolchain}_{version}_toolchain".format(
+        package = "@io_bazel_rules_scala//unstable/multiscala:" if not in_package else "",
+        toolchain = toolchain,
+        version = version.replace(".", "_"),
+    )
+
+def native_toolchain_label(toolchain, version, in_package = False):
+    return "{package}native_{toolchain}_{version}_toolchain".format(
+        package = "@io_bazel_rules_scala//unstable/multiscala:" if not in_package else "",
+        toolchain = toolchain,
+        version = version.replace(".", "_"),
+    )

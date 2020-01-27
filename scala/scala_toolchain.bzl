@@ -13,7 +13,7 @@ def _scala_toolchain_impl(ctx):
         scalac_jvm_flags = ctx.attr.scalac_jvm_flags,
         scala_test_jvm_flags = ctx.attr.scala_test_jvm_flags,
     )
-    return [toolchain]
+    return [toolchain, platform_common.TemplateVariableInfo({})]
 
 scala_toolchain = rule(
     _scala_toolchain_impl,

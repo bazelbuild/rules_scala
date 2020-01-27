@@ -2,7 +2,7 @@
 
 load(
     "@io_bazel_rules_scala//unstable/multiscala:configuration.bzl",
-    _toolchain_label = "toolchain_label",
+    _native_toolchain_label = "native_toolchain_label",
 )
 load(
     "@io_bazel_rules_scala_configuration//:configuration.bzl",
@@ -23,4 +23,4 @@ def _maybe_register_default_toolchains():
             "scala",
             # "scalatest"
         ]:
-            native.register_toolchains("@io_bazel_rules_scala//unstable/multiscala:" + _toolchain_label(toolchain, version))
+            native.register_toolchains(_native_toolchain_label(toolchain, version["mvn"]))

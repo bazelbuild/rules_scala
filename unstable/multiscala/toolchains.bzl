@@ -10,6 +10,7 @@ load(
 )
 load(
     ":configuration.bzl",
+    _native_toolchain_label = "native_toolchain_label",
     _toolchain_label = "toolchain_label",
 )
 
@@ -39,17 +40,22 @@ _scala_toolchain_attrs = [
 ]
 
 def _create_scala_toolchain(version):
-    impl_name = _toolchain_label("scala", version) + "_impl"
+    name = _toolchain_label("scala", version["mvn"], in_package = True)
+
     attrs = {}
+
     for attr in _scala_toolchain_attrs:
         if attr in version["scala_toolchain"]:
             attrs[attr] = version["scala_toolchain"][attr]
-    attrs["name"] = impl_name
+
+    attrs["name"] = name
+    attrs["visibility"] = ["//visibility:public"]
+
     _scala_toolchain_rule(**attrs)
 
     native.toolchain(
-        name = _toolchain_label("scala", version),
-        toolchain = impl_name,
+        name = _native_toolchain_label("scala", version["mvn"], in_package = True),
+        toolchain = name,
         toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
         visibility = ["//visibility:public"],
     )
