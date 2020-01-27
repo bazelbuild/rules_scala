@@ -1,5 +1,6 @@
-load("@io_bazel_rules_scala_configuration//:configuration.bzl",
-     _versions = "versions"
+load(
+    "@io_bazel_rules_scala_configuration//:configuration.bzl",
+    _versions = "versions",
 )
 load(
     "@io_bazel_rules_scala//scala:scala_toolchain.bzl",

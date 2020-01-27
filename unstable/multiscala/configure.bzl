@@ -11,8 +11,8 @@ def _maybe_register_default_toolchains():
     version = _maybe_default()
     if version:
         for toolchain in [
-                # "bootstrap",
-                "scala",
-                # "scalatest"
+            # "bootstrap",
+            "scala",
+            # "scalatest"
         ]:
-            native.register_toolchains("@io_bazel_rules_scala//unstable/multiscala:"+_toolchain_label(toolchain, version))
+            native.register_toolchains("@io_bazel_rules_scala//unstable/multiscala:" + _toolchain_label(toolchain, version))

@@ -1,7 +1,8 @@
-load("//scala:scala.bzl",
-     _scala_binary = "scala_binary",
-     _scala_library = "scala_library",
-     _scala_test = "scala_test",
+load(
+    "//scala:scala.bzl",
+    _scala_binary = "scala_binary",
+    _scala_library = "scala_library",
+    _scala_test = "scala_test",
 )
 
 def scala_binary(**kwargs):

@@ -29,7 +29,6 @@ default_configuration = {
     "compatability_labels": True,
 }
 
-
 def _repo_impl(ctx):
     ctx.file(
         "BUILD.bazel",
@@ -57,7 +56,6 @@ def _merge_dicts(*dicts, exclude = None):
     configuration = {}
 
     for input in dicts:
-
         keys = _sets.make(configuration.keys() + input.keys())
 
         if exclude and _sets.contains(keys, exclude):
@@ -82,14 +80,13 @@ def _merge_dicts(*dicts, exclude = None):
 
     return configuration
 
-
 def multiscala_configuration(user_configuration = default_configuration):
     configuration = _merge_dicts(default_configuration, user_configuration)
 
     if not "default" in configuration and len(configuration["scala"].keys()) == 1:
         configuration = _dicts.add(
             configuration,
-            {"default": configuration["scala"][configuration["scala"].keys()[0]] }
+            {"default": configuration["scala"][configuration["scala"].keys()[0]]},
         )
 
     scala = {}
@@ -98,12 +95,12 @@ def multiscala_configuration(user_configuration = default_configuration):
         scala[version] = _merge_dicts(configuration, configuration["scala"][version], exclude = "scala")
         scala[version]["scala"] = version
         scala[version]["mvn"] = version.replace(".", "_")
-        scala[version]["complete"] = version+"."+ scala[version]["minor"]
+        scala[version]["complete"] = version + "." + scala[version]["minor"]
         scala[version]["default"] = True if scala[version].get("default") == version else False
 
     configuration["scala"] = scala
 
-    starlark_string = struct(**configuration).to_json() # .replace(":null,", ":None,")
+    starlark_string = struct(**configuration).to_json()  # .replace(":null,", ":None,")
 
     _repo(
         name = "io_bazel_rules_scala_configuration",
@@ -123,8 +120,8 @@ def _maybe_register_default_toolchains(configuration):
     version = _maybe_default(configuration)
     if version:
         for toolchain in [
-                # "bootstrap",
-                "scala",
-                # "scalatest"
+            # "bootstrap",
+            "scala",
+            # "scalatest"
         ]:
-            native.register_toolchains("@io_bazel_rules_scala//unstable/multiscala:"+toolchain_label(toolchain, version))
+            native.register_toolchains("@io_bazel_rules_scala//unstable/multiscala:" + toolchain_label(toolchain, version))

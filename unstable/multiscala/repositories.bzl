@@ -24,7 +24,7 @@ def _bind_default_labels(repository_name, artifacts):
         without_version = ":".join(mvn.split(":")[0:2])
         native.bind(
             name = label,
-            actual = _artifact(without_version, repository_name = repository_name)
+            actual = _artifact(without_version, repository_name = repository_name),
         )
 
 def create_repositories():
@@ -69,8 +69,8 @@ def _create_maven_installed_repos():
 
         artifacts = {
             "org.scala-lang:scala-compiler:" + version["complete"]: "io_bazel_rules_scala/dependency/scala/scala_compiler",
-            "org.scala-lang:scala-library:" + version["complete"]:  "io_bazel_rules_scala/dependency/scala/scala_library",
-            "org.scala-lang:scala-reflect:" + version["complete"]:  "io_bazel_rules_scala/dependency/scala/scala_reflect",
+            "org.scala-lang:scala-library:" + version["complete"]: "io_bazel_rules_scala/dependency/scala/scala_library",
+            "org.scala-lang:scala-reflect:" + version["complete"]: "io_bazel_rules_scala/dependency/scala/scala_reflect",
             _scala_artifact(version, "org.scala-lang.modules:scala-xml"): "io_bazel_rules_scala/dependency/scala/scala_xml",
             _scala_artifact(version, "org.scalatest:scalatest"): "io_bazel_rules_scala/dependency/scala/scalatest/scalatest",
             _scala_artifact(version, "org.scalactic:scalactic"): "io_bazel_rules_scala/dependency/scala/scalactic/scalactic",
@@ -82,7 +82,8 @@ def _create_maven_installed_repos():
             repositories = version["repositories"],
         )
 
-        if version["default"] and version["compatability_labels"]: _bind_default_labels(repository_name, artifacts)
+        if version["default"] and version["compatability_labels"]:
+            _bind_default_labels(repository_name, artifacts)
 
         if version["default"] and version["compatability_labels"]:
             native.bind(
@@ -100,4 +101,5 @@ def _create_maven_installed_repos():
         artifacts = _maven_install_artifacts(java_artifacts),
         repositories = _configuration["repositories"],
     )
-    if _configuration["compatability_labels"]:  _bind_default_labels("io_bazel_rules_scala_scalac", java_artifacts)
+    if _configuration["compatability_labels"]:
+        _bind_default_labels("io_bazel_rules_scala_scalac", java_artifacts)
