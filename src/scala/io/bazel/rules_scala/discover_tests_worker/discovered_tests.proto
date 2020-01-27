@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package io.bazel.rules_scala.discover_tests_worker;
+
+option java_package = "io.bazel.rules_scala.discover_tests_worker";
+
+message Result {
+  repeated FrameworkDiscovery frameworkDiscoveries = 1;
+}
+
+message FrameworkDiscovery {
+  string framework = 1;
+  repeated SubclassDiscovery subclassDiscoveries = 2;
+  repeated AnnotatedDiscovery annotatedDiscoveries = 3;
+}
+
+message SubclassDiscovery {
+  string subclassName = 1;
+  bool requireNoArgConstructor = 2;
+  repeated string tests = 3;
+}
+
+message AnnotatedDiscovery {
+  string empty = 1;
+}

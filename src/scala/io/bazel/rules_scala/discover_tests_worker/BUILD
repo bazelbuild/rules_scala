@@ -7,6 +7,20 @@ scala_binary(
 	deps = [
 	     "@io_bazel_rules_scala_classgraph//jar:jar",
 	     "@io_bazel_rules_scala//src/java/io/bazel/rules_scala/worker",
+             "@io_bazel_rules_scala_test_interface//jar:jar",
+            ":discovered_tests_java_proto",
+            "//external:io_bazel_rules_scala/dependency/com_google_protobuf/protobuf_java",
 	],
         visibility = ["//visibility:public"],
+)
+
+proto_library(
+    name = "discovered_tests_proto",
+    srcs = ["discovered_tests.proto"],
+)
+
+java_proto_library(
+    name = "discovered_tests_java_proto",
+    deps = [":discovered_tests_proto"],
+    visibility = ["//visibility:public"],
 )

@@ -139,6 +139,15 @@ def scala_repositories(
         server_urls = maven_servers,
     )
 
+    _scala_maven_import_external(
+        name = "io_bazel_rules_scala_test_interface",
+        artifact = "org.scala-sbt:test-interface:jar:1.0",
+        artifact_sha256 = "15f70b38bb95f3002fec9aea54030f19bb4ecfbad64c67424b5e5fea09cd749e",
+        licenses = ["notice"],
+        server_urls = maven_servers,
+    )
+
+
     if not native.existing_rule("com_google_protobuf"):
         http_archive(
             name = "com_google_protobuf",

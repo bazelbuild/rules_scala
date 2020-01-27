@@ -51,8 +51,8 @@ def _scala_test_impl(ctx):
     )
 
 _scala_test_attrs = {
-    "main_class": attr.string(
-        default = "io.bazel.rulesscala.scala_test.Runner",
+    "_main_class": attr.string(
+        default = "io.bazel.rules_scala.discover_tests_runner.DiscoverTestsRunner",
     ),
     "colors": attr.bool(default = True),
     "full_stacktraces": attr.bool(default = True),
