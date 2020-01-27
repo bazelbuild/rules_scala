@@ -16,7 +16,7 @@ ext_scalafmt = {
         ),
         "format": attr.bool(
             default = False,
-            doc = "Switch of enabling formatting."
+            doc = "Switch of enabling formatting.",
         ),
         "_fmt": attr.label(
             cfg = "host",
