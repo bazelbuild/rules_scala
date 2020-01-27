@@ -56,11 +56,26 @@ def phase_collect_jars_common(ctx, p):
     return _phase_collect_jars_default(ctx, p)
 
 def _phase_collect_jars_default(ctx, p, _args = struct()):
+    extra_deps = []
+    extra_runtime_deps = []
+
+    phase_names = dir(p)
+    phase_names.remove("to_json")
+    phase_names.remove("to_proto")
+    for phase_name in phase_names:
+        phase = getattr(p, phase_name)
+
+        if hasattr(phase, "extra_deps"):
+            extra_deps.extend(phase.extra_deps)
+
+        if hasattr(phase, "extra_runtime_deps"):
+            extra_runtime_deps.extend(phase.extra_runtime_deps)
+
     return _phase_collect_jars(
         ctx,
         _args.base_classpath if hasattr(_args, "base_classpath") else p.scalac_provider.default_classpath,
-        _args.extra_deps if hasattr(_args, "extra_deps") else [],
-        _args.extra_runtime_deps if hasattr(_args, "extra_runtime_deps") else [],
+        (_args.extra_deps if hasattr(_args, "extra_deps") else []) + extra_deps,
+        (_args.extra_runtime_deps if hasattr(_args, "extra_runtime_deps") else []) + extra_runtime_deps,
         _args.unused_dependency_checker_mode if hasattr(_args, "unused_dependency_checker_mode") else p.unused_deps_checker,
     )
 

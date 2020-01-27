@@ -15,9 +15,10 @@ message FrameworkDiscovery {
 }
 
 message SubclassDiscovery {
-  string subclassName = 1;
-  bool requireNoArgConstructor = 2;
-  repeated string tests = 3;
+  string superclassName = 1;
+  bool isModule = 2;
+  bool requireNoArgConstructor = 3;
+  repeated string tests = 4;
 }
 
 message AnnotatedDiscovery {

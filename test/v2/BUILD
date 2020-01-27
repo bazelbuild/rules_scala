@@ -23,6 +23,12 @@ scala_test(
     srcs = ["test.scala"],
     deps = [
         ":library",
+	"@org_scalacheck_scalacheck//:org_scalacheck_scalacheck",
         "//external:io_bazel_rules_scala/dependency/scalatest/scalatest",
     ],
+    runtime_deps = [
+        # this would normally get exported by scalatest if it was set up as a proper dep
+	# instead of just a jar
+	"//external:io_bazel_rules_scala/dependency/scala/scala_xml",
+    ]
 )

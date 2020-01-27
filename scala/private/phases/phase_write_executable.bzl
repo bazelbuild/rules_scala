@@ -51,11 +51,22 @@ def phase_write_executable_common(ctx, p):
     return _phase_write_executable_default(ctx, p)
 
 def _phase_write_executable_default(ctx, p, _args = struct()):
+    jvm_flags = []
+
+    phase_names = dir(p)
+    phase_names.remove("to_json")
+    phase_names.remove("to_proto")
+    for phase_name in phase_names:
+        phase = getattr(p, phase_name)
+
+        if hasattr(phase, "jvm_flags"):
+            jvm_flags.extend(phase.jvm_flags)
+
     return _phase_write_executable(
         ctx,
         p,
         _args.rjars if hasattr(_args, "rjars") else p.compile.rjars,
-        _args.jvm_flags if hasattr(_args, "jvm_flags") else ctx.attr.jvm_flags,
+        (_args.jvm_flags if hasattr(_args, "jvm_flags") else ctx.attr.jvm_flags) + jvm_flags,
         _args.use_jacoco if hasattr(_args, "use_jacoco") else False,
         _args.main_class if hasattr(_args, "main_class") else ctx.attr._main_class if hasattr(ctx.attr, "_main_class") else ctx.attr.main_class,
     )

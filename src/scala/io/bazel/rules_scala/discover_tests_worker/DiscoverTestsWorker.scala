@@ -8,6 +8,8 @@ import io.bazel.rules_scala.discover_tests_worker.DiscoveredTests.SubclassDiscov
 
 import io.github.classgraph.ClassGraph
 import io.github.classgraph.ClassInfo
+import io.github.classgraph.ClassInfoList
+import io.github.classgraph.ScanResult
 
 import sbt.testing.Framework
 import sbt.testing.SubclassFingerprint
@@ -47,22 +49,36 @@ object DiscoverTestsWorker extends Worker.Interface {
       .foldLeft(Result.newBuilder) { (resultBuilder, framework) =>
         val frameworkInstance = framework.loadClass.newInstance.asInstanceOf[Framework]
         resultBuilder.addFrameworkDiscoveries(
-          frameworkInstance.fingerprints.foldLeft(FrameworkDiscovery.newBuilder)((b, f) => f match {
+          frameworkInstance.fingerprints.foldLeft(FrameworkDiscovery.newBuilder.setFramework(framework.getName))((b, f) => f match {
             case fingerprint: SubclassFingerprint =>
-              val tests = testScanResult
-                .getClassesImplementing(fingerprint.superclassName)
-                .exclude(frameworkScanResult.getClassesImplementing(fingerprint.superclassName))
+
+              val getCandidates: ScanResult => ClassInfoList =
+                if (frameworkScanResult.getClassInfo(fingerprint.superclassName).isInterface)
+                    _.getClassesImplementing(fingerprint.superclassName)
+                  else
+                    _.getSubclasses(fingerprint.superclassName)
+
+              val candidates = getCandidates(testScanResult).exclude(getCandidates(frameworkScanResult))
                 .asScala
                 .filter(_.isStandardClass)
-                .filter(_.getConstructorInfo.asScala.exists(_.getParameterInfo.isEmpty) == fingerprint.requireNoArgConstructor)
-                .map(_.getName)
-                .asJava
+
+              val tests: Iterable[String] =
+                if (fingerprint.isModule)
+                  candidates
+                    .map(_.getName)
+                    .filter(_.endsWith("$")).map(_.dropRight(1))
+                else
+                  candidates
+                    .filter(_.getConstructorInfo.asScala.exists(_.getParameterInfo.isEmpty) == fingerprint.requireNoArgConstructor)
+                    .map(_.getName)
+                    .filterNot(_.endsWith("$"))
 
               b.addSubclassDiscoveries(
                 SubclassDiscovery.newBuilder
-                  .setSubclassName(fingerprint.superclassName)
+                  .setSuperclassName(fingerprint.superclassName)
+                  .setIsModule(fingerprint.isModule)
                   .setRequireNoArgConstructor(fingerprint.requireNoArgConstructor)
-                  .addAllTests(tests)
+                  .addAllTests(tests.asJava)
                   .build)
             case fingerprint: AnnotatedFingerprint =>
               b.addAnnotatedDiscoveries(
@@ -73,6 +89,8 @@ object DiscoverTestsWorker extends Worker.Interface {
 
     testScanResult.close()
     frameworkScanResult.close()
+
+    //println(result)
 
     val os = new FileOutputStream(outputFile)
     result.writeTo(os)

@@ -29,4 +29,8 @@ def phase_discover_tests(ctx, p):
 
     return struct(
         files = depset([output]),
+        jvm_flags = [
+            "-DDiscoveredTestsResult={}".format(output.short_path),
+        ],
+        runfiles = depset([output]),
     )

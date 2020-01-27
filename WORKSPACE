@@ -47,6 +47,21 @@ MAVEN_SERVER_URLS = [
     "https://repo1.maven.org/maven2",
 ]
 
+# test sbt testing frameworks
+scala_maven_import_external(
+    name = "org_scalacheck_scalacheck",
+    artifact = scala_mvn_artifact(
+        "org.scalacheck:scalacheck:1.14.3",
+        default_scala_major_version(),
+    ),
+    artifact_sha256 = "3cbc95bb615f1a384b8c4406dfc42b225499f08adf7639de11566069e47d44cf",
+    licenses = ["notice"],  # Apache 2.0
+    server_urls = [
+        "https://repo1.maven.org/maven2/",
+        "https://mirror.bazel.build/repo1.maven.org/maven2",
+    ],
+)
+
 # test adding a scala jar:
 jvm_maven_import_external(
     name = "com_twitter__scalding_date",

@@ -28,6 +28,13 @@ load(
     "run_phases",
 )
 
+def _andy_hack_0(ctx, p):
+    return struct(
+        extra_runtime_deps = [
+            ctx.attr._discover_tests_runner,
+        ],
+    )
+
 def _scala_test_impl(ctx):
     return run_phases(
         ctx,
@@ -36,15 +43,16 @@ def _scala_test_impl(ctx):
             ("scalac_provider", phase_scalac_provider),
             ("write_manifest", phase_write_manifest),
             ("unused_deps_checker", phase_unused_deps_checker),
+            ("andy_hack_0", _andy_hack_0),
             ("collect_jars", phase_collect_jars_common),
             ("java_wrapper", phase_java_wrapper_common),
             ("declare_executable", phase_declare_executable),
             # no need to build an ijar for an executable
             ("compile", phase_compile_scalatest),
             ("merge_jars", phase_merge_jars),
-            ("discover_tests", phase_discover_tests),
             ("runfiles", phase_runfiles_common),
             ("coverage_runfiles", phase_coverage_runfiles),
+            ("discover_tests", phase_discover_tests),
             ("write_executable", phase_write_executable_common),
             ("default_info", phase_default_info),
         ],
@@ -65,6 +73,9 @@ _scala_test_attrs = {
     ),
     "_discover_tests_worker": attr.label(
         default = Label("@io_bazel_rules_scala//src/scala/io/bazel/rules_scala/discover_tests_worker"),
+    ),
+    "_discover_tests_runner": attr.label(
+        default = Label("@io_bazel_rules_scala//src/scala/io/bazel/rules_scala/discover_tests_runner"),
     ),
 }
 
