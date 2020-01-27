@@ -1,3 +1,5 @@
+"""load skylib"""
+
 load(":tools.bzl", _github_release = "github_release")
 
 def load_bazel_skylib():

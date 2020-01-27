@@ -1,3 +1,8 @@
+"""helpers for loading externa repos
+
+TBD: maybe delete
+"""
+
 load("@rules_jvm_external//:defs.bzl", _maven_install = "maven_install")
 
 def maven_install(**kwargs):

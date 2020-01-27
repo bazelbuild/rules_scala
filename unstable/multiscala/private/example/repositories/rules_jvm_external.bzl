@@ -1,3 +1,5 @@
+"""load rules_jvm_external"""
+
 load(":tools.bzl", _github_archive = "github_archive")
 
 def load_rules_jvm_external():

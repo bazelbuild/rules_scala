@@ -1,3 +1,16 @@
+"""macros to load all necessary repos
+
+Only public function is `create_repositories`
+
+Determines all necessary dependences from configuration and loads them.
+
+All loading via rules_jvm_external.
+
+If configuration asks for compatiblity labels, `bind`s aliases.
+
+Includes helpers to reduce boilerplate for github archives and artifact naming.
+"""
+
 load("@bazel_tools//tools/build_defs/repo:http.bzl", _http_archive = "http_archive")
 load("@io_bazel_rules_scala_configuration//:configuration.bzl", _configuration = "configuration", _versions = "versions")
 load("@rules_jvm_external//:defs.bzl", _artifact = "artifact")
@@ -28,6 +41,7 @@ def _bind_default_labels(repository_name, artifacts):
         )
 
 def create_repositories():
+    """create all necessary repos"""
     _create_protobuf()
     _create_maven_installed_repos()
 

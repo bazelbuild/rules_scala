@@ -1,3 +1,5 @@
+"""load rules_proto: needed by protobuf repo"""
+
 load(":tools.bzl", _github_archive = "github_archive")
 
 def load_rules_proto():

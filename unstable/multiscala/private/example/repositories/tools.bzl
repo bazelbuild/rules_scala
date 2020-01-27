@@ -1,3 +1,8 @@
+"""helpers for to remove http_archive boilerplate
+
+N.B.: doesn't currently include the bazel mirros
+"""
+
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 def github_release(name, repository, release, sha256):

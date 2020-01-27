@@ -1,3 +1,5 @@
+"""create toolchains required by configuration"""
+
 load(
     "@io_bazel_rules_scala//scala:scala_toolchain.bzl",
     _scala_toolchain_rule = "scala_toolchain",
@@ -10,9 +12,6 @@ load(
     ":configuration.bzl",
     _toolchain_label = "toolchain_label",
 )
-
-def toolchain_label(toolchain, version):
-    return "{toolchain}_{version}_toolchain".format(toolchain = toolchain, version = version["mvn"])
 
 def create_toolchains():
     _create_all_toolchains()
