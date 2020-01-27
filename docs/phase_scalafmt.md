@@ -15,7 +15,7 @@ scalafmt_default_config()
 scalafmt_repositories()
 ```
 
-To add this phase to the rules, you have to pass the extension to rule macros. Take `scala_binary` for example,
+To add this phase to a rule, you have to pass the extension to a rule macro. Take `scala_binary` for example,
 ```
 load("//scala:advanced_usage/scala.bzl", "make_scala_binary")
 load("//scala/scalafmt:phase_scalafmt_ext.bzl", "ext_scalafmt")
@@ -38,6 +38,6 @@ bazel run <TARGET>.format-test
 ```
 to check the format (without modifying source code).
 
-The extension provides default configuration, but there are 2 ways to use custom configuration.
+The extension provides default configuration, but there are 2 ways to use custom configuration
  - Put `.scalafmt.conf` at root of your workspace
  - Pass `.scalafmt.conf` in via `config` attribute
