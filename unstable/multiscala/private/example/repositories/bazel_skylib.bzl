@@ -1,4 +1,3 @@
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load(":tools.bzl", _github_release = "github_release")
 
 def load_bazel_skylib():

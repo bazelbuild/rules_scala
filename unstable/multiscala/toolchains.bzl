@@ -1,14 +1,10 @@
 load(
-    "@io_bazel_rules_scala_configuration//:configuration.bzl",
-    _versions = "versions",
-)
-load(
     "@io_bazel_rules_scala//scala:scala_toolchain.bzl",
     _scala_toolchain_rule = "scala_toolchain",
 )
 load(
-    "@io_bazel_rules_scala//scala:providers.bzl",
-    _ScalacProvider = "ScalacProvider",
+    "@io_bazel_rules_scala_configuration//:configuration.bzl",
+    _versions = "versions",
 )
 load(
     ":configuration.bzl",

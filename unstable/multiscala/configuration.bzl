@@ -1,21 +1,26 @@
+"""Macros to configure scala versions and dependencies.
+
+Creates the configuration repo @io_bazel_rules_scala_configuration.
+"""
+
 load("@bazel_skylib//lib:dicts.bzl", _dicts = "dicts")
 load("@bazel_skylib//lib:sets.bzl", _sets = "sets")
 
+# default configuration: public for user examination (if desired?)
 default_configuration = {
-    "scala": {
-        "2.11": {
-            "minor": "12",
-        },
-    },
-    "scalatest": "3.0.5",
-    "scalactic": "3.0.5",
-    "scala-xml": "1.0.5",
-    "scala-parser-combinators": "1.0.4",
+    "compatability_labels": True,
     "repositories": [
         "https://jcenter.bintray.com/",
         "https://maven.google.com",
         "https://repo1.maven.org/maven2",
     ],
+    "scala": {
+        "2.11": {
+            "minor": "12",
+        },
+    },
+    "scala-parser-combinators": "1.0.4",
+    "scala-xml": "1.0.5",
     "scala_bootstrap_toolchain": {
         "scala_test_jvm_flags": [],
         "scalac_jvm_flags": [],
@@ -26,7 +31,8 @@ default_configuration = {
         "plus_one_deps_mode": "off",
         "unused_dependency_checker_mode": "off",
     },
-    "compatability_labels": True,
+    "scalactic": "3.0.5",
+    "scalatest": "3.0.5",
 }
 
 def _repo_impl(ctx):
@@ -53,6 +59,17 @@ _repo = repository_rule(
 )
 
 def _merge_dicts(*dicts, exclude = None):
+    """merge multiple dictionaries
+
+    This is a lot like typical map merging but limited by the lack of
+    recursion in starlark. It will merge values to one level only.
+
+    Args:
+      *dicts: the list of dicts to merge, sequentially
+      exclude: a key to exclude from merging (merging may not work)
+
+    """
+
     configuration = {}
 
     for input in dicts:
@@ -80,14 +97,25 @@ def _merge_dicts(*dicts, exclude = None):
 
     return configuration
 
-def multiscala_configuration(user_configuration = default_configuration):
-    configuration = _merge_dicts(default_configuration, user_configuration)
+def multiscala_configuration(configuration = default_configuration):
+    """Primary entry point for configuration.
 
+    Args:
+      configuration: the configuration the user desires. Defaults to the one distributed.
+    """
+
+    configuration = _merge_dicts(default_configuration, configuration)
+
+    # include default (true or false) for each target scala version rather than the selected default
     if not "default" in configuration and len(configuration["scala"].keys()) == 1:
         configuration = _dicts.add(
             configuration,
             {"default": configuration["scala"][configuration["scala"].keys()[0]]},
         )
+
+    # since "scala" is a map key, we need to merge each item rather
+    # than having a user-specified scala key completely override the
+    # default.
 
     scala = {}
 
@@ -107,21 +135,5 @@ def multiscala_configuration(user_configuration = default_configuration):
         starlark_string = starlark_string,
     )
 
-def multiscala_configure(configuration):
-    _maybe_register_default_toolchains(configuration)
-
-def _maybe_default(configuration):
-    return configuration["scala"][configuration["default"]] if "default" in configuration else None
-
 def toolchain_label(toolchain, version):
     return "{toolchain}_{version}_toolchain".format(toolchain = toolchain, version = version["mvn"])
-
-def _maybe_register_default_toolchains(configuration):
-    version = _maybe_default(configuration)
-    if version:
-        for toolchain in [
-            # "bootstrap",
-            "scala",
-            # "scalatest"
-        ]:
-            native.register_toolchains("@io_bazel_rules_scala//unstable/multiscala:" + toolchain_label(toolchain, version))

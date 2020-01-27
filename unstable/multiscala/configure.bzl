@@ -1,5 +1,7 @@
-load("@io_bazel_rules_scala_configuration//:configuration.bzl", _configuration = "configuration")
+"""post-configuration generation, complete other actions based on the resulting configuration"""
+
 load("@io_bazel_rules_scala//unstable/multiscala:toolchains.bzl", _toolchain_label = "toolchain_label")
+load("@io_bazel_rules_scala_configuration//:configuration.bzl", _configuration = "configuration")
 
 def multiscala_configure():
     _maybe_register_default_toolchains()

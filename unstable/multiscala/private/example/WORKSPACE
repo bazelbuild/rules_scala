@@ -21,10 +21,10 @@ load_rules_python()
 load(
     "@io_bazel_rules_scala//unstable/multiscala:configuration.bzl",
     "multiscala_configuration",
-    "multiscala_configure",
 )
 
-multiscala_configuration({
+multiscala_configuration(configuration = {
+    "default": "2.12",
     "scala": {
         "2.11": {
             "minor": "12",
@@ -47,10 +47,8 @@ multiscala_configuration({
             },
         },
     },
-    "default": "2.12",
-    "scalatest": "3.1.0",
-    "scala-xml": "1.2.0",
     "scala-parser-combinators": "1.1.2",
+    "scala-xml": "1.2.0",
     "scala_bootstrap_toolchain": {
         "scalacopts": [
             "-deprecation:true",
@@ -67,6 +65,7 @@ multiscala_configuration({
     "scala_toolchain": {
         "unused_dependency_checker_mode": "error",
     },
+    "scalatest": "3.1.0",
 })
 
 load("@io_bazel_rules_scala//unstable/multiscala:repositories.bzl", "create_repositories")

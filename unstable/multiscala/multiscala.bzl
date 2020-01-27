@@ -1,3 +1,8 @@
+"""multiscala equivalents to scala/scala.bzl
+
+TBD
+"""
+
 load(
     "//scala:scala.bzl",
     _scala_binary = "scala_binary",

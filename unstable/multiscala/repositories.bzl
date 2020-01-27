@@ -1,7 +1,7 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", _http_archive = "http_archive")
-load(":tools.bzl", _maven_install = "maven_install")
 load("@io_bazel_rules_scala_configuration//:configuration.bzl", _configuration = "configuration", _versions = "versions")
 load("@rules_jvm_external//:defs.bzl", _artifact = "artifact")
+load(":tools.bzl", _maven_install = "maven_install")
 
 def _github_archive(name, repository, sha256, tag):
     (org, repo) = repository.split("/")
@@ -92,8 +92,8 @@ def _create_maven_installed_repos():
             )
 
     java_artifacts = {
-        "commons-io:commons-io:2.6": "io_bazel_rules_scala/dependency/scalac_rules_commons_io",
         "com.google.guava:guava:21.0": "io_bazel_rules_scala/dependency/scala/guava",
+        "commons-io:commons-io:2.6": "io_bazel_rules_scala/dependency/scalac_rules_commons_io",
     }
 
     _maven_install(
