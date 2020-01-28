@@ -36,7 +36,7 @@ object DiscoverTestsRunner {
   }
 
   def handleFrameworkDiscovery(frameworkDiscovery: FrameworkDiscovery, args: Array[String]): Unit = {
-    println(s"> beginning run of ${frameworkDiscovery.getFramework}")
+    print(s"\n> beginning run of ${frameworkDiscovery.getFramework}\n")
     val framework: Framework = Class.forName(frameworkDiscovery.getFramework).newInstance.asInstanceOf[Framework]
     val runner: Runner = framework.runner(args, Array.empty, Thread.currentThread.getContextClassLoader)
 
@@ -68,8 +68,8 @@ object DiscoverTestsRunner {
         handleTests(runner, fingerprint, annotatedDiscovery.getTestsList.asScala.toList)
       }
 
-    println(runner.done())
-    println(s"< run of ${frameworkDiscovery.getFramework} complete")
+    print(runner.done())
+    print(s"\n< run of ${frameworkDiscovery.getFramework} complete\n")
   }
 
   def handleTests(runner: Runner, fingerprint: Fingerprint, tests: List[String]): Unit = {
