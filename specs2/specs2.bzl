@@ -1,5 +1,6 @@
 load(
     "//scala:scala_cross_version.bzl",
+    _default_maven_server_urls = "default_maven_server_urls",
     _default_scala_version = "default_scala_version",
     _extract_major_version = "extract_major_version",
     _scala_mvn_artifact = "scala_mvn_artifact",
@@ -14,7 +15,7 @@ def specs2_version():
 
 def specs2_repositories(
         scala_version = _default_scala_version(),
-        maven_servers = ["https://repo.maven.apache.org/maven2"]):
+        maven_servers = _default_maven_server_urls()):
     major_version = _extract_major_version(scala_version)
 
     scala_jar_shas = {
