@@ -40,6 +40,12 @@ load("//specs2:specs2_junit.bzl", "specs2_junit_repositories")
 
 specs2_junit_repositories()
 
+load("//scala/scalafmt:scalafmt_repositories.bzl", "scalafmt_default_config", "scalafmt_repositories")
+
+scalafmt_default_config()
+
+scalafmt_repositories()
+
 load("//scala:scala_cross_version.bzl", "default_scala_major_version", "scala_mvn_artifact")
 
 MAVEN_SERVER_URLS = [
