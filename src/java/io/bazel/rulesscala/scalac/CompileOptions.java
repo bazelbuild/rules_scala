@@ -24,7 +24,7 @@ public class CompileOptions {
   public final String[] ignoredTargets;
   public final String[] indirectJars;
   public final String[] indirectTargets;
-  public final String dependencyAnalyzerMode;
+  public final String strictDepsMode;
   public final String unusedDependencyCheckerMode;
   public final String currentTarget;
   public final String statsfile;
@@ -59,7 +59,7 @@ public class CompileOptions {
     indirectJars = getCommaList(argMap, "IndirectJars");
     indirectTargets = getCommaList(argMap, "IndirectTargets");
 
-    dependencyAnalyzerMode = getOrElse(argMap, "DependencyAnalyzerMode", "off");
+    strictDepsMode = getOrElse(argMap, "StrictDepsMode", "off");
     unusedDependencyCheckerMode = getOrElse(argMap, "UnusedDependencyCheckerMode", "off");
     currentTarget = getOrElse(argMap, "CurrentTarget", "NA");
 

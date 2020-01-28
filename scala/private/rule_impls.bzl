@@ -66,7 +66,7 @@ def compile_scala(
     input_plugins = plugins
     plugins = _collect_plugin_paths(plugins)
     internal_plugin_jars = []
-    dependency_analyzer_mode = "off"
+    strict_deps_mode = "off"
     compiler_classpath_jars = cjars
     optional_scalac_args = ""
     classpath_resources = []
@@ -75,7 +75,7 @@ def compile_scala(
 
     if is_dependency_analyzer_on(ctx):
         # "off" mode is used as a feature toggle, that preserves original behaviour
-        dependency_analyzer_mode = ctx.fragments.java.strict_java_deps
+        strict_deps_mode = ctx.fragments.java.strict_java_deps
         dep_plugin = ctx.attr._dependency_analyzer_plugin
         plugins = depset(transitive = [plugins, dep_plugin.files])
         internal_plugin_jars = ctx.files._dependency_analyzer_plugin
@@ -102,9 +102,9 @@ CurrentTarget: {current_target}
         )
 
     elif unused_dependency_checker_mode != "off":
-        unused_dependency_plugin = ctx.attr._unused_dependency_checker_plugin
-        plugins = depset(transitive = [plugins, unused_dependency_plugin.files])
-        internal_plugin_jars = ctx.files._unused_dependency_checker_plugin
+        dependency_analyzer_plugin = ctx.attr._dependency_analyzer_plugin
+        plugins = depset(transitive = [plugins, dependency_analyzer_plugin.files])
+        internal_plugin_jars = ctx.files._dependency_analyzer_plugin
 
         cjars_list = cjars.to_list()
         direct_jars = _join_path(cjars_list)
@@ -152,7 +152,7 @@ ResourceSources: {resource_sources}
 ResourceJars: {resource_jars}
 ScalacOpts: {scala_opts}
 SourceJars: {srcjars}
-DependencyAnalyzerMode: {dependency_analyzer_mode}
+StrictDepsMode: {strict_deps_mode}
 UnusedDependencyCheckerMode: {unused_dependency_checker_mode}
 StatsfileOutput: {statsfile_output}
 """.format(
@@ -170,7 +170,7 @@ StatsfileOutput: {statsfile_output}
         resource_targets = ",".join([p[0] for p in resource_paths]),
         resource_sources = ",".join([p[1] for p in resource_paths]),
         resource_jars = _join_path(resource_jars),
-        dependency_analyzer_mode = dependency_analyzer_mode,
+        strict_deps_mode = strict_deps_mode,
         unused_dependency_checker_mode = unused_dependency_checker_mode,
         statsfile_output = statsfile.path,
     )
