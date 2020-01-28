@@ -22,7 +22,7 @@ scala_library(
    ...
 )
 
-scala_library(
+scala_binary(
    name = "app",
    deps = [
      ":lib",
