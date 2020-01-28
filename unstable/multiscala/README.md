@@ -31,7 +31,7 @@ scala_binary(
    ...
 )
 ```
-ould act with the current default single version configuration mostly exactly as it does today: it would create a single jar for each target, e.g., `lib.jar`  and `app.jar` (but we would probably add some aliases, too, with version suffixes as commmonly seen in maven).
+would act with the current default single version configuration mostly exactly as it does today: it would create a single jar for each target, e.g., `lib.jar`  and `app.jar` (but we would probably add some aliases, too, with version suffixes as commmonly seen in maven).
 
 A change of configuration to specify two scala versions would not require any changes from the user. In other words, the default behavior would be to build everything against all versions and use arguments to reduce targets, not require them to increase them.
 
