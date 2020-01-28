@@ -14,7 +14,17 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
       "compilation for issues including not directly including " +
       "dependencies which are directly included in the code, or " +
       "including unused dependencies."
-  override val components = List[PluginComponent](Component)
+  override val components =
+    List[PluginComponent](
+      new AnalyzerComponent(
+        runsAfterPhase = "typer",
+        handles = DependencyTrackingMethod.Ast
+      ),
+      new AnalyzerComponent(
+        runsAfterPhase = "jvm",
+        handles = DependencyTrackingMethod.HighLevel
+      )
+    )
 
   private val isWindows: Boolean = System.getProperty("os.name").toLowerCase.contains("windows")
   private var settings: DependencyAnalyzerSettings = null
@@ -27,34 +37,44 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
     true
   }
 
-  private object Component extends PluginComponent {
-    val global: DependencyAnalyzer.this.global.type =
+  private class AnalyzerComponent(
+    // Typer seems to be the better method at least for AST - it seems like
+    // some things get eliminated in later phases. However, due to backwards
+    // compatibility we have to preserve using jvm for the high-level-crawl
+    // dependency tracking method
+    runsAfterPhase: String,
+    handles: DependencyTrackingMethod
+  ) extends PluginComponent {
+    override val global: DependencyAnalyzer.this.global.type =
       DependencyAnalyzer.this.global
 
-    override val runsAfter = List("jvm")
+    override val runsAfter = List(runsAfterPhase)
 
-    val phaseName = DependencyAnalyzer.this.name
+    val phaseName = s"${DependencyAnalyzer.this.name}-post-$runsAfterPhase"
 
     override def newPhase(prev: Phase): StdPhase = new StdPhase(prev) {
       override def run(): Unit = {
-
         super.run()
-
-        val usedJars = findUsedJars
-        val usedJarPaths = if (!isWindows) usedJars.map(_.path) else usedJars.map(_.path.replaceAll("\\\\", "/"))
-
-        if (settings.unusedDepsMode != AnalyzerMode.Off) {
-          reportUnusedDepsFoundIn(usedJarPaths)
-        }
-
-        if (settings.strictDepsMode != AnalyzerMode.Off) {
-          reportIndirectTargetsFoundIn(usedJarPaths)
+        if (settings.dependencyTrackingMethod == handles) {
+          runAnalysis()
         }
       }
 
       override def apply(unit: global.CompilationUnit): Unit = ()
     }
+  }
 
+  private def runAnalysis(): Unit = {
+    val usedJars = findUsedJars
+    val usedJarPaths = if (!isWindows) usedJars.map(_.path) else usedJars.map(_.path.replaceAll("\\\\", "/"))
+
+    if (settings.unusedDepsMode != AnalyzerMode.Off) {
+      reportUnusedDepsFoundIn(usedJarPaths)
+    }
+
+    if (settings.strictDepsMode != AnalyzerMode.Off) {
+      reportIndirectTargetsFoundIn(usedJarPaths)
+    }
   }
 
   private def reportIndirectTargetsFoundIn(usedJarPaths: Set[String]): Unit = {
@@ -112,6 +132,8 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
     settings.dependencyTrackingMethod match {
       case DependencyTrackingMethod.HighLevel =>
         new HighLevelCrawlUsedJarFinder(global).findUsedJars
+      case DependencyTrackingMethod.Ast =>
+        new AstUsedJarFinder(global).findUsedJars
     }
   }
 }
