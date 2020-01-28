@@ -4,11 +4,11 @@ It is not only not stable, it's not complete. All the documentation here is as m
 
 ## example
 
-In `private/example`
+In [`private/example`](private/example)
 
 ## Configuration
 
-Is currently via a dict of dicts, lists, strings and booleans. It's not yet documented but there is an example in the example `WORKSPACE`. The feeling is that this is ripe for refactoring. There's been a request to support multiple minor version for the same major version which wouldn't be very hard. Other things to be considered is do we use helpers to construct this rather than core types. This would be less error prone. Also, it's possible structs might be preferable to dicts since it might make code more succinct and less error prone.
+The configuration is currently via a dict of dicts, lists, strings and booleans. It's not yet documented but there is an example in the example [`WORKSPACE`]((private/example/WORKSPACE)). The feeling is that this is ripe for refactoring. There's been a request to support multiple minor versions for the same major version which wouldn't be very hard. Another thing to consider is do we use helper macros to construct this rather than core types. That would be less error prone. Also, it's possible structs might be preferable to dicts since it might make code more succinct and less error prone.
 
 ## Creating targets
 
@@ -18,15 +18,24 @@ One goal would be that
 
 ```
 scala_library(
-   name = "foo",
+   name = "lib",
+   ...
+)
+
+scala_library(
+   name = "app",
+   deps = [
+     ":lib",
+     ...
+   ]
    ...
 )
 ```
-Would act with the current default configuration just as it does today: it would create a single jar, `foo_.jar`.
+ould act with the current default single version configuration mostly exactly as it does today: it would create a single jar for each target, e.g., `lib.jar`  and `app.jar` (but we would probably add some aliases, too, with version suffixes as commmonly seen in maven).
 
-A change of configuration to specify two scala versions would not require any changes from the user. In other words, the default behavior is to build everything against all versions and use argument to reduce targets, not to increase them.
+A change of configuration to specify two scala versions would not require any changes from the user. In other words, the default behavior would be to build everything against all versions and use arguments to reduce targets, not require them to increase them.
 
-So in the example above, with two scala versions configured, a build would create, for example,  `foo_2_11.jar` and `foo_2_12.jar`. (This is a simplified example. I think we'll end up creating one jar for every version and then a set of aliases to give people the names that they expect.)
+So in the example above, with two scala versions configured, a build would create, for example,  `lib_2_11.jar`, `lib_2_12.jar`, `app_2_11.jar` and `app_2_12.jar`. The mutliscala code will create the versioned targets based on the version deps. (This is a simplified example. As mentioned, I think we'll end up creating one jar for every version and then a set of aliases to give people the names that they expect.)
 
 To do this, we'd need to change `scala_library` from a rule to a macro. The macro has access to the configuration (which is why it's an external repo) and can instantiate the necessary targets and aliases.
 
