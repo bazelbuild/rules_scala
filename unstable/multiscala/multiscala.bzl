@@ -65,6 +65,8 @@ def scala_library(
     """create a multi-scala library
 
     Args:
+      scala_deps: deps that require scala version naming
+      scala_runtime_deps: deps that require scala version naming
       **kwargs: standard scala_library arguments
     """
 
@@ -84,6 +86,8 @@ def scala_binary(
     """create a multi-scala binary
 
     Args:
+      scala_deps: deps that require scala version naming
+      scala_runtime_deps: deps that require scala version naming
       **kwargs: standard scala_binary arguments
     """
 
@@ -101,6 +105,8 @@ def scala_test(
     """create a multi-scala test
 
     Args:
+      scala_deps: deps that require scala version naming
+      scala_runtime_deps: deps that require scala version naming
       **kwargs: standard scala_test arguments
     """
 
