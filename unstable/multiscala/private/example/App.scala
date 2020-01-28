@@ -1,3 +1,5 @@
 object App extends scala.App {
-  println(s"hello, world from ${scala.util.Properties.versionString}!")
+  def version = scala.util.Properties.versionString
+
+  println(s"hello, world from $version!")
 }

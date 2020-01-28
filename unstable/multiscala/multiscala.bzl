@@ -51,7 +51,17 @@ def _create_scala_test(version, name, **kwargs):
     if version["default"]:
         native.alias(name = name, actual = target_name)
 
-def scala_library(**kwargs):
+def _combine_deps(
+        name,
+        scala,
+        kwargs,
+        mvn_version):
+    pass
+
+def scala_library(
+        scala_deps = [],
+        scala_runtime_deps = [],
+        **kwargs):
     """create a multi-scala library
 
     Args:
@@ -60,12 +70,17 @@ def scala_library(**kwargs):
 
     versions = _versions()
     if "toolchains" in kwargs:
+        kwargs["deps"] = _combine_deps("deps", scala_deps, kwargs, "")
+        kwargs["runtime_deps"] = _combine_deps("runtime_deps", scala_runtime_deps, kwargs, "")
         _scala_library_rule(**kwargs)
     else:
         for version in versions:
             _create_scala_library(version, **kwargs)
 
-def scala_binary(**kwargs):
+def scala_binary(
+        scala_deps = [],
+        scala_runtime_deps = [],
+        **kwargs):
     """create a multi-scala binary
 
     Args:
@@ -79,7 +94,10 @@ def scala_binary(**kwargs):
         for version in versions:
             _create_scala_binary(version, **kwargs)
 
-def scala_test(**kwargs):
+def scala_test(
+        scala_deps = [],
+        scala_runtime_deps = [],
+        **kwargs):
     """create a multi-scala test
 
     Args:

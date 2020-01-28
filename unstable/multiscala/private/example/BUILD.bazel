@@ -11,7 +11,10 @@ load(
 
 _scala_library(
     name = "library",
-    srcs = ["App.scala"],
+    srcs = glob(
+        ["*.scala"],
+        exclude = ["*Test.scala"],
+    ),
 )
 
 _scala_binary(
@@ -23,6 +26,8 @@ _scala_binary(
 _scala_test(
     name = "test",
     srcs = ["AppTest.scala"],
+    scala_deps = [":library"],
+    deps = [":library"],
 )
 
 _scala_library(
@@ -35,11 +40,13 @@ _scala_binary(
     name = "app_with_explict_toolchain",
     main_class = "App",
     toolchains = [toolchain_label("scala", "2.11")],
-    runtime_deps = [":library"],
+    runtime_deps = [":library_with_explict_toolchain"],
 )
 
 _scala_test(
     name = "test_with_explict_toolchain",
     srcs = ["AppTest.scala"],
+    scala_deps = [":library_with_explict_toolchain"],
     toolchains = [toolchain_label("scala", "2.11")],
+    deps = [":library_with_explict_toolchain"],
 )
