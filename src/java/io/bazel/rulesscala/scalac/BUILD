@@ -1,4 +1,4 @@
-load(
+gwload(
     ":jvm_export_toolchain.bzl",
     _export_scalac_repositories_from_toolchain_to_jvm = "export_scalac_repositories_from_toolchain_to_jvm",
 )
@@ -21,7 +21,7 @@ java_binary(
     deps = [
         ":exported_scalac_repositories_from_toolchain_to_jvm",
         "//external:io_bazel_rules_scala/dependency/scalac_rules_commons_io",
-        "@io_bazel_rules_scala//src/java/com/google/devtools/build/lib:worker",
+        "//third_party/bazel/src/main/protobuf:worker_protocol_java_proto",
         "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/jar",
         "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/worker",
     ],

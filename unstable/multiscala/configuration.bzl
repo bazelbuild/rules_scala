@@ -92,7 +92,7 @@ def _merge_dicts(*dicts, exclude = None):
                         input[key],
                     )
                 elif field_type == "NoneType":
-                    pass  # None means delete ...
+                    configuration.pop(key)
                 else:
                     fail([key, field_type])
 
