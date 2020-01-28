@@ -22,5 +22,7 @@ message SubclassDiscovery {
 }
 
 message AnnotatedDiscovery {
-  string empty = 1;
+  string annotationName = 1;
+  bool isModule = 2;
+  repeated string tests = 3;
 }

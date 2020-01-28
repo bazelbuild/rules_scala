@@ -15,7 +15,7 @@ def phase_discover_tests(ctx, p):
     args.add(output)
     args.add_all(p.compile.full_jars)
     args.add("--")
-    args.add_all(p.collect_jars.compile_jars)
+    args.add_all(p.collect_jars.transitive_runtime_jars)
 
     ctx.actions.run(
         mnemonic = "DiscoverTests",

@@ -4,8 +4,10 @@ import io.bazel.rules_scala.discover_tests_worker.DiscoveredTests.Result
 import io.bazel.rules_scala.discover_tests_worker.DiscoveredTests.FrameworkDiscovery
 import io.bazel.rules_scala.discover_tests_worker.DiscoveredTests.SubclassDiscovery
 
+import sbt.testing.AnnotatedFingerprint
 import sbt.testing.Event
 import sbt.testing.EventHandler
+import sbt.testing.Fingerprint
 import sbt.testing.Framework
 import sbt.testing.Logger
 import sbt.testing.Runner
@@ -38,24 +40,39 @@ object DiscoverTestsRunner {
     val framework: Framework = Class.forName(frameworkDiscovery.getFramework).newInstance.asInstanceOf[Framework]
     val runner: Runner = framework.runner(args, Array.empty, Thread.currentThread.getContextClassLoader)
 
-    val subclassFingerprintMap: Map[(String, Boolean, Boolean), SubclassFingerprint] = framework.fingerprints.collect {
-      case fingerprint: SubclassFingerprint => (fingerprint.superclassName, fingerprint.isModule, fingerprint.requireNoArgConstructor) -> fingerprint
-    }.toMap
+    val subclassFingerprintMap: Map[(String, Boolean, Boolean), SubclassFingerprint] =
+      framework.fingerprints.collect {
+        case fingerprint: SubclassFingerprint =>
+          (fingerprint.superclassName, fingerprint.isModule, fingerprint.requireNoArgConstructor) -> fingerprint
+      }.toMap
 
-    frameworkDiscovery.getSubclassDiscoveriesList
-      .asScala
+    val annotatedFingerprintMap: Map[(String, Boolean), AnnotatedFingerprint] =
+      framework.fingerprints.collect {
+        case fingerprint: AnnotatedFingerprint =>
+          (fingerprint.annotationName, fingerprint.isModule) -> fingerprint
+      }.toMap
+
+    frameworkDiscovery.getSubclassDiscoveriesList.asScala
       .foreach { subclassDiscovery =>
-        val fingerprint: SubclassFingerprint = subclassFingerprintMap.get((subclassDiscovery.getSuperclassName, subclassDiscovery.getIsModule, subclassDiscovery.getRequireNoArgConstructor))
+        val fingerprint = subclassFingerprintMap.get((subclassDiscovery.getSuperclassName, subclassDiscovery.getIsModule, subclassDiscovery.getRequireNoArgConstructor))
           .getOrElse(sys.error(s"Unable to resolve fingerprint instance for $subclassDiscovery"))
 
         handleTests(runner, fingerprint, subclassDiscovery.getTestsList.asScala.toList)
+      }
+
+    frameworkDiscovery.getAnnotatedDiscoveriesList.asScala
+      .foreach { annotatedDiscovery =>
+        val fingerprint = annotatedFingerprintMap.get((annotatedDiscovery.getAnnotationName, annotatedDiscovery.getIsModule))
+          .getOrElse(sys.error(s"Unable to resolve fingerprint instance for $annotatedDiscovery"))
+
+        handleTests(runner, fingerprint, annotatedDiscovery.getTestsList.asScala.toList)
       }
 
     println(runner.done())
     println(s"< run of ${frameworkDiscovery.getFramework} complete")
   }
 
-  def handleTests(runner: Runner, fingerprint: SubclassFingerprint, tests: List[String]): Unit = {
+  def handleTests(runner: Runner, fingerprint: Fingerprint, tests: List[String]): Unit = {
     val eventHandler: EventHandler = new EventHandler {
       def handle(event: Event): Unit = {
         //println(s"- $event")

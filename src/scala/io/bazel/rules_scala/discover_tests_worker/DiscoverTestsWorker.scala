@@ -42,6 +42,7 @@ object DiscoverTestsWorker extends Worker.Interface {
       .ignoreParentClassLoaders
       .enableClassInfo
       .enableMethodInfo
+      .enableAnnotationInfo
       .scan
 
     val result: Result = frameworkScanResult
@@ -58,9 +59,11 @@ object DiscoverTestsWorker extends Worker.Interface {
                   else
                     _.getSubclasses(fingerprint.superclassName)
 
-              val candidates = getCandidates(testScanResult).exclude(getCandidates(frameworkScanResult))
-                .asScala
-                .filter(_.isStandardClass)
+              val candidates: Iterable[ClassInfo] =
+                getCandidates(testScanResult)
+                  .exclude(getCandidates(frameworkScanResult))
+                  .asScala
+                  .filter(_.isStandardClass)
 
               val tests: Iterable[String] =
                 if (fingerprint.isModule)
@@ -81,16 +84,33 @@ object DiscoverTestsWorker extends Worker.Interface {
                   .addAllTests(tests.asJava)
                   .build)
             case fingerprint: AnnotatedFingerprint =>
+
+              val candidates: Iterable[ClassInfo] =
+                testScanResult.getClassesWithAnnotation(fingerprint.annotationName)
+                  .union(testScanResult.getClassesWithMethodAnnotation(fingerprint.annotationName))
+                  .asScala
+
+              val tests: Iterable[String] =
+                if (fingerprint.isModule)
+                  candidates
+                    .map(_.getName)
+                    .filter(_.endsWith("$")).map(_.dropRight(1))
+                else
+                  candidates
+                    .map(_.getName)
+                    .filterNot(_.endsWith("$"))
+
               b.addAnnotatedDiscoveries(
                 AnnotatedDiscovery.newBuilder
+                  .setAnnotationName(fingerprint.annotationName)
+                  .setIsModule(fingerprint.isModule)
+                  .addAllTests(tests.asJava)
                   .build)
           }).build)
       }.build
 
     testScanResult.close()
     frameworkScanResult.close()
-
-    //println(result)
 
     val os = new FileOutputStream(outputFile)
     result.writeTo(os)

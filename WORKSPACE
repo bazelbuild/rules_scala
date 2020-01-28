@@ -62,6 +62,17 @@ scala_maven_import_external(
     ],
 )
 
+scala_maven_import_external(
+    name = "com_novocode_junit_interface",
+    artifact = "com.novocode:junit-interface:0.11",
+    artifact_sha256 = "29e923226a0d10e9142bbd81073ef52f601277001fcf9014389bf0af3dc33dc3",
+    licenses = ["notice"],  # Apache 2.0
+    server_urls = [
+        "https://repo1.maven.org/maven2/",
+        "https://mirror.bazel.build/repo1.maven.org/maven2",
+    ],
+)
+
 # test adding a scala jar:
 jvm_maven_import_external(
     name = "com_twitter__scalding_date",
