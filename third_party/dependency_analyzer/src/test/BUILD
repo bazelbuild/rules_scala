@@ -16,12 +16,12 @@ scala_test(
     jvm_flags = common_jvm_flags,
     unused_dependency_checker_mode = "off",
     deps = [
-        "@scalac_rules_commons_io//jar",
         "//external:io_bazel_rules_scala/dependency/scala/scala_compiler",
         "//external:io_bazel_rules_scala/dependency/scala/scala_library",
         "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
         "//third_party/dependency_analyzer/src/main:dependency_analyzer",
         "//third_party/utils/src/test:test_util",
+        "@scalac_rules_commons_io//jar",
     ],
 )
 
