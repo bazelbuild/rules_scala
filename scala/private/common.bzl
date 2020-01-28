@@ -11,19 +11,51 @@ def write_manifest_file(actions, output_file, main_class):
 
 def collect_jars(
         dep_targets,
-        dependency_analyzer_is_off = True,
-        unused_dependency_checker_is_off = True,
-        plus_one_deps_is_off = True):
+        dependency_mode,
+        need_direct_info,
+        need_indirect_info):
     """Compute the runtime and compile-time dependencies from the given targets"""  # noqa
 
-    if dependency_analyzer_is_off:
-        return _collect_jars_when_dependency_analyzer_is_off(
-            dep_targets,
-            unused_dependency_checker_is_off,
-            plus_one_deps_is_off,
+    transitive_compile_jars = []
+    jars2labels = {}
+    compile_jars = []
+    runtime_jars = []
+    deps_providers = []
+
+    for dep_target in dep_targets:
+        # we require a JavaInfo for dependencies
+        # must use java_import or scala_import if you have raw files
+        java_provider = dep_target[JavaInfo]
+        deps_providers.append(java_provider)
+        compile_jars.append(java_provider.compile_jars)
+        runtime_jars.append(java_provider.transitive_runtime_jars)
+
+        additional_transitive_compile_jars = _additional_transitive_compile_jars(
+            java_provider=java_provider,
+            dep_target=dep_target,
+            dependency_mode=dependency_mode
         )
-    else:
-        return _collect_jars_when_dependency_analyzer_is_on(dep_targets)
+        transitive_compile_jars.append(additional_transitive_compile_jars)
+
+        if need_direct_info or need_indirect_info:
+            if need_indirect_info:
+                all_jars = additional_transitive_compile_jars.to_list()
+            else:
+                all_jars = []
+            add_labels_of_jars_to(
+                jars2labels,
+                dep_target,
+                all_jars,
+                java_provider.compile_jars.to_list(),
+            )
+
+    return struct(
+        compile_jars = depset(transitive = compile_jars),
+        transitive_runtime_jars = depset(transitive = runtime_jars),
+        jars2labels = JarsToLabelsInfo(jars_to_labels = jars2labels),
+        transitive_compile_jars = depset(transitive = transitive_compile_jars),
+        deps_providers = deps_providers,
+    )
 
 def collect_plugin_paths(plugins):
     """Get the actual jar paths of plugins as a depset."""
@@ -40,79 +72,20 @@ def collect_plugin_paths(plugins):
             paths.extend([f for f in p.files.to_list() if not_sources_jar(f.basename)])
     return depset(paths)
 
-def _collect_jars_when_dependency_analyzer_is_off(
-        dep_targets,
-        unused_dependency_checker_is_off,
-        plus_one_deps_is_off):
-    compile_jars = []
-    plus_one_deps_compile_jars = []
-    runtime_jars = []
-    jars2labels = {}
-
-    deps_providers = []
-
-    for dep_target in dep_targets:
-        # we require a JavaInfo for dependencies
-        # must use java_import or scala_import if you have raw files
-        java_provider = dep_target[JavaInfo]
-        deps_providers.append(java_provider)
-        compile_jars.append(java_provider.compile_jars)
-        runtime_jars.append(java_provider.transitive_runtime_jars)
-
-        if not unused_dependency_checker_is_off:
-            add_labels_of_jars_to(
-                jars2labels,
-                dep_target,
-                [],
-                java_provider.compile_jars.to_list(),
-            )
-
-        if (not plus_one_deps_is_off) and (PlusOneDeps in dep_target):
-            plus_one_deps_compile_jars.append(
-                depset(transitive = [dep[JavaInfo].compile_jars for dep in dep_target[PlusOneDeps].direct_deps if JavaInfo in dep]),
-            )
-
-    return struct(
-        compile_jars = depset(transitive = compile_jars),
-        transitive_runtime_jars = depset(transitive = runtime_jars),
-        jars2labels = JarsToLabelsInfo(jars_to_labels = jars2labels),
-        transitive_compile_jars = depset(transitive = compile_jars + plus_one_deps_compile_jars),
-        deps_providers = deps_providers,
-    )
-
-def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
-    transitive_compile_jars = []
-    jars2labels = {}
-    compile_jars = []
-    runtime_jars = []
-    deps_providers = []
-
-    for dep_target in dep_targets:
-        # we require a JavaInfo for dependencies
-        # must use java_import or scala_import if you have raw files
-        java_provider = dep_target[JavaInfo]
-        deps_providers.append(java_provider)
-        current_dep_compile_jars = java_provider.compile_jars
-        current_dep_transitive_compile_jars = java_provider.transitive_compile_time_jars
-        runtime_jars.append(java_provider.transitive_runtime_jars)
-
-        compile_jars.append(current_dep_compile_jars)
-        transitive_compile_jars.append(current_dep_transitive_compile_jars)
-
-        add_labels_of_jars_to(
-            jars2labels,
-            dep_target,
-            current_dep_transitive_compile_jars.to_list(),
-            current_dep_compile_jars.to_list(),
-        )
-
-    return struct(
-        compile_jars = depset(transitive = compile_jars),
-        transitive_runtime_jars = depset(transitive = runtime_jars),
-        jars2labels = JarsToLabelsInfo(jars_to_labels = jars2labels),
-        transitive_compile_jars = depset(transitive = transitive_compile_jars),
-        deps_providers = deps_providers,
-    )
+def _additional_transitive_compile_jars(
+        java_provider,
+        dep_target,
+        dependency_mode):
+    if dependency_mode == 'transitive':
+        return java_provider.transitive_compile_time_jars
+    elif dependency_mode == 'plus-one':
+        if PlusOneDeps in dep_target:
+            plus_one_jars = [dep[JavaInfo].compile_jars for dep in dep_target[PlusOneDeps].direct_deps if JavaInfo in dep]
+            return depset(transitive = plus_one_jars + [java_provider.compile_jars])
+        else:
+            return java_provider.compile_jars
+    else: # direct
+        return java_provider.compile_jars
 
 # When import mavan_jar's for scala macros we have to use the jar:file requirement
 # since bazel 0.6.0 this brings in the source jar too

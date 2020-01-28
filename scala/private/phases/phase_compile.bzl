@@ -10,6 +10,10 @@ load(
     _coverage_replacements_provider = "coverage_replacements_provider",
 )
 load(
+    "@io_bazel_rules_scala//scala/private:dependency.bzl",
+    "new_dependency_info",
+)
+load(
     "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
     _compile_scala = "compile_scala",
     _expand_location = "expand_location",
@@ -48,16 +52,6 @@ def phase_compile_library(ctx, p):
             for target in p.scalac_provider.default_classpath + ctx.attr.exports +
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
-    )
-    return _phase_compile_default(ctx, p, args)
-
-def phase_compile_library_for_plugin_bootstrapping(ctx, p):
-    args = struct(
-        unused_dependency_checker_ignored_targets = [
-            target.label
-            for target in p.scalac_provider.default_classpath + ctx.attr.exports
-        ],
-        unused_dependency_checker_mode = "off",
     )
     return _phase_compile_default(ctx, p, args)
 
@@ -124,8 +118,7 @@ def _phase_compile_default(ctx, p, _args = struct()):
         _args.srcjars if hasattr(_args, "srcjars") else depset(),
         _args.buildijar if hasattr(_args, "buildijar") else True,
         _args.implicit_junit_deps_needed_for_java_compilation if hasattr(_args, "implicit_junit_deps_needed_for_java_compilation") else [],
-        _args.unused_dependency_checker_ignored_targets if hasattr(_args, "unused_dependency_checker_ignored_targets") else [],
-        _args.unused_dependency_checker_mode if hasattr(_args, "unused_dependency_checker_mode") else p.unused_deps_checker,
+        unused_dependency_checker_ignored_targets = _args.unused_dependency_checker_ignored_targets if hasattr(_args, "unused_dependency_checker_ignored_targets") else [],
     )
 
 def _phase_compile(
@@ -135,8 +128,7 @@ def _phase_compile(
         buildijar,
         # TODO: generalize this hack
         implicit_junit_deps_needed_for_java_compilation,
-        unused_dependency_checker_ignored_targets,
-        unused_dependency_checker_mode):
+        unused_dependency_checker_ignored_targets):
     manifest = ctx.outputs.manifest
     jars = p.collect_jars.compile_jars
     rjars = p.collect_jars.transitive_runtime_jars
@@ -154,10 +146,10 @@ def _phase_compile(
         transitive_compile_jars,
         jars2labels,
         implicit_junit_deps_needed_for_java_compilation,
-        unused_dependency_checker_mode,
-        unused_dependency_checker_ignored_targets,
-        deps_providers,
-        default_classpath,
+        deps_providers=deps_providers,
+        default_classpath=default_classpath,
+        dependency_info=p.dependency,
+        unused_dependency_checker_ignored_targets=unused_dependency_checker_ignored_targets
     )
 
     # TODO: simplify the return values and use provider
@@ -186,10 +178,10 @@ def _compile_or_empty(
         transitive_compile_jars,
         jars2labels,
         implicit_junit_deps_needed_for_java_compilation,
-        unused_dependency_checker_mode,
-        unused_dependency_checker_ignored_targets,
+        dependency_info,
         deps_providers,
-        default_classpath):
+        default_classpath,
+        unused_dependency_checker_ignored_targets):
     # We assume that if a srcjar is present, it is not empty
     if len(ctx.files.srcs) + len(srcjars.to_list()) == 0:
         _build_nosrc_jar(ctx)
@@ -224,7 +216,12 @@ def _compile_or_empty(
         # We are not able to verify whether dependencies are used when compiling java sources
         # Thus we disable unused dependency checking when java sources are found
         if len(java_srcs) != 0:
-            unused_dependency_checker_mode = "off"
+            dependency_info = new_dependency_info(
+                dependency_mode=dependency_info.dependency_mode,
+                unused_deps_mode='off',
+                strict_deps_mode=dependency_info.strict_deps_mode,
+                dependency_tracking_method=dependency_info.dependency_tracking_method,
+            )
 
         sources = [
             f
@@ -251,9 +248,8 @@ def _compile_or_empty(
             ctx.attr.expect_java_output,
             ctx.attr.scalac_jvm_flags,
             ctx.attr._scalac,
-            unused_dependency_checker_ignored_targets =
-                unused_dependency_checker_ignored_targets,
-            unused_dependency_checker_mode = unused_dependency_checker_mode,
+            dependency_info=dependency_info,
+            unused_dependency_checker_ignored_targets=unused_dependency_checker_ignored_targets
         )
 
         # build ijar if needed
