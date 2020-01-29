@@ -40,3 +40,7 @@ So in the example above, with two scala versions configured, a build would creat
 To do this, we'd need to change `scala_library` from a rule to a macro. The macro has access to the configuration (which is why it's an external repo) and can instantiate the necessary targets and aliases.
 
 I do wonder if folks will consider this _too magic_. I can say that the developers I work with would prefer this to manual copying or having to write a starlark loop themselves for every target.
+
+## External Repos
+
+See [External Repositories](ExternalReposistories.md)
