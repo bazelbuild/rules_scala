@@ -34,47 +34,45 @@ def _phase_coverage(ctx, p, srcjars):
             external_providers = {},
         )
     else:
-        return _jacoco_offline_instrument(ctx, ctx.outputs.jar)
+        input_jar = ctx.outputs.jar
+        output_jar = ctx.actions.declare_file(
+            "{}-offline.jar".format(input_jar.basename.split(".")[0]),
+        )
+        in_out_pairs = [
+            (input_jar, output_jar),
+        ]
 
-def _jacoco_offline_instrument(ctx, input_jar):
-    output_jar = ctx.actions.declare_file(
-        "{}-offline.jar".format(input_jar.basename.split(".")[0]),
-    )
-    in_out_pairs = [
-        (input_jar, output_jar),
-    ]
+        args = ctx.actions.args()
+        args.add_all(in_out_pairs, map_each = _jacoco_offline_instrument_format_each)
+        args.set_param_file_format("multiline")
+        args.use_param_file("@%s", use_always = True)
 
-    args = ctx.actions.args()
-    args.add_all(in_out_pairs, map_each = _jacoco_offline_instrument_format_each)
-    args.set_param_file_format("multiline")
-    args.use_param_file("@%s", use_always = True)
+        ctx.actions.run(
+            mnemonic = "JacocoInstrumenter",
+            inputs = [in_out_pair[0] for in_out_pair in in_out_pairs],
+            outputs = [in_out_pair[1] for in_out_pair in in_out_pairs],
+            executable = ctx.attr._code_coverage_instrumentation_worker.files_to_run,
+            execution_requirements = {"supports-workers": "1"},
+            arguments = [args],
+        )
 
-    ctx.actions.run(
-        mnemonic = "JacocoInstrumenter",
-        inputs = [in_out_pair[0] for in_out_pair in in_out_pairs],
-        outputs = [in_out_pair[1] for in_out_pair in in_out_pairs],
-        executable = ctx.attr._code_coverage_instrumentation_worker.files_to_run,
-        execution_requirements = {"supports-workers": "1"},
-        arguments = [args],
-    )
-
-    replacements = {i: o for (i, o) in in_out_pairs}
-    provider = _coverage_replacements_provider.create(
-        replacements = replacements,
-    )
-    instrumented_files_provider = coverage_common.instrumented_files_info(
-        ctx,
-        source_attributes = ["srcs"],
-        dependency_attributes = _coverage_replacements_provider.dependency_attributes,
-        extensions = ["scala", "java"],
-    )
-    return struct(
-        replacements = replacements,
-        external_providers = {
-            "_CoverageReplacements": provider,
-            "InstrumentedFilesInfo": instrumented_files_provider,
-        },
-    )
+        replacements = {i: o for (i, o) in in_out_pairs}
+        provider = _coverage_replacements_provider.create(
+            replacements = replacements,
+        )
+        instrumented_files_provider = coverage_common.instrumented_files_info(
+            ctx,
+            source_attributes = ["srcs"],
+            dependency_attributes = _coverage_replacements_provider.dependency_attributes,
+            extensions = ["scala", "java"],
+        )
+        return struct(
+            replacements = replacements,
+            external_providers = {
+                "_CoverageReplacements": provider,
+                "InstrumentedFilesInfo": instrumented_files_provider,
+            },
+        )
 
 def _jacoco_offline_instrument_format_each(in_out_pair):
     return (["%s=%s" % (in_out_pair[0].path, in_out_pair[1].path)])
