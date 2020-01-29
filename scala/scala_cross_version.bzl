@@ -31,6 +31,14 @@ def default_scala_version_jar_shas():
         "scala_reflect": "6ba385b450a6311a15c918cf8688b9af9327c6104f0ecbd35933cfcd3095fe04",
     }
 
+def default_maven_server_urls():
+    return [
+        "https://repo.maven.apache.org/maven2",
+        "https://maven-central.storage-download.googleapis.com/maven2",
+        "https://mirror.bazel.build/repo1.maven.org/maven2",
+        "https://jcenter.bintray.com",
+    ]
+
 def extract_major_version(scala_version):
     """Return major Scala version given a full version, e.g. "2.11.11" -> "2.11" """
     return scala_version[:scala_version.find(".", 2)]

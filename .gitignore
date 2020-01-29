@@ -6,3 +6,5 @@ hash2
 .DS_store
 .bazel_cache
 .ijwb
+.metals
+unformatted-*.backup.scala
