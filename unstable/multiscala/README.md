@@ -77,3 +77,13 @@ We might want a `lib_2.jar` as well, just to be complete.
 Defaults are explicit unless there's only one option, e.g., 2.12.10, above in which case they're implicit. They can be explicitly inhibited with a value of None.
 
 One thing I noted and I'm not sure about is that AFAICT, bazel implements aliases with copies. That means keeping unneeded aliases takes disk space. Not sure if this is an issue ...
+
+I suspect, instead, what we might want to do is provide a macro argument that indicates we want a specifc version to be the default, e.g., something like
+```
+scala_binary(
+  name = "my-app",
+  ...
+  default_version = "2.12",
+)
+```
+The macro would alias this and only this version of this target. This would produce far less copies at the expense of requiring users to add this to all rules where they want this behavior. Alternatively, we could have a configuration along the lines of `alias_default_binary = True`. That might be the best trade-off: not aliasing every library target but not requiring the user annotate every binary target. Supporting both would be fairly simple.
