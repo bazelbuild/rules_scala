@@ -14,7 +14,7 @@ import java.net.URI
 import scala.collection.JavaConverters._
 import java.nio.file.{FileSystems, Files, Path, Paths}
 
-import io.bazel.rulesscala.jar.JarCreator
+import io.bazel.rules_scala.jar.JarCreator
 
 
 /**

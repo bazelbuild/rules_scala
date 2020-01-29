@@ -1,4 +1,4 @@
-package build.bazel.rulesscala.test.srcgen
+package build.bazel.rules_scala.test.srcgen
 
 object SrcGenerator {
   def main(args: Array[String]): Unit = {

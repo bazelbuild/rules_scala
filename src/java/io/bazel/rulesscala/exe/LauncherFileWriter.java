@@ -1,4 +1,4 @@
-package io.bazel.rulesscala.exe;
+package io.bazel.rules_scala.exe;
 
 import com.google.common.base.Preconditions;
 import com.google.common.io.ByteStreams;

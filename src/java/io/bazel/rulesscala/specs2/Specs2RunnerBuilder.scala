@@ -1,10 +1,10 @@
-package io.bazel.rulesscala.specs2
+package io.bazel.rules_scala.specs2
 
 import java.util
 import java.util.regex.Pattern
 
-import io.bazel.rulesscala.test_discovery.FilteredRunnerBuilder.FilteringRunnerBuilder
-import io.bazel.rulesscala.test_discovery._
+import io.bazel.rules_scala.test_discovery.FilteredRunnerBuilder.FilteringRunnerBuilder
+import io.bazel.rules_scala.test_discovery._
 import org.junit.runner.notification.RunNotifier
 import org.junit.runner.{Description, RunWith, Runner}
 import org.junit.runners.Suite

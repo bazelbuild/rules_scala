@@ -1,4 +1,4 @@
-package io.bazel.rulesscala.scalac;
+package io.bazel.rules_scala.scalac;
 
 public class Resource {
   public final String target;

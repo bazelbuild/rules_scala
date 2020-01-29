@@ -2,12 +2,12 @@ package scripts
 
 import io.bazel.rules_scala.scrooge_support.{ Compiler, CompilerDefaults }
 import com.twitter.scrooge.backend.WithFinagle
-import io.bazel.rulesscala.jar.JarCreator
-import io.bazel.rulesscala.io_utils.DeleteRecursively
+import io.bazel.rules_scala.jar.JarCreator
+import io.bazel.rules_scala.io_utils.DeleteRecursively
 import java.io.{ File, PrintStream }
 import java.nio.file.{ Files, Path, Paths }
 import scala.collection.mutable.Buffer
-import io.bazel.rulesscala.worker.{ GenericWorker, Processor }
+import io.bazel.rules_scala.worker.{ GenericWorker, Processor }
 import scala.io.Source
 
 /**

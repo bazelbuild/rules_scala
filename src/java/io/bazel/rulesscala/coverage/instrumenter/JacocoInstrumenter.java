@@ -1,8 +1,8 @@
-package io.bazel.rulesscala.coverage.instrumenter;
+package io.bazel.rules_scala.coverage.instrumenter;
 
-import io.bazel.rulesscala.jar.JarCreator;
-import io.bazel.rulesscala.worker.GenericWorker;
-import io.bazel.rulesscala.worker.Processor;
+import io.bazel.rules_scala.jar.JarCreator;
+import io.bazel.rules_scala.worker.GenericWorker;
+import io.bazel.rules_scala.worker.Processor;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

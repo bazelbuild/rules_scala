@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package io.bazel.rulesscala.scalac;
+package io.bazel.rules_scala.scalac;
 
-import io.bazel.rulesscala.worker.GenericWorker;
+import io.bazel.rules_scala.worker.GenericWorker;
 import java.io.PrintStream;
 import scala.Console$;
 

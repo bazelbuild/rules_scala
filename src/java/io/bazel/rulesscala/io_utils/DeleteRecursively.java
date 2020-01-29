@@ -1,4 +1,4 @@
-package io.bazel.rulesscala.io_utils;
+package io.bazel.rules_scala.io_utils;
 
 import java.io.IOException;
 import java.nio.file.*;

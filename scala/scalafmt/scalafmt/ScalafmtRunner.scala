@@ -1,6 +1,6 @@
 package io.bazel.rules_scala.scalafmt
 
-import io.bazel.rulesscala.worker.{GenericWorker, Processor};
+import io.bazel.rules_scala.worker.{GenericWorker, Processor};
 import java.io.File
 import java.nio.file.Files
 import org.scalafmt.Scalafmt

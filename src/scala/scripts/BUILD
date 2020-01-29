@@ -6,9 +6,9 @@ scala_library(
     visibility = ["//visibility:public"],
     deps = [
         "//external:io_bazel_rules_scala/dependency/thrift/scrooge_generator",
-        "//src/java/io/bazel/rulesscala/io_utils",
-        "//src/java/io/bazel/rulesscala/jar",
-        "//src/java/io/bazel/rulesscala/worker",
+        "//src/java/io/bazel/rules_scala/io_utils",
+        "//src/java/io/bazel/rules_scala/jar",
+        "//src/java/io/bazel/rules_scala/worker",
         "//src/scala/io/bazel/rules_scala/scrooge_support:compiler",
     ],
 )
@@ -40,9 +40,9 @@ scala_library(
         "//external:io_bazel_rules_scala/dependency/proto/protoc_bridge",
         "//external:io_bazel_rules_scala/dependency/proto/scalapb_plugin",
         "//external:io_bazel_rules_scala/dependency/proto/scalapbc",
-        "//src/java/io/bazel/rulesscala/io_utils",
-        "//src/java/io/bazel/rulesscala/jar",
-        "//src/java/io/bazel/rulesscala/worker",
+        "//src/java/io/bazel/rules_scala/io_utils",
+        "//src/java/io/bazel/rules_scala/jar",
+        "//src/java/io/bazel/rules_scala/worker",
     ],
 )
 

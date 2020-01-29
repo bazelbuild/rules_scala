@@ -1,6 +1,6 @@
 package io.bazel.rules_scala.tut_support
 
-import io.bazel.rulesscala.io_utils.DeleteRecursively
+import io.bazel.rules_scala.io_utils.DeleteRecursively
 import java.io.File
 import java.nio.file.{ Files, Paths }
 import tut.TutMain

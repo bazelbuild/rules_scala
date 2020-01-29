@@ -1,4 +1,4 @@
-package io.bazel.rulesscala.scalac;
+package io.bazel.rules_scala.scalac;
 
 import java.util.ArrayList;
 import java.util.HashMap;

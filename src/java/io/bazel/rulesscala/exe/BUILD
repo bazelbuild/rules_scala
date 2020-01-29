@@ -16,7 +16,7 @@ java_binary(
     data = [
         "@bazel_tools//tools/launcher",
     ],
-    main_class = "io.bazel.rulesscala.exe.LauncherFileWriter",
+    main_class = "io.bazel.rules_scala.exe.LauncherFileWriter",
     visibility = ["//visibility:public"],
     runtime_deps = [
         ":exe-lib",

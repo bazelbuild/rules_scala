@@ -3,9 +3,9 @@ package scripts
 import java.io.PrintStream
 import java.nio.file.{Path, FileAlreadyExistsException}
 
-import io.bazel.rulesscala.io_utils.DeleteRecursively
-import io.bazel.rulesscala.jar.JarCreator
-import io.bazel.rulesscala.worker.{GenericWorker, Processor}
+import io.bazel.rules_scala.io_utils.DeleteRecursively
+import io.bazel.rules_scala.jar.JarCreator
+import io.bazel.rules_scala.worker.{GenericWorker, Processor}
 import protocbridge.{ProtocBridge, ProtocCodeGenerator}
 import scala.collection.JavaConverters._
 import scalapb.ScalaPbCodeGenerator

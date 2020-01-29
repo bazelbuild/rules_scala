@@ -11,7 +11,7 @@ scala_library(
         "//external:io_bazel_rules_scala/dependency/jmh/jmh_core",
         "//external:io_bazel_rules_scala/dependency/jmh/jmh_generator_asm",
         "//external:io_bazel_rules_scala/dependency/jmh/jmh_generator_reflection",
-        "//src/java/io/bazel/rulesscala/jar",
+        "//src/java/io/bazel/rules_scala/jar",
     ],
 )
 

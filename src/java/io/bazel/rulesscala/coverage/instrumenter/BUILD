@@ -1,19 +1,19 @@
 java_binary(
     name = "instrumenter",
     srcs = [
-        "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/coverage/instrumenter:instrumenter_files",
+        "@io_bazel_rules_scala//src/java/io/bazel/rules_scala/coverage/instrumenter:instrumenter_files",
     ],
     javacopts = [
         "-source 1.8",
         "-target 1.8",
     ],
-    main_class = "io.bazel.rulesscala.coverage.instrumenter.JacocoInstrumenter",
+    main_class = "io.bazel.rules_scala.coverage.instrumenter.JacocoInstrumenter",
     visibility = ["//visibility:public"],
     deps = [
         "//third_party/bazel/src/main/protobuf:worker_protocol_java_proto",
         "@bazel_tools//tools/jdk:JacocoCoverage",
-        "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/jar",
-        "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/worker",
+        "@io_bazel_rules_scala//src/java/io/bazel/rules_scala/jar",
+        "@io_bazel_rules_scala//src/java/io/bazel/rules_scala/worker",
     ],
 )
 

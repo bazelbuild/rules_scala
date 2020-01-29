@@ -1,4 +1,4 @@
-package io.bazel.rulesscala.scala_test;
+package io.bazel.rules_scala.scala_test;
 
 import com.google.devtools.build.runfiles.Runfiles;
 import java.io.IOException;

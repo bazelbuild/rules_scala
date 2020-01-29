@@ -38,7 +38,7 @@ scala_proto_toolchain = rule(
         ),
         "scalac": attr.label(
             default = Label(
-                "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac",
+                "@io_bazel_rules_scala//src/java/io/bazel/rules_scala/scalac",
             ),
         ),
     },

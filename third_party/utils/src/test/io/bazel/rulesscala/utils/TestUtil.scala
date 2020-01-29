@@ -1,4 +1,4 @@
-package third_party.utils.src.test.io.bazel.rulesscala.utils
+package third_party.utils.src.test.io.bazel.rules_scala.utils
 
 import java.nio.file.Paths
 

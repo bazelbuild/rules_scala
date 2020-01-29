@@ -339,7 +339,7 @@ scrooge_aspect = aspect(
         ),
         "_scalac": attr.label(
             default = Label(
-                "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac",
+                "@io_bazel_rules_scala//src/java/io/bazel/rules_scala/scalac",
             ),
         ),
         "_implicit_compile_deps": attr.label_list(

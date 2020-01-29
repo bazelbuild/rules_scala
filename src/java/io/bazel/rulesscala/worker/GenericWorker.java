@@ -1,4 +1,4 @@
-package io.bazel.rulesscala.worker;
+package io.bazel.rules_scala.worker;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 

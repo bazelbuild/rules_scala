@@ -68,7 +68,7 @@ common_attrs.update({
     ),
     "unused_dependency_checker_ignored_targets": attr.label_list(default = []),
     "_code_coverage_instrumentation_worker": attr.label(
-        default = "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/coverage/instrumenter",
+        default = "@io_bazel_rules_scala//src/java/io/bazel/rules_scala/coverage/instrumenter",
         allow_files = True,
         executable = True,
         cfg = "host",
@@ -100,13 +100,13 @@ implicit_deps = {
     ),
     "_scalac": attr.label(
         default = Label(
-            "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac",
+            "@io_bazel_rules_scala//src/java/io/bazel/rules_scala/scalac",
         ),
     ),
     "_exe": attr.label(
         executable = True,
         cfg = "host",
-        default = Label("@io_bazel_rules_scala//src/java/io/bazel/rulesscala/exe:exe"),
+        default = Label("@io_bazel_rules_scala//src/java/io/bazel/rules_scala/exe:exe"),
     ),
 }
 

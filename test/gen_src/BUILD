@@ -7,7 +7,7 @@ load(
 scala_binary(
     name = "src_generator",
     srcs = ["SrcGenerator.scala"],
-    main_class = "build.bazel.rulesscala.test.srcgen.SrcGenerator",
+    main_class = "build.bazel.rules_scala.test.srcgen.SrcGenerator",
 )
 
 genrule(

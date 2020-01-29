@@ -6,7 +6,7 @@ scala_test(
     name = "strict_deps_test",
     size = "small",
     srcs = [
-        "io/bazel/rulesscala/dependencyanalyzer/StrictDepsTest.scala",
+        "io/bazel/rules_scala/dependencyanalyzer/StrictDepsTest.scala",
     ],
     jvm_flags = [
         "-Dplugin.jar.location=$(location //third_party/dependency_analyzer/src/main:dependency_analyzer)",
@@ -30,7 +30,7 @@ scala_test(
     name = "unused_dependency_checker_test",
     size = "small",
     srcs = [
-        "io/bazel/rulesscala/dependencyanalyzer/UnusedDependencyCheckerTest.scala",
+        "io/bazel/rules_scala/dependencyanalyzer/UnusedDependencyCheckerTest.scala",
     ],
     jvm_flags = [
         "-Dplugin.jar.location=$(location //third_party/dependency_analyzer/src/main:dependency_analyzer)",

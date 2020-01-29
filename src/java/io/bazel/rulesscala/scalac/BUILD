@@ -10,19 +10,19 @@ _export_scalac_repositories_from_toolchain_to_jvm(
 java_binary(
     name = "scalac",
     srcs = [
-        "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac:scalac_files",
+        "@io_bazel_rules_scala//src/java/io/bazel/rules_scala/scalac:scalac_files",
     ],
     javacopts = [
         "-source 1.8",
         "-target 1.8",
     ],
-    main_class = "io.bazel.rulesscala.scalac.ScalaCInvoker",
+    main_class = "io.bazel.rules_scala.scalac.ScalaCInvoker",
     visibility = ["//visibility:public"],
     deps = [
         ":exported_scalac_repositories_from_toolchain_to_jvm",
         "//third_party/bazel/src/main/protobuf:worker_protocol_java_proto",
-        "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/jar",
-        "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/worker",
+        "@io_bazel_rules_scala//src/java/io/bazel/rules_scala/jar",
+        "@io_bazel_rules_scala//src/java/io/bazel/rules_scala/worker",
         "@scalac_rules_commons_io//jar",
     ],
 )

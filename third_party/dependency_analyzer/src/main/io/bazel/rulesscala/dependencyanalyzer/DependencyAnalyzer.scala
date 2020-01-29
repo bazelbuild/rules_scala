@@ -1,4 +1,4 @@
-package third_party.dependency_analyzer.src.main.io.bazel.rulesscala.dependencyanalyzer
+package third_party.dependency_analyzer.src.main.io.bazel.rules_scala.dependencyanalyzer
 
 import scala.reflect.io.AbstractFile
 import scala.tools.nsc.plugins.Plugin

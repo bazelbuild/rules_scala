@@ -1,4 +1,4 @@
-package io.bazel.rulesscala
+package io.bazel.rules_scala
 
 import org.junit.runner.Description
 import org.specs2.concurrent.ExecutionEnv

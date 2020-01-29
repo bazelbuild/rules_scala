@@ -50,7 +50,7 @@ def _scala_test_impl(ctx):
 
 _scala_test_attrs = {
     "main_class": attr.string(
-        default = "io.bazel.rulesscala.scala_test.Runner",
+        default = "io.bazel.rules_scala.scala_test.Runner",
     ),
     "colors": attr.bool(default = True),
     "full_stacktraces": attr.bool(default = True),
@@ -62,7 +62,7 @@ _scala_test_attrs = {
     ),
     "_scalatest_runner": attr.label(
         cfg = "host",
-        default = Label("//src/java/io/bazel/rulesscala/scala_test:runner"),
+        default = Label("//src/java/io/bazel/rules_scala/scala_test:runner"),
     ),
     "_scalatest_reporter": attr.label(
         default = Label("//scala/support:test_reporter"),

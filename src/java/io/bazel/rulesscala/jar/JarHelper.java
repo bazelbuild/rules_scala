@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package io.bazel.rulesscala.jar;
+package io.bazel.rules_scala.jar;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

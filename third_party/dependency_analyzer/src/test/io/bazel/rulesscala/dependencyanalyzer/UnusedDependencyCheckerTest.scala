@@ -1,8 +1,8 @@
-package third_party.dependency_analyzer.src.test.io.bazel.rulesscala.dependencyanalyzer
+package third_party.dependency_analyzer.src.test.io.bazel.rules_scala.dependencyanalyzer
 
 import java.nio.file.Paths
 import org.scalatest._
-import third_party.utils.src.test.io.bazel.rulesscala.utils.TestUtil._
+import third_party.utils.src.test.io.bazel.rules_scala.utils.TestUtil._
 
 class UnusedDependencyCheckerTest extends FunSuite {
   def compileWithUnusedDependencyChecker(code: String, withDirect: List[(String, String)] = Nil): List[String] = {

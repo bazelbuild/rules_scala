@@ -9,7 +9,7 @@ java_library(
 
 java_binary(
     name = "binary",
-    main_class = "io.bazel.rulesscala.jar.JarCreator",
+    main_class = "io.bazel.rules_scala.jar.JarCreator",
     visibility = ["//visibility:public"],
     runtime_deps = [
         ":jar",

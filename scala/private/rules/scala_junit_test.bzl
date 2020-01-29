@@ -56,11 +56,11 @@ _scala_junit_test_attrs = {
     "suffixes": attr.string_list(default = []),
     "suite_label": attr.label(
         default = Label(
-            "//src/java/io/bazel/rulesscala/test_discovery:test_discovery",
+            "//src/java/io/bazel/rules_scala/test_discovery:test_discovery",
         ),
     ),
     "suite_class": attr.string(
-        default = "io.bazel.rulesscala.test_discovery.DiscoveredTestSuite",
+        default = "io.bazel.rules_scala.test_discovery.DiscoveredTestSuite",
     ),
     "print_discovered_classes": attr.bool(
         default = False,

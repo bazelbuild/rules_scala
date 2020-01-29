@@ -42,9 +42,9 @@ def scala_specs2_junit_test(name, **kwargs):
         unused_dependency_checker_ignored_targets =
             _specs2_junit_dependencies() + kwargs.pop("unused_dependency_checker_ignored_targets", []),
         suite_label = Label(
-            "//src/java/io/bazel/rulesscala/specs2:specs2_test_discovery",
+            "//src/java/io/bazel/rules_scala/specs2:specs2_test_discovery",
         ),
-        suite_class = "io.bazel.rulesscala.specs2.Specs2DiscoveredTestSuite",
+        suite_class = "io.bazel.rules_scala.specs2.Specs2DiscoveredTestSuite",
         **kwargs
     )
 

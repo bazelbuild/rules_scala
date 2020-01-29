@@ -13,6 +13,6 @@ scala_library(
         "//external:io_bazel_rules_scala/dependency/scala/scala_xml",
         "//external:io_bazel_rules_scala/dependency/specs2/specs2",
         "//external:io_bazel_rules_scala/dependency/specs2/specs2_junit",
-        "//src/java/io/bazel/rulesscala/test_discovery",
+        "//src/java/io/bazel/rules_scala/test_discovery",
     ],
 )

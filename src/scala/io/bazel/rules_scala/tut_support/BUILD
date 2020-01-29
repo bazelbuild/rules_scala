@@ -7,7 +7,7 @@ scala_library(
     deps = [
         "//external:io_bazel_rules_scala/dependency/scala/scala_compiler",
         "//external:io_bazel_rules_scala/dependency/tut/tut_core",
-        "//src/java/io/bazel/rulesscala/io_utils",
+        "//src/java/io/bazel/rules_scala/io_utils",
     ],
 )
 
