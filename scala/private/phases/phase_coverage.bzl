@@ -10,9 +10,7 @@ load(
 )
 
 _empty_coverage_struct = struct(
-    external = struct(
-        replacements = {},
-    ),
+    replacements = {},
     providers_dict = {},
 )
 
@@ -33,15 +31,15 @@ def _phase_coverage_default(ctx, p, _args = struct()):
     )
 
 def _phase_coverage(ctx, p, srcjars):
-    if len(ctx.files.srcs) + len(srcjars.to_list()) == 0 or
-            not ctx.configuration.coverage_enabled or
+    if len(ctx.files.srcs) + len(srcjars.to_list()) == 0 or \
+            not ctx.configuration.coverage_enabled or \
             not hasattr(ctx.attr, "_code_coverage_instrumentation_worker"):
         coverage = _empty_coverage_struct
     else:
         coverage = _jacoco_offline_instrument(ctx, ctx.outputs.jar)
 
     return struct(
-        coverage = coverage.external,
+        replacements = coverage.replacements,
         external_providers = coverage.providers_dict,
     )
 
@@ -78,9 +76,7 @@ def _jacoco_offline_instrument(ctx, input_jar):
         extensions = ["scala", "java"],
     )
     return struct(
-        external = struct(
-            replacements = replacements,
-        ),
+        replacements = replacements,
         providers_dict = {
             "_CoverageReplacements": provider,
             "InstrumentedFilesInfo": instrumented_files_provider,
