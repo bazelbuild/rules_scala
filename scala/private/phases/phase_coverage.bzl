@@ -9,11 +9,6 @@ load(
     _coverage_replacements_provider = "coverage_replacements_provider",
 )
 
-_empty_coverage_struct = struct(
-    replacements = {},
-    providers_dict = {},
-)
-
 def phase_coverage_library(ctx, p):
     args = struct(
         srcjars = p.collect_srcjars,
@@ -34,14 +29,12 @@ def _phase_coverage(ctx, p, srcjars):
     if len(ctx.files.srcs) + len(srcjars.to_list()) == 0 or \
             not ctx.configuration.coverage_enabled or \
             not hasattr(ctx.attr, "_code_coverage_instrumentation_worker"):
-        coverage = _empty_coverage_struct
+        return struct(
+            replacements = {},
+            external_providers = {},
+        )
     else:
-        coverage = _jacoco_offline_instrument(ctx, ctx.outputs.jar)
-
-    return struct(
-        replacements = coverage.replacements,
-        external_providers = coverage.providers_dict,
-    )
+        return _jacoco_offline_instrument(ctx, ctx.outputs.jar)
 
 def _jacoco_offline_instrument(ctx, input_jar):
     output_jar = ctx.actions.declare_file(
@@ -77,7 +70,7 @@ def _jacoco_offline_instrument(ctx, input_jar):
     )
     return struct(
         replacements = replacements,
-        providers_dict = {
+        external_providers = {
             "_CoverageReplacements": provider,
             "InstrumentedFilesInfo": instrumented_files_provider,
         },
