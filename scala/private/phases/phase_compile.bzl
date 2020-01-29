@@ -162,15 +162,9 @@ def _phase_compile(
 
     # TODO: simplify the return values and use provider
     return struct(
-        class_jar = out.class_jar,
         coverage = out.coverage.external,
-        full_jars = out.full_jars,
         files = depset(out.full_jars),
-        ijar = out.ijar,
-        ijars = out.ijars,
         rjars = depset(out.full_jars, transitive = [rjars]),
-        java_jar = out.java_jar,
-        source_jars = _pack_source_jars(ctx) + out.source_jars,
         merged_provider = out.merged_provider,
         external_providers = dicts.add(out.coverage.providers_dict, {
             "JavaInfo": out.merged_provider,
@@ -198,13 +192,8 @@ def _compile_or_empty(
 
         #  no need to build ijar when empty
         return struct(
-            class_jar = ctx.outputs.jar,
             coverage = _empty_coverage_struct,
             full_jars = [ctx.outputs.jar],
-            ijar = ctx.outputs.jar,
-            ijars = [ctx.outputs.jar],
-            java_jar = False,
-            source_jars = [],
             merged_provider = scala_compilation_provider,
         )
     else:
@@ -283,12 +272,8 @@ def _compile_or_empty(
         )
 
         full_jars = [ctx.outputs.jar]
-        ijars = [ijar]
-        source_jars = []
         if java_jar:
             full_jars += [java_jar.jar]
-            ijars += [java_jar.ijar]
-            source_jars += java_jar.source_jars
 
         coverage = _jacoco_offline_instrument(ctx, ctx.outputs.jar)
 
@@ -298,13 +283,8 @@ def _compile_or_empty(
             merged_provider = scala_compilation_provider
 
         return struct(
-            class_jar = ctx.outputs.jar,
             coverage = coverage,
             full_jars = full_jars,
-            ijar = ijar,
-            ijars = ijars,
-            java_jar = java_jar,
-            source_jars = source_jars,
             merged_provider = merged_provider,
         )
 
