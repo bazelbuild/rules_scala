@@ -1,6 +1,7 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load(
     "@io_bazel_rules_scala//scala:scala_cross_version.bzl",
+    _default_maven_server_urls = "default_maven_server_urls",
     _default_scala_version = "default_scala_version",
     _default_scala_version_jar_shas = "default_scala_version_jar_shas",
     _extract_major_version = "extract_major_version",
@@ -56,7 +57,7 @@ def scala_repositories(
             _default_scala_version(),
             _default_scala_version_jar_shas(),
         ),
-        maven_servers = ["https://repo.maven.apache.org/maven2"],
+        maven_servers = _default_maven_server_urls(),
         scala_extra_jars = _default_scala_extra_jars()):
     (scala_version, scala_version_jar_shas) = scala_version_shas
     major_version = _extract_major_version(scala_version)

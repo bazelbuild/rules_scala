@@ -1,10 +1,14 @@
 load("//scala:scala.bzl", "scala_binary", "scala_library")
 load(
+    "//scala:scala_cross_version.bzl",
+    _default_maven_server_urls = "default_maven_server_urls",
+)
+load(
     "@io_bazel_rules_scala//scala:scala_maven_import_external.bzl",
     _scala_maven_import_external = "scala_maven_import_external",
 )
 
-def jmh_repositories(maven_servers = ["https://repo.maven.apache.org/maven2"]):
+def jmh_repositories(maven_servers = _default_maven_server_urls()):
     _scala_maven_import_external(
         name = "io_bazel_rules_scala_org_openjdk_jmh_jmh_core",
         artifact = "org.openjdk.jmh:jmh-core:1.20",

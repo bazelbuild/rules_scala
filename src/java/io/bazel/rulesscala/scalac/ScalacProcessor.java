@@ -173,7 +173,7 @@ class ScalacProcessor implements Processor {
   private static String[] getPluginParamsFrom(CompileOptions ops) {
     ArrayList<String> pluginParams = new ArrayList<>(0);
 
-    if (isModeEnabled(ops.dependencyAnalyzerMode)) {
+    if (isModeEnabled(ops.strictDepsMode)) {
       String[] indirectTargets = encodeBazelTargets(ops.indirectTargets);
       String currentTarget = encodeBazelTarget(ops.currentTarget);
 
@@ -181,8 +181,9 @@ class ScalacProcessor implements Processor {
         "-P:dependency-analyzer:direct-jars:" + String.join(":", ops.directJars),
         "-P:dependency-analyzer:indirect-jars:" + String.join(":", ops.indirectJars),
         "-P:dependency-analyzer:indirect-targets:" + String.join(":", indirectTargets),
-        "-P:dependency-analyzer:mode:" + ops.dependencyAnalyzerMode,
+        "-P:dependency-analyzer:strict-deps-mode:" + ops.strictDepsMode,
         "-P:dependency-analyzer:current-target:" + currentTarget,
+        "-P:dependency-analyzer:dependency-tracking-method:" + "high-level",
       };
       pluginParams.addAll(Arrays.asList(dependencyAnalyzerParams));
     } else if (isModeEnabled(ops.unusedDependencyCheckerMode)) {
@@ -191,11 +192,12 @@ class ScalacProcessor implements Processor {
       String currentTarget = encodeBazelTarget(ops.currentTarget);
 
       String[] unusedDependencyCheckerParams = {
-        "-P:unused-dependency-checker:direct-jars:" + String.join(":", ops.directJars),
-        "-P:unused-dependency-checker:direct-targets:" + String.join(":", directTargets),
-        "-P:unused-dependency-checker:ignored-targets:" + String.join(":", ignoredTargets),
-        "-P:unused-dependency-checker:mode:" + ops.unusedDependencyCheckerMode,
-        "-P:unused-dependency-checker:current-target:" + currentTarget,
+        "-P:dependency-analyzer:direct-jars:" + String.join(":", ops.directJars),
+        "-P:dependency-analyzer:direct-targets:" + String.join(":", directTargets),
+        "-P:dependency-analyzer:unused-deps-ignored-targets:" + String.join(":", ignoredTargets),
+        "-P:dependency-analyzer:unused-deps-mode:" + ops.unusedDependencyCheckerMode,
+        "-P:dependency-analyzer:current-target:" + currentTarget,
+        "-P:dependency-analyzer:dependency-tracking-method:" + "high-level",
       };
       pluginParams.addAll(Arrays.asList(unusedDependencyCheckerParams));
     }

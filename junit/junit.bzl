@@ -1,9 +1,13 @@
 load(
+    "//scala:scala_cross_version.bzl",
+    _default_maven_server_urls = "default_maven_server_urls",
+)
+load(
     "@io_bazel_rules_scala//scala:scala_maven_import_external.bzl",
     _scala_maven_import_external = "scala_maven_import_external",
 )
 
-def junit_repositories(maven_servers = ["https://repo.maven.apache.org/maven2"]):
+def junit_repositories(maven_servers = _default_maven_server_urls()):
     _scala_maven_import_external(
         name = "io_bazel_rules_scala_junit_junit",
         artifact = "junit:junit:4.12",

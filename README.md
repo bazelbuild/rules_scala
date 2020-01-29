@@ -201,6 +201,9 @@ Phases provide 3 major benefits:
 
 See [Customizable Phase](docs/customizable_phase.md) for more info.
 
+### Phase extensions
+ - [Scala Format](docs/phase_scalafmt.md)
+
 ## Building from source
 Test & Build:
 ```

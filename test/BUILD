@@ -501,8 +501,8 @@ scala_specs2_junit_test(
     name = "data_location_expansion",
     size = "small",
     srcs = ["src/main/scala/scalarules/test/location_expansion/LocationExpansionTest.scala"],
-    data = ["//src/java/com/google/devtools/build/lib:worker"],
-    jvm_flags = ["-Dlocation.expanded=$(location //src/java/com/google/devtools/build/lib:worker)"],
+    data = ["//third_party/bazel/src/main/protobuf:worker_protocol_java_proto"],
+    jvm_flags = ["-Dlocation.expanded='$(locations //third_party/bazel/src/main/protobuf:worker_protocol_java_proto)'"],
     suffixes = ["Test"],
 )
 

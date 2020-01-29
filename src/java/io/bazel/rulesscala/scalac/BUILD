@@ -20,7 +20,7 @@ java_binary(
     visibility = ["//visibility:public"],
     deps = [
         ":exported_scalac_repositories_from_toolchain_to_jvm",
-        "@io_bazel_rules_scala//src/java/com/google/devtools/build/lib:worker",
+        "//third_party/bazel/src/main/protobuf:worker_protocol_java_proto",
         "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/jar",
         "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/worker",
         "@scalac_rules_commons_io//jar",
