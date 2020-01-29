@@ -16,7 +16,7 @@ load(
     "phase_compile_scalatest",
     "phase_coverage_runfiles",
     "phase_declare_executable",
-    "phase_default_info_scalatest",
+    "phase_default_info",
     "phase_java_wrapper_common",
     "phase_merge_jars",
     "phase_runfiles_scalatest",
@@ -44,7 +44,7 @@ def _scala_test_impl(ctx):
             ("runfiles", phase_runfiles_scalatest),
             ("coverage_runfiles", phase_coverage_runfiles),
             ("write_executable", phase_write_executable_scalatest),
-            ("default_info", phase_default_info_scalatest),
+            ("default_info", phase_default_info),
         ],
     )
 

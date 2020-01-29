@@ -10,6 +10,10 @@ load(
 
 def phase_declare_executable(ctx, p):
     if (is_windows(ctx)):
-        return ctx.actions.declare_file("%s.exe" % ctx.label.name)
+        return struct(
+            executable = ctx.actions.declare_file("%s.exe" % ctx.label.name),
+        )
     else:
-        return ctx.actions.declare_file(ctx.label.name)
+        return struct(
+            executable = ctx.actions.declare_file(ctx.label.name),
+        )

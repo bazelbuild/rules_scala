@@ -165,6 +165,7 @@ def _phase_compile(
         class_jar = out.class_jar,
         coverage = out.coverage.external,
         full_jars = out.full_jars,
+        files = depset(out.full_jars),
         ijar = out.ijar,
         ijars = out.ijars,
         rjars = depset(out.full_jars, transitive = [rjars]),
