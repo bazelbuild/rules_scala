@@ -14,7 +14,7 @@ Includes helpers to reduce boilerplate for github archives and artifact naming.
 load("@bazel_tools//tools/build_defs/repo:http.bzl", _http_archive = "http_archive")
 load("@io_bazel_rules_scala_configuration//:configuration.bzl", _configuration = "configuration", _versions = "versions")
 load("@rules_jvm_external//:defs.bzl", _artifact = "artifact")
-load(":tools.bzl", _maven_install = "maven_install")
+load(":private/macros/tools.bzl", _maven_install = "maven_install")
 
 def _github_archive(name, repository, sha256, tag):
     (org, repo) = repository.split("/")

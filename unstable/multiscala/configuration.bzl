@@ -54,7 +54,7 @@ _repo = repository_rule(
     attrs = {
         "starlark_string": attr.string(mandatory = True),
         "_template": attr.label(
-            default = ":configuration.bzl.tpl",
+            default = ":private/templates/configuration.bzl.tpl",
         ),
     },
 )
