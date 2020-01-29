@@ -87,3 +87,7 @@ scala_binary(
 )
 ```
 The macro would alias this and only this version of this target. This would produce far less copies at the expense of requiring users to add this to all rules where they want this behavior. Alternatively, we could have a configuration along the lines of `alias_default_binary = True`. That might be the best trade-off: not aliasing every library target but not requiring the user annotate every binary target. Supporting both would be fairly simple.
+
+## External Repos
+
+See [External Repositories](ExternalReposistories.md)
