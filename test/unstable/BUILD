@@ -1,5 +1,5 @@
 load(
-    "//scala:defs.bzl",
+    "//scala/unstable:defs.bzl",
     "scala_binary",
     "scala_library",
     "scala_test",
