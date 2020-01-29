@@ -24,5 +24,6 @@ def phase_coverage_runfiles(ctx, p):
         coverage_runfiles = ctx.files._jacocorunner + ctx.files._lcov_merger + coverage_replacements.values()
     return struct(
         coverage_runfiles = coverage_runfiles,
+        runfiles = depset(coverage_runfiles),
         rjars = rjars,
     )

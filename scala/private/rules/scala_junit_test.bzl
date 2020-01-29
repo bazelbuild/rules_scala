@@ -14,7 +14,7 @@ load(
     "phase_collect_jars_junit_test",
     "phase_compile_junit_test",
     "phase_declare_executable",
-    "phase_default_info_binary",
+    "phase_default_info",
     "phase_java_wrapper_common",
     "phase_jvm_flags",
     "phase_merge_jars",
@@ -47,7 +47,7 @@ def _scala_junit_test_impl(ctx):
             ("runfiles", phase_runfiles_common),
             ("jvm_flags", phase_jvm_flags),
             ("write_executable", phase_write_executable_junit_test),
-            ("default_info", phase_default_info_binary),
+            ("default_info", phase_default_info),
         ],
     )
 
