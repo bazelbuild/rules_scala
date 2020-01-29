@@ -51,6 +51,11 @@ load("//scala:scala_cross_version.bzl", "default_scala_major_version", "scala_mv
 
 MAVEN_SERVER_URLS = default_maven_server_urls()
 
+# needed for the cross repo proto test
+load("//test/proto_cross_repo_boundary:repo.bzl", "proto_cross_repo_boundary_repository")
+
+proto_cross_repo_boundary_repository()
+
 # test adding a scala jar:
 jvm_maven_import_external(
     name = "com_twitter__scalding_date",
