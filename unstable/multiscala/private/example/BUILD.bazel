@@ -9,7 +9,7 @@ load(
     _scala_test = "scala_test",
 )
 
-# default case ...
+# default case: builds all configured versions with version suffixes
 
 _scala_library(
     name = "library",
@@ -31,24 +31,46 @@ _scala_test(
     scala_deps = [":library"],
 )
 
-# manual toolchain configuration
+# explict version configuration
 
 _scala_library(
-    name = "library_with_explict_toolchain",
+    name = "library_with_explict_version",
+    srcs = ["App.scala"],
+    scala = "2.12",
+)
+
+_scala_binary(
+    name = "app_with_explict_version",
+    main_class = "App",
+    runtime_deps = [":library_with_explict_version"],
+    scala = "2.12",
+)
+
+_scala_test(
+    name = "test_with_explict_version",
+    srcs = ["AppTest.scala"],
+    deps = [":library_with_explict_version"],
+    scala = "2.12",
+)
+
+# explict toolchain configuration
+
+_scala_library(
+    name = "library_with_explict_version",
     srcs = ["App.scala"],
     toolchains = [toolchain_label("scala", "2.11")],
 )
 
 _scala_binary(
-    name = "app_with_explict_toolchain",
+    name = "app_with_explict_version",
     main_class = "App",
-    scala_runtime_deps = [":library_with_explict_toolchain"],
+    runtime_deps = [":library_with_explict_version"],
     toolchains = [toolchain_label("scala", "2.11")],
 )
 
 _scala_test(
-    name = "test_with_explict_toolchain",
+    name = "test_with_explict_version",
     srcs = ["AppTest.scala"],
-    scala_deps = [":library_with_explict_toolchain"],
+    deps = [":library_with_explict_version"],
     toolchains = [toolchain_label("scala", "2.11")],
 )
