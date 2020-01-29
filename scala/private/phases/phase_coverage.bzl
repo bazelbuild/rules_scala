@@ -27,8 +27,8 @@ def _phase_coverage_default(ctx, p, _args = struct()):
 
 def _phase_coverage(ctx, p, srcjars):
     if len(ctx.files.srcs) + len(srcjars.to_list()) == 0 or \
-            not ctx.configuration.coverage_enabled or \
-            not hasattr(ctx.attr, "_code_coverage_instrumentation_worker"):
+       not ctx.configuration.coverage_enabled or \
+       not hasattr(ctx.attr, "_code_coverage_instrumentation_worker"):
         return struct(
             replacements = {},
             external_providers = {},
