@@ -26,7 +26,7 @@ load(
     "phase_compile_library",
     "phase_compile_library_for_plugin_bootstrapping",
     "phase_compile_macro_library",
-    "phase_default_info_library",
+    "phase_default_info",
     "phase_merge_jars",
     "phase_runfiles_library",
     "phase_scalac_provider",
@@ -66,7 +66,7 @@ def _scala_library_impl(ctx):
             ("merge_jars", phase_merge_jars),
             ("runfiles", phase_runfiles_library),
             ("collect_exports_jars", phase_collect_exports_jars),
-            ("default_info", phase_default_info_library),
+            ("default_info", phase_default_info),
         ],
     )
 
@@ -142,7 +142,7 @@ def _scala_library_for_plugin_bootstrapping_impl(ctx):
             ("merge_jars", phase_merge_jars),
             ("runfiles", phase_runfiles_library),
             ("collect_exports_jars", phase_collect_exports_jars),
-            ("default_info", phase_default_info_library),
+            ("default_info", phase_default_info),
         ],
     )
 
@@ -197,7 +197,7 @@ def _scala_macro_library_impl(ctx):
             ("merge_jars", phase_merge_jars),
             ("runfiles", phase_runfiles_library),
             ("collect_exports_jars", phase_collect_exports_jars),
-            ("default_info", phase_default_info_library),
+            ("default_info", phase_default_info),
         ],
     )
 

@@ -24,7 +24,7 @@ def phase_runfiles_scalatest(ctx, p):
 
     args = struct(
         transitive_files = depset(
-            [p.declare_executable, p.java_wrapper] + ctx.files._java_runtime + runfiles_ext,
+            [p.java_wrapper] + ctx.files._java_runtime + runfiles_ext,
             transitive = [p.compile.rjars],
         ),
         args_file = args_file,
@@ -38,7 +38,7 @@ def _phase_runfiles_default(ctx, p, _args = struct()):
     return _phase_runfiles(
         ctx,
         _args.transitive_files if hasattr(_args, "transitive_files") else depset(
-            [p.declare_executable, p.java_wrapper] + ctx.files._java_runtime,
+            [p.java_wrapper] + ctx.files._java_runtime,
             transitive = [p.compile.rjars],
         ),
         _args.args_file if hasattr(_args, "args_file") else None,
@@ -49,10 +49,7 @@ def _phase_runfiles(
         transitive_files,
         args_file):
     return struct(
-        runfiles = ctx.runfiles(
-            transitive_files = transitive_files,
-            collect_data = True,
-        ),
+        runfiles = transitive_files,
         args_file = args_file,
     )
 
