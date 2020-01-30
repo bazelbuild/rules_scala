@@ -15,10 +15,10 @@ load(
 
 def phase_collect_jars_scalatest(ctx, p):
     args = struct(
-        base_classpath = ctx.toolchains["@io_bazel_rules_scala//scala:bootstrap_toolchain_type"].bootstrapinfo.classpath + [ctx.toolchains["@io_bazel_rules_scala//scala:test_toolchain_type"].jar],
+        base_classpath = ctx.toolchains["@io_bazel_rules_scala//scala:bootstrap_toolchain_type"].bootstrapinfo.classpath + [ctx.toolchains["@io_bazel_rules_scala//scala:test_toolchain_type"].testinfo.jar],
         extra_runtime_deps = [
-            ctx.toolchains["@io_bazel_rules_scala//scala:test_toolchain_type"].reporter,
-            ctx.toolchains["@io_bazel_rules_scala//scala:test_toolchain_type"].runner,
+            ctx.toolchains["@io_bazel_rules_scala//scala:test_toolchain_type"].testinfo.reporter,
+            ctx.toolchains["@io_bazel_rules_scala//scala:test_toolchain_type"].testinfo.runner,
         ],
     )
     return _phase_collect_jars_default(ctx, p, args)
