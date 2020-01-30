@@ -21,7 +21,7 @@ def phase_write_executable_scalatest(ctx, p):
     # toolchain
     final_jvm_flags = first_non_empty(
         ctx.attr.jvm_flags,
-        ctx.toolchains["@io_bazel_rules_scala//scala:test_toolchain_type"].scala_test_jvm_flags,
+        ctx.toolchains["@io_bazel_rules_scala//scala:test_toolchain_type"].testinfo.scala_test_jvm_flags,
     )
     args = struct(
         rjars = p.coverage_runfiles.rjars,

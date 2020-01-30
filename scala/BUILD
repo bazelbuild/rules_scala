@@ -46,6 +46,7 @@ toolchain_type(
 scala_toolchain(
     name = "toolchain_impl",
     scalacopts = [],
+    scalac = "//src/java/io/bazel/rulesscala/scalac",
     visibility = ["//visibility:public"],
 )
 
@@ -83,6 +84,7 @@ toolchain(
 scala_toolchain(
     name = "unused_dependency_checker_error_toolchain_impl",
     unused_dependency_checker_mode = "error",
+    scalac = "//src/java/io/bazel/rulesscala/scalac",
     visibility = ["//visibility:public"],
 )
 

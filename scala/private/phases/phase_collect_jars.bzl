@@ -15,7 +15,7 @@ load(
 
 def phase_collect_jars_scalatest(ctx, p):
     args = struct(
-        base_classpath = p.scalac_provider.bootstrapinfo.classpath + [ctx.toolchains["@io_bazel_rules_scala//scala:test_toolchain_type"].jar],
+        base_classpath = ctx.toolchains["@io_bazel_rules_scala//scala:bootstrap_toolchain_type"].bootstrapinfo.classpath + [ctx.toolchains["@io_bazel_rules_scala//scala:test_toolchain_type"].jar],
         extra_runtime_deps = [
             ctx.toolchains["@io_bazel_rules_scala//scala:test_toolchain_type"].reporter,
             ctx.toolchains["@io_bazel_rules_scala//scala:test_toolchain_type"].runner,
@@ -25,13 +25,13 @@ def phase_collect_jars_scalatest(ctx, p):
 
 def phase_collect_jars_repl(ctx, p):
     args = struct(
-        base_classpath = p.scalac_provider.bootstrapinfo.repl_classpath,
+        base_classpath = ctx.toolchains["@io_bazel_rules_scala//scala:bootstrap_toolchain_type"].bootstrapinfo.repl_classpath,
     )
     return _phase_collect_jars_default(ctx, p, args)
 
 def phase_collect_jars_macro_library(ctx, p):
     args = struct(
-        base_classpath = p.scalac_provider.bootstrapinfo.macro_classpath,
+        base_classpath = ctx.toolchains["@io_bazel_rules_scala//scala:bootstrap_toolchain_type"].bootstrapinfo.macro_classpath,
     )
     return _phase_collect_jars_default(ctx, p, args)
 
@@ -58,7 +58,7 @@ def phase_collect_jars_common(ctx, p):
 def _phase_collect_jars_default(ctx, p, _args = struct()):
     return _phase_collect_jars(
         ctx,
-        _args.base_classpath if hasattr(_args, "base_classpath") else p.scalac_provider.bootstrapinfo.classpath,
+        _args.base_classpath if hasattr(_args, "base_classpath") else ctx.toolchains["@io_bazel_rules_scala//scala:bootstrap_toolchain_type"].bootstrapinfo.classpath,
         _args.extra_deps if hasattr(_args, "extra_deps") else [],
         _args.extra_runtime_deps if hasattr(_args, "extra_runtime_deps") else [],
         _args.unused_dependency_checker_mode if hasattr(_args, "unused_dependency_checker_mode") else p.unused_deps_checker,
