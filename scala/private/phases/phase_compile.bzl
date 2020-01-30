@@ -59,6 +59,7 @@ def phase_compile_library_for_plugin_bootstrapping(ctx, p):
             for target in p.scalac_provider.default_classpath + ctx.attr.exports
         ],
         unused_dependency_checker_mode = "off",
+        buildijar = ctx.attr.build_ijar,
     )
     return _phase_compile_default(ctx, p, args)
 
