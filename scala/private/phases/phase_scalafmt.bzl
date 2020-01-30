@@ -3,6 +3,11 @@
 #
 # Outputs to format the scala files when it is explicitly specified
 #
+load(
+    "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
+    _scala_extension = "scala_extension",
+)
+
 def phase_scalafmt(ctx, p):
     if ctx.attr.format:
         manifest, files = _build_format(ctx)
@@ -17,7 +22,7 @@ def _build_format(ctx):
     manifest_content = []
     for src in ctx.files.srcs:
         # only format scala source files, not generated files
-        if src.path.endswith(".scala") and src.is_source:
+        if src.path.endswith(_scala_extension) and src.is_source:
             file = ctx.actions.declare_file("{}.fmt.output".format(src.short_path))
             files.append(file)
             ctx.actions.run(

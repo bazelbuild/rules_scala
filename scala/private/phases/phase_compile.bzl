@@ -14,14 +14,11 @@ load(
     _compile_scala = "compile_scala",
     _expand_location = "expand_location",
     _get_files_with_extension = "get_files_with_extension",
+    _java_extension = "java_extension",
+    _scala_extension = "scala_extension",
+    _srcjar_extension = "srcjar_extension",
 )
 load(":resources.bzl", _resource_paths = "paths")
-
-_java_extension = ".java"
-
-_scala_extension = ".scala"
-
-_srcjar_extension = ".srcjar"
 
 _empty_coverage_struct = struct(
     external = struct(

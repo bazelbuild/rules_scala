@@ -23,6 +23,12 @@ load(
 )
 load(":resources.bzl", _resource_paths = "paths")
 
+java_extension = ".java"
+
+scala_extension = ".scala"
+
+srcjar_extension = ".srcjar"
+
 def get_files_with_extension(ctx, extension):
     return [
         f
