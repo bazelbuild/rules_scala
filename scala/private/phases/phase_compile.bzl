@@ -13,6 +13,7 @@ load(
     "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
     _compile_scala = "compile_scala",
     _expand_location = "expand_location",
+    _get_files_with_extension = "get_files_with_extension",
 )
 load(":resources.bzl", _resource_paths = "paths")
 
@@ -197,29 +198,17 @@ def _compile_or_empty(
             merged_provider = scala_compilation_provider,
         )
     else:
-        in_srcjars = [
-            f
-            for f in ctx.files.srcs
-            if f.basename.endswith(_srcjar_extension)
-        ]
+        in_srcjars = _get_files_with_extension(ctx, _srcjar_extension)
         all_srcjars = depset(in_srcjars, transitive = [srcjars])
 
-        java_srcs = [
-            f
-            for f in ctx.files.srcs
-            if f.basename.endswith(_java_extension)
-        ]
+        java_srcs = _get_files_with_extension(ctx, _java_extension)
 
         # We are not able to verify whether dependencies are used when compiling java sources
         # Thus we disable unused dependency checking when java sources are found
         if len(java_srcs) != 0:
             unused_dependency_checker_mode = "off"
 
-        sources = [
-            f
-            for f in ctx.files.srcs
-            if f.basename.endswith(_scala_extension)
-        ] + java_srcs
+        sources = _get_files_with_extension(ctx, _scala_extension) + java_srcs
         _compile_scala(
             ctx,
             ctx.label,
@@ -341,18 +330,10 @@ def _create_scala_compilation_provider(ctx, ijar, source_jar, deps_providers):
 
 def _pack_source_jar(ctx):
     # collect .scala sources and pack a source jar for Scala
-    scala_sources = [
-        f
-        for f in ctx.files.srcs
-        if f.basename.endswith(_scala_extension)
-    ]
+    scala_sources = _get_files_with_extension(ctx, _scala_extension)
 
     # collect .srcjar files and pack them with the scala sources
-    bundled_source_jars = [
-        f
-        for f in ctx.files.srcs
-        if f.basename.endswith(_srcjar_extension)
-    ]
+    bundled_source_jars = _get_files_with_extension(ctx, _srcjar_extension)
     scala_source_jar = java_common.pack_sources(
         ctx.actions,
         output_jar = ctx.outputs.jar,

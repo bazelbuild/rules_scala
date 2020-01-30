@@ -23,6 +23,13 @@ load(
 )
 load(":resources.bzl", _resource_paths = "paths")
 
+def get_files_with_extension(ctx, extension):
+    return [
+        f
+        for f in ctx.files.srcs
+        if f.basename.endswith(extension)
+    ]
+
 def expand_location(ctx, flags):
     if hasattr(ctx.attr, "data"):
         data = ctx.attr.data
