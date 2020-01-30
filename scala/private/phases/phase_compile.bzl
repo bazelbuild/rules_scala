@@ -288,12 +288,6 @@ def _compile_or_empty(
             merged_provider = merged_provider,
         )
 
-def _pack_source_jars(ctx):
-    source_jar = _pack_source_jar(ctx)
-
-    #_pack_source_jar may return None if java_common.pack_sources returned None (and it can)
-    return [source_jar] if source_jar else []
-
 def _build_nosrc_jar(ctx):
     resources = _add_resources_cmd(ctx)
     ijar_cmd = ""
