@@ -5,8 +5,6 @@ load(
     "scala_test",
 )
 
-# default case: builds all configured versions with version suffixes
-
 scala_library(
     name = "library",
     srcs = glob(

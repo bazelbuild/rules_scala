@@ -20,8 +20,8 @@ def _impl(ctx):
 bootstrap_toolchain = rule(
     _impl,
     attrs = {
-        "classpath": attr.label_list(mandatory=True, allow_files = True),
-        "repl_classpath": attr.label_list(mandatory=True, allow_files = True),
-        "macro_classpath": attr.label_list(mandatory=True, allow_files = True),
+        "classpath": attr.label_list(mandatory = True, allow_files = True),
+        "repl_classpath": attr.label_list(mandatory = True, allow_files = True),
+        "macro_classpath": attr.label_list(mandatory = True, allow_files = True),
     },
 )
