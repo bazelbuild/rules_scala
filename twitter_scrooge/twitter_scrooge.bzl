@@ -19,7 +19,8 @@ load(
 )
 load(
     "//scala/private:rule_impls.bzl",
-    "compile_scala")
+    "compile_scala",
+)
 load("@io_bazel_rules_scala//thrift:thrift_info.bzl", "ThriftInfo")
 load(
     "@io_bazel_rules_scala//thrift:thrift.bzl",
@@ -246,7 +247,7 @@ def _compile_scala(
         scalac_jvm_flags = [],
         scalac = ctx.attr._scalac,
         dependency_info = dependency_info_for_addons(ctx),
-        unused_dependency_checker_ignored_targets = []
+        unused_dependency_checker_ignored_targets = [],
     )
 
     return JavaInfo(

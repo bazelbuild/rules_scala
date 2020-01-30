@@ -8,7 +8,8 @@ load(
 )
 load(
     "//scala/private:rule_impls.bzl",
-    "compile_scala")
+    "compile_scala",
+)
 load("//scala_proto/private:proto_to_scala_src.bzl", "proto_to_scala_src")
 
 ScalaPBAspectInfo = provider(fields = [

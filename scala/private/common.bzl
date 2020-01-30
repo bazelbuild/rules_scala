@@ -31,9 +31,9 @@ def collect_jars(
         runtime_jars.append(java_provider.transitive_runtime_jars)
 
         additional_transitive_compile_jars = _additional_transitive_compile_jars(
-            java_provider=java_provider,
-            dep_target=dep_target,
-            dependency_mode=dependency_mode
+            java_provider = java_provider,
+            dep_target = dep_target,
+            dependency_mode = dependency_mode,
         )
         transitive_compile_jars.append(additional_transitive_compile_jars)
 
@@ -76,15 +76,15 @@ def _additional_transitive_compile_jars(
         java_provider,
         dep_target,
         dependency_mode):
-    if dependency_mode == 'transitive':
+    if dependency_mode == "transitive":
         return java_provider.transitive_compile_time_jars
-    elif dependency_mode == 'plus-one':
+    elif dependency_mode == "plus-one":
         if PlusOneDeps in dep_target:
             plus_one_jars = [dep[JavaInfo].compile_jars for dep in dep_target[PlusOneDeps].direct_deps if JavaInfo in dep]
             return depset(transitive = plus_one_jars + [java_provider.compile_jars])
         else:
             return java_provider.compile_jars
-    else: # direct
+    else:  # direct
         return java_provider.compile_jars
 
 # When import mavan_jar's for scala macros we have to use the jar:file requirement

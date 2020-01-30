@@ -67,7 +67,7 @@ def compile_scala(
     plugins = _collect_plugin_paths(plugins)
     internal_plugin_jars = []
     compiler_classpath_jars = cjars
-    if dependency_info.dependency_mode != 'direct':
+    if dependency_info.dependency_mode != "direct":
         compiler_classpath_jars = transitive_compile_jars
     optional_scalac_args = ""
     classpath_resources = []
@@ -82,32 +82,32 @@ def compile_scala(
         internal_plugin_jars = ctx.files._dependency_analyzer_plugin
 
         current_target = str(target_label)
-        optional_scalac_args_map['CurrentTarget'] = current_target
+        optional_scalac_args_map["CurrentTarget"] = current_target
 
     if dependency_info.need_indirect_info:
         transitive_cjars_list = transitive_compile_jars.to_list()
         indirect_jars = _join_path(transitive_cjars_list)
         indirect_targets = ",".join([str(labels[j.path]) for j in transitive_cjars_list])
 
-        optional_scalac_args_map['IndirectJars'] = indirect_jars
-        optional_scalac_args_map['IndirectTargets'] = indirect_targets
+        optional_scalac_args_map["IndirectJars"] = indirect_jars
+        optional_scalac_args_map["IndirectTargets"] = indirect_targets
 
-    if dependency_info.unused_deps_mode != 'off':
+    if dependency_info.unused_deps_mode != "off":
         ignored_targets = ",".join([str(d) for d in unused_dependency_checker_ignored_targets])
-        optional_scalac_args_map['UnusedDepsIgnoredTargets'] = ignored_targets
+        optional_scalac_args_map["UnusedDepsIgnoredTargets"] = ignored_targets
 
     if dependency_info.need_direct_info:
         cjars_list = cjars.to_list()
         if dependency_info.need_direct_jars:
             direct_jars = _join_path(cjars_list)
-            optional_scalac_args_map['DirectJars'] = direct_jars
+            optional_scalac_args_map["DirectJars"] = direct_jars
         if dependency_info.need_direct_targets:
             direct_targets = ",".join([str(labels[j.path]) for j in cjars_list])
-            optional_scalac_args_map['DirectTargets'] = direct_targets
+            optional_scalac_args_map["DirectTargets"] = direct_targets
 
     optional_scalac_args = "\n".join([
-        "{k}: {v}".format(k=k, v=v) for (k, v)
-        in sorted(optional_scalac_args_map.items())
+        "{k}: {v}".format(k = k, v = v)
+        for (k, v) in sorted(optional_scalac_args_map.items())
     ])
 
     plugins_list = plugins.to_list()

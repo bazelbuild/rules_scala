@@ -13,7 +13,8 @@ def phase_collect_exports_jars(ctx, p):
     # Since after, will not show up in deploy_jar or old jars runfiles
     # Notice that compile_jars is intentionally transitive for exports
     return collect_jars(
-        dep_targets=ctx.attr.exports,
-        dependency_mode='direct',
-        need_direct_info=False,
-        need_indirect_info=False)
+        dep_targets = ctx.attr.exports,
+        dependency_mode = "direct",
+        need_direct_info = False,
+        need_indirect_info = False,
+    )

@@ -146,10 +146,10 @@ def _phase_compile(
         transitive_compile_jars,
         jars2labels,
         implicit_junit_deps_needed_for_java_compilation,
-        deps_providers=deps_providers,
-        default_classpath=default_classpath,
-        dependency_info=p.dependency,
-        unused_dependency_checker_ignored_targets=unused_dependency_checker_ignored_targets
+        deps_providers = deps_providers,
+        default_classpath = default_classpath,
+        dependency_info = p.dependency,
+        unused_dependency_checker_ignored_targets = unused_dependency_checker_ignored_targets,
     )
 
     # TODO: simplify the return values and use provider
@@ -217,10 +217,10 @@ def _compile_or_empty(
         # Thus we disable unused dependency checking when java sources are found
         if len(java_srcs) != 0:
             dependency_info = new_dependency_info(
-                dependency_mode=dependency_info.dependency_mode,
-                unused_deps_mode='off',
-                strict_deps_mode=dependency_info.strict_deps_mode,
-                dependency_tracking_method=dependency_info.dependency_tracking_method,
+                dependency_mode = dependency_info.dependency_mode,
+                unused_deps_mode = "off",
+                strict_deps_mode = dependency_info.strict_deps_mode,
+                dependency_tracking_method = dependency_info.dependency_tracking_method,
             )
 
         sources = [
@@ -248,8 +248,8 @@ def _compile_or_empty(
             ctx.attr.expect_java_output,
             ctx.attr.scalac_jvm_flags,
             ctx.attr._scalac,
-            dependency_info=dependency_info,
-            unused_dependency_checker_ignored_targets=unused_dependency_checker_ignored_targets
+            dependency_info = dependency_info,
+            unused_dependency_checker_ignored_targets = unused_dependency_checker_ignored_targets,
         )
 
         # build ijar if needed
