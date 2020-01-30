@@ -46,7 +46,6 @@ def _compiled_jar_file(actions, scalapb_jar):
 
 def _compile_scala(
         ctx,
-        scalac,
         label,
         output,
         scalapb_jar,
@@ -88,7 +87,6 @@ def _compile_scala(
         print_compile_time = False,
         expect_java_output = False,
         scalac_jvm_flags = [],
-        scalac = scalac,
     )
 
     return JavaInfo(
@@ -133,6 +131,7 @@ def _scalapb_aspect_impl(target, ctx):
         compile_protos = sorted(target_ti.direct_sources)
         transitive_protos = sorted(target_ti.transitive_sources.to_list())
 
+        scala_toolchain = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"]
         toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
         flags = []
         imps = [j[JavaInfo] for j in ctx.attr._implicit_compile_deps]
@@ -189,7 +188,6 @@ def _scalapb_aspect_impl(target, ctx):
             outs = depset([output])
             java_info = _compile_scala(
                 ctx,
-                toolchain.scalac,
                 target.label,
                 output,
                 scalapb_file,

@@ -74,7 +74,7 @@ def _is_enabled(ctx):
     if "@io_bazel_rules_scala//scala:toolchain_type" not in ctx.toolchains:
         return False
     else:
-        return ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].enable_code_coverage_aspect == "on"
+        return ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scalainfo.enable_code_coverage_aspect == "on"
 
 coverage_replacements_provider = struct(
     aspect = _aspect,

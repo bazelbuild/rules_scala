@@ -238,7 +238,6 @@ def _compile_scala(
         print_compile_time = False,
         expect_java_output = False,
         scalac_jvm_flags = [],
-        scalac = ctx.attr._scalac,
     )
 
     return JavaInfo(

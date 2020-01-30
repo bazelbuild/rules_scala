@@ -1,3 +1,9 @@
+TestInfo = provider(
+    doc = "TestInfo",
+    fields = [
+    ],
+)
+
 def _test_toolchain_impl(ctx):
     toolchain = platform_common.ToolchainInfo(
     )

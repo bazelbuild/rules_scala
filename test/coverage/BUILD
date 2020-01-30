@@ -4,6 +4,7 @@ load("//scala:scala_toolchain.bzl", "scala_toolchain")
 scala_toolchain(
     name = "enable_code_coverage_aspect_impl",
     enable_code_coverage_aspect = "on",
+    scalac = "//src/java/io/bazel/rulesscala/scalac",
     visibility = ["//visibility:public"],
 )
 
