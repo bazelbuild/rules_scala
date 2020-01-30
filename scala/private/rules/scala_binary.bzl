@@ -73,7 +73,10 @@ def make_scala_binary(*extras):
             common_outputs,
             *[extra["outputs"] for extra in extras if "outputs" in extra]
         ),
-        toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
+        toolchains = [
+            "@io_bazel_rules_scala//scala:bootstrap_toolchain_type",
+            "@io_bazel_rules_scala//scala:toolchain_type"
+        ],
         implementation = _scala_binary_impl,
     )
 

@@ -1,8 +1,10 @@
-load(
-    "@io_bazel_rules_scala//scala:providers.bzl",
-    _declare_scalac_provider = "declare_scalac_provider",
-)
+# load(
+#     "@io_bazel_rules_scala//scala:providers.bzl",
+#     _declare_scalac_provider = "declare_scalac_provider",
+# )
+load("//scala:bootstrap_toolchain.bzl", "bootstrap_toolchain")
 load("//scala:scala_toolchain.bzl", "scala_toolchain")
+load("//scala:test_toolchain.bzl", "test_toolchain")
 
 # bootstrap toolchain
 
@@ -11,9 +13,21 @@ toolchain_type(
     visibility = ["//visibility:public"],
 )
 
-scala_toolchain(
+bootstrap_toolchain(
     name = "bootstrap_toolchain_impl",
-    scalacopts = [],
+    classpath = [
+        "@io_bazel_rules_scala_scala_library",
+        "@io_bazel_rules_scala_scala_reflect",
+    ],
+    macro_classpath = [
+        "@io_bazel_rules_scala_scala_library",
+        "@io_bazel_rules_scala_scala_reflect",
+    ],
+    repl_classpath = [
+        "@io_bazel_rules_scala_scala_library",
+        "@io_bazel_rules_scala_scala_reflect",
+        "@io_bazel_rules_scala_scala_compiler",
+    ],
     visibility = ["//visibility:public"],
 )
 
@@ -46,6 +60,23 @@ toolchain(
 
 # test toolchain
 
+toolchain_type(
+    name = "test_toolchain_type",
+    visibility = ["//visibility:public"],
+)
+
+test_toolchain(
+    name = "test_toolchain_impl",
+    visibility = ["//visibility:public"],
+)
+
+toolchain(
+    name = "test_toolchain",
+    toolchain = ":test_toolchain_impl",
+    toolchain_type = "@io_bazel_rules_scala//scala:test_toolchain_type",
+    visibility = ["//visibility:public"],
+)
+
 # unused dependency checker toolchain
 
 scala_toolchain(
@@ -66,25 +97,6 @@ java_import(
     jars = ["@bazel_tools//tools/jdk:TestRunner_deploy.jar"],
     visibility = ["//visibility:public"],
 )
-
-_declare_scalac_provider(
-    name = "scalac_default",
-    default_classpath = [
-        "@io_bazel_rules_scala_scala_library",
-        "@io_bazel_rules_scala_scala_reflect",
-    ],
-    default_macro_classpath = [
-        "@io_bazel_rules_scala_scala_library",
-        "@io_bazel_rules_scala_scala_reflect",
-    ],
-    default_repl_classpath = [
-        "@io_bazel_rules_scala_scala_library",
-        "@io_bazel_rules_scala_scala_reflect",
-        "@io_bazel_rules_scala_scala_compiler",
-    ],
-    visibility = ["//visibility:public"],
-)
-
 java_library(
     name = "PlaceHolderClassToCreateEmptyJarForScalaImport",
     srcs = ["PlaceHolderClassToCreateEmptyJarForScalaImport.java"],

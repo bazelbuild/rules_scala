@@ -1,0 +1,25 @@
+load("//repositories:bazel_skylib.bzl", "load_bazel_skylib")
+
+load_bazel_skylib()
+
+load("//repositories:rules_jvm_external.bzl", "load_rules_jvm_external")
+
+load_rules_jvm_external()
+
+load("//repositories:rules_scala.bzl", "load_rules_scala")
+
+load_rules_scala()
+
+load("//repositories:rules_proto.bzl", "load_rules_proto")
+
+load_rules_proto()
+
+load("//repositories:rules_python.bzl", "load_rules_python")
+
+load_rules_python()
+
+load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_toolchains")
+scala_register_toolchains()
+
+load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
+scala_repositories()

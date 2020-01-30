@@ -125,7 +125,13 @@ def make_scala_junit_test(*extras):
             *[extra["outputs"] for extra in extras if "outputs" in extra]
         ),
         test = True,
-        toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
+        toolchains = [
+            "@io_bazel_rules_scala//scala:bootstrap_toolchain_type",
+            "@io_bazel_rules_scala//scala:toolchain_type",
+            # unclear on next and will consider in factoring, whether
+            # scalatest and junit tests should be different toolchain types
+            "@io_bazel_rules_scala//scala:test_toolchain_type",
+        ],
         implementation = _scala_junit_test_impl,
     )
 
