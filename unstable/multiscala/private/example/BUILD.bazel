@@ -50,7 +50,7 @@ scala_test(
     scala_deps = [":library_with_explict_version"],
 )
 
-# explict toolchain configuration: this disabled multiscala: you're on your own
+# explict toolchain configuration: this disabled multiscala: you're on your own ...
 
 scala_library(
     name = "library_with_explict_toolchain",

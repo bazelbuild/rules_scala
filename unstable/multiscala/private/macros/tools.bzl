@@ -3,6 +3,7 @@
 TBD
 """
 
+load("@bazel_skylib//lib:dicts.bzl", _dicts = "dicts")
 load(
     "@io_bazel_rules_scala_configuration//:configuration.bzl",
     _configuration = "configuration",
@@ -14,18 +15,27 @@ load(
     _toolchain_label = "toolchain_label",
 )
 
+# FIXME: rename
 def remove_toolchains(kwargs, version):
     """check and remove toolchain from kwargs; passed explicitly
 
     Args:
       kwargs: complete set of arguments passed to the macro
       version: scala version being targetted
+    Returns:
+      New kwargs dict
     """
 
+    kwargs = _dicts.add(kwargs)
+    kwargs["scala_suffixes"] = True
     if "toolchains" in kwargs:
         if kwargs["toolchains"] != [_toolchain_label("scala", version["mvn"])]:
             fail([kwargs["toolchains"], [_toolchain_label("scala", version["mvn"])]])
         kwargs.pop("toolchains")
+        kwargs["scala_suffixes"] = False
+    if "scala" in kwargs:
+        kwargs.pop("scala")
+    return kwargs
 
 def combine_kwargs(
         kwargs,
@@ -40,20 +50,33 @@ def combine_kwargs(
       Updated kwargs
     """
 
-    _combine_deps("runtime_deps", kwargs, mvn_version)
-    _combine_deps("deps", kwargs, mvn_version)
+    kwargs = _dicts.add(kwargs)
+
+    # print("a", kwargs)
+    kwargs = _combine_deps("runtime_deps", kwargs, mvn_version)
+    kwargs = _combine_deps("deps", kwargs, mvn_version)
+    if kwargs["scala_suffixes"]:
+        kwargs["name"] = kwargs["name"] + "_" + mvn_version
     kwargs.pop("scala_deps")
     kwargs.pop("scala_runtime_deps")
+    kwargs.pop("scala_suffixes")
+
+    # print("b", kwargs)
     return kwargs
 
 def _combine_deps(
         dep_name,
         kwargs,
         mvn_version):
+    kwargs = _dicts.add(kwargs)
     new_deps = kwargs[dep_name][:]
     for dep in kwargs["scala_" + dep_name]:
-        new_deps.append(dep + "_" + mvn_version)
+        if kwargs["scala_suffixes"]:
+            new_deps.append(dep + "_" + mvn_version)
+        else:
+            new_deps.append(dep)
     kwargs[dep_name] = new_deps
+    return kwargs
 
 def target_versions(kwargs):
     """return scala versions that should be targetted based on kwargs
@@ -73,8 +96,19 @@ def target_versions(kwargs):
         version = version[1:]
         version = ".".join(version[:-1])
         return [_configuration["scala"][version]]
-    else:
-        return _versions()
+
+    if "scala" in kwargs:
+        versions = kwargs["scala"]
+
+        if type(versions) == "NoneType":
+            return _versions()
+
+        if type(versions) == "string":
+            versions = [versions]
+
+        return [_configuration["scala"][version] for version in versions]
+
+    return _versions()
 
 def maven_install(**kwargs):
     _maven_install(**kwargs)

@@ -3,6 +3,7 @@
 TBD
 """
 
+load("@bazel_skylib//lib:dicts.bzl", _dicts = "dicts")
 load(
     "//scala:scala.bzl",
     _scala_library_rule = "scala_library",
@@ -18,17 +19,13 @@ load(
     _target_versions = "target_versions",
 )
 
-def _create_scala_library(version, name, **kwargs):
-    target_name = name + "_" + version["mvn"]
-    _remove_toolchains(kwargs, version)
-    _combine_kwargs(kwargs, version["mvn"])
+def _create_scala_library(version, **kwargs):
+    kwargs = _remove_toolchains(kwargs, version)
+    kwargs = _combine_kwargs(kwargs, version["mvn"])
     _scala_library_rule(
-        name = target_name,
         toolchains = [_toolchain_label("scala", version["mvn"])],
         **kwargs
     )
-    if version["default"]:
-        native.alias(name = name, actual = target_name)
 
 def scala_library(
         scala_deps = [],
@@ -47,9 +44,11 @@ def scala_library(
       scala: verisons of scala to build for
       **kwargs: standard scala_library arguments
     """
+    kwargs = _dicts.add(kwargs)
     kwargs.update(
-        deps = scala_deps,
-        runtime_deps = scala_runtime_deps,
+        scala = scala,
+        deps = deps,
+        runtime_deps = runtime_deps,
         scala_deps = scala_deps,
         scala_runtime_deps = scala_runtime_deps,
     )

@@ -3,6 +3,7 @@
 TBD
 """
 
+load("@bazel_skylib//lib:dicts.bzl", _dicts = "dicts")
 load(
     "//scala:scala.bzl",
     _scala_test_rule = "scala_test",
@@ -18,15 +19,11 @@ load(
     _target_versions = "target_versions",
 )
 
-def _create_scala_test(version, name, **kwargs):
-    target_name = name + "_" + version["mvn"]
-    _remove_toolchains(kwargs, version)
-    kwargs["name"] = target_name
+def _create_scala_test(version, **kwargs):
+    kwargs = _remove_toolchains(kwargs, version)
     kwargs["toolchains"] = [_toolchain_label("scala", version["mvn"])]
-    _combine_kwargs(kwargs, version["mvn"])
+    kwargs = _combine_kwargs(kwargs, version["mvn"])
     _scala_test_rule(**kwargs)
-    if version["default"]:
-        native.alias(name = name, actual = target_name)
 
 def scala_test(
         scala_deps = [],
@@ -46,9 +43,11 @@ def scala_test(
       **kwargs: standard scala_test arguments
     """
 
+    kwargs = _dicts.add(kwargs)
     kwargs.update(
-        deps = scala_deps,
-        runtime_deps = scala_runtime_deps,
+        scala = scala,
+        deps = deps,
+        runtime_deps = runtime_deps,
         scala_deps = scala_deps,
         scala_runtime_deps = scala_runtime_deps,
     )

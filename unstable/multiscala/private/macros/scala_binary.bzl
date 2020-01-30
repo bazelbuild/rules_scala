@@ -3,6 +3,7 @@
 TBD
 """
 
+load("@bazel_skylib//lib:dicts.bzl", _dicts = "dicts")
 load(
     "//scala:scala.bzl",
     _scala_binary_rule = "scala_binary",
@@ -20,18 +21,15 @@ load(
 
 _binary_suffixes = ["", "_deploy.jar"]
 
-def _create_scala_binary(version, name, **kwargs):
-    target_name = name + "_" + version["mvn"]
-    _remove_toolchains(kwargs, version)
-    _combine_kwargs(kwargs, version["mvn"])
-    _scala_binary_rule(
-        name = target_name,
+def _create_scala_binary(version, **kwargs):
+    kwargs = _remove_toolchains(kwargs, version)
+    kwargs = _combine_kwargs(kwargs, version["mvn"])
+    kwargs.update(
         toolchains = [_toolchain_label("scala", version["mvn"])],
-        **kwargs
     )
-    if version["default"]:
-        for suffix in _binary_suffixes:
-            native.alias(name = name + suffix, actual = target_name + suffix)
+
+    # print(kwargs)
+    _scala_binary_rule(**kwargs)
 
 def scala_binary(
         scala_deps = [],
@@ -50,9 +48,11 @@ def scala_binary(
       scala: verisons of scala to build for
       **kwargs: standard scala_binary arguments
     """
+    kwargs = _dicts.add(kwargs)
     kwargs.update(
-        deps = scala_deps,
-        runtime_deps = scala_runtime_deps,
+        scala = scala,
+        deps = deps,
+        runtime_deps = runtime_deps,
         scala_deps = scala_deps,
         scala_runtime_deps = scala_runtime_deps,
     )
