@@ -19,7 +19,6 @@ load(
     "phase_java_wrapper_common",
     "phase_merge_jars",
     "phase_runfiles_common",
-    "phase_scalac_provider",
     "phase_unused_deps_checker",
     "phase_write_executable_common",
     "phase_write_manifest",
@@ -31,7 +30,6 @@ def _scala_binary_impl(ctx):
         ctx,
         # customizable phases
         [
-            ("scalac_provider", phase_scalac_provider),
             ("write_manifest", phase_write_manifest),
             ("unused_deps_checker", phase_unused_deps_checker),
             ("collect_jars", phase_collect_jars_common),

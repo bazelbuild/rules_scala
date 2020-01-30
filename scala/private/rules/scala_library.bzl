@@ -29,7 +29,6 @@ load(
     "phase_default_info",
     "phase_merge_jars",
     "phase_runfiles_library",
-    "phase_scalac_provider",
     "phase_unused_deps_checker",
     "phase_write_manifest",
     "run_phases",
@@ -57,7 +56,6 @@ def _scala_library_impl(ctx):
         ctx,
         # customizable phases
         [
-            ("scalac_provider", phase_scalac_provider),
             ("collect_srcjars", phase_collect_srcjars),
             ("write_manifest", phase_write_manifest),
             ("unused_deps_checker", phase_unused_deps_checker),
@@ -137,7 +135,6 @@ def _scala_library_for_plugin_bootstrapping_impl(ctx):
         ctx,
         # customizable phases
         [
-            ("scalac_provider", phase_scalac_provider),
             ("collect_srcjars", phase_collect_srcjars),
             ("write_manifest", phase_write_manifest),
             ("collect_jars", phase_collect_jars_library_for_plugin_bootstrapping),
@@ -194,7 +191,6 @@ def _scala_macro_library_impl(ctx):
         ctx,
         # customizable phases
         [
-            ("scalac_provider", phase_scalac_provider),
             ("collect_srcjars", phase_collect_srcjars),
             ("write_manifest", phase_write_manifest),
             ("unused_deps_checker", phase_unused_deps_checker),
