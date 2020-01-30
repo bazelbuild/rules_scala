@@ -19,6 +19,7 @@ load("//scala:scala.bzl", "scala_repositories")
 
 scala_repositories()
 
+load("//scala:scala_cross_version.bzl", "default_maven_server_urls")
 load("//scala:scala_maven_import_external.bzl", "scala_maven_import_external")
 load("//twitter_scrooge:twitter_scrooge.bzl", "scrooge_scala_library", "twitter_scrooge")
 
@@ -40,12 +41,20 @@ load("//specs2:specs2_junit.bzl", "specs2_junit_repositories")
 
 specs2_junit_repositories()
 
+load("//scala/scalafmt:scalafmt_repositories.bzl", "scalafmt_default_config", "scalafmt_repositories")
+
+scalafmt_default_config()
+
+scalafmt_repositories()
+
 load("//scala:scala_cross_version.bzl", "default_scala_major_version", "scala_mvn_artifact")
 
-MAVEN_SERVER_URLS = [
-    "https://jcenter.bintray.com",
-    "https://repo1.maven.org/maven2",
-]
+MAVEN_SERVER_URLS = default_maven_server_urls()
+
+# needed for the cross repo proto test
+load("//test/proto_cross_repo_boundary:repo.bzl", "proto_cross_repo_boundary_repository")
+
+proto_cross_repo_boundary_repository()
 
 # test adding a scala jar:
 jvm_maven_import_external(
@@ -100,9 +109,7 @@ scala_maven_import_external(
     artifact_sha256 = "4eb582bc99d96c8df92fc6f0f608fd123d278223982555ba16219bf8be9f75a9",
     fetch_sources = True,
     licenses = ["notice"],
-    server_urls = [
-        "https://repo.maven.apache.org/maven2/",
-    ],
+    server_urls = MAVEN_SERVER_URLS,
     srcjar_sha256 = "5e586357a289f5fe896f7b48759e1c16d9fa419333156b496696887e613d7a19",
 )
 
@@ -145,10 +152,7 @@ scala_maven_import_external(
     artifact_sha256 = "972139718abc8a4893fa78cba8cf7b2c903f35c97aaf44fa3031b0669948b480",
     fetch_sources = True,
     licenses = ["notice"],  # Apache 2.0
-    server_urls = [
-        "https://repo1.maven.org/maven2/",
-        "https://mirror.bazel.build/repo1.maven.org/maven2",
-    ],
+    server_urls = MAVEN_SERVER_URLS,
     srcjar_sha256 = "b186965c9af0a714632fe49b33378c9670f8f074797ab466f49a67e918e116ea",
 )
 
@@ -218,10 +222,7 @@ scala_maven_import_external(
     artifact = "org.springframework:spring-core:5.1.5.RELEASE",
     artifact_sha256 = "f771b605019eb9d2cf8f60c25c050233e39487ff54d74c93d687ea8de8b7285a",
     licenses = ["notice"],  # Apache 2.0
-    server_urls = [
-        "https://repo1.maven.org/maven2/",
-        "https://mirror.bazel.build/repo1.maven.org/maven2",
-    ],
+    server_urls = MAVEN_SERVER_URLS,
 )
 
 scala_maven_import_external(
@@ -229,10 +230,7 @@ scala_maven_import_external(
     artifact = "org.springframework:spring-tx:5.1.5.RELEASE",
     artifact_sha256 = "666f72b73c7e6b34e5bb92a0d77a14cdeef491c00fcb07a1e89eb62b08500135",
     licenses = ["notice"],  # Apache 2.0
-    server_urls = [
-        "https://repo1.maven.org/maven2/",
-        "https://mirror.bazel.build/repo1.maven.org/maven2",
-    ],
+    server_urls = MAVEN_SERVER_URLS,
     deps = [
         "@org_springframework_spring_core",
     ],
@@ -248,7 +246,5 @@ scala_maven_import_external(
     artifact_sha256 = "897460d4488b7dd6ac9198937d6417b36cc6ec8ab3693fdf2c532652f26c4373",
     fetch_sources = False,
     licenses = ["notice"],
-    server_urls = [
-        "https://repo.maven.apache.org/maven2/",
-    ],
+    server_urls = MAVEN_SERVER_URLS,
 )

@@ -85,8 +85,10 @@ to your command line, or to enable by default for building/testing add it to you
 
 ## Selecting Scala version
 
-Rules scala supports all minor versions of Scala 2.11/2.12. By default `Scala 2.11.12` is used and to use another
-version you need to
+Rules scala supports the last two released minor versions for each of Scala 2.11 and 2.12.
+Previous minor versions may work but are supported only on a best effort basis.
+
+By default `Scala 2.11.12` is used and to use another version you need to
 specify it when calling `scala_repositories`. `scala_repositories` takes a tuple `(scala_version, scala_version_jar_shas)`
 as a parameter where `scala_version` is the scala version and `scala_version_jar_shas` is a `dict` with
 `sha256` hashes for the maven artifacts `scala_compiler`, `scala_library`, and `scala_reflect`:
@@ -200,6 +202,9 @@ Phases provide 3 major benefits:
  - Phases give us more clear idea what steps are shared across rules.
 
 See [Customizable Phase](docs/customizable_phase.md) for more info.
+
+### Phase extensions
+ - [Scala Format](docs/phase_scalafmt.md)
 
 ## Building from source
 Test & Build:
