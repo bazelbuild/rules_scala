@@ -1,8 +1,3 @@
-# load(
-#     "@io_bazel_rules_scala//scala:providers.bzl",
-#     _ScalacProvider = "ScalacProvider",
-# )
-
 def _files_of(deps):
     files = []
     for dep in deps:
@@ -10,8 +5,7 @@ def _files_of(deps):
     return depset(transitive = files)
 
 def _export_scalac_repositories_from_toolchain_to_jvm_impl(ctx):
-    # default_repl_classpath_deps = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scalac_provider_attr[_ScalacProvider].default_repl_classpath
-    default_repl_classpath_deps = ctx.toolchains["@io_bazel_rules_scala//scala:bootstrap_toolchain_type"].bootstrapInfo.repl_classpath
+    default_repl_classpath_deps = ctx.toolchains["@io_bazel_rules_scala//scala:bootstrap_toolchain_type"].bootstrapinfo.repl_classpath
     default_repl_classpath_files = _files_of(
         default_repl_classpath_deps,
     ).to_list()

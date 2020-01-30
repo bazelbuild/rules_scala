@@ -34,7 +34,7 @@ def phase_compile_binary(ctx, p):
         buildijar = False,
         unused_dependency_checker_ignored_targets = [
             target.label
-            for target in p.scalac_provider.bootstrapInfo.classpath +
+            for target in p.scalac_provider.bootstrapinfo.classpath +
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
     )
@@ -45,7 +45,7 @@ def phase_compile_library(ctx, p):
         srcjars = p.collect_srcjars,
         unused_dependency_checker_ignored_targets = [
             target.label
-            for target in p.scalac_provider.bootstrapInfo.classpath + ctx.attr.exports +
+            for target in p.scalac_provider.bootstrapinfo.classpath + ctx.attr.exports +
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
     )
@@ -55,7 +55,7 @@ def phase_compile_library_for_plugin_bootstrapping(ctx, p):
     args = struct(
         unused_dependency_checker_ignored_targets = [
             target.label
-            for target in p.scalac_provider.bootstrapInfo.classpath + ctx.attr.exports
+            for target in p.scalac_provider.bootstrapinfo.classpath + ctx.attr.exports
         ],
         unused_dependency_checker_mode = "off",
     )
@@ -66,7 +66,7 @@ def phase_compile_macro_library(ctx, p):
         buildijar = False,
         unused_dependency_checker_ignored_targets = [
             target.label
-            for target in p.scalac_provider.bootstrapInfo.macro_classpath + ctx.attr.exports +
+            for target in p.scalac_provider.bootstrapinfo.macro_classpath + ctx.attr.exports +
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
     )
@@ -81,7 +81,7 @@ def phase_compile_junit_test(ctx, p):
         ],
         unused_dependency_checker_ignored_targets = [
             target.label
-            for target in p.scalac_provider.bootstrapInfo.classpath +
+            for target in p.scalac_provider.bootstrapinfo.classpath +
                           ctx.attr.unused_dependency_checker_ignored_targets
         ] + [
             ctx.attr._junit.label,
@@ -97,7 +97,7 @@ def phase_compile_repl(ctx, p):
         buildijar = False,
         unused_dependency_checker_ignored_targets = [
             target.label
-            for target in p.scalac_provider.bootstrapInfo.repl_classpath +
+            for target in p.scalac_provider.bootstrapinfo.repl_classpath +
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
     )
@@ -108,7 +108,7 @@ def phase_compile_scalatest(ctx, p):
         buildijar = False,
         unused_dependency_checker_ignored_targets = [
             target.label
-            for target in p.scalac_provider.bootstrapInfo.classpath +
+            for target in p.scalac_provider.bootstrapinfo.classpath +
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
     )
@@ -143,7 +143,7 @@ def _phase_compile(
     transitive_compile_jars = p.collect_jars.transitive_compile_jars
     jars2labels = p.collect_jars.jars2labels.jars_to_labels
     deps_providers = p.collect_jars.deps_providers
-    default_classpath = p.scalac_provider.bootstrapInfo.classpath
+    default_classpath = p.scalac_provider.bootstrapinfo.classpath
 
     out = _compile_or_empty(
         ctx,
