@@ -1,10 +1,8 @@
-# load(
-#     "@io_bazel_rules_scala//scala:providers.bzl",
-#     _declare_scalac_provider = "declare_scalac_provider",
-# )
 load("//scala:bootstrap_toolchain.bzl", "bootstrap_toolchain")
 load("//scala:scala_toolchain.bzl", "scala_toolchain")
 load("//scala:test_toolchain.bzl", "test_toolchain")
+
+# default toolchains registered by `scala_register_toolchains`
 
 # bootstrap toolchain
 
