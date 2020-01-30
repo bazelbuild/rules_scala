@@ -9,9 +9,9 @@ scala_binary(
     visibility = ["//visibility:public"],
     runtime_deps = [
         "//external:io_bazel_rules_scala/dependency/scala/parser_combinators",
-        "//external:io_bazel_rules_scala/dependency/scala/scala_compiler",
-        "//external:io_bazel_rules_scala/dependency/scala/scala_library",
-        "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
+        # "//external:io_bazel_rules_scala/dependency/scala/scala_compiler",
+        # "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+        # "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
         "//external:io_bazel_rules_scala/dependency/scala/scala_xml",
     ],
 )

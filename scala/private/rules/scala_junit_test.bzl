@@ -86,18 +86,18 @@ _scala_junit_test_attrs = {
 }
 
 _junit_resolve_deps = {
-    "_scala_toolchain": attr.label_list(
-        default = [
-            Label(
-                "//external:io_bazel_rules_scala/dependency/scala/scala_library",
-            ),
-            Label("//external:io_bazel_rules_scala/dependency/junit/junit"),
-            Label(
-                "//external:io_bazel_rules_scala/dependency/hamcrest/hamcrest_core",
-            ),
-        ],
-        allow_files = False,
-    ),
+    # "_scala_toolchain": attr.label_list(
+    #     default = [
+    #         Label(
+    #             "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+    #         ),
+    #         Label("//external:io_bazel_rules_scala/dependency/junit/junit"),
+    #         Label(
+    #             "//external:io_bazel_rules_scala/dependency/hamcrest/hamcrest_core",
+    #         ),
+    #     ],
+    #     allow_files = False,
+    # ),
 }
 
 _scala_junit_test_attrs.update(launcher_template)

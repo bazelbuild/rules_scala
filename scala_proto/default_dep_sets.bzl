@@ -11,7 +11,7 @@ DEFAULT_SCALAPB_COMPILE_DEPS = [
     "//external:io_bazel_rules_scala/dependency/com_google_protobuf/protobuf_java",
     "//external:io_bazel_rules_scala/dependency/proto/scalapb_lenses",
     "//external:io_bazel_rules_scala/dependency/proto/scalapb_fastparse",
-    "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+    # "//external:io_bazel_rules_scala/dependency/scala/scala_library",
 ]
 
 DEFAULT_SCALAPB_GRPC_DEPS = [

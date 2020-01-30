@@ -65,6 +65,9 @@ toolchain_type(
 
 test_toolchain(
     name = "test_toolchain_impl",
+    jar = "//external:io_bazel_rules_scala/dependency/scalatest/scalatest",
+    reporter = "//scala/support:test_reporter",
+    runner = "//src/java/io/bazel/rulesscala/scala_test:runner",
     visibility = ["//visibility:public"],
 )
 
