@@ -198,17 +198,17 @@ def _compile_or_empty(
             merged_provider = scala_compilation_provider,
         )
     else:
+        java_srcs = _get_files_with_extension(ctx, _java_extension)
+        scala_srcs = _get_files_with_extension(ctx, _scala_extension)
         in_srcjars = _get_files_with_extension(ctx, _srcjar_extension)
         all_srcjars = depset(in_srcjars, transitive = [srcjars])
-
-        java_srcs = _get_files_with_extension(ctx, _java_extension)
 
         # We are not able to verify whether dependencies are used when compiling java sources
         # Thus we disable unused dependency checking when java sources are found
         if len(java_srcs) != 0:
             unused_dependency_checker_mode = "off"
 
-        sources = _get_files_with_extension(ctx, _scala_extension) + java_srcs
+        sources = scala_srcs + java_srcs
         _compile_scala(
             ctx,
             ctx.label,
@@ -247,7 +247,7 @@ def _compile_or_empty(
             #  so set ijar == jar
             ijar = ctx.outputs.jar
 
-        source_jar = _pack_source_jar(ctx)
+        source_jar = _pack_source_jar(ctx, scala_srcs, in_srcjars)
         scala_compilation_provider = _create_scala_compilation_provider(ctx, ijar, source_jar, deps_providers)
 
         # compile the java now
@@ -328,22 +328,15 @@ def _create_scala_compilation_provider(ctx, ijar, source_jar, deps_providers):
         runtime_deps = runtime_deps,
     )
 
-def _pack_source_jar(ctx):
-    # collect .scala sources and pack a source jar for Scala
-    scala_sources = _get_files_with_extension(ctx, _scala_extension)
-
-    # collect .srcjar files and pack them with the scala sources
-    bundled_source_jars = _get_files_with_extension(ctx, _srcjar_extension)
-    scala_source_jar = java_common.pack_sources(
+def _pack_source_jar(ctx, scala_srcs, in_srcjars):
+    return java_common.pack_sources(
         ctx.actions,
         output_jar = ctx.outputs.jar,
-        sources = scala_sources,
-        source_jars = bundled_source_jars,
+        sources = scala_srcs,
+        source_jars = in_srcjars,
         java_toolchain = find_java_toolchain(ctx, ctx.attr._java_toolchain),
         host_javabase = find_java_runtime_toolchain(ctx, ctx.attr._host_javabase),
     )
-
-    return scala_source_jar
 
 def _jacoco_offline_instrument(ctx, input_jar):
     if not ctx.configuration.coverage_enabled or not hasattr(ctx.attr, "_code_coverage_instrumentation_worker"):
