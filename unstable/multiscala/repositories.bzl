@@ -63,7 +63,7 @@ def _create_protobuf():
         urls = ["https://github.com/madler/zlib/archive/v1.2.11.tar.gz"],
     )
 
-    if _configuration["compatability_labels"]:
+    if _configuration()["compatability_labels"]:
         native.bind(
             name = "io_bazel_rules_scala/dependency/com_google_protobuf/protobuf_java",
             actual = "@com_google_protobuf//:protobuf_java",
@@ -113,7 +113,7 @@ def _create_maven_installed_repos():
     _maven_install(
         name = "io_bazel_rules_scala_scalac",
         artifacts = _maven_install_artifacts(java_artifacts),
-        repositories = _configuration["repositories"],
+        repositories = _configuration()["repositories"],
     )
-    if _configuration["compatability_labels"]:
+    if _configuration()["compatability_labels"]:
         _bind_default_labels("io_bazel_rules_scala_scalac", java_artifacts)

@@ -95,7 +95,7 @@ def target_versions(kwargs):
         version = target.split("_")
         version = version[1:]
         version = ".".join(version[:-1])
-        return [_configuration["scala"][version]]
+        return [_configuration()["scala"][version]]
 
     if "scala" in kwargs:
         versions = kwargs["scala"]
@@ -106,7 +106,7 @@ def target_versions(kwargs):
         if type(versions) == "string":
             versions = [versions]
 
-        return [_configuration["scala"][version] for version in versions]
+        return [_configuration()["scala"][version] for version in versions]
 
     return _versions()
 

@@ -21,7 +21,10 @@ load(
 
 def _create_scala_test(version, **kwargs):
     kwargs = _remove_toolchains(kwargs, version)
-    kwargs["toolchains"] = [_toolchain_label("scala", version["mvn"])]
+    kwargs["toolchains"] = [
+        _toolchain_label("scala", version["mvn"]),
+        _toolchain_label("scala_test", version["mvn"]),
+    ]
     kwargs = _combine_kwargs(kwargs, version["mvn"])
     _scala_test_rule(**kwargs)
 

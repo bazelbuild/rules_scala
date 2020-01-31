@@ -9,8 +9,8 @@ load(
     _bootstrap_toolchain_rule = "bootstrap_toolchain",
 )
 load(
-    "@io_bazel_rules_scala//scala:test_toolchain.bzl",
-    _test_toolchain_rule = "test_toolchain",
+    "@io_bazel_rules_scala//scala:scala_test_toolchain.bzl",
+    _scala_test_toolchain_rule = "scala_test_toolchain",
 )
 load(
     "@io_bazel_rules_scala_configuration//:configuration.bzl",
@@ -39,7 +39,7 @@ def _create_all_toolchains():
 def _create_version_toolchains(version):
     _create_bootstrap_toolchain(version)
     _create_scala_toolchain(version)
-    _create_scalatest_toolchain(version)
+    _create_scala_test_toolchain(version)
 
 def _create_bootstrap_toolchain(version):
     mvn = version["mvn"]
@@ -61,8 +61,6 @@ def _create_bootstrap_toolchain(version):
     attrs["repl_classpath"] = [compiler, library, reflect]
 
     _bootstrap_toolchain_rule(**attrs)
-
-    print(_native_toolchain_label("bootstrap", version["mvn"], in_package = True))
 
     native.toolchain(
         name = _native_toolchain_label("bootstrap", version["mvn"], in_package = True),
@@ -94,8 +92,6 @@ def _create_scala_toolchain(version):
     attrs["visibility"] = ["//visibility:public"]
     attrs["scalac"] = _scalac_label(version["mvn"])
 
-    print(attrs)
-
     _scala_toolchain_rule(**attrs)
 
     native.toolchain(
@@ -105,10 +101,10 @@ def _create_scala_toolchain(version):
         visibility = ["//visibility:public"],
     )
 
-def _create_scalatest_toolchain(version):
+def _create_scala_test_toolchain(version):
     mvn = version["mvn"]
 
-    name = _toolchain_label("test", mvn, in_package = True)
+    name = _toolchain_label("scala_test", mvn, in_package = True)
 
     attrs = {}
 
@@ -119,14 +115,15 @@ def _create_scalatest_toolchain(version):
 
     scalatest = _artifact("org.scalatest:scalatest:any", repository_name = repository_name)
     scalactic = _artifact("org.scalactic.scalactic:any", repository_name = repository_name)
+    attrs["deps"] = [scalatest, scalactic,]
     attrs["reporter"] = _scalatest_reporter_label(version["mvn"])
     attrs["runner"] = _scalatest_runner_label(version["mvn"])
 
-    _test_toolchain_rule(**attrs)
+    _scala_test_toolchain_rule(**attrs)
 
     native.toolchain(
-        name = _native_toolchain_label("test", version["mvn"], in_package = True),
+        name = _native_toolchain_label("scala_test", version["mvn"], in_package = True),
         toolchain = name,
-        toolchain_type = "@io_bazel_rules_scala//scala:test_toolchain_type",
+        toolchain_type = "@io_bazel_rules_scala//scala:scala_test_toolchain_type",
         visibility = ["//visibility:public"],
     )

@@ -3,6 +3,7 @@ load(
     "export_scalac_repositories_from_toolchain_to_jvm",
 )
 load(":multiscala.bzl", "load_multiscala")
+load_multiscala()
 
 export_scalac_repositories_from_toolchain_to_jvm(
     name = "exported_scalac_repositories_from_toolchain_to_jvm",

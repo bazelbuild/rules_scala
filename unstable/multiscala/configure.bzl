@@ -13,7 +13,7 @@ def multiscala_configure():
     _maybe_register_default_toolchains()
 
 def _maybe_default():
-    return _configuration["scala"][_configuration["default"]] if "default" in _configuration else None
+    return _configuration()["scala"][_configuration()["default"]] if "default" in _configuration() else None
 
 def _maybe_register_default_toolchains():
     version = _maybe_default()
@@ -21,6 +21,6 @@ def _maybe_register_default_toolchains():
         for toolchain in [
             "bootstrap",
             "scala",
-            "scalatest",
+            "scala_test",
         ]:
             native.register_toolchains(_native_toolchain_label(toolchain, version["mvn"]))

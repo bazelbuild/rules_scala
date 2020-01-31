@@ -9,7 +9,14 @@ def _from_json():
 
     return %{STARLARK_STRING}
 
-configuration = _from_json()
+_configuration = _from_json()
+
+def configuration(): return _configuration
+
+def multiscala_enabled(): return True
 
 def versions():
-    return configuration["scala"].values()
+    return _configuration["scala"].values()
+
+def versioned_name(name, version):
+    return name + "_" + version["mvn"]

@@ -1,4 +1,6 @@
 load("//scala:scala.bzl", "scala_library")
+load(":multiscala.bzl", "load_multiscala")
+load_multiscala()
 
 scala_library(
     name = "test_reporter",

@@ -59,6 +59,9 @@ def scala_repositories(
         ),
         maven_servers = _default_maven_server_urls(),
         scala_extra_jars = _default_scala_extra_jars()):
+
+    _disable_multiscala()
+
     (scala_version, scala_version_jar_shas) = scala_version_shas
     major_version = _extract_major_version(scala_version)
 
@@ -213,4 +216,28 @@ def scala_repositories(
     native.bind(
         name = "io_bazel_rules_scala/dependency/scala/scalactic/scalactic",
         actual = "@io_bazel_rules_scala_scalactic",
+    )
+
+def _repo_impl(ctx):
+    ctx.file(
+        "BUILD.bazel",
+        content = 'exports_files(["configuration.bzl"])',
+        executable = False,
+    )
+    ctx.file(
+        "configuration.bzl",
+        """
+def multiscala_enabled(): return False
+def configuration(): fail("multiscala disabled")
+def versions(): fail("multiscala disabled")
+"""
+    )
+
+_repo = repository_rule(
+    implementation = _repo_impl,
+)
+
+def _disable_multiscala():
+    _repo(
+        name = "io_bazel_rules_scala_configuration",
     )

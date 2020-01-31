@@ -12,7 +12,13 @@ def _export_scalac_repositories_from_toolchain_to_jvm_impl(ctx):
     providers = [JavaInfo(output_jar = jar, compile_jar = jar) for jar in default_repl_classpath_files]
     return [java_common.merge(providers)]
 
-export_scalac_repositories_from_toolchain_to_jvm = rule(
+_export_scalac_repositories_from_toolchain_to_jvm_rule = rule(
     _export_scalac_repositories_from_toolchain_to_jvm_impl,
     toolchains = ["@io_bazel_rules_scala//scala:bootstrap_toolchain_type"],
 )
+
+def export_scalac_repositories_from_toolchain_to_jvm(name, toolchains = None):
+    kwargs = {}
+    if (toolchains):
+        kwargs["toolchains"] = toolchains
+    _export_scalac_repositories_from_toolchain_to_jvm_rule(name = name, **kwargs)

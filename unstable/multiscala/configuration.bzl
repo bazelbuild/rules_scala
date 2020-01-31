@@ -143,7 +143,7 @@ def scalatest_runner_label(version):
     return "//src/java/io/bazel/rulesscala/scala_test:runner_" + version.replace(".", "_")
 
 def scalatest_reporter_label(version):
-    return "//scala/support/test_reporter__" + version.replace(".", "_")
+    return "//scala/support:test_reporter_" + version.replace(".", "_")
 
 def toolchain_label(toolchain, version, in_package = False):
     return "{package}{toolchain}_{version}_toolchain".format(
