@@ -19,7 +19,9 @@ load("//repositories:rules_python.bzl", "load_rules_python")
 load_rules_python()
 
 load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_toolchains")
+
 scala_register_toolchains()
 
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
+
 scala_repositories()
