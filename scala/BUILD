@@ -95,6 +95,7 @@ java_import(
     jars = ["@bazel_tools//tools/jdk:TestRunner_deploy.jar"],
     visibility = ["//visibility:public"],
 )
+
 java_library(
     name = "PlaceHolderClassToCreateEmptyJarForScalaImport",
     srcs = ["PlaceHolderClassToCreateEmptyJarForScalaImport.java"],

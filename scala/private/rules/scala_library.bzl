@@ -94,7 +94,7 @@ def make_scala_library(*extras):
         ),
         toolchains = [
             "@io_bazel_rules_scala//scala:bootstrap_toolchain_type",
-            "@io_bazel_rules_scala//scala:toolchain_type"
+            "@io_bazel_rules_scala//scala:toolchain_type",
         ],
         implementation = _scala_library_impl,
     )
@@ -178,7 +178,7 @@ def make_scala_library_for_plugin_bootstrapping(*extras):
         ),
         toolchains = [
             "@io_bazel_rules_scala//scala:bootstrap_toolchain_type",
-            "@io_bazel_rules_scala//scala:toolchain_type"
+            "@io_bazel_rules_scala//scala:toolchain_type",
         ],
         implementation = _scala_library_for_plugin_bootstrapping_impl,
     )
@@ -246,7 +246,7 @@ def make_scala_macro_library(*extras):
         ),
         toolchains = [
             "@io_bazel_rules_scala//scala:bootstrap_toolchain_type",
-            "@io_bazel_rules_scala//scala:toolchain_type"
+            "@io_bazel_rules_scala//scala:toolchain_type",
         ],
         implementation = _scala_macro_library_impl,
     )
