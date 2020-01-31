@@ -1,4 +1,3 @@
-
 load("//scala:scala.bzl", "scala_binary")
 
 # A simple scala_binary to run scaladoc.
