@@ -34,7 +34,7 @@ def phase_compile_binary(ctx, p):
         buildijar = False,
         unused_dependency_checker_ignored_targets = [
             target.label
-            for target in p.scalac_provider.default_classpath +
+            for target in ctx.toolchains["@io_bazel_rules_scala//scala:bootstrap_toolchain_type"].bootstrapinfo.classpath +
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
     )
@@ -45,7 +45,7 @@ def phase_compile_library(ctx, p):
         srcjars = p.collect_srcjars,
         unused_dependency_checker_ignored_targets = [
             target.label
-            for target in p.scalac_provider.default_classpath + ctx.attr.exports +
+            for target in ctx.toolchains["@io_bazel_rules_scala//scala:bootstrap_toolchain_type"].bootstrapinfo.classpath + ctx.attr.exports +
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
     )
@@ -55,7 +55,7 @@ def phase_compile_library_for_plugin_bootstrapping(ctx, p):
     args = struct(
         unused_dependency_checker_ignored_targets = [
             target.label
-            for target in p.scalac_provider.default_classpath + ctx.attr.exports
+            for target in ctx.toolchains["@io_bazel_rules_scala//scala:bootstrap_toolchain_type"].bootstrapinfo.classpath + ctx.attr.exports
         ],
         unused_dependency_checker_mode = "off",
     )
@@ -66,7 +66,7 @@ def phase_compile_macro_library(ctx, p):
         buildijar = False,
         unused_dependency_checker_ignored_targets = [
             target.label
-            for target in p.scalac_provider.default_macro_classpath + ctx.attr.exports +
+            for target in ctx.toolchains["@io_bazel_rules_scala//scala:bootstrap_toolchain_type"].bootstrapinfo.macro_classpath + ctx.attr.exports +
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
     )
@@ -81,7 +81,7 @@ def phase_compile_junit_test(ctx, p):
         ],
         unused_dependency_checker_ignored_targets = [
             target.label
-            for target in p.scalac_provider.default_classpath +
+            for target in ctx.toolchains["@io_bazel_rules_scala//scala:bootstrap_toolchain_type"].bootstrapinfo.classpath +
                           ctx.attr.unused_dependency_checker_ignored_targets
         ] + [
             ctx.attr._junit.label,
@@ -97,7 +97,7 @@ def phase_compile_repl(ctx, p):
         buildijar = False,
         unused_dependency_checker_ignored_targets = [
             target.label
-            for target in p.scalac_provider.default_repl_classpath +
+            for target in ctx.toolchains["@io_bazel_rules_scala//scala:bootstrap_toolchain_type"].bootstrapinfo.repl_classpath +
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
     )
@@ -108,7 +108,7 @@ def phase_compile_scalatest(ctx, p):
         buildijar = False,
         unused_dependency_checker_ignored_targets = [
             target.label
-            for target in p.scalac_provider.default_classpath +
+            for target in ctx.toolchains["@io_bazel_rules_scala//scala:bootstrap_toolchain_type"].bootstrapinfo.classpath +
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
     )
@@ -143,7 +143,7 @@ def _phase_compile(
     transitive_compile_jars = p.collect_jars.transitive_compile_jars
     jars2labels = p.collect_jars.jars2labels.jars_to_labels
     deps_providers = p.collect_jars.deps_providers
-    default_classpath = p.scalac_provider.default_classpath
+    default_classpath = ctx.toolchains["@io_bazel_rules_scala//scala:bootstrap_toolchain_type"].bootstrapinfo.classpath
 
     out = _compile_or_empty(
         ctx,
@@ -162,15 +162,9 @@ def _phase_compile(
 
     # TODO: simplify the return values and use provider
     return struct(
-        class_jar = out.class_jar,
         coverage = out.coverage.external,
-        full_jars = out.full_jars,
         files = depset(out.full_jars),
-        ijar = out.ijar,
-        ijars = out.ijars,
         rjars = depset(out.full_jars, transitive = [rjars]),
-        java_jar = out.java_jar,
-        source_jars = _pack_source_jars(ctx) + out.source_jars,
         merged_provider = out.merged_provider,
         external_providers = dicts.add(out.coverage.providers_dict, {
             "JavaInfo": out.merged_provider,
@@ -198,13 +192,8 @@ def _compile_or_empty(
 
         #  no need to build ijar when empty
         return struct(
-            class_jar = ctx.outputs.jar,
             coverage = _empty_coverage_struct,
             full_jars = [ctx.outputs.jar],
-            ijar = ctx.outputs.jar,
-            ijars = [ctx.outputs.jar],
-            java_jar = False,
-            source_jars = [],
             merged_provider = scala_compilation_provider,
         )
     else:
@@ -250,7 +239,6 @@ def _compile_or_empty(
             ctx.attr.print_compile_time,
             ctx.attr.expect_java_output,
             ctx.attr.scalac_jvm_flags,
-            ctx.attr._scalac,
             unused_dependency_checker_ignored_targets =
                 unused_dependency_checker_ignored_targets,
             unused_dependency_checker_mode = unused_dependency_checker_mode,
@@ -283,12 +271,8 @@ def _compile_or_empty(
         )
 
         full_jars = [ctx.outputs.jar]
-        ijars = [ijar]
-        source_jars = []
         if java_jar:
             full_jars += [java_jar.jar]
-            ijars += [java_jar.ijar]
-            source_jars += java_jar.source_jars
 
         coverage = _jacoco_offline_instrument(ctx, ctx.outputs.jar)
 
@@ -298,21 +282,10 @@ def _compile_or_empty(
             merged_provider = scala_compilation_provider
 
         return struct(
-            class_jar = ctx.outputs.jar,
             coverage = coverage,
             full_jars = full_jars,
-            ijar = ijar,
-            ijars = ijars,
-            java_jar = java_jar,
-            source_jars = source_jars,
             merged_provider = merged_provider,
         )
-
-def _pack_source_jars(ctx):
-    source_jar = _pack_source_jar(ctx)
-
-    #_pack_source_jar may return None if java_common.pack_sources returned None (and it can)
-    return [source_jar] if source_jar else []
 
 def _build_nosrc_jar(ctx):
     resources = _add_resources_cmd(ctx)

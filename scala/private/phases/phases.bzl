@@ -46,7 +46,6 @@ load(
     _phase_runfiles_scalatest = "phase_runfiles_scalatest",
 )
 load("@io_bazel_rules_scala//scala/private:phases/phase_default_info.bzl", _phase_default_info = "phase_default_info")
-load("@io_bazel_rules_scala//scala/private:phases/phase_scalac_provider.bzl", _phase_scalac_provider = "phase_scalac_provider")
 load("@io_bazel_rules_scala//scala/private:phases/phase_write_manifest.bzl", _phase_write_manifest = "phase_write_manifest")
 load("@io_bazel_rules_scala//scala/private:phases/phase_collect_srcjars.bzl", _phase_collect_srcjars = "phase_collect_srcjars")
 load("@io_bazel_rules_scala//scala/private:phases/phase_collect_exports_jars.bzl", _phase_collect_exports_jars = "phase_collect_exports_jars")
@@ -60,9 +59,6 @@ load("@io_bazel_rules_scala//scala/private:phases/phase_scalafmt.bzl", _phase_sc
 # API
 run_phases = _run_phases
 extras_phases = _extras_phases
-
-# scalac_provider
-phase_scalac_provider = _phase_scalac_provider
 
 # collect_srcjars
 phase_collect_srcjars = _phase_collect_srcjars

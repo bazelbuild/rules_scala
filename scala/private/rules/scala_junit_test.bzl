@@ -19,7 +19,6 @@ load(
     "phase_jvm_flags",
     "phase_merge_jars",
     "phase_runfiles_common",
-    "phase_scalac_provider",
     "phase_unused_deps_checker",
     "phase_write_executable_junit_test",
     "phase_write_manifest",
@@ -35,7 +34,6 @@ def _scala_junit_test_impl(ctx):
         ctx,
         # customizable phases
         [
-            ("scalac_provider", phase_scalac_provider),
             ("write_manifest", phase_write_manifest),
             ("unused_deps_checker", phase_unused_deps_checker),
             ("collect_jars", phase_collect_jars_junit_test),
@@ -125,7 +123,13 @@ def make_scala_junit_test(*extras):
             *[extra["outputs"] for extra in extras if "outputs" in extra]
         ),
         test = True,
-        toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
+        toolchains = [
+            "@io_bazel_rules_scala//scala:bootstrap_toolchain_type",
+            "@io_bazel_rules_scala//scala:toolchain_type",
+            # unclear on next and will consider in factoring, whether
+            # scalatest and junit tests should be different toolchain types
+            "@io_bazel_rules_scala//scala:test_toolchain_type",
+        ],
         implementation = _scala_junit_test_impl,
     )
 

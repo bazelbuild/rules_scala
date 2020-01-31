@@ -136,6 +136,15 @@ def multiscala_configuration(configuration = default_configuration):
         starlark_string = starlark_string,
     )
 
+def scalac_label(version):
+    return "//src/java/io/bazel/rulesscala/scalac:scalac_" + version.replace(".", "_")
+
+def scalatest_runner_label(version):
+    return "//src/java/io/bazel/rulesscala/scala_test:runner_" + version.replace(".", "_")
+
+def scalatest_reporter_label(version):
+    return "//scala/support/test_reporter__" + version.replace(".", "_")
+
 def toolchain_label(toolchain, version, in_package = False):
     return "{package}{toolchain}_{version}_toolchain".format(
         package = "@io_bazel_rules_scala//unstable/multiscala:" if not in_package else "",

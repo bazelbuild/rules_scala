@@ -1,17 +1,26 @@
-load(
-    "@io_bazel_rules_scala//scala:providers.bzl",
-    _ScalacProvider = "ScalacProvider",
+ScalaInfo = provider(
+    doc = "ScalaInfo",
+    fields = [
+        "scalacopts",
+        "unused_dependency_checker_mode",
+        "plus_one_deps_mode",
+        "enable_code_coverage_aspect",
+        "scalac_jvm_flags",
+        "scalac",
+    ],
 )
 
 def _scala_toolchain_impl(ctx):
-    toolchain = platform_common.ToolchainInfo(
+    scalainfo = ScalaInfo(
         scalacopts = ctx.attr.scalacopts,
-        scalac_provider_attr = ctx.attr.scalac_provider_attr,
         unused_dependency_checker_mode = ctx.attr.unused_dependency_checker_mode,
         plus_one_deps_mode = ctx.attr.plus_one_deps_mode,
         enable_code_coverage_aspect = ctx.attr.enable_code_coverage_aspect,
         scalac_jvm_flags = ctx.attr.scalac_jvm_flags,
-        scala_test_jvm_flags = ctx.attr.scala_test_jvm_flags,
+        scalac = ctx.attr.scalac,
+    )
+    toolchain = platform_common.ToolchainInfo(
+        scalainfo = scalainfo,
     )
     return [toolchain, platform_common.TemplateVariableInfo({})]
 
@@ -19,10 +28,6 @@ scala_toolchain = rule(
     _scala_toolchain_impl,
     attrs = {
         "scalacopts": attr.string_list(),
-        "scalac_provider_attr": attr.label(
-            default = "@io_bazel_rules_scala//scala:scalac_default",
-            providers = [_ScalacProvider],
-        ),
         "unused_dependency_checker_mode": attr.string(
             default = "off",
             values = ["off", "warn", "error"],
@@ -36,6 +41,6 @@ scala_toolchain = rule(
             values = ["off", "on"],
         ),
         "scalac_jvm_flags": attr.string_list(),
-        "scala_test_jvm_flags": attr.string_list(),
+        "scalac": attr.label(mandatory = True, allow_files = True),
     },
 )
