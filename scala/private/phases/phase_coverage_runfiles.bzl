@@ -14,7 +14,7 @@ def phase_coverage_runfiles(ctx, p):
     if ctx.configuration.coverage_enabled and _coverage_replacements_provider.is_enabled(ctx):
         coverage_replacements = _coverage_replacements_provider.from_ctx(
             ctx,
-            base = p.compile.coverage.replacements,
+            base = p.coverage.replacements,
         ).replacements
 
         rjars = depset([
