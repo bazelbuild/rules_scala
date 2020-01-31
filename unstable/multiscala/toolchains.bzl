@@ -117,8 +117,8 @@ def _create_scalatest_toolchain(version):
 
     repository_name = "io_bazel_rules_scala_" + version["mvn"]
 
-    scalatest = _artifact("org.scalatest:scalatest", repository_name = repository_name)
-    scalactic = _artifact("org.scalactic.scalactic", repository_name = repository_name)
+    scalatest = _artifact("org.scalatest:scalatest:any", repository_name = repository_name)
+    scalactic = _artifact("org.scalactic.scalactic:any", repository_name = repository_name)
     attrs["reporter"] = _scalatest_reporter_label(version["mvn"])
     attrs["runner"] = _scalatest_runner_label(version["mvn"])
 
