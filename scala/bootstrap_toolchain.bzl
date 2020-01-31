@@ -13,7 +13,7 @@ def _impl(ctx):
             classpath = ctx.attr.classpath,
             macro_classpath = ctx.attr.macro_classpath,
             repl_classpath = ctx.attr.repl_classpath,
-        )
+        ),
     )
     return [toolchain]
 

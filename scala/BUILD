@@ -45,8 +45,8 @@ toolchain_type(
 
 scala_toolchain(
     name = "toolchain_impl",
-    scalacopts = [],
     scalac = "//src/java/io/bazel/rulesscala/scalac",
+    scalacopts = [],
     visibility = ["//visibility:public"],
 )
 
@@ -83,8 +83,8 @@ toolchain(
 
 scala_toolchain(
     name = "unused_dependency_checker_error_toolchain_impl",
-    unused_dependency_checker_mode = "error",
     scalac = "//src/java/io/bazel/rulesscala/scalac",
+    unused_dependency_checker_mode = "error",
     visibility = ["//visibility:public"],
 )
 
@@ -100,6 +100,7 @@ java_import(
     jars = ["@bazel_tools//tools/jdk:TestRunner_deploy.jar"],
     visibility = ["//visibility:public"],
 )
+
 java_library(
     name = "PlaceHolderClassToCreateEmptyJarForScalaImport",
     srcs = ["PlaceHolderClassToCreateEmptyJarForScalaImport.java"],
