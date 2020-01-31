@@ -1,4 +1,4 @@
-load("@bazel_skylib//:lib.bzl", "asserts", "unittest")
+load("@bazel_skylib//lib:unittest.bzl", "asserts", "unittest")
 load("//twitter_scrooge:twitter_scrooge.bzl", "scrooge_scala_library")
 load("//thrift:thrift.bzl", "thrift_library")
 

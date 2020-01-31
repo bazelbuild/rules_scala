@@ -35,7 +35,7 @@ def phase_compile_binary(ctx, p):
         buildijar = False,
         unused_dependency_checker_ignored_targets = [
             target.label
-            for target in p.scalac_provider.default_classpath +
+            for target in ctx.toolchains["@io_bazel_rules_scala//scala:bootstrap_toolchain_type"].bootstrapinfo.classpath +
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
     )
@@ -46,7 +46,7 @@ def phase_compile_library(ctx, p):
         srcjars = p.collect_srcjars,
         unused_dependency_checker_ignored_targets = [
             target.label
-            for target in p.scalac_provider.default_classpath + ctx.attr.exports +
+            for target in ctx.toolchains["@io_bazel_rules_scala//scala:bootstrap_toolchain_type"].bootstrapinfo.classpath + ctx.attr.exports +
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
     )
@@ -56,7 +56,7 @@ def phase_compile_library_for_plugin_bootstrapping(ctx, p):
     args = struct(
         unused_dependency_checker_ignored_targets = [
             target.label
-            for target in p.scalac_provider.default_classpath + ctx.attr.exports
+            for target in ctx.toolchains["@io_bazel_rules_scala//scala:bootstrap_toolchain_type"].bootstrapinfo.classpath + ctx.attr.exports
         ],
         unused_dependency_checker_mode = "off",
     )
@@ -67,7 +67,7 @@ def phase_compile_macro_library(ctx, p):
         buildijar = False,
         unused_dependency_checker_ignored_targets = [
             target.label
-            for target in p.scalac_provider.default_macro_classpath + ctx.attr.exports +
+            for target in ctx.toolchains["@io_bazel_rules_scala//scala:bootstrap_toolchain_type"].bootstrapinfo.macro_classpath + ctx.attr.exports +
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
     )
@@ -82,7 +82,7 @@ def phase_compile_junit_test(ctx, p):
         ],
         unused_dependency_checker_ignored_targets = [
             target.label
-            for target in p.scalac_provider.default_classpath +
+            for target in ctx.toolchains["@io_bazel_rules_scala//scala:bootstrap_toolchain_type"].bootstrapinfo.classpath +
                           ctx.attr.unused_dependency_checker_ignored_targets
         ] + [
             ctx.attr._junit.label,
@@ -98,7 +98,7 @@ def phase_compile_repl(ctx, p):
         buildijar = False,
         unused_dependency_checker_ignored_targets = [
             target.label
-            for target in p.scalac_provider.default_repl_classpath +
+            for target in ctx.toolchains["@io_bazel_rules_scala//scala:bootstrap_toolchain_type"].bootstrapinfo.repl_classpath +
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
     )
@@ -109,7 +109,7 @@ def phase_compile_scalatest(ctx, p):
         buildijar = False,
         unused_dependency_checker_ignored_targets = [
             target.label
-            for target in p.scalac_provider.default_classpath +
+            for target in ctx.toolchains["@io_bazel_rules_scala//scala:bootstrap_toolchain_type"].bootstrapinfo.classpath +
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
     )
@@ -144,7 +144,7 @@ def _phase_compile(
     transitive_compile_jars = p.collect_jars.transitive_compile_jars
     jars2labels = p.collect_jars.jars2labels.jars_to_labels
     deps_providers = p.collect_jars.deps_providers
-    default_classpath = p.scalac_provider.default_classpath
+    default_classpath = ctx.toolchains["@io_bazel_rules_scala//scala:bootstrap_toolchain_type"].bootstrapinfo.classpath
 
     out = _compile_or_empty(
         ctx,
@@ -228,7 +228,6 @@ def _compile_or_empty(
             ctx.attr.print_compile_time,
             ctx.attr.expect_java_output,
             ctx.attr.scalac_jvm_flags,
-            ctx.attr._scalac,
             unused_dependency_checker_ignored_targets =
                 unused_dependency_checker_ignored_targets,
             unused_dependency_checker_mode = unused_dependency_checker_mode,

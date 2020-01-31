@@ -15,6 +15,10 @@ load("@com_github_bazelbuild_buildtools//buildifier:deps.bzl", "buildifier_depen
 
 buildifier_dependencies()
 
+load("//scala:toolchains.bzl", "scala_register_toolchains")
+
+scala_register_toolchains()
+
 load("//scala:scala.bzl", "scala_repositories")
 
 scala_repositories()

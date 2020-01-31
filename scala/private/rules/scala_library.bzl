@@ -29,7 +29,6 @@ load(
     "phase_default_info",
     "phase_merge_jars",
     "phase_runfiles_library",
-    "phase_scalac_provider",
     "phase_unused_deps_checker",
     "phase_write_manifest",
     "run_phases",
@@ -57,7 +56,6 @@ def _scala_library_impl(ctx):
         ctx,
         # customizable phases
         [
-            ("scalac_provider", phase_scalac_provider),
             ("collect_srcjars", phase_collect_srcjars),
             ("write_manifest", phase_write_manifest),
             ("unused_deps_checker", phase_unused_deps_checker),
@@ -92,7 +90,10 @@ def make_scala_library(*extras):
             common_outputs,
             *[extra["outputs"] for extra in extras if "outputs" in extra]
         ),
-        toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
+        toolchains = [
+            "@io_bazel_rules_scala//scala:bootstrap_toolchain_type",
+            "@io_bazel_rules_scala//scala:toolchain_type",
+        ],
         implementation = _scala_library_impl,
     )
 
@@ -134,7 +135,6 @@ def _scala_library_for_plugin_bootstrapping_impl(ctx):
         ctx,
         # customizable phases
         [
-            ("scalac_provider", phase_scalac_provider),
             ("collect_srcjars", phase_collect_srcjars),
             ("write_manifest", phase_write_manifest),
             ("collect_jars", phase_collect_jars_library_for_plugin_bootstrapping),
@@ -173,7 +173,10 @@ def make_scala_library_for_plugin_bootstrapping(*extras):
             common_outputs,
             *[extra["outputs"] for extra in extras if "outputs" in extra]
         ),
-        toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
+        toolchains = [
+            "@io_bazel_rules_scala//scala:bootstrap_toolchain_type",
+            "@io_bazel_rules_scala//scala:toolchain_type",
+        ],
         implementation = _scala_library_for_plugin_bootstrapping_impl,
     )
 
@@ -188,7 +191,6 @@ def _scala_macro_library_impl(ctx):
         ctx,
         # customizable phases
         [
-            ("scalac_provider", phase_scalac_provider),
             ("collect_srcjars", phase_collect_srcjars),
             ("write_manifest", phase_write_manifest),
             ("unused_deps_checker", phase_unused_deps_checker),
@@ -238,7 +240,10 @@ def make_scala_macro_library(*extras):
             common_outputs,
             *[extra["outputs"] for extra in extras if "outputs" in extra]
         ),
-        toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
+        toolchains = [
+            "@io_bazel_rules_scala//scala:bootstrap_toolchain_type",
+            "@io_bazel_rules_scala//scala:toolchain_type",
+        ],
         implementation = _scala_macro_library_impl,
     )
 
