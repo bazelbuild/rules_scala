@@ -142,7 +142,6 @@ def _scala_library_for_plugin_bootstrapping_impl(ctx):
             ("write_manifest", phase_write_manifest),
             ("collect_jars", phase_collect_jars_library_for_plugin_bootstrapping),
             ("compile", phase_compile_library_for_plugin_bootstrapping),
-            ("coverage", phase_coverage_common),
             ("merge_jars", phase_merge_jars),
             ("runfiles", phase_runfiles_library),
             ("collect_exports_jars", phase_collect_exports_jars),
