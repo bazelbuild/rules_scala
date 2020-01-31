@@ -100,7 +100,7 @@ def make_scala_test(*extras):
         toolchains = [
             "@io_bazel_rules_scala//scala:bootstrap_toolchain_type",
             "@io_bazel_rules_scala//scala:toolchain_type",
-            "@io_bazel_rules_scala//scala:test_toolchain_type",
+            "@io_bazel_rules_scala//scala:scala_test_toolchain_type",
         ],
         implementation = _scala_test_impl,
     )
