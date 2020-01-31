@@ -131,10 +131,10 @@ def _scalapb_aspect_impl(target, ctx):
         compile_protos = sorted(target_ti.direct_sources)
         transitive_protos = sorted(target_ti.transitive_sources.to_list())
 
-        scala_toolchain = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"]
         toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
+        boostrap_toolchain = ctx.toolchains["@io_bazel_rules_scala//scala:bootstrap_toolchain_type"]
         flags = []
-        imps = [j[JavaInfo] for j in ctx.attr._implicit_compile_deps]
+        imps = [j[JavaInfo] for j in ctx.attr._implicit_compile_deps + boostrap_toolchain.bootstrapinfo.classpath]
 
         if toolchain.with_grpc:
             flags.append("grpc")
@@ -234,6 +234,7 @@ scalapb_aspect = aspect(
         ]),
     },
     toolchains = [
+        "@io_bazel_rules_scala//scala:bootstrap_toolchain_type",
         "@io_bazel_rules_scala//scala:toolchain_type",
         "@io_bazel_rules_scala//scala_proto:toolchain_type",
     ],

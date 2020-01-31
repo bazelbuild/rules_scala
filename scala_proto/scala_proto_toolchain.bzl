@@ -1,5 +1,3 @@
-load("//scala_proto:default_dep_sets.bzl", "DEFAULT_SCALAPB_COMPILE_DEPS", "DEFAULT_SCALAPB_GRPC_DEPS")
-
 def _scala_proto_toolchain_impl(ctx):
     toolchain = platform_common.ToolchainInfo(
         with_grpc = ctx.attr.with_grpc,

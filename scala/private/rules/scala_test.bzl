@@ -61,19 +61,19 @@ _scala_test_attrs = {
     ),
 }
 
-# _test_resolve_deps = {
-#     "_scala_toolchain": attr.label_list(
-#         default = [
-#             Label(
-#                 "//external:io_bazel_rules_scala/dependency/scala/scala_library",
-#             ),
-#             Label(
-#                 "//external:io_bazel_rules_scala/dependency/scalatest/scalatest",
-#             ),
-#         ],
-#         allow_files = False,
-#     ),
-# }
+_test_resolve_deps = {
+    "_scala_toolchain": attr.label_list(
+        default = [
+            Label(
+                "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+            ),
+            Label(
+                "//external:io_bazel_rules_scala/dependency/scalatest/scalatest",
+            ),
+        ],
+        allow_files = False,
+    ),
+}
 
 _scala_test_attrs.update(launcher_template)
 
@@ -81,7 +81,7 @@ _scala_test_attrs.update(implicit_deps)
 
 _scala_test_attrs.update(common_attrs)
 
-# _scala_test_attrs.update(_test_resolve_deps)
+_scala_test_attrs.update(_test_resolve_deps)
 
 def make_scala_test(*extras):
     return rule(
