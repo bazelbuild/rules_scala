@@ -4,7 +4,7 @@
 # Outputs to format the scala files when it is explicitly specified
 #
 load(
-    "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
+    "@io_bazel_rules_scala//scala/private:paths.bzl",
     _scala_extension = "scala_extension",
 )
 

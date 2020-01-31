@@ -10,13 +10,16 @@ load(
     _coverage_replacements_provider = "coverage_replacements_provider",
 )
 load(
-    "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
-    _compile_scala = "compile_scala",
-    _expand_location = "expand_location",
+    "@io_bazel_rules_scala//scala/private:paths.bzl",
     _get_files_with_extension = "get_files_with_extension",
     _java_extension = "java_extension",
     _scala_extension = "scala_extension",
     _srcjar_extension = "srcjar_extension",
+)
+load(
+    "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
+    _compile_scala = "compile_scala",
+    _expand_location = "expand_location",
 )
 load(":resources.bzl", _resource_paths = "paths")
 
