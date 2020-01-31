@@ -1,6 +1,6 @@
 load("//scala:bootstrap_toolchain.bzl", "bootstrap_toolchain")
 load("//scala:scala_toolchain.bzl", "scala_toolchain")
-load("//scala:test_toolchain.bzl", "test_toolchain")
+load("//scala:scala_test_toolchain.bzl", "scala_test_toolchain")
 
 # default toolchains registered by `scala_register_toolchains`
 
@@ -60,22 +60,24 @@ toolchain(
 # test toolchain
 
 toolchain_type(
-    name = "test_toolchain_type",
+    name = "scala_test_toolchain_type",
     visibility = ["//visibility:public"],
 )
 
-test_toolchain(
-    name = "test_toolchain_impl",
-    jar = "//external:io_bazel_rules_scala/dependency/scalatest/scalatest",
+scala_test_toolchain(
+    name = "scala_test_toolchain_impl",
     reporter = "//scala/support:test_reporter",
     runner = "//src/java/io/bazel/rulesscala/scala_test:runner",
     visibility = ["//visibility:public"],
+    deps = [
+        "//external:io_bazel_rules_scala/dependency/scalatest/scalatest",
+    ],
 )
 
 toolchain(
-    name = "test_toolchain",
-    toolchain = ":test_toolchain_impl",
-    toolchain_type = "@io_bazel_rules_scala//scala:test_toolchain_type",
+    name = "scala_test_toolchain",
+    toolchain = ":scala_test_toolchain_impl",
+    toolchain_type = "@io_bazel_rules_scala//scala:scala_test_toolchain_type",
     visibility = ["//visibility:public"],
 )
 
