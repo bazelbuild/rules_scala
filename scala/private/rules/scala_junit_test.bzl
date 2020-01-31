@@ -128,7 +128,7 @@ def make_scala_junit_test(*extras):
             "@io_bazel_rules_scala//scala:toolchain_type",
             # unclear on next and will consider in factoring, whether
             # scalatest and junit tests should be different toolchain types
-            "@io_bazel_rules_scala//scala:test_toolchain_type",
+            "@io_bazel_rules_scala//scala:scala_test_toolchain_type",
         ],
         implementation = _scala_junit_test_impl,
     )
