@@ -10,10 +10,6 @@ load(
     _coverage_replacements_provider = "coverage_replacements_provider",
 )
 load(
-    "@io_bazel_rules_scala//scala/private:dependency.bzl",
-    "new_dependency_info",
-)
-load(
     "@io_bazel_rules_scala//scala/private:paths.bzl",
     _get_files_with_extension = "get_files_with_extension",
     _java_extension = "java_extension",
@@ -194,16 +190,6 @@ def _compile_or_empty(
         scala_srcs = _get_files_with_extension(ctx, _scala_extension)
         in_srcjars = _get_files_with_extension(ctx, _srcjar_extension)
         all_srcjars = depset(in_srcjars, transitive = [srcjars])
-
-        # We are not able to verify whether dependencies are used when compiling java sources
-        # Thus we disable unused dependency checking when java sources are found
-        if len(java_srcs) != 0:
-            dependency_info = new_dependency_info(
-                dependency_mode = dependency_info.dependency_mode,
-                unused_deps_mode = "off",
-                strict_deps_mode = dependency_info.strict_deps_mode,
-                dependency_tracking_method = dependency_info.dependency_tracking_method,
-            )
 
         sources = scala_srcs + java_srcs
         _compile_scala(

@@ -7,6 +7,11 @@ load(
     "get_unused_deps_mode",
     "new_dependency_info",
 )
+load(
+    "@io_bazel_rules_scala//scala/private:paths.bzl",
+    _get_files_with_extension = "get_files_with_extension",
+    _java_extension = "java_extension",
+)
 
 def _phase_dependency_default(ctx, p, args = struct()):
     return _phase_dependency(
@@ -30,6 +35,12 @@ def _phase_dependency(
         unused_deps_mode = "off"
     else:
         unused_deps_mode = get_unused_deps_mode(ctx)
+
+    # We are not able to verify whether dependencies are used when compiling java sources
+    # Thus we disable unused dependency checking when java sources are found
+    java_srcs = _get_files_with_extension(ctx, _java_extension)
+    if len(java_srcs) != 0:
+        unused_deps_mode = "off"
 
     return new_dependency_info(
         dependency_mode = get_dependency_mode(ctx),
