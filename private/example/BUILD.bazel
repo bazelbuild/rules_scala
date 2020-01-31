@@ -1,0 +1,26 @@
+load(
+    "@io_bazel_rules_scala//scala:scala.bzl",
+    "scala_binary",
+    "scala_library",
+    "scala_test",
+)
+
+scala_library(
+    name = "library",
+    srcs = glob(
+        ["*.scala"],
+        exclude = ["*Test.scala"],
+    ),
+)
+
+scala_binary(
+    name = "app",
+    main_class = "App",
+    runtime_deps = [":library"],
+)
+
+scala_test(
+    name = "test",
+    srcs = ["AppTest.scala"],
+    deps = [":library"],
+)

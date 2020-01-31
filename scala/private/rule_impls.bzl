@@ -13,6 +13,7 @@
 # limitations under the License.
 """Rules for supporting the Scala language."""
 
+load("@bazel_skylib//lib:paths.bzl", "paths")
 load(
     "@io_bazel_rules_scala//scala/private:coverage_replacements_provider.bzl",
     _coverage_replacements_provider = "coverage_replacements_provider",
@@ -59,7 +60,6 @@ def compile_scala(
         print_compile_time,
         expect_java_output,
         scalac_jvm_flags,
-        scalac,
         unused_dependency_checker_mode = "off",
         unused_dependency_checker_ignored_targets = []):
     # look for any plugins:
@@ -135,7 +135,7 @@ CurrentTarget: {current_target}
     compiler_classpath = _join_path(compiler_classpath_jars.to_list(), separator)
 
     toolchain = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"]
-    scalacopts = [ctx.expand_location(v, input_plugins) for v in toolchain.scalacopts + in_scalacopts]
+    scalacopts = [ctx.expand_location(v, input_plugins) for v in toolchain.scalainfo.scalacopts + in_scalacopts]
     resource_paths = _resource_paths(resources, resource_strip_prefix)
 
     scalac_args = """
@@ -186,7 +186,7 @@ StatsfileOutput: {statsfile_output}
     )
 
     scalac_inputs, _, scalac_input_manifests = ctx.resolve_command(
-        tools = [scalac],
+        tools = [ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scalainfo.scalac],
     )
 
     outs = [output, statsfile]
@@ -196,17 +196,19 @@ StatsfileOutput: {statsfile_output}
         resource_jars + [manifest, argfile] + scalac_inputs
     )
 
+    scalainfo = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scalainfo
+
     # scalac_jvm_flags passed in on the target override scalac_jvm_flags passed in on the
     # toolchain
     final_scalac_jvm_flags = first_non_empty(
         scalac_jvm_flags,
-        ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scalac_jvm_flags,
+        scalainfo.scalac_jvm_flags,
     )
 
     ctx.actions.run(
         inputs = ins,
         outputs = outs,
-        executable = scalac.files_to_run.executable,
+        executable = scalainfo.scalac.files_to_run.executable,
         input_manifests = scalac_input_manifests,
         mnemonic = "Scalac",
         progress_message = "scala %s" % target_label,
@@ -225,25 +227,12 @@ StatsfileOutput: {statsfile_output}
         ] + ["@" + argfile.path],
     )
 
-def _path_is_absolute(path):
-    # Returns true for absolute path in Linux/Mac (i.e., '/') or Windows (i.e.,
-    # 'X:\' or 'X:/' where 'X' is a letter), false otherwise.
-    if len(path) >= 1 and path[0] == "/":
-        return True
-    if len(path) >= 3 and \
-       path[0].isalpha() and \
-       path[1] == ":" and \
-       (path[2] == "/" or path[2] == "\\"):
-        return True
-
-    return False
-
 def runfiles_root(ctx):
     return "${TEST_SRCDIR}/%s" % ctx.workspace_name
 
 def java_bin(ctx):
     java_path = str(ctx.attr._java_runtime[java_common.JavaRuntimeInfo].java_executable_runfiles_path)
-    if _path_is_absolute(java_path):
+    if paths.is_absolute(java_path):
         javabin = java_path
     else:
         runfiles_root_var = runfiles_root(ctx)
@@ -262,7 +251,7 @@ def is_dependency_analyzer_off(ctx):
     return not is_dependency_analyzer_on(ctx)
 
 def is_plus_one_deps_off(ctx):
-    return ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].plus_one_deps_mode == "off"
+    return ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scalainfo.plus_one_deps_mode == "off"
 
 def is_windows(ctx):
     return ctx.configuration.host_path_separator == ";"

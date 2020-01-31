@@ -19,7 +19,6 @@ load(
     "phase_java_wrapper_repl",
     "phase_merge_jars",
     "phase_runfiles_common",
-    "phase_scalac_provider",
     "phase_unused_deps_checker",
     "phase_write_executable_repl",
     "phase_write_manifest",
@@ -31,7 +30,6 @@ def _scala_repl_impl(ctx):
         ctx,
         # customizable phases
         [
-            ("scalac_provider", phase_scalac_provider),
             ("write_manifest", phase_write_manifest),
             ("unused_deps_checker", phase_unused_deps_checker),
             # need scala-compiler for MainGenericRunner below
@@ -72,7 +70,10 @@ def make_scala_repl(*extras):
             common_outputs,
             *[extra["outputs"] for extra in extras if "outputs" in extra]
         ),
-        toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
+        toolchains = [
+            "@io_bazel_rules_scala//scala:bootstrap_toolchain_type",
+            "@io_bazel_rules_scala//scala:toolchain_type",
+        ],
         implementation = _scala_repl_impl,
     )
 
