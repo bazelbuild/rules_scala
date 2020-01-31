@@ -23,10 +23,10 @@ load(
 load(
     ":configuration.bzl",
     _native_toolchain_label = "native_toolchain_label",
-    _toolchain_label = "toolchain_label",
     _scalac_label = "scalac_label",
     _scalatest_reporter_label = "scalatest_reporter_label",
     _scalatest_runner_label = "scalatest_runner_label",
+    _toolchain_label = "toolchain_label",
 )
 
 def create_toolchains():
@@ -62,7 +62,7 @@ def _create_bootstrap_toolchain(version):
 
     _bootstrap_toolchain_rule(**attrs)
 
-    print(_native_toolchain_label("bootstrap", version["mvn"], in_package = True),)
+    print(_native_toolchain_label("bootstrap", version["mvn"], in_package = True))
 
     native.toolchain(
         name = _native_toolchain_label("bootstrap", version["mvn"], in_package = True),

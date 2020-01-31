@@ -19,8 +19,8 @@ def _maybe_register_default_toolchains():
     version = _maybe_default()
     if version:
         for toolchain in [
-                "bootstrap",
-                "scala",
-                "scalatest"
+            "bootstrap",
+            "scala",
+            "scalatest",
         ]:
             native.register_toolchains(_native_toolchain_label(toolchain, version["mvn"]))
