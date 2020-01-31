@@ -14,17 +14,18 @@ load(
     "new_dependency_info",
 )
 load(
+    "@io_bazel_rules_scala//scala/private:paths.bzl",
+    _get_files_with_extension = "get_files_with_extension",
+    _java_extension = "java_extension",
+    _scala_extension = "scala_extension",
+    _srcjar_extension = "srcjar_extension",
+)
+load(
     "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
     _compile_scala = "compile_scala",
     _expand_location = "expand_location",
 )
 load(":resources.bzl", _resource_paths = "paths")
-
-_java_extension = ".java"
-
-_scala_extension = ".scala"
-
-_srcjar_extension = ".srcjar"
 
 _empty_coverage_struct = struct(
     external = struct(
@@ -154,15 +155,9 @@ def _phase_compile(
 
     # TODO: simplify the return values and use provider
     return struct(
-        class_jar = out.class_jar,
         coverage = out.coverage.external,
-        full_jars = out.full_jars,
         files = depset(out.full_jars),
-        ijar = out.ijar,
-        ijars = out.ijars,
         rjars = depset(out.full_jars, transitive = [rjars]),
-        java_jar = out.java_jar,
-        source_jars = _pack_source_jars(ctx) + out.source_jars,
         merged_provider = out.merged_provider,
         external_providers = dicts.add(out.coverage.providers_dict, {
             "JavaInfo": out.merged_provider,
@@ -190,28 +185,15 @@ def _compile_or_empty(
 
         #  no need to build ijar when empty
         return struct(
-            class_jar = ctx.outputs.jar,
             coverage = _empty_coverage_struct,
             full_jars = [ctx.outputs.jar],
-            ijar = ctx.outputs.jar,
-            ijars = [ctx.outputs.jar],
-            java_jar = False,
-            source_jars = [],
             merged_provider = scala_compilation_provider,
         )
     else:
-        in_srcjars = [
-            f
-            for f in ctx.files.srcs
-            if f.basename.endswith(_srcjar_extension)
-        ]
+        java_srcs = _get_files_with_extension(ctx, _java_extension)
+        scala_srcs = _get_files_with_extension(ctx, _scala_extension)
+        in_srcjars = _get_files_with_extension(ctx, _srcjar_extension)
         all_srcjars = depset(in_srcjars, transitive = [srcjars])
-
-        java_srcs = [
-            f
-            for f in ctx.files.srcs
-            if f.basename.endswith(_java_extension)
-        ]
 
         # We are not able to verify whether dependencies are used when compiling java sources
         # Thus we disable unused dependency checking when java sources are found
@@ -223,11 +205,7 @@ def _compile_or_empty(
                 dependency_tracking_method = dependency_info.dependency_tracking_method,
             )
 
-        sources = [
-            f
-            for f in ctx.files.srcs
-            if f.basename.endswith(_scala_extension)
-        ] + java_srcs
+        sources = scala_srcs + java_srcs
         _compile_scala(
             ctx,
             ctx.label,
@@ -265,7 +243,7 @@ def _compile_or_empty(
             #  so set ijar == jar
             ijar = ctx.outputs.jar
 
-        source_jar = _pack_source_jar(ctx)
+        source_jar = _pack_source_jar(ctx, scala_srcs, in_srcjars)
         scala_compilation_provider = _create_scala_compilation_provider(ctx, ijar, source_jar, deps_providers)
 
         # compile the java now
@@ -279,12 +257,8 @@ def _compile_or_empty(
         )
 
         full_jars = [ctx.outputs.jar]
-        ijars = [ijar]
-        source_jars = []
         if java_jar:
             full_jars += [java_jar.jar]
-            ijars += [java_jar.ijar]
-            source_jars += java_jar.source_jars
 
         coverage = _jacoco_offline_instrument(ctx, ctx.outputs.jar)
 
@@ -294,21 +268,10 @@ def _compile_or_empty(
             merged_provider = scala_compilation_provider
 
         return struct(
-            class_jar = ctx.outputs.jar,
             coverage = coverage,
             full_jars = full_jars,
-            ijar = ijar,
-            ijars = ijars,
-            java_jar = java_jar,
-            source_jars = source_jars,
             merged_provider = merged_provider,
         )
-
-def _pack_source_jars(ctx):
-    source_jar = _pack_source_jar(ctx)
-
-    #_pack_source_jar may return None if java_common.pack_sources returned None (and it can)
-    return [source_jar] if source_jar else []
 
 def _build_nosrc_jar(ctx):
     resources = _add_resources_cmd(ctx)
@@ -361,30 +324,15 @@ def _create_scala_compilation_provider(ctx, ijar, source_jar, deps_providers):
         runtime_deps = runtime_deps,
     )
 
-def _pack_source_jar(ctx):
-    # collect .scala sources and pack a source jar for Scala
-    scala_sources = [
-        f
-        for f in ctx.files.srcs
-        if f.basename.endswith(_scala_extension)
-    ]
-
-    # collect .srcjar files and pack them with the scala sources
-    bundled_source_jars = [
-        f
-        for f in ctx.files.srcs
-        if f.basename.endswith(_srcjar_extension)
-    ]
-    scala_source_jar = java_common.pack_sources(
+def _pack_source_jar(ctx, scala_srcs, in_srcjars):
+    return java_common.pack_sources(
         ctx.actions,
         output_jar = ctx.outputs.jar,
-        sources = scala_sources,
-        source_jars = bundled_source_jars,
+        sources = scala_srcs,
+        source_jars = in_srcjars,
         java_toolchain = find_java_toolchain(ctx, ctx.attr._java_toolchain),
         host_javabase = find_java_runtime_toolchain(ctx, ctx.attr._host_javabase),
     )
-
-    return scala_source_jar
 
 def _jacoco_offline_instrument(ctx, input_jar):
     if not ctx.configuration.coverage_enabled or not hasattr(ctx.attr, "_code_coverage_instrumentation_worker"):
