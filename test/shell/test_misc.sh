@@ -55,12 +55,21 @@ test_repl() {
 
 test_benchmark_jmh() {
   RES=$(bazel run -- test/jmh:test_benchmark -i1 -f1 -wi 1)
-  RESPONSE_CODE=$?
+  if [ $? -ne 0 ]; then
+    exit 1
+  fi
   if [[ $RES != *Result*Benchmark* ]]; then
     echo "Benchmark did not produce expected output:\n$RES"
     exit 1
   fi
-  exit $RESPONSE_CODE
+
+  set +e
+
+  bazel build test_expect_failure/jmh:jmh_reports_failure
+  if [ $? -eq 0 ]; then
+    echo "'bazel build test_expect_failure/jmh:jmh_reports_failure' should have failed."
+    exit 1
+  fi
 }
 
 scala_test_test_filters() {
