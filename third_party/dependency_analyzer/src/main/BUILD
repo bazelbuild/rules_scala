@@ -5,6 +5,7 @@ load("//scala:scala.bzl", "scala_library_for_plugin_bootstrapping")
 scala_library_for_plugin_bootstrapping(
     name = "dependency_analyzer",
     srcs = [
+        "io/bazel/rulesscala/dependencyanalyzer/AstUsedJarFinder.scala",
         "io/bazel/rulesscala/dependencyanalyzer/DependencyAnalyzer.scala",
         "io/bazel/rulesscala/dependencyanalyzer/DependencyAnalyzerSettings.scala",
         "io/bazel/rulesscala/dependencyanalyzer/HighLevelCrawlUsedJarFinder.scala",
