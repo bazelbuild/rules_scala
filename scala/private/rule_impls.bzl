@@ -13,6 +13,7 @@
 # limitations under the License.
 """Rules for supporting the Scala language."""
 
+load("@bazel_skylib//lib:paths.bzl", "paths")
 load(
     "@io_bazel_rules_scala//scala/private:coverage_replacements_provider.bzl",
     _coverage_replacements_provider = "coverage_replacements_provider",
@@ -226,25 +227,12 @@ StatsfileOutput: {statsfile_output}
         ] + ["@" + argfile.path],
     )
 
-def _path_is_absolute(path):
-    # Returns true for absolute path in Linux/Mac (i.e., '/') or Windows (i.e.,
-    # 'X:\' or 'X:/' where 'X' is a letter), false otherwise.
-    if len(path) >= 1 and path[0] == "/":
-        return True
-    if len(path) >= 3 and \
-       path[0].isalpha() and \
-       path[1] == ":" and \
-       (path[2] == "/" or path[2] == "\\"):
-        return True
-
-    return False
-
 def runfiles_root(ctx):
     return "${TEST_SRCDIR}/%s" % ctx.workspace_name
 
 def java_bin(ctx):
     java_path = str(ctx.attr._java_runtime[java_common.JavaRuntimeInfo].java_executable_runfiles_path)
-    if _path_is_absolute(java_path):
+    if paths.is_absolute(java_path):
         javabin = java_path
     else:
         runfiles_root_var = runfiles_root(ctx)
