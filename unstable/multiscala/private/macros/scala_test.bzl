@@ -29,6 +29,7 @@ def _create_scala_test(version, **kwargs):
     _scala_test_rule(**kwargs)
 
 def scala_test(
+        configuration,
         scala_deps = [],
         scala_runtime_deps = [],
         deps = [],

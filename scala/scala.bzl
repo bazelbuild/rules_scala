@@ -3,12 +3,8 @@ load(
     _specs2_junit_dependencies = "specs2_junit_dependencies",
 )
 load(
-    "@io_bazel_rules_scala//scala/private:macros/scala_repositories.bzl",
-    _scala_repositories = "scala_repositories",
-)
-load(
     "@io_bazel_rules_scala//scala/private:rules/scala_binary.bzl",
-    _scala_binary = "scala_binary",
+    _uniscala_scala_binary = "scala_binary",
 )
 load(
     "@io_bazel_rules_scala//scala/private:rules/scala_doc.bzl",
@@ -20,19 +16,22 @@ load(
 )
 load(
     "@io_bazel_rules_scala//scala/private:rules/scala_library.bzl",
-    _scala_library = "scala_library",
-    _scala_library_for_plugin_bootstrapping = "scala_library_for_plugin_bootstrapping",
-    _scala_library_suite = "scala_library_suite",
-    _scala_macro_library = "scala_macro_library",
+    _uniscala_scala_library = "scala_library",
+    _uniscala_scala_library_for_plugin_bootstrapping = "scala_library_for_plugin_bootstrapping",
+    _uniscala_scala_library_suite = "scala_library_suite",
+    _uniscala_scala_macro_library = "scala_macro_library",
 )
 load(
     "@io_bazel_rules_scala//scala/private:rules/scala_repl.bzl",
-    _scala_repl = "scala_repl",
+    _uniscala_scala_repl = "scala_repl",
 )
 load(
     "@io_bazel_rules_scala//scala/private:rules/scala_test.bzl",
-    _scala_test = "scala_test",
-    _scala_test_suite = "scala_test_suite",
+    _uniscala_scala_test = "scala_test",
+    _uniscala_scala_test_suite = "scala_test_suite",
+)
+load(
+    "//unstable/multiscala:multiscala.bzl",
 )
 
 def scala_specs2_junit_test(name, **kwargs):
@@ -48,8 +47,11 @@ def scala_specs2_junit_test(name, **kwargs):
         **kwargs
     )
 
+def _demux(uniscala, multiscala):
+    multicala if _enable_multicala() else uniscala
+
 # Re-export private rules for public consumption
-scala_binary = _scala_binary
+scala_binary = _demux(_uniscala_scala_binary, _multiscala_binary)
 scala_doc = _scala_doc
 scala_junit_test = _scala_junit_test
 scala_library = _scala_library
@@ -61,5 +63,4 @@ scala_test = _scala_test
 scala_test_suite = _scala_test_suite
 
 def scala_repositories(**kwargs):
-    fail("here")
-    _scala_repositories(**kwargs)
+    fail("please import scala_repositories from @io_bazel_rules_scala//scala:scala_repositories.bzl")

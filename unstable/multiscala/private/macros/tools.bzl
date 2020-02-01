@@ -4,11 +4,6 @@ TBD
 """
 
 load("@bazel_skylib//lib:dicts.bzl", _dicts = "dicts")
-load(
-    "@io_bazel_rules_scala_configuration//:configuration.bzl",
-    _configuration = "configuration",
-    _versions = "versions",
-)
 load("@rules_jvm_external//:defs.bzl", _maven_install = "maven_install")
 load(
     "//unstable/multiscala:configuration.bzl",

@@ -1,8 +1,8 @@
 load("@io_bazel_rules_scala_configuration//:configuration.bzl",
      _multiscala_enabled = "multiscala_enabled",
-     _configuration = "configuration",
-     _versions = "versions",
-     _versioned_name = "versioned_name",
+     _configuration =  "multiscala_enabled", # "configuration",
+     _versions = "multiscala_enabled", # "versions",
+     _versioned_name =  "multiscala_enabled", # "versioned_name",
 )
 load(
     ":jvm_export_toolchain.bzl",
