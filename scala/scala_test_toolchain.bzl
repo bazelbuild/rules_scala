@@ -18,7 +18,7 @@ def _scala_test_toolchain_impl(ctx):
     toolchain = platform_common.ToolchainInfo(
         scalatestinfo = scalatestinfo,
     )
-    return [toolchain]
+    return [toolchain, platform_common.TemplateVariableInfo()]
 
 scala_test_toolchain = rule(
     _scala_test_toolchain_impl,

@@ -11,6 +11,13 @@ load(
     "@io_bazel_rules_scala//scala:scala_maven_import_external.bzl",
     _scala_maven_import_external = "scala_maven_import_external",
 )
+load(
+    "@io_bazel_rules_scala//scala/private:rules/scala_library.bzl",
+    _scala_library = "scala_library",
+    _scala_library_for_plugin_bootstrapping = "scala_library_for_plugin_bootstrapping",
+    _scala_library_suite = "scala_library_suite",
+    _scala_macro_library = "scala_macro_library",
+)
 
 def _default_scala_extra_jars():
     return {

@@ -57,6 +57,9 @@ scala_library_for_plugin_bootstrapping = _scala_library_for_plugin_bootstrapping
 scala_library_suite = _scala_library_suite
 scala_macro_library = _scala_macro_library
 scala_repl = _scala_repl
-scala_repositories = _scala_repositories
 scala_test = _scala_test
 scala_test_suite = _scala_test_suite
+
+def scala_repositories(**kwargs):
+    fail("here")
+    _scala_repositories(**kwargs)

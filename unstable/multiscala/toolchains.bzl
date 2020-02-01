@@ -101,6 +101,14 @@ def _create_scala_toolchain(version):
         visibility = ["//visibility:public"],
     )
 
+def _scala_artifact(version, scala_coordinate):
+    components = scala_coordinate.split(":")
+    if len(components) == 2:
+        components.append("{" + components[1] + "}")
+    (org, artifact, artifact_version) = components
+    java_coordinate = ":".join([org, artifact + "_" + version["scala"], artifact_version])
+    return java_coordinate.format(**version)
+
 def _create_scala_test_toolchain(version):
     mvn = version["mvn"]
 
@@ -113,8 +121,8 @@ def _create_scala_test_toolchain(version):
 
     repository_name = "io_bazel_rules_scala_" + version["mvn"]
 
-    scalatest = _artifact("org.scalatest:scalatest:any", repository_name = repository_name)
-    scalactic = _artifact("org.scalactic.scalactic:any", repository_name = repository_name)
+    scalatest = _artifact("org.scalatest:scalatest_" + version["mvn"], repository_name = repository_name)
+    scalactic = _artifact("org.scalactic:scalactic_" + version["mvn"], repository_name = repository_name)
     attrs["deps"] = [scalatest, scalactic,]
     attrs["reporter"] = _scalatest_reporter_label(version["mvn"])
     attrs["runner"] = _scalatest_runner_label(version["mvn"])

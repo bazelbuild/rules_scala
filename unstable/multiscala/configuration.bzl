@@ -121,11 +121,16 @@ def multiscala_configuration(configuration = default_configuration):
     scala = {}
 
     for version in configuration["scala"].keys():
-        scala[version] = _merge_dicts(configuration, configuration["scala"][version], exclude = "scala")
-        scala[version]["scala"] = version
-        scala[version]["mvn"] = version.replace(".", "_")
-        scala[version]["complete"] = version + "." + scala[version]["minor"]
-        scala[version]["default"] = True if scala[version].get("default") == version else False
+        dict = _merge_dicts(configuration, configuration["scala"][version], exclude = "scala")
+
+        dict["scala"] = version
+        dict["mvn"] = version.replace(".", "_")
+        dict["complete"] = version + "." + dict["minor"]
+        dict["default"] = True if dict.get("default") == version else False
+
+        dict["bootstrap_toolchain"] = toolchain_label("bootstrap", version)
+
+        scala[version] = dict
 
     configuration["scala"] = scala
 

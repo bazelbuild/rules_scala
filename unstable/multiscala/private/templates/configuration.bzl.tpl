@@ -1,5 +1,7 @@
 # -*- mode: python -*-
 
+# load("@io_bazel_rules_scala//unstable/multiscala:macros.bzl", "scala_library")
+
 def _from_json():
     # starlark vs json ...
 

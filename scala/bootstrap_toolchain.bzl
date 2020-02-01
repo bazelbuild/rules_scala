@@ -15,7 +15,7 @@ def _impl(ctx):
             repl_classpath = ctx.attr.repl_classpath,
         ),
     )
-    return [toolchain]
+    return [toolchain, platform_common.TemplateVariableInfo({})]
 
 bootstrap_toolchain = rule(
     _impl,
