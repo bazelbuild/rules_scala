@@ -5,8 +5,8 @@ import third_party.dependency_analyzer.src.main.io.bazel.rulesscala.dependencyan
 
 class ScalaVersionTest extends FunSuite {
   test("version comparison works") {
-    // i.e. a>b
-    def testGreater(a: String, b: String): Unit = {
+    // Test that when a > b, all the comparisons are as expected
+    def testOrder(a: String, b: String): Unit = {
       val va = ScalaVersion(a)
       val vb = ScalaVersion(b)
 
@@ -17,7 +17,6 @@ class ScalaVersionTest extends FunSuite {
       assert(va > vb)
       assert(va >= vb)
 
-      // Lesser versions
       assert(!(vb == va))
       assert(vb != va)
       assert(vb < va)
@@ -42,11 +41,11 @@ class ScalaVersionTest extends FunSuite {
     testEqual("1.2.3", "1.2.3")
     testEqual("30.20.10", "30.20.10")
 
-    testGreater("1.2.3", "1.0.0")
-    testGreater("1.2.1", "1.2.0")
-    testGreater("1.2.0", "1.1.9")
-    testGreater("2.12.12", "2.12.11")
-    testGreater("2.12.0", "2.1.50")
+    testOrder("1.2.3", "1.0.0")
+    testOrder("1.2.1", "1.2.0")
+    testOrder("1.2.0", "1.1.9")
+    testOrder("2.12.12", "2.12.11")
+    testOrder("2.12.0", "2.1.50")
   }
 
   test("macro works") {
@@ -60,8 +59,8 @@ class ScalaVersionTest extends FunSuite {
     {
       var hit = false
       ScalaVersion.conditional(
-        "",
-        "",
+        None,
+        None,
         "hit = true"
       )
       assert(hit)
@@ -71,8 +70,8 @@ class ScalaVersionTest extends FunSuite {
     {
       var hit = false
       ScalaVersion.conditional(
-        "1.0.0",
-        "",
+        Some("1.0.0"),
+        None,
         "hit = true"
       )
       assert(hit)
@@ -82,8 +81,8 @@ class ScalaVersionTest extends FunSuite {
     {
       var hit = false
       ScalaVersion.conditional(
-        "500.0.0",
-        "",
+        Some("500.0.0"),
+        None,
         "hit = true"
       )
       assert(!hit)
@@ -93,19 +92,19 @@ class ScalaVersionTest extends FunSuite {
     {
       var hit = false
       ScalaVersion.conditional(
-        "",
-        "500.0.0",
+        None,
+        Some("500.0.0"),
         "hit = true"
       )
       assert(hit)
     }
 
-    // Min bounds not hit
+    // Max bounds not hit
     {
       var hit = false
       ScalaVersion.conditional(
-        "",
-        "0.0.0",
+        None,
+        Some("1.0.0"),
         "hit = true"
       )
       assert(!hit)
@@ -115,8 +114,8 @@ class ScalaVersionTest extends FunSuite {
     {
       var hit = false
       ScalaVersion.conditional(
-        "0.0.0",
-        "500.0.0",
+        Some("1.0.0"),
+        Some("500.0.0"),
         "hit = true"
       )
       assert(hit)
@@ -126,8 +125,8 @@ class ScalaVersionTest extends FunSuite {
     {
       var hit = false
       ScalaVersion.conditional(
-        "500.0.0",
-        "1000.0.0",
+        Some("500.0.0"),
+        Some("1000.0.0"),
         "hit = true"
       )
       assert(!hit)

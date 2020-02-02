@@ -40,8 +40,8 @@ class AstUsedJarFinder(
           // We should examine OriginalTreeAttachment but that was only
           // added in 2.12.4, so include a version check
           ScalaVersion.conditional(
-            "2.12.4",
-            "",
+            Some("2.12.4"),
+            None,
             """
               node.attachments
                 .get[global.treeChecker.OriginalTreeAttachment]

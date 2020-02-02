@@ -24,12 +24,17 @@ object ScalaVersion {
    * versions. The reason to use this rarely is the API's inflexibility
    * and the difficulty in debugging this code.
    *
-   * Each of minVersion and maxVersion can either be the empty string ("")
-   * to signify that there is no restriction on this bound.
+   * Each of minVersionOpt and maxVersionOpt can either be None
+   * to signify that there is no restriction on this bound,
+   * or it can be a string of a full version number such as "2.12.10".
    *
-   * Or it can be a string of a full version number such as "2.12.10".
+   * When set to a version number, the bounds are inclusive.
+   * For example, a maxVersion of "2.12.10" will accept version "2.12.10".
    *
-   * Note only literal strings are accepted, no variables etc. i.e.
+   * Note only literal strings are accepted and inlined variables are accepted.
+   * If any non-inlined variables are passed the code will fail to compile.
+   * Inlined variables are generally those declared final on an object which
+   * do not have a type attached.
    *
    * valid:
    *  conditional(minVersion = "2.12.4", maxVersion = "", code = "foo()")
@@ -37,8 +42,8 @@ object ScalaVersion {
    *  conditional(minVersion = MinVersionForFoo, maxVersion = "", code = "foo()")
    */
   def conditional(
-    minVersion: String,
-    maxVersion: String,
+    minVersionOpt: Option[String],
+    maxVersionOpt: Option[String],
     code: String
   ): Unit =
     macro conditionalImpl
@@ -46,38 +51,70 @@ object ScalaVersion {
   def conditionalImpl(
     c: blackbox.Context
   )(
-    minVersion: c.Expr[String],
-    maxVersion: c.Expr[String],
+    minVersionOpt: c.Expr[Option[String]],
+    maxVersionOpt: c.Expr[Option[String]],
     code: c.Expr[String]
   ): c.Tree = {
     import c.{universe => u}
-    import u.Quasiquote
-    def extractString(expr: c.Expr[String]): String = {
-      expr.tree match {
+
+    // Due to non-deterministic code generation of quasiquotes, we do
+    // not use them
+    // See https://github.com/scala/bug/issues/11008
+    // Eventually once we stop supporting all versions which don't have
+    // the bugfix, we can use quasiquotes as desired
+
+    def extractStringFromTree(tree: c.Tree): Option[String] = {
+      tree match {
         case u.Literal(u.Constant(s: String)) =>
-          s
+          Some(s)
+        case _ =>
+          None
+      }
+    }
+
+    def extractStringOption(expr: c.Expr[Option[String]]): Option[String] = {
+      expr.tree match {
+        case u.Apply(
+          u.TypeApply(
+            u.Select(u.Select(u.Ident(u.TermName("scala")), u.TermName("Some")), u.TermName("apply")),
+            List(u.TypeTree())),
+          str :: Nil
+        ) if extractStringFromTree(str).nonEmpty =>
+          extractStringFromTree(str)
+        case u.Select(u.Ident(u.TermName("scala")), u.TermName("None")) =>
+          None
         case _ =>
           c.error(
             expr.tree.pos,
-            "Parameter must be passed as a string literal such as \"2.12.10\"")
-          ""
+            "Parameter must be passed as an Option[String] literal such as " +
+              "Some(\"2.12.10\") or None")
+          None
+      }
+    }
+
+    def extractString(expr: c.Expr[String]): String = {
+      extractStringFromTree(expr.tree).getOrElse {
+        c.error(
+          expr.tree.pos,
+          "Parameter must be passed as a string literal such as \"2.12.10\"")
+        ""
       }
     }
 
     val meetsMinVersionRequirement = {
-      val minVersionStr = extractString(minVersion)
-      minVersionStr == "" || Current >= ScalaVersion(minVersionStr)
+      val minVersionOptValue = extractStringOption(minVersionOpt)
+      minVersionOptValue.forall(version => Current >= ScalaVersion(version))
     }
 
     val meetsMaxVersionRequirement = {
-      val maxVersionStr = extractString(maxVersion)
-      maxVersionStr == "" || Current <= ScalaVersion(maxVersionStr)
+      val maxVersionOptValue = extractStringOption(maxVersionOpt)
+      maxVersionOptValue.forall(version => Current <= ScalaVersion(version))
     }
 
     if (meetsMinVersionRequirement && meetsMaxVersionRequirement) {
       c.parse(extractString(code))
     } else {
-      q""
+      u.EmptyTree
     }
   }
 }
