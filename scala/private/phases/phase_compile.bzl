@@ -3,12 +3,7 @@
 #
 # DOCUMENT THIS
 #
-load("@bazel_skylib//lib:dicts.bzl", "dicts")
 load("@bazel_tools//tools/jdk:toolchain_utils.bzl", "find_java_runtime_toolchain", "find_java_toolchain")
-load(
-    "@io_bazel_rules_scala//scala/private:coverage_replacements_provider.bzl",
-    _coverage_replacements_provider = "coverage_replacements_provider",
-)
 load(
     "@io_bazel_rules_scala//scala/private:paths.bzl",
     _get_files_with_extension = "get_files_with_extension",
@@ -22,13 +17,6 @@ load(
     _expand_location = "expand_location",
 )
 load(":resources.bzl", _resource_paths = "paths")
-
-_empty_coverage_struct = struct(
-    external = struct(
-        replacements = {},
-    ),
-    providers_dict = {},
-)
 
 def phase_compile_binary(ctx, p):
     args = struct(
@@ -164,13 +152,12 @@ def _phase_compile(
 
     # TODO: simplify the return values and use provider
     return struct(
-        coverage = out.coverage.external,
         files = depset(out.full_jars),
         rjars = depset(out.full_jars, transitive = [rjars]),
         merged_provider = out.merged_provider,
-        external_providers = dicts.add(out.coverage.providers_dict, {
+        external_providers = {
             "JavaInfo": out.merged_provider,
-        }),
+        },
     )
 
 def _compile_or_empty(
@@ -194,7 +181,6 @@ def _compile_or_empty(
 
         #  no need to build ijar when empty
         return struct(
-            coverage = _empty_coverage_struct,
             full_jars = [ctx.outputs.jar],
             merged_provider = scala_compilation_provider,
         )
@@ -265,15 +251,12 @@ def _compile_or_empty(
         if java_jar:
             full_jars += [java_jar.jar]
 
-        coverage = _jacoco_offline_instrument(ctx, ctx.outputs.jar)
-
         if java_jar:
             merged_provider = java_common.merge([scala_compilation_provider, java_jar.java_compilation_provider])
         else:
             merged_provider = scala_compilation_provider
 
         return struct(
-            coverage = coverage,
             full_jars = full_jars,
             merged_provider = merged_provider,
         )
@@ -338,54 +321,6 @@ def _pack_source_jar(ctx, scala_srcs, in_srcjars):
         java_toolchain = find_java_toolchain(ctx, ctx.attr._java_toolchain),
         host_javabase = find_java_runtime_toolchain(ctx, ctx.attr._host_javabase),
     )
-
-def _jacoco_offline_instrument(ctx, input_jar):
-    if not ctx.configuration.coverage_enabled or not hasattr(ctx.attr, "_code_coverage_instrumentation_worker"):
-        return _empty_coverage_struct
-
-    output_jar = ctx.actions.declare_file(
-        "{}-offline.jar".format(input_jar.basename.split(".")[0]),
-    )
-    in_out_pairs = [
-        (input_jar, output_jar),
-    ]
-
-    args = ctx.actions.args()
-    args.add_all(in_out_pairs, map_each = _jacoco_offline_instrument_format_each)
-    args.set_param_file_format("multiline")
-    args.use_param_file("@%s", use_always = True)
-
-    ctx.actions.run(
-        mnemonic = "JacocoInstrumenter",
-        inputs = [in_out_pair[0] for in_out_pair in in_out_pairs],
-        outputs = [in_out_pair[1] for in_out_pair in in_out_pairs],
-        executable = ctx.attr._code_coverage_instrumentation_worker.files_to_run,
-        execution_requirements = {"supports-workers": "1"},
-        arguments = [args],
-    )
-
-    replacements = {i: o for (i, o) in in_out_pairs}
-    provider = _coverage_replacements_provider.create(
-        replacements = replacements,
-    )
-    instrumented_files_provider = coverage_common.instrumented_files_info(
-        ctx,
-        source_attributes = ["srcs"],
-        dependency_attributes = _coverage_replacements_provider.dependency_attributes,
-        extensions = ["scala", "java"],
-    )
-    return struct(
-        external = struct(
-            replacements = replacements,
-        ),
-        providers_dict = {
-            "_CoverageReplacements": provider,
-            "InstrumentedFilesInfo": instrumented_files_provider,
-        },
-    )
-
-def _jacoco_offline_instrument_format_each(in_out_pair):
-    return (["%s=%s" % (in_out_pair[0].path, in_out_pair[1].path)])
 
 def _try_to_compile_java_jar(
         ctx,

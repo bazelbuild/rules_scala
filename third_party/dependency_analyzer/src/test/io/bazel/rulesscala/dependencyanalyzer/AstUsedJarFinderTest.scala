@@ -357,6 +357,19 @@ class AstUsedJarFinderTest extends FunSuite {
     }
   }
 
+  test("unspecified default argument type is indirect") {
+    checkIndirectDependencyDetected(
+      aCode = "class A",
+      bCode = "class B(a: A = new A())",
+      cCode =
+        s"""
+           |class C {
+           |  new B()
+           |}
+           |""".stripMargin
+    )
+  }
+
   test("java interface method argument is direct") {
     withSandbox { sandbox =>
       sandbox.compileJava(

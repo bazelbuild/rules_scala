@@ -59,13 +59,23 @@ class AstUsedJarFinder(
         case _ =>
       }
 
-      if (tree.hasSymbolField) {
-        tree.symbol.annotations.foreach { annot =>
-          annot.tree.foreach(fullyExploreTree)
+      val shouldExamine =
+        tree match {
+          case select: Select if select.symbol.isDefaultGetter =>
+            false
+          case _ =>
+            true
         }
-      }
-      if (tree.tpe != null) {
-        exploreType(tree.tpe)
+
+      if (shouldExamine) {
+        if (tree.hasSymbolField) {
+          tree.symbol.annotations.foreach { annot =>
+            annot.tree.foreach(fullyExploreTree)
+          }
+        }
+        if (tree.tpe != null) {
+          exploreType(tree.tpe)
+        }
       }
     }
 
