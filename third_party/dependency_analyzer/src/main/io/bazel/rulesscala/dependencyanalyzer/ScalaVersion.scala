@@ -37,9 +37,9 @@ object ScalaVersion {
    * do not have a type attached.
    *
    * valid:
-   *  conditional(minVersion = "2.12.4", maxVersion = "", code = "foo()")
+   *  conditional(Some("2.12.4"), None, "foo()")
    * invalid:
-   *  conditional(minVersion = MinVersionForFoo, maxVersion = "", code = "foo()")
+   *  conditional(MinVersionForFoo, None, "foo()")
    */
   def conditional(
     minVersionOpt: Option[String],
@@ -103,11 +103,20 @@ object ScalaVersion {
 
     val meetsMinVersionRequirement = {
       val minVersionOptValue = extractStringOption(minVersionOpt)
+
+      // Note: Unit tests do not test that this bound is inclusive rather
+      // than exclusive so be careful when changing this code not to
+      // accidentally make this an exclusive bound (see ScalaVersionTest for
+      // details)
       minVersionOptValue.forall(version => Current >= ScalaVersion(version))
     }
 
     val meetsMaxVersionRequirement = {
       val maxVersionOptValue = extractStringOption(maxVersionOpt)
+      // Note: Unit tests do not test that this bound is inclusive rather
+      // than exclusive so be careful when changing this code not to
+      // accidentally make this an exclusive bound (see ScalaVersionTest for
+      // details)
       maxVersionOptValue.forall(version => Current <= ScalaVersion(version))
     }
 

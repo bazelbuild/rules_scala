@@ -10,6 +10,10 @@ import third_party.utils.src.test.io.bazel.rulesscala.utils.JavaCompileUtil
 import third_party.utils.src.test.io.bazel.rulesscala.utils.TestUtil
 import third_party.utils.src.test.io.bazel.rulesscala.utils.TestUtil.DependencyAnalyzerTestParams
 
+// NOTE: Some tests are version-dependent as some false positives
+// cannot be fixed in older versions of Scala for various reasons.
+// Hence make sure to look at any version checks to understand
+// which versions do and don't support which cases.
 class AstUsedJarFinderTest extends FunSuite {
   private def withSandbox(action: Sandbox => Unit): Unit = {
     val tmpDir = Files.createTempDirectory("dependency_analyzer_test_temp")
@@ -401,7 +405,13 @@ class AstUsedJarFinderTest extends FunSuite {
           |}
           |""".stripMargin
 
-      // It is unclear why this only works with these versions but
+      // Unlike other tests, this one includes both access to an inlined
+      // variable and taking the class A as an argument. In theory,
+      // this test should work for all supported versions just like
+      // test `java interface method argument is direct` since they
+      // both have a method taking A as an argument.
+      //
+      // However, it does not work for all versions. It is unclear why but
       // presumably there were various compiler improvements.
       if (ScalaVersion.Current >= ScalaVersion("2.12.0")) {
         sandbox.checkStrictDepsErrorsReported(
