@@ -5,10 +5,15 @@ import java.nio.file.Path
 import org.apache.commons.io.FileUtils
 import org.scalatest._
 import third_party.dependency_analyzer.src.main.io.bazel.rulesscala.dependencyanalyzer.DependencyTrackingMethod
+import third_party.dependency_analyzer.src.main.io.bazel.rulesscala.dependencyanalyzer.ScalaVersion
 import third_party.utils.src.test.io.bazel.rulesscala.utils.JavaCompileUtil
 import third_party.utils.src.test.io.bazel.rulesscala.utils.TestUtil
 import third_party.utils.src.test.io.bazel.rulesscala.utils.TestUtil.DependencyAnalyzerTestParams
 
+// NOTE: Some tests are version-dependent as some false positives
+// cannot be fixed in older versions of Scala for various reasons.
+// Hence make sure to look at any version checks to understand
+// which versions do and don't support which cases.
 class AstUsedJarFinderTest extends FunSuite {
   private def withSandbox(action: Sandbox => Unit): Unit = {
     val tmpDir = Files.createTempDirectory("dependency_analyzer_test_temp")
@@ -147,6 +152,23 @@ class AstUsedJarFinderTest extends FunSuite {
       sandbox.compileWithoutAnalyzer(bCode)
       sandbox.checkUnusedDepsErrorReported(
         code = cCode,
+        expectedUnusedDeps = List("A")
+      )
+    }
+  }
+
+  /**
+   * In a situation where B depends indirectly on A, ensure
+   * that the dependency analyzer recognizes this fact.
+   */
+  private def checkIndirectDependencyDetected(
+    aCode: String,
+    bCode: String
+  ): Unit = {
+    withSandbox { sandbox =>
+      sandbox.compileWithoutAnalyzer(aCode)
+      sandbox.checkUnusedDepsErrorReported(
+        code = bCode,
         expectedUnusedDeps = List("A")
       )
     }
@@ -302,6 +324,43 @@ class AstUsedJarFinderTest extends FunSuite {
     )
   }
 
+  test("inlined literal is direct") {
+    // Note: For a constant to be inlined
+    // - it must not have a type declaration such as `: Int`.
+    //   (this appears to be the case in practice at least)
+    //   (is this documented anywhere???)
+    // - some claim it must start with a capital letter, though
+    //   this does not seem to be the case. Nevertheless we do that
+    //    anyways.
+    //
+    // Hence it is possible that as newer versions of scala
+    // are released then this test may need to be updated to
+    // conform to changing requirements of what is inlined.
+
+    // Note that in versions of scala < 2.12.4 we cannot detect
+    // such a situation. Hence we will have a false positive here
+    // for those older versions, which we verify in test.
+
+    val aCode =
+      s"""
+         |object A {
+         |  final val Inlined = 123
+         |}
+         |""".stripMargin
+    val bCode =
+      s"""
+         |object B {
+         |  val d: Int = A.Inlined
+         |}
+         |""".stripMargin
+
+    if (ScalaVersion.Current >= ScalaVersion("2.12.4")) {
+      checkDirectDependencyRecognized(aCode = aCode, bCode = bCode)
+    } else {
+      checkIndirectDependencyDetected(aCode = aCode, bCode = bCode)
+    }
+  }
+
   test("unspecified default argument type is indirect") {
     checkIndirectDependencyDetected(
       aCode = "class A",
@@ -329,6 +388,68 @@ class AstUsedJarFinderTest extends FunSuite {
           |""".stripMargin,
         expectedStrictDeps = List("B")
       )
+    }
+  }
+
+  test("java interface field and method is direct") {
+    withSandbox { sandbox =>
+      sandbox.compileJava(
+        className = "A",
+        code = "public interface A { int a = 42; }"
+      )
+      val bCode =
+        """
+          |class B {
+          |  def foo(x: A): Unit = {}
+          |  val b = A.a
+          |}
+          |""".stripMargin
+
+      // Unlike other tests, this one includes both access to an inlined
+      // variable and taking the class A as an argument. In theory,
+      // this test should work for all supported versions just like
+      // test `java interface method argument is direct` since they
+      // both have a method taking A as an argument.
+      //
+      // However, it does not work for all versions. It is unclear why but
+      // presumably there were various compiler improvements.
+      if (ScalaVersion.Current >= ScalaVersion("2.12.0")) {
+        sandbox.checkStrictDepsErrorsReported(
+          bCode,
+          expectedStrictDeps = List("A")
+        )
+      } else {
+        sandbox.checkUnusedDepsErrorReported(
+          bCode,
+          expectedUnusedDeps = List("A")
+        )
+      }
+    }
+  }
+
+  test("java interface field is direct") {
+    withSandbox { sandbox =>
+      sandbox.compileJava(
+        className = "A",
+        code = "public interface A { int a = 42; }"
+      )
+      val bCode =
+        """
+          |class B {
+          |  val b = A.a
+          |}
+          |""".stripMargin
+      if (ScalaVersion.Current >= ScalaVersion("2.12.4")) {
+        sandbox.checkStrictDepsErrorsReported(
+          bCode,
+          expectedStrictDeps = List("A")
+        )
+      } else {
+        sandbox.checkUnusedDepsErrorReported(
+          bCode,
+          expectedUnusedDeps = List("A")
+        )
+      }
     }
   }
 }
