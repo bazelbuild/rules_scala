@@ -51,7 +51,7 @@ def _create_bootstrap_toolchain(version):
     attrs["name"] = name
     attrs["visibility"] = ["//visibility:public"]
 
-    repository_name = "io_bazel_rules_scala_" + version["mvn"]
+    repository_name = "io_bazel_rules_scala_" + version["scala"].replace(".", "_")
 
     library = _artifact("org.scala-lang:scala-library", repository_name = repository_name)
     compiler = _artifact("org.scala-lang:scala-compiler", repository_name = repository_name)
@@ -119,7 +119,7 @@ def _create_scala_test_toolchain(version):
     attrs["name"] = name
     attrs["visibility"] = ["//visibility:public"]
 
-    repository_name = "io_bazel_rules_scala_" + version["mvn"]
+    repository_name = "io_bazel_rules_scala_" + version["scala"].replace(".", "_")
 
     scalatest = _artifact("org.scalatest:scalatest_" + version["mvn"], repository_name = repository_name)
     scalactic = _artifact("org.scalactic:scalactic_" + version["mvn"], repository_name = repository_name)

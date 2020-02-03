@@ -38,6 +38,14 @@ load(
     "//unstable/multiscala/private:macros/scala_binary.bzl",
     _multiscala_scala_binary = "scala_binary"
 )
+load(
+    "//unstable/multiscala/private:macros/scala_library.bzl",
+    _multiscala_scala_library = "scala_library"
+)
+load(
+    "//unstable/multiscala/private:macros/scala_test.bzl",
+    _multiscala_scala_test = "scala_test"
+)
 
 def scala_specs2_junit_test(name, **kwargs):
     _scala_junit_test(
@@ -57,14 +65,15 @@ def _demux(uniscala, multiscala):
 
 # Re-export private rules for public consumption
 scala_binary = _demux(_uniscala_scala_binary, _multiscala_scala_binary)
+scala_library = _demux(_uniscala_scala_library, _multiscala_scala_library)
+scala_test = _demux(_uniscala_scala_test, _multiscala_scala_test)
+
 scala_doc = _scala_doc
 scala_junit_test = _scala_junit_test
-scala_library = _uniscala_scala_library
 scala_library_for_plugin_bootstrapping = _uniscala_scala_library_for_plugin_bootstrapping
 scala_library_suite = _uniscala_scala_library_suite
 scala_macro_library = _uniscala_scala_macro_library
 scala_repl = _uniscala_scala_repl
-scala_test = _uniscala_scala_test
 scala_test_suite = _uniscala_scala_test_suite
 
 def scala_repositories(**kwargs):

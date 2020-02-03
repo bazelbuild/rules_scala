@@ -124,7 +124,7 @@ def multiscala_configuration(configuration = default_configuration):
         dict = _merge_dicts(configuration, configuration["scala"][version], exclude = "scala")
 
         dict["scala"] = version
-        dict["mvn"] = version.replace(".", "_")
+        dict["mvn"] = version # .replace(".", "_")
         dict["complete"] = version + "." + dict["minor"]
         dict["default"] = True if dict.get("default") == version else False
 
@@ -142,24 +142,24 @@ def multiscala_configuration(configuration = default_configuration):
     )
 
 def scalac_label(version):
-    return "//src/java/io/bazel/rulesscala/scalac:scalac_" + version.replace(".", "_")
+    return "//src/java/io/bazel/rulesscala/scalac:scalac_" + version
 
 def scalatest_runner_label(version):
-    return "//src/java/io/bazel/rulesscala/scala_test:runner_" + version.replace(".", "_")
+    return "//src/java/io/bazel/rulesscala/scala_test:runner_" + version
 
 def scalatest_reporter_label(version):
-    return "//scala/support:test_reporter_" + version.replace(".", "_")
+    return "//scala/support:test_reporter_" + version # .replace(".", "_")
 
 def toolchain_label(toolchain, version, in_package = False):
     return "{package}{toolchain}_{version}_toolchain".format(
         package = "@io_bazel_rules_scala//unstable/multiscala:" if not in_package else "",
         toolchain = toolchain,
-        version = version.replace(".", "_"),
+        version = version # .replace(".", "_"),
     )
 
 def native_toolchain_label(toolchain, version, in_package = False):
     return "{package}native_{toolchain}_{version}_toolchain".format(
         package = "@io_bazel_rules_scala//unstable/multiscala:" if not in_package else "",
         toolchain = toolchain,
-        version = version.replace(".", "_"),
+        version = version # .replace(".", "_"),
     )

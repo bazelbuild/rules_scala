@@ -74,12 +74,12 @@ def _scala_artifact(version, scala_coordinate):
     if len(components) == 2:
         components.append("{" + components[1] + "}")
     (org, artifact, artifact_version) = components
-    java_coordinate = ":".join([org, artifact + "_" + version["scala"], artifact_version])
+    java_coordinate = ":".join([org, artifact + "_" + version["mvn"], artifact_version])
     return java_coordinate.format(**version)
 
 def _create_maven_installed_repos():
     for version in _versions():
-        repository_name = "io_bazel_rules_scala_" + version["mvn"]
+        repository_name = "io_bazel_rules_scala_" + version["scala"].replace(".", "_")
 
         artifacts = {
             "org.scala-lang:scala-compiler:" + version["complete"]: "io_bazel_rules_scala/dependency/scala/scala_compiler",
