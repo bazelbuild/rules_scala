@@ -78,9 +78,13 @@ def _additional_transitive_compile_jars(
         dependency_mode):
     if dependency_mode == "transitive":
         return java_provider.transitive_compile_time_jars
-    elif dependency_mode == "plus-one":  # XXX examine logic
+    elif dependency_mode == "plus-one":
+        # dep_target will not always have a PlusOneDeps provider, such as
+        # with scala_maven_import_external, hence the need for the fallback.
         if PlusOneDeps in dep_target:
             plus_one_jars = [dep[JavaInfo].compile_jars for dep in dep_target[PlusOneDeps].direct_deps if JavaInfo in dep]
+            # plus_one_jars only contains the deps of deps, not the deps themselves.
+            # Hence the need to include the dep's compile jars anyways
             return depset(transitive = plus_one_jars + [java_provider.compile_jars])
         else:
             return java_provider.compile_jars

@@ -46,11 +46,11 @@ def phase_collect_jars_common(ctx, p):
 
 def _phase_collect_jars_default(ctx, p, _args = struct()):
     return _phase_collect_jars(
-        ctx = ctx,
-        dependency_info = p.dependency,
-        base_classpath = _args.base_classpath if hasattr(_args, "base_classpath") else p.scalac_provider.default_classpath,
-        extra_deps = _args.extra_deps if hasattr(_args, "extra_deps") else [],
-        extra_runtime_deps = _args.extra_runtime_deps if hasattr(_args, "extra_runtime_deps") else [],
+        ctx,
+        p.dependency,
+        _args.base_classpath if hasattr(_args, "base_classpath") else p.scalac_provider.default_classpath,
+        _args.extra_deps if hasattr(_args, "extra_deps") else [],
+        _args.extra_runtime_deps if hasattr(_args, "extra_runtime_deps") else [],
     )
 
 # Extract very common code out from dependency analysis into single place
@@ -63,10 +63,10 @@ def _phase_collect_jars(
         extra_deps,
         extra_runtime_deps):
     deps_jars = collect_jars(
-        dep_targets = ctx.attr.deps + extra_deps + base_classpath,
-        dependency_mode = dependency_info.dependency_mode,
-        need_direct_info = dependency_info.need_direct_info,
-        need_indirect_info = dependency_info.need_indirect_info,
+        ctx.attr.deps + extra_deps + base_classpath,
+        dependency_info.dependency_mode,
+        dependency_info.need_direct_info,
+        dependency_info.need_indirect_info,
     )
 
     (

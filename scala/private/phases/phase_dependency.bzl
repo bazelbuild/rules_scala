@@ -24,10 +24,10 @@ def phase_dependency_library_for_plugin_bootstrapping(ctx, p):
 
 def _phase_dependency_default(ctx, p, args = struct()):
     return _phase_dependency(
-        ctx = ctx,
-        p = p,
-        unused_deps_always_off = args.unused_deps_always_off if hasattr(args, "unused_deps_always_off") else False,
-        strict_deps_always_off = args.strict_deps_always_off if hasattr(args, "strict_deps_always_off") else False,
+        ctx,
+        p,
+        args.unused_deps_always_off if hasattr(args, "unused_deps_always_off") else False,
+        args.strict_deps_always_off if hasattr(args, "strict_deps_always_off") else False,
     )
 
 def _phase_dependency(
@@ -52,10 +52,10 @@ def _phase_dependency(
         unused_deps_mode = "off"
 
     return new_dependency_info(
-        dependency_mode = _get_dependency_mode(ctx),
-        unused_deps_mode = unused_deps_mode,
-        strict_deps_mode = strict_deps_mode,
-        dependency_tracking_method = "high-level",
+        _get_dependency_mode(ctx),
+        unused_deps_mode,
+        strict_deps_mode,
+        "high-level",
     )
 
 def _is_plus_one_deps_on(ctx):
