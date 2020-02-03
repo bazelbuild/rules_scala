@@ -15,7 +15,7 @@ load(
 )
 load(
     "//scala/private:dependency.bzl",
-    "dependency_info_for_addons",
+    "legacy_unclear_dependency_info_for_protobuf_scrooge",
 )
 load(
     "//scala/private:rule_impls.bzl",
@@ -246,7 +246,7 @@ def _compile_scala(
         expect_java_output = False,
         scalac_jvm_flags = [],
         scalac = ctx.attr._scalac,
-        dependency_info = dependency_info_for_addons(ctx),
+        dependency_info = legacy_unclear_dependency_info_for_protobuf_scrooge(ctx),
         unused_dependency_checker_ignored_targets = [],
     )
 

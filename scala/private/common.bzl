@@ -78,7 +78,7 @@ def _additional_transitive_compile_jars(
         dependency_mode):
     if dependency_mode == "transitive":
         return java_provider.transitive_compile_time_jars
-    elif dependency_mode == "plus-one":
+    elif dependency_mode == "plus-one":  # XXX examine logic
         if PlusOneDeps in dep_target:
             plus_one_jars = [dep[JavaInfo].compile_jars for dep in dep_target[PlusOneDeps].direct_deps if JavaInfo in dep]
             return depset(transitive = plus_one_jars + [java_provider.compile_jars])

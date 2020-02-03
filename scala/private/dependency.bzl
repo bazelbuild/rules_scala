@@ -30,27 +30,18 @@ def new_dependency_info(
         use_analyzer = is_strict_deps_on or is_unused_deps_on,
     )
 
-def dependency_info_for_addons(ctx):
+# TODO(https://github.com/bazelbuild/rules_scala/issues/987): Clariy the situation
+def legacy_unclear_dependency_info_for_protobuf_scrooge(ctx):
     return new_dependency_info(
-        dependency_mode = _dependency_mode_for_addons(ctx),
+        dependency_mode = _legacy_unclear_dependency_mode_for_protobuf_scrooge(ctx),
         unused_deps_mode = "off",
         strict_deps_mode = get_strict_deps_mode(ctx),
         dependency_tracking_method = "high-level",
     )
 
-def get_dependency_mode(ctx):
-    if get_is_strict_deps_on(ctx):
-        # all transitive dependencies are included
-        return "transitive"
-    elif not _is_plus_one_deps_off(ctx):
-        # dependencies and dependencies of dependencies are included
-        return "plus-one"
-    else:
-        # only explicitly-specified dependencies are included
-        return "direct"
-
-def _dependency_mode_for_addons(ctx):
-    if get_is_strict_deps_on(ctx):
+# TODO(https://github.com/bazelbuild/rules_scala/issues/987): Clariy the situation
+def _legacy_unclear_dependency_mode_for_protobuf_scrooge(ctx):
+    if is_strict_deps_on(ctx):
         return "transitive"
     else:
         return "direct"
@@ -65,14 +56,5 @@ def get_strict_deps_mode(ctx):
         return "off"
     return ctx.fragments.java.strict_java_deps
 
-def get_is_strict_deps_on(ctx):
+def is_strict_deps_on(ctx):
     return get_strict_deps_mode(ctx) != "off"
-
-def get_unused_deps_mode(ctx):
-    if ctx.attr.unused_dependency_checker_mode:
-        return ctx.attr.unused_dependency_checker_mode
-    else:
-        return ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].unused_dependency_checker_mode
-
-def _is_plus_one_deps_off(ctx):
-    return ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].plus_one_deps_mode == "off"

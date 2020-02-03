@@ -104,6 +104,7 @@ def compile_scala(
 
     optional_scalac_args = "\n".join([
         "{k}: {v}".format(k = k, v = v)
+        # We sort the arguments for input stability and reproducibility
         for (k, v) in sorted(optional_scalac_args_map.items())
     ])
 
