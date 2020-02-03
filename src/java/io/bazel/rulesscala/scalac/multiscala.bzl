@@ -1,23 +1,23 @@
-load("@io_bazel_rules_scala_configuration//:configuration.bzl",
-     _multiscala_enabled = "multiscala_enabled",
-     _configuration =  "configuration",
-     _versions = "versions",
-     _versioned_name =  "versioned_name",
+load(
+    "@io_bazel_rules_scala_configuration//:configuration.bzl",
+    _configuration = "configuration",
+    _multiscala_enabled = "multiscala_enabled",
+    _versioned_name = "versioned_name",
+    _versions = "versions",
 )
 load(
     ":jvm_export_toolchain.bzl",
-    _export_scalac_repositories_from_toolchain_to_jvm =
-    "export_scalac_repositories_from_toolchain_to_jvm",
+    _export_scalac_repositories_from_toolchain_to_jvm = "export_scalac_repositories_from_toolchain_to_jvm",
 )
 
 def load_multiscala():
-    if not _multiscala_enabled(): return
+    if not _multiscala_enabled():
+        return
 
     for version_configuration in _versions():
-
         exported_name = _versioned_name(
             "exported_scalac_repositories_from_toolchain_to_jvm",
-            version_configuration
+            version_configuration,
         )
 
         _export_scalac_repositories_from_toolchain_to_jvm(

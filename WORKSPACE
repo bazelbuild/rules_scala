@@ -11,6 +11,10 @@ http_archive(
     url = "https://github.com/bazelbuild/buildtools/archive/f27d1753c8b3210d9e87cdc9c45bc2739ae2c2db.zip",
 )
 
+load("//unstable/multiscala:repositories/rules_jvm_external.bzl", "load_rules_jvm_external")
+
+load_rules_jvm_external()
+
 load("@com_github_bazelbuild_buildtools//buildifier:deps.bzl", "buildifier_dependencies")
 
 buildifier_dependencies()
@@ -19,7 +23,7 @@ load("//scala:toolchains.bzl", "scala_register_toolchains")
 
 scala_register_toolchains()
 
-load("//scala:scala.bzl", "scala_repositories")
+load("//scala:scala_repositories.bzl", "scala_repositories")
 
 scala_repositories()
 

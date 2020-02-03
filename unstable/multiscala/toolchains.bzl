@@ -123,7 +123,7 @@ def _create_scala_test_toolchain(version):
 
     scalatest = _artifact("org.scalatest:scalatest_" + version["mvn"], repository_name = repository_name)
     scalactic = _artifact("org.scalactic:scalactic_" + version["mvn"], repository_name = repository_name)
-    attrs["deps"] = [scalatest, scalactic,]
+    attrs["deps"] = [scalatest, scalactic]
     attrs["reporter"] = _scalatest_reporter_label(version["mvn"])
     attrs["runner"] = _scalatest_runner_label(version["mvn"])
 

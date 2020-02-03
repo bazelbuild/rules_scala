@@ -66,7 +66,6 @@ def scala_repositories(
         ),
         maven_servers = _default_maven_server_urls(),
         scala_extra_jars = _default_scala_extra_jars()):
-
     _disable_multiscala()
 
     (scala_version, scala_version_jar_shas) = scala_version_shas
@@ -234,10 +233,11 @@ def _repo_impl(ctx):
     ctx.file(
         "configuration.bzl",
         """
-def multiscala_enabled(): return False
-def configuration(): fail("multiscala disabled")
-def versions(): fail("multiscala disabled")
-"""
+def multiscala_enabled(**kwargs): return False
+def configuration(**kwargs): fail("multiscala disabled")
+def versions(**kwargs): fail("multiscala disabled")
+def versioned_name(**kwargs): fail("multiscala disabled")
+""",
     )
 
 _repo = repository_rule(

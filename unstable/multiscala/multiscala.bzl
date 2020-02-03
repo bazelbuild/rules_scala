@@ -8,9 +8,7 @@ load(
     _configuration = "configuration",
 )
 load("@bazel_skylib//lib:dicts.bzl", _dicts = "dicts")
-
 load(":configuration.bzl", _toolchain_label = "toolchain_label")
-
 load("//unstable/multiscala/private:macros/scala_binary.bzl", _scala_binary = "scala_binary")
 load("//unstable/multiscala/private:macros/scala_library.bzl", _scala_library = "scala_library")
 load("//unstable/multiscala/private:macros/scala_test.bzl", _scala_test = "scala_test")

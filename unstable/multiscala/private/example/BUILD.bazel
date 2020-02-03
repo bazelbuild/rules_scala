@@ -4,10 +4,9 @@ load(
     "scala_library",
     "scala_test",
 )
-
 load(
     "@io_bazel_rules_scala//unstable/multiscala:multiscala.bzl",
-    toolchain_label = "toolchain_label",
+    "toolchain_label",
 )
 
 # default case: builds all configured versions with version suffixes

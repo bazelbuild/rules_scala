@@ -1,4 +1,5 @@
 load(":multiscala.bzl", "load_multiscala")
+
 load_multiscala()
 
 java_library(

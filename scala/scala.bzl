@@ -36,15 +36,15 @@ load(
 )
 load(
     "//unstable/multiscala/private:macros/scala_binary.bzl",
-    _multiscala_scala_binary = "scala_binary"
+    _multiscala_scala_binary = "scala_binary",
 )
 load(
     "//unstable/multiscala/private:macros/scala_library.bzl",
-    _multiscala_scala_library = "scala_library"
+    _multiscala_scala_library = "scala_library",
 )
 load(
     "//unstable/multiscala/private:macros/scala_test.bzl",
-    _multiscala_scala_test = "scala_test"
+    _multiscala_scala_test = "scala_test",
 )
 
 def scala_specs2_junit_test(name, **kwargs):
