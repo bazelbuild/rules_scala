@@ -29,11 +29,13 @@ class AstUsedJarFinderTest extends FunSuite {
     def compileWithoutAnalyzer(
       code: String
     ): Unit = {
-      TestUtil.runCompiler(
-        code = code,
-        extraClasspath = List(tmpDir.toString),
-        outputPathOpt = Some(tmpDir)
-      )
+      val errors =
+        TestUtil.runCompiler(
+          code = code,
+          extraClasspath = List(tmpDir.toString),
+          outputPathOpt = Some(tmpDir)
+        )
+      assert(errors.isEmpty)
     }
 
     def compileJava(
@@ -67,10 +69,14 @@ class AstUsedJarFinderTest extends FunSuite {
         )
 
       assert(errors.size == expectedStrictDeps.size)
+      errors.foreach { err =>
+        // We should be emitting errors with positions
+        assert(err.pos.isDefined)
+      }
 
       expectedStrictDeps.foreach { dep =>
         val expectedError = s"Target '$dep' is used but isn't explicitly declared, please add it to the deps"
-        assert(errors.exists(_.contains(expectedError)))
+        assert(errors.exists(_.msg.contains(expectedError)))
       }
     }
 
@@ -94,10 +100,14 @@ class AstUsedJarFinderTest extends FunSuite {
         )
 
       assert(errors.size == expectedUnusedDeps.size)
+      errors.foreach { err =>
+        // As an unused dep we shouldn't include a position or anything like that
+        assert(!err.pos.isDefined)
+      }
 
       expectedUnusedDeps.foreach { dep =>
         val expectedError = s"Target '$dep' is specified as a dependency to ${TestUtil.defaultTarget} but isn't used, please remove it from the deps."
-        assert(errors.exists(_.contains(expectedError)))
+        assert(errors.exists(_.msg.contains(expectedError)))
       }
     }
   }
@@ -450,6 +460,28 @@ class AstUsedJarFinderTest extends FunSuite {
           expectedUnusedDeps = List("A")
         )
       }
+    }
+  }
+
+  test("classOf in class Java annotation is direct") {
+    withSandbox { sandbox =>
+      sandbox.compileJava(
+        className = "Category",
+        code =
+          s"""
+             |public @interface Category {
+             |    Class<?> value();
+             |}
+             |""".stripMargin
+      )
+      sandbox.compileWithoutAnalyzer("class UnitTests")
+      sandbox.checkStrictDepsErrorsReported(
+        """
+          |@Category(classOf[UnitTests])
+          |class C
+          |""".stripMargin,
+        expectedStrictDeps = List("UnitTests", "Category")
+      )
     }
   }
 }

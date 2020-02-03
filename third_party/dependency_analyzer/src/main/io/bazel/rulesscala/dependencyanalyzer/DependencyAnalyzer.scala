@@ -65,37 +65,63 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
   }
 
   private def runAnalysis(): Unit = {
-    val usedJars = findUsedJars
-    val usedJarPaths = if (!isWindows) usedJars.map(_.path) else usedJars.map(_.path.replaceAll("\\\\", "/"))
+    val usedJarsToPositions = findUsedJarsAndPositions
+    val usedJarPathToPositions =
+      if (!isWindows) {
+        usedJarsToPositions.map { case (jar, pos) =>
+          jar.path -> pos
+        }
+      } else {
+        usedJarsToPositions.map { case (jar, pos) =>
+          jar.path.replaceAll("\\\\", "/") -> pos
+        }
+      }
 
     if (settings.unusedDepsMode != AnalyzerMode.Off) {
-      reportUnusedDepsFoundIn(usedJarPaths)
+      reportUnusedDepsFoundIn(usedJarPathToPositions)
     }
 
     if (settings.strictDepsMode != AnalyzerMode.Off) {
-      reportIndirectTargetsFoundIn(usedJarPaths)
+      reportIndirectTargetsFoundIn(usedJarPathToPositions)
     }
   }
 
-  private def reportIndirectTargetsFoundIn(usedJarPaths: Set[String]): Unit = {
+  private def reportIndirectTargetsFoundIn(
+    usedJarPathAndPositions: Map[String, global.Position]
+  ): Unit = {
     val errors =
-      usedJarPaths
-        .filterNot(settings.directTargetSet.jarSet.contains)
-        .flatMap(settings.indirectTargetSet.targetFromJarOpt)
-        .map { target =>
-          s"""Target '$target' is used but isn't explicitly declared, please add it to the deps.
-             |You can use the following buildozer command:
-             |buildozer 'add deps $target' ${settings.currentTarget}""".stripMargin
+      usedJarPathAndPositions
+        .filterNot { case (jarPath, _) =>
+          settings.directTargetSet.jarSet.contains(jarPath)
+        }
+        .flatMap { case (jarPath, pos) =>
+          settings.indirectTargetSet.targetFromJarOpt(jarPath).map { target =>
+            target -> pos
+          }
+        }
+        .map { case (target, pos) =>
+          val message =
+            s"""Target '$target' is used but isn't explicitly declared, please add it to the deps.
+               |You can use the following buildozer command:
+               |buildozer 'add deps $target' ${settings.currentTarget}""".stripMargin
+          message -> pos
         }
 
     warnOrError(settings.strictDepsMode, errors)
   }
 
-  private def reportUnusedDepsFoundIn(usedJarPaths: Set[String]): Unit = {
+  private def reportUnusedDepsFoundIn(
+    usedJarPathAndPositions: Map[String, global.Position]
+  ): Unit = {
     val directJarPaths = settings.directTargetSet.jarSet
 
+
     val usedTargets =
-      usedJarPaths.flatMap(settings.directTargetSet.targetFromJarOpt)
+      usedJarPathAndPositions
+        .flatMap { case (jar, _) =>
+          settings.directTargetSet.targetFromJarOpt(jar)
+        }
+        .toSet
 
     val unusedTargets = directJarPaths
       // This .get is safe because [jar] was gotten from [directJarPaths]
@@ -106,29 +132,44 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
 
     val toWarnOrError =
       unusedTargets.map { target =>
-        s"""Target '$target' is specified as a dependency to ${settings.currentTarget} but isn't used, please remove it from the deps.
-           |You can use the following buildozer command:
-           |buildozer 'remove deps $target' ${settings.currentTarget}
-           |""".stripMargin
+        val message =
+          s"""Target '$target' is specified as a dependency to ${settings.currentTarget} but isn't used, please remove it from the deps.
+             |You can use the following buildozer command:
+             |buildozer 'remove deps $target' ${settings.currentTarget}
+             |""".stripMargin
+        (message, global.NoPosition: global.Position)
       }
 
-    warnOrError(settings.unusedDepsMode, toWarnOrError)
+    warnOrError(settings.unusedDepsMode, toWarnOrError.toMap)
   }
 
   private def warnOrError(
     analyzerMode: AnalyzerMode,
-    errors: Set[String]
+    errors: Map[String, global.Position]
   ): Unit = {
-    val reportFunction: String => Unit = analyzerMode match {
-      case AnalyzerMode.Error => global.reporter.error(global.NoPosition, _)
-      case AnalyzerMode.Warn => global.reporter.warning(global.NoPosition, _)
-      case AnalyzerMode.Off => _ => ()
+    val reportFunction: (String, global.Position) => Unit = analyzerMode match {
+      case AnalyzerMode.Error =>
+        { case (message, pos) =>
+          global.reporter.error(pos, message)
+        }
+      case AnalyzerMode.Warn =>
+      { case (message, pos) =>
+        global.reporter.warning(pos, message)
+      }
+      case AnalyzerMode.Off => (_, _) => ()
     }
 
-    errors.foreach(reportFunction)
+    errors.foreach { case (message, pos) =>
+      reportFunction(message, pos)
+    }
   }
 
-  private def findUsedJars: Set[AbstractFile] = {
+  /**
+   *
+   * @return map of used jar file -> representative position in file where
+   *         it was used
+   */
+  private def findUsedJarsAndPositions: Map[AbstractFile, global.Position] = {
     settings.dependencyTrackingMethod match {
       case DependencyTrackingMethod.HighLevel =>
         new HighLevelCrawlUsedJarFinder(global).findUsedJars

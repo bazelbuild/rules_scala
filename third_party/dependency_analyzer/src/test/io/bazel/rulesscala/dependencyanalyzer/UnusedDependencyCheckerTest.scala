@@ -22,6 +22,7 @@ class UnusedDependencyCheckerTest extends FunSuite {
           )
         )
     )
+      .map(_.msg)
   }
 
   test("error on unused direct dependencies") {

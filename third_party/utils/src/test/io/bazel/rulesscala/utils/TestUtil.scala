@@ -88,7 +88,7 @@ object TestUtil {
     extraClasspath: List[String] = List.empty,
     dependencyAnalyzerParamsOpt: Option[DependencyAnalyzerTestParams] = None,
     outputPathOpt: Option[Path] = None
-  ): List[String] = {
+  ): List[StoreReporter#Info] = {
     val dependencyAnalyzerOptions =
       dependencyAnalyzerParamsOpt
         .map(getDependencyAnalyzerOptions)
@@ -106,7 +106,7 @@ object TestUtil {
     code: String,
     compileOptions: String,
     output: AbstractFile
-  ): List[String] = {
+  ): List[StoreReporter#Info] = {
     // TODO: Optimize and cache global.
     val options = CommandLineParser.tokenize(compileOptions)
     val reporter = new StoreReporter()
@@ -119,9 +119,14 @@ object TestUtil {
     val global = new Global(settings, reporter)
 
     val run = new global.Run
-    val toCompile = new BatchSourceFile("<wrapper-init>", code)
+
+    // It is important that the source name when compiling code
+    // looks like a valid scala file -
+    // this causes the compiler to report positions correctly. And
+    // tests verify that positions are reported successfully.
+    val toCompile = new BatchSourceFile("CompiledCode.scala", code)
     run.compileSources(List(toCompile))
-    reporter.infos.collect({ case msg if msg.severity == reporter.ERROR => msg.msg }).toList
+    reporter.infos.filter(_.severity == reporter.ERROR).toList
   }
 
   private lazy val baseDir = System.getProperty("user.dir")
