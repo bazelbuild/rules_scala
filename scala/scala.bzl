@@ -31,7 +31,11 @@ load(
     _uniscala_scala_test_suite = "scala_test_suite",
 )
 load(
-    "//unstable/multiscala:multiscala.bzl",
+    "@io_bazel_rules_scala_configuration//:configuration.bzl",
+    _multiscala_enabled = "multiscala_enabled",
+)
+load(
+    "//unstable/multiscala:multiscala.bzl", _multiscala_binary = "multiscala_binary"
 )
 
 def scala_specs2_junit_test(name, **kwargs):
@@ -48,19 +52,19 @@ def scala_specs2_junit_test(name, **kwargs):
     )
 
 def _demux(uniscala, multiscala):
-    multicala if _enable_multicala() else uniscala
+    multiscala if _multiscala_enabled() else uniscala
 
 # Re-export private rules for public consumption
 scala_binary = _demux(_uniscala_scala_binary, _multiscala_binary)
 scala_doc = _scala_doc
 scala_junit_test = _scala_junit_test
-scala_library = _scala_library
-scala_library_for_plugin_bootstrapping = _scala_library_for_plugin_bootstrapping
-scala_library_suite = _scala_library_suite
-scala_macro_library = _scala_macro_library
-scala_repl = _scala_repl
-scala_test = _scala_test
-scala_test_suite = _scala_test_suite
+scala_library = _uniscala_scala_library
+scala_library_for_plugin_bootstrapping = _uniscala_scala_library_for_plugin_bootstrapping
+scala_library_suite = _uniscala_scala_library_suite
+scala_macro_library = _uniscala_scala_macro_library
+scala_repl = _uniscala_scala_repl
+scala_test = _uniscala_scala_test
+scala_test_suite = _uniscala_scala_test_suite
 
 def scala_repositories(**kwargs):
     fail("please import scala_repositories from @io_bazel_rules_scala//scala:scala_repositories.bzl")

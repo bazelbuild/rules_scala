@@ -5,12 +5,12 @@ TBD
 
 load("@bazel_skylib//lib:dicts.bzl", _dicts = "dicts")
 load(
-    "//scala:scala.bzl",
-    _scala_binary_rule = "scala_binary",
-)
-load(
     "//unstable/multiscala:configuration.bzl",
     _toolchain_label = "toolchain_label",
+)
+load(
+    "@//scala/private:rules/scala_binary.bzl",
+    _uniscala_scala_binary = "scala_binary",
 )
 load(
     "//unstable/multiscala:private/macros/tools.bzl",
@@ -29,7 +29,7 @@ def _create_scala_binary(version, **kwargs):
     )
 
     # print(kwargs)
-    _scala_binary_rule(**kwargs)
+    _uniscala_scala_binary(**kwargs)
 
 def scala_binary(
         scala_deps = [],

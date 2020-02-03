@@ -5,8 +5,11 @@ TBD
 
 load("@bazel_skylib//lib:dicts.bzl", _dicts = "dicts")
 load(
-    "//scala:scala.bzl",
-    _scala_library_rule = "scala_library",
+    "@io_bazel_rules_scala//scala/private:rules/scala_library.bzl",
+    _uniscala_scala_library = "scala_library",
+    # _uniscala_scala_library_for_plugin_bootstrapping = "scala_library_for_plugin_bootstrapping",
+    # _uniscala_scala_library_suite = "scala_library_suite",
+    # _uniscala_scala_macro_library = "scala_macro_library",
 )
 load(
     "//unstable/multiscala:configuration.bzl",
@@ -22,7 +25,7 @@ load(
 def _create_scala_library(version, **kwargs):
     kwargs = _remove_toolchains(kwargs, version)
     kwargs = _combine_kwargs(kwargs, version["mvn"])
-    _scala_library_rule(
+    _uniscala_scala_library(
         toolchains = [_toolchain_label("scala", version["mvn"])],
         **kwargs
     )
