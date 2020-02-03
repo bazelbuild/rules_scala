@@ -5,15 +5,15 @@ TBD
 
 load("@bazel_skylib//lib:dicts.bzl", _dicts = "dicts")
 load(
-    "//scala:scala.bzl",
-    _scala_test_rule = "scala_test",
+    "@io_bazel_rules_scala//scala/private:rules/scala_test.bzl",
+    _uniscala_scala_test = "scala_test",
 )
 load(
     "//unstable/multiscala:configuration.bzl",
     _toolchain_label = "toolchain_label",
 )
 load(
-    "//unstable/multiscala:private/macros/tools.bzl",
+    "//unstable/multiscala/private:macros/tools.bzl",
     _combine_kwargs = "combine_kwargs",
     _remove_toolchains = "remove_toolchains",
     _target_versions = "target_versions",
@@ -26,7 +26,7 @@ def _create_scala_test(version, **kwargs):
         _toolchain_label("scala_test", version["mvn"]),
     ]
     kwargs = _combine_kwargs(kwargs, version["mvn"])
-    _scala_test_rule(**kwargs)
+    _uniscala_scala_test(**kwargs)
 
 def scala_test(
         configuration,

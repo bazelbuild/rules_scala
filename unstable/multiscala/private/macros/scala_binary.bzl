@@ -9,11 +9,11 @@ load(
     _toolchain_label = "toolchain_label",
 )
 load(
-    "@//scala/private:rules/scala_binary.bzl",
+    "//scala/private:rules/scala_binary.bzl",
     _uniscala_scala_binary = "scala_binary",
 )
 load(
-    "//unstable/multiscala:private/macros/tools.bzl",
+    "//unstable/multiscala/private:macros/tools.bzl",
     _combine_kwargs = "combine_kwargs",
     _remove_toolchains = "remove_toolchains",
     _target_versions = "target_versions",

@@ -35,7 +35,8 @@ load(
     _multiscala_enabled = "multiscala_enabled",
 )
 load(
-    "//unstable/multiscala:multiscala.bzl", _multiscala_binary = "multiscala_binary"
+    "//unstable/multiscala/private:macros/scala_binary.bzl",
+    _multiscala_scala_binary = "scala_binary"
 )
 
 def scala_specs2_junit_test(name, **kwargs):
@@ -52,10 +53,10 @@ def scala_specs2_junit_test(name, **kwargs):
     )
 
 def _demux(uniscala, multiscala):
-    multiscala if _multiscala_enabled() else uniscala
+    return multiscala if _multiscala_enabled() else uniscala
 
 # Re-export private rules for public consumption
-scala_binary = _demux(_uniscala_scala_binary, _multiscala_binary)
+scala_binary = _demux(_uniscala_scala_binary, _multiscala_scala_binary)
 scala_doc = _scala_doc
 scala_junit_test = _scala_junit_test
 scala_library = _uniscala_scala_library
