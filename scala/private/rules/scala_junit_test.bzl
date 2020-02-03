@@ -13,6 +13,7 @@ load(
     "extras_phases",
     "phase_collect_jars_junit_test",
     "phase_compile_junit_test",
+    "phase_coverage_common",
     "phase_declare_executable",
     "phase_default_info",
     "phase_dependency_common",
@@ -43,6 +44,7 @@ def _scala_junit_test_impl(ctx):
             ("declare_executable", phase_declare_executable),
             # no need to build an ijar for an executable
             ("compile", phase_compile_junit_test),
+            ("coverage", phase_coverage_common),
             ("merge_jars", phase_merge_jars),
             ("runfiles", phase_runfiles_common),
             ("jvm_flags", phase_jvm_flags),

@@ -25,6 +25,8 @@ load(
     "phase_compile_common",
     "phase_compile_library",
     "phase_compile_macro_library",
+    "phase_coverage_common",
+    "phase_coverage_library",
     "phase_default_info",
     "phase_dependency_common",
     "phase_dependency_library_for_plugin_bootstrapping",
@@ -63,6 +65,7 @@ def _scala_library_impl(ctx):
             ("dependency", phase_dependency_common),
             ("collect_jars", phase_collect_jars_common),
             ("compile", phase_compile_library),
+            ("coverage", phase_coverage_library),
             ("merge_jars", phase_merge_jars),
             ("runfiles", phase_runfiles_library),
             ("collect_exports_jars", phase_collect_exports_jars),
@@ -150,7 +153,9 @@ def _scala_library_for_plugin_bootstrapping_impl(ctx):
 # the scala compiler plugin used for dependency analysis is compiled using `scala_library`.
 # in order to avoid cyclic dependencies `scala_library_for_plugin_bootstrapping` was created for this purpose,
 # which does not contain plugin related attributes, and thus avoids the cyclic dependency issue
-_scala_library_for_plugin_bootstrapping_attrs = {}
+_scala_library_for_plugin_bootstrapping_attrs = {
+    "build_ijar": attr.bool(default = True),
+}
 
 _scala_library_for_plugin_bootstrapping_attrs.update(implicit_deps)
 
@@ -195,6 +200,7 @@ def _scala_macro_library_impl(ctx):
             ("dependency", phase_dependency_common),
             ("collect_jars", phase_collect_jars_macro_library),
             ("compile", phase_compile_macro_library),
+            ("coverage", phase_coverage_common),
             ("merge_jars", phase_merge_jars),
             ("runfiles", phase_runfiles_library),
             ("collect_exports_jars", phase_collect_exports_jars),

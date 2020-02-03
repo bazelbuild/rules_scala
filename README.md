@@ -123,6 +123,12 @@ for an example workspace using another scala version.
 | 0.14.x | 3b9ab9be31ac217d3337c709cb6bfeb89c8dcbb1 |
 | 0.13.x | 3c987b6ae8a453886759b132f1572c0efca2eca2 |
 
+## Breaking changes
+
+If you're upgrading to a version containing one of these commits, you may encounter a breaking change where there was previously undefined behavior.
+
+- [929b318](https://github.com/bazelbuild/rules_scala/commit/929b3180cc099ba76859f5e88710d2ac087fbfa3) on 2020-01-30: Fixed a bug in the JMH benchmark build that was allowing build failures to creep through. Previously you were able to build a benchmark suite with JMH build errors. Running the benchmark suite would only run the successfully-built benchmarks.
+
 ## Usage with [bazel-deps](https://github.com/johnynek/bazel-deps)
 
 Bazel-deps allows you to generate bazel dependencies transitively for maven artifacts. Generally we don't want bazel-deps to fetch

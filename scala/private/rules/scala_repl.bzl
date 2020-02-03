@@ -14,6 +14,7 @@ load(
     "extras_phases",
     "phase_collect_jars_repl",
     "phase_compile_repl",
+    "phase_coverage_common",
     "phase_declare_executable",
     "phase_default_info",
     "phase_dependency_common",
@@ -40,6 +41,7 @@ def _scala_repl_impl(ctx):
             ("declare_executable", phase_declare_executable),
             # no need to build an ijar for an executable
             ("compile", phase_compile_repl),
+            ("coverage", phase_coverage_common),
             ("merge_jars", phase_merge_jars),
             ("runfiles", phase_runfiles_common),
             ("write_executable", phase_write_executable_repl),

@@ -43,6 +43,11 @@ load(
     _phase_runfiles_library = "phase_runfiles_library",
     _phase_runfiles_scalatest = "phase_runfiles_scalatest",
 )
+load(
+    "@io_bazel_rules_scala//scala/private:phases/phase_coverage.bzl",
+    _phase_coverage_common = "phase_coverage_common",
+    _phase_coverage_library = "phase_coverage_library",
+)
 load("@io_bazel_rules_scala//scala/private:phases/phase_default_info.bzl", _phase_default_info = "phase_default_info")
 load("@io_bazel_rules_scala//scala/private:phases/phase_scalac_provider.bzl", _phase_scalac_provider = "phase_scalac_provider")
 load("@io_bazel_rules_scala//scala/private:phases/phase_write_manifest.bzl", _phase_write_manifest = "phase_write_manifest")
@@ -87,6 +92,10 @@ phase_merge_jars = _phase_merge_jars
 
 # jvm_flags
 phase_jvm_flags = _phase_jvm_flags
+
+# coverage
+phase_coverage_library = _phase_coverage_library
+phase_coverage_common = _phase_coverage_common
 
 # coverage_runfiles
 phase_coverage_runfiles = _phase_coverage_runfiles

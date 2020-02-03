@@ -15,10 +15,6 @@
 
 load("@bazel_skylib//lib:paths.bzl", "paths")
 load(
-    "@io_bazel_rules_scala//scala/private:coverage_replacements_provider.bzl",
-    _coverage_replacements_provider = "coverage_replacements_provider",
-)
-load(
     ":common.bzl",
     _collect_plugin_paths = "collect_plugin_paths",
 )

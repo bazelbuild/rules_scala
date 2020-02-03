@@ -14,6 +14,7 @@ load(
     "extras_phases",
     "phase_collect_jars_scalatest",
     "phase_compile_scalatest",
+    "phase_coverage_common",
     "phase_coverage_runfiles",
     "phase_declare_executable",
     "phase_default_info",
@@ -40,6 +41,7 @@ def _scala_test_impl(ctx):
             ("declare_executable", phase_declare_executable),
             # no need to build an ijar for an executable
             ("compile", phase_compile_scalatest),
+            ("coverage", phase_coverage_common),
             ("merge_jars", phase_merge_jars),
             ("runfiles", phase_runfiles_scalatest),
             ("coverage_runfiles", phase_coverage_runfiles),

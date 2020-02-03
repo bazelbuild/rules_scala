@@ -37,6 +37,20 @@ class AstUsedJarFinder(
             node.original.foreach(fullyExploreTree)
           }
         case node: Literal =>
+          // We should examine OriginalTreeAttachment but that was only
+          // added in 2.12.4, so include a version check
+          ScalaVersion.conditional(
+            Some("2.12.4"),
+            None,
+            """
+              node.attachments
+                .get[global.treeChecker.OriginalTreeAttachment]
+                .foreach { attach =>
+                  fullyExploreTree(attach.original)
+                }
+            """
+          )
+
           node.value.value match {
             case tpe: Type =>
               exploreType(tpe)
@@ -45,13 +59,23 @@ class AstUsedJarFinder(
         case _ =>
       }
 
-      if (tree.hasSymbolField) {
-        tree.symbol.annotations.foreach { annot =>
-          annot.tree.foreach(fullyExploreTree)
+      val shouldExamine =
+        tree match {
+          case select: Select if select.symbol.isDefaultGetter =>
+            false
+          case _ =>
+            true
         }
-      }
-      if (tree.tpe != null) {
-        exploreType(tree.tpe)
+
+      if (shouldExamine) {
+        if (tree.hasSymbolField) {
+          tree.symbol.annotations.foreach { annot =>
+            annot.tree.foreach(fullyExploreTree)
+          }
+        }
+        if (tree.tpe != null) {
+          exploreType(tree.tpe)
+        }
       }
     }
 
