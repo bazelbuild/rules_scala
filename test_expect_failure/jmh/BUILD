@@ -7,6 +7,5 @@ scala_benchmark_jmh(
     name = "jmh_reports_failure",
     srcs = [
         "InvalidBenchmark.scala",
-        "ValidBenchmark.scala",
     ],
 )
