@@ -103,7 +103,20 @@ class AstUsedJarFinder(
 
       if (shouldExamine) {
         if (tree.hasSymbolField) {
-          tree.symbol.annotations.foreach(exploreAnnotationInfo)
+          tree.symbol.annotations
+            // We skip annotations without positions. The reason for
+            // this is the case of
+            //   @SomeAnnotation class A
+            //   class B extends A
+            // Now assuming A and B are in separate packages, while
+            // examining B we will examine A as well, and hence
+            // examine A's annotations. However we don't wish to examine
+            // A's annotations as we don't care about those details of A.
+            // Hence we only examine annotations with positions (hence,
+            // they were defined in the same compilation unit and thus
+            // matter).
+            .filter(_.pos.isDefined)
+            .foreach(exploreAnnotationInfo)
         }
         if (tree.tpe != null) {
           exploreType(tree.tpe, tree.pos)
