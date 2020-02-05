@@ -42,7 +42,20 @@ test_scala_import_expect_failure_on_missing_direct_deps_warn_mode() {
   test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message1}" ${test_target} "--strict_java_deps=warn" "ne" "${expected_message2}"
 }
 
+test_plus_one_ast_analyzer_strict_deps() {
+  dependenecy_target='//test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency'
+  test_target='test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency_user'
+
+  expected_message_warn="warning: Target '$dependenecy_target' is used but isn't explicitly declared, please add it to the deps"
+  expected_message_error="error: Target '$dependenecy_target' is used but isn't explicitly declared, please add it to the deps"
+
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message_error}" ${test_target} "--extra_toolchains=//test/toolchains:ast_plus_one_deps_strict_deps_error" "eq"
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message_error}" ${test_target} "--extra_toolchains=//test/toolchains:ast_plus_one_deps_strict_deps_unused_deps_error" "eq"
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message_warn}" ${test_target} "--extra_toolchains=//test/toolchains:ast_plus_one_deps_strict_deps_warn" "ne"
+}
+
 $runner test_scala_import_library_passes_labels_of_direct_deps
 $runner test_plus_one_deps_only_works_for_java_info_targets
 $runner scala_pb_library_targets_do_not_have_host_deps
 $runner test_scala_import_expect_failure_on_missing_direct_deps_warn_mode
+$runner test_plus_one_ast_analyzer_strict_deps
