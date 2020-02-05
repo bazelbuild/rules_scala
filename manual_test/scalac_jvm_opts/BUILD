@@ -1,9 +1,7 @@
+load("@rules_proto//proto:defs.bzl", "proto_library")
 load("//scala:scala_toolchain.bzl", "scala_toolchain")
 load("//scala:scala.bzl", "scala_library")
-load(
-    "//scala_proto:scala_proto.bzl",
-    "scala_proto_library",
-)
+load("//scala_proto:scala_proto.bzl", "scala_proto_library")
 
 scala_toolchain(
     name = "failing_toolchain_impl",
