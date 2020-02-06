@@ -47,7 +47,7 @@ def phase_collect_jars_common(ctx, p):
 def _phase_collect_jars_default(ctx, p, _args = struct()):
     return _phase_collect_jars(
         ctx,
-        p.dependency,
+        p,
         _args.base_classpath if hasattr(_args, "base_classpath") else p.scalac_provider.default_classpath,
         _args.extra_deps if hasattr(_args, "extra_deps") else [],
         _args.extra_runtime_deps if hasattr(_args, "extra_runtime_deps") else [],
@@ -58,15 +58,15 @@ def _phase_collect_jars_default(ctx, p, _args = struct()):
 # collects jars from deps, runtime jars from runtime_deps, and
 def _phase_collect_jars(
         ctx,
-        dependency_info,
+        p,
         base_classpath,
         extra_deps,
         extra_runtime_deps):
     deps_jars = collect_jars(
         ctx.attr.deps + extra_deps + base_classpath,
-        dependency_info.dependency_mode,
-        dependency_info.need_direct_info,
-        dependency_info.need_indirect_info,
+        p.dependency.dependency_mode,
+        p.dependency.need_direct_info,
+        p.dependency.need_indirect_info,
     )
 
     (
