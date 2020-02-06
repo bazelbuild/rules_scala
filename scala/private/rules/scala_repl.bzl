@@ -17,11 +17,11 @@ load(
     "phase_coverage_common",
     "phase_declare_executable",
     "phase_default_info",
+    "phase_dependency_common",
     "phase_java_wrapper_repl",
     "phase_merge_jars",
     "phase_runfiles_common",
     "phase_scalac_provider",
-    "phase_unused_deps_checker",
     "phase_write_executable_repl",
     "phase_write_manifest",
     "run_phases",
@@ -34,7 +34,7 @@ def _scala_repl_impl(ctx):
         [
             ("scalac_provider", phase_scalac_provider),
             ("write_manifest", phase_write_manifest),
-            ("unused_deps_checker", phase_unused_deps_checker),
+            ("dependency", phase_dependency_common),
             # need scala-compiler for MainGenericRunner below
             ("collect_jars", phase_collect_jars_repl),
             ("java_wrapper", phase_java_wrapper_repl),
