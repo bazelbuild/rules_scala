@@ -23,7 +23,6 @@ load(
     "@io_bazel_rules_scala//scala/private:phases/phase_collect_jars.bzl",
     _phase_collect_jars_common = "phase_collect_jars_common",
     _phase_collect_jars_junit_test = "phase_collect_jars_junit_test",
-    _phase_collect_jars_library_for_plugin_bootstrapping = "phase_collect_jars_library_for_plugin_bootstrapping",
     _phase_collect_jars_macro_library = "phase_collect_jars_macro_library",
     _phase_collect_jars_repl = "phase_collect_jars_repl",
     _phase_collect_jars_scalatest = "phase_collect_jars_scalatest",
@@ -55,7 +54,11 @@ load("@io_bazel_rules_scala//scala/private:phases/phase_scalac_provider.bzl", _p
 load("@io_bazel_rules_scala//scala/private:phases/phase_write_manifest.bzl", _phase_write_manifest = "phase_write_manifest")
 load("@io_bazel_rules_scala//scala/private:phases/phase_collect_srcjars.bzl", _phase_collect_srcjars = "phase_collect_srcjars")
 load("@io_bazel_rules_scala//scala/private:phases/phase_collect_exports_jars.bzl", _phase_collect_exports_jars = "phase_collect_exports_jars")
-load("@io_bazel_rules_scala//scala/private:phases/phase_unused_deps_checker.bzl", _phase_unused_deps_checker = "phase_unused_deps_checker")
+load(
+    "@io_bazel_rules_scala//scala/private:phases/phase_dependency.bzl",
+    _phase_dependency_common = "phase_dependency_common",
+    _phase_dependency_library_for_plugin_bootstrapping = "phase_dependency_library_for_plugin_bootstrapping",
+)
 load("@io_bazel_rules_scala//scala/private:phases/phase_declare_executable.bzl", _phase_declare_executable = "phase_declare_executable")
 load("@io_bazel_rules_scala//scala/private:phases/phase_merge_jars.bzl", _phase_merge_jars = "phase_merge_jars")
 load("@io_bazel_rules_scala//scala/private:phases/phase_jvm_flags.bzl", _phase_jvm_flags = "phase_jvm_flags")
@@ -78,8 +81,9 @@ phase_collect_exports_jars = _phase_collect_exports_jars
 # write_manifest
 phase_write_manifest = _phase_write_manifest
 
-# unused_deps_checker
-phase_unused_deps_checker = _phase_unused_deps_checker
+# dependency
+phase_dependency_common = _phase_dependency_common
+phase_dependency_library_for_plugin_bootstrapping = _phase_dependency_library_for_plugin_bootstrapping
 
 # declare_executable
 phase_declare_executable = _phase_declare_executable
@@ -112,7 +116,6 @@ phase_collect_jars_scalatest = _phase_collect_jars_scalatest
 phase_collect_jars_repl = _phase_collect_jars_repl
 phase_collect_jars_macro_library = _phase_collect_jars_macro_library
 phase_collect_jars_junit_test = _phase_collect_jars_junit_test
-phase_collect_jars_library_for_plugin_bootstrapping = _phase_collect_jars_library_for_plugin_bootstrapping
 phase_collect_jars_common = _phase_collect_jars_common
 
 # compile

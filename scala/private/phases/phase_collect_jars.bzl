@@ -4,11 +4,6 @@
 # DOCUMENT THIS
 #
 load(
-    "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
-    "is_dependency_analyzer_off",
-    "is_plus_one_deps_off",
-)
-load(
     "@io_bazel_rules_scala//scala/private:common.bzl",
     "collect_jars",
 )
@@ -46,22 +41,16 @@ def phase_collect_jars_junit_test(ctx, p):
     )
     return _phase_collect_jars_default(ctx, p, args)
 
-def phase_collect_jars_library_for_plugin_bootstrapping(ctx, p):
-    args = struct(
-        unused_dependency_checker_mode = "off",
-    )
-    return _phase_collect_jars_default(ctx, p, args)
-
 def phase_collect_jars_common(ctx, p):
     return _phase_collect_jars_default(ctx, p)
 
 def _phase_collect_jars_default(ctx, p, _args = struct()):
     return _phase_collect_jars(
         ctx,
+        p,
         _args.base_classpath if hasattr(_args, "base_classpath") else p.scalac_provider.default_classpath,
         _args.extra_deps if hasattr(_args, "extra_deps") else [],
         _args.extra_runtime_deps if hasattr(_args, "extra_runtime_deps") else [],
-        _args.unused_dependency_checker_mode if hasattr(_args, "unused_dependency_checker_mode") else p.unused_deps_checker,
     )
 
 # Extract very common code out from dependency analysis into single place
@@ -69,18 +58,15 @@ def _phase_collect_jars_default(ctx, p, _args = struct()):
 # collects jars from deps, runtime jars from runtime_deps, and
 def _phase_collect_jars(
         ctx,
+        p,
         base_classpath,
         extra_deps,
-        extra_runtime_deps,
-        unused_dependency_checker_mode):
-    unused_dependency_checker_is_off = unused_dependency_checker_mode == "off"
-    dependency_analyzer_is_off = is_dependency_analyzer_off(ctx)
-
+        extra_runtime_deps):
     deps_jars = collect_jars(
         ctx.attr.deps + extra_deps + base_classpath,
-        dependency_analyzer_is_off,
-        unused_dependency_checker_is_off,
-        is_plus_one_deps_off(ctx),
+        p.dependency.dependency_mode,
+        p.dependency.need_direct_info,
+        p.dependency.need_indirect_info,
     )
 
     (
