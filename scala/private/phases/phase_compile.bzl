@@ -99,7 +99,7 @@ def phase_compile_scalatest(ctx, p):
         unused_dependency_checker_ignored_targets = [
             target.label
             for target in p.scalac_provider.default_classpath +
-	                      [ctx.attr._scalatest] +
+                          [ctx.attr._scalatest] +
                           ctx.attr.unused_dependency_checker_ignored_targets
         ],
     )
