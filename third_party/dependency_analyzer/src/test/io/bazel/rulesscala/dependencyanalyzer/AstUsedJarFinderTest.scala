@@ -4,6 +4,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import org.apache.commons.io.FileUtils
 import org.scalatest._
+import scala.tools.nsc.reporters.StoreReporter
 import third_party.dependency_analyzer.src.main.io.bazel.rulesscala.dependencyanalyzer.DependencyTrackingMethod
 import third_party.dependency_analyzer.src.main.io.bazel.rulesscala.dependencyanalyzer.ScalaVersion
 import third_party.utils.src.test.io.bazel.rulesscala.utils.JavaCompileUtil
@@ -52,7 +53,7 @@ class AstUsedJarFinderTest extends FunSuite {
     def checkStrictDepsErrorsReported(
       code: String,
       expectedStrictDeps: List[String]
-    ): Unit = {
+    ): List[StoreReporter#Info] = {
       val errors =
         TestUtil.runCompiler(
           code = code,
@@ -78,6 +79,8 @@ class AstUsedJarFinderTest extends FunSuite {
         val expectedError = s"Target '$dep' is used but isn't explicitly declared, please add it to the deps"
         assert(errors.exists(_.msg.contains(expectedError)))
       }
+
+      errors
     }
 
     def checkUnusedDepsErrorReported(
@@ -482,6 +485,24 @@ class AstUsedJarFinderTest extends FunSuite {
           |""".stripMargin,
         expectedStrictDeps = List("UnitTests", "Category")
       )
+    }
+  }
+
+  test("position of strict deps error is correct") {
+    // While we do ensure that generally strict deps errors have
+    // a position in the other tests, here we make sure that that
+    // position is correctly computed.
+    withSandbox { sandbox =>
+      sandbox.compileWithoutAnalyzer("class A")
+      val errors =
+        sandbox.checkStrictDepsErrorsReported(
+          "class B(a: A)",
+          expectedStrictDeps = List("A")
+        )
+      assert(errors.size == 1)
+      val pos = errors(0).pos
+      assert(pos.line == 1)
+      assert(pos.column == 12)
     }
   }
 }
