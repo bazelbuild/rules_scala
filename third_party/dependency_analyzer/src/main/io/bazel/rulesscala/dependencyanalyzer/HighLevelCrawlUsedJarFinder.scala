@@ -8,13 +8,13 @@ class HighLevelCrawlUsedJarFinder(
 ) {
   import global.Symbol
 
-  def findUsedJars: Set[AbstractFile] = {
+  def findUsedJars: Map[AbstractFile, Global#Position] = {
     val jars = collection.mutable.Set[AbstractFile]()
 
     global.exitingTyper {
       walkTopLevels(global.RootClass, jars)
     }
-    jars.toSet
+    jars.map(jar => jar -> global.NoPosition).toMap
   }
 
   private def walkTopLevels(root: Symbol, jars: collection.mutable.Set[AbstractFile]): Unit = {

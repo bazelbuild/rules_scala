@@ -4,6 +4,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import org.apache.commons.io.FileUtils
 import org.scalatest._
+import scala.tools.nsc.reporters.StoreReporter
 import third_party.dependency_analyzer.src.main.io.bazel.rulesscala.dependencyanalyzer.DependencyTrackingMethod
 import third_party.dependency_analyzer.src.main.io.bazel.rulesscala.dependencyanalyzer.ScalaVersion
 import third_party.utils.src.test.io.bazel.rulesscala.utils.JavaCompileUtil
@@ -29,11 +30,13 @@ class AstUsedJarFinderTest extends FunSuite {
     def compileWithoutAnalyzer(
       code: String
     ): Unit = {
-      TestUtil.runCompiler(
-        code = code,
-        extraClasspath = List(tmpDir.toString),
-        outputPathOpt = Some(tmpDir)
-      )
+      val errors =
+        TestUtil.runCompiler(
+          code = code,
+          extraClasspath = List(tmpDir.toString),
+          outputPathOpt = Some(tmpDir)
+        )
+      assert(errors.isEmpty)
     }
 
     def compileJava(
@@ -50,7 +53,7 @@ class AstUsedJarFinderTest extends FunSuite {
     def checkStrictDepsErrorsReported(
       code: String,
       expectedStrictDeps: List[String]
-    ): Unit = {
+    ): List[StoreReporter#Info] = {
       val errors =
         TestUtil.runCompiler(
           code = code,
@@ -67,11 +70,17 @@ class AstUsedJarFinderTest extends FunSuite {
         )
 
       assert(errors.size == expectedStrictDeps.size)
+      errors.foreach { err =>
+        // We should be emitting errors with positions
+        assert(err.pos.isDefined)
+      }
 
       expectedStrictDeps.foreach { dep =>
         val expectedError = s"Target '$dep' is used but isn't explicitly declared, please add it to the deps"
-        assert(errors.exists(_.contains(expectedError)))
+        assert(errors.exists(_.msg.contains(expectedError)))
       }
+
+      errors
     }
 
     def checkUnusedDepsErrorReported(
@@ -94,10 +103,14 @@ class AstUsedJarFinderTest extends FunSuite {
         )
 
       assert(errors.size == expectedUnusedDeps.size)
+      errors.foreach { err =>
+        // As an unused dep we shouldn't include a position or anything like that
+        assert(!err.pos.isDefined)
+      }
 
       expectedUnusedDeps.foreach { dep =>
         val expectedError = s"Target '$dep' is specified as a dependency to ${TestUtil.defaultTarget} but isn't used, please remove it from the deps."
-        assert(errors.exists(_.contains(expectedError)))
+        assert(errors.exists(_.msg.contains(expectedError)))
       }
     }
   }
@@ -450,6 +463,46 @@ class AstUsedJarFinderTest extends FunSuite {
           expectedUnusedDeps = List("A")
         )
       }
+    }
+  }
+
+  test("classOf in class Java annotation is direct") {
+    withSandbox { sandbox =>
+      sandbox.compileJava(
+        className = "Category",
+        code =
+          s"""
+             |public @interface Category {
+             |    Class<?> value();
+             |}
+             |""".stripMargin
+      )
+      sandbox.compileWithoutAnalyzer("class UnitTests")
+      sandbox.checkStrictDepsErrorsReported(
+        """
+          |@Category(classOf[UnitTests])
+          |class C
+          |""".stripMargin,
+        expectedStrictDeps = List("UnitTests", "Category")
+      )
+    }
+  }
+
+  test("position of strict deps error is correct") {
+    // While we do ensure that generally strict deps errors have
+    // a position in the other tests, here we make sure that that
+    // position is correctly computed.
+    withSandbox { sandbox =>
+      sandbox.compileWithoutAnalyzer("class A")
+      val errors =
+        sandbox.checkStrictDepsErrorsReported(
+          "class B(a: A)",
+          expectedStrictDeps = List("A")
+        )
+      assert(errors.size == 1)
+      val pos = errors(0).pos
+      assert(pos.line == 1)
+      assert(pos.column == 12)
     }
   }
 }

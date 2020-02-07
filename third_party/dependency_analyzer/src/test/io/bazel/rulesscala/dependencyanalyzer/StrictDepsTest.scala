@@ -25,6 +25,7 @@ class StrictDepsTest extends FunSuite {
           )
         )
     )
+      .map(_.msg)
   }
 
   test("error on indirect dependency target") {
