@@ -19,7 +19,7 @@ def _compute_strict_deps_mode(input_strict_deps_mode, dependency_mode):
         if dependency_mode == "transitive":
             return "error"
         else:
-           return "off"
+            return "off"
     return input_strict_deps_mode
 
 def _compute_dependency_tracking_method(input_dependency_tracking_method):
@@ -31,7 +31,8 @@ def _scala_toolchain_impl(ctx):
     if ctx.attr.plus_one_deps_mode != "":
         print(
             "Setting plus_one_deps_mode on toolchain is deprecated." +
-            "Use 'dependency_mode = \"plus-one\"' instead")
+            "Use 'dependency_mode = \"plus-one\"' instead",
+        )
     if ctx.attr.dependency_mode != "" and ctx.attr.plus_one_deps_mode != "":
         fail("Cannot set both dependency_mode and plus_one_deps_mode on toolchain")
 
