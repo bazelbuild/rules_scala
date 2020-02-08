@@ -153,9 +153,8 @@ def scala_repositories(
     if not native.existing_rule("rules_java"):
         http_archive(
             name = "rules_java",
-            sha256 = "f5a3e477e579231fca27bf202bb0e8fbe4fc6339d63b38ccb87c2760b533d1c3",
-            strip_prefix = "rules_java-981f06c3d2bd10225e85209904090eb7b5fb26bd",
-            urls = ["https://github.com/bazelbuild/rules_java/archive/981f06c3d2bd10225e85209904090eb7b5fb26bd.tar.gz"],
+            sha256 = "220b87d8cfabd22d1c6d8e3cdb4249abd4c93dcc152e0667db061fb1b957ee68",
+            urls = ["https://github.com/bazelbuild/rules_java/releases/download/0.1.1/rules_java-0.1.1.tar.gz",],
         )
 
     if not native.existing_rule("rules_proto"):
@@ -180,7 +179,7 @@ def scala_repositories(
     if not native.existing_rule("zlib"):  # needed by com_google_protobuf
         http_archive(
             name = "zlib",
-            build_file = "@com_google_protobuf//:third_party/zlib.BUILD",
+            build_file = "@com_google_protobuf//third_party:zlib.BUILD",
             sha256 = "c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1",
             strip_prefix = "zlib-1.2.11",
             urls = [
