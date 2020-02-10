@@ -184,7 +184,7 @@ but you do not need to include this in the toolchain as they are the defaults.
   dependency_tracking_method = "ast",
 ```
 
-Should the first option result in too much effort in handling build files and the like due to confusing dependencies and you becoming confused as to why some specific dependency is needed when the code being compiled never references it, consider this set of options. It will include both dependencies and dependencies of dependencies, which in practice is enough stop almost all strange missing dependency errors at the cost of somewhat more incremental compile cost in certain cases.
+Should the first option result in too much effort in handling build files and the like due to confusing dependencies and you becoming confused as to why some specific dependency is needed when the code being compiled never references it, consider this set of options. It will include both dependencies and dependencies of dependencies, which in practice is enough to stop almost all strange missing dependency errors at the cost of somewhat more incremental compile cost in certain cases.
 
 With these settings, we also will error on dependencies which are unneeded, and dependencies which should be included in `deps` due to be directly referenced in the code, but are not.
 
@@ -208,8 +208,10 @@ As one goes down the list, more dependencies are included which helps reduce con
     <li>javac outputs incorrect targets due to a problem we're tracing down. Practically we've noticed it's pretty trivial to understand the correct target (i.e. it's almost a formatting problem) </li>
   </ul>
 
+Note: the last two issues are bugs which will be addressed by [https://github.com/bazelbuild/rules_scala/issues/839].
+
 ### [Experimental] Strict deps mode
-We have a strict dependency checker which requires that any type referenced in a scala rule should be included in that rule's deps. To learn about the motivation for this you can visit this Bazel blog [post](https://blog.bazel.build/2017/06/28/sjd-unused_deps.html) on the subject.
+We have a strict dependency checker which requires that any type referenced in the sources of a scala target should be included in that rule's deps. To learn about the motivation for this you can visit this Bazel blog [post](https://blog.bazel.build/2017/06/28/sjd-unused_deps.html) on the subject.
 
 The option `strict_deps_mode` can be set to `off`, `warn`, or `error`. We highly recommend setting it to `error`.
 
