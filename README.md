@@ -197,7 +197,7 @@ There are three dependency modes. The reason for the multiple modes is that ofte
 - `dependency_mode = "plus-one"` - only include `deps` and `deps` of `deps` during compiliation.
 - `dependency_mode = "transitive"` - all transitive dependencies are included during compiliation. That is, `deps`, `deps` of `deps`, `deps` of `deps` of `deps`, and so on.
 
-Note when a dependency is included, that means its jar is included on the classpath, along with the jars of any rules that it exports.
+Note when a dependency is included, that means its jars are included on the classpath, along with the jars of any targets that it exports.
 
 When using `direct` mode, there can be cryptic `scalac` errors when one mistakenly depends on a transitive dependency or, as more often the case for some, a transitive dependency is needed to [please scalac](https://github.com/scalacenter/advisoryboard/blob/master/proposals/009-improve-direct-dependency-experience.md) itself.
 
