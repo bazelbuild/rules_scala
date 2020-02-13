@@ -3,7 +3,6 @@
 load(
     "@io_bazel_rules_scala//scala/private:dependency.bzl",
     "get_strict_deps_mode",
-    "is_strict_deps_on",
     "new_dependency_info",
 )
 load(
@@ -35,6 +34,8 @@ def _phase_dependency(
         p,
         unused_deps_always_off,
         strict_deps_always_off):
+    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"]
+
     if strict_deps_always_off:
         strict_deps_mode = "off"
     else:
@@ -52,25 +53,11 @@ def _phase_dependency(
         unused_deps_mode = "off"
 
     return new_dependency_info(
-        _get_dependency_mode(ctx),
+        toolchain.dependency_mode,
         unused_deps_mode,
         strict_deps_mode,
-        "high-level",
+        toolchain.dependency_tracking_method,
     )
-
-def _is_plus_one_deps_on(ctx):
-    return ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].plus_one_deps_mode != "off"
-
-def _get_dependency_mode(ctx):
-    if is_strict_deps_on(ctx):
-        # all transitive dependencies are included
-        return "transitive"
-    elif _is_plus_one_deps_on(ctx):
-        # dependencies and dependencies of dependencies are included
-        return "plus-one"
-    else:
-        # only explicitly-specified dependencies are included
-        return "direct"
 
 def _get_unused_deps_mode(ctx):
     if ctx.attr.unused_dependency_checker_mode:

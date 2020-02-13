@@ -65,7 +65,7 @@ test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message() {
 
   expected_message=$1
   test_target=$2
-  strict_deps_mode=$3
+  args=$3
   operator=${4:-"eq"}
   additional_expected_message=${5:-""}
 
@@ -75,7 +75,7 @@ test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message() {
     error_message="bazel build of scala_library with missing direct deps should not have failed."
   fi
 
-  command="bazel build ${test_target} ${strict_deps_mode}"
+  command="bazel build ${test_target} ${args}"
 
   output=$(${command} 2>&1)
   status_code=$?
