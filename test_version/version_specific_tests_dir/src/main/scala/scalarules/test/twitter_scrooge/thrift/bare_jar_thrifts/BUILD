@@ -1,3 +1,4 @@
+load("@rules_java//java:defs.bzl", "java_import")
 load("@io_bazel_rules_scala//thrift:thrift.bzl", "thrift_library")
 
 java_import(

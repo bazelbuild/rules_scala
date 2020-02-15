@@ -1,3 +1,4 @@
+load("@rules_java//java:defs.bzl", "java_import")
 load("//scala:scala.bzl", "scala_library", "scala_specs2_junit_test")
 load("//scala:scala_import.bzl", "scala_import")
 

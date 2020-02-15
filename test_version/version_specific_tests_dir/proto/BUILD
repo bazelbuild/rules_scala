@@ -1,3 +1,4 @@
+load("@rules_java//java:defs.bzl", "java_proto_library")
 load(
     "@io_bazel_rules_scala//scala_proto:scala_proto.bzl",
     "scala_proto_library",
