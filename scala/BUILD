@@ -1,3 +1,4 @@
+load("@rules_java//java:defs.bzl", "java_import", "java_library")
 load(
     "@io_bazel_rules_scala//scala:providers.bzl",
     _declare_scalac_provider = "declare_scalac_provider",

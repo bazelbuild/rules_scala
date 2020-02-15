@@ -1,3 +1,5 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_import", "java_library")
+
 package(default_testonly = 1)
 
 load(
