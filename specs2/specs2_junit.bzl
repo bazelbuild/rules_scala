@@ -42,7 +42,7 @@ def specs2_junit_repositories(
             major_version,
         ),
         artifact_sha256 = scala_jar_shas[major_version]["specs2_junit"],
-        deps = ["@io_bazel_rules_scala_org_specs2_specs2_core"]
+        deps = ["@io_bazel_rules_scala_org_specs2_specs2_core"],
         licenses = ["notice"],
         server_urls = maven_servers,
     )
