@@ -56,7 +56,7 @@ def specs2_repositories(
         artifact_sha256 = scala_version_jar_shas["specs2_core"],
         deps = [
             "@io_bazel_rules_scala_org_specs2_specs2_common",
-            "io_bazel_rules_scala_org_specs2_specs2_matcher",
+            "@io_bazel_rules_scala_org_specs2_specs2_matcher",
         ],
         licenses = ["notice"],
         server_urls = maven_servers,
