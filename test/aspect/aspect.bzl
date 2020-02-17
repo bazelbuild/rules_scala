@@ -57,8 +57,8 @@ def _rule_impl(ctx):
     }
     content = ""
     for target in ctx.attr.targets:
-        visited = sorted(target.visited)
-        expected = sorted(expected_deps[target.label.name])
+        visited = depset(sorted(target.visited)).to_list()
+        expected = depset(sorted(expected_deps[target.label.name])).to_list()
         if visited != expected:
             content += """
             echo Expected these deps from {name}: 1>&2
