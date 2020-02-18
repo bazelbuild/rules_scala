@@ -43,6 +43,10 @@ def _rule_impl(ctx):
             "@io_bazel_rules_scala_org_hamcrest_hamcrest_core//:io_bazel_rules_scala_org_hamcrest_hamcrest_core",
             # From specs2/specs2.bzl:specs2_dependencies()
             "@io_bazel_rules_scala//specs2:specs2",
+            "@io_bazel_rules_scala_org_specs2_specs2_common//:io_bazel_rules_scala_org_specs2_specs2_common",
+            "@io_bazel_rules_scala_org_specs2_specs2_core//:io_bazel_rules_scala_org_specs2_specs2_core",
+            "@io_bazel_rules_scala_org_specs2_specs2_fp//:io_bazel_rules_scala_org_specs2_specs2_fp",
+            "@io_bazel_rules_scala_org_specs2_specs2_matcher//:io_bazel_rules_scala_org_specs2_specs2_matcher",
             "@io_bazel_rules_scala_scala_xml//:io_bazel_rules_scala_scala_xml",
             "@io_bazel_rules_scala_scala_parser_combinators//:io_bazel_rules_scala_scala_parser_combinators",
             "@io_bazel_rules_scala_scala_library//:io_bazel_rules_scala_scala_library",
@@ -53,8 +57,8 @@ def _rule_impl(ctx):
     }
     content = ""
     for target in ctx.attr.targets:
-        visited = sorted(target.visited)
-        expected = sorted(expected_deps[target.label.name])
+        visited = depset(sorted(target.visited)).to_list()
+        expected = depset(sorted(expected_deps[target.label.name])).to_list()
         if visited != expected:
             content += """
             echo Expected these deps from {name}: 1>&2
