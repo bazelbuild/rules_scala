@@ -13,6 +13,10 @@ import third_party.utils.src.test.io.bazel.rulesscala.utils.TestUtil
  * dependencies. That is, for given scenarios, we want to make sure
  * that scalac requires the given set of dependencies; no more and
  * no less.
+ *
+ * To clarify: these tests do not reflect the end result of strict/unused
+ * deps as we are considering alternatives of how to mitigate scalac's
+ * limitations.
  */
 class ScalacDependencyTest extends FunSuite {
   private def withSandbox(action: Sandbox => Unit): Unit = {
