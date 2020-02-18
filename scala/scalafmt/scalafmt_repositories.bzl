@@ -23,8 +23,8 @@ def _default_scala_extra_jars():
     return {
         "2.11": {
             "org_scalameta_common": {
-                "version": "4.2.0",
-                "sha256": "c2921b10ef2a06cafa48d4e0a6be4ff42c9135b5c5cf51ec3fdd9b66077f66cb",
+                "version": "4.3.0",
+                "sha256": "6330798bcbd78d14d371202749f32efda0465c3be5fd057a6055a67e21335ba0",
             },
             "org_scalameta_fastparse": {
                 "version": "1.0.1",
@@ -34,25 +34,29 @@ def _default_scala_extra_jars():
                 "version": "1.0.1",
                 "sha256": "93f58db540e53178a686621f7a9c401307a529b68e051e38804394a2a86cea94",
             },
+            "org_scala_lang_modules_scala_collection_compat": {
+                "version": "2.1.2",
+                "sha256": "e9667b8b7276aeb42599f536fe4d7caab06eabc55e9995572267ad60c7a11c8b",
+            },
             "org_scalameta_parsers": {
-                "version": "4.2.0",
-                "sha256": "acde4faa648c61f1d76f7a1152116738c0b0b80ae2fab8ceae83c061c29aadf1",
+                "version": "4.3.0",
+                "sha256": "724382abfac27b32dec6c21210562bc7e1b09b5268ccb704abe66dcc8844beeb",
             },
             "org_scalameta_scalafmt_core": {
-                "version": "2.0.0",
-                "sha256": "84bac5ed8c85e61851ef427f045b7bfd149d857cb543b41c85b8353fb8c47aff",
+                "version": "2.3.2",
+                "sha256": "6bf391e0e1d7369fda83ddaf7be4d267bf4cbccdf2cc31ff941999a78c30e67f",
             },
             "org_scalameta_scalameta": {
-                "version": "4.2.0",
-                "sha256": "b56038c03fcad7397c571fbbc44562a3231e275aedc7a6ad15163ddcdfaed61a",
+                "version": "4.3.0",
+                "sha256": "94fe739295447cd3ae877c279ccde1def06baea02d9c76a504dda23de1d90516",
             },
             "org_scalameta_trees": {
-                "version": "4.2.0",
-                "sha256": "7daf84bd9a66257e42900ac940bd6df2037f09d33ca93e619ee37377d10ee34a",
+                "version": "4.3.0",
+                "sha256": "d24d5d63d8deafe646d455c822593a66adc6fdf17c8373754a3834a6e92a8a72",
             },
             "org_typelevel_paiges_core": {
-                "version": "0.2.0",
-                "sha256": "dec1b60448c9ac7bd4a55a4fcf68e0ce6e202d0fad1a896d4501c3ebd8052b2d",
+                "version": "0.2.4",
+                "sha256": "aa66fbe0457ca5cb5b9e522d4cb873623bb376a2e1ff58c464b5194c1d87c241",
             },
             "org_scala_lang_scalap": {
                 "version": "2.11.12",
@@ -79,22 +83,22 @@ def _default_scala_extra_jars():
                 "sha256": "fb5e4921e7dff734d049e752a482d3a031380d3eea5caa76c991312dee9e6991",
             },
             "com_lihaoyi_sourcecode": {
-                "version": "0.1.4",
-                "sha256": "e0edffec93ddef29c40b7c65580960062a3fa9d781eddb8c64e19e707c4a8e7c",
+                "version": "0.1.7",
+                "sha256": "33516d7fd9411f74f05acfd5274e1b1889b7841d1993736118803fc727b2d5fc",
             },
             "com_geirsson_metaconfig_core": {
-                "version": "0.8.3",
-                "sha256": "8abb4e48507486d0b323b440bb021bddd56366e502002025fdaf10025d2650c2",
+                "version": "0.9.4",
+                "sha256": "5d5704a1f1c4f74aed26248eeb9b577274d570b167cec0bf51d2908609c29118",
             },
             "com_geirsson_metaconfig_typesafe_config": {
-                "version": "0.8.3",
-                "sha256": "410c29b2ebc842591627588d8980df507dc0eb48a0a7df312fa529fa0fe90d42",
+                "version": "0.9.4",
+                "sha256": "52d2913640f4592402aeb2f0cec5004893d02acf26df4aa1cf8d4dcb0d2b21c7",
             },
         },
         "2.12": {
             "org_scalameta_common": {
-                "version": "4.2.0",
-                "sha256": "6af050ec30d42bce48f9824aeb90de6ae7a8de30c400d7bfa678c91cbb12b80c",
+                "version": "4.3.0",
+                "sha256": "3bdb2ff71d3e86f94b4d31d2c40442f533655860749a92fd17e1f29b8deb8baa",
             },
             "org_scalameta_fastparse": {
                 "version": "1.0.1",
@@ -104,25 +108,29 @@ def _default_scala_extra_jars():
                 "version": "1.0.1",
                 "sha256": "9d8ad97778ef9aedef5d4190879ed0ec54969e2fc951576fe18746ae6ce6cfcf",
             },
+            "org_scala_lang_modules_scala_collection_compat": {
+                "version": "2.1.2",
+                "sha256": "8aab3e1f9dd7bc392a2e27cf168af94fdc7cc2752131fc852192302fb21efdb4",
+            },
             "org_scalameta_parsers": {
-                "version": "4.2.0",
-                "sha256": "9dc726dab95870b193dee3ed4d11985fa38ca09640768a7c86d8f80c715c5567",
+                "version": "4.3.0",
+                "sha256": "d9f87d03b6b5e942f263db6dab75937493bfcb0fe7cfe2cda6567bf30f23ff3a",
             },
             "org_scalameta_scalafmt_core": {
-                "version": "2.0.0",
-                "sha256": "02562f176a7d070230ef2da6192f2d15afd62ea173eaf8ca02a7afb89262d233",
+                "version": "2.3.2",
+                "sha256": "4788e2045e99f4624162d3182016a05032a7ab1324c4a28af433aa070f916773",
             },
             "org_scalameta_scalameta": {
-                "version": "4.2.0",
-                "sha256": "e5eabc44577f14a4bc312e5b5844592d2d53b3971d08f13974de5991ed5897f7",
+                "version": "4.3.0",
+                "sha256": "4d9487b434cbe9d89033824a4fc902dc7c782eea94961e8575df91ae96b10d6a",
             },
             "org_scalameta_trees": {
-                "version": "4.2.0",
-                "sha256": "af09f59540b53504686d9975dc05474dc9c3cc6dca95f7609f910929c1a33001",
+                "version": "4.3.0",
+                "sha256": "020b53681dd8e148d74ffa282276994bcb0f06c3425fb9a4bb9f8d161e22187a",
             },
             "org_typelevel_paiges_core": {
-                "version": "0.2.0",
-                "sha256": "0051e89bfcb1efd0498c6a95cb1583bc1d097230da9627da76de0b416692e703",
+                "version": "0.2.4",
+                "sha256": "594ca130526023e80549484e45400d09810fa39d9fd6b4663830a00be2a8556a",
             },
             "org_scala_lang_scalap": {
                 "version": "2.12.10",
@@ -149,16 +157,16 @@ def _default_scala_extra_jars():
                 "sha256": "2e18aa0884870537bf5c562255fc759d4ebe360882b5cb2141b30eda4034c71d",
             },
             "com_lihaoyi_sourcecode": {
-                "version": "0.1.4",
-                "sha256": "9a3134484e596205d0acdcccd260e0854346f266cb4d24e1b8a31be54fbaf6d9",
+                "version": "0.1.7",
+                "sha256": "f07d79f0751ac275cc09b92caf3618f0118d153da7868b8f0c9397ce93c5f926",
             },
             "com_geirsson_metaconfig_core": {
-                "version": "0.8.3",
-                "sha256": "495817d90ecb4c432ee0afa7e79b4d005e6a6f90a270e113e15fe7d2d5559dfd",
+                "version": "0.9.4",
+                "sha256": "970b3d74fc9b2982d9fb31d93f460000b41fff21c0b9d9ef9476ed333a010b2a",
             },
             "com_geirsson_metaconfig_typesafe_config": {
-                "version": "0.8.3",
-                "sha256": "d9eed8472acbd4508ab25ca7bb78f1931d1d34729dfefc5f5f4c6a6e5c0aa47f",
+                "version": "0.9.4",
+                "sha256": "3165f30a85d91de7f8ba714e685a6b822bd1cbb365946f5d708163725df3ef5d",
             },
         },
     }
@@ -225,6 +233,21 @@ def scalafmt_repositories(
     )
 
     _scala_maven_import_external(
+        name = "org_scala_lang_modules_scala_collection_compat",
+        artifact = "org.scala-lang.modules:scala-collection-compat_{major_version}:{extra_jar_version}".format(
+            major_version = major_version,
+            extra_jar_version = scala_version_extra_jars["org_scala_lang_modules_scala_collection_compat"]["version"],
+        ),
+        artifact_sha256 = scala_version_extra_jars["org_scala_lang_modules_scala_collection_compat"]["sha256"],
+        fetch_sources = True,
+        licenses = ["notice"],  # Apache 2.0
+        deps = [
+            "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+        ],
+        server_urls = maven_servers,
+    )
+
+    _scala_maven_import_external(
         name = "org_scalameta_parsers",
         artifact = "org.scalameta:parsers_{major_version}:{extra_jar_version}".format(
             major_version = major_version,
@@ -255,6 +278,7 @@ def scalafmt_repositories(
             "//external:io_bazel_rules_scala/dependency/scala/scala_library",
             "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
             "@org_scalameta_scalameta",
+            "@org_scala_lang_modules_scala_collection_compat",
         ],
         server_urls = maven_servers,
     )
@@ -452,6 +476,7 @@ def scalafmt_repositories(
             "@com_lihaoyi_pprint",
             "//external:io_bazel_rules_scala/dependency/scala/scala_library",
             "@org_typelevel_paiges_core",
+            "@org_scala_lang_modules_scala_collection_compat",
         ],
         server_urls = maven_servers,
     )
@@ -469,6 +494,7 @@ def scalafmt_repositories(
             "@com_geirsson_metaconfig_core",
             "@com_typesafe_config",
             "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+            "@org_scala_lang_modules_scala_collection_compat",
         ],
         server_urls = maven_servers,
     )
