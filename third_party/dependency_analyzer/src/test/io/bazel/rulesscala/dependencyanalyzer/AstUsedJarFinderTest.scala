@@ -293,6 +293,14 @@ class AstUsedJarFinderTest extends FunSuite {
     )
   }
 
+  test("static annotation of inherited class is indirect") {
+    checkIndirectDependencyDetected(
+      aCode = "class A extends scala.annotation.StaticAnnotation",
+      bCode = "@A class B",
+      cCode = "class C extends B"
+    )
+  }
+
   test("class type parameter bound is direct") {
     checkDirectDependencyRecognized(
       aCode =
