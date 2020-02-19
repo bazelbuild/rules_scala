@@ -88,7 +88,7 @@ public final class Worker {
 	    } else {
 		args = workerArgs;
 	    }
-	    workerInterface.work(workerArgs);
+	    workerInterface.work(args);
 	}
     }
 
