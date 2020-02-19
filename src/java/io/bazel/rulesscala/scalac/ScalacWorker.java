@@ -1,8 +1,7 @@
 package io.bazel.rulesscala.scalac;
 
 import io.bazel.rulesscala.jar.JarCreator;
-import io.bazel.rulesscala.worker.GenericWorker;
-import io.bazel.rulesscala.worker.Processor;
+import io.bazel.rulesscala.worker.Worker;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -28,7 +27,7 @@ import scala.tools.nsc.Driver;
 import scala.tools.nsc.MainClass;
 import scala.tools.nsc.reporters.ConsoleReporter;
 
-class ScalacProcessor implements Processor {
+class ScalacWorker implements Worker.Interface {
   private static boolean isWindows = System.getProperty("os.name").toLowerCase().contains("windows");
 
   /** This is the reporter field for scalac, which we want to access */
@@ -43,11 +42,15 @@ class ScalacProcessor implements Processor {
     }
   }
 
+  public static void main(String args[]) throws Exception {
+    Worker.workerMain(args, new ScalacWorker());
+  }
+
   @Override
-  public void processRequest(List<String> args) throws Exception {
+  public void work(String[] args) throws Exception {
     Path tmpPath = null;
     try {
-      CompileOptions ops = new CompileOptions(args);
+      CompileOptions ops = new CompileOptions(Arrays.asList(args));
 
       Path outputPath = FileSystems.getDefault().getPath(ops.outputName);
       tmpPath = Files.createTempDirectory(outputPath.getParent(), "tmp");
@@ -63,7 +66,7 @@ class ScalacProcessor implements Processor {
 
       String[] scalaSources = collectSrcJarSources(ops.files, scalaJarFiles, javaJarFiles);
 
-      String[] javaSources = GenericWorker.appendToString(ops.javaFiles, javaJarFiles);
+      String[] javaSources = appendToString(ops.javaFiles, javaJarFiles);
       if (scalaSources.length == 0 && javaSources.length == 0) {
         throw new RuntimeException("Must have input files from either source jars or local files.");
       }
@@ -95,8 +98,8 @@ class ScalacProcessor implements Processor {
 
   private static String[] collectSrcJarSources(
       String[] files, List<File> scalaJarFiles, List<File> javaJarFiles) {
-    String[] scalaSources = GenericWorker.appendToString(files, scalaJarFiles);
-    return GenericWorker.appendToString(scalaSources, javaJarFiles);
+    String[] scalaSources = appendToString(files, scalaJarFiles);
+    return appendToString(scalaSources, javaJarFiles);
   }
 
   private static List<File> filterFilesByExtension(List<File> files, String extension) {
@@ -166,7 +169,7 @@ class ScalacProcessor implements Processor {
   }
 
   private static String[] encodeBazelTargets(String[] targets) {
-    return Arrays.stream(targets).map(ScalacProcessor::encodeBazelTarget).toArray(String[]::new);
+    return Arrays.stream(targets).map(ScalacWorker::encodeBazelTarget).toArray(String[]::new);
   }
 
   private static String encodeBazelTarget(String target) {
@@ -223,7 +226,7 @@ class ScalacProcessor implements Processor {
     String[] constParams = {"-classpath", ops.classpath, "-d", tmpPath.toString()};
 
     String[] compilerArgs =
-        GenericWorker.merge(ops.scalaOpts, ops.pluginArgs, constParams, pluginParams, scalaSources);
+        merge(ops.scalaOpts, ops.pluginArgs, constParams, pluginParams, scalaSources);
 
     MainClass comp = new MainClass();
     long start = System.currentTimeMillis();
@@ -311,5 +314,31 @@ class ScalacProcessor implements Processor {
     for (String jarPath : resourceJars) {
       extractJar(jarPath, dest.toString(), null);
     }
+  }
+
+  private static <T> String[] appendToString(String[] init, List<T> rest) {
+    String[] tmp = new String[init.length + rest.size()];
+    System.arraycopy(init, 0, tmp, 0, init.length);
+    int baseIdx = init.length;
+    for (T t : rest) {
+      tmp[baseIdx] = t.toString();
+      baseIdx += 1;
+    }
+    return tmp;
+  }
+
+  private static String[] merge(String[]... arrays) {
+    int totalLength = 0;
+    for (String[] arr : arrays) {
+      totalLength += arr.length;
+    }
+
+    String[] result = new String[totalLength];
+    int offset = 0;
+    for (String[] arr : arrays) {
+      System.arraycopy(arr, 0, result, offset, arr.length);
+      offset += arr.length;
+    }
+    return result;
   }
 }

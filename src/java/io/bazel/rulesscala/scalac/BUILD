@@ -17,7 +17,7 @@ java_binary(
         "-source 1.8",
         "-target 1.8",
     ],
-    main_class = "io.bazel.rulesscala.scalac.ScalaCInvoker",
+    main_class = "io.bazel.rulesscala.scalac.ScalacWorker",
     visibility = ["//visibility:public"],
     deps = [
         ":exported_scalac_repositories_from_toolchain_to_jvm",
@@ -33,8 +33,7 @@ filegroup(
     srcs = [
         "CompileOptions.java",
         "Resource.java",
-        "ScalaCInvoker.java",
-        "ScalacProcessor.java",
+        "ScalacWorker.java",
     ],
     visibility = ["//visibility:public"],
 )

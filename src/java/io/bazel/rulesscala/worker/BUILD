@@ -1,12 +1,7 @@
-load("@rules_java//java:defs.bzl", "java_library")
-
 java_library(
     name = "worker",
-    srcs = [
-        "GenericWorker.java",
-        "Processor.java",
-    ],
-    visibility = ["//visibility:public"],
+    srcs = ["Worker.java"],
+    visibility = ["//:__subpackages__"],
     deps = [
         "//third_party/bazel/src/main/protobuf:worker_protocol_java_proto",
     ],
