@@ -27,12 +27,12 @@ import org.jacoco.core.runtime.OfflineInstrumentationAccessGenerator;
 
 public final class JacocoInstrumenter implements Worker.Interface {
 
-    public static void main(String args[]) throws Exception {
+    public static void main(String[] args) throws Exception {
 	Worker.workerMain(args, new JacocoInstrumenter());
     }
 
     @Override
-    public void work(String args[]) throws Exception {
+    public void work(String[] args) throws Exception {
         Instrumenter jacoco = new Instrumenter(new OfflineInstrumentationAccessGenerator());
         for (String arg : args) {
             processArg(jacoco, arg);

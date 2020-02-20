@@ -24,7 +24,7 @@ import com.google.devtools.build.lib.worker.WorkerProtocol;
 public final class Worker {
 
     public static interface Interface {
-	public void work(String args[]) throws Exception;
+	public void work(String[] args) throws Exception;
     }
 
     public static void workerMain(String workerArgs[], Interface workerInterface) throws Exception {
