@@ -51,7 +51,9 @@ public final class Worker {
 	ByteArrayOutputStream outStream = new SmartByteArrayOutputStream();
 	PrintStream out = new PrintStream(outStream);
 
+	// We can't support stdin, so assign it to read from an empty buffer
 	System.setIn(new ByteArrayInputStream(new byte[0]));
+
 	System.setOut(out);
 	System.setErr(out);
 
