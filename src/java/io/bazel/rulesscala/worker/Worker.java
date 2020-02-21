@@ -42,7 +42,7 @@ public final class Worker {
 	    InputStream stdin = System.in;
 	    PrintStream stdout = System.out;
 	    PrintStream stderr = System.err;
-	    ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+	    ByteArrayOutputStream outStream = new SmartByteArrayOutputStream();
 	    PrintStream out = new PrintStream(outStream);
 
 	    System.setIn(new ByteArrayInputStream(new byte[0]));
@@ -89,6 +89,36 @@ public final class Worker {
 		args = workerArgs;
 	    }
 	    workerInterface.work(args);
+	}
+    }
+
+    /** A ByteArrayOutputStream that sometimes shrinks its internal
+     * buffer during calls to `reset`.
+     *
+     * In contrast, a regular ByteArrayOutputStream will only ever
+     * grow its internal buffer.
+     *
+     * For an example of subclassing a ByteArrayOutputStream, see
+     * Spring's ResizableByteArrayOutputStream:
+     * https://github.com/spring-projects/spring-framework/blob/master/spring-core/src/main/java/org/springframework/util/ResizableByteArrayOutputStream.java
+     */
+    private static class SmartByteArrayOutputStream extends ByteArrayOutputStream {
+	// ByteArrayOutputStream's defualt Size is 32, which is extremely small
+	// to capture stdout from any worker process. We choose a larger default.
+	private static final int DEFAULT_SIZE = 256;
+
+	public SmartByteArrayOutputStream() {
+	    super(DEFAULT_SIZE);
+	}
+
+	@Override
+	public void reset() {
+	    super.reset();
+	    // reallocate our internal buffer if we've gone over our
+	    // desired idle size
+	    if (this.buf.length > DEFAULT_SIZE) {
+		this.buf = new byte[DEFAULT_SIZE];
+	    }
 	}
     }
 
