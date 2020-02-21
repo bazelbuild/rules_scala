@@ -29,68 +29,75 @@ public final class Worker {
 
     public static void workerMain(String workerArgs[], Interface workerInterface) throws Exception {
 	if (workerArgs.length > 0 && workerArgs[0].equals("--persistent_worker")) {
-
-	    System.setSecurityManager(new SecurityManager() {
-		    @Override
-		    public void checkPermission(Permission permission) {
-			Matcher matcher = exitPattern.matcher(permission.getName());
-			if (matcher.find())
-			    throw new ExitTrapped(Integer.parseInt(matcher.group(1)));
-		    }
-		});
-
-	    InputStream stdin = System.in;
-	    PrintStream stdout = System.out;
-	    PrintStream stderr = System.err;
-	    ByteArrayOutputStream outStream = new SmartByteArrayOutputStream();
-	    PrintStream out = new PrintStream(outStream);
-
-	    System.setIn(new ByteArrayInputStream(new byte[0]));
-	    System.setOut(out);
-	    System.setErr(out);
-
-	    try {
-		while (true) {
-		    WorkerProtocol.WorkRequest request =
-			WorkerProtocol.WorkRequest.parseDelimitedFrom(stdin);
-
-		    int code = 0;
-
-		    try {
-			workerInterface.work(stringListToArray(request.getArgumentsList()));
-		    } catch (ExitTrapped e) {
-			code = e.code;
-		    } catch (Exception e) {
-			System.err.println(e.getMessage());
-			e.printStackTrace();
-			code = 1;
-		    }
-
-		    WorkerProtocol.WorkResponse.newBuilder()
-			.setOutput(outStream.toString())
-			.setExitCode(code)
-			.build()
-			.writeDelimitedTo(stdout);
-
-		    out.flush();
-		    outStream.reset();
-		    System.gc();
-		}
-	    } catch (IOException e) {
-	    } finally {
-		System.setIn(stdin);
-		System.setOut(stdout);
-		System.setErr(stderr);
-	    }
+	    persistentWorkerMain(workerInterface);
 	} else {
-	    String[] args;
-	    if (workerArgs.length == 1 && workerArgs[0].startsWith("@")) {
-		args = stringListToArray(Files.readAllLines(Paths.get(workerArgs[0].substring(1)), StandardCharsets.UTF_8));
-	    } else {
-		args = workerArgs;
-	    }
-	    workerInterface.work(args);
+	    ephemeralWorkerMain(workerArgs, workerInterface);
 	}
+    }
+
+    private static void persistentWorkerMain(Interface workerInterface) throws Exception {
+	System.setSecurityManager(new SecurityManager() {
+		@Override
+		public void checkPermission(Permission permission) {
+		    Matcher matcher = exitPattern.matcher(permission.getName());
+		    if (matcher.find())
+			throw new ExitTrapped(Integer.parseInt(matcher.group(1)));
+		}
+	    });
+
+	InputStream stdin = System.in;
+	PrintStream stdout = System.out;
+	PrintStream stderr = System.err;
+	ByteArrayOutputStream outStream = new SmartByteArrayOutputStream();
+	PrintStream out = new PrintStream(outStream);
+
+	System.setIn(new ByteArrayInputStream(new byte[0]));
+	System.setOut(out);
+	System.setErr(out);
+
+	try {
+	    while (true) {
+		WorkerProtocol.WorkRequest request =
+		    WorkerProtocol.WorkRequest.parseDelimitedFrom(stdin);
+
+		int code = 0;
+
+		try {
+		    workerInterface.work(stringListToArray(request.getArgumentsList()));
+		} catch (ExitTrapped e) {
+		    code = e.code;
+		} catch (Exception e) {
+		    System.err.println(e.getMessage());
+		    e.printStackTrace();
+		    code = 1;
+		}
+
+		WorkerProtocol.WorkResponse.newBuilder()
+		    .setOutput(outStream.toString())
+		    .setExitCode(code)
+		    .build()
+		    .writeDelimitedTo(stdout);
+
+		out.flush();
+		outStream.reset();
+		System.gc();
+	    }
+	} catch (IOException e) {
+	} finally {
+	    System.setIn(stdin);
+	    System.setOut(stdout);
+	    System.setErr(stderr);
+	}
+    }
+
+    private static void ephemeralWorkerMain(String workerArgs[], Interface workerInterface) throws Exception {
+	String[] args;
+	if (workerArgs.length == 1 && workerArgs[0].startsWith("@")) {
+	    args = stringListToArray(Files.readAllLines(Paths.get(workerArgs[0].substring(1)), StandardCharsets.UTF_8));
+	} else {
+	    args = workerArgs;
+	}
+	workerInterface.work(args);
     }
 
     /** A ByteArrayOutputStream that sometimes shrinks its internal
