@@ -6,3 +6,14 @@ java_library(
         "//third_party/bazel/src/main/protobuf:worker_protocol_java_proto",
     ],
 )
+
+java_test(
+    name = "worker_test",
+    srcs = [
+        "WorkerTest.java",
+    ],
+    test_class = "io.bazel.rulesscala.worker.WorkerTest",
+    deps = [
+        ":worker",
+    ],
+)
