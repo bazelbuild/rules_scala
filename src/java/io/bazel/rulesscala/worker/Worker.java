@@ -74,6 +74,7 @@ public final class Worker {
 
 		    out.flush();
 		    outStream.reset();
+		    System.gc();
 		}
 	    } catch (IOException e) {
 	    } finally {
