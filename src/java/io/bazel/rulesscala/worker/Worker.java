@@ -62,6 +62,10 @@ public final class Worker {
 		WorkerProtocol.WorkRequest request =
 		    WorkerProtocol.WorkRequest.parseDelimitedFrom(stdin);
 
+		if (request == null) {
+		    break;
+		}
+
 		int code = 0;
 
 		try {
@@ -136,7 +140,7 @@ public final class Worker {
 	}
     }
 
-    private static class ExitTrapped extends RuntimeException {
+    static class ExitTrapped extends RuntimeException {
 	final int code;
 	ExitTrapped(int code) {
 	    super();
