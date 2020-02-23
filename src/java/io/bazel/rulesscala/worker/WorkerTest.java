@@ -31,7 +31,6 @@ public class WorkerTest {
 	    }
 	};
 
-	// we expect ephemeral workers to just exit normally
 	int code = assertThrows(Worker.ExitTrapped.class, () ->
 	    Worker.workerMain(new String[]{}, worker)).code;
 
@@ -42,8 +41,8 @@ public class WorkerTest {
     public void testPersistentWorkerSystemExit() throws Exception {
 
 	// We're going to spin up a persistent worker and run a single
-	// work request. We expect System exists to impact the worker
-	// request lifecycle without exiting the overall worker
+	// work request. We expect System.exit calls to impact the
+	// worker request lifecycle without exiting the overall worker
 	// process.
 
 	Worker.Interface worker = new Worker.Interface() {
@@ -51,32 +50,33 @@ public class WorkerTest {
 	    public void work(String[] args) {
 		// we should see this print statement
 		System.out.println("before exit");
-		System.exit(99);
+		System.exit(100);
 		// we should not see this print statement
 		System.out.println("after exit");
 	    }
 	};
 
 	try (
-	    PipedInputStream in = new PipedInputStream();
-	    PipedOutputStream outToIn = new PipedOutputStream(in);
+	    PipedInputStream workerIn = new PipedInputStream();
+	    PipedOutputStream outToWorkerIn = new PipedOutputStream(workerIn);
 
-	    ByteArrayOutputStream out = new ByteArrayOutputStream();
+	    PipedOutputStream workerOut = new PipedOutputStream();
+	    PipedInputStream inFromWorkerOut = new PipedInputStream(workerOut);
 	) {
 
 	    InputStream stdin = System.in;
 	    PrintStream stdout = System.out;
 	    PrintStream stderr = System.err;
 
-	    System.setIn(in);
-	    System.setOut(new PrintStream(out));
+	    System.setIn(workerIn);
+	    System.setOut(new PrintStream(workerOut));
 
 	    WorkerProtocol.WorkRequest.newBuilder()
 	        .build()
-		.writeDelimitedTo(outToIn);
+		.writeDelimitedTo(outToWorkerIn);
 
 	    // otherwise the worker will poll indefinitely
-	    outToIn.close();
+	    outToWorkerIn.close();
 
 	    Worker.workerMain(new String[]{"--persistent_worker"}, worker);
 
@@ -84,11 +84,12 @@ public class WorkerTest {
 	    System.setOut(stdout);
 	    System.setErr(stderr);
 
-	    String outString = out.toString("UTF-8");
-	    // check to make sure the before statement printed
-	    assert(outString.contains("before"));
-	    // check to make sure the after statement did not print
-	    assert(!outString.contains("after"));
+	    WorkerProtocol.WorkResponse response =
+		WorkerProtocol.WorkResponse.parseDelimitedFrom(inFromWorkerOut);
+
+	    assert(response.getOutput().contains("before"));
+	    assert(response.getExitCode() == 100);
+	    assert(!response.getOutput().contains("after"));
 	}
     }
 
