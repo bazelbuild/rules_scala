@@ -21,6 +21,15 @@ import java.util.stream.Stream;
 
 import com.google.devtools.build.lib.worker.WorkerProtocol;
 
+/** A base for JVM workers.
+ *
+ * This supports regular workers as well as persisent workers. It
+ * does not (yet) support multiplexed workers.
+ *
+ * Worker implementations should implement the `Worker.Interface`
+ * interface and provide a main method that calls `Worker.workerMain`.
+ *
+ */
 public final class Worker {
 
     public static interface Interface {
@@ -90,8 +99,8 @@ public final class Worker {
 		    }
 
 		    WorkerProtocol.WorkResponse.newBuilder()
-			.setOutput(outStream.toString())
 			.setExitCode(code)
+			.setOutput(outStream.toString())
 			.build()
 			.writeDelimitedTo(stdout);
 
