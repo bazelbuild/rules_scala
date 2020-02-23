@@ -27,6 +27,11 @@ public final class Worker {
 	public void work(String[] args) throws Exception;
     }
 
+    /** The entry point for all workers.
+     *
+     * This should be the only thing called by a main method in a
+     * worker process.
+     */
     public static void workerMain(String workerArgs[], Interface workerInterface) throws Exception {
 	if (workerArgs.length > 0 && workerArgs[0].equals("--persistent_worker")) {
 	    persistentWorkerMain(workerInterface);
@@ -35,6 +40,7 @@ public final class Worker {
 	}
     }
 
+    /** The main loop for persistent worker processes */
     private static void persistentWorkerMain(Interface workerInterface) {
 	System.setSecurityManager(new SecurityManager() {
 		@Override
@@ -105,6 +111,8 @@ public final class Worker {
 	}
     }
 
+    /** The single pass runner for ephemeral (non-persistent) worker
+     * processes */
     private static void ephemeralWorkerMain(String workerArgs[], Interface workerInterface) throws Exception {
 	String[] args;
 	if (workerArgs.length == 1 && workerArgs[0].startsWith("@")) {
