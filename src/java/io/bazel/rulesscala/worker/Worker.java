@@ -35,7 +35,7 @@ public final class Worker {
 	}
     }
 
-    private static void persistentWorkerMain(Interface workerInterface) throws Exception {
+    private static void persistentWorkerMain(Interface workerInterface) {
 	System.setSecurityManager(new SecurityManager() {
 		@Override
 		public void checkPermission(Permission permission) {
@@ -59,36 +59,45 @@ public final class Worker {
 
 	try {
 	    while (true) {
-		WorkerProtocol.WorkRequest request =
-		    WorkerProtocol.WorkRequest.parseDelimitedFrom(stdin);
-
-		if (request == null) {
-		    break;
-		}
-
-		int code = 0;
-
 		try {
-		    workerInterface.work(stringListToArray(request.getArgumentsList()));
-		} catch (ExitTrapped e) {
-		    code = e.code;
-		} catch (Exception e) {
-		    System.err.println(e.getMessage());
-		    e.printStackTrace();
-		    code = 1;
+		    WorkerProtocol.WorkRequest request =
+			WorkerProtocol.WorkRequest.parseDelimitedFrom(stdin);
+
+		    // The request will be null if stdin is closed.  We're
+		    // not sure if this happens in TheRealWorld™ but it is
+		    // useful for testing (to shut down a persistent
+		    // worker process).
+		    if (request == null) {
+			break;
+		    }
+
+		    int code = 0;
+
+		    try {
+			workerInterface.work(stringListToArray(request.getArgumentsList()));
+		    } catch (ExitTrapped e) {
+			code = e.code;
+		    } catch (Exception e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+			code = 1;
+		    }
+
+		    WorkerProtocol.WorkResponse.newBuilder()
+			.setOutput(outStream.toString())
+			.setExitCode(code)
+			.build()
+			.writeDelimitedTo(stdout);
+
+		} catch (IOException e) {
+		    // for now we swallow IOExceptions when
+		    // reading/writing proto
+		} finally {
+		    out.flush();
+		    outStream.reset();
+		    System.gc();
 		}
-
-		WorkerProtocol.WorkResponse.newBuilder()
-		    .setOutput(outStream.toString())
-		    .setExitCode(code)
-		    .build()
-		    .writeDelimitedTo(stdout);
-
-		out.flush();
-		outStream.reset();
-		System.gc();
 	    }
-	} catch (IOException e) {
 	} finally {
 	    System.setIn(stdin);
 	    System.setOut(stdout);
