@@ -36,8 +36,11 @@ def _phase_coverage(ctx, p, srcjars):
         output_jar = ctx.actions.declare_file(
             "{}-offline.jar".format(input_jar.basename.split(".")[0]),
         )
+        srcs_paths = []
+        for src in ctx.files.srcs: 
+            srcs_paths = srcs_paths + [src.path]
         in_out_pairs = [
-            (input_jar, output_jar),
+            (input_jar, output_jar, srcs_paths),
         ]
 
         args = ctx.actions.args()
@@ -54,7 +57,7 @@ def _phase_coverage(ctx, p, srcjars):
             arguments = [args],
         )
 
-        replacements = {i: o for (i, o) in in_out_pairs}
+        replacements = {i: o for (i, o, _) in in_out_pairs}
         provider = _coverage_replacements_provider.create(
             replacements = replacements,
         )
@@ -73,4 +76,4 @@ def _phase_coverage(ctx, p, srcjars):
         )
 
 def _jacoco_offline_instrument_format_each(in_out_pair):
-    return (["%s=%s" % (in_out_pair[0].path, in_out_pair[1].path)])
+    return (["%s=%s=%s" % (in_out_pair[0].path, in_out_pair[1].path, ",".join(in_out_pair[2]))])

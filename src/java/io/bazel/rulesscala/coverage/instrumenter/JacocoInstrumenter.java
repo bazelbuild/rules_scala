@@ -52,16 +52,17 @@ public final class JacocoInstrumenter implements Processor {
 
     private void processArg(Instrumenter jacoco, String arg) throws Exception {
         String[] parts = arg.split("=");
-        if (parts.length != 2) {
-            throw new Exception("expected `in_path=out_path` form for argument: " + arg);
+        if (parts.length != 3) {
+            throw new Exception("expected `in_path=out_path=srcs` form for argument: " + arg);	
         }
         Path inPath = Paths.get(parts[0]);
         Path outPath = Paths.get(parts[1]);
+        String srcs = parts[2];
         try (
             FileSystem inFS = FileSystems.newFileSystem(inPath, null); FileSystem outFS = FileSystems.newFileSystem(
                 URI.create("jar:" + outPath.toUri()), Collections.singletonMap("create", "true"));
         ) {
-            FileVisitor fileVisitor = createInstrumenterVisitor(jacoco, outFS);
+            FileVisitor fileVisitor = createInstrumenterVisitor(jacoco, outFS, srcs);
             inFS.getRootDirectories().forEach(root -> {
                 try {
                     Files.walkFileTree(root, fileVisitor);
@@ -72,18 +73,18 @@ public final class JacocoInstrumenter implements Processor {
         }
     }
 
-    private SimpleFileVisitor createInstrumenterVisitor(Instrumenter jacoco, FileSystem outFS) {
+    private SimpleFileVisitor createInstrumenterVisitor(Instrumenter jacoco, FileSystem outFS, String srcs) {
         return new SimpleFileVisitor <Path> () {
             @Override
             public FileVisitResult visitFile(Path inPath, BasicFileAttributes attrs) {
                 try {
-                    return actuallyVisitFile(inPath, attrs);
+                    return actuallyVisitFile(inPath, attrs, srcs);
                 } catch (final Exception e) {
                     throw new RuntimeException(e);
                 }
             }
 
-            private FileVisitResult actuallyVisitFile(Path inPath, BasicFileAttributes attrs) throws Exception {
+            private FileVisitResult actuallyVisitFile(Path inPath, BasicFileAttributes attrs, String srcs) throws Exception {
                 Path outPath = outFS.getPath(inPath.toString());
                 Files.createDirectories(outPath.getParent());
                 if (inPath.toString().endsWith(".class")) {
@@ -97,6 +98,13 @@ public final class JacocoInstrumenter implements Processor {
                     Files.copy(inPath, outFS.getPath(outPath.toString() + ".uninstrumented"));
                 } else {
                     Files.copy(inPath, outPath);
+                }
+
+                if(outPath.toString().endsWith(".class")) { 
+                    Files.write(
+                        outFS.getPath((outPath.toString() + "-paths-for-coverage.txt")),
+                        srcs.replace(",", "\n").getBytes(java.nio.charset.StandardCharsets.UTF_8)
+                    );
                 }
                 return FileVisitResult.CONTINUE;
             }
