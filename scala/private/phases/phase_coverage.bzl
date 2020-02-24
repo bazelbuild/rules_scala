@@ -38,26 +38,26 @@ def _phase_coverage(ctx, p, srcjars):
         )
         srcs_paths = []
         for src in ctx.files.srcs:
-            srcs_paths = srcs_paths + [src.path]
-        in_out_pairs = [
+            srcs_paths.append(src.path)
+        records = [
             (input_jar, output_jar, srcs_paths),
         ]
 
         args = ctx.actions.args()
-        args.add_all(in_out_pairs, map_each = _jacoco_offline_instrument_format_each)
+        args.add_all(records, map_each = _jacoco_offline_instrument_format_each)
         args.set_param_file_format("multiline")
         args.use_param_file("@%s", use_always = True)
 
         ctx.actions.run(
             mnemonic = "JacocoInstrumenter",
-            inputs = [in_out_pair[0] for in_out_pair in in_out_pairs],
-            outputs = [in_out_pair[1] for in_out_pair in in_out_pairs],
+            inputs = [record[0] for record in records],
+            outputs = [record[1] for record in records],
             executable = ctx.attr._code_coverage_instrumentation_worker.files_to_run,
             execution_requirements = {"supports-workers": "1"},
             arguments = [args],
         )
 
-        replacements = {i: o for (i, o, _) in in_out_pairs}
+        replacements = {i: o for (i, o, _) in records}
         provider = _coverage_replacements_provider.create(
             replacements = replacements,
         )
@@ -75,5 +75,5 @@ def _phase_coverage(ctx, p, srcjars):
             },
         )
 
-def _jacoco_offline_instrument_format_each(in_out_pair):
-    return (["%s=%s=%s" % (in_out_pair[0].path, in_out_pair[1].path, ",".join(in_out_pair[2]))])
+def _jacoco_offline_instrument_format_each(records):
+    return (["%s=%s=%s" % (records[0].path, records[1].path, ",".join(records[2]))])
