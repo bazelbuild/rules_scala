@@ -71,8 +71,18 @@ public final class JacocoInstrumenter implements Processor {
                 }
             });
 
+            /* 
+            * https://github.com/bazelbuild/bazel/blob/567ca633d016572f5760bfd027c10616f2b8c2e4/src/java_tools/junitrunner/java/com/google/testing/coverage/JacocoCoverageRunner.java#L411
+            * 
+            * Bazel / JacocoCoverageRunner will look for any file that ends with '-paths-for-coverage.txt' within the JAR to be later used for reconstructing the path for source files.
+            * This is a fairly undocumented feature within bazel at this time, but in essence, it opens all the jars, searches for all files matching '-paths-for-coverage.txt'
+            * and then adds them to a single in memory set. 
+            * 
+            * https://github.com/bazelbuild/bazel/blob/567ca633d016572f5760bfd027c10616f2b8c2e4/src/java_tools/junitrunner/java/com/google/testing/coverage/JacocoLCOVFormatter.java#L70
+            * Which is then used in the formatter to find the corresponding source file from the set of sources we wrote in all the JARs.
+            */
             Files.write(
-                outFS.getPath("-paths-for-blah.txt"),
+                outFS.getPath("-paths-for-coverage.txt"),
                 srcs.replace(",", "\n").getBytes(java.nio.charset.StandardCharsets.UTF_8)
             );
         }
