@@ -72,7 +72,7 @@ public final class JacocoInstrumenter implements Processor {
             });
 
             Files.write(
-                outFS.getPath("-paths-for-blah.txt"),
+                outFS.getPath("-paths-for-coverage.txt"),
                 srcs.replace(",", "\n").getBytes(java.nio.charset.StandardCharsets.UTF_8)
             );
         }
