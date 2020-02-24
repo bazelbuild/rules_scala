@@ -62,7 +62,7 @@ public final class JacocoInstrumenter implements Processor {
             FileSystem inFS = FileSystems.newFileSystem(inPath, null); FileSystem outFS = FileSystems.newFileSystem(
                 URI.create("jar:" + outPath.toUri()), Collections.singletonMap("create", "true"));
         ) {
-            FileVisitor fileVisitor = createInstrumenterVisitor(jacoco, outFS, srcs);
+            FileVisitor fileVisitor = createInstrumenterVisitor(jacoco, outFS);
             inFS.getRootDirectories().forEach(root -> {
                 try {
                     Files.walkFileTree(root, fileVisitor);
@@ -78,18 +78,18 @@ public final class JacocoInstrumenter implements Processor {
         }
     }
 
-    private SimpleFileVisitor createInstrumenterVisitor(Instrumenter jacoco, FileSystem outFS, String srcs) {
+    private SimpleFileVisitor createInstrumenterVisitor(Instrumenter jacoco, FileSystem outFS) {
         return new SimpleFileVisitor <Path> () {
             @Override
             public FileVisitResult visitFile(Path inPath, BasicFileAttributes attrs) {
                 try {
-                    return actuallyVisitFile(inPath, attrs, srcs);
+                    return actuallyVisitFile(inPath, attrs);
                 } catch (final Exception e) {
                     throw new RuntimeException(e);
                 }
             }
 
-            private FileVisitResult actuallyVisitFile(Path inPath, BasicFileAttributes attrs, String srcs) throws Exception {
+            private FileVisitResult actuallyVisitFile(Path inPath, BasicFileAttributes attrs) throws Exception {
                 Path outPath = outFS.getPath(inPath.toString());
                 Files.createDirectories(outPath.getParent());
                 if (inPath.toString().endsWith(".class")) {
