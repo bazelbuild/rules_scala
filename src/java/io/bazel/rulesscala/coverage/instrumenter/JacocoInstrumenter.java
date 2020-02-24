@@ -70,6 +70,11 @@ public final class JacocoInstrumenter implements Processor {
                     throw new RuntimeException(e);
                 }
             });
+
+            Files.write(
+                outFS.getPath("-paths-for-coverage.txt"),
+                srcs.replace(",", "\n").getBytes(java.nio.charset.StandardCharsets.UTF_8)
+            );
         }
     }
 
@@ -98,13 +103,6 @@ public final class JacocoInstrumenter implements Processor {
                     Files.copy(inPath, outFS.getPath(outPath.toString() + ".uninstrumented"));
                 } else {
                     Files.copy(inPath, outPath);
-                }
-
-                if(outPath.toString().endsWith(".class")) { 
-                    Files.write(
-                        outFS.getPath((outPath.toString() + "-paths-for-coverage.txt")),
-                        srcs.replace(",", "\n").getBytes(java.nio.charset.StandardCharsets.UTF_8)
-                    );
                 }
                 return FileVisitResult.CONTINUE;
             }
