@@ -62,19 +62,9 @@ scala_library(
         "A2.scala",
     ],
     deps = [
-        # TODO :: Understand why referencing a local java library breaks coverage
-        # ":b2",
+        ":b2",
     ],
 )
-
-#
-# As it stands I can't seem to generate coverage for Java libraries pulled into
-# a scala_test target.
-#
-# The java_library is instrumented, but doesn't have the .uninstrumented files
-# that Bazel seems to expect. There are a few code paths for code coverage, so
-# down the road we can explore how to fix this...
-#
 
 java_library(
     name = "b2",

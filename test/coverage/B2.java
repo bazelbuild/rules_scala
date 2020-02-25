@@ -1,3 +1,5 @@
+package coverage;
+
 class B2 {
     public static String b2_a() {
         return C2.c2("hello from b2_a");
