@@ -36,9 +36,7 @@ def _phase_coverage(ctx, p, srcjars):
         output_jar = ctx.actions.declare_file(
             "{}-offline.jar".format(input_jar.basename.split(".")[0]),
         )
-        srcs_paths = []
-        for src in ctx.files.srcs:
-            srcs_paths.append(src.path)
+        src_paths = [src.path for src in ctx.files.srcs]
         records = [
             (input_jar, output_jar, srcs_paths),
         ]
