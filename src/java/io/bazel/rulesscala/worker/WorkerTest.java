@@ -8,10 +8,13 @@ import org.junit.runners.JUnit4;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.PrintStream;
+import java.lang.AutoCloseable;
 import java.lang.SecurityManager;
+import java.util.Scanner;
 
 import com.google.devtools.build.lib.worker.WorkerProtocol;
 
@@ -39,57 +42,113 @@ public class WorkerTest {
 
     @Test
     public void testPersistentWorkerSystemExit() throws Exception {
-
 	// We're going to spin up a persistent worker and run a single
 	// work request. We expect System.exit calls to impact the
 	// worker request lifecycle without exiting the overall worker
 	// process.
 
-	Worker.Interface worker = new Worker.Interface() {
-            @Override
-	    public void work(String[] args) {
-		// we should see this print statement
-		System.out.println("before exit");
-		System.exit(100);
-		// we should not see this print statement
-		System.out.println("after exit");
-	    }
-	};
-
 	try (
-	    PipedInputStream workerIn = new PipedInputStream();
-	    PipedOutputStream outToWorkerIn = new PipedOutputStream(workerIn);
-
-	    PipedOutputStream workerOut = new PipedOutputStream();
-	    PipedInputStream inFromWorkerOut = new PipedInputStream(workerOut);
+	     PersistentWorkerHelper helper = new PersistentWorkerHelper();
 	) {
-
-	    InputStream stdin = System.in;
-	    PrintStream stdout = System.out;
-	    PrintStream stderr = System.err;
-
-	    System.setIn(workerIn);
-	    System.setOut(new PrintStream(workerOut));
-
 	    WorkerProtocol.WorkRequest.newBuilder()
 	        .build()
-		.writeDelimitedTo(outToWorkerIn);
+		.writeDelimitedTo(helper.requestOut);
 
-	    // otherwise the worker will poll indefinitely
-	    outToWorkerIn.close();
+	    Worker.Interface worker = new Worker.Interface() {
+                @Override
+		public void work(String[] args) {
+		    // we should see this print statement
+		    System.out.println("before exit");
+		    System.exit(100);
+		    // we should not see this print statement
+		    System.out.println("after exit");
+		}
+	    };
 
-	    Worker.workerMain(new String[]{"--persistent_worker"}, worker);
-
-	    System.setIn(stdin);
-	    System.setOut(stdout);
-	    System.setErr(stderr);
+	    helper.runWorker(worker);
 
 	    WorkerProtocol.WorkResponse response =
-		WorkerProtocol.WorkResponse.parseDelimitedFrom(inFromWorkerOut);
+		WorkerProtocol.WorkResponse.parseDelimitedFrom(helper.responseIn);
 
 	    assert(response.getOutput().contains("before"));
 	    assert(response.getExitCode() == 100);
 	    assert(!response.getOutput().contains("after"));
+	}
+    }
+
+    @Test
+    public void testPersistentWorkerNoStdin() throws Exception {
+	try (
+	    PersistentWorkerHelper helper = new PersistentWorkerHelper();
+	) {
+	    WorkerProtocol.WorkRequest.newBuilder()
+	        .build()
+		.writeDelimitedTo(helper.requestOut);
+
+	    Worker.Interface worker = new Worker.Interface() {
+	        @Override
+		public void work(String[] args) throws Exception {
+		    assert(System.in.read() == -1);
+		}
+	    };
+
+	    helper.runWorker(worker);
+
+	    WorkerProtocol.WorkResponse response =
+		WorkerProtocol.WorkResponse.parseDelimitedFrom(helper.responseIn);
+	}
+    }
+
+    /** A helper to manage IO when testing a persistent worker. */
+    private final class PersistentWorkerHelper implements AutoCloseable {
+
+	public final PipedInputStream workerIn;
+	public final PipedOutputStream requestOut;
+
+	public final PipedOutputStream workerOut;
+	public final PipedInputStream responseIn;
+
+	private final InputStream stdin;
+	private final PrintStream stdout;
+	private final PrintStream stderr;
+
+	public PersistentWorkerHelper() throws IOException {
+	    this.workerIn = new PipedInputStream();
+	    this.requestOut = new PipedOutputStream(workerIn);
+	    this.workerOut = new PipedOutputStream();
+	    this.responseIn = new PipedInputStream(workerOut);
+
+	    this.stdin = System.in;
+	    this.stdout = System.out;
+	    this.stderr = System.err;
+
+	    System.setIn(this.workerIn);
+	    System.setOut(new PrintStream(this.workerOut));
+	}
+
+	public void runWorker(Worker.Interface worker) throws Exception{
+	    // otherwise the worker will poll indefinitely
+	    this.requestOut.close();
+	    Worker.workerMain(new String[]{"--persistent_worker"}, worker);
+	}
+
+	public void close() {
+	    try {
+		this.workerIn.close();
+	    } catch (IOException e) {}
+	    try {
+		this.requestOut.close();
+	    } catch (IOException e) {}
+	    try {
+		this.workerOut.close();
+	    } catch (IOException e) {}
+	    try {
+		this.responseIn.close();
+	    } catch (IOException e) {}
+
+	    System.setIn(this.stdin);
+	    System.setOut(this.stdout);
+	    System.setErr(this.stderr);
 	}
     }
 
