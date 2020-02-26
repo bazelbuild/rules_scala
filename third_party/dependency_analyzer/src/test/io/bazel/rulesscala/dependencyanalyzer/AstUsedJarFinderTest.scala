@@ -421,6 +421,76 @@ class AstUsedJarFinderTest extends FunSuite {
     )
   }
 
+  test("imports are complicated") {
+    // This test documents the behavior of imports as is currently.
+    // Ideally all imports would be direct dependencies. However there
+    // are complications. The main one being that the scala AST treats
+    // imports as (expr, selectors) where in e.g. `import a.b.{c, d}`
+    // expr=`a.b` and selectors=[c, d]. (Note selectors are always formed
+    // from the last part of the import).
+    // And only the expr part has type information attached. In order
+    // to gather type information from the selector, we would need to
+    // do some resolution of types, which is possible but probably complex.
+    // Note also that fixing this is probably less of a priority, as
+    // people who want to check unused deps generally also want to check
+    // unused imports, so they wouldn't run into these problems in the
+    // first place.
+
+    // In this case, expr=A and selectors=[i], so looking at expr does
+    // give us a type.
+    checkDirectDependencyRecognized(
+      aCode = "object A { val i: Int = 0 }",
+      bCode =
+        s"""
+           |import A.i
+           |
+           |class B
+           |""".stripMargin
+    )
+
+    // In this case expr=foo and selectors=[A], so expr does not have
+    // a type which corresponds with A.
+    withSandbox { sandbox =>
+      sandbox.compileWithoutAnalyzer(
+        s"""
+           |package foo
+           |
+           |object A
+           |""".stripMargin
+      )
+      sandbox.checkUnusedDepsErrorReported(
+        code =
+          s"""
+             |import foo.A
+             |
+             |class B
+             |""".stripMargin,
+        expectedUnusedDeps = List("foo/A")
+      )
+    }
+
+    // In this case expr=foo and selectors=[bar], so expr does not have
+    // a type which corresponds with A.
+    withSandbox { sandbox =>
+      sandbox.compileWithoutAnalyzer(
+        s"""
+           |package foo.bar
+           |
+           |object A
+           |""".stripMargin
+      )
+      sandbox.checkUnusedDepsErrorReported(
+        code =
+          s"""
+             |import foo.bar
+             |
+             |class B
+             |""".stripMargin,
+        expectedUnusedDeps = List("foo/bar/A")
+      )
+    }
+  }
+
   test("java interface method argument is direct") {
     withSandbox { sandbox =>
       sandbox.compileJava(
