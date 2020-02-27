@@ -46,7 +46,12 @@ def _target_path_by_default_prefixes(resource):
     if rel_path:
         return rel_path
 
-    return resource.short_path if path.startswith("bazel-out") else path
+    # Both short_path and path have quirks we wish to avoid, in short_path there are times where
+    # it is prefixed by `../` instead of `external/`. And in .path it will instead return the entire
+    # bazel-out/... path, which is also wanting to be avoided. So instead, we return the short-path if
+    # path starts with bazel-out and the entire path if it does not.
+    #return resource.short_path if path.startswith("bazel-out") else path
+    return path
 
 def _strip_prefix(path, prefix):
     return path[len(prefix):] if path.startswith(prefix) else path

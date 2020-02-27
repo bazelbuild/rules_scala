@@ -47,15 +47,3 @@ scala_test(
     srcs = ["ScalaLibResourcesFromExternalScalaTest.scala"],
     resources = ["@test_new_local_repo//:data"],
 )
-
-py_binary(
-    name = "py_resource_binary",
-    srcs = ["py_resource.py"],
-    main = "py_resource.py",
-)
-
-scala_test(
-    name = "test_python_resources",
-    srcs = ["ScalaLibResourcesFromLocalDepTest.scala"],
-    resources = [":py_resource_binary"],
-)
