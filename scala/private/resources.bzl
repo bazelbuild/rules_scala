@@ -11,6 +11,7 @@ def paths(resources, resource_strip_prefix):
         resources: list of file objects
         resource_strip_prefix: string to strip from resource path
     """
+    print([(_target_path(resource, resource_strip_prefix), resource.path) for resource in resources])
     return [(_target_path(resource, resource_strip_prefix), resource.path) for resource in resources]
 
 def _target_path(resource, resource_strip_prefix):
@@ -50,8 +51,7 @@ def _target_path_by_default_prefixes(resource):
     # it is prefixed by `../` instead of `external/`. And in .path it will instead return the entire
     # bazel-out/... path, which is also wanting to be avoided. So instead, we return the short-path if
     # path starts with bazel-out and the entire path if it does not.
-    #return resource.short_path if path.startswith("bazel-out") else path
-    return path
+    return resource.short_path if path.startswith("bazel-out") else path
 
 def _strip_prefix(path, prefix):
     return path[len(prefix):] if path.startswith(prefix) else path

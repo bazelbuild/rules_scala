@@ -763,7 +763,7 @@ py_binary(
 )
 
 scala_test(
-    name = "test_python_resources",
+    name = "ScalaTestResourcesFromLocalTargetTest",
     srcs = ["ScalaTestResourcesFromLocalTargetTest.scala"],
     resources = [":py_resource_binary"],
 )
