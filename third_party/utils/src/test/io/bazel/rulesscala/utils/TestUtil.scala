@@ -65,8 +65,8 @@ object TestUtil {
 
   private def getClasspathArguments(extraClasspath: List[String]): String = {
     val classpathEntries = {
-      val toolboxClasspathOpt = if (toolboxClasspath.isEmpty) { None } else Some(toolboxClasspath)
-      extraClasspath ++ toolboxClasspathOpt
+      val builtinClassPaths = builtinClasspaths.filterNot(_.isEmpty)
+      extraClasspath ++ builtinClassPaths
     }
     if (classpathEntries.isEmpty) {
       ""
@@ -131,8 +131,11 @@ object TestUtil {
 
   private lazy val baseDir = System.getProperty("user.dir")
 
-  private lazy val toolboxClasspath: String =
-    pathOf("scala.library.location")
+  private lazy val builtinClasspaths: Vector[String] =
+    Vector(
+      pathOf("scala.library.location"),
+      pathOf("scala.reflect.location")
+    )
 
   lazy val guavaClasspath: String =
     pathOf("guava.jar.location")
