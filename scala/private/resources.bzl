@@ -11,7 +11,6 @@ def paths(resources, resource_strip_prefix):
         resources: list of file objects
         resource_strip_prefix: string to strip from resource path
     """
-    print([(_target_path(resource, resource_strip_prefix), resource.path) for resource in resources])
     return [(_target_path(resource, resource_strip_prefix), resource.path) for resource in resources]
 
 def _target_path(resource, resource_strip_prefix):
