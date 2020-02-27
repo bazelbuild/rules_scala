@@ -395,6 +395,32 @@ class AstUsedJarFinderTest extends FunSuite {
     )
   }
 
+  test("macro is direct") {
+    checkDirectDependencyRecognized(
+      aCode =
+        s"""
+           |import scala.language.experimental.macros
+           |import scala.reflect.macros.blackbox.Context
+           |
+           |object A {
+           |  def foo(): Unit = macro fooImpl
+           |  def fooImpl(
+           |    c: Context
+           |  )(): c.universe.Tree = {
+           |    import c.universe._
+           |    q""
+           |  }
+           |}
+           |""".stripMargin,
+      bCode =
+        s"""
+           |object B {
+           |  A.foo()
+           |}
+           |""".stripMargin
+    )
+  }
+
   test("java interface method argument is direct") {
     withSandbox { sandbox =>
       sandbox.compileJava(

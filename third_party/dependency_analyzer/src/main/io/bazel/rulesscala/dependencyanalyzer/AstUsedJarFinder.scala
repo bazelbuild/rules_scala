@@ -89,6 +89,19 @@ class AstUsedJarFinder(
           case _ =>
         }
 
+        // If this expression is the result of a macro, then we
+        // should also examine the original macro expression
+        tree.attachments
+          .get[global.treeChecker.MacroExpansionAttachment]
+          .foreach { attach =>
+            // When we explore the original, the original also has
+            // this attachment. So we should not examine the original
+            // again if so.
+            if (attach.expandee != tree) {
+              fullyExploreTree(attach.expandee)
+            }
+          }
+
         val shouldExamine =
           tree match {
             case select: Select if select.symbol.isDefaultGetter =>
