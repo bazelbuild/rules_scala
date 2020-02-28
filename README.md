@@ -83,6 +83,41 @@ build --worker_sandboxing
 ```
 to your command line, or to enable by default for building/testing add it to your .bazelrc.
 
+## Coverage support
+
+rules_scala supports coverage, but it's disabled by default. You need to enable it with an extra toolchain:
+
+```
+bazel coverage --extra_toolchains="@io_bazel_rules_scala//test/coverage:enable_code_coverage_aspect" //...
+```
+
+It will produce several .dat files with results for your targets.
+
+You can also add more options to receive a combined coverage report:
+
+```
+bazel coverage \
+  --extra_toolchains="@io_bazel_rules_scala//test/coverage:enable_code_coverage_aspect" \
+  --combined_report=lcov \
+  --coverage_report_generator="@bazel_tools//tools/test/CoverageOutputGenerator/java/com/google/devtools/coverageoutputgenerator:Main" \
+  //...
+```
+
+This should produce a single `bazel-out/_coverage/_coverage_report.dat` from all coverage files that are generated.
+
+You can extract information from your coverage reports with `lcov`:
+
+```
+# For a summary:
+lcov --summary your-coverage-result.dat
+# For details:
+lcov --list your-coverage-result.dat
+```
+
+If you prefer an HTML report, then you can use `genhtml` provided also by the `lcov` package.
+
+Please check [coverage.md](docs/coverage.md) for more details on coverage support.
+
 ## Selecting Scala version
 
 Rules scala supports the last two released minor versions for each of Scala 2.11 and 2.12.
