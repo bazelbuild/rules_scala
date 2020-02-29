@@ -33,7 +33,7 @@ java_test(
         "TestB2.java",
     ],
     tags = ["manual"],
-    test_class = "TestB2",
+    test_class = "coverage.TestB2",
     deps = [
         ":b2",
     ],

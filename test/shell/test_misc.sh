@@ -120,8 +120,13 @@ test_override_javabin() {
 test_coverage_on() {
     bazel coverage \
           --extra_toolchains="//test/coverage:enable_code_coverage_aspect" \
-          //test/coverage/...
-    diff test/coverage/expected-coverage.dat $(bazel info bazel-testlogs)/test/coverage/test-all/coverage.dat
+          //test/coverage:test-all
+    diff test/coverage/expected-test-all-coverage.dat $(bazel info bazel-testlogs)/test/coverage/test-all/coverage.dat
+
+    bazel coverage \
+          --extra_toolchains="//test/coverage:enable_code_coverage_aspect" \
+          //test/coverage:test-b2
+    diff test/coverage/expected-test-b2-coverage.dat $(bazel info bazel-testlogs)/test/coverage/test-all/coverage.dat
 }
 
 xmllint_test() {
