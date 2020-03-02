@@ -234,11 +234,6 @@ def scala_repositories(
     )
 
     native.bind(
-        name = "io_bazel_rules_scala/dependency/scalac_rules_commons_io",
-        actual = "@scalac_rules_commons_io",
-    )
-
-    native.bind(
         name = "io_bazel_rules_scala/dependency/scala/scalatest/scalatest",
         actual = "@io_bazel_rules_scala_scalatest",
     )
