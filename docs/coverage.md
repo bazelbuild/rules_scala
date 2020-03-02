@@ -49,21 +49,8 @@ An example with a bit of ceremony:
 destdir="my-coverage-reports"
 mkdir -p ${destdir}
 
-# Gather all your coverage reports to the reports dir.
-base=$(bazel info bazel-testlogs)
-for f in $(find ${base}  -name 'coverage.dat') ; do
-  # TODO: you may want to add minimal coverage check here. Current coverage may be extracted from lcov --summary $f
-  cp $f ${destdir}/$(echo $f| sed "s|${base}/||" | sed "s|/|_|g")
-done
-
-# Remove any report file that is empty.
-(
-cd ${destdir}
-find -name '*coverage.dat' -size 0 -delete
-)
-
 # Generate HTML report from the results.
-genhtml -o ${destdir} --ignore-errors source ${destdir}/*coverage.dat
+genhtml -o ${destdir} --ignore-errors source bazel-out/_coverage/_coverage_report.dat
 
 echo "coverage report at file://${destdir}/index.html"
 
