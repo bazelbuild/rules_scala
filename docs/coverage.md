@@ -35,9 +35,9 @@ Having `lcov` package installed you can extract information from your coverage r
 
 ```
 # For a summary:
-lcov --summary your-coverage-result.dat
+lcov --summary your-coverage-report.dat
 # For details:
-lcov --list your-coverage-result.dat
+lcov --list your-coverage-report.dat
 ```
 
 If you prefer an HTML report, then you can use `genhtml` provided also by the `lcov` package.
@@ -55,3 +55,7 @@ genhtml -o ${destdir} --ignore-errors source bazel-out/_coverage/_coverage_repor
 echo "coverage report at file://${destdir}/index.html"
 
 ```
+
+### Support for testing frameworks
+
+Coverage support has been only tested with [ScalaTest](http://www.scalatest.org/).

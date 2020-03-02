@@ -109,12 +109,14 @@ You can extract information from your coverage reports with `lcov`:
 
 ```
 # For a summary:
-lcov --summary your-coverage-result.dat
+lcov --summary your-coverage-report.dat
 # For details:
-lcov --list your-coverage-result.dat
+lcov --list your-coverage-report.dat
 ```
 
 If you prefer an HTML report, then you can use `genhtml` provided also by the `lcov` package.
+
+Coverage support has been only tested with [ScalaTest](http://www.scalatest.org/).
 
 Please check [coverage.md](docs/coverage.md) for more details on coverage support.
 
