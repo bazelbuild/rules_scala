@@ -4,11 +4,17 @@ import java.nio.file.Files
 import java.nio.file.Path
 import org.apache.commons.io.FileUtils
 import org.scalatest._
+import scala.tools.nsc.reporters.StoreReporter
 import third_party.dependency_analyzer.src.main.io.bazel.rulesscala.dependencyanalyzer.DependencyTrackingMethod
+import third_party.dependency_analyzer.src.main.io.bazel.rulesscala.dependencyanalyzer.ScalaVersion
 import third_party.utils.src.test.io.bazel.rulesscala.utils.JavaCompileUtil
 import third_party.utils.src.test.io.bazel.rulesscala.utils.TestUtil
 import third_party.utils.src.test.io.bazel.rulesscala.utils.TestUtil.DependencyAnalyzerTestParams
 
+// NOTE: Some tests are version-dependent as some false positives
+// cannot be fixed in older versions of Scala for various reasons.
+// Hence make sure to look at any version checks to understand
+// which versions do and don't support which cases.
 class AstUsedJarFinderTest extends FunSuite {
   private def withSandbox(action: Sandbox => Unit): Unit = {
     val tmpDir = Files.createTempDirectory("dependency_analyzer_test_temp")
@@ -24,11 +30,13 @@ class AstUsedJarFinderTest extends FunSuite {
     def compileWithoutAnalyzer(
       code: String
     ): Unit = {
-      TestUtil.runCompiler(
-        code = code,
-        extraClasspath = List(tmpDir.toString),
-        outputPathOpt = Some(tmpDir)
-      )
+      val errors =
+        TestUtil.runCompiler(
+          code = code,
+          extraClasspath = List(tmpDir.toString),
+          outputPathOpt = Some(tmpDir)
+        )
+      assert(errors.isEmpty)
     }
 
     def compileJava(
@@ -45,7 +53,7 @@ class AstUsedJarFinderTest extends FunSuite {
     def checkStrictDepsErrorsReported(
       code: String,
       expectedStrictDeps: List[String]
-    ): Unit = {
+    ): List[StoreReporter#Info] = {
       val errors =
         TestUtil.runCompiler(
           code = code,
@@ -62,11 +70,17 @@ class AstUsedJarFinderTest extends FunSuite {
         )
 
       assert(errors.size == expectedStrictDeps.size)
+      errors.foreach { err =>
+        // We should be emitting errors with positions
+        assert(err.pos.isDefined)
+      }
 
       expectedStrictDeps.foreach { dep =>
         val expectedError = s"Target '$dep' is used but isn't explicitly declared, please add it to the deps"
-        assert(errors.exists(_.contains(expectedError)))
+        assert(errors.exists(_.msg.contains(expectedError)))
       }
+
+      errors
     }
 
     def checkUnusedDepsErrorReported(
@@ -89,10 +103,14 @@ class AstUsedJarFinderTest extends FunSuite {
         )
 
       assert(errors.size == expectedUnusedDeps.size)
+      errors.foreach { err =>
+        // As an unused dep we shouldn't include a position or anything like that
+        assert(!err.pos.isDefined)
+      }
 
       expectedUnusedDeps.foreach { dep =>
         val expectedError = s"Target '$dep' is specified as a dependency to ${TestUtil.defaultTarget} but isn't used, please remove it from the deps."
-        assert(errors.exists(_.contains(expectedError)))
+        assert(errors.exists(_.msg.contains(expectedError)))
       }
     }
   }
@@ -147,6 +165,23 @@ class AstUsedJarFinderTest extends FunSuite {
       sandbox.compileWithoutAnalyzer(bCode)
       sandbox.checkUnusedDepsErrorReported(
         code = cCode,
+        expectedUnusedDeps = List("A")
+      )
+    }
+  }
+
+  /**
+   * In a situation where B depends indirectly on A, ensure
+   * that the dependency analyzer recognizes this fact.
+   */
+  private def checkIndirectDependencyDetected(
+    aCode: String,
+    bCode: String
+  ): Unit = {
+    withSandbox { sandbox =>
+      sandbox.compileWithoutAnalyzer(aCode)
+      sandbox.checkUnusedDepsErrorReported(
+        code = bCode,
         expectedUnusedDeps = List("A")
       )
     }
@@ -258,6 +293,14 @@ class AstUsedJarFinderTest extends FunSuite {
     )
   }
 
+  test("static annotation of inherited class is indirect") {
+    checkIndirectDependencyDetected(
+      aCode = "class A extends scala.annotation.StaticAnnotation",
+      bCode = "@A class B",
+      cCode = "class C extends B"
+    )
+  }
+
   test("class type parameter bound is direct") {
     checkDirectDependencyRecognized(
       aCode =
@@ -302,6 +345,82 @@ class AstUsedJarFinderTest extends FunSuite {
     )
   }
 
+  test("inlined literal is direct") {
+    // Note: For a constant to be inlined
+    // - it must not have a type declaration such as `: Int`.
+    //   (this appears to be the case in practice at least)
+    //   (is this documented anywhere???)
+    // - some claim it must start with a capital letter, though
+    //   this does not seem to be the case. Nevertheless we do that
+    //    anyways.
+    //
+    // Hence it is possible that as newer versions of scala
+    // are released then this test may need to be updated to
+    // conform to changing requirements of what is inlined.
+
+    // Note that in versions of scala < 2.12.4 we cannot detect
+    // such a situation. Hence we will have a false positive here
+    // for those older versions, which we verify in test.
+
+    val aCode =
+      s"""
+         |object A {
+         |  final val Inlined = 123
+         |}
+         |""".stripMargin
+    val bCode =
+      s"""
+         |object B {
+         |  val d: Int = A.Inlined
+         |}
+         |""".stripMargin
+
+    if (ScalaVersion.Current >= ScalaVersion("2.12.4")) {
+      checkDirectDependencyRecognized(aCode = aCode, bCode = bCode)
+    } else {
+      checkIndirectDependencyDetected(aCode = aCode, bCode = bCode)
+    }
+  }
+
+  test("unspecified default argument type is indirect") {
+    checkIndirectDependencyDetected(
+      aCode = "class A",
+      bCode = "class B(a: A = new A())",
+      cCode =
+        s"""
+           |class C {
+           |  new B()
+           |}
+           |""".stripMargin
+    )
+  }
+
+  test("macro is direct") {
+    checkDirectDependencyRecognized(
+      aCode =
+        s"""
+           |import scala.language.experimental.macros
+           |import scala.reflect.macros.blackbox.Context
+           |
+           |object A {
+           |  def foo(): Unit = macro fooImpl
+           |  def fooImpl(
+           |    c: Context
+           |  )(): c.universe.Tree = {
+           |    import c.universe._
+           |    q""
+           |  }
+           |}
+           |""".stripMargin,
+      bCode =
+        s"""
+           |object B {
+           |  A.foo()
+           |}
+           |""".stripMargin
+    )
+  }
+
   test("java interface method argument is direct") {
     withSandbox { sandbox =>
       sandbox.compileJava(
@@ -316,6 +435,108 @@ class AstUsedJarFinderTest extends FunSuite {
           |""".stripMargin,
         expectedStrictDeps = List("B")
       )
+    }
+  }
+
+  test("java interface field and method is direct") {
+    withSandbox { sandbox =>
+      sandbox.compileJava(
+        className = "A",
+        code = "public interface A { int a = 42; }"
+      )
+      val bCode =
+        """
+          |class B {
+          |  def foo(x: A): Unit = {}
+          |  val b = A.a
+          |}
+          |""".stripMargin
+
+      // Unlike other tests, this one includes both access to an inlined
+      // variable and taking the class A as an argument. In theory,
+      // this test should work for all supported versions just like
+      // test `java interface method argument is direct` since they
+      // both have a method taking A as an argument.
+      //
+      // However, it does not work for all versions. It is unclear why but
+      // presumably there were various compiler improvements.
+      if (ScalaVersion.Current >= ScalaVersion("2.12.0")) {
+        sandbox.checkStrictDepsErrorsReported(
+          bCode,
+          expectedStrictDeps = List("A")
+        )
+      } else {
+        sandbox.checkUnusedDepsErrorReported(
+          bCode,
+          expectedUnusedDeps = List("A")
+        )
+      }
+    }
+  }
+
+  test("java interface field is direct") {
+    withSandbox { sandbox =>
+      sandbox.compileJava(
+        className = "A",
+        code = "public interface A { int a = 42; }"
+      )
+      val bCode =
+        """
+          |class B {
+          |  val b = A.a
+          |}
+          |""".stripMargin
+      if (ScalaVersion.Current >= ScalaVersion("2.12.4")) {
+        sandbox.checkStrictDepsErrorsReported(
+          bCode,
+          expectedStrictDeps = List("A")
+        )
+      } else {
+        sandbox.checkUnusedDepsErrorReported(
+          bCode,
+          expectedUnusedDeps = List("A")
+        )
+      }
+    }
+  }
+
+  test("classOf in class Java annotation is direct") {
+    withSandbox { sandbox =>
+      sandbox.compileJava(
+        className = "Category",
+        code =
+          s"""
+             |public @interface Category {
+             |    Class<?> value();
+             |}
+             |""".stripMargin
+      )
+      sandbox.compileWithoutAnalyzer("class UnitTests")
+      sandbox.checkStrictDepsErrorsReported(
+        """
+          |@Category(classOf[UnitTests])
+          |class C
+          |""".stripMargin,
+        expectedStrictDeps = List("UnitTests", "Category")
+      )
+    }
+  }
+
+  test("position of strict deps error is correct") {
+    // While we do ensure that generally strict deps errors have
+    // a position in the other tests, here we make sure that that
+    // position is correctly computed.
+    withSandbox { sandbox =>
+      sandbox.compileWithoutAnalyzer("class A")
+      val errors =
+        sandbox.checkStrictDepsErrorsReported(
+          "class B(a: A)",
+          expectedStrictDeps = List("A")
+        )
+      assert(errors.size == 1)
+      val pos = errors(0).pos
+      assert(pos.line == 1)
+      assert(pos.column == 12)
     }
   }
 }

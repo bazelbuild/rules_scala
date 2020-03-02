@@ -41,15 +41,24 @@ object BenchmarkGenerator {
     classPath: List[Path]
   )
 
+  private case class GenerationException(messageLines: Seq[String])
+    extends RuntimeException(messageLines.mkString("\n"))
+
   def main(argv: Array[String]): Unit = {
     val args = parseArgs(argv)
-    generateJmhBenchmark(
-      args.generatorType,
-      args.resultSourceJar,
-      args.resultResourceJar,
-      args.inputJar,
-      args.classPath
-    )
+    try {
+      generateJmhBenchmark(
+        args.generatorType,
+        args.resultSourceJar,
+        args.resultResourceJar,
+        args.inputJar,
+        args.classPath
+      )
+    } catch {
+      case GenerationException(messageLines) =>
+        messageLines.foreach(log)
+        sys.exit(1)
+    }
   }
 
   private def parseArgs(argv: Array[String]): BenchmarkGeneratorArgs = {
@@ -168,10 +177,8 @@ object BenchmarkGenerator {
         generator.generate(source, destination)
         generator.complete(source, destination)
         if (destination.hasErrors) {
-          log("JMH Benchmark generator failed")
-          for (e <- destination.getErrors.asScala) {
-            log(e.toString)
-          }
+          throw new GenerationException(
+            "JHM Benchmark generator failed" +: destination.getErrors.asScala.map(_.toString).toSeq)
         }
       }
       constructJar(sourceJarOut, tmpSourceDir)

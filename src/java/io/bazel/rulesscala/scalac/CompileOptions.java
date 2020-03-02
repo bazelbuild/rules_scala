@@ -21,13 +21,14 @@ public class CompileOptions {
   public final String[] classpathResourceFiles;
   public final String[] directJars;
   public final String[] directTargets;
-  public final String[] ignoredTargets;
+  public final String[] unusedDepsIgnoredTargets;
   public final String[] indirectJars;
   public final String[] indirectTargets;
   public final String strictDepsMode;
   public final String unusedDependencyCheckerMode;
   public final String currentTarget;
   public final String statsfile;
+  public final String dependencyTrackingMethod;
 
   public CompileOptions(List<String> args) {
     Map<String, String> argMap = buildArgMap(args);
@@ -55,13 +56,14 @@ public class CompileOptions {
 
     directJars = getCommaList(argMap, "DirectJars");
     directTargets = getCommaList(argMap, "DirectTargets");
-    ignoredTargets = getCommaList(argMap, "IgnoredTargets");
+    unusedDepsIgnoredTargets = getCommaList(argMap, "UnusedDepsIgnoredTargets");
     indirectJars = getCommaList(argMap, "IndirectJars");
     indirectTargets = getCommaList(argMap, "IndirectTargets");
 
     strictDepsMode = getOrElse(argMap, "StrictDepsMode", "off");
     unusedDependencyCheckerMode = getOrElse(argMap, "UnusedDependencyCheckerMode", "off");
     currentTarget = getOrElse(argMap, "CurrentTarget", "NA");
+    dependencyTrackingMethod = getOrElse(argMap, "DependencyTrackingMethod", "high-level");
 
     statsfile = getOrError(argMap, "StatsfileOutput", "Missing required arg StatsfileOutput");
   }

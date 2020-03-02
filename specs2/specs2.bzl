@@ -42,6 +42,7 @@ def specs2_repositories(
             major_version,
         ),
         artifact_sha256 = scala_version_jar_shas["specs2_common"],
+        deps = ["@io_bazel_rules_scala_org_specs2_specs2_fp"],
         licenses = ["notice"],
         server_urls = maven_servers,
     )
@@ -53,6 +54,10 @@ def specs2_repositories(
             major_version,
         ),
         artifact_sha256 = scala_version_jar_shas["specs2_core"],
+        deps = [
+            "@io_bazel_rules_scala_org_specs2_specs2_common",
+            "@io_bazel_rules_scala_org_specs2_specs2_matcher",
+        ],
         licenses = ["notice"],
         server_urls = maven_servers,
     )
@@ -75,6 +80,7 @@ def specs2_repositories(
             major_version,
         ),
         artifact_sha256 = scala_version_jar_shas["specs2_matcher"],
+        deps = ["@io_bazel_rules_scala_org_specs2_specs2_common"],
         licenses = ["notice"],
         server_urls = maven_servers,
     )

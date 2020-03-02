@@ -5,6 +5,7 @@ load("//scala:scala.bzl", "scala_junit_test", "scala_test")
 common_jvm_flags = [
     "-Dplugin.jar.location=$(location //third_party/dependency_analyzer/src/main:dependency_analyzer)",
     "-Dscala.library.location=$(location //external:io_bazel_rules_scala/dependency/scala/scala_library)",
+    "-Dscala.reflect.location=$(location //external:io_bazel_rules_scala/dependency/scala/scala_reflect)",
 ]
 
 scala_test(
@@ -12,6 +13,37 @@ scala_test(
     size = "small",
     srcs = [
         "io/bazel/rulesscala/dependencyanalyzer/AstUsedJarFinderTest.scala",
+    ],
+    jvm_flags = common_jvm_flags,
+    deps = [
+        "//external:io_bazel_rules_scala/dependency/scala/scala_compiler",
+        "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+        "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
+        "//third_party/dependency_analyzer/src/main:dependency_analyzer",
+        "//third_party/dependency_analyzer/src/main:scala_version",
+        "//third_party/utils/src/test:test_util",
+        "@scalac_rules_commons_io//jar",
+    ],
+)
+
+scala_test(
+    name = "scala_version_test",
+    size = "small",
+    srcs = [
+        "io/bazel/rulesscala/dependencyanalyzer/ScalaVersionTest.scala",
+    ],
+    deps = [
+        "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+        "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
+        "//third_party/dependency_analyzer/src/main:scala_version",
+    ],
+)
+
+scala_test(
+    name = "scalac_dependency_test",
+    size = "small",
+    srcs = [
+        "io/bazel/rulesscala/dependencyanalyzer/ScalacDependencyTest.scala",
     ],
     jvm_flags = common_jvm_flags,
     unused_dependency_checker_mode = "off",

@@ -14,7 +14,7 @@ def paths(resources, resource_strip_prefix):
     return [(_target_path(resource, resource_strip_prefix), resource.path) for resource in resources]
 
 def _target_path(resource, resource_strip_prefix):
-    path = _target_path_by_strip_prefix(resource, resource_strip_prefix) if resource_strip_prefix else _target_path_by_default_prefixes(resource.path)
+    path = _target_path_by_strip_prefix(resource, resource_strip_prefix) if resource_strip_prefix else _target_path_by_default_prefixes(resource)
     return _strip_prefix(path, "/")
 
 def _target_path_by_strip_prefix(resource, resource_strip_prefix):
@@ -31,7 +31,9 @@ def _target_path_by_strip_prefix(resource, resource_strip_prefix):
         fail("Resource file %s is not under the specified prefix %s to strip" % (path, prefix))
     return path[len(prefix):]
 
-def _target_path_by_default_prefixes(path):
+def _target_path_by_default_prefixes(resource):
+    path = resource.path
+
     #  Here we are looking to find out the offset of this resource inside
     #  any resources folder. We want to return the root to the resources folder
     #  and then the sub path inside it
@@ -44,7 +46,11 @@ def _target_path_by_default_prefixes(path):
     if rel_path:
         return rel_path
 
-    return path
+    # Both short_path and path have quirks we wish to avoid, in short_path there are times where
+    # it is prefixed by `../` instead of `external/`. And in .path it will instead return the entire
+    # bazel-out/... path, which is also wanting to be avoided. So instead, we return the short-path if
+    # path starts with bazel-out and the entire path if it does not.
+    return resource.short_path if path.startswith("bazel-out") else path
 
 def _strip_prefix(path, prefix):
     return path[len(prefix):] if path.startswith(prefix) else path

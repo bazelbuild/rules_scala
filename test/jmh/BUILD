@@ -1,3 +1,4 @@
+load("@rules_java//java:defs.bzl", "java_library")
 load("//scala:scala.bzl", "scala_library")
 load("//jmh:jmh.bzl", "scala_benchmark_jmh")
 

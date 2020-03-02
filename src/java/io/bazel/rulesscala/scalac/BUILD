@@ -1,3 +1,4 @@
+load("@rules_java//java:defs.bzl", "java_binary")
 load(
     ":jvm_export_toolchain.bzl",
     _export_scalac_repositories_from_toolchain_to_jvm = "export_scalac_repositories_from_toolchain_to_jvm",

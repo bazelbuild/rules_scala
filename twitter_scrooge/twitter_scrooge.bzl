@@ -13,7 +13,14 @@ load(
     "//scala/private:common.bzl",
     "write_manifest_file",
 )
-load("//scala/private:rule_impls.bzl", "compile_scala")
+load(
+    "//scala/private:dependency.bzl",
+    "legacy_unclear_dependency_info_for_protobuf_scrooge",
+)
+load(
+    "//scala/private:rule_impls.bzl",
+    "compile_scala",
+)
 load("@io_bazel_rules_scala//thrift:thrift_info.bzl", "ThriftInfo")
 load(
     "@io_bazel_rules_scala//thrift:thrift.bzl",
@@ -239,6 +246,8 @@ def _compile_scala(
         expect_java_output = False,
         scalac_jvm_flags = [],
         scalac = ctx.attr._scalac,
+        dependency_info = legacy_unclear_dependency_info_for_protobuf_scrooge(ctx),
+        unused_dependency_checker_ignored_targets = [],
     )
 
     return JavaInfo(

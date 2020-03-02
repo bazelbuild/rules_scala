@@ -10,7 +10,7 @@ PlusOneDeps = provider(
 )
 
 def _collect_plus_one_deps_aspect_impl(target, ctx):
-    if (ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].plus_one_deps_mode == "off"):
+    if (ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].dependency_mode != "plus-one"):
         return []
     export_plus_one_deps = []
     for exported_dep in getattr(ctx.rule.attr, "exports", []):

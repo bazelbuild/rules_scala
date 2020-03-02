@@ -77,7 +77,7 @@ object DependencyAnalyzerSettings {
         .takeStringOpt(key)
         .map { str =>
           AnalyzerMode.parse(str).getOrElse {
-            error(s"Failed to parse option $key")
+            error(s"Failed to parse option $key with value $str")
             AnalyzerMode.Error
           }
         }

@@ -3,7 +3,12 @@ package io.bazel.rulesscala.scalac;
 import io.bazel.rulesscala.jar.JarCreator;
 import io.bazel.rulesscala.worker.GenericWorker;
 import io.bazel.rulesscala.worker.Processor;
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -12,8 +17,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
-import java.util.Map.Entry;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import org.apache.commons.io.IOUtils;
@@ -173,33 +180,36 @@ class ScalacProcessor implements Processor {
   private static String[] getPluginParamsFrom(CompileOptions ops) {
     ArrayList<String> pluginParams = new ArrayList<>(0);
 
-    if (isModeEnabled(ops.strictDepsMode)) {
-      String[] indirectTargets = encodeBazelTargets(ops.indirectTargets);
+    if (isModeEnabled(ops.strictDepsMode) || isModeEnabled(ops.unusedDependencyCheckerMode)) {
       String currentTarget = encodeBazelTarget(ops.currentTarget);
 
       String[] dependencyAnalyzerParams = {
-        "-P:dependency-analyzer:direct-jars:" + String.join(":", ops.directJars),
-        "-P:dependency-analyzer:indirect-jars:" + String.join(":", ops.indirectJars),
-        "-P:dependency-analyzer:indirect-targets:" + String.join(":", indirectTargets),
-        "-P:dependency-analyzer:strict-deps-mode:" + ops.strictDepsMode,
-        "-P:dependency-analyzer:current-target:" + currentTarget,
-        "-P:dependency-analyzer:dependency-tracking-method:" + "high-level",
+            "-P:dependency-analyzer:strict-deps-mode:" + ops.strictDepsMode,
+            "-P:dependency-analyzer:unused-deps-mode:" + ops.unusedDependencyCheckerMode,
+            "-P:dependency-analyzer:current-target:" + currentTarget,
+            "-P:dependency-analyzer:dependency-tracking-method:" + ops.dependencyTrackingMethod,
       };
-      pluginParams.addAll(Arrays.asList(dependencyAnalyzerParams));
-    } else if (isModeEnabled(ops.unusedDependencyCheckerMode)) {
-      String[] directTargets = encodeBazelTargets(ops.directTargets);
-      String[] ignoredTargets = encodeBazelTargets(ops.ignoredTargets);
-      String currentTarget = encodeBazelTarget(ops.currentTarget);
 
-      String[] unusedDependencyCheckerParams = {
-        "-P:dependency-analyzer:direct-jars:" + String.join(":", ops.directJars),
-        "-P:dependency-analyzer:direct-targets:" + String.join(":", directTargets),
-        "-P:dependency-analyzer:unused-deps-ignored-targets:" + String.join(":", ignoredTargets),
-        "-P:dependency-analyzer:unused-deps-mode:" + ops.unusedDependencyCheckerMode,
-        "-P:dependency-analyzer:current-target:" + currentTarget,
-        "-P:dependency-analyzer:dependency-tracking-method:" + "high-level",
-      };
-      pluginParams.addAll(Arrays.asList(unusedDependencyCheckerParams));
+      pluginParams.addAll(Arrays.asList(dependencyAnalyzerParams));
+
+      if (ops.directJars.length > 0) {
+        pluginParams.add("-P:dependency-analyzer:direct-jars:" + String.join(":", ops.directJars));
+      }
+      if (ops.directTargets.length > 0) {
+        String[] directTargets = encodeBazelTargets(ops.directTargets);
+        pluginParams.add("-P:dependency-analyzer:direct-targets:" + String.join(":", directTargets));
+      }
+      if (ops.indirectJars.length > 0) {
+        pluginParams.add("-P:dependency-analyzer:indirect-jars:" + String.join(":", ops.indirectJars));
+      }
+      if (ops.indirectTargets.length > 0) {
+        String[] indirectTargets = encodeBazelTargets(ops.indirectTargets);
+        pluginParams.add("-P:dependency-analyzer:indirect-targets:" + String.join(":", indirectTargets));
+      }
+      if (ops.unusedDepsIgnoredTargets.length > 0) {
+        String[] ignoredTargets = encodeBazelTargets(ops.unusedDepsIgnoredTargets);
+        pluginParams.add("-P:dependency-analyzer:unused-deps-ignored-targets:" + String.join(":", ignoredTargets));
+      }
     }
 
     return pluginParams.toArray(new String[pluginParams.size()]);
