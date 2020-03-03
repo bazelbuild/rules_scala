@@ -50,6 +50,13 @@ class AstUsedJarFinderTest extends FunSuite {
       )
     }
 
+    private def verifyAndConvertDepToClass(dep: String): String = {
+      val classPath = tmpDir.resolve(s"$dep.class")
+      // Make sure the dep refers to a real file
+      assert(classPath.toFile.isFile)
+      classPath.toString
+    }
+
     def checkStrictDepsErrorsReported(
       code: String,
       expectedStrictDeps: List[String]
@@ -61,7 +68,7 @@ class AstUsedJarFinderTest extends FunSuite {
           dependencyAnalyzerParamsOpt =
             Some(
               DependencyAnalyzerTestParams(
-                indirectJars = expectedStrictDeps.map(name => tmpDir.resolve(s"$name.class").toString),
+                indirectJars = expectedStrictDeps.map(verifyAndConvertDepToClass),
                 indirectTargets = expectedStrictDeps,
                 strictDeps = true,
                 dependencyTrackingMethod = DependencyTrackingMethod.Ast
@@ -94,7 +101,7 @@ class AstUsedJarFinderTest extends FunSuite {
           dependencyAnalyzerParamsOpt =
             Some(
               DependencyAnalyzerTestParams(
-                directJars = expectedUnusedDeps.map(name => tmpDir.resolve(s"$name.class").toString),
+                directJars = expectedUnusedDeps.map(verifyAndConvertDepToClass),
                 directTargets = expectedUnusedDeps,
                 unusedDeps = true,
                 dependencyTrackingMethod = DependencyTrackingMethod.Ast
@@ -436,59 +443,53 @@ class AstUsedJarFinderTest extends FunSuite {
     // unused imports, so they wouldn't run into these problems in the
     // first place.
 
-    // In this case, expr=A and selectors=[i], so looking at expr does
-    // give us a type.
-    checkDirectDependencyRecognized(
-      aCode = "object A { val i: Int = 0 }",
-      bCode =
-        s"""
-           |import A.i
-           |
-           |class B
-           |""".stripMargin
-    )
-
-    // In this case expr=foo and selectors=[A], so expr does not have
-    // a type which corresponds with A.
-    withSandbox { sandbox =>
-      sandbox.compileWithoutAnalyzer(
-        s"""
-           |package foo
-           |
-           |object A
-           |""".stripMargin
-      )
-      sandbox.checkUnusedDepsErrorReported(
-        code =
+    def testImport(importString: String, isDirect: Boolean): Unit = {
+      withSandbox { sandbox =>
+        sandbox.compileWithoutAnalyzer(
           s"""
-             |import foo.A
+             |package foo.bar
+             |
+             |object A { val i: Int = 0 }
+             |""".stripMargin
+        )
+
+        val bCode =
+          s"""
+             |import $importString
              |
              |class B
-             |""".stripMargin,
-        expectedUnusedDeps = List("foo/A")
-      )
+             |""".stripMargin
+        val dep = "foo/bar/A"
+
+        if (isDirect) {
+          sandbox.checkStrictDepsErrorsReported(
+            code = bCode,
+            expectedStrictDeps = List(dep)
+          )
+        } else {
+          sandbox.checkUnusedDepsErrorReported(
+            code = bCode,
+            expectedUnusedDeps = List(dep)
+          )
+        }
+      }
     }
+
+    // In this case, expr=foo.bar.A and selectors=[i], so looking at expr does
+    // give us a type.
+    testImport("foo.bar.A.i", isDirect = true)
+
+    // In this case expr=foo.bar and selectors=[A], so expr does not have
+    // a type which corresponds with A.
+    testImport("foo.bar.A", isDirect = false)
 
     // In this case expr=foo and selectors=[bar], so expr does not have
     // a type which corresponds with A.
-    withSandbox { sandbox =>
-      sandbox.compileWithoutAnalyzer(
-        s"""
-           |package foo.bar
-           |
-           |object A
-           |""".stripMargin
-      )
-      sandbox.checkUnusedDepsErrorReported(
-        code =
-          s"""
-             |import foo.bar
-             |
-             |class B
-             |""".stripMargin,
-        expectedUnusedDeps = List("foo/bar/A")
-      )
-    }
+    testImport("foo.bar", isDirect = false)
+
+    // In this case expr=foo.bar and selectors=[_], so expr does not have
+    // a type which corresponds with A.
+    testImport("foo.bar._", isDirect = false)
   }
 
   test("java interface method argument is direct") {
