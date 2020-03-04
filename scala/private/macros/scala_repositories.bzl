@@ -232,3 +232,13 @@ def scala_repositories(
         name = "io_bazel_rules_scala/dependency/scala/guava",
         actual = "@io_bazel_rules_scala_guava",
     )
+
+    native.bind(
+        name = "io_bazel_rules_scala/dependency/scala/scalatest/scalatest",
+        actual = "@io_bazel_rules_scala_scalatest",
+    )
+
+    native.bind(
+        name = "io_bazel_rules_scala/dependency/scala/scalactic/scalactic",
+        actual = "@io_bazel_rules_scala_scalactic",
+    )
