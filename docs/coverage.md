@@ -5,7 +5,7 @@
 rules_scala supports coverage, but it's disabled by default. You need to enable it with an extra toolchain:
 
 ```
-bazel coverage --extra_toolchains="@io_bazel_rules_scala//test/coverage:enable_code_coverage_aspect" //...
+bazel coverage --extra_toolchains="@io_bazel_rules_scala//scala:code_coverage_toolchain" //...
 ```
 
 It will produce several .dat files with results for your targets.
@@ -14,7 +14,7 @@ You can also add more options to receive a combined coverage report:
 
 ```
 bazel coverage \
-  --extra_toolchains="@io_bazel_rules_scala//test/coverage:enable_code_coverage_aspect" \
+  --extra_toolchains="@io_bazel_rules_scala//scala:code_coverage_toolchain" \
   --combined_report=lcov \
   --coverage_report_generator="@bazel_tools//tools/test/CoverageOutputGenerator/java/com/google/devtools/coverageoutputgenerator:Main" \
   //...

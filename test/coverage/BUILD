@@ -2,19 +2,6 @@ load("@rules_java//java:defs.bzl", "java_library", "java_test")
 load("//scala:scala.bzl", "scala_library", "scala_test")
 load("//scala:scala_toolchain.bzl", "scala_toolchain")
 
-scala_toolchain(
-    name = "enable_code_coverage_aspect_impl",
-    enable_code_coverage_aspect = "on",
-    visibility = ["//visibility:public"],
-)
-
-toolchain(
-    name = "enable_code_coverage_aspect",
-    toolchain = "enable_code_coverage_aspect_impl",
-    toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
-    visibility = ["//visibility:public"],
-)
-
 scala_test(
     name = "test-all",
     srcs = [

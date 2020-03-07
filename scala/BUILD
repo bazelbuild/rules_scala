@@ -36,6 +36,19 @@ toolchain(
     visibility = ["//visibility:public"],
 )
 
+scala_toolchain(
+    name = "code_coverage_toolchain_impl",
+    enable_code_coverage_aspect = "on",
+    visibility = ["//visibility:public"],
+)
+
+toolchain(
+    name = "code_coverage_toolchain",
+    toolchain = "code_coverage_toolchain_impl",
+    toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
+    visibility = ["//visibility:public"],
+)
+
 java_import(
     name = "bazel_test_runner_deploy",
     jars = ["@bazel_tools//tools/jdk:TestRunner_deploy.jar"],
