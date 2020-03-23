@@ -3,12 +3,6 @@ load(
     _ScalacProvider = "ScalacProvider",
 )
 
-def _compute_dependency_mode(input_dependency_mode):
-    if input_dependency_mode == "":
-        return "direct"
-
-    return input_dependency_mode
-
 def _compute_strict_deps_mode(input_strict_deps_mode, dependency_mode):
     if dependency_mode == "direct":
         return "off"
@@ -31,9 +25,7 @@ def _scala_toolchain_impl(ctx):
         unused_dependency_checker_mode = "off"
         dependency_tracking_method = "high-level"
     else:
-        dependency_mode = _compute_dependency_mode(
-            ctx.attr.dependency_mode
-        )
+        dependency_mode = ctx.attr.dependency_mode
         strict_deps_mode = _compute_strict_deps_mode(
             ctx.attr.strict_deps_mode,
             dependency_mode,
@@ -74,7 +66,8 @@ scala_toolchain = rule(
             providers = [_ScalacProvider],
         ),
         "dependency_mode": attr.string(
-            values = ["direct", "plus-one", "transitive", ""],
+            default = "direct",
+            values = ["direct", "plus-one", "transitive"],
         ),
         "strict_deps_mode": attr.string(
             default = "default",
