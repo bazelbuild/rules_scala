@@ -43,6 +43,7 @@ scala_library(
         "//src/java/io/bazel/rulesscala/io_utils",
         "//src/java/io/bazel/rulesscala/jar",
         "//src/java/io/bazel/rulesscala/worker",
+        "//external:io_bazel_rules_scala/dependency/com_google_protobuf/protobuf_java",
     ],
 )
 
