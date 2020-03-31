@@ -162,7 +162,7 @@ def scala_proto_default_repositories(
     _scala_maven_import_external(
         name = "scala_proto_rules_grpc_stub",
         artifact = "io.grpc:grpc-stub:1.24.0",
-        artifact_sha256 = "711dad5734b4e8602a271cb383eda504d6d1bf5385ced045a0ca91176ae73821",
+        artifact_sha256 = "eaa9201896a77a0822e26621b538c7154f00441a51c9b14dc9e1ec1f2acfb815",
         licenses = ["notice"],
         server_urls = maven_servers,
     )
