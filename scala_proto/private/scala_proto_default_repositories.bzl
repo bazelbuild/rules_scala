@@ -160,6 +160,19 @@ def scala_proto_default_repositories(
     )
 
     _scala_maven_import_external(
+        name = "scala_proto_rules_grpc_api",
+        artifact = "io.grpc:grpc-api:1.24.0",
+        artifact_sha256 = "553978366e04ee8ddba64afde3b3cf2ac021a2f3c2db2831b6491d742b558598",
+        licenses = ["notice"],
+        server_urls = maven_servers,
+    )
+
+    native.bind(
+        name = "io_bazel_rules_scala/dependency/proto/grpc_api",
+        actual = "@scala_proto_rules_grpc_api//jar",
+    )
+
+    _scala_maven_import_external(
         name = "scala_proto_rules_grpc_stub",
         artifact = "io.grpc:grpc-stub:1.24.0",
         artifact_sha256 = "eaa9201896a77a0822e26621b538c7154f00441a51c9b14dc9e1ec1f2acfb815",
@@ -212,9 +225,22 @@ def scala_proto_default_repositories(
     )
 
     _scala_maven_import_external(
+        name = "scala_proto_rules_perfmark_api",
+        artifact = "io.perfmark:perfmark-api:0.17.0",
+        artifact_sha256 = "816c11409b8a0c6c9ce1cda14bed526e7b4da0e772da67c5b7b88eefd41520f9",
+        licenses = ["notice"],
+        server_urls = maven_servers,
+    )
+
+    native.bind(
+        name = "io_bazel_rules_scala/dependency/proto/perfmark_api",
+        actual = "@scala_proto_rules_perfmark_api//jar",
+    )
+
+    _scala_maven_import_external(
         name = "scala_proto_rules_guava",
-        # io.grpc:grpc-core:1.19.0 defines a dependency on guava 26.0-android
-        # see https://search.maven.org/artifact/io.grpc/grpc-core/1.19.0/jar
+        # io.grpc:grpc-api:1.24.0 defines a dependency on guava 26.0-android
+        # see https://search.maven.org/artifact/io.grpc/grpc-api/1.24.0/jar
         artifact = "com.google.guava:guava:26.0-android",
         artifact_sha256 = "1d044ebb866ef08b7d04e998b4260c9b52fab6e6d6b68d207859486bb3686cd5",
         licenses = ["notice"],
