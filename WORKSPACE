@@ -17,7 +17,7 @@ buildifier_dependencies()
 
 load("//scala:scala.bzl", "scala_repositories")
 
-scala_repositories()
+scala_repositories(fetch_sources = True)
 
 load("//scala:scala_cross_version.bzl", "default_maven_server_urls")
 load("//scala:scala_maven_import_external.bzl", "scala_maven_import_external")
