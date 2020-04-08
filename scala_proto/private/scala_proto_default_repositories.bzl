@@ -133,7 +133,7 @@ def scala_proto_default_repositories(
     _scala_maven_import_external(
         name = "scala_proto_rules_scalapb_fastparse",
         artifact = _scala_mvn_artifact(
-            "com.lihaoyi:fastparse:" + "2.1.2" if int(scala_version.split(".")[1]) < 12 else "2.1.3",
+            "com.lihaoyi:fastparse:" + ("2.1.2" if int(scala_version.split(".")[1]) < 12 else "2.1.3"),
             major_version,
         ),
         artifact_sha256 = scala_version_jar_shas["scalapb_fastparse"],
