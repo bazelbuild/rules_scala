@@ -37,6 +37,22 @@ toolchain(
 )
 
 scala_toolchain(
+    name = "ast_plus_one_deps_strict_deps_unused_deps_error_impl",
+    dependency_mode = "plus-one",
+    dependency_tracking_method = "ast",
+    strict_deps_mode = "error",
+    unused_dependency_checker_mode = "error",
+    visibility = ["//visibility:public"],
+)
+
+toolchain(
+    name = "ast_plus_one_deps_strict_deps_unused_deps_error",
+    toolchain = "ast_plus_one_deps_strict_deps_unused_deps_error_impl",
+    toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
+    visibility = ["//visibility:public"],
+)
+
+scala_toolchain(
     name = "code_coverage_toolchain_impl",
     enable_code_coverage_aspect = "on",
     visibility = ["//visibility:public"],

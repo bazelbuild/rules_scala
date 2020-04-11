@@ -50,7 +50,7 @@ test_plus_one_ast_analyzer_strict_deps() {
   expected_message_error="error: Target '$dependenecy_target' is used but isn't explicitly declared, please add it to the deps"
 
   test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message_error}" ${test_target} "--extra_toolchains=//test/toolchains:ast_plus_one_deps_strict_deps_error" "eq"
-  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message_error}" ${test_target} "--extra_toolchains=//test/toolchains:ast_plus_one_deps_strict_deps_unused_deps_error" "eq"
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message_error}" ${test_target} "--extra_toolchains=//scala:ast_plus_one_deps_strict_deps_unused_deps_error" "eq"
   test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message_warn}" ${test_target} "--extra_toolchains=//test/toolchains:ast_plus_one_deps_strict_deps_warn" "ne"
 }
 
