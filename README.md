@@ -304,7 +304,6 @@ We recommend turning on strict_deps_mode first, as rule `A` might have an entry 
 
 There are a few deprecated configuration methods which we will be removing in the near future.
 
-- `plus_one_deps_mode = "on"` on the scala toolchain. Instead, set `dependency_mode = "plus-one"` on the scala toolchain. `plus_one_deps_mode` will be removed in the future.
 - The command line argument `--strict_java_deps=WARN/ERROR`. Instead, set `dependency_mode = "transitive"` on the scala toolchain, and if only a warning is desired set `strict_deps_mode = "warn"` on the toolchain. In the future, `strict_java_deps` will no longer affect how scala files are compiled. Note that `strict_java_deps` will still control java compilation.
 
 ## Advanced configurable rules
