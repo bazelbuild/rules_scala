@@ -7,6 +7,9 @@ scala_library(
         "Specs2RunnerBuilder.scala",
         "package.scala",
     ],
+    unused_dependency_checker_ignored_targets = [
+        "//external:io_bazel_rules_scala/dependency/scala/scala_xml",
+    ],
     visibility = ["//visibility:public"],
     deps = [
         "//external:io_bazel_rules_scala/dependency/junit/junit",
@@ -14,8 +17,5 @@ scala_library(
         "//external:io_bazel_rules_scala/dependency/specs2/specs2",
         "//external:io_bazel_rules_scala/dependency/specs2/specs2_junit",
         "//src/java/io/bazel/rulesscala/test_discovery",
-    ],
-    unused_dependency_checker_ignored_targets = [
-        "//external:io_bazel_rules_scala/dependency/scala/scala_xml",
     ],
 )

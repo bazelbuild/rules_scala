@@ -10,8 +10,8 @@ scala_library(
 scala_library(
     name = "mixed_language_dependent",
     srcs = ["MixedLanguageDependent.scala"],
-    deps = [":mixed_language_source_jar"],
     unused_dependency_checker_ignored_targets = [":mixed_language_source_jar"],
+    deps = [":mixed_language_source_jar"],
 )
 
 scala_library(
@@ -24,6 +24,6 @@ scala_library(
 scala_library(
     name = "java_dependent",
     srcs = ["JavaDependent.scala"],
-    deps = [":java_source_jar"],
     unused_dependency_checker_ignored_targets = [":java_source_jar"],
+    deps = [":java_source_jar"],
 )
