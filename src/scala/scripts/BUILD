@@ -45,6 +45,9 @@ scala_library(
         "//src/java/io/bazel/rulesscala/jar",
         "//src/java/io/bazel/rulesscala/worker",
     ],
+    unused_dependency_checker_ignored_targets = [
+        "//external:io_bazel_rules_scala/dependency/com_google_protobuf/protobuf_java",
+    ],
 )
 
 scala_binary(
