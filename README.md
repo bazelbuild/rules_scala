@@ -228,6 +228,8 @@ With these settings, we also will error on dependencies which are unneeded, and 
 
 The dependency tracking method `ast` is experimental but so far proves to be better than the default for computing the direct dependencies for `plus-one` mode code. In the future we hope to make this the default for `plus-one` mode and remove the option altogether.
 
+To try it out you can use the following toolchain: `//scala:minimal_direct_source_deps`.
+
 ### [Experimental] Dependency mode
 
 There are three dependency modes. The reason for the multiple modes is that often `scalac` depends on jars which seem unnecessary at first glance. Hence, in order to reduce the need to please `scalac`, we provide the following options.
