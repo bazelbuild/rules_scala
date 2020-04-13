@@ -56,7 +56,7 @@ test_plus_one_ast_analyzer_unused_deps_error() {
 }
 
 test_plus_one_ast_analyzer_unused_deps_strict_deps_error() {
-  action_should_fail build --extra_toolchains="//scala:ast_plus_one_deps_strict_deps_unused_deps_error" //test_expect_failure/plus_one_deps/with_unused_deps:a
+  action_should_fail build --extra_toolchains="//scala:minimal_direct_source_deps" //test_expect_failure/plus_one_deps/with_unused_deps:a
 }
 
 test_plus_one_ast_analyzer_unused_deps_warn() {

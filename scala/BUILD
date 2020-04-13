@@ -46,7 +46,7 @@ scala_toolchain(
 )
 
 toolchain(
-    name = "ast_plus_one_deps_strict_deps_unused_deps_error",
+    name = "minimal_direct_source_deps",
     toolchain = "ast_plus_one_deps_strict_deps_unused_deps_error_impl",
     toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
     visibility = ["//visibility:public"],
