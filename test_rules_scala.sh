@@ -21,7 +21,7 @@ $runner bazel build "--extra_toolchains=//scala:minimal_direct_source_deps -- te
 #$runner bazel build "--extra_toolchains=//test/toolchains:high_level_transitive_deps_strict_deps_error --all_incompatible_changes -- test/..."
 $runner bazel test "--extra_toolchains=//test/toolchains:high_level_transitive_deps_strict_deps_warn -- test/..."
 $runner bazel test "--extra_toolchains=//scala:minimal_direct_source_deps -- test/..."
-$runner bazel build "test_expect_failure/missing_direct_deps/internal_deps/... --extra_toolchains=//test/toolchains:high_level_transitive_deps_strict_deps_warn"
+$runner bazel build "test_expect_failure/missing_direct_deps/internal_deps/... --strict_java_deps=warn --extra_toolchains=//test/toolchains:high_level_transitive_deps_strict_deps_warn"
 $runner bazel build //test_expect_failure/proto_source_root/... --strict_proto_deps=off
 $runner bazel test //test/... --extra_toolchains="//test_expect_failure/plus_one_deps:plus_one_deps"
 . "${test_dir}"/test_build_event_protocol.sh
