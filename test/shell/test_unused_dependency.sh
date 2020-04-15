@@ -39,7 +39,7 @@ test_succeeds_with_warning() {
 test_unused_dependency_checker_mode_warn() {
   # this is a hack to invalidate the cache, so that the target actually gets built and outputs warnings.
   bazel build \
-    --extra_toolchains=//test/toolchains:high_level_transitive_deps_strict_deps_warn \
+    --extra_toolchains=//test/toolchains:ast_transitive_deps_strict_deps_warn \
     //test:UnusedDependencyCheckerWarn
 
   test_succeeds_with_warning \
