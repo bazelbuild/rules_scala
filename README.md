@@ -302,12 +302,6 @@ It can be daunting to turn on strict deps checking or unused dependency mode che
 
 We recommend turning on strict_deps_mode first, as rule `A` might have an entry `B` in its `deps`, and `B` in turn depends on `C`. Meanwhile, the code of `A` only uses `C` but not `B`. Hence, the unused dependency checker, if on, will request that `B` be removed from `A`'s deps. But this will lead to a compile error as `A` can no longer depend on `C`. However, if strict dependency checking was on, then `A`'s deps is guaranteed to have `C` in it.
 
-### [Experimental] Migrating from deprecated configurations
-
-There are a few deprecated configuration methods which we will be removing in the near future.
-
-- The command line argument `--strict_java_deps=WARN/ERROR`. Instead, set `dependency_mode = "transitive"` on the scala toolchain, and if only a warning is desired set `strict_deps_mode = "warn"` on the toolchain. In the future, `strict_java_deps` will no longer affect how scala files are compiled. Note that `strict_java_deps` will still control java compilation.
-
 ## Advanced configurable rules
 To make the ruleset more flexible and configurable, we introduce a phase architecture. By using a phase architecture, where rule implementations are defined as a list of phases that are executed sequentially, functionality can easily be added (or modified) by adding (or swapping) phases.
 

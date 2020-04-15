@@ -19,20 +19,14 @@ def _compute_dependency_tracking_method(input_dependency_tracking_method):
     return input_dependency_tracking_method
 
 def _scala_toolchain_impl(ctx):
-    if ctx.fragments.java.strict_java_deps != "default" and ctx.fragments.java.strict_java_deps != "off":
-        dependency_mode = "transitive"
-        strict_deps_mode = ctx.fragments.java.strict_java_deps
-        unused_dependency_checker_mode = "off"
-        dependency_tracking_method = "high-level"
-    else:
-        dependency_mode = ctx.attr.dependency_mode
-        strict_deps_mode = _compute_strict_deps_mode(
-            ctx.attr.strict_deps_mode,
-            dependency_mode,
-        )
+    dependency_mode = ctx.attr.dependency_mode
+    strict_deps_mode = _compute_strict_deps_mode(
+        ctx.attr.strict_deps_mode,
+        dependency_mode,
+    )
 
-        unused_dependency_checker_mode = ctx.attr.unused_dependency_checker_mode
-        dependency_tracking_method = _compute_dependency_tracking_method(ctx.attr.dependency_tracking_method)
+    unused_dependency_checker_mode = ctx.attr.unused_dependency_checker_mode
+    dependency_tracking_method = _compute_dependency_tracking_method(ctx.attr.dependency_tracking_method)
 
     # Final quality checks to possibly detect buggy code above
     if dependency_mode not in ("direct", "plus-one", "transitive"):
