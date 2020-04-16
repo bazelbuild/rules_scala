@@ -60,6 +60,12 @@ case class FocusedZipImporter(focus: Option[File], zips: List[File], zipFiles: L
       FileContents(importer, Source.fromInputStream(zipFile.getInputStream(entry), "UTF-8").mkString, Some(entry.getName))
     }
 
+  // Instances of this class are supposed to be mergeable into MultiImporters
+  // However, MultiImporters use `toString` to deduplicate importers
+  // (reference: https://github.com/twitter/scrooge/blob/2c8db36fa38bc4450d7ce0264407c40b37a9aff6/scrooge-generator/src/main/scala/com/twitter/scrooge/frontend/Importer.scala#L213)
+  // We create a unique string representation of this instance, that takes the focus into account.
+  override def toString(): String = s"focusedZipImporter(focus=$focus,zips=${zips.mkString(":")},zipfiles=${zipFiles.mkString(":")})"
+
   private[this] def canResolve(filename: String): Boolean = resolve(filename).isDefined
 
   override def getResolvedPath(filename: String): Option[String] =
