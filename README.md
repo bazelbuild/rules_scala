@@ -266,6 +266,8 @@ buildozer 'add deps //some_package:transitive_dependency' //some_other_package:t
 ```
 Note that if you have `buildozer` installed you can just run the last line and have it automatically apply the fix for you.
 
+Note that this option only applies to scala code. Any java code, even that within `scala_library` and other rules_scala rules, is still controlled by the `--strict_java_deps` command-line flag.
+
 ### [Experimental] Unused dependency checking
 To allow for better caching and faster builds we want to minimize the direct dependencies of our targets. Unused dependency checking
 makes sure that all targets specified as direct dependencies are actually used. If `unused_dependency_checker_mode` is set to either
