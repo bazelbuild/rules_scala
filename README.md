@@ -266,6 +266,8 @@ buildozer 'add deps //some_package:transitive_dependency' //some_other_package:t
 ```
 Note that if you have `buildozer` installed you can just run the last line and have it automatically apply the fix for you.
 
+Note that this option only applies to scala code. Any java code, even that within `scala_library` and other rules_scala rules, is still controlled by the `--strict_java_deps` command-line flag.
+
 ### [Experimental] Unused dependency checking
 To allow for better caching and faster builds we want to minimize the direct dependencies of our targets. Unused dependency checking
 makes sure that all targets specified as direct dependencies are actually used. If `unused_dependency_checker_mode` is set to either
@@ -301,12 +303,6 @@ It can be daunting to turn on strict deps checking or unused dependency mode che
 3. Once all issues are fixed, change `A` to have the option of interest set to `error` and delete `B`.
 
 We recommend turning on strict_deps_mode first, as rule `A` might have an entry `B` in its `deps`, and `B` in turn depends on `C`. Meanwhile, the code of `A` only uses `C` but not `B`. Hence, the unused dependency checker, if on, will request that `B` be removed from `A`'s deps. But this will lead to a compile error as `A` can no longer depend on `C`. However, if strict dependency checking was on, then `A`'s deps is guaranteed to have `C` in it.
-
-### [Experimental] Migrating from deprecated configurations
-
-There are a few deprecated configuration methods which we will be removing in the near future.
-
-- The command line argument `--strict_java_deps=WARN/ERROR`. Instead, set `dependency_mode = "transitive"` on the scala toolchain, and if only a warning is desired set `strict_deps_mode = "warn"` on the toolchain. In the future, `strict_java_deps` will no longer affect how scala files are compiled. Note that `strict_java_deps` will still control java compilation.
 
 ## Advanced configurable rules
 To make the ruleset more flexible and configurable, we introduce a phase architecture. By using a phase architecture, where rule implementations are defined as a list of phases that are executed sequentially, functionality can easily be added (or modified) by adding (or swapping) phases.

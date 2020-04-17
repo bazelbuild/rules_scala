@@ -108,5 +108,5 @@ test_scala_library_expect_failure_on_missing_direct_deps() {
 
   local expected_message="buildozer 'add deps $dependenecy_target' //$test_target"
 
-  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" $test_target "--strict_java_deps=error"
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" $test_target "--extra_toolchains=//test/toolchains:high_level_transitive_deps_strict_deps_error"
 }

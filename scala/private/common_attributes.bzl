@@ -47,9 +47,6 @@ common_attrs = {}
 common_attrs.update(common_attrs_for_plugin_bootstrapping)
 
 common_attrs.update({
-    # using stricts scala deps is done by using command line flag called 'strict_java_deps'
-    # switching mode to "on" means that ANY API change in a target's transitive dependencies will trigger a recompilation of that target,
-    # on the other hand any internal change (i.e. on code that ijar omits) WON’T trigger recompilation by transitive dependencies
     "_dependency_analyzer_plugin": attr.label(
         default = Label(
             "@io_bazel_rules_scala//third_party/dependency_analyzer/src/main:dependency_analyzer",

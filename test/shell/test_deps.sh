@@ -39,7 +39,7 @@ test_scala_import_expect_failure_on_missing_direct_deps_warn_mode() {
   local expected_message1="buildozer 'add deps $dependency_target1' //$test_target"
   local expected_message2="buildozer 'add deps $dependency_target2' //$test_target"
 
-  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message1}" ${test_target} "--strict_java_deps=warn" "ne" "${expected_message2}"
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message1}" ${test_target} "--extra_toolchains=//test/toolchains:high_level_transitive_deps_strict_deps_warn" "ne" "${expected_message2}"
 }
 
 test_plus_one_ast_analyzer_strict_deps() {
