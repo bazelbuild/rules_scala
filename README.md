@@ -290,9 +290,9 @@ The strict dependency tracker and unused dependency tracker need to track the us
 - `dependency_tracking_method = "high-level"` - This is the existing tracking method which has false positives and negatives but generally works reasonably well for `direct` dependency mode.
 - `dependency_tracking_method = "ast"` - This is a new tracking method which is being developed for `plus-one` and `transitive` dependency modes. It is still being developed and may have issues which need fixing. If you discover an issue, please submit a small repro of the problem.
 
-Note we intend to eventually remove this flag and use `high-level` as the method for `direct` dependency mode, and `ast` as the method for `plus-one` and `transitive` dependency modes.
+By default, `plus-one` and `transitive` dependency modes will use the `ast` dependency tracking method, while `direct` mode will use the `high-level` dependency tracking method.
 
-In the meantime, if you are using `plus-one` or `transitive` dependency modes, you can use `ast` dependency tracking mode and see how well it works for you.
+Note we intend to eventually remove this flag and make the defaults non-configurable.
 
 ### [Experimental] Turning on strict_deps_mode/unused_dependency_checker_mode
 

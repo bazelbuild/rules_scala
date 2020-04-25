@@ -13,9 +13,14 @@ def _compute_strict_deps_mode(input_strict_deps_mode, dependency_mode):
             return "off"
     return input_strict_deps_mode
 
-def _compute_dependency_tracking_method(input_dependency_tracking_method):
+def _compute_dependency_tracking_method(
+        dependency_mode,
+        input_dependency_tracking_method):
     if input_dependency_tracking_method == "default":
-        return "high-level"
+        if dependency_mode == "direct":
+            return "high-level"
+        else:
+            return "ast"
     return input_dependency_tracking_method
 
 def _scala_toolchain_impl(ctx):
@@ -26,7 +31,10 @@ def _scala_toolchain_impl(ctx):
     )
 
     unused_dependency_checker_mode = ctx.attr.unused_dependency_checker_mode
-    dependency_tracking_method = _compute_dependency_tracking_method(ctx.attr.dependency_tracking_method)
+    dependency_tracking_method = _compute_dependency_tracking_method(
+        dependency_mode,
+        ctx.attr.dependency_tracking_method,
+    )
 
     # Final quality checks to possibly detect buggy code above
     if dependency_mode not in ("direct", "plus-one", "transitive"):
