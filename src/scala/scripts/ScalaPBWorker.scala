@@ -5,7 +5,7 @@ import java.nio.file.{Path, FileAlreadyExistsException}
 
 import io.bazel.rulesscala.io_utils.DeleteRecursively
 import io.bazel.rulesscala.jar.JarCreator
-import io.bazel.rulesscala.worker.{GenericWorker, Processor}
+import io.bazel.rulesscala.worker.Worker
 import protocbridge.{ProtocBridge, ProtocCodeGenerator}
 import scala.collection.JavaConverters._
 import scalapb.ScalaPbCodeGenerator
@@ -14,33 +14,17 @@ import scalapb.{ScalaPBC, ScalaPbCodeGenerator, ScalaPbcException}
 import java.net.URLClassLoader
 import scala.util.{Try, Failure}
 
-object ScalaPBWorker extends GenericWorker(new ScalaPBGenerator) {
+object ScalaPBWorker extends Worker.Interface {
 
-  override protected def setupOutput(ps: PrintStream): Unit = {
-    System.setOut(ps)
-    System.setErr(ps)
-    Console.setErr(ps)
-    Console.setOut(ps)
-  }
+  def main(args: Array[String]): Unit = Worker.workerMain(args, ScalaPBWorker)
 
-  def main(args: Array[String]) {
-    try run(args)
-    catch {
-      case x: Exception =>
-        x.printStackTrace()
-        System.exit(1)
-    }
-  }
-}
-
-class ScalaPBGenerator extends Processor {
   def deleteDir(path: Path): Unit =
     try DeleteRecursively.run(path)
     catch {
       case e: Exception => sys.error(s"Problem while deleting path [$path], e.getMessage= ${e.getMessage}")
     }
 
-  def processRequest(args: java.util.List[String]) {
+  def work(args: Array[String]) {
     val extractRequestResult = PBGenerateRequest.from(args)
     val extraClassesClassLoader = new URLClassLoader(extractRequestResult.extraJars.map { e =>
       val f = e.toFile

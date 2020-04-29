@@ -343,7 +343,7 @@ scrooge_aspect = aspect(
         "_pluck_scrooge_scala": attr.label(
             executable = True,
             cfg = "host",
-            default = Label("//src/scala/scripts:generator"),
+            default = Label("//src/scala/scripts:scrooge_worker"),
             allow_files = True,
         ),
         "_scalac": attr.label(

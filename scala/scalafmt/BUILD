@@ -14,8 +14,8 @@ filegroup(
 
 scala_binary(
     name = "scalafmt",
-    srcs = ["scalafmt/ScalafmtRunner.scala"],
-    main_class = "io.bazel.rules_scala.scalafmt.ScalafmtRunner",
+    srcs = ["scalafmt/ScalafmtWorker.scala"],
+    main_class = "io.bazel.rules_scala.scalafmt.ScalafmtWorker",
     visibility = ["//visibility:public"],
     deps = [
         "//src/java/io/bazel/rulesscala/worker",

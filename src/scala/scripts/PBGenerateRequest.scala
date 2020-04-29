@@ -30,10 +30,10 @@ object PBGenerateRequest {
     }
   }
 
-  def from(args: java.util.List[String]): PBGenerateRequest = {
-    val jarOutput = args.get(0)
-    val protoFiles = args.get(4).split(':')
-    val includedProto = args.get(1).drop(1).split(':').distinct.map { e =>
+  def from(args: Array[String]): PBGenerateRequest = {
+    val jarOutput = args(0)
+    val protoFiles = args(4).split(':')
+    val includedProto = args(1).drop(1).split(':').distinct.map { e =>
       val p = e.split(',')
       // If its an empty string then it means we are local to the current repo for the key, no op
       (Some(p(0)).filter(_.nonEmpty), p(1))
@@ -42,13 +42,13 @@ object PBGenerateRequest {
       case (Some(k), v) if !protoFiles.contains(v) => (Paths.get(k), Paths.get(v))
     }.toList
 
-    val flagOpt = args.get(2) match {
+    val flagOpt = args(2) match {
       case "-" => None
       case s if s.charAt(0) == '-' => Some(s.tail) //drop padding character
       case other => sys.error(s"expected a padding character of - (dash), but found: $other")
     }
 
-    val transitiveProtoPaths: List[String] = (args.get(3) match {
+    val transitiveProtoPaths: List[String] = (args(3) match {
       case "-" => Nil
       case s if s.charAt(0) == '-' => s.tail.split(':').toList //drop padding character
       case other => sys.error(s"expected a padding character of - (dash), but found: $other")
@@ -58,7 +58,7 @@ object PBGenerateRequest {
     val scalaPBOutput = Files.createTempDirectory(tmp, "bazelscalapb")
     val flagPrefix = flagOpt.fold("")(_ + ":")
 
-    val namedGenerators = args.get(6).drop(1).split(',').filter(_.nonEmpty).map { e =>
+    val namedGenerators = args(6).drop(1).split(',').filter(_.nonEmpty).map { e =>
       val kv = e.split('=')
       (kv(0), kv(1))
     }
@@ -69,9 +69,9 @@ object PBGenerateRequest {
 
 
     val scalaPBArgs = outputSettings ::: (padWithProtoPathPrefix(transitiveProtoPaths) ++ protoFiles)
-    val protoc = Paths.get(args.get(5))
+    val protoc = Paths.get(args(5))
 
-    val extraJars = args.get(7).drop(1).split(':').filter(_.nonEmpty).distinct.map {e => Paths.get(e)}.toList
+    val extraJars = args(7).drop(1).split(':').filter(_.nonEmpty).distinct.map {e => Paths.get(e)}.toList
 
     new PBGenerateRequest(jarOutput, scalaPBOutput, scalaPBArgs, includedProto, protoc, namedGenerators, extraJars)
   }

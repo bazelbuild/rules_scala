@@ -1,8 +1,7 @@
 package io.bazel.rulesscala.coverage.instrumenter;
 
 import io.bazel.rulesscala.jar.JarCreator;
-import io.bazel.rulesscala.worker.GenericWorker;
-import io.bazel.rulesscala.worker.Processor;
+import io.bazel.rulesscala.worker.Worker;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -26,28 +25,18 @@ import java.util.function.Function;
 import org.jacoco.core.instr.Instrumenter;
 import org.jacoco.core.runtime.OfflineInstrumentationAccessGenerator;
 
-public final class JacocoInstrumenter implements Processor {
+public final class JacocoInstrumenter implements Worker.Interface {
 
     public static void main(String[] args) throws Exception {
-        (new Worker()).run(args);
-    }
-
-    private static final class Worker extends GenericWorker {
-        public Worker() {
-            super(new JacocoInstrumenter());
-        }
+	Worker.workerMain(args, new JacocoInstrumenter());
     }
 
     @Override
-    public void processRequest(List < String > args) {
+    public void work(String[] args) throws Exception {
         Instrumenter jacoco = new Instrumenter(new OfflineInstrumentationAccessGenerator());
-        args.forEach(arg -> {
-            try {
-                processArg(jacoco, arg);
-            } catch (final Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
+        for (String arg : args) {
+            processArg(jacoco, arg);
+	}
     }
 
     private void processArg(Instrumenter jacoco, String arg) throws Exception {

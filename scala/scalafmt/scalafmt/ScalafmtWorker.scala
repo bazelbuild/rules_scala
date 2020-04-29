@@ -1,6 +1,6 @@
 package io.bazel.rules_scala.scalafmt
 
-import io.bazel.rulesscala.worker.{GenericWorker, Processor};
+import io.bazel.rulesscala.worker.Worker
 import java.io.File
 import java.nio.file.Files
 import org.scalafmt.Scalafmt
@@ -10,21 +10,13 @@ import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.io.Codec
 
-object ScalafmtRunner extends GenericWorker(new ScalafmtProcessor) {
-  def main(args: Array[String]) {
-    try run(args)
-    catch {
-      case x: Exception =>
-        x.printStackTrace()
-        System.exit(1)
-    }
-  }
-}
+object ScalafmtWorker extends Worker.Interface {
 
-class ScalafmtProcessor extends Processor {
-  def processRequest(args: java.util.List[String]) {
+  def main(args: Array[String]): Unit = Worker.workerMain(args, ScalafmtWorker)
+
+  def work(args: Array[String]) {
     val argName = List("config", "input", "output")
-    val argFile = args.asScala.map{x => new File(x)}
+    val argFile = args.map{x => new File(x)}
     val namespace = argName.zip(argFile).toMap
 
     val source = FileOps.readFile(namespace.getOrElse("input", new File("")))(Codec.UTF8)
