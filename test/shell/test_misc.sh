@@ -119,7 +119,7 @@ test_override_javabin() {
 
 test_coverage_on() {
     bazel coverage \
-          --extra_toolchains="//test/coverage:enable_code_coverage_aspect" \
+          --extra_toolchains="//scala:code_coverage_toolchain" \
           //test/coverage/...
     diff test/coverage/expected-coverage.dat $(bazel info bazel-testlogs)/test/coverage/test-all/coverage.dat
 }

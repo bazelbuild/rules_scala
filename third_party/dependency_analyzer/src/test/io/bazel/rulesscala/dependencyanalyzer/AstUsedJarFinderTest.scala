@@ -50,6 +50,13 @@ class AstUsedJarFinderTest extends FunSuite {
       )
     }
 
+    private def verifyAndConvertDepToClass(dep: String): String = {
+      val classPath = tmpDir.resolve(s"$dep.class")
+      // Make sure the dep refers to a real file
+      assert(classPath.toFile.isFile)
+      classPath.toString
+    }
+
     def checkStrictDepsErrorsReported(
       code: String,
       expectedStrictDeps: List[String]
@@ -61,7 +68,7 @@ class AstUsedJarFinderTest extends FunSuite {
           dependencyAnalyzerParamsOpt =
             Some(
               DependencyAnalyzerTestParams(
-                indirectJars = expectedStrictDeps.map(name => tmpDir.resolve(s"$name.class").toString),
+                indirectJars = expectedStrictDeps.map(verifyAndConvertDepToClass),
                 indirectTargets = expectedStrictDeps,
                 strictDeps = true,
                 dependencyTrackingMethod = DependencyTrackingMethod.Ast
@@ -94,7 +101,7 @@ class AstUsedJarFinderTest extends FunSuite {
           dependencyAnalyzerParamsOpt =
             Some(
               DependencyAnalyzerTestParams(
-                directJars = expectedUnusedDeps.map(name => tmpDir.resolve(s"$name.class").toString),
+                directJars = expectedUnusedDeps.map(verifyAndConvertDepToClass),
                 directTargets = expectedUnusedDeps,
                 unusedDeps = true,
                 dependencyTrackingMethod = DependencyTrackingMethod.Ast
@@ -393,6 +400,96 @@ class AstUsedJarFinderTest extends FunSuite {
            |}
            |""".stripMargin
     )
+  }
+
+  test("macro is direct") {
+    checkDirectDependencyRecognized(
+      aCode =
+        s"""
+           |import scala.language.experimental.macros
+           |import scala.reflect.macros.blackbox.Context
+           |
+           |object A {
+           |  def foo(): Unit = macro fooImpl
+           |  def fooImpl(
+           |    c: Context
+           |  )(): c.universe.Tree = {
+           |    import c.universe._
+           |    q""
+           |  }
+           |}
+           |""".stripMargin,
+      bCode =
+        s"""
+           |object B {
+           |  A.foo()
+           |}
+           |""".stripMargin
+    )
+  }
+
+  test("imports are complicated") {
+    // This test documents the behavior of imports as is currently.
+    // Ideally all imports would be direct dependencies. However there
+    // are complications. The main one being that the scala AST treats
+    // imports as (expr, selectors) where in e.g. `import a.b.{c, d}`
+    // expr=`a.b` and selectors=[c, d]. (Note selectors are always formed
+    // from the last part of the import).
+    // And only the expr part has type information attached. In order
+    // to gather type information from the selector, we would need to
+    // do some resolution of types, which is possible but probably complex.
+    // Note also that fixing this is probably less of a priority, as
+    // people who want to check unused deps generally also want to check
+    // unused imports, so they wouldn't run into these problems in the
+    // first place.
+
+    def testImport(importString: String, isDirect: Boolean): Unit = {
+      withSandbox { sandbox =>
+        sandbox.compileWithoutAnalyzer(
+          s"""
+             |package foo.bar
+             |
+             |object A { val i: Int = 0 }
+             |""".stripMargin
+        )
+
+        val bCode =
+          s"""
+             |import $importString
+             |
+             |class B
+             |""".stripMargin
+        val dep = "foo/bar/A"
+
+        if (isDirect) {
+          sandbox.checkStrictDepsErrorsReported(
+            code = bCode,
+            expectedStrictDeps = List(dep)
+          )
+        } else {
+          sandbox.checkUnusedDepsErrorReported(
+            code = bCode,
+            expectedUnusedDeps = List(dep)
+          )
+        }
+      }
+    }
+
+    // In this case, expr=foo.bar.A and selectors=[i], so looking at expr does
+    // give us a type.
+    testImport("foo.bar.A.i", isDirect = true)
+
+    // In this case expr=foo.bar and selectors=[A], so expr does not have
+    // a type which corresponds with A.
+    testImport("foo.bar.A", isDirect = false)
+
+    // In this case expr=foo and selectors=[bar], so expr does not have
+    // a type which corresponds with A.
+    testImport("foo.bar", isDirect = false)
+
+    // In this case expr=foo.bar and selectors=[_], so expr does not have
+    // a type which corresponds with A.
+    testImport("foo.bar._", isDirect = false)
   }
 
   test("java interface method argument is direct") {

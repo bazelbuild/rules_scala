@@ -40,13 +40,14 @@ http_archive(
     sha256 = "2ef429f5d7ce7111263289644d233707dba35e39696377ebab8b0bc701f7818e",
 )
 
-rules_scala_version="69d3c5b5d9b51537231746e93b4383384c9ebcf4" # update this as needed
+rules_scala_version="a2f5852902f5b9f0302c727eead52ca2c7b6c3e2" # update this as needed
 
 http_archive(
     name = "io_bazel_rules_scala",
     strip_prefix = "rules_scala-%s" % rules_scala_version,
     type = "zip",
     url = "https://github.com/bazelbuild/rules_scala/archive/%s.zip" % rules_scala_version,
+    sha256 = "8c48283aeb70e7165af48191b0e39b7434b0368718709d1bced5c3781787d8e7",
 )
 
 load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_toolchains")
@@ -55,12 +56,12 @@ scala_register_toolchains()
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
 scala_repositories()
 
-protobuf_version="09745575a923640154bcf307fba8aedff47f240a"
-protobuf_version_sha256="416212e14481cff8fd4849b1c1c1200a7f34808a54377e22d7447efdf54ad758"
+protobuf_version="3.11.3"
+protobuf_version_sha256="cf754718b0aa945b00550ed7962ddc167167bd922b842199eeb6505e6f344852"
 
 http_archive(
     name = "com_google_protobuf",
-    url = "https://github.com/protocolbuffers/protobuf/archive/%s.tar.gz" % protobuf_version,
+    url = "https://github.com/protocolbuffers/protobuf/archive/v%s.tar.gz" % protobuf_version,
     strip_prefix = "protobuf-%s" % protobuf_version,
     sha256 = protobuf_version_sha256,
 )
@@ -82,6 +83,43 @@ build --strategy=Scalac=worker
 build --worker_sandboxing
 ```
 to your command line, or to enable by default for building/testing add it to your .bazelrc.
+
+## Coverage support
+
+rules_scala supports coverage, but it's disabled by default. You need to enable it with an extra toolchain:
+
+```
+bazel coverage --extra_toolchains="@io_bazel_rules_scala//scala:code_coverage_toolchain" //...
+```
+
+It will produce several .dat files with results for your targets.
+
+You can also add more options to receive a combined coverage report:
+
+```
+bazel coverage \
+  --extra_toolchains="@io_bazel_rules_scala//scala:code_coverage_toolchain" \
+  --combined_report=lcov \
+  --coverage_report_generator="@bazel_tools//tools/test/CoverageOutputGenerator/java/com/google/devtools/coverageoutputgenerator:Main" \
+  //...
+```
+
+This should produce a single `bazel-out/_coverage/_coverage_report.dat` from all coverage files that are generated.
+
+You can extract information from your coverage reports with `lcov`:
+
+```
+# For a summary:
+lcov --summary your-coverage-report.dat
+# For details:
+lcov --list your-coverage-report.dat
+```
+
+If you prefer an HTML report, then you can use `genhtml` provided also by the `lcov` package.
+
+Coverage support has been only tested with [ScalaTest](http://www.scalatest.org/).
+
+Please check [coverage.md](docs/coverage.md) for more details on coverage support.
 
 ## Selecting Scala version
 
@@ -190,6 +228,8 @@ With these settings, we also will error on dependencies which are unneeded, and 
 
 The dependency tracking method `ast` is experimental but so far proves to be better than the default for computing the direct dependencies for `plus-one` mode code. In the future we hope to make this the default for `plus-one` mode and remove the option altogether.
 
+To try it out you can use the following toolchain: `//scala:minimal_direct_source_deps`.
+
 ### [Experimental] Dependency mode
 
 There are three dependency modes. The reason for the multiple modes is that often `scalac` depends on jars which seem unnecessary at first glance. Hence, in order to reduce the need to please `scalac`, we provide the following options.
@@ -226,6 +266,8 @@ buildozer 'add deps //some_package:transitive_dependency' //some_other_package:t
 ```
 Note that if you have `buildozer` installed you can just run the last line and have it automatically apply the fix for you.
 
+Note that this option only applies to scala code. Any java code, even that within `scala_library` and other rules_scala rules, is still controlled by the `--strict_java_deps` command-line flag.
+
 ### [Experimental] Unused dependency checking
 To allow for better caching and faster builds we want to minimize the direct dependencies of our targets. Unused dependency checking
 makes sure that all targets specified as direct dependencies are actually used. If `unused_dependency_checker_mode` is set to either
@@ -248,9 +290,9 @@ The strict dependency tracker and unused dependency tracker need to track the us
 - `dependency_tracking_method = "high-level"` - This is the existing tracking method which has false positives and negatives but generally works reasonably well for `direct` dependency mode.
 - `dependency_tracking_method = "ast"` - This is a new tracking method which is being developed for `plus-one` and `transitive` dependency modes. It is still being developed and may have issues which need fixing. If you discover an issue, please submit a small repro of the problem.
 
-Note we intend to eventually remove this flag and use `high-level` as the method for `direct` dependency mode, and `ast` as the method for `plus-one` and `transitive` dependency modes.
+By default, `plus-one` and `transitive` dependency modes will use the `ast` dependency tracking method, while `direct` mode will use the `high-level` dependency tracking method.
 
-In the meantime, if you are using `plus-one` or `transitive` dependency modes, you can use `ast` dependency tracking mode and see how well it works for you.
+Note we intend to eventually remove this flag and make the defaults non-configurable.
 
 ### [Experimental] Turning on strict_deps_mode/unused_dependency_checker_mode
 
@@ -261,13 +303,6 @@ It can be daunting to turn on strict deps checking or unused dependency mode che
 3. Once all issues are fixed, change `A` to have the option of interest set to `error` and delete `B`.
 
 We recommend turning on strict_deps_mode first, as rule `A` might have an entry `B` in its `deps`, and `B` in turn depends on `C`. Meanwhile, the code of `A` only uses `C` but not `B`. Hence, the unused dependency checker, if on, will request that `B` be removed from `A`'s deps. But this will lead to a compile error as `A` can no longer depend on `C`. However, if strict dependency checking was on, then `A`'s deps is guaranteed to have `C` in it.
-
-### [Experimental] Migrating from deprecated configurations
-
-There are a few deprecated configuration methods which we will be removing in the near future.
-
-- `plus_one_deps_mode = "on"` on the scala toolchain. Instead, set `dependency_mode = "plus-one"` on the scala toolchain. `plus_one_deps_mode` will be removed in the future.
-- The command line argument `--strict_java_deps=WARN/ERROR`. Instead, set `dependency_mode = "transitive"` on the scala toolchain, and if only a warning is desired set `strict_deps_mode = "warn"` on the toolchain. In the future, `strict_java_deps` will no longer affect how scala files are compiled. Note that `strict_java_deps` will still control java compilation.
 
 ## Advanced configurable rules
 To make the ruleset more flexible and configurable, we introduce a phase architecture. By using a phase architecture, where rule implementations are defined as a list of phases that are executed sequentially, functionality can easily be added (or modified) by adding (or swapping) phases.

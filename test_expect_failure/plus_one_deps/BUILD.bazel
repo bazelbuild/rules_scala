@@ -2,7 +2,7 @@ load("//scala:scala_toolchain.bzl", "scala_toolchain")
 
 scala_toolchain(
     name = "plus_one_deps_impl",
-    plus_one_deps_mode = "on",
+    dependency_mode = "plus-one",
     visibility = ["//visibility:public"],
 )
 
@@ -15,7 +15,7 @@ toolchain(
 
 scala_toolchain(
     name = "plus_one_deps_with_unused_error_impl",
-    plus_one_deps_mode = "on",
+    dependency_mode = "plus-one",
     unused_dependency_checker_mode = "error",
     visibility = ["//visibility:public"],
 )

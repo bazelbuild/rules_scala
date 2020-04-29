@@ -1,3 +1,4 @@
+package coverage;
 import org.scalatest._
 
 class TestAll extends FlatSpec {

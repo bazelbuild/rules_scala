@@ -41,11 +41,12 @@ public final class JacocoInstrumenter implements Worker.Interface {
 
     private void processArg(Instrumenter jacoco, String arg) throws Exception {
         String[] parts = arg.split("=");
-        if (parts.length != 2) {
-            throw new Exception("expected `in_path=out_path` form for argument: " + arg);
+        if (parts.length != 3) {
+            throw new Exception("expected `in_path=out_path=srcs` form for argument: " + arg);	
         }
         Path inPath = Paths.get(parts[0]);
         Path outPath = Paths.get(parts[1]);
+        String srcs = parts[2];
         try (
             FileSystem inFS = FileSystems.newFileSystem(inPath, null); FileSystem outFS = FileSystems.newFileSystem(
                 URI.create("jar:" + outPath.toUri()), Collections.singletonMap("create", "true"));
@@ -58,6 +59,21 @@ public final class JacocoInstrumenter implements Worker.Interface {
                     throw new RuntimeException(e);
                 }
             });
+
+            /* 
+            * https://github.com/bazelbuild/bazel/blob/567ca633d016572f5760bfd027c10616f2b8c2e4/src/java_tools/junitrunner/java/com/google/testing/coverage/JacocoCoverageRunner.java#L411
+            * 
+            * Bazel / JacocoCoverageRunner will look for any file that ends with '-paths-for-coverage.txt' within the JAR to be later used for reconstructing the path for source files.
+            * This is a fairly undocumented feature within bazel at this time, but in essence, it opens all the jars, searches for all files matching '-paths-for-coverage.txt'
+            * and then adds them to a single in memory set. 
+            * 
+            * https://github.com/bazelbuild/bazel/blob/567ca633d016572f5760bfd027c10616f2b8c2e4/src/java_tools/junitrunner/java/com/google/testing/coverage/JacocoLCOVFormatter.java#L70
+            * Which is then used in the formatter to find the corresponding source file from the set of sources we wrote in all the JARs.
+            */
+            Files.write(
+                outFS.getPath("-paths-for-coverage.txt"),
+                srcs.replace(",", "\n").getBytes(java.nio.charset.StandardCharsets.UTF_8)
+            );
         }
     }
 

@@ -3,15 +3,6 @@ load(
     _ScalacProvider = "ScalacProvider",
 )
 
-def _compute_dependency_mode(input_dependency_mode, input_plus_one_deps_mode):
-    if input_plus_one_deps_mode == "on":
-        return "plus-one"
-
-    if input_dependency_mode == "":
-        return "direct"
-
-    return input_dependency_mode
-
 def _compute_strict_deps_mode(input_strict_deps_mode, dependency_mode):
     if dependency_mode == "direct":
         return "off"
@@ -22,37 +13,28 @@ def _compute_strict_deps_mode(input_strict_deps_mode, dependency_mode):
             return "off"
     return input_strict_deps_mode
 
-def _compute_dependency_tracking_method(input_dependency_tracking_method):
+def _compute_dependency_tracking_method(
+        dependency_mode,
+        input_dependency_tracking_method):
     if input_dependency_tracking_method == "default":
-        return "high-level"
+        if dependency_mode == "direct":
+            return "high-level"
+        else:
+            return "ast"
     return input_dependency_tracking_method
 
 def _scala_toolchain_impl(ctx):
-    if ctx.attr.plus_one_deps_mode != "":
-        print(
-            "Setting plus_one_deps_mode on toolchain is deprecated." +
-            "Use 'dependency_mode = \"plus-one\"' instead",
-        )
-    if ctx.attr.dependency_mode != "" and ctx.attr.plus_one_deps_mode != "":
-        fail("Cannot set both dependency_mode and plus_one_deps_mode on toolchain")
+    dependency_mode = ctx.attr.dependency_mode
+    strict_deps_mode = _compute_strict_deps_mode(
+        ctx.attr.strict_deps_mode,
+        dependency_mode,
+    )
 
-    if ctx.fragments.java.strict_java_deps != "default" and ctx.fragments.java.strict_java_deps != "off":
-        dependency_mode = "transitive"
-        strict_deps_mode = ctx.fragments.java.strict_java_deps
-        unused_dependency_checker_mode = "off"
-        dependency_tracking_method = "high-level"
-    else:
-        dependency_mode = _compute_dependency_mode(
-            ctx.attr.dependency_mode,
-            ctx.attr.plus_one_deps_mode,
-        )
-        strict_deps_mode = _compute_strict_deps_mode(
-            ctx.attr.strict_deps_mode,
-            dependency_mode,
-        )
-
-        unused_dependency_checker_mode = ctx.attr.unused_dependency_checker_mode
-        dependency_tracking_method = _compute_dependency_tracking_method(ctx.attr.dependency_tracking_method)
+    unused_dependency_checker_mode = ctx.attr.unused_dependency_checker_mode
+    dependency_tracking_method = _compute_dependency_tracking_method(
+        dependency_mode,
+        ctx.attr.dependency_tracking_method,
+    )
 
     # Final quality checks to possibly detect buggy code above
     if dependency_mode not in ("direct", "plus-one", "transitive"):
@@ -86,7 +68,8 @@ scala_toolchain = rule(
             providers = [_ScalacProvider],
         ),
         "dependency_mode": attr.string(
-            values = ["direct", "plus-one", "transitive", ""],
+            default = "direct",
+            values = ["direct", "plus-one", "transitive"],
         ),
         "strict_deps_mode": attr.string(
             default = "default",
@@ -99,9 +82,6 @@ scala_toolchain = rule(
         "dependency_tracking_method": attr.string(
             default = "default",
             values = ["ast", "high-level", "default"],
-        ),
-        "plus_one_deps_mode": attr.string(
-            values = ["off", "on", ""],
         ),
         "enable_code_coverage_aspect": attr.string(
             default = "off",

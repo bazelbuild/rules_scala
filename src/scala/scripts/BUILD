@@ -31,12 +31,16 @@ scala_library(
 scala_library(
     name = "scalapb_worker_lib",
     srcs = ["ScalaPBWorker.scala"],
+    unused_dependency_checker_ignored_targets = [
+        "//external:io_bazel_rules_scala/dependency/com_google_protobuf/protobuf_java",
+    ],
     visibility = ["//visibility:public"],
     runtime_deps = [
         "//external:io_bazel_rules_scala/dependency/com_google_protobuf/protobuf_java",
     ],
     deps = [
         ":scala_proto_request_extractor",
+        "//external:io_bazel_rules_scala/dependency/com_google_protobuf/protobuf_java",
         "//external:io_bazel_rules_scala/dependency/proto/protoc_bridge",
         "//external:io_bazel_rules_scala/dependency/proto/scalapb_plugin",
         "//external:io_bazel_rules_scala/dependency/proto/scalapbc",

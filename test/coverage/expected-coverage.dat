@@ -1,78 +1,110 @@
-SF:/A1.scala
-FN:-1,A1$::<clinit> ()V
-FN:5,A1$::<init> ()V
-FN:3,A1$::a1 (Z)LB1$;
-FN:-1,A1::a1 (Z)LB1$;
-FNDA:1,A1$::<clinit> ()V
-FNDA:1,A1$::<init> ()V
-FNDA:1,A1$::a1 (Z)LB1$;
-FNDA:0,A1::a1 (Z)LB1$;
+SF:test/coverage/A1.scala
+FN:-1,coverage/A1$::<clinit> ()V
+FN:7,coverage/A1$::<init> ()V
+FN:5,coverage/A1$::a1 (Z)Lcoverage/B1$;
+FN:-1,coverage/A1::a1 (Z)Lcoverage/B1$;
+FNDA:1,coverage/A1$::<clinit> ()V
+FNDA:1,coverage/A1$::<init> ()V
+FNDA:1,coverage/A1$::a1 (Z)Lcoverage/B1$;
+FNDA:0,coverage/A1::a1 (Z)Lcoverage/B1$;
 FNF:4
 FNH:3
-BA:3,2
+BA:5,2
 BRF:1
 BRH:1
-DA:3,4
-DA:4,0
-DA:5,5
+DA:5,4
+DA:6,0
+DA:7,5
 LH:2
 LF:3
 end_of_record
-SF:/A2.scala
-FN:-1,A2$::<clinit> ()V
-FN:7,A2$::<init> ()V
-FN:3,A2$::a2 ()V
-FN:-1,A2::a2 ()V
-FNDA:1,A2$::<clinit> ()V
-FNDA:1,A2$::<init> ()V
-FNDA:1,A2$::a2 ()V
-FNDA:0,A2::a2 ()V
+SF:test/coverage/A2.scala
+FN:-1,coverage/A2$::<clinit> ()V
+FN:8,coverage/A2$::<init> ()V
+FN:5,coverage/A2$::a2 ()V
+FN:-1,coverage/A2::a2 ()V
+FNDA:1,coverage/A2$::<clinit> ()V
+FNDA:1,coverage/A2$::<init> ()V
+FNDA:1,coverage/A2$::a2 ()V
+FNDA:0,coverage/A2::a2 ()V
 FNF:4
 FNH:3
-DA:3,4
+DA:5,11
+DA:8,5
+LH:2
+LF:2
+end_of_record
+SF:test/coverage/B1.scala
+FN:-1,coverage/B1$::<clinit> ()V
+FN:9,coverage/B1$::<init> ()V
+FN:6,coverage/B1$::not_called ()V
+FN:-1,coverage/B1::not_called ()V
+FNDA:1,coverage/B1$::<clinit> ()V
+FNDA:1,coverage/B1$::<init> ()V
+FNDA:0,coverage/B1$::not_called ()V
+FNDA:0,coverage/B1::not_called ()V
+FNF:4
+FNH:2
+DA:6,0
+DA:9,5
+LH:1
+LF:2
+end_of_record
+SF:test/coverage/B2.java
+FN:3,coverage/B2::<init> ()V
+FN:5,coverage/B2::b2_a ()Ljava/lang/String;
+FN:9,coverage/B2::b2_b ()V
+FNDA:0,coverage/B2::<init> ()V
+FNDA:1,coverage/B2::b2_a ()Ljava/lang/String;
+FNDA:0,coverage/B2::b2_b ()V
+FNF:3
+FNH:1
+DA:3,0
+DA:5,3
+DA:9,0
+DA:10,0
+LH:1
+LF:4
+end_of_record
+SF:test/coverage/C2.scala
+FN:-1,coverage/C2$::<clinit> ()V
+FN:7,coverage/C2$::<init> ()V
+FN:5,coverage/C2$::c2 (Ljava/lang/String;)Ljava/lang/String;
+FN:-1,coverage/C2::c2 (Ljava/lang/String;)Ljava/lang/String;
+FNDA:1,coverage/C2$::<clinit> ()V
+FNDA:1,coverage/C2$::<init> ()V
+FNDA:1,coverage/C2$::c2 (Ljava/lang/String;)Ljava/lang/String;
+FNDA:1,coverage/C2::c2 (Ljava/lang/String;)Ljava/lang/String;
+FNF:4
+FNH:4
+DA:5,9
 DA:7,5
 LH:2
 LF:2
 end_of_record
-SF:/B1.scala
-FN:-1,B1$::<clinit> ()V
-FN:7,B1$::<init> ()V
-FN:4,B1$::not_called ()V
-FN:-1,B1::not_called ()V
-FNDA:1,B1$::<clinit> ()V
-FNDA:1,B1$::<init> ()V
-FNDA:0,B1$::not_called ()V
-FNDA:0,B1::not_called ()V
-FNF:4
-FNH:2
-DA:4,0
-DA:7,5
-LH:1
-LF:2
-end_of_record
-SF:/TestAll.scala
-FN:10,TestAll$$anonfun$1::<init> (LTestAll;)V
-FN:10,TestAll$$anonfun$1::apply ()V
-FN:10,TestAll$$anonfun$1::apply$mcV$sp ()V
-FN:6,TestAll$$anonfun$2::<init> (LTestAll;)V
-FN:6,TestAll$$anonfun$2::apply ()Lorg/scalatest/compatible/Assertion;
-FN:3,TestAll::<init> ()V
-FNDA:1,TestAll$$anonfun$1::<init> (LTestAll;)V
-FNDA:1,TestAll$$anonfun$1::apply ()V
-FNDA:1,TestAll$$anonfun$1::apply$mcV$sp ()V
-FNDA:1,TestAll$$anonfun$2::<init> (LTestAll;)V
-FNDA:1,TestAll$$anonfun$2::apply ()Lorg/scalatest/compatible/Assertion;
-FNDA:1,TestAll::<init> ()V
+SF:test/coverage/TestAll.scala
+FN:11,coverage/TestAll$$anonfun$1::<init> (Lcoverage/TestAll;)V
+FN:11,coverage/TestAll$$anonfun$1::apply ()V
+FN:11,coverage/TestAll$$anonfun$1::apply$mcV$sp ()V
+FN:7,coverage/TestAll$$anonfun$2::<init> (Lcoverage/TestAll;)V
+FN:7,coverage/TestAll$$anonfun$2::apply ()Lorg/scalatest/compatible/Assertion;
+FN:4,coverage/TestAll::<init> ()V
+FNDA:1,coverage/TestAll$$anonfun$1::<init> (Lcoverage/TestAll;)V
+FNDA:1,coverage/TestAll$$anonfun$1::apply ()V
+FNDA:1,coverage/TestAll$$anonfun$1::apply$mcV$sp ()V
+FNDA:1,coverage/TestAll$$anonfun$2::<init> (Lcoverage/TestAll;)V
+FNDA:1,coverage/TestAll$$anonfun$2::apply ()Lorg/scalatest/compatible/Assertion;
+FNDA:1,coverage/TestAll::<init> ()V
 FNF:6
 FNH:6
-BA:6,2
+BA:7,2
 BRF:1
 BRH:1
-DA:3,2
-DA:5,22
-DA:6,51
-DA:9,23
-DA:10,13
+DA:4,2
+DA:6,22
+DA:7,51
+DA:10,23
+DA:11,13
 LH:5
 LF:5
 end_of_record

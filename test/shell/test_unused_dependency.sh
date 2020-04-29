@@ -39,11 +39,11 @@ test_succeeds_with_warning() {
 test_unused_dependency_checker_mode_warn() {
   # this is a hack to invalidate the cache, so that the target actually gets built and outputs warnings.
   bazel build \
-    --strict_java_deps=warn \
+    --extra_toolchains=//test/toolchains:high_level_transitive_deps_strict_deps_warn \
     //test:UnusedDependencyCheckerWarn
 
   test_succeeds_with_warning \
-    "bazel build --strict_java_deps=off //test:UnusedDependencyCheckerWarn" \
+    "bazel build --extra_toolchains=//test/toolchains:high_level_direct_deps //test:UnusedDependencyCheckerWarn" \
     "warning: Target '//test:UnusedLib' is specified as a dependency to //test:UnusedDependencyCheckerWarn but isn't used, please remove it from the deps."
 }
 
@@ -56,7 +56,7 @@ test_plus_one_ast_analyzer_unused_deps_error() {
 }
 
 test_plus_one_ast_analyzer_unused_deps_strict_deps_error() {
-  action_should_fail build --extra_toolchains="//test/toolchains:ast_plus_one_deps_strict_deps_unused_deps_error" //test_expect_failure/plus_one_deps/with_unused_deps:a
+  action_should_fail build --extra_toolchains="//scala:minimal_direct_source_deps" //test_expect_failure/plus_one_deps/with_unused_deps:a
 }
 
 test_plus_one_ast_analyzer_unused_deps_warn() {
