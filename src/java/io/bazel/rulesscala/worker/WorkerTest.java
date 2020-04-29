@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.IOException;
@@ -15,6 +16,7 @@ import java.io.PrintStream;
 import java.lang.AutoCloseable;
 import java.lang.SecurityManager;
 import java.util.Scanner;
+
 
 import com.google.devtools.build.lib.worker.WorkerProtocol;
 
@@ -85,17 +87,16 @@ public class WorkerTest {
 	        .build()
 		.writeDelimitedTo(helper.requestOut);
 
+	    final AtomicInteger result = new AtomicInteger();
 	    Worker.Interface worker = new Worker.Interface() {
 	        @Override
 		public void work(String[] args) throws Exception {
-		    assert(System.in.read() == -1);
+		    result.set(System.in.read());
 		}
 	    };
 
 	    helper.runWorker(worker);
-
-	    WorkerProtocol.WorkResponse response =
-		WorkerProtocol.WorkResponse.parseDelimitedFrom(helper.responseIn);
+	    assert(result.get() == -1);
 	}
     }
 
