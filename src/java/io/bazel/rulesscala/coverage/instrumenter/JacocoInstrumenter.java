@@ -5,6 +5,8 @@ import io.bazel.rulesscala.worker.Worker;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.FileSystem;
@@ -18,6 +20,7 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -47,11 +50,14 @@ public final class JacocoInstrumenter implements Worker.Interface {
         Path inPath = Paths.get(parts[0]);
         Path outPath = Paths.get(parts[1]);
         String srcs = parts[2];
+
+        Path tempDir = Files.createTempDirectory("jacoco-offline-");
+        JarCreator jarCreator = new JarCreator(Paths.get(outPath.toUri()));
+
         try (
-            FileSystem inFS = FileSystems.newFileSystem(inPath, null); FileSystem outFS = FileSystems.newFileSystem(
-                URI.create("jar:" + outPath.toUri()), Collections.singletonMap("create", "true"));
+            FileSystem inFS = FileSystems.newFileSystem(inPath, null)
         ) {
-            FileVisitor fileVisitor = createInstrumenterVisitor(jacoco, outFS);
+            FileVisitor fileVisitor = createInstrumenterVisitor(jacoco, tempDir);
             inFS.getRootDirectories().forEach(root -> {
                 try {
                     Files.walkFileTree(root, fileVisitor);
@@ -71,13 +77,23 @@ public final class JacocoInstrumenter implements Worker.Interface {
             * Which is then used in the formatter to find the corresponding source file from the set of sources we wrote in all the JARs.
             */
             Files.write(
-                outFS.getPath("-paths-for-coverage.txt"),
+                Paths.get(tempDir.toString(), "-paths-for-coverage.txt"),
                 srcs.replace(",", "\n").getBytes(java.nio.charset.StandardCharsets.UTF_8)
             );
+
+            jarCreator.addDirectory(tempDir);
+            jarCreator.setNormalize(true);
+            jarCreator.setCompression(true);
+            jarCreator.execute();
+        } finally {
+            Files.walk(tempDir)
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .forEach(File::delete);
         }
     }
 
-    private SimpleFileVisitor createInstrumenterVisitor(Instrumenter jacoco, FileSystem outFS) {
+    private SimpleFileVisitor createInstrumenterVisitor(Instrumenter jacoco, Path tempDir) {
         return new SimpleFileVisitor <Path> () {
             @Override
             public FileVisitResult visitFile(Path inPath, BasicFileAttributes attrs) {
@@ -89,7 +105,7 @@ public final class JacocoInstrumenter implements Worker.Interface {
             }
 
             private FileVisitResult actuallyVisitFile(Path inPath, BasicFileAttributes attrs) throws Exception {
-                Path outPath = outFS.getPath(inPath.toString());
+                Path outPath = Paths.get(tempDir.toString(), inPath.toString());
                 Files.createDirectories(outPath.getParent());
                 if (inPath.toString().endsWith(".class")) {
                     try (
@@ -99,7 +115,7 @@ public final class JacocoInstrumenter implements Worker.Interface {
                     ) {
                         jacoco.instrument(inStream, outStream, inPath.toString());
                     }
-                    Files.copy(inPath, outFS.getPath(outPath.toString() + ".uninstrumented"));
+                    Files.copy(inPath, Paths.get(outPath.toString() + ".uninstrumented"));
                 } else {
                     Files.copy(inPath, outPath);
                 }
