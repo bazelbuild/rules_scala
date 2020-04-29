@@ -52,7 +52,7 @@ public final class JacocoInstrumenter implements Worker.Interface {
         String srcs = parts[2];
 
         Path tempDir = Files.createTempDirectory("jacoco-offline-");
-        JarCreator jarCreator = new JarCreator(Paths.get(outPath.toUri()));
+        JarCreator jarCreator = new JarCreator(outPath);
 
         try (
             FileSystem inFS = FileSystems.newFileSystem(inPath, null)
@@ -77,7 +77,7 @@ public final class JacocoInstrumenter implements Worker.Interface {
             * Which is then used in the formatter to find the corresponding source file from the set of sources we wrote in all the JARs.
             */
             Files.write(
-                Paths.get(tempDir.toString(), "-paths-for-coverage.txt"),
+                tempDir.resolve("-paths-for-coverage.txt"),
                 srcs.replace(",", "\n").getBytes(java.nio.charset.StandardCharsets.UTF_8)
             );
 
@@ -86,11 +86,16 @@ public final class JacocoInstrumenter implements Worker.Interface {
             jarCreator.setCompression(true);
             jarCreator.execute();
         } finally {
-            Files.walk(tempDir)
-                .sorted(Comparator.reverseOrder())
-                .map(Path::toFile)
-                .forEach(File::delete);
+            deleteTempDir(tempDir);
         }
+    }
+
+    private void deleteTempDir(Path tempDir) throws Exception {
+        // Delete files in reverse order to ensure that nested directories are removed first.
+        Files.walk(tempDir)
+            .sorted(Comparator.reverseOrder())
+            .map(Path::toFile)
+            .forEach(File::delete);
     }
 
     private SimpleFileVisitor createInstrumenterVisitor(Instrumenter jacoco, Path tempDir) {
@@ -115,7 +120,7 @@ public final class JacocoInstrumenter implements Worker.Interface {
                     ) {
                         jacoco.instrument(inStream, outStream, inPath.toString());
                     }
-                    Files.copy(inPath, Paths.get(outPath.toString() + ".uninstrumented"));
+                    Files.copy(inPath, outPath.resolveSibling(outPath.getFileName() + ".uninstrumented"));
                 } else {
                     Files.copy(inPath, outPath);
                 }
