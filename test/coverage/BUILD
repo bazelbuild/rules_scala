@@ -69,3 +69,13 @@ scala_library(
         "C2.scala",
     ],
 )
+
+scala_test(
+    name = "directory_utils",
+    srcs = [
+        "DirectoryUtilsTest.scala",
+    ],
+    deps = [
+        "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/coverage/instrumenter:directory_utils",
+    ],
+)

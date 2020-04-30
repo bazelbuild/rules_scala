@@ -5,7 +5,6 @@ import io.bazel.rulesscala.worker.Worker;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
@@ -27,6 +26,8 @@ import java.util.function.Function;
 
 import org.jacoco.core.instr.Instrumenter;
 import org.jacoco.core.runtime.OfflineInstrumentationAccessGenerator;
+
+import static io.bazel.rulesscala.coverage.instrumenter.DirectoryUtils.deleteTempDir;
 
 public final class JacocoInstrumenter implements Worker.Interface {
 
@@ -88,14 +89,6 @@ public final class JacocoInstrumenter implements Worker.Interface {
         } finally {
             deleteTempDir(tempDir);
         }
-    }
-
-    private void deleteTempDir(Path tempDir) throws Exception {
-        // Delete files in reverse order to ensure that nested directories are removed first.
-        Files.walk(tempDir)
-            .sorted(Comparator.reverseOrder())
-            .map(Path::toFile)
-            .forEach(File::delete);
     }
 
     private SimpleFileVisitor createInstrumenterVisitor(Instrumenter jacoco, Path tempDir) {
