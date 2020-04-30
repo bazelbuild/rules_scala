@@ -11,6 +11,7 @@ scala_test(
         ":a1",
         ":a2",
         ":b1",
+        ":d1",
     ],
 )
 
@@ -67,6 +68,13 @@ scala_library(
     name = "c2",
     srcs = [
         "C2.scala",
+    ],
+)
+
+scala_library(
+    name = "d1",
+    srcs = [
+        "D1.scala",
     ],
 )
 
