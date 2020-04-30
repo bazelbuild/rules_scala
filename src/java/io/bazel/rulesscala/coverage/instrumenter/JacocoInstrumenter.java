@@ -110,7 +110,7 @@ public final class JacocoInstrumenter implements Worker.Interface {
             }
 
             private FileVisitResult actuallyVisitFile(Path inPath, BasicFileAttributes attrs) throws Exception {
-                Path outPath = Paths.get(tempDir.toString(), inPath.toString());
+                Path outPath = tempDir.resolve(inPath.subpath(0, inPath.getNameCount()).toString());
                 Files.createDirectories(outPath.getParent());
                 if (inPath.toString().endsWith(".class")) {
                     try (
