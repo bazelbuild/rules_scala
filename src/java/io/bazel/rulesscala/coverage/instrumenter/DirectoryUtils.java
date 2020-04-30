@@ -9,7 +9,7 @@ public class DirectoryUtils {
     public static void deleteTempDir(Path tempDir) throws Exception {
         // Delete files in reverse order to ensure that nested directories are removed first.
         Files.walk(tempDir)
-                //.sorted(Comparator.reverseOrder())
+                .sorted(Comparator.reverseOrder())
                 .map(Path::toFile)
                 .forEach(File::delete);
     }
