@@ -5,8 +5,6 @@ import io.bazel.rulesscala.worker.Worker;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -15,14 +13,8 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 import org.jacoco.core.instr.Instrumenter;
 import org.jacoco.core.runtime.OfflineInstrumentationAccessGenerator;
@@ -52,7 +44,7 @@ public final class JacocoInstrumenter implements Worker.Interface {
         Path outPath = Paths.get(parts[1]);
         String srcs = parts[2];
 
-        // Use a directory for coverage metadata  that is unique to each built jar. Avoids
+        // Use a directory for coverage metadata that is unique to each built jar. Avoids
         // multiple threads performing read/write/delete actions on the instrumented classes directory.
         Path instrumentedClassesDirectory = getMetadataDirRelativeToJar(outPath);
         Files.createDirectories(instrumentedClassesDirectory);
@@ -88,7 +80,6 @@ public final class JacocoInstrumenter implements Worker.Interface {
             );
 
             jarCreator.addEntry(instrumentedClassesDirectory.relativize(pathsForCoverage).toString(), pathsForCoverage);
-            jarCreator.setNormalize(true);
             jarCreator.setCompression(true);
             jarCreator.execute();
         } finally {
