@@ -11,6 +11,7 @@ scala_test(
         ":a1",
         ":a2",
         ":b1",
+        ":d1",
     ],
 )
 
@@ -67,5 +68,22 @@ scala_library(
     name = "c2",
     srcs = [
         "C2.scala",
+    ],
+)
+
+scala_library(
+    name = "d1",
+    srcs = [
+        "D1.scala",
+    ],
+)
+
+scala_test(
+    name = "directory_utils",
+    srcs = [
+        "DirectoryUtilsTest.scala",
+    ],
+    deps = [
+        "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/coverage/instrumenter:directory_utils",
     ],
 )

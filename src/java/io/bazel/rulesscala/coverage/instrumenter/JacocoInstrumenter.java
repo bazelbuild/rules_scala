@@ -5,7 +5,6 @@ import io.bazel.rulesscala.worker.Worker;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -14,16 +13,13 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 import org.jacoco.core.instr.Instrumenter;
 import org.jacoco.core.runtime.OfflineInstrumentationAccessGenerator;
+
+import static io.bazel.rulesscala.coverage.instrumenter.DirectoryUtils.deleteTempDir;
 
 public final class JacocoInstrumenter implements Worker.Interface {
 
@@ -47,11 +43,18 @@ public final class JacocoInstrumenter implements Worker.Interface {
         Path inPath = Paths.get(parts[0]);
         Path outPath = Paths.get(parts[1]);
         String srcs = parts[2];
+
+        // Use a directory for coverage metadata that is unique to each built jar. Avoids
+        // multiple threads performing read/write/delete actions on the instrumented classes directory.
+        Path instrumentedClassesDirectory = getMetadataDirRelativeToJar(outPath);
+        Files.createDirectories(instrumentedClassesDirectory);
+
+        JarCreator jarCreator = new JarCreator(outPath);
+
         try (
-            FileSystem inFS = FileSystems.newFileSystem(inPath, null); FileSystem outFS = FileSystems.newFileSystem(
-                URI.create("jar:" + outPath.toUri()), Collections.singletonMap("create", "true"));
+            FileSystem inFS = FileSystems.newFileSystem(inPath, null)
         ) {
-            FileVisitor fileVisitor = createInstrumenterVisitor(jacoco, outFS);
+            FileVisitor fileVisitor = createInstrumenterVisitor(jacoco, instrumentedClassesDirectory, jarCreator);
             inFS.getRootDirectories().forEach(root -> {
                 try {
                     Files.walkFileTree(root, fileVisitor);
@@ -70,14 +73,26 @@ public final class JacocoInstrumenter implements Worker.Interface {
             * https://github.com/bazelbuild/bazel/blob/567ca633d016572f5760bfd027c10616f2b8c2e4/src/java_tools/junitrunner/java/com/google/testing/coverage/JacocoLCOVFormatter.java#L70
             * Which is then used in the formatter to find the corresponding source file from the set of sources we wrote in all the JARs.
             */
+            Path pathsForCoverage = instrumentedClassesDirectory.resolve("-paths-for-coverage.txt");
             Files.write(
-                outFS.getPath("-paths-for-coverage.txt"),
+                pathsForCoverage,
                 srcs.replace(",", "\n").getBytes(java.nio.charset.StandardCharsets.UTF_8)
             );
+
+            jarCreator.addEntry(instrumentedClassesDirectory.relativize(pathsForCoverage).toString(), pathsForCoverage);
+            jarCreator.setCompression(true);
+            jarCreator.execute();
+        } finally {
+            deleteTempDir(instrumentedClassesDirectory);
         }
     }
 
-    private SimpleFileVisitor createInstrumenterVisitor(Instrumenter jacoco, FileSystem outFS) {
+    // Return the path of the coverage metadata directory relative to the output jar path.
+    private static Path getMetadataDirRelativeToJar(Path outputJar) {
+        return outputJar.resolveSibling(outputJar + "-coverage-metadata");
+    }
+
+    private SimpleFileVisitor createInstrumenterVisitor(Instrumenter jacoco, Path instrumentedClassesDirectory, JarCreator jarCreator) {
         return new SimpleFileVisitor <Path> () {
             @Override
             public FileVisitResult visitFile(Path inPath, BasicFileAttributes attrs) {
@@ -89,19 +104,22 @@ public final class JacocoInstrumenter implements Worker.Interface {
             }
 
             private FileVisitResult actuallyVisitFile(Path inPath, BasicFileAttributes attrs) throws Exception {
-                Path outPath = outFS.getPath(inPath.toString());
-                Files.createDirectories(outPath.getParent());
                 if (inPath.toString().endsWith(".class")) {
+                    // Create a tempPath (that is independent of the name), to avoid "File name too long" exceptions.
+                    Path tempPath = Files.createTempFile(instrumentedClassesDirectory, "instrumented", ".jar");
+                    Files.delete(tempPath);
+
                     try (
                         BufferedInputStream inStream = new BufferedInputStream(
                             Files.newInputStream(inPath)); BufferedOutputStream outStream = new BufferedOutputStream(
-                            Files.newOutputStream(outPath, StandardOpenOption.CREATE_NEW));
+                            Files.newOutputStream(tempPath, StandardOpenOption.CREATE_NEW));
                     ) {
                         jacoco.instrument(inStream, outStream, inPath.toString());
                     }
-                    Files.copy(inPath, outFS.getPath(outPath.toString() + ".uninstrumented"));
+                    jarCreator.addEntry(inPath.toString(), tempPath);
+                    jarCreator.addEntry(inPath.toString() + ".uninstrumented", inPath);
                 } else {
-                    Files.copy(inPath, outPath);
+                    jarCreator.addEntry(inPath.toString(), inPath);
                 }
                 return FileVisitResult.CONTINUE;
             }
