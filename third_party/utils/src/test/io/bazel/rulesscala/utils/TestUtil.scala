@@ -23,11 +23,7 @@ object TestUtil {
   }
 
   private lazy val toolboxPluginOptions: String = {
-    val jar = System.getProperty(s"plugin.jar.location")
-    val start = jar.indexOf(s"/third_party/dependency_analyzer")
-    // this substring is needed due to issue: https://github.com/bazelbuild/bazel/issues/2475
-    val jarInRelationToBaseDir = jar.substring(start, jar.length)
-    val pluginPath = Paths.get(baseDir, jarInRelationToBaseDir).toAbsolutePath
+    val pluginPath = Paths.get(pathOf("plugin.jar.location"))
     s"-Xplugin:$pluginPath -Jdummy=${pluginPath.toFile.lastModified}"
   }
 
@@ -146,6 +142,9 @@ object TestUtil {
   private def pathOf(jvmFlag: String) = {
     val jar = System.getProperty(jvmFlag)
     val libPath = Paths.get(baseDir, jar).toAbsolutePath
+    if (!libPath.toFile.isFile) {
+      throw new Exception(s"Jar path $libPath does not exist or is not a file")
+    }
     libPath.toString
   }
 

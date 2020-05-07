@@ -1,8 +1,8 @@
-load("@rules_java//java:defs.bzl", "java_import")
+load("//scala:scala_import.bzl", "scala_import")
 
 package(default_visibility = ["//visibility:public"])
 
-java_import(
+scala_import(
     name = "specs2",
     jars = [],
     exports = [
