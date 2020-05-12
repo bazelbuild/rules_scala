@@ -5,7 +5,7 @@
 git_repository(
     name = "graknlabs_bazel_distribution",
     remote = "https://github.com/graknlabs/bazel-distribution",
-    commit = "7fea2c2743f59a4c31c5b071789b214167104852"
+    commit = "e181add439dc1cfb7b1c27db771ec741d5dd43e6"
 )
 ```
 
@@ -61,14 +61,14 @@ assemble_maven(
     scm_url = "https://github.com/wix/greyhound.git",
     version_file = "//central-sync:VERSION",
     developers = {"1": ["name=Natan Silnitsky", "email=n...@w...m", "organization=Wix"]},
-    license = "MIT"
+    license = "mit"
 )
 ```
 Notes:
 1. For the target attribute you should put the label for the `scala_library` target you created in the previous step with all the relevant sources.
 2. Make sure the `project_name` and `project_description` are unique for each of these targets/artifacts
 3. The `VERSION` file just contains the SEMVER, e.g. 1.0.0
-4. MIT license support is pending on this PR: https://github.com/graknlabs/bazel-distribution/pull/225
+4. Currently supported licenses include `apache` and `MIT`
 
 ### 4. Add deploy_maven target
 Add `deploy_maven` target for each artifact you want to publish.
