@@ -53,4 +53,8 @@ dependencies:
     bloop-launcher:
       version: 1.4.0-RC1
       lang: scala
+  me.vican.jorge:
+    snailgun-core:
+      version: 0.3.1
+      lang: scala
 

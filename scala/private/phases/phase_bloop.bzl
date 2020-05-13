@@ -25,7 +25,7 @@ def phase_bloop(ctx, p):
     args.add_joined("--bloopDependencies", projectDeps.to_list(), join_with=", " )
 
     args.add("--build_file_path", ctx.build_file_path)
-    args.add("--bloopDir", "/Users/syedajafri/dev/bazelExample/") # TODO how can I pass this like in higherkindness? ctx.file.persistence_dir.path)
+    args.add("--bloopDir", "/Users/syed.jafri/dev/local_rules_scala/") # TODO how can I pass this like in higherkindness? ctx.file.persistence_dir.path)
     args.add("--manifest", ctx.outputs.manifest.path)
 
     full_jars = ctx.actions.declare_file(ctx.label.name + ".jar")

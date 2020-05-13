@@ -14,7 +14,7 @@ import bloop.launcher.{Launcher => BloopLauncher}
 import ch.epfl.scala.bsp4j._
 import com.google.gson.Gson
 import io.bazel.rulesscala.jar.JarCreator
-import io.bazel.rulesscala.worker.{GenericWorker, Processor}
+import io.bazel.rulesscala.worker.Worker
 import net.sourceforge.argparse4j.ArgumentParsers
 import net.sourceforge.argparse4j.impl.Arguments
 import net.sourceforge.argparse4j.inf.Namespace
@@ -98,7 +98,7 @@ object BloopUtil {
             "bazel",
             "1.3.4",
             "2.0.0-M4",
-            s"file:///Users/syedajafri/dev/bazelExample", //TODO don't hardcode
+            s"file:///Users/syed.jafri/dev/local_rules_scala", //TODO don't hardcode
             new BuildClientCapabilities(List("scala").asJava)
           )
           val gson = new Gson()
@@ -117,16 +117,9 @@ object BloopUtil {
   }
 }
 
-object BloopRunner extends GenericWorker(new BloopProcessor({
-  BloopUtil.initBloop()
-})) {
-
-  def main(args: Array[String]) {
-    run(args)
-  }
-}
-
-class BloopProcessor(bloopServer: BloopServer) extends Processor {
+object BloopWorker extends Worker.Interface {
+  val bloopServer = BloopUtil.initBloop()
+  def main(args: Array[String]): Unit = Worker.workerMain(args, BloopWorker)
 
   private val pwd = {
     val uncleanPath = FileSystems.getDefault().getPath(".").toAbsolutePath.toString
@@ -164,12 +157,12 @@ class BloopProcessor(bloopServer: BloopServer) extends Processor {
     (paths, version)
   }
 
-  override def processRequest(args: util.List[String]) = {
+  def work(args: Array[String]) {
 
     val startTime = Instant.now.toEpochMilli
     var argsArrayBuffer = scala.collection.mutable.ArrayBuffer[String]()
     for (i <- 0 to args.size - 1) {
-      argsArrayBuffer += args.get(i)
+      argsArrayBuffer += args(i)
     }
 
     val parser = ArgumentParsers.newFor("bloop").addHelp(true).defaultFormatWidth(80).fromFilePrefix("@").build
@@ -201,6 +194,8 @@ class BloopProcessor(bloopServer: BloopServer) extends Processor {
     val projectOutDir = bloopOutDir.resolve(label).toAbsolutePath
     val projectClassesDir = projectOutDir.resolve("classes").toAbsolutePath
     val bloopConfigPath = bloopDir.resolve(s"$label.json")
+
+    System.err.println(s"BloopDir: $bloopDir")
 
     def generateBloopConfig() = {
       Files.createDirectories(projectClassesDir)

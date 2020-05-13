@@ -1,22 +1,9 @@
 load("//scala:scala.bzl", "scala_binary")
 
-#filegroup(
-#    name = "runner",
-#    srcs = ["private/format.template.sh"],
-#    visibility = ["//visibility:public"],
-#)
-
-# Think this could be used when I'm locally developing?
-#filegroup(
-#    name = "testrunner",
-#    srcs = ["private/format-test.template.sh"],
-#    visibility = ["//visibility:public"],
-#)
-
 scala_binary(
     name = "bloop",
-    srcs = glob(["bloop/BloopRunner.scala"]),
-    main_class = "io.bazel.rules_scala.bloop.BloopRunner",
+    srcs = glob(["bloop/BloopWorker.scala"]),
+    main_class = "io.bazel.rules_scala.bloop.BloopWorker",
     visibility = ["//visibility:public"],
     #TODO for other scala versions I might have to specify dependencies for jline or scala_xml
     deps = [
@@ -31,6 +18,7 @@ scala_binary(
         "//3rdparty/jvm/org/scala_lang/modules:scala_java8_compat",
         "//src/java/io/bazel/rulesscala/jar",
         "//3rdparty/jvm/commons_io:commons_io",
+        "//3rdparty/jvm/me/vican/jorge:snailgun_core"
     ],
     unused_dependency_checker_mode = "warn", #TODO I'm using the scala compiler libs but from the classpath
 )
