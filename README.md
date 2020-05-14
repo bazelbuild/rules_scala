@@ -196,6 +196,9 @@ replacements:
         "@io_bazel_rules_scala_scala_xml//:io_bazel_rules_scala_scala_xml"
 ```
 
+## Publishing to Maven repository
+Go [here](docs/publish_to_maven.md)
+
 ## [Experimental] Dependency options
 
 There are a number of dependency options which can be set in the scala toolchain. These include `dependency_mode`, `strict_deps_mode`, `unused_dependency_checker_mode`, and `dependency_tracking_method`.
