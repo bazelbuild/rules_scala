@@ -3,6 +3,7 @@
 ## Contents
 *  [Overview](#overview)
 *  [How to set up](#how-to-set-up)
+*  [IntelliJ plugin support](#intellij-plugin-support)
 
 ## Overview
 A phase extension `phase_scalafmt` can format Scala source code via [Scalafmt](https://scalameta.org/scalafmt/).
@@ -41,3 +42,18 @@ to check the format (without modifying source code).
 The extension provides default configuration, but there are 2 ways to use custom configuration
  - Put `.scalafmt.conf` at root of your workspace
  - Pass `.scalafmt.conf` in via `config` attribute
+
+## IntelliJ plugin support
+
+If you use IntelliJ Bazel plugin, then you should check the [Customizable Phase](/docs/customizable_phase.md#cooperation-with-intellij-plugin) page.
+
+TL;DR: you should try naming your scalafmt rules the same way as the default `rules_scala` rules are named (in your own
+scope), otherwise external dependency loading won't work in IntelliJ for your Scala targets. E.g.:
+
+```python
+# Using this rule won't let you see external dependencies:
+scalafmt_scala_binary = make_scala_binary(ext_scalafmt)
+
+# But this will work:
+scala_binary = make_scala_binary(ext_scalafmt)
+```
