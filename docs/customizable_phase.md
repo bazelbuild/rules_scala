@@ -156,7 +156,7 @@ See `phase_compile.bzl` for example.
 
 Bazel IntelliJ plugin has hard-coded the names of rules_scala targets that it detects as Scala targets:
 
-https://github.com/bazelbuild/intellij/blob/master/scala/src/com/google/idea/blaze/scala/ScalaBlazeRules.java#L32-L37
+https://github.com/bazelbuild/intellij/blame/22ea25d17ee9368a8c85262231009c5ec0225459/scala/src/com/google/idea/blaze/scala/ScalaBlazeRules.java#L32-L37
 
 If you use custom-named rules, defined by using macros and phases it'll make the IntelliJ plugin not recognize those 
 as Scala targets. As a consequence e.g. you'll miss external dependency support for Scala in IntelliJ.
