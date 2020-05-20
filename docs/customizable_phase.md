@@ -6,6 +6,7 @@
 *  [As a consumer](#as-a-consumer)
 *  [As a contributor](#as-a-contributor)
    *  [Phase naming convention](#phase-naming-convention)
+*  [Cooperation with IntelliJ plugin](#cooperation-with-intellij-plugin)
 
 ## Overview
 Phases increase configurability. Rule implementations are defined as a list of phases. Each phase defines a specific step, which helps breaking up implementation into smaller and more readable groups. Some phases are independent from others, which means the order doesn't matter. However, some phases depend on outputs of previous phases, in this case, we should make sure it meets all the prerequisites before executing phases.
@@ -150,3 +151,30 @@ Function names in `phase_<PHASE_NAME>.bzl`
  - `_phase_<PHASE_NAME>`: private function with the actual logic
 
 See `phase_compile.bzl` for example.
+
+## Cooperation with IntelliJ plugin
+
+Bazel IntelliJ plugin has hard-coded the names of rules_scala targets that it detects as Scala targets:
+
+https://github.com/bazelbuild/intellij/blob/master/scala/src/com/google/idea/blaze/scala/ScalaBlazeRules.java#L32-L37
+
+If you use custom-named rules, defined by using macros and phases it'll make the IntelliJ plugin not recognize those 
+as Scala targets. As a consequence e.g. you'll miss external dependency support for Scala in IntelliJ.
+
+```python
+ext_add_custom_phase = ... # some definition
+
+# Using this rule won't let you see external dependencies:
+custom_scala_binary = make_scala_binary(ext_add_custom_phase)
+```
+
+This is tracked in https://github.com/bazelbuild/intellij/issues/1824.
+
+If you need to use custom-named rules and the IntelliJ plugin together, then you have for now mainly two options:
+1. name your rules the same way as the IntelliJ plugin has hard-coded them (and use those from your own scope):
+   ```python
+   scala_binary = make_scala_binary(ext_add_custom_phase)
+   ```
+2. use a forked IntelliJ plugin where you extend the list of detected Scala targets
+
+   Example: https://github.com/gergelyfabian/intellij/commit/265d3761aeabb60b79cab53a9ae9832899bfc651
