@@ -107,7 +107,7 @@ scala_library(
     srcs = glob(["src/main/scala/scalarules/test/mix_java_scala/*.scala"]) + glob([
         "src/main/scala/scalarules/test/mix_java_scala/*.java",
     ]),
-    jvm_flags = [
+    scalac_jvm_flags = [
         "-Xms1G",
         "-Xmx4G",
     ],
