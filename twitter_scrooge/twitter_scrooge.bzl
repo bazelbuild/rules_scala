@@ -29,11 +29,7 @@ load(
 
 _jar_extension = ".jar"
 
-def twitter_scrooge(
-        scala_version = _default_scala_version(),
-        maven_servers = _default_maven_server_urls()):
-    major_version = _extract_major_version(scala_version)
-
+def _default_libthrift_target_label(maven_servers):
     _scala_maven_import_external(
         name = "libthrift",
         artifact = "org.apache.thrift:libthrift:0.8.0",
@@ -41,11 +37,9 @@ def twitter_scrooge(
         licenses = ["notice"],
         server_urls = maven_servers,
     )
-    native.bind(
-        name = "io_bazel_rules_scala/dependency/thrift/libthrift",
-        actual = "@libthrift//jar",
-    )
+    return "@libthrift//jar"
 
+def _default_scala_jar_shas(major_version):
     scala_jar_shas = {
         "2.11": {
             "util_logging": "73ddd61cedabd4dab82b30e6c52c1be6c692b063b8ba310d716ead9e3b4e9267",
@@ -60,68 +54,109 @@ def twitter_scrooge(
             "util_core": "65bb92e70f95cbbfc640e54a5823a16154eac1a2631dc0211347e085aaa6ed0b",
         },
     }
+    return scala_jar_shas[major_version]
 
-    scala_version_jar_shas = scala_jar_shas[major_version]
-
+def _default_scrooge_core(maven_servers, major_version, sha):
     _scala_maven_import_external(
         name = "io_bazel_rules_scala_scrooge_core",
         artifact = _scala_mvn_artifact(
             "com.twitter:scrooge-core:18.6.0",
             major_version,
         ),
-        artifact_sha256 = scala_version_jar_shas["scrooge_core"],
+        artifact_sha256 = sha,
         licenses = ["notice"],
         server_urls = maven_servers,
     )
-    native.bind(
-        name = "io_bazel_rules_scala/dependency/thrift/scrooge_core",
-        actual = "@io_bazel_rules_scala_scrooge_core",
-    )
+    return "@io_bazel_rules_scala_scrooge_core"
 
-    #scrooge-generator related dependencies
+def _default_scrooge_generator(maven_servers, major_version, sha):
     _scala_maven_import_external(
         name = "io_bazel_rules_scala_scrooge_generator",
         artifact = _scala_mvn_artifact(
             "com.twitter:scrooge-generator:18.6.0",
             major_version,
         ),
-        artifact_sha256 = scala_version_jar_shas["scrooge_generator"],
+        artifact_sha256 = sha,
         licenses = ["notice"],
         server_urls = maven_servers,
     )
-    native.bind(
-        name = "io_bazel_rules_scala/dependency/thrift/scrooge_generator",
-        actual = "@io_bazel_rules_scala_scrooge_generator",
-    )
+    return "@io_bazel_rules_scala_scrooge_generator"
 
+def _default_util_core(maven_servers, major_version, sha):
     _scala_maven_import_external(
         name = "io_bazel_rules_scala_util_core",
         artifact = _scala_mvn_artifact(
             "com.twitter:util-core:18.6.0",
             major_version,
         ),
-        artifact_sha256 = scala_version_jar_shas["util_core"],
+        artifact_sha256 = sha,
         licenses = ["notice"],
         server_urls = maven_servers,
     )
-    native.bind(
-        name = "io_bazel_rules_scala/dependency/thrift/util_core",
-        actual = "@io_bazel_rules_scala_util_core",
-    )
+    return "@io_bazel_rules_scala_util_core"
 
+def _default_util_logging(maven_servers, major_version, sha):
     _scala_maven_import_external(
         name = "io_bazel_rules_scala_util_logging",
         artifact = _scala_mvn_artifact(
             "com.twitter:util-logging:18.6.0",
             major_version,
         ),
-        artifact_sha256 = scala_version_jar_shas["util_logging"],
+        artifact_sha256 = sha,
         licenses = ["notice"],
         server_urls = maven_servers,
     )
+    return "@io_bazel_rules_scala_util_logging"
+
+def twitter_scrooge(
+        scala_version = _default_scala_version(),
+        maven_servers = _default_maven_server_urls(),
+        # These target labels need maven_servers to compute sensible defaults.
+        # Therefore we leave them None here.
+        libthrift = None,
+        scrooge_core = None,
+        scrooge_generator = None,
+        util_core = None,
+        util_logging = None,
+        ):
+    major_version = _extract_major_version(scala_version)
+
+    if not libthrift:
+        libthrift = _default_libthrift_target_label(maven_servers)
+    native.bind(
+        name = "io_bazel_rules_scala/dependency/thrift/libthrift",
+        actual = libthrift,
+    )
+
+    scala_version_jar_shas = _default_scala_jar_shas(major_version)
+
+    if not scrooge_core:
+        scrooge_core = _default_scrooge_core(maven_servers, major_version, scala_version_jar_shas["scrooge_core"])
+    native.bind(
+        name = "io_bazel_rules_scala/dependency/thrift/scrooge_core",
+        actual = scrooge_core,
+    )
+
+    #scrooge-generator related dependencies
+    if not scrooge_generator:
+        scrooge_generator = _default_scrooge_generator(maven_servers, major_version, scala_version_jar_shas["scrooge_generator"])
+    native.bind(
+        name = "io_bazel_rules_scala/dependency/thrift/scrooge_generator",
+        actual = scrooge_generator,
+    )
+
+    if not util_core:
+        util_core = _default_util_core(maven_servers, major_version, scala_version_jar_shas["util_core"])
+    native.bind(
+        name = "io_bazel_rules_scala/dependency/thrift/util_core",
+        actual = util_core,
+    )
+
+    if not util_logging:
+        util_logging = _default_util_logging(maven_servers, major_version, scala_version_jar_shas["util_logging"])
     native.bind(
         name = "io_bazel_rules_scala/dependency/thrift/util_logging",
-        actual = "@io_bazel_rules_scala_util_logging",
+        actual = util_logging,
     )
 
 def _colon_paths(data):
