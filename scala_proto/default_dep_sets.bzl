@@ -15,6 +15,8 @@ DEFAULT_SCALAPB_COMPILE_DEPS = [
 ]
 
 DEFAULT_SCALAPB_GRPC_DEPS = [
+    "//external:io_bazel_rules_scala/dependency/proto/grpc_api",
+    "//external:io_bazel_rules_scala/dependency/proto/perfmark_api",
     "//external:io_bazel_rules_scala/dependency/proto/scalapb_runtime_grpc",
     "//external:io_bazel_rules_scala/dependency/proto/grpc_core",
     "//external:io_bazel_rules_scala/dependency/proto/grpc_stub",

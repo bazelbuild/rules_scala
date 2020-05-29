@@ -18,17 +18,19 @@ object AnalyzerMode {
 sealed trait AnalyzerMode
 
 object DependencyTrackingMethod {
-  case object HighLevel extends DependencyTrackingMethod
+  case object HighLevel extends DependencyTrackingMethod("high-level")
+
+  /**
+   * Discovers dependencies by crawling the AST.
+   */
+  case object Ast extends DependencyTrackingMethod("ast")
 
   def parse(mode: String): Option[DependencyTrackingMethod] = {
-    mode match {
-      case "high-level" => Some(HighLevel)
-      case _ => None
-    }
+    Seq(HighLevel, Ast).find(_.name == mode)
   }
 }
 
-sealed trait DependencyTrackingMethod
+sealed abstract class DependencyTrackingMethod(val name: String)
 
 class TargetSet(
   prefix: String,
@@ -75,7 +77,7 @@ object DependencyAnalyzerSettings {
         .takeStringOpt(key)
         .map { str =>
           AnalyzerMode.parse(str).getOrElse {
-            error(s"Failed to parse option $key")
+            error(s"Failed to parse option $key with value $str")
             AnalyzerMode.Error
           }
         }

@@ -1,3 +1,6 @@
+load("@rules_python//python:defs.bzl", "py_binary")
+load("@rules_java//java:defs.bzl", "java_binary", "java_import", "java_library")
+
 package(default_testonly = 1)
 
 load(
@@ -501,8 +504,8 @@ scala_specs2_junit_test(
     name = "data_location_expansion",
     size = "small",
     srcs = ["src/main/scala/scalarules/test/location_expansion/LocationExpansionTest.scala"],
-    data = ["//src/java/com/google/devtools/build/lib:worker"],
-    jvm_flags = ["-Dlocation.expanded=$(location //src/java/com/google/devtools/build/lib:worker)"],
+    data = ["//third_party/bazel/src/main/protobuf:worker_protocol_java_proto"],
+    jvm_flags = ["-Dlocation.expanded='$(locations //third_party/bazel/src/main/protobuf:worker_protocol_java_proto)'"],
     suffixes = ["Test"],
 )
 
@@ -751,4 +754,16 @@ scala_junit_test(
     suffixes = ["Test"],
     tests_from = [":JunitMixedSeparateTarget"],
     runtime_deps = [":JunitMixedSeparateTarget"],
+)
+
+py_binary(
+    name = "py_resource_binary",
+    srcs = ["py_resource.py"],
+    main = "py_resource.py",
+)
+
+scala_test(
+    name = "ScalaTestResourcesFromLocalTargetTest",
+    srcs = ["ScalaTestResourcesFromLocalTargetTest.scala"],
+    resources = [":py_resource_binary"],
 )

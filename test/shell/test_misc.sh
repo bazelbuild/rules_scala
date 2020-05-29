@@ -55,12 +55,27 @@ test_repl() {
 
 test_benchmark_jmh() {
   RES=$(bazel run -- test/jmh:test_benchmark -i1 -f1 -wi 1)
-  RESPONSE_CODE=$?
+  if [ $? -ne 0 ]; then
+    exit 1
+  fi
   if [[ $RES != *Result*Benchmark* ]]; then
     echo "Benchmark did not produce expected output:\n$RES"
     exit 1
   fi
-  exit $RESPONSE_CODE
+
+  exit 0
+}
+
+test_benchmark_jmh_failure() {
+  set +e
+
+  bazel build test_expect_failure/jmh:jmh_reports_failure
+  if [ $? -eq 0 ]; then
+    echo "'bazel build test_expect_failure/jmh:jmh_reports_failure' should have failed."
+    exit 1
+  fi
+
+  exit 0
 }
 
 scala_test_test_filters() {
@@ -104,7 +119,7 @@ test_override_javabin() {
 
 test_coverage_on() {
     bazel coverage \
-          --extra_toolchains="//test/coverage:enable_code_coverage_aspect" \
+          --extra_toolchains="//scala:code_coverage_toolchain" \
           //test/coverage/...
     diff test/coverage/expected-coverage.dat $(bazel info bazel-testlogs)/test/coverage/test-all/coverage.dat
 }
@@ -117,6 +132,7 @@ $runner test_disappearing_class
 $runner test_transitive_deps
 $runner test_repl
 $runner test_benchmark_jmh
+$runner test_benchmark_jmh_failure
 $runner scala_test_test_filters
 $runner test_multi_service_manifest
 $runner test_override_javabin

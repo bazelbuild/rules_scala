@@ -1,3 +1,5 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
+
 package(default_testonly = 1)
 
 load(
@@ -105,7 +107,7 @@ scala_library(
     srcs = glob(["src/main/scala/scalarules/test/mix_java_scala/*.scala"]) + glob([
         "src/main/scala/scalarules/test/mix_java_scala/*.java",
     ]),
-    jvm_flags = [
+    scalac_jvm_flags = [
         "-Xms1G",
         "-Xmx4G",
     ],

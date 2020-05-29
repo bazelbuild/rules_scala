@@ -1,18 +1,6 @@
+load("@rules_java//java:defs.bzl", "java_library", "java_test")
 load("//scala:scala.bzl", "scala_library", "scala_test")
 load("//scala:scala_toolchain.bzl", "scala_toolchain")
-
-scala_toolchain(
-    name = "enable_code_coverage_aspect_impl",
-    enable_code_coverage_aspect = "on",
-    visibility = ["//visibility:public"],
-)
-
-toolchain(
-    name = "enable_code_coverage_aspect",
-    toolchain = "enable_code_coverage_aspect_impl",
-    toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
-    visibility = ["//visibility:public"],
-)
 
 scala_test(
     name = "test-all",
@@ -23,6 +11,7 @@ scala_test(
         ":a1",
         ":a2",
         ":b1",
+        ":d1",
     ],
 )
 
@@ -61,19 +50,9 @@ scala_library(
         "A2.scala",
     ],
     deps = [
-        # TODO :: Understand why referencing a local java library breaks coverage
-        # ":b2",
+        ":b2",
     ],
 )
-
-#
-# As it stands I can't seem to generate coverage for Java libraries pulled into
-# a scala_test target.
-#
-# The java_library is instrumented, but doesn't have the .uninstrumented files
-# that Bazel seems to expect. There are a few code paths for code coverage, so
-# down the road we can explore how to fix this...
-#
 
 java_library(
     name = "b2",
@@ -89,5 +68,22 @@ scala_library(
     name = "c2",
     srcs = [
         "C2.scala",
+    ],
+)
+
+scala_library(
+    name = "d1",
+    srcs = [
+        "D1.scala",
+    ],
+)
+
+scala_test(
+    name = "directory_utils",
+    srcs = [
+        "DirectoryUtilsTest.scala",
+    ],
+    deps = [
+        "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/coverage/instrumenter:directory_utils",
     ],
 )

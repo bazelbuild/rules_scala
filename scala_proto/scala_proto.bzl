@@ -1,5 +1,10 @@
 load(
+    "@rules_proto//proto:defs.bzl",
+    "ProtoInfo",
+)
+load(
     "//scala:scala_cross_version.bzl",
+    _default_maven_server_urls = "default_maven_server_urls",
     _default_scala_version = "default_scala_version",
 )
 load(
@@ -29,7 +34,7 @@ def register_default_proto_dependencies():
 
 def scala_proto_repositories(
         scala_version = _default_scala_version(),
-        maven_servers = ["https://repo.maven.apache.org/maven2"]):
+        maven_servers = _default_maven_server_urls()):
     ret = scala_proto_default_repositories(scala_version, maven_servers)
     register_default_proto_dependencies()
     return ret

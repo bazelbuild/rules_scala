@@ -1,6 +1,7 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load(
     "@io_bazel_rules_scala//scala:scala_cross_version.bzl",
+    _default_maven_server_urls = "default_maven_server_urls",
     _default_scala_version = "default_scala_version",
     _default_scala_version_jar_shas = "default_scala_version_jar_shas",
     _extract_major_version = "extract_major_version",
@@ -56,8 +57,9 @@ def scala_repositories(
             _default_scala_version(),
             _default_scala_version_jar_shas(),
         ),
-        maven_servers = ["https://repo.maven.apache.org/maven2"],
-        scala_extra_jars = _default_scala_extra_jars()):
+        maven_servers = _default_maven_server_urls(),
+        scala_extra_jars = _default_scala_extra_jars(),
+        fetch_sources = False):
     (scala_version, scala_version_jar_shas) = scala_version_shas
     major_version = _extract_major_version(scala_version)
 
@@ -65,6 +67,7 @@ def scala_repositories(
         maven_servers = maven_servers,
         scala_version = scala_version,
         scala_version_jar_shas = scala_version_jar_shas,
+        fetch_sources = fetch_sources,
     )
 
     scala_version_extra_jars = scala_extra_jars[major_version]
@@ -78,6 +81,7 @@ def scala_repositories(
         artifact_sha256 = scala_version_extra_jars["scalatest"]["sha256"],
         licenses = ["notice"],
         server_urls = maven_servers,
+        fetch_sources = fetch_sources,
     )
     _scala_maven_import_external(
         name = "io_bazel_rules_scala_scalactic",
@@ -88,6 +92,7 @@ def scala_repositories(
         artifact_sha256 = scala_version_extra_jars["scalactic"]["sha256"],
         licenses = ["notice"],
         server_urls = maven_servers,
+        fetch_sources = fetch_sources,
     )
 
     _scala_maven_import_external(
@@ -99,6 +104,7 @@ def scala_repositories(
         artifact_sha256 = scala_version_extra_jars["scala_xml"]["sha256"],
         licenses = ["notice"],
         server_urls = maven_servers,
+        fetch_sources = fetch_sources,
     )
 
     _scala_maven_import_external(
@@ -111,6 +117,7 @@ def scala_repositories(
         artifact_sha256 = scala_version_extra_jars["scala_parser_combinators"]["sha256"],
         licenses = ["notice"],
         server_urls = maven_servers,
+        fetch_sources = fetch_sources,
     )
 
     # used by ScalacProcessor
@@ -120,6 +127,7 @@ def scala_repositories(
         artifact_sha256 = "f877d304660ac2a142f3865badfc971dec7ed73c747c7f8d5d2f5139ca736513",
         licenses = ["notice"],
         server_urls = maven_servers,
+        fetch_sources = fetch_sources,
     )
 
     _scala_maven_import_external(
@@ -128,6 +136,7 @@ def scala_repositories(
         artifact_sha256 = "972139718abc8a4893fa78cba8cf7b2c903f35c97aaf44fa3031b0669948b480",
         licenses = ["notice"],
         server_urls = maven_servers,
+        fetch_sources = fetch_sources,
     )
 
     # used by the experimental scala_test rule
@@ -151,19 +160,52 @@ def scala_repositories(
     if not native.existing_rule("com_google_protobuf"):
         http_archive(
             name = "com_google_protobuf",
-            sha256 = "d82eb0141ad18e98de47ed7ed415daabead6d5d1bef1b8cccb6aa4d108a9008f",
-            strip_prefix = "protobuf-b4f193788c9f0f05d7e0879ea96cd738630e5d51",
-            # Commit from 2019-05-15, update to protobuf 3.8 when available.
+            sha256 = "cf754718b0aa945b00550ed7962ddc167167bd922b842199eeb6505e6f344852",
+            strip_prefix = "protobuf-3.11.3",
             urls = [
-                "https://mirror.bazel.build/github.com/protocolbuffers/protobuf/archive/b4f193788c9f0f05d7e0879ea96cd738630e5d51.tar.gz",
-                "https://github.com/protocolbuffers/protobuf/archive/b4f193788c9f0f05d7e0879ea96cd738630e5d51.tar.gz",
+                "https://mirror.bazel.build/github.com/protocolbuffers/protobuf/archive/v3.11.3.tar.gz",
+                "https://github.com/protocolbuffers/protobuf/archive/v3.11.3.tar.gz",
             ],
+        )
+
+    if not native.existing_rule("rules_cc"):
+        http_archive(
+            name = "rules_cc",
+            sha256 = "29daf0159f0cf552fcff60b49d8bcd4f08f08506d2da6e41b07058ec50cfeaec",
+            strip_prefix = "rules_cc-b7fe9697c0c76ab2fd431a891dbb9a6a32ed7c3e",
+            urls = ["https://github.com/bazelbuild/rules_cc/archive/b7fe9697c0c76ab2fd431a891dbb9a6a32ed7c3e.tar.gz"],
+        )
+
+    if not native.existing_rule("rules_java"):
+        http_archive(
+            name = "rules_java",
+            sha256 = "220b87d8cfabd22d1c6d8e3cdb4249abd4c93dcc152e0667db061fb1b957ee68",
+            urls = ["https://github.com/bazelbuild/rules_java/releases/download/0.1.1/rules_java-0.1.1.tar.gz"],
+        )
+
+    if not native.existing_rule("rules_proto"):
+        http_archive(
+            name = "rules_proto",
+            sha256 = "4d421d51f9ecfe9bf96ab23b55c6f2b809cbaf0eea24952683e397decfbd0dd0",
+            strip_prefix = "rules_proto-f6b8d89b90a7956f6782a4a3609b2f0eee3ce965",
+            urls = [
+                "https://mirror.bazel.build/github.com/bazelbuild/rules_proto/archive/f6b8d89b90a7956f6782a4a3609b2f0eee3ce965.tar.gz",
+                "https://github.com/bazelbuild/rules_proto/archive/f6b8d89b90a7956f6782a4a3609b2f0eee3ce965.tar.gz",
+            ],
+        )
+
+    if not native.existing_rule("rules_python"):
+        http_archive(
+            name = "rules_python",
+            sha256 = "e5470e92a18aa51830db99a4d9c492cc613761d5bdb7131c04bd92b9834380f6",
+            strip_prefix = "rules_python-4b84ad270387a7c439ebdccfd530e2339601ef27",
+            urls = ["https://github.com/bazelbuild/rules_python/archive/4b84ad270387a7c439ebdccfd530e2339601ef27.tar.gz"],
         )
 
     if not native.existing_rule("zlib"):  # needed by com_google_protobuf
         http_archive(
             name = "zlib",
-            build_file = "@com_google_protobuf//:third_party/zlib.BUILD",
+            build_file = "@com_google_protobuf//third_party:zlib.BUILD",
             sha256 = "c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1",
             strip_prefix = "zlib-1.2.11",
             urls = [
@@ -215,4 +257,14 @@ def scala_repositories(
     native.bind(
         name = "io_bazel_rules_scala/dependency/scala/guava",
         actual = "@io_bazel_rules_scala_guava",
+    )
+
+    native.bind(
+        name = "io_bazel_rules_scala/dependency/scala/scalatest/scalatest",
+        actual = "@io_bazel_rules_scala_scalatest",
+    )
+
+    native.bind(
+        name = "io_bazel_rules_scala/dependency/scala/scalactic/scalactic",
+        actual = "@io_bazel_rules_scala_scalactic",
     )

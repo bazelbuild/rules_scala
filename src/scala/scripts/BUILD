@@ -1,8 +1,8 @@
 load("//scala:scala.bzl", "scala_binary", "scala_library")
 
 scala_library(
-    name = "generator_lib",
-    srcs = ["TwitterScroogeGenerator.scala"],
+    name = "scrooge_worker_lib",
+    srcs = ["ScroogeWorker.scala"],
     visibility = ["//visibility:public"],
     deps = [
         "//external:io_bazel_rules_scala/dependency/thrift/scrooge_generator",
@@ -14,11 +14,11 @@ scala_library(
 )
 
 scala_binary(
-    name = "generator",
+    name = "scrooge_worker",
     main_class = "scripts.ScroogeWorker",
     visibility = ["//visibility:public"],
     deps = [
-        ":generator_lib",
+        ":scrooge_worker_lib",
     ],
 )
 
@@ -29,14 +29,18 @@ scala_library(
 )
 
 scala_library(
-    name = "scalapb_generator_lib",
-    srcs = ["ScalaPBGenerator.scala"],
+    name = "scalapb_worker_lib",
+    srcs = ["ScalaPBWorker.scala"],
+    unused_dependency_checker_ignored_targets = [
+        "//external:io_bazel_rules_scala/dependency/com_google_protobuf/protobuf_java",
+    ],
     visibility = ["//visibility:public"],
     runtime_deps = [
         "//external:io_bazel_rules_scala/dependency/com_google_protobuf/protobuf_java",
     ],
     deps = [
         ":scala_proto_request_extractor",
+        "//external:io_bazel_rules_scala/dependency/com_google_protobuf/protobuf_java",
         "//external:io_bazel_rules_scala/dependency/proto/protoc_bridge",
         "//external:io_bazel_rules_scala/dependency/proto/scalapb_plugin",
         "//external:io_bazel_rules_scala/dependency/proto/scalapbc",
@@ -47,10 +51,10 @@ scala_library(
 )
 
 scala_binary(
-    name = "scalapb_generator",
+    name = "scalapb_worker",
     main_class = "scripts.ScalaPBWorker",
     visibility = ["//visibility:public"],
     deps = [
-        ":scalapb_generator_lib",
+        ":scalapb_worker_lib",
     ],
 )

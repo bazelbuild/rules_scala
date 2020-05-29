@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package sample;
+
+option java_package = "sample";
+
+message Sample {
+  repeated string foobar = 1;
+}

@@ -1,5 +1,16 @@
 workspace(name = "io_bazel_rules_scala_test")
 
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+# bazel-skylib 0.8.0 released 2019.03.20 (https://github.com/bazelbuild/bazel-skylib/releases/tag/0.8.0)
+skylib_version = "0.8.0"
+http_archive(
+    name = "bazel_skylib",
+    type = "tar.gz",
+    url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{}/bazel-skylib.{}.tar.gz".format (skylib_version, skylib_version),
+    sha256 = "2ef429f5d7ce7111263289644d233707dba35e39696377ebab8b0bc701f7818e",
+)
+
 local_repository(
     name = "io_bazel_rules_scala",
     path = "../../"
@@ -11,9 +22,12 @@ scala_version = "${scala_version}"
 
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
 
-scala_repositories((scala_version, {
-${scala_version_shas}
-}))
+scala_repositories(
+    (scala_version, {
+    ${scala_version_shas}
+    }),
+    fetch_sources = True
+)
 
 load("@io_bazel_rules_scala//twitter_scrooge:twitter_scrooge.bzl", "twitter_scrooge", "scrooge_scala_library")
 
@@ -27,6 +41,10 @@ load("@io_bazel_rules_scala//scala_proto:scala_proto.bzl", "scala_proto_reposito
 
 scala_proto_repositories(scala_version)
 
+load("@io_bazel_rules_scala//scala_proto:toolchains.bzl", "scala_proto_register_toolchains")
+
+scala_proto_register_toolchains()
+
 load("@io_bazel_rules_scala//specs2:specs2_junit.bzl", "specs2_junit_repositories")
 
 specs2_junit_repositories(scala_version)
@@ -35,9 +53,12 @@ load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_unused_deps_
 
 scala_register_unused_deps_toolchains()
 
+protobuf_version="3.11.3"
+protobuf_version_sha256="cf754718b0aa945b00550ed7962ddc167167bd922b842199eeb6505e6f344852"
+
 http_archive(
     name = "com_google_protobuf",
-    sha256 = "9510dd2afc29e7245e9e884336f848c8a6600a14ae726adb6befdb4f786f0be2",
-    urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.6.1.3.zip"],
-    strip_prefix = "protobuf-3.6.1.3",
+    url = "https://github.com/protocolbuffers/protobuf/archive/v%s.tar.gz" % protobuf_version,
+    strip_prefix = "protobuf-%s" % protobuf_version,
+    sha256 = protobuf_version_sha256,
 )

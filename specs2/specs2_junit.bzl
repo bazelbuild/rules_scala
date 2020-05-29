@@ -7,6 +7,7 @@ load(
 load("//junit:junit.bzl", "junit_repositories")
 load(
     "//scala:scala_cross_version.bzl",
+    _default_maven_server_urls = "default_maven_server_urls",
     _default_scala_version = "default_scala_version",
     _extract_major_version = "extract_major_version",
     _scala_mvn_artifact = "scala_mvn_artifact",
@@ -18,7 +19,7 @@ load(
 
 def specs2_junit_repositories(
         scala_version = _default_scala_version(),
-        maven_servers = ["https://repo.maven.apache.org/maven2"]):
+        maven_servers = _default_maven_server_urls()):
     major_version = _extract_major_version(scala_version)
 
     specs2_repositories(scala_version, maven_servers)
@@ -41,6 +42,7 @@ def specs2_junit_repositories(
             major_version,
         ),
         artifact_sha256 = scala_jar_shas[major_version]["specs2_junit"],
+        deps = ["@io_bazel_rules_scala_org_specs2_specs2_core"],
         licenses = ["notice"],
         server_urls = maven_servers,
     )

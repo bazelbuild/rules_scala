@@ -13,10 +13,7 @@
 # limitations under the License.
 """Rules for supporting the Scala language."""
 
-load(
-    "@io_bazel_rules_scala//scala/private:coverage_replacements_provider.bzl",
-    _coverage_replacements_provider = "coverage_replacements_provider",
-)
+load("@bazel_skylib//lib:paths.bzl", "paths")
 load(
     ":common.bzl",
     _collect_plugin_paths = "collect_plugin_paths",
@@ -60,73 +57,56 @@ def compile_scala(
         expect_java_output,
         scalac_jvm_flags,
         scalac,
-        unused_dependency_checker_mode = "off",
-        unused_dependency_checker_ignored_targets = []):
+        dependency_info,
+        unused_dependency_checker_ignored_targets):
     # look for any plugins:
     input_plugins = plugins
     plugins = _collect_plugin_paths(plugins)
     internal_plugin_jars = []
-    strict_deps_mode = "off"
     compiler_classpath_jars = cjars
+    if dependency_info.dependency_mode != "direct":
+        compiler_classpath_jars = transitive_compile_jars
     optional_scalac_args = ""
     classpath_resources = []
     if (hasattr(ctx.files, "classpath_resources")):
         classpath_resources = ctx.files.classpath_resources
 
-    if is_dependency_analyzer_on(ctx):
-        # "off" mode is used as a feature toggle, that preserves original behaviour
-        strict_deps_mode = ctx.fragments.java.strict_java_deps
+    optional_scalac_args_map = {}
+
+    if dependency_info.use_analyzer:
         dep_plugin = ctx.attr._dependency_analyzer_plugin
         plugins = depset(transitive = [plugins, dep_plugin.files])
         internal_plugin_jars = ctx.files._dependency_analyzer_plugin
-        compiler_classpath_jars = transitive_compile_jars
 
-        direct_jars = _join_path(cjars.to_list())
+        current_target = str(target_label)
+        optional_scalac_args_map["CurrentTarget"] = current_target
 
+    if dependency_info.need_indirect_info:
         transitive_cjars_list = transitive_compile_jars.to_list()
         indirect_jars = _join_path(transitive_cjars_list)
         indirect_targets = ",".join([str(labels[j.path]) for j in transitive_cjars_list])
 
-        current_target = str(target_label)
+        optional_scalac_args_map["IndirectJars"] = indirect_jars
+        optional_scalac_args_map["IndirectTargets"] = indirect_targets
 
-        optional_scalac_args = """
-DirectJars: {direct_jars}
-IndirectJars: {indirect_jars}
-IndirectTargets: {indirect_targets}
-CurrentTarget: {current_target}
-        """.format(
-            direct_jars = direct_jars,
-            indirect_jars = indirect_jars,
-            indirect_targets = indirect_targets,
-            current_target = current_target,
-        )
-
-    elif unused_dependency_checker_mode != "off":
-        dependency_analyzer_plugin = ctx.attr._dependency_analyzer_plugin
-        plugins = depset(transitive = [plugins, dependency_analyzer_plugin.files])
-        internal_plugin_jars = ctx.files._dependency_analyzer_plugin
-
-        cjars_list = cjars.to_list()
-        direct_jars = _join_path(cjars_list)
-        direct_targets = ",".join([str(labels[j.path]) for j in cjars_list])
-
+    if dependency_info.unused_deps_mode != "off":
         ignored_targets = ",".join([str(d) for d in unused_dependency_checker_ignored_targets])
+        optional_scalac_args_map["UnusedDepsIgnoredTargets"] = ignored_targets
 
-        current_target = str(target_label)
+    if dependency_info.need_direct_info:
+        cjars_list = cjars.to_list()
+        if dependency_info.need_direct_jars:
+            direct_jars = _join_path(cjars_list)
+            optional_scalac_args_map["DirectJars"] = direct_jars
+        if dependency_info.need_direct_targets:
+            direct_targets = ",".join([str(labels[j.path]) for j in cjars_list])
+            optional_scalac_args_map["DirectTargets"] = direct_targets
 
-        optional_scalac_args = """
-DirectJars: {direct_jars}
-DirectTargets: {direct_targets}
-IgnoredTargets: {ignored_targets}
-CurrentTarget: {current_target}
-        """.format(
-            direct_jars = direct_jars,
-            direct_targets = direct_targets,
-            ignored_targets = ignored_targets,
-            current_target = current_target,
-        )
-    if is_dependency_analyzer_off(ctx) and not is_plus_one_deps_off(ctx):
-        compiler_classpath_jars = transitive_compile_jars
+    optional_scalac_args = "\n".join([
+        "{k}: {v}".format(k = k, v = v)
+        # We sort the arguments for input stability and reproducibility
+        for (k, v) in sorted(optional_scalac_args_map.items())
+    ])
 
     plugins_list = plugins.to_list()
     plugin_arg = _join_path(plugins_list)
@@ -154,6 +134,7 @@ ScalacOpts: {scala_opts}
 SourceJars: {srcjars}
 StrictDepsMode: {strict_deps_mode}
 UnusedDependencyCheckerMode: {unused_dependency_checker_mode}
+DependencyTrackingMethod: {dependency_tracking_method}
 StatsfileOutput: {statsfile_output}
 """.format(
         out = output.path,
@@ -170,8 +151,9 @@ StatsfileOutput: {statsfile_output}
         resource_targets = ",".join([p[0] for p in resource_paths]),
         resource_sources = ",".join([p[1] for p in resource_paths]),
         resource_jars = _join_path(resource_jars),
-        strict_deps_mode = strict_deps_mode,
-        unused_dependency_checker_mode = unused_dependency_checker_mode,
+        strict_deps_mode = dependency_info.strict_deps_mode,
+        unused_dependency_checker_mode = dependency_info.unused_deps_mode,
+        dependency_tracking_method = dependency_info.dependency_tracking_method,
         statsfile_output = statsfile.path,
     )
 
@@ -225,44 +207,17 @@ StatsfileOutput: {statsfile_output}
         ] + ["@" + argfile.path],
     )
 
-def _path_is_absolute(path):
-    # Returns true for absolute path in Linux/Mac (i.e., '/') or Windows (i.e.,
-    # 'X:\' or 'X:/' where 'X' is a letter), false otherwise.
-    if len(path) >= 1 and path[0] == "/":
-        return True
-    if len(path) >= 3 and \
-       path[0].isalpha() and \
-       path[1] == ":" and \
-       (path[2] == "/" or path[2] == "\\"):
-        return True
-
-    return False
-
 def runfiles_root(ctx):
     return "${TEST_SRCDIR}/%s" % ctx.workspace_name
 
 def java_bin(ctx):
     java_path = str(ctx.attr._java_runtime[java_common.JavaRuntimeInfo].java_executable_runfiles_path)
-    if _path_is_absolute(java_path):
+    if paths.is_absolute(java_path):
         javabin = java_path
     else:
         runfiles_root_var = runfiles_root(ctx)
         javabin = "%s/%s" % (runfiles_root_var, java_path)
     return javabin
-
-def is_dependency_analyzer_on(ctx):
-    if (hasattr(ctx.attr, "_dependency_analyzer_plugin") and
-        # when the strict deps FT is removed the "default" check
-        # will be removed since "default" will mean it's turned on
-        ctx.fragments.java.strict_java_deps != "default" and
-        ctx.fragments.java.strict_java_deps != "off"):
-        return True
-
-def is_dependency_analyzer_off(ctx):
-    return not is_dependency_analyzer_on(ctx)
-
-def is_plus_one_deps_off(ctx):
-    return ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].plus_one_deps_mode == "off"
 
 def is_windows(ctx):
     return ctx.configuration.host_path_separator == ";"

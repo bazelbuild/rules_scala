@@ -31,6 +31,14 @@ def default_scala_version_jar_shas():
         "scala_reflect": "6ba385b450a6311a15c918cf8688b9af9327c6104f0ecbd35933cfcd3095fe04",
     }
 
+def default_maven_server_urls():
+    return [
+        "https://repo.maven.apache.org/maven2",
+        "https://maven-central.storage-download.googleapis.com/maven2",
+        "https://mirror.bazel.build/repo1.maven.org/maven2",
+        "https://jcenter.bintray.com",
+    ]
+
 def extract_major_version(scala_version):
     """Return major Scala version given a full version, e.g. "2.11.11" -> "2.11" """
     return scala_version[:scala_version.find(".", 2)]
@@ -56,13 +64,15 @@ def scala_mvn_artifact(
 def new_scala_default_repository(
         scala_version,
         scala_version_jar_shas,
-        maven_servers):
+        maven_servers,
+        fetch_sources):
     _scala_maven_import_external(
         name = "io_bazel_rules_scala_scala_library",
         artifact = "org.scala-lang:scala-library:{}".format(scala_version),
         artifact_sha256 = scala_version_jar_shas["scala_library"],
         licenses = ["notice"],
         server_urls = maven_servers,
+        fetch_sources = fetch_sources,
     )
     _scala_maven_import_external(
         name = "io_bazel_rules_scala_scala_compiler",
@@ -70,6 +80,7 @@ def new_scala_default_repository(
         artifact_sha256 = scala_version_jar_shas["scala_compiler"],
         licenses = ["notice"],
         server_urls = maven_servers,
+        fetch_sources = fetch_sources,
     )
     _scala_maven_import_external(
         name = "io_bazel_rules_scala_scala_reflect",
@@ -77,4 +88,5 @@ def new_scala_default_repository(
         artifact_sha256 = scala_version_jar_shas["scala_reflect"],
         licenses = ["notice"],
         server_urls = maven_servers,
+        fetch_sources = fetch_sources,
     )

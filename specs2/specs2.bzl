@@ -1,5 +1,6 @@
 load(
     "//scala:scala_cross_version.bzl",
+    _default_maven_server_urls = "default_maven_server_urls",
     _default_scala_version = "default_scala_version",
     _extract_major_version = "extract_major_version",
     _scala_mvn_artifact = "scala_mvn_artifact",
@@ -14,7 +15,7 @@ def specs2_version():
 
 def specs2_repositories(
         scala_version = _default_scala_version(),
-        maven_servers = ["https://repo.maven.apache.org/maven2"]):
+        maven_servers = _default_maven_server_urls()):
     major_version = _extract_major_version(scala_version)
 
     scala_jar_shas = {
@@ -41,6 +42,7 @@ def specs2_repositories(
             major_version,
         ),
         artifact_sha256 = scala_version_jar_shas["specs2_common"],
+        deps = ["@io_bazel_rules_scala_org_specs2_specs2_fp"],
         licenses = ["notice"],
         server_urls = maven_servers,
     )
@@ -52,6 +54,10 @@ def specs2_repositories(
             major_version,
         ),
         artifact_sha256 = scala_version_jar_shas["specs2_core"],
+        deps = [
+            "@io_bazel_rules_scala_org_specs2_specs2_common",
+            "@io_bazel_rules_scala_org_specs2_specs2_matcher",
+        ],
         licenses = ["notice"],
         server_urls = maven_servers,
     )
@@ -74,6 +80,7 @@ def specs2_repositories(
             major_version,
         ),
         artifact_sha256 = scala_version_jar_shas["specs2_matcher"],
+        deps = ["@io_bazel_rules_scala_org_specs2_specs2_common"],
         licenses = ["notice"],
         server_urls = maven_servers,
     )

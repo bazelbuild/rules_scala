@@ -1,5 +1,6 @@
 load(
     "//scala:scala_cross_version.bzl",
+    _default_maven_server_urls = "default_maven_server_urls",
     _default_scala_version = "default_scala_version",
     _extract_major_version = "extract_major_version",
     _scala_mvn_artifact = "scala_mvn_artifact",
@@ -12,7 +13,14 @@ load(
     "//scala/private:common.bzl",
     "write_manifest_file",
 )
-load("//scala/private:rule_impls.bzl", "compile_scala")
+load(
+    "//scala/private:dependency.bzl",
+    "legacy_unclear_dependency_info_for_protobuf_scrooge",
+)
+load(
+    "//scala/private:rule_impls.bzl",
+    "compile_scala",
+)
 load("@io_bazel_rules_scala//thrift:thrift_info.bzl", "ThriftInfo")
 load(
     "@io_bazel_rules_scala//thrift:thrift.bzl",
@@ -23,7 +31,7 @@ _jar_extension = ".jar"
 
 def twitter_scrooge(
         scala_version = _default_scala_version(),
-        maven_servers = ["https://repo.maven.apache.org/maven2"]):
+        maven_servers = _default_maven_server_urls()):
     major_version = _extract_major_version(scala_version)
 
     _scala_maven_import_external(
@@ -238,6 +246,8 @@ def _compile_scala(
         expect_java_output = False,
         scalac_jvm_flags = [],
         scalac = ctx.attr._scalac,
+        dependency_info = legacy_unclear_dependency_info_for_protobuf_scrooge(ctx),
+        unused_dependency_checker_ignored_targets = [],
     )
 
     return JavaInfo(
@@ -333,7 +343,7 @@ scrooge_aspect = aspect(
         "_pluck_scrooge_scala": attr.label(
             executable = True,
             cfg = "host",
-            default = Label("//src/scala/scripts:generator"),
+            default = Label("//src/scala/scripts:scrooge_worker"),
             allow_files = True,
         ),
         "_scalac": attr.label(

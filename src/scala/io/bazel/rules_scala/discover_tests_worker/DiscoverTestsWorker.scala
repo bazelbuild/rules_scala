@@ -1,6 +1,6 @@
 package io.bazel.rules_scala.discover_tests_worker
 
-import io.bazel.rules_scala.worker.Worker
+import io.bazel.rulesscala.worker.Worker
 import io.bazel.rules_scala.discover_tests_worker.DiscoveredTests.Result
 import io.bazel.rules_scala.discover_tests_worker.DiscoveredTests.FrameworkDiscovery
 import io.bazel.rules_scala.discover_tests_worker.DiscoveredTests.AnnotatedDiscovery

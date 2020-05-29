@@ -29,7 +29,7 @@ scala_proto_toolchain = rule(
         "code_generator": attr.label(
             executable = True,
             cfg = "host",
-            default = Label("@io_bazel_rules_scala//src/scala/scripts:scalapb_generator"),
+            default = Label("@io_bazel_rules_scala//src/scala/scripts:scalapb_worker"),
             allow_files = True,
         ),
         "named_generators": attr.string_dict(),

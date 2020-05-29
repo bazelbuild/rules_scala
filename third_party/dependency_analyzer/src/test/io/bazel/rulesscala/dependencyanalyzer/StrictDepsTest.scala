@@ -1,35 +1,31 @@
 package third_party.dependency_analyzer.src.test.io.bazel.rulesscala.dependencyanalyzer
 
 import org.scalatest._
-import java.nio.file.Paths
+import third_party.dependency_analyzer.src.main.io.bazel.rulesscala.dependencyanalyzer.DependencyTrackingMethod
+import third_party.utils.src.test.io.bazel.rulesscala.utils.TestUtil
 import third_party.utils.src.test.io.bazel.rulesscala.utils.TestUtil._
 
 class StrictDepsTest extends FunSuite {
   val pluginName = "dependency_analyzer"
 
   def compileWithDependencyAnalyzer(code: String, withDirect: List[String] = Nil, withIndirect: List[(String, String)] = Nil): List[String] = {
-    val toolboxPluginOptions: String = {
-      val jar = System.getProperty(s"plugin.jar.location")
-      val start= jar.indexOf(s"/third_party/$pluginName")
-      // this substring is needed due to issue: https://github.com/bazelbuild/bazel/issues/2475
-      val jarInRelationToBaseDir = jar.substring(start, jar.length)
-      val pluginPath = Paths.get(baseDir, jarInRelationToBaseDir).toAbsolutePath
-      s"-Xplugin:$pluginPath -Jdummy=${pluginPath.toFile.lastModified}"
-    }
-
-    val constructParam: (String, Iterable[String]) => String = constructPluginParam("dependency-analyzer")
-    val compileOptions = Seq(
-      constructParam("direct-jars", withDirect),
-      constructParam("indirect-jars", withIndirect.map(_._1)),
-      constructParam("indirect-targets", withIndirect.map(_._2)),
-      constructParam("current-target", Seq(defaultTarget)),
-      constructParam("strict-deps-mode", Seq("error")),
-      constructParam("dependency-tracking-method", Seq("high-level"))
-    ).mkString(" ")
-
     val extraClasspath = withDirect ++ withIndirect.map(_._1)
 
-    runCompiler(code, compileOptions, extraClasspath, toolboxPluginOptions)
+    TestUtil.runCompiler(
+      code = code,
+      extraClasspath = extraClasspath,
+      dependencyAnalyzerParamsOpt =
+        Some(
+          DependencyAnalyzerTestParams(
+            directJars = withDirect,
+            indirectJars = withIndirect.map(_._1),
+            indirectTargets = withIndirect.map(_._2),
+            strictDeps = true,
+            dependencyTrackingMethod = DependencyTrackingMethod.HighLevel
+          )
+        )
+    )
+      .map(_.msg)
   }
 
   test("error on indirect dependency target") {
@@ -71,7 +67,6 @@ class StrictDepsTest extends FunSuite {
 
     val direct = List(apacheCommonsClasspath)
     val indirect = List(apacheCommonsClasspath -> commonsTarget)
-    val a = compileWithDependencyAnalyzer(testCode, withDirect = direct, withIndirect = indirect)
     compileWithDependencyAnalyzer(testCode, withDirect = direct, withIndirect = indirect).noErrorOn(commonsTarget)
   }
 
@@ -90,11 +85,11 @@ class StrictDepsTest extends FunSuite {
 
     def expectErrorOn(targets: String*): Unit = targets.foreach(target => assert(
       infos.exists(checkErrorContainsMessage(target)),
-      s"expected an error on $target to appear in errors (with buildozer command)!")
+      s"expected an error on $target to appear in errors (with buildozer command)! Errors: $info")
     )
 
     def noErrorOn(target: String) = assert(
       !infos.exists(checkErrorContainsMessage(target)),
-      s"error on $target should not appear in errors!")
+      s"error on $target should not appear in errors! Errors: $info")
   }
 }
