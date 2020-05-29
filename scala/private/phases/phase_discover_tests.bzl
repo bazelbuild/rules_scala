@@ -13,13 +13,13 @@ def phase_discover_tests(ctx, p):
     args.use_param_file("@%s", use_always = True)
 
     args.add(output)
-    args.add_all(p.compile.full_jars)
+    args.add_all(p.compile.files)
     args.add("--")
     args.add_all(p.collect_jars.transitive_runtime_jars)
 
     ctx.actions.run(
         mnemonic = "DiscoverTests",
-        inputs = worker_inputs + p.collect_jars.compile_jars.to_list() + p.compile.full_jars,
+        inputs = worker_inputs + p.collect_jars.compile_jars.to_list() + p.compile.files.to_list(),
         outputs = [output],
         executable = worker.files_to_run.executable,
         input_manifests = worker_input_manifests,

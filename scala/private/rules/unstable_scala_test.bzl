@@ -13,7 +13,7 @@ load(
     "@io_bazel_rules_scala//scala/private:phases/phases.bzl",
     "extras_phases",
     "phase_collect_jars_common",
-    "phase_compile_scalatest",
+    "phase_compile_common",
     "phase_coverage_runfiles",
     "phase_declare_executable",
     "phase_default_info",
@@ -48,7 +48,7 @@ def _scala_test_impl(ctx):
             ("java_wrapper", phase_java_wrapper_common),
             ("declare_executable", phase_declare_executable),
             # no need to build an ijar for an executable
-            ("compile", phase_compile_scalatest),
+            ("compile", phase_compile_common),
             ("merge_jars", phase_merge_jars),
             ("runfiles", phase_runfiles_common),
             ("coverage_runfiles", phase_coverage_runfiles),
