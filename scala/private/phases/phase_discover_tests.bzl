@@ -1,6 +1,4 @@
 def phase_discover_tests(ctx, p):
-    print('discover tests')
-
     worker = ctx.attr._discover_tests_worker
     worker_inputs, _, worker_input_manifests = ctx.resolve_command(
         tools = [worker],
