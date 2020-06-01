@@ -18,6 +18,15 @@ def phase_collect_jars_scalatest(ctx, p):
     )
     return _phase_collect_jars_default(ctx, p, args)
 
+def phase_collect_jars_unstable_scala_test(ctx, p):
+    args = struct(
+        base_classpath = p.scalac_provider.default_classpath,
+        extra_runtime_deps = [
+            ctx.attr._discover_tests_runner
+        ],
+    )
+    return _phase_collect_jars_default(ctx, p, args)
+
 def phase_collect_jars_repl(ctx, p):
     args = struct(
         base_classpath = p.scalac_provider.default_repl_classpath,

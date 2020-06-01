@@ -1,9 +1,8 @@
-load("//scala:defs.bzl", "scala_binary")
+load("//scala:defs.bzl", "scala_library")
 
-scala_binary(
+scala_library(
     name = "discover_tests_runner",
     srcs = ["DiscoverTestsRunner.scala"],
-    main_class = "io.bazel.rules_scala.discover_tests_worker.DiscoverTestsRunner",
     visibility = ["//visibility:public"],
     deps = [
         "//external:io_bazel_rules_scala/dependency/com_google_protobuf/protobuf_java",

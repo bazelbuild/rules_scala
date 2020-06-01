@@ -26,6 +26,7 @@ load(
     _phase_collect_jars_macro_library = "phase_collect_jars_macro_library",
     _phase_collect_jars_repl = "phase_collect_jars_repl",
     _phase_collect_jars_scalatest = "phase_collect_jars_scalatest",
+    _phase_collect_jars_unstable_scala_test = "phase_collect_jars_unstable_scala_test",
 )
 load(
     "@io_bazel_rules_scala//scala/private:phases/phase_compile.bzl",
@@ -113,6 +114,7 @@ phase_java_wrapper_repl = _phase_java_wrapper_repl
 phase_java_wrapper_common = _phase_java_wrapper_common
 
 # collect_jars
+phase_collect_jars_unstable_scala_test = _phase_collect_jars_unstable_scala_test
 phase_collect_jars_scalatest = _phase_collect_jars_scalatest
 phase_collect_jars_repl = _phase_collect_jars_repl
 phase_collect_jars_macro_library = _phase_collect_jars_macro_library
