@@ -1,10 +1,10 @@
-"""
-Starlark rules for building Scala projects.
+"""Starlark rules for building Scala projects.
 
-These are the core rules under active development. Their APIs are
-not guaranteed stable and we anticipate some breaking changes.
+These are the core rules (library, binary, test) under active
+development. Their APIs are not guaranteed stable and we anticipate
+some breaking changes.
 
-We do not recommend using these APIs for production codebases. Instead,
+We do not yet recommend using these APIs for production codebases. Instead,
 use the stable rules exported by scala.bzl:
 
 ```
