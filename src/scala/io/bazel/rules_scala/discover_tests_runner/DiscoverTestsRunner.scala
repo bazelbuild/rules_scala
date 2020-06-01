@@ -22,6 +22,10 @@ import java.nio.file.Paths
 import scala.collection.JavaConverters._
 import scala.annotation.tailrec
 
+/**
+  * DiscoverTestsRunner is responsible for running tests discovered by
+  * the DiscoverTestsWorker.
+  */
 object DiscoverTestsRunner {
 
   def main(args: Array[String]): Unit = {

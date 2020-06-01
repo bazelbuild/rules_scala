@@ -21,11 +21,19 @@ import java.nio.file.Paths
 
 import scala.collection.JavaConverters._
 
+/**
+  * DiscoverTestsWorker is responsible for scanning jars to indentify
+  * classes and modules that conform to the SBT testing interface.
+  *
+  * Identified tests are written to a protobuf output file so a separate
+  * test runner can handle test execution.
+  */
 object DiscoverTestsWorker extends Worker.Interface {
 
   def main(args: Array[String]): Unit = Worker.workerMain(args, DiscoverTestsWorker)
 
   def work(args: Array[String]): Unit = {
+    // argument format: <outputFile> <testJars>+ -- <frameworkJars>+
     val outputFile = Paths.get(args(0)).toFile
     val (args0, args1) = args.tail.span(_ != "--")
     val testJars = args0.map(f => Paths.get(f).toUri.toURL)
