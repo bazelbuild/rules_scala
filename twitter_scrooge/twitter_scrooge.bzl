@@ -117,8 +117,7 @@ def twitter_scrooge(
         scrooge_core = None,
         scrooge_generator = None,
         util_core = None,
-        util_logging = None,
-        ):
+        util_logging = None):
     major_version = _extract_major_version(scala_version)
 
     if not libthrift:
