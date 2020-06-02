@@ -1,3 +1,1 @@
-import scala.collection.mutable
-
-class B {}
+class A {}
