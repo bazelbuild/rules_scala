@@ -5,5 +5,6 @@ scala_library(
     srcs = ["A.scala"],
     scalacopts = [
         "-language:dynamics,implicitConversions",
+        "-Xlint",
     ],
 )
