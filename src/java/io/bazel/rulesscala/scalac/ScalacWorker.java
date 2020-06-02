@@ -231,6 +231,7 @@ class ScalacWorker implements Worker.Interface {
     MainClass comp = new MainClass();
     long start = System.currentTimeMillis();
     try {
+      System.err.println(Arrays.toString(compilerArgs));
       comp.process(compilerArgs);
     } catch (Throwable ex) {
       if (ex.toString().contains("scala.reflect.internal.Types$TypeError")) {

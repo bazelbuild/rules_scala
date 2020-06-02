@@ -21,11 +21,9 @@ def phase_bloop(ctx, p):
     args.add_all("--sources", ctx.files.srcs)
 
     dependencyJars = p.collect_jars.transitive_runtime_jars.to_list()
-    args.add_joined("--target_classpath", dependencyJars, join_with=", ")
+    args.add_joined("--targetClasspath", dependencyJars, join_with=", ")
     args.add_joined("--bloopDependencies", projectDeps.to_list(), join_with=", " )
 
-    args.add("--build_file_path", ctx.build_file_path)
-    args.add("--bloopDir", "/Users/syed.jafri/dev/local_rules_scala/") # TODO how can I pass this like in higherkindness? ctx.file.persistence_dir.path)
     args.add("--manifest", ctx.outputs.manifest.path)
 
     full_jars = ctx.actions.declare_file(ctx.label.name + ".jar")
@@ -37,8 +35,17 @@ def phase_bloop(ctx, p):
     args.set_param_file_format("multiline")
     args.use_param_file("@%s", use_always = True)
 
+    # this seems to nest it under the package it is in. e.g. //ABC:A //ABC:B //BC_Z_disjoint:B then there is a ABC/.bloop and BC_Z_disjoint/.bloop
+    # So the targets are still in one .bloop for the package
+    # Oh the docs mention it'll create it for the current package
+    # So initialize bloop for each package?
+    bloopProjectConfig = ctx.actions.declare_file(".bloop/" + projectName + ".json")
+    args.add("--bloopProjectConfig", ctx.build_file_path)
+    bloopProjectOutput = ctx.actions.declare_directory(".bloop/out/" + projectName)
+    args.add("--bloopProjectOutput", ctx.build_file_path)
+
     ctx.actions.run(
-        outputs = [full_jars, statsfile],
+        outputs = [full_jars, statsfile, bloopProjectConfig,bloopProjectOutput],
         inputs = [ctx.outputs.manifest] +  dependencyJars,
         arguments = ["--jvm_flag=-Dfile.encoding=UTF-8", args],
         executable = ctx.executable._bloop, # Run bloop runner with args

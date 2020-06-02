@@ -2,9 +2,7 @@ package io.bazel.rules_scala.bloop
 
 import java.io.{File, InputStream}
 import java.nio.file.{FileSystems, Files, Path, Paths}
-import java.time.Instant
-import java.util
-import java.util.concurrent.Executors
+import java.util.concurrent.{Executors, TimeUnit}
 
 import bloop.bloopgun.core.Shell
 import bloop.config.Config.Scala
@@ -17,7 +15,7 @@ import io.bazel.rulesscala.jar.JarCreator
 import io.bazel.rulesscala.worker.Worker
 import net.sourceforge.argparse4j.ArgumentParsers
 import net.sourceforge.argparse4j.impl.Arguments
-import net.sourceforge.argparse4j.inf.Namespace
+import net.sourceforge.argparse4j.inf.{ArgumentParser, Namespace}
 import org.apache.commons.io.FileUtils
 import org.eclipse.lsp4j.jsonrpc.{Launcher => LspLauncher}
 
@@ -26,10 +24,19 @@ import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Promise}
-import scala.util.Try
+import zio._
+import zio.clock.Clock
+import zio.duration._
+
+import scala.collection.mutable
 
 trait BloopServer extends BuildServer with ScalaBuildServer
 
+trait Errors extends RuntimeException
+object StatusCodeNotOk extends Errors
+object UnexpectedRefError extends Errors
+
+//TODO move out?
 object BloopUtil {
 
   class BloopExtraBuildParams() {
@@ -37,7 +44,7 @@ object BloopUtil {
   }
 
   //At the moment just print results
-  val buildClient = new BuildClient {
+  def buildClient: BuildClient = new BuildClient {
 
     def afterBuildTaskFinish(bti: String) = {
       println("afterBuildTaskFinish", bti)
@@ -60,7 +67,7 @@ object BloopUtil {
     override def onBuildTargetDidChange(params: DidChangeBuildTarget): Unit = println("onBuildTargetDidChange", params)
   }
 
-  def initBloop(): BloopServer = {
+  def initBloop(packageDir: String): BloopServer = {
     val emptyInputStream = new InputStream() {
       override def read(): Int = -1
     }
@@ -91,14 +98,14 @@ object BloopUtil {
 
         buildClient.onConnectWithServer(bloopServer)
 
-        System.err.println("attempting build initialize")
+        System.err.println(s"attempting build initialize for $packageDir")
 
         val initBuildParams = {
           val p = new InitializeBuildParams(
             "bazel",
             "1.3.4",
             "2.0.0-M4",
-            s"file:///Users/syed.jafri/dev/local_rules_scala", //TODO don't hardcode
+            packageDir,
             new BuildClientCapabilities(List("scala").asJava)
           )
           val gson = new Gson()
@@ -106,6 +113,7 @@ object BloopUtil {
           p
         }
 
+        //TODO ZIO
         Await.result(bloopServer.buildInitialize(initBuildParams).toScala.map(initializeResults => {
           System.err.println(s"initialized: Results $initializeResults")
           bloopServer.onBuildInitialized()
@@ -117,20 +125,26 @@ object BloopUtil {
   }
 }
 
-object BloopWorker extends Worker.Interface {
-  val bloopServer = BloopUtil.initBloop()
-  def main(args: Array[String]): Unit = Worker.workerMain(args, BloopWorker)
+//TODO move
+object WorkerUtils {
 
-  private val pwd = {
-    val uncleanPath = FileSystems.getDefault().getPath(".").toAbsolutePath.toString
-    uncleanPath.substring(0, uncleanPath.size - 2)
-  }
+  def getOrUpdateMapRef[K, V](ref: Ref[Map[K, V]], k: K, ifNone: => V): Task[V] =
+    for {
+      map <- ref.get
+      maybeV = map.get(k)
+      v <- maybeV.fold({
+        val v = ifNone
+        ref.update(map ++ (k -> )) *> ZIO(v)
+      })(ZIO)
+    } yield {
+      v
+    }
 
   /**
    * namespace.getList[File] gives me an error so I wrote this
    * @param str
    */
-  private def parseFileList(namespace: Namespace, key: String): List[Path] = {
+  def parseFileList(namespace: Namespace, key: String): List[Path] = {
     Option(namespace.getString(key)).fold(
       List[Path]()
     )(
@@ -144,7 +158,7 @@ object BloopWorker extends Worker.Interface {
    * Parse the jars needed for the scala compiler from the classpath.
    * The jars needed are specified in BUILD
    */
-  private def getScalaJarsFromCP(): (List[Path], String) = {
+  def getScalaJarsFromCP(): (List[Path], String) = {
     val scalaCPs = Set("io_bazel_rules_scala_scala_compiler", "io_bazel_rules_scala_scala_library", "io_bazel_rules_scala_scala_reflect", "io_bazel_rules_scala_scala_xml")
     val classPaths = System.getProperty("java.class.path").split(":").toList
     val paths = classPaths.filter(cp => scalaCPs.exists(cp.contains)).map(s => Paths.get(s"$pwd/$s").toRealPath())
@@ -157,30 +171,50 @@ object BloopWorker extends Worker.Interface {
     (paths, version)
   }
 
-  def work(args: Array[String]) {
+  private val pwd = {
+    val uncleanPath = FileSystems.getDefault().getPath(".").toAbsolutePath.toString
+    uncleanPath.substring(0, uncleanPath.size - 2)
+  }
 
-    val startTime = Instant.now.toEpochMilli
-    var argsArrayBuffer = scala.collection.mutable.ArrayBuffer[String]()
-    for (i <- 0 to args.size - 1) {
-      argsArrayBuffer += args(i)
-    }
-
+  def buildArgParser: ArgumentParser = {
     val parser = ArgumentParsers.newFor("bloop").addHelp(true).defaultFormatWidth(80).fromFilePrefix("@").build
     parser.addArgument("--label").required(true)
     parser.addArgument("--sources").`type`(Arguments.fileType)
-    parser.addArgument("--target_classpath").`type`(Arguments.fileType)
-    parser.addArgument("--build_file_path").`type`(Arguments.fileType)
-    parser.addArgument("--bloopDir").`type`(Arguments.fileType)
+    parser.addArgument("--targetClasspath").`type`(Arguments.fileType)
     parser.addArgument("--manifest").`type`(Arguments.fileType)
     parser.addArgument("--jarOut").`type`(Arguments.fileType)
     parser.addArgument("--statsfile").`type`(Arguments.fileType)
+    parser.addArgument("--bloopProjectConfig").`type`(Arguments.fileType)
+    parser.addArgument("--bloopProjectOutput").`type`(Arguments.fileType)
     parser.addArgument("--bloopDependencies")
+    parser
+  }
 
-    val namespace = parser.parseArgsOrFail(argsArrayBuffer.toArray)
+}
+
+
+object BloopWorker extends Worker.Interface {
+  import WorkerUtils._
+
+  def main(args: Array[String]): Unit = Worker.workerMain(args, BloopWorker)
+
+  val bloopServersByPackageRef: Ref[Map[String, BloopServer]] = Runtime.default.unsafeRun(Ref.make(Map[String, BloopServer]()))
+
+  //Implements bazel worker interface so work is called externally. I will create or get a bloop server the given package
+  def work(args: Array[String]) {
+
+    var argsArrayBuffer = scala.collection.mutable.ArrayBuffer[String]()
+    for (i <- args.indices) {
+      argsArrayBuffer += args(i)
+    }
+
+    val namespace = buildArgParser.parseArgsOrFail(argsArrayBuffer.toArray)
+
+    //TODO can I make all of this an environment or just put it in a case class
     val label = namespace.getString("label")
     val srcs = parseFileList(namespace, "sources")
     val classpath = parseFileList(namespace, "target_classpath")
-    val workspaceDir = namespace.get[File]("bloopDir").toPath
+    val bloopDir = namespace.get[File]("bloopDir").toPath
     val manifestPath = namespace.getString("manifest")
     val jarOut = namespace.getString("jarOut")
     val statsfile = namespace.get[File]("statsfile").toPath
@@ -189,15 +223,18 @@ object BloopWorker extends Worker.Interface {
 
     System.err.println(s"WORKER Compiling $label")
 
-    val bloopDir = workspaceDir.resolve(".bloop").toAbsolutePath
+    val packageDir = bloopDir.resolve("../")
     val bloopOutDir = bloopDir.resolve("out").toAbsolutePath
-    val projectOutDir = bloopOutDir.resolve(label).toAbsolutePath
-    val projectClassesDir = projectOutDir.resolve("classes").toAbsolutePath
+    val projectClassesDir = bloopOutDir.resolve("classes")
     val bloopConfigPath = bloopDir.resolve(s"$label.json")
 
-    System.err.println(s"BloopDir: $bloopDir")
+    // TODO I could do this
+    // val info = getInfo(namespace)
+    // generateBloopConfig(info)
+    // compile(info)
+    // copyJar(info)
 
-    def generateBloopConfig() = {
+    def generateBloopConfig: Task[Path] = ZIO.effect({
       Files.createDirectories(projectClassesDir)
       val (scalaJars, scalaVersion) = getScalaJarsFromCP()
 
@@ -205,11 +242,11 @@ object BloopWorker extends Worker.Interface {
         version = BloopConfig.File.LatestVersion,
         project = BloopConfig.Project(
           name = label,
-          directory = workspaceDir,
+          directory = packageDir,
           sources = srcs.map(_.toRealPath()),
           dependencies = bloopDependencies,
           classpath = classpath,
-          out = projectOutDir,
+          out = bloopOutDir,
           classesDir = projectClassesDir,
           resources = None,
           `scala` = Some(Scala(
@@ -230,33 +267,35 @@ object BloopWorker extends Worker.Interface {
       )
 
       Files.write(bloopConfigPath, bloop.config.toStr(bloopConfig).getBytes)
-    }
+    })
 
-    def compile() = {
-      val buildTargetId = List(new BuildTargetIdentifier(s"file://$workspaceDir/?id=$label"))
+    def compile(bloopServer: BloopServer): Task[CompileResult] = {
+      val buildTargetId = List(new BuildTargetIdentifier(s"file://$packageDir/?id=$label"))
       System.err.println(s"Attempt compile for $buildTargetId")
       val compileParams = new CompileParams(buildTargetId.asJava)
+      ZIO.fromCompletionStage(bloopServer.buildTargetCompile(compileParams)).filterOrFail(_.getStatusCode != StatusCode.OK)(StatusCodeNotOk)
+    }
 
-      val compile = bloopServer.buildTargetCompile(compileParams).toScala.map(cr => {
-        System.err.println(cr)
-        if (cr.getStatusCode() != StatusCode.OK) {
-          throw new RuntimeException("Status code was not OK") //TODO
-        }
-        ()
-      })
-
-      Await.result(compile, Duration.Inf)
+    def copyJar: Task[Unit] = ZIO.effect({
       val tempJarFiles = Files.createTempDirectory(s"$label-jar")
       FileUtils.copyDirectory(projectClassesDir.toFile, tempJarFiles.toFile, true)
       JarCreator.buildJar(Array("-m", manifestPath, jarOut, tempJarFiles.toString))
+    })
 
-      //TODO I get an exception that I'm having a hard time figuring out without this.
-      Thread.sleep(500)
+    def writeStatsFile(time: Long): Task[Path] = ZIO.effect({Files.write(statsfile, s"build_time=$time".getBytes)})
 
-      Files.write(statsfile, s"build_time=${Instant.now.toEpochMilli - startTime}".getBytes)
-    }
+   val packageDirStr = packageDir.toString
+    def getTime: ZIO[Clock, Nothing, Long] = ZIO.accessM[Clock] { x => x.get.currentTime(TimeUnit.MILLISECONDS) } //TODO delete
 
-    generateBloopConfig()
-    compile()
+    val program: ZIO[Clock, Throwable, Unit] = for {
+      bloopServer <- getOrUpdateMapRef(bloopServersByPackageRef, packageDirStr, {BloopUtil.initBloop(packageDirStr)})
+      totalTime <- (generateBloopConfig *> compile(bloopServer) *> copyJar).timed
+      _ <- writeStatsFile(totalTime._1.toMillis)
+      _ <- ZIO.sleep(5.seconds) //TODO don't do this
+    } yield { () } //TODO
+
+    Runtime.default.unsafeRun(program.provideLayer(Clock.live))
+
+
   }
 }

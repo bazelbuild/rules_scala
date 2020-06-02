@@ -18,7 +18,8 @@ scala_binary(
         "//3rdparty/jvm/org/scala_lang/modules:scala_java8_compat",
         "//src/java/io/bazel/rulesscala/jar",
         "//3rdparty/jvm/commons_io:commons_io",
-        "//3rdparty/jvm/me/vican/jorge:snailgun_core"
+        "//3rdparty/jvm/me/vican/jorge:snailgun_core",
+        "//3rdparty/jvm/dev/zio:zio"
     ],
     unused_dependency_checker_mode = "warn", #TODO I'm using the scala compiler libs but from the classpath
 )
