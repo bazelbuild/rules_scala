@@ -156,7 +156,6 @@ def scala_repositories(
         server_urls = maven_servers,
     )
 
-
     if not native.existing_rule("com_google_protobuf"):
         http_archive(
             name = "com_google_protobuf",

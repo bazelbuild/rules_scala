@@ -139,7 +139,7 @@ phase_runfiles_common = _phase_runfiles_common
 # default_info
 phase_default_info = _phase_default_info
 
- # discover_tests
+# discover_tests
 phase_discover_tests = _phase_discover_tests
 
 # scalafmt
