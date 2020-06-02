@@ -39,13 +39,16 @@ object DiscoverTestsWorker extends Worker.Interface {
     val testJars = args0.map(f => Paths.get(f).toUri.toURL)
     val frameworkJars = args1.tail.map(f => Paths.get(f).toUri.toURL)
 
+    // prep the scanner used to identify testing frameworks
     val frameworkClassloader = new URLClassLoader(frameworkJars)
-    val frameworkScanResult = (new ClassGraph)
+    val frameworkScanResult: ScanResult = (new ClassGraph)
       .overrideClassLoaders(frameworkClassloader)
       .ignoreParentClassLoaders
       .enableClassInfo.scan
 
-    val testScanResult = (new ClassGraph)
+    // prep the scanner used to find tests
+    // here we need the full classpath
+    val testScanResult: ScanResult = (new ClassGraph)
       .overrideClassLoaders(new URLClassLoader(testJars ++ frameworkJars))
       .ignoreParentClassLoaders
       .enableClassInfo
@@ -53,69 +56,14 @@ object DiscoverTestsWorker extends Worker.Interface {
       .enableAnnotationInfo
       .scan
 
-    val result: Result = frameworkScanResult
+    val resultBuilder: Result.Builder = Result.newBuilder
+
+    // start identifying frameworks and tests
+    frameworkScanResult
       .getClassesImplementing("sbt.testing.Framework").asScala
-      .foldLeft(Result.newBuilder) { (resultBuilder, framework) =>
-        val frameworkInstance = framework.loadClass.newInstance.asInstanceOf[Framework]
-        resultBuilder.addFrameworkDiscoveries(
-          frameworkInstance.fingerprints.foldLeft(FrameworkDiscovery.newBuilder.setFramework(framework.getName))((b, f) => f match {
-            case fingerprint: SubclassFingerprint =>
+      .foreach(handleFramework(frameworkScanResult, testScanResult, resultBuilder, _))
 
-              val getCandidates: ScanResult => ClassInfoList =
-                if (frameworkScanResult.getClassInfo(fingerprint.superclassName).isInterface)
-                    _.getClassesImplementing(fingerprint.superclassName)
-                  else
-                    _.getSubclasses(fingerprint.superclassName)
-
-              val candidates: Iterable[ClassInfo] =
-                getCandidates(testScanResult)
-                  .exclude(getCandidates(frameworkScanResult))
-                  .asScala
-                  .filter(_.isStandardClass)
-
-              val tests: Iterable[String] =
-                if (fingerprint.isModule)
-                  candidates
-                    .map(_.getName)
-                    .filter(_.endsWith("$")).map(_.dropRight(1))
-                else
-                  candidates
-                    .filter(_.getConstructorInfo.asScala.exists(_.getParameterInfo.isEmpty) == fingerprint.requireNoArgConstructor)
-                    .map(_.getName)
-                    .filterNot(_.endsWith("$"))
-
-              b.addSubclassDiscoveries(
-                SubclassDiscovery.newBuilder
-                  .setSuperclassName(fingerprint.superclassName)
-                  .setIsModule(fingerprint.isModule)
-                  .setRequireNoArgConstructor(fingerprint.requireNoArgConstructor)
-                  .addAllTests(tests.asJava)
-                  .build)
-            case fingerprint: AnnotatedFingerprint =>
-
-              val candidates: Iterable[ClassInfo] =
-                testScanResult.getClassesWithAnnotation(fingerprint.annotationName)
-                  .union(testScanResult.getClassesWithMethodAnnotation(fingerprint.annotationName))
-                  .asScala
-
-              val tests: Iterable[String] =
-                if (fingerprint.isModule)
-                  candidates
-                    .map(_.getName)
-                    .filter(_.endsWith("$")).map(_.dropRight(1))
-                else
-                  candidates
-                    .map(_.getName)
-                    .filterNot(_.endsWith("$"))
-
-              b.addAnnotatedDiscoveries(
-                AnnotatedDiscovery.newBuilder
-                  .setAnnotationName(fingerprint.annotationName)
-                  .setIsModule(fingerprint.isModule)
-                  .addAllTests(tests.asJava)
-                  .build)
-          }).build)
-      }.build
+    val result: Result = resultBuilder.build
 
     testScanResult.close()
     frameworkScanResult.close()
@@ -123,5 +71,79 @@ object DiscoverTestsWorker extends Worker.Interface {
     val os = new FileOutputStream(outputFile)
     result.writeTo(os)
     os.close()
+  }
+
+  private[this] def handleFramework(frameworkScanResult: ScanResult, testScanResult: ScanResult, builder: Result.Builder, framework: ClassInfo): Unit = {
+    val frameworkInstance = framework.loadClass.newInstance.asInstanceOf[Framework]
+
+    val frameworkDiscoveryBuilder = FrameworkDiscovery.newBuilder.setFramework(framework.getName)
+    frameworkInstance.fingerprints.foreach {
+      case sf: SubclassFingerprint => handleSubclassFingerprint(frameworkScanResult, testScanResult, frameworkDiscoveryBuilder, sf)
+      case af: AnnotatedFingerprint => handleAnnotatedFingerprint(frameworkScanResult, testScanResult, frameworkDiscoveryBuilder, af)
+    }
+    builder.addFrameworkDiscoveries(frameworkDiscoveryBuilder.build)
+  }
+
+  private[this] def handleSubclassFingerprint(frameworkScanResult: ScanResult, testScanResult: ScanResult, builder: FrameworkDiscovery.Builder, fingerprint: SubclassFingerprint): Unit = {
+    //
+    // with the ClassGraph API we need to identify tests differently if they're implementing
+    // an interface instead of a class
+    //
+    // this logic is captured as a function so we can call it a few times
+    val getCandidates: ScanResult => ClassInfoList =
+      if (frameworkScanResult.getClassInfo(fingerprint.superclassName).isInterface)
+        _.getClassesImplementing(fingerprint.superclassName)
+      else
+        _.getSubclasses(fingerprint.superclassName)
+
+    val candidates: Iterable[ClassInfo] =
+      getCandidates(testScanResult)
+        .exclude(getCandidates(frameworkScanResult))
+        .asScala
+        .filter(_.isStandardClass)
+
+    val tests: Iterable[String] =
+      if (fingerprint.isModule)
+        candidates
+          .map(_.getName)
+          .filter(_.endsWith("$")).map(_.dropRight(1))
+      else
+        candidates
+          .filter(_.getConstructorInfo.asScala.exists(_.getParameterInfo.isEmpty) == fingerprint.requireNoArgConstructor)
+          .map(_.getName)
+          .filterNot(_.endsWith("$"))
+
+    builder.addSubclassDiscoveries(
+      SubclassDiscovery.newBuilder
+        .setSuperclassName(fingerprint.superclassName)
+        .setIsModule(fingerprint.isModule)
+        .setRequireNoArgConstructor(fingerprint.requireNoArgConstructor)
+        .addAllTests(tests.asJava)
+        .build)
+  }
+
+  private[this] def handleAnnotatedFingerprint(frameworkScanResult: ScanResult, testScanResult: ScanResult, builder: FrameworkDiscovery.Builder, fingerprint: AnnotatedFingerprint): Unit = {
+    val candidates: Iterable[ClassInfo] =
+      testScanResult.getClassesWithAnnotation(fingerprint.annotationName)
+        .union(testScanResult.getClassesWithMethodAnnotation(fingerprint.annotationName))
+        .asScala
+
+    // note: "$" is part of Scala's JVM encoding for modules
+    val tests: Iterable[String] =
+      if (fingerprint.isModule)
+        candidates
+          .map(_.getName)
+          .filter(_.endsWith("$")).map(_.dropRight(1))
+      else
+        candidates
+          .map(_.getName)
+          .filterNot(_.endsWith("$"))
+
+    builder.addAnnotatedDiscoveries(
+      AnnotatedDiscovery.newBuilder
+        .setAnnotationName(fingerprint.annotationName)
+        .setIsModule(fingerprint.isModule)
+        .addAllTests(tests.asJava)
+        .build)
   }
 }

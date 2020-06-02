@@ -4,6 +4,16 @@ package io.bazel.rules_scala.discover_tests_worker;
 
 option java_package = "io.bazel.rules_scala.discover_tests_worker";
 
+/*
+ * The types here are used to list/describe tests conforming
+ * to the SBT testing interface:
+ *
+ * https://github.com/sbt/test-interface/tree/master/src/main/java/sbt/testing
+ *
+ * A "result" lists tests associated with any number of testing frameworks
+ * implementing the SBT testing interface.
+ */
+
 message Result {
   repeated FrameworkDiscovery frameworkDiscoveries = 1;
 }
