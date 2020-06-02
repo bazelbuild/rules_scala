@@ -4,6 +4,6 @@ scala_library(
     name = "A",
     srcs = ["A.scala"],
     scalacopts = [
-        '-language:dynamics,implicitConversions'
-    ]
+        "-language:dynamics,implicitConversions",
+    ],
 )
