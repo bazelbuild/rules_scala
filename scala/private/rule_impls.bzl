@@ -139,7 +139,7 @@ StatsfileOutput: {statsfile_output}
 """.format(
         out = output.path,
         manifest = manifest.path,
-        scala_opts = ",".join(scalacopts),
+        scala_opts = ":::".join(scalacopts),
         print_compile_time = print_compile_time,
         expect_java_output = expect_java_output,
         plugin_arg = plugin_arg,
@@ -156,6 +156,8 @@ StatsfileOutput: {statsfile_output}
         dependency_tracking_method = dependency_info.dependency_tracking_method,
         statsfile_output = statsfile.path,
     )
+
+    print(scalac_args)
 
     argfile = ctx.actions.declare_file(
         "%s_scalac_worker_input" % target_label.name,
@@ -184,6 +186,8 @@ StatsfileOutput: {statsfile_output}
         scalac_jvm_flags,
         ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scalac_jvm_flags,
     )
+
+    print(scalac.files_to_run.executable.path)
 
     ctx.actions.run(
         inputs = ins,

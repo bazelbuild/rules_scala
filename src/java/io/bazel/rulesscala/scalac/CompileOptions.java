@@ -36,7 +36,7 @@ public class CompileOptions {
     outputName = getOrError(argMap, "JarOutput", "Missing required arg JarOutput");
     manifestPath = getOrError(argMap, "Manifest", "Missing required arg Manifest");
 
-    scalaOpts = getCommaList(argMap, "ScalacOpts");
+    scalaOpts = getTripleColonList(argMap, "ScalacOpts");
     printCompileTime = booleanGetOrFalse(argMap, "PrintCompileTime");
     expectJavaOutput = booleanGetOrTrue(argMap, "ExpectJavaOutput");
     pluginArgs = buildPluginArgs(getOrEmpty(argMap, "Plugins"));
@@ -97,6 +97,19 @@ public class CompileOptions {
       }
     }
     return hm;
+  }
+
+  private static String[] getTripleColonList(Map<String, String> m, String k) {
+    if (m.containsKey(k)) {
+      String v = m.get(k);
+      if ("".equals(v)) {
+        return new String[] {};
+      } else {
+        return v.split(":::");
+      }
+    } else {
+      return new String[] {};
+    }
   }
 
   private static String[] getCommaList(Map<String, String> m, String k) {
