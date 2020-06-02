@@ -134,8 +134,8 @@ object WorkerUtils {
       maybeV = map.get(k)
       v <- maybeV.fold({
         val v = ifNone
-        ref.update(map ++ (k -> )) *> ZIO(v)
-      })(ZIO)
+        ref.update(_ + (k -> v)) *> ZIO(v)
+      })((v) => ZIO(v))
     } yield {
       v
     }

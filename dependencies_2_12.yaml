@@ -58,6 +58,12 @@ dependencies:
       version: 0.3.1
       lang: scala
   dev.zio:
+    izumi-reflect:
+      version: 1.0.0-M3
+      lang: scala
+    izumi-reflect-thirdparty-boopickle-shaded:
+      version: 1.0.0-M3
+      lang: scala
     zio:
       version: 1.0.0-RC19
       lang: scala
