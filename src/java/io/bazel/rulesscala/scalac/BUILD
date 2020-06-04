@@ -37,3 +37,14 @@ filegroup(
     ],
     visibility = ["//visibility:public"],
 )
+
+java_test(
+    name = "compile_options_test",
+    srcs = [
+        "CompileOptionsTest.java",
+    ],
+    test_class = "io.bazel.rulesscala.scalac.CompileOptionsTest",
+    deps = [
+        ":scalac",
+    ],
+)
