@@ -4,7 +4,7 @@ scala_library(
     name = "A",
     srcs = ["A.scala"],
     scalacopts = [
-        "-language:dynamics,implicitConversions",
+        "-Ystatistics:typer,parser",
         "-Xlint",
     ],
 )
