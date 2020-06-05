@@ -126,18 +126,18 @@ Please check [coverage.md](docs/coverage.md) for more details on coverage suppor
 Rules scala supports the last two released minor versions for each of Scala 2.11 and 2.12.
 Previous minor versions may work but are supported only on a best effort basis.
 
-By default `Scala 2.11.12` is used and to use another version you need to
+By default `Scala 2.12.10` is used and to use another version you need to
 specify it when calling `scala_repositories`. `scala_repositories` takes a tuple `(scala_version, scala_version_jar_shas)`
 as a parameter where `scala_version` is the scala version and `scala_version_jar_shas` is a `dict` with
 `sha256` hashes for the maven artifacts `scala_compiler`, `scala_library`, and `scala_reflect`:
 
 ```python
 scala_repositories((
-    "2.12.10",
+    "2.11.12",
     {
-       "scala_compiler": "cedc3b9c39d215a9a3ffc0cc75a1d784b51e9edc7f13051a1b4ad5ae22cfbc0c",
-       "scala_library": "0a57044d10895f8d3dd66ad4286891f607169d948845ac51e17b4c1cf0ab569d",
-       "scala_reflect": "56b609e1bab9144fb51525bfa01ccd72028154fc40a58685a1e9adcbe7835730"
+        "scala_compiler": "3e892546b72ab547cb77de4d840bcfd05c853e73390fed7370a8f19acb0735a0",
+        "scala_library": "0b3d6fd42958ee98715ba2ec5fe221f4ca1e694d7c981b0ae0cd68e97baf6dce",
+        "scala_reflect": "6ba385b450a6311a15c918cf8688b9af9327c6104f0ecbd35933cfcd3095fe04",
     }
 ))
 ```
