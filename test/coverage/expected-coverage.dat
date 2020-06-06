@@ -1,6 +1,6 @@
 SF:test/coverage/A1.scala
 FN:-1,coverage/A1$::<clinit> ()V
-FN:7,coverage/A1$::<init> ()V
+FN:3,coverage/A1$::<init> ()V
 FN:5,coverage/A1$::a1 (Z)Lcoverage/B1$;
 FN:-1,coverage/A1::a1 (Z)Lcoverage/B1$;
 FNDA:1,coverage/A1$::<clinit> ()V
@@ -12,15 +12,16 @@ FNH:3
 BA:5,2
 BRF:1
 BRH:1
+DA:3,1
 DA:5,4
-DA:6,0
-DA:7,5
-LH:2
-LF:3
+DA:6,1
+DA:7,4
+LH:4
+LF:4
 end_of_record
 SF:test/coverage/A2.scala
 FN:-1,coverage/A2$::<clinit> ()V
-FN:8,coverage/A2$::<init> ()V
+FN:3,coverage/A2$::<init> ()V
 FN:5,coverage/A2$::a2 ()V
 FN:-1,coverage/A2::a2 ()V
 FNDA:1,coverage/A2$::<clinit> ()V
@@ -29,14 +30,15 @@ FNDA:1,coverage/A2$::a2 ()V
 FNDA:0,coverage/A2::a2 ()V
 FNF:4
 FNH:3
-DA:5,11
-DA:8,5
-LH:2
-LF:2
+DA:3,1
+DA:5,12
+DA:8,4
+LH:3
+LF:3
 end_of_record
 SF:test/coverage/B1.scala
 FN:-1,coverage/B1$::<clinit> ()V
-FN:9,coverage/B1$::<init> ()V
+FN:3,coverage/B1$::<init> ()V
 FN:6,coverage/B1$::not_called ()V
 FN:-1,coverage/B1::not_called ()V
 FNDA:1,coverage/B1$::<clinit> ()V
@@ -45,10 +47,11 @@ FNDA:0,coverage/B1$::not_called ()V
 FNDA:0,coverage/B1::not_called ()V
 FNF:4
 FNH:2
+DA:3,1
 DA:6,0
-DA:9,5
-LH:1
-LF:2
+DA:9,4
+LH:2
+LF:3
 end_of_record
 SF:test/coverage/B2.java
 FN:3,coverage/B2::<init> ()V
@@ -68,7 +71,7 @@ LF:4
 end_of_record
 SF:test/coverage/C2.scala
 FN:-1,coverage/C2$::<clinit> ()V
-FN:7,coverage/C2$::<init> ()V
+FN:3,coverage/C2$::<init> ()V
 FN:5,coverage/C2$::c2 (Ljava/lang/String;)Ljava/lang/String;
 FN:-1,coverage/C2::c2 (Ljava/lang/String;)Ljava/lang/String;
 FNDA:1,coverage/C2$::<clinit> ()V
@@ -77,257 +80,45 @@ FNDA:1,coverage/C2$::c2 (Ljava/lang/String;)Ljava/lang/String;
 FNDA:1,coverage/C2::c2 (Ljava/lang/String;)Ljava/lang/String;
 FNF:4
 FNH:4
+DA:3,1
 DA:5,9
-DA:7,5
-LH:2
-LF:2
+DA:7,4
+LH:3
+LF:3
 end_of_record
 SF:test/coverage/D1.scala
-FN:41,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$10936c17251556f2f03c90b1524bd9b3$$$$pply$29$$anonfun$apply$30$$anonfun$apply$31$$anonfun$apply$32::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$dab1c931f824ef7de5939f126155866$$$$pply$24$$anonfun$apply$25$$anonfun$apply$26$$anonfun$apply$27$$anonfun$apply$28$$anonfun$apply$29$$anonfun$apply$30$$anonfun$apply$31;)V
-FN:43,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$10936c17251556f2f03c90b1524bd9b3$$$$pply$29$$anonfun$apply$30$$anonfun$apply$31$$anonfun$apply$32::apply (Ljava/lang/String;)V
-FN:25,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$621bf134f561eb6561b13bf774a82312$$$$apply$9$$anonfun$apply$10$$anonfun$apply$11$$anonfun$apply$12$$anonfun$apply$13$$anonfun$apply$14$$anonfun$apply$15$$anonfun$apply$16::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$621bf134f561eb6561b13bf774a82312$$$$apply$9$$anonfun$apply$10$$anonfun$apply$11$$anonfun$apply$12$$anonfun$apply$13$$anonfun$apply$14$$anonfun$apply$15;)V
-FN:26,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$621bf134f561eb6561b13bf774a82312$$$$apply$9$$anonfun$apply$10$$anonfun$apply$11$$anonfun$apply$12$$anonfun$apply$13$$anonfun$apply$14$$anonfun$apply$15$$anonfun$apply$16::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FN:24,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$621bf134f561eb6561b13bf774a82312$$$$apply$9$$anonfun$apply$10$$anonfun$apply$11$$anonfun$apply$12$$anonfun$apply$13$$anonfun$apply$14$$anonfun$apply$15::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$621bf134f561eb6561b13bf774a82312$$$$apply$9$$anonfun$apply$10$$anonfun$apply$11$$anonfun$apply$12$$anonfun$apply$13$$anonfun$apply$14;)V
-FN:25,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$621bf134f561eb6561b13bf774a82312$$$$apply$9$$anonfun$apply$10$$anonfun$apply$11$$anonfun$apply$12$$anonfun$apply$13$$anonfun$apply$14$$anonfun$apply$15::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FN:23,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$621bf134f561eb6561b13bf774a82312$$$$apply$9$$anonfun$apply$10$$anonfun$apply$11$$anonfun$apply$12$$anonfun$apply$13$$anonfun$apply$14::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$621bf134f561eb6561b13bf774a82312$$$$apply$9$$anonfun$apply$10$$anonfun$apply$11$$anonfun$apply$12$$anonfun$apply$13;)V
-FN:24,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$621bf134f561eb6561b13bf774a82312$$$$apply$9$$anonfun$apply$10$$anonfun$apply$11$$anonfun$apply$12$$anonfun$apply$13$$anonfun$apply$14::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FN:22,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$621bf134f561eb6561b13bf774a82312$$$$apply$9$$anonfun$apply$10$$anonfun$apply$11$$anonfun$apply$12$$anonfun$apply$13::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$621bf134f561eb6561b13bf774a82312$$$$apply$9$$anonfun$apply$10$$anonfun$apply$11$$anonfun$apply$12;)V
-FN:23,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$621bf134f561eb6561b13bf774a82312$$$$apply$9$$anonfun$apply$10$$anonfun$apply$11$$anonfun$apply$12$$anonfun$apply$13::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FN:21,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$621bf134f561eb6561b13bf774a82312$$$$apply$9$$anonfun$apply$10$$anonfun$apply$11$$anonfun$apply$12::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6$$anonfun$apply$7$$anonfun$apply$8$$anonfun$apply$9$$anonfun$apply$10$$anonfun$apply$11;)V
-FN:22,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$621bf134f561eb6561b13bf774a82312$$$$apply$9$$anonfun$apply$10$$anonfun$apply$11$$anonfun$apply$12::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FN:30,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$813cbed17422695f842dcc7b538b5fbd$$$$pply$14$$anonfun$apply$15$$anonfun$apply$16$$anonfun$apply$17$$anonfun$apply$18$$anonfun$apply$19$$anonfun$apply$20$$anonfun$apply$21::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$813cbed17422695f842dcc7b538b5fbd$$$$pply$14$$anonfun$apply$15$$anonfun$apply$16$$anonfun$apply$17$$anonfun$apply$18$$anonfun$apply$19$$anonfun$apply$20;)V
-FN:31,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$813cbed17422695f842dcc7b538b5fbd$$$$pply$14$$anonfun$apply$15$$anonfun$apply$16$$anonfun$apply$17$$anonfun$apply$18$$anonfun$apply$19$$anonfun$apply$20$$anonfun$apply$21::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FN:29,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$813cbed17422695f842dcc7b538b5fbd$$$$pply$14$$anonfun$apply$15$$anonfun$apply$16$$anonfun$apply$17$$anonfun$apply$18$$anonfun$apply$19$$anonfun$apply$20::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$813cbed17422695f842dcc7b538b5fbd$$$$pply$14$$anonfun$apply$15$$anonfun$apply$16$$anonfun$apply$17$$anonfun$apply$18$$anonfun$apply$19;)V
-FN:30,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$813cbed17422695f842dcc7b538b5fbd$$$$pply$14$$anonfun$apply$15$$anonfun$apply$16$$anonfun$apply$17$$anonfun$apply$18$$anonfun$apply$19$$anonfun$apply$20::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FN:28,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$813cbed17422695f842dcc7b538b5fbd$$$$pply$14$$anonfun$apply$15$$anonfun$apply$16$$anonfun$apply$17$$anonfun$apply$18$$anonfun$apply$19::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$813cbed17422695f842dcc7b538b5fbd$$$$pply$14$$anonfun$apply$15$$anonfun$apply$16$$anonfun$apply$17$$anonfun$apply$18;)V
-FN:29,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$813cbed17422695f842dcc7b538b5fbd$$$$pply$14$$anonfun$apply$15$$anonfun$apply$16$$anonfun$apply$17$$anonfun$apply$18$$anonfun$apply$19::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FN:27,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$813cbed17422695f842dcc7b538b5fbd$$$$pply$14$$anonfun$apply$15$$anonfun$apply$16$$anonfun$apply$17$$anonfun$apply$18::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$813cbed17422695f842dcc7b538b5fbd$$$$pply$14$$anonfun$apply$15$$anonfun$apply$16$$anonfun$apply$17;)V
-FN:28,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$813cbed17422695f842dcc7b538b5fbd$$$$pply$14$$anonfun$apply$15$$anonfun$apply$16$$anonfun$apply$17$$anonfun$apply$18::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FN:26,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$813cbed17422695f842dcc7b538b5fbd$$$$pply$14$$anonfun$apply$15$$anonfun$apply$16$$anonfun$apply$17::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$621bf134f561eb6561b13bf774a82312$$$$apply$9$$anonfun$apply$10$$anonfun$apply$11$$anonfun$apply$12$$anonfun$apply$13$$anonfun$apply$14$$anonfun$apply$15$$anonfun$apply$16;)V
-FN:27,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$813cbed17422695f842dcc7b538b5fbd$$$$pply$14$$anonfun$apply$15$$anonfun$apply$16$$anonfun$apply$17::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FN:35,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$8376f2f8ad4b1b2c863b51f7a969d2fd$$$$pply$19$$anonfun$apply$20$$anonfun$apply$21$$anonfun$apply$22$$anonfun$apply$23$$anonfun$apply$24$$anonfun$apply$25$$anonfun$apply$26::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$8376f2f8ad4b1b2c863b51f7a969d2fd$$$$pply$19$$anonfun$apply$20$$anonfun$apply$21$$anonfun$apply$22$$anonfun$apply$23$$anonfun$apply$24$$anonfun$apply$25;)V
-FN:36,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$8376f2f8ad4b1b2c863b51f7a969d2fd$$$$pply$19$$anonfun$apply$20$$anonfun$apply$21$$anonfun$apply$22$$anonfun$apply$23$$anonfun$apply$24$$anonfun$apply$25$$anonfun$apply$26::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FN:34,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$8376f2f8ad4b1b2c863b51f7a969d2fd$$$$pply$19$$anonfun$apply$20$$anonfun$apply$21$$anonfun$apply$22$$anonfun$apply$23$$anonfun$apply$24$$anonfun$apply$25::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$8376f2f8ad4b1b2c863b51f7a969d2fd$$$$pply$19$$anonfun$apply$20$$anonfun$apply$21$$anonfun$apply$22$$anonfun$apply$23$$anonfun$apply$24;)V
-FN:35,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$8376f2f8ad4b1b2c863b51f7a969d2fd$$$$pply$19$$anonfun$apply$20$$anonfun$apply$21$$anonfun$apply$22$$anonfun$apply$23$$anonfun$apply$24$$anonfun$apply$25::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FN:33,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$8376f2f8ad4b1b2c863b51f7a969d2fd$$$$pply$19$$anonfun$apply$20$$anonfun$apply$21$$anonfun$apply$22$$anonfun$apply$23$$anonfun$apply$24::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$8376f2f8ad4b1b2c863b51f7a969d2fd$$$$pply$19$$anonfun$apply$20$$anonfun$apply$21$$anonfun$apply$22$$anonfun$apply$23;)V
-FN:34,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$8376f2f8ad4b1b2c863b51f7a969d2fd$$$$pply$19$$anonfun$apply$20$$anonfun$apply$21$$anonfun$apply$22$$anonfun$apply$23$$anonfun$apply$24::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FN:32,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$8376f2f8ad4b1b2c863b51f7a969d2fd$$$$pply$19$$anonfun$apply$20$$anonfun$apply$21$$anonfun$apply$22$$anonfun$apply$23::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$8376f2f8ad4b1b2c863b51f7a969d2fd$$$$pply$19$$anonfun$apply$20$$anonfun$apply$21$$anonfun$apply$22;)V
-FN:33,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$8376f2f8ad4b1b2c863b51f7a969d2fd$$$$pply$19$$anonfun$apply$20$$anonfun$apply$21$$anonfun$apply$22$$anonfun$apply$23::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FN:31,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$8376f2f8ad4b1b2c863b51f7a969d2fd$$$$pply$19$$anonfun$apply$20$$anonfun$apply$21$$anonfun$apply$22::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$813cbed17422695f842dcc7b538b5fbd$$$$pply$14$$anonfun$apply$15$$anonfun$apply$16$$anonfun$apply$17$$anonfun$apply$18$$anonfun$apply$19$$anonfun$apply$20$$anonfun$apply$21;)V
-FN:32,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$8376f2f8ad4b1b2c863b51f7a969d2fd$$$$pply$19$$anonfun$apply$20$$anonfun$apply$21$$anonfun$apply$22::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FN:40,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$dab1c931f824ef7de5939f126155866$$$$pply$24$$anonfun$apply$25$$anonfun$apply$26$$anonfun$apply$27$$anonfun$apply$28$$anonfun$apply$29$$anonfun$apply$30$$anonfun$apply$31::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$dab1c931f824ef7de5939f126155866$$$$pply$24$$anonfun$apply$25$$anonfun$apply$26$$anonfun$apply$27$$anonfun$apply$28$$anonfun$apply$29$$anonfun$apply$30;)V
-FN:41,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$dab1c931f824ef7de5939f126155866$$$$pply$24$$anonfun$apply$25$$anonfun$apply$26$$anonfun$apply$27$$anonfun$apply$28$$anonfun$apply$29$$anonfun$apply$30$$anonfun$apply$31::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FN:39,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$dab1c931f824ef7de5939f126155866$$$$pply$24$$anonfun$apply$25$$anonfun$apply$26$$anonfun$apply$27$$anonfun$apply$28$$anonfun$apply$29$$anonfun$apply$30::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$dab1c931f824ef7de5939f126155866$$$$pply$24$$anonfun$apply$25$$anonfun$apply$26$$anonfun$apply$27$$anonfun$apply$28$$anonfun$apply$29;)V
-FN:40,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$dab1c931f824ef7de5939f126155866$$$$pply$24$$anonfun$apply$25$$anonfun$apply$26$$anonfun$apply$27$$anonfun$apply$28$$anonfun$apply$29$$anonfun$apply$30::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FN:38,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$dab1c931f824ef7de5939f126155866$$$$pply$24$$anonfun$apply$25$$anonfun$apply$26$$anonfun$apply$27$$anonfun$apply$28$$anonfun$apply$29::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$dab1c931f824ef7de5939f126155866$$$$pply$24$$anonfun$apply$25$$anonfun$apply$26$$anonfun$apply$27$$anonfun$apply$28;)V
-FN:39,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$dab1c931f824ef7de5939f126155866$$$$pply$24$$anonfun$apply$25$$anonfun$apply$26$$anonfun$apply$27$$anonfun$apply$28$$anonfun$apply$29::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FN:37,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$dab1c931f824ef7de5939f126155866$$$$pply$24$$anonfun$apply$25$$anonfun$apply$26$$anonfun$apply$27$$anonfun$apply$28::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$dab1c931f824ef7de5939f126155866$$$$pply$24$$anonfun$apply$25$$anonfun$apply$26$$anonfun$apply$27;)V
-FN:38,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$dab1c931f824ef7de5939f126155866$$$$pply$24$$anonfun$apply$25$$anonfun$apply$26$$anonfun$apply$27$$anonfun$apply$28::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FN:36,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$dab1c931f824ef7de5939f126155866$$$$pply$24$$anonfun$apply$25$$anonfun$apply$26$$anonfun$apply$27::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$8376f2f8ad4b1b2c863b51f7a969d2fd$$$$pply$19$$anonfun$apply$20$$anonfun$apply$21$$anonfun$apply$22$$anonfun$apply$23$$anonfun$apply$24$$anonfun$apply$25$$anonfun$apply$26;)V
-FN:37,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$dab1c931f824ef7de5939f126155866$$$$pply$24$$anonfun$apply$25$$anonfun$apply$26$$anonfun$apply$27::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FN:20,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6$$anonfun$apply$7$$anonfun$apply$8$$anonfun$apply$9$$anonfun$apply$10$$anonfun$apply$11::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6$$anonfun$apply$7$$anonfun$apply$8$$anonfun$apply$9$$anonfun$apply$10;)V
-FN:21,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6$$anonfun$apply$7$$anonfun$apply$8$$anonfun$apply$9$$anonfun$apply$10$$anonfun$apply$11::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FN:19,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6$$anonfun$apply$7$$anonfun$apply$8$$anonfun$apply$9$$anonfun$apply$10::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6$$anonfun$apply$7$$anonfun$apply$8$$anonfun$apply$9;)V
-FN:20,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6$$anonfun$apply$7$$anonfun$apply$8$$anonfun$apply$9$$anonfun$apply$10::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FN:18,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6$$anonfun$apply$7$$anonfun$apply$8$$anonfun$apply$9::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6$$anonfun$apply$7$$anonfun$apply$8;)V
-FN:19,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6$$anonfun$apply$7$$anonfun$apply$8$$anonfun$apply$9::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FN:17,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6$$anonfun$apply$7$$anonfun$apply$8::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6$$anonfun$apply$7;)V
-FN:18,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6$$anonfun$apply$7$$anonfun$apply$8::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FN:16,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6$$anonfun$apply$7::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6;)V
-FN:17,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6$$anonfun$apply$7::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FN:15,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5;)V
-FN:16,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FN:14,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4;)V
-FN:15,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FN:13,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3;)V
-FN:14,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FN:12,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2;)V
-FN:13,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FN:11,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1;)V
-FN:12,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FN:10,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1;)V
-FN:11,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FN:9,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1::<init> (Lscala/collection/immutable/List;)V
-FN:10,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
 FN:-1,coverage/D1$::<clinit> ()V
-FN:46,coverage/D1$::<init> ()V
+FN:3,coverage/D1$::<init> ()V
 FN:5,coverage/D1$::veryLongFunctionNameIsHereAaaaaaaaa ()V
 FN:-1,coverage/D1::veryLongFunctionNameIsHereAaaaaaaaa ()V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$10936c17251556f2f03c90b1524bd9b3$$$$pply$29$$anonfun$apply$30$$anonfun$apply$31$$anonfun$apply$32::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$dab1c931f824ef7de5939f126155866$$$$pply$24$$anonfun$apply$25$$anonfun$apply$26$$anonfun$apply$27$$anonfun$apply$28$$anonfun$apply$29$$anonfun$apply$30$$anonfun$apply$31;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$10936c17251556f2f03c90b1524bd9b3$$$$pply$29$$anonfun$apply$30$$anonfun$apply$31$$anonfun$apply$32::apply (Ljava/lang/String;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$621bf134f561eb6561b13bf774a82312$$$$apply$9$$anonfun$apply$10$$anonfun$apply$11$$anonfun$apply$12$$anonfun$apply$13$$anonfun$apply$14$$anonfun$apply$15$$anonfun$apply$16::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$621bf134f561eb6561b13bf774a82312$$$$apply$9$$anonfun$apply$10$$anonfun$apply$11$$anonfun$apply$12$$anonfun$apply$13$$anonfun$apply$14$$anonfun$apply$15;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$621bf134f561eb6561b13bf774a82312$$$$apply$9$$anonfun$apply$10$$anonfun$apply$11$$anonfun$apply$12$$anonfun$apply$13$$anonfun$apply$14$$anonfun$apply$15$$anonfun$apply$16::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$621bf134f561eb6561b13bf774a82312$$$$apply$9$$anonfun$apply$10$$anonfun$apply$11$$anonfun$apply$12$$anonfun$apply$13$$anonfun$apply$14$$anonfun$apply$15::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$621bf134f561eb6561b13bf774a82312$$$$apply$9$$anonfun$apply$10$$anonfun$apply$11$$anonfun$apply$12$$anonfun$apply$13$$anonfun$apply$14;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$621bf134f561eb6561b13bf774a82312$$$$apply$9$$anonfun$apply$10$$anonfun$apply$11$$anonfun$apply$12$$anonfun$apply$13$$anonfun$apply$14$$anonfun$apply$15::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$621bf134f561eb6561b13bf774a82312$$$$apply$9$$anonfun$apply$10$$anonfun$apply$11$$anonfun$apply$12$$anonfun$apply$13$$anonfun$apply$14::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$621bf134f561eb6561b13bf774a82312$$$$apply$9$$anonfun$apply$10$$anonfun$apply$11$$anonfun$apply$12$$anonfun$apply$13;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$621bf134f561eb6561b13bf774a82312$$$$apply$9$$anonfun$apply$10$$anonfun$apply$11$$anonfun$apply$12$$anonfun$apply$13$$anonfun$apply$14::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$621bf134f561eb6561b13bf774a82312$$$$apply$9$$anonfun$apply$10$$anonfun$apply$11$$anonfun$apply$12$$anonfun$apply$13::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$621bf134f561eb6561b13bf774a82312$$$$apply$9$$anonfun$apply$10$$anonfun$apply$11$$anonfun$apply$12;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$621bf134f561eb6561b13bf774a82312$$$$apply$9$$anonfun$apply$10$$anonfun$apply$11$$anonfun$apply$12$$anonfun$apply$13::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$621bf134f561eb6561b13bf774a82312$$$$apply$9$$anonfun$apply$10$$anonfun$apply$11$$anonfun$apply$12::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6$$anonfun$apply$7$$anonfun$apply$8$$anonfun$apply$9$$anonfun$apply$10$$anonfun$apply$11;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$621bf134f561eb6561b13bf774a82312$$$$apply$9$$anonfun$apply$10$$anonfun$apply$11$$anonfun$apply$12::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$813cbed17422695f842dcc7b538b5fbd$$$$pply$14$$anonfun$apply$15$$anonfun$apply$16$$anonfun$apply$17$$anonfun$apply$18$$anonfun$apply$19$$anonfun$apply$20$$anonfun$apply$21::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$813cbed17422695f842dcc7b538b5fbd$$$$pply$14$$anonfun$apply$15$$anonfun$apply$16$$anonfun$apply$17$$anonfun$apply$18$$anonfun$apply$19$$anonfun$apply$20;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$813cbed17422695f842dcc7b538b5fbd$$$$pply$14$$anonfun$apply$15$$anonfun$apply$16$$anonfun$apply$17$$anonfun$apply$18$$anonfun$apply$19$$anonfun$apply$20$$anonfun$apply$21::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$813cbed17422695f842dcc7b538b5fbd$$$$pply$14$$anonfun$apply$15$$anonfun$apply$16$$anonfun$apply$17$$anonfun$apply$18$$anonfun$apply$19$$anonfun$apply$20::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$813cbed17422695f842dcc7b538b5fbd$$$$pply$14$$anonfun$apply$15$$anonfun$apply$16$$anonfun$apply$17$$anonfun$apply$18$$anonfun$apply$19;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$813cbed17422695f842dcc7b538b5fbd$$$$pply$14$$anonfun$apply$15$$anonfun$apply$16$$anonfun$apply$17$$anonfun$apply$18$$anonfun$apply$19$$anonfun$apply$20::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$813cbed17422695f842dcc7b538b5fbd$$$$pply$14$$anonfun$apply$15$$anonfun$apply$16$$anonfun$apply$17$$anonfun$apply$18$$anonfun$apply$19::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$813cbed17422695f842dcc7b538b5fbd$$$$pply$14$$anonfun$apply$15$$anonfun$apply$16$$anonfun$apply$17$$anonfun$apply$18;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$813cbed17422695f842dcc7b538b5fbd$$$$pply$14$$anonfun$apply$15$$anonfun$apply$16$$anonfun$apply$17$$anonfun$apply$18$$anonfun$apply$19::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$813cbed17422695f842dcc7b538b5fbd$$$$pply$14$$anonfun$apply$15$$anonfun$apply$16$$anonfun$apply$17$$anonfun$apply$18::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$813cbed17422695f842dcc7b538b5fbd$$$$pply$14$$anonfun$apply$15$$anonfun$apply$16$$anonfun$apply$17;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$813cbed17422695f842dcc7b538b5fbd$$$$pply$14$$anonfun$apply$15$$anonfun$apply$16$$anonfun$apply$17$$anonfun$apply$18::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$813cbed17422695f842dcc7b538b5fbd$$$$pply$14$$anonfun$apply$15$$anonfun$apply$16$$anonfun$apply$17::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$621bf134f561eb6561b13bf774a82312$$$$apply$9$$anonfun$apply$10$$anonfun$apply$11$$anonfun$apply$12$$anonfun$apply$13$$anonfun$apply$14$$anonfun$apply$15$$anonfun$apply$16;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$813cbed17422695f842dcc7b538b5fbd$$$$pply$14$$anonfun$apply$15$$anonfun$apply$16$$anonfun$apply$17::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$8376f2f8ad4b1b2c863b51f7a969d2fd$$$$pply$19$$anonfun$apply$20$$anonfun$apply$21$$anonfun$apply$22$$anonfun$apply$23$$anonfun$apply$24$$anonfun$apply$25$$anonfun$apply$26::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$8376f2f8ad4b1b2c863b51f7a969d2fd$$$$pply$19$$anonfun$apply$20$$anonfun$apply$21$$anonfun$apply$22$$anonfun$apply$23$$anonfun$apply$24$$anonfun$apply$25;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$8376f2f8ad4b1b2c863b51f7a969d2fd$$$$pply$19$$anonfun$apply$20$$anonfun$apply$21$$anonfun$apply$22$$anonfun$apply$23$$anonfun$apply$24$$anonfun$apply$25$$anonfun$apply$26::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$8376f2f8ad4b1b2c863b51f7a969d2fd$$$$pply$19$$anonfun$apply$20$$anonfun$apply$21$$anonfun$apply$22$$anonfun$apply$23$$anonfun$apply$24$$anonfun$apply$25::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$8376f2f8ad4b1b2c863b51f7a969d2fd$$$$pply$19$$anonfun$apply$20$$anonfun$apply$21$$anonfun$apply$22$$anonfun$apply$23$$anonfun$apply$24;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$8376f2f8ad4b1b2c863b51f7a969d2fd$$$$pply$19$$anonfun$apply$20$$anonfun$apply$21$$anonfun$apply$22$$anonfun$apply$23$$anonfun$apply$24$$anonfun$apply$25::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$8376f2f8ad4b1b2c863b51f7a969d2fd$$$$pply$19$$anonfun$apply$20$$anonfun$apply$21$$anonfun$apply$22$$anonfun$apply$23$$anonfun$apply$24::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$8376f2f8ad4b1b2c863b51f7a969d2fd$$$$pply$19$$anonfun$apply$20$$anonfun$apply$21$$anonfun$apply$22$$anonfun$apply$23;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$8376f2f8ad4b1b2c863b51f7a969d2fd$$$$pply$19$$anonfun$apply$20$$anonfun$apply$21$$anonfun$apply$22$$anonfun$apply$23$$anonfun$apply$24::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$8376f2f8ad4b1b2c863b51f7a969d2fd$$$$pply$19$$anonfun$apply$20$$anonfun$apply$21$$anonfun$apply$22$$anonfun$apply$23::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$8376f2f8ad4b1b2c863b51f7a969d2fd$$$$pply$19$$anonfun$apply$20$$anonfun$apply$21$$anonfun$apply$22;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$8376f2f8ad4b1b2c863b51f7a969d2fd$$$$pply$19$$anonfun$apply$20$$anonfun$apply$21$$anonfun$apply$22$$anonfun$apply$23::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$8376f2f8ad4b1b2c863b51f7a969d2fd$$$$pply$19$$anonfun$apply$20$$anonfun$apply$21$$anonfun$apply$22::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$813cbed17422695f842dcc7b538b5fbd$$$$pply$14$$anonfun$apply$15$$anonfun$apply$16$$anonfun$apply$17$$anonfun$apply$18$$anonfun$apply$19$$anonfun$apply$20$$anonfun$apply$21;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$8376f2f8ad4b1b2c863b51f7a969d2fd$$$$pply$19$$anonfun$apply$20$$anonfun$apply$21$$anonfun$apply$22::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$dab1c931f824ef7de5939f126155866$$$$pply$24$$anonfun$apply$25$$anonfun$apply$26$$anonfun$apply$27$$anonfun$apply$28$$anonfun$apply$29$$anonfun$apply$30$$anonfun$apply$31::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$dab1c931f824ef7de5939f126155866$$$$pply$24$$anonfun$apply$25$$anonfun$apply$26$$anonfun$apply$27$$anonfun$apply$28$$anonfun$apply$29$$anonfun$apply$30;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$dab1c931f824ef7de5939f126155866$$$$pply$24$$anonfun$apply$25$$anonfun$apply$26$$anonfun$apply$27$$anonfun$apply$28$$anonfun$apply$29$$anonfun$apply$30$$anonfun$apply$31::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$dab1c931f824ef7de5939f126155866$$$$pply$24$$anonfun$apply$25$$anonfun$apply$26$$anonfun$apply$27$$anonfun$apply$28$$anonfun$apply$29$$anonfun$apply$30::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$dab1c931f824ef7de5939f126155866$$$$pply$24$$anonfun$apply$25$$anonfun$apply$26$$anonfun$apply$27$$anonfun$apply$28$$anonfun$apply$29;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$dab1c931f824ef7de5939f126155866$$$$pply$24$$anonfun$apply$25$$anonfun$apply$26$$anonfun$apply$27$$anonfun$apply$28$$anonfun$apply$29$$anonfun$apply$30::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$dab1c931f824ef7de5939f126155866$$$$pply$24$$anonfun$apply$25$$anonfun$apply$26$$anonfun$apply$27$$anonfun$apply$28$$anonfun$apply$29::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$dab1c931f824ef7de5939f126155866$$$$pply$24$$anonfun$apply$25$$anonfun$apply$26$$anonfun$apply$27$$anonfun$apply$28;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$dab1c931f824ef7de5939f126155866$$$$pply$24$$anonfun$apply$25$$anonfun$apply$26$$anonfun$apply$27$$anonfun$apply$28$$anonfun$apply$29::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$dab1c931f824ef7de5939f126155866$$$$pply$24$$anonfun$apply$25$$anonfun$apply$26$$anonfun$apply$27$$anonfun$apply$28::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$dab1c931f824ef7de5939f126155866$$$$pply$24$$anonfun$apply$25$$anonfun$apply$26$$anonfun$apply$27;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$dab1c931f824ef7de5939f126155866$$$$pply$24$$anonfun$apply$25$$anonfun$apply$26$$anonfun$apply$27$$anonfun$apply$28::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$dab1c931f824ef7de5939f126155866$$$$pply$24$$anonfun$apply$25$$anonfun$apply$26$$anonfun$apply$27::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$8376f2f8ad4b1b2c863b51f7a969d2fd$$$$pply$19$$anonfun$apply$20$$anonfun$apply$21$$anonfun$apply$22$$anonfun$apply$23$$anonfun$apply$24$$anonfun$apply$25$$anonfun$apply$26;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$ap$$$$dab1c931f824ef7de5939f126155866$$$$pply$24$$anonfun$apply$25$$anonfun$apply$26$$anonfun$apply$27::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6$$anonfun$apply$7$$anonfun$apply$8$$anonfun$apply$9$$anonfun$apply$10$$anonfun$apply$11::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6$$anonfun$apply$7$$anonfun$apply$8$$anonfun$apply$9$$anonfun$apply$10;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6$$anonfun$apply$7$$anonfun$apply$8$$anonfun$apply$9$$anonfun$apply$10$$anonfun$apply$11::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6$$anonfun$apply$7$$anonfun$apply$8$$anonfun$apply$9$$anonfun$apply$10::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6$$anonfun$apply$7$$anonfun$apply$8$$anonfun$apply$9;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6$$anonfun$apply$7$$anonfun$apply$8$$anonfun$apply$9$$anonfun$apply$10::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6$$anonfun$apply$7$$anonfun$apply$8$$anonfun$apply$9::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6$$anonfun$apply$7$$anonfun$apply$8;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6$$anonfun$apply$7$$anonfun$apply$8$$anonfun$apply$9::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6$$anonfun$apply$7$$anonfun$apply$8::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6$$anonfun$apply$7;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6$$anonfun$apply$7$$anonfun$apply$8::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6$$anonfun$apply$7::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6$$anonfun$apply$7::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5$$anonfun$apply$6::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4$$anonfun$apply$5::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3$$anonfun$apply$4::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2$$anonfun$apply$3::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1$$anonfun$apply$2::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1::<init> (Lcoverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1$$anonfun$apply$1::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1::<init> (Lscala/collection/immutable/List;)V
-FNDA:1,coverage/D1$$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1::apply (Ljava/lang/String;)Lscala/collection/immutable/List;
 FNDA:1,coverage/D1$::<clinit> ()V
 FNDA:1,coverage/D1$::<init> ()V
 FNDA:1,coverage/D1$::veryLongFunctionNameIsHereAaaaaaaaa ()V
 FNDA:0,coverage/D1::veryLongFunctionNameIsHereAaaaaaaaa ()V
-FNF:70
-FNH:69
-BA:10,2
-BA:11,2
-BA:12,2
-BA:13,2
-BA:14,2
-BA:15,2
-BA:16,2
-BA:17,2
-BA:18,2
-BA:19,2
-BA:20,2
-BA:21,2
-BA:22,2
-BA:23,2
-BA:24,2
-BA:25,2
-BA:26,2
-BA:27,2
-BA:28,2
-BA:29,2
-BA:30,2
-BA:31,2
-BA:32,2
-BA:33,2
-BA:34,2
-BA:35,2
-BA:36,2
-BA:37,2
-BA:38,2
-BA:39,2
-BA:40,2
-BRF:31
-BRH:31
-DA:5,12
-DA:9,16
-DA:10,19
-DA:11,20
-DA:12,21
-DA:13,22
-DA:14,23
-DA:15,24
-DA:16,25
-DA:17,26
-DA:18,27
-DA:19,28
-DA:20,29
-DA:21,30
-DA:22,31
-DA:23,32
-DA:24,33
-DA:25,34
-DA:26,35
-DA:27,36
-DA:28,37
-DA:29,38
-DA:30,39
-DA:31,40
-DA:32,41
-DA:33,42
-DA:34,43
-DA:35,44
-DA:36,45
-DA:37,46
-DA:38,47
-DA:39,48
-DA:40,49
-DA:41,45
-DA:43,1
-DA:46,5
-LH:36
-LF:36
+FNF:4
+FNH:3
+DA:3,1
+DA:5,6
+DA:9,8
+DA:46,4
+LH:4
+LF:4
 end_of_record
 SF:test/coverage/TestAll.scala
-FN:11,coverage/TestAll$$anonfun$1::<init> (Lcoverage/TestAll;)V
-FN:11,coverage/TestAll$$anonfun$1::apply ()V
-FN:11,coverage/TestAll$$anonfun$1::apply$mcV$sp ()V
-FN:15,coverage/TestAll$$anonfun$2::<init> (Lcoverage/TestAll;)V
-FN:15,coverage/TestAll$$anonfun$2::apply ()V
-FN:15,coverage/TestAll$$anonfun$2::apply$mcV$sp ()V
-FN:7,coverage/TestAll$$anonfun$3::<init> (Lcoverage/TestAll;)V
-FN:7,coverage/TestAll$$anonfun$3::apply ()Lorg/scalatest/compatible/Assertion;
 FN:4,coverage/TestAll::<init> ()V
-FNDA:1,coverage/TestAll$$anonfun$1::<init> (Lcoverage/TestAll;)V
-FNDA:1,coverage/TestAll$$anonfun$1::apply ()V
-FNDA:1,coverage/TestAll$$anonfun$1::apply$mcV$sp ()V
-FNDA:1,coverage/TestAll$$anonfun$2::<init> (Lcoverage/TestAll;)V
-FNDA:1,coverage/TestAll$$anonfun$2::apply ()V
-FNDA:1,coverage/TestAll$$anonfun$2::apply$mcV$sp ()V
-FNDA:1,coverage/TestAll$$anonfun$3::<init> (Lcoverage/TestAll;)V
-FNDA:1,coverage/TestAll$$anonfun$3::apply ()Lorg/scalatest/compatible/Assertion;
 FNDA:1,coverage/TestAll::<init> ()V
-FNF:9
-FNH:9
+FNF:1
+FNH:1
 BA:7,2
 BRF:1
 BRH:1
-DA:4,2
+DA:4,3
 DA:6,22
-DA:7,51
+DA:7,2
 DA:10,22
-DA:11,13
-DA:14,23
-DA:15,13
+DA:11,1
+DA:14,22
+DA:15,1
 LH:7
 LF:7
 end_of_record
