@@ -11,9 +11,7 @@ scala_test(
     scalacopts = [
         # The macro settings are used in the test itself.
         "-Xmacro-settings:name=a,b,c,d",
-        # These two settings are not important
-        "-language:dynamics,implicitConversions",
-        "-Xlint",
+        "-Xmacro-settings:hobby=basketball,soccer",
     ],
     deps = [
         ":A",
