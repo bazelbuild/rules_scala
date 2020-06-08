@@ -1,4 +1,4 @@
-load("//scala:scala.bzl", "scala_library", "scala_macro_library", "scala_test")
+load("//scala:scala.bzl", "scala_macro_library", "scala_test")
 
 scala_macro_library(
     name = "A",

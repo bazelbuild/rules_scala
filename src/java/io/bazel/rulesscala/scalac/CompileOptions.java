@@ -99,7 +99,7 @@ public class CompileOptions {
     return hm;
   }
 
-  private static String[] getTripleColonList(Map<String, String> m, String k) {
+  protected static String[] getTripleColonList(Map<String, String> m, String k) {
     if (m.containsKey(k)) {
       String v = m.get(k);
       if ("".equals(v)) {
