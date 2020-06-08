@@ -10,7 +10,7 @@ scala_test(
     srcs = ["EchoMacroSettings.scala"],
     scalacopts = [
         # The macro settings are used in the test itself.
-        "-Xmacro-settings:name=a,b,c,d",
+        "-Xmacro-settings:name=Mike,location=US",
         "-Xmacro-settings:hobby=basketball,soccer",
     ],
     deps = [

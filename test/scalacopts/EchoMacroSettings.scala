@@ -18,6 +18,6 @@ import org.scalatest._
 
 class EchoMacroSettings extends FlatSpec {
   "macro output" should "match scalac options" in {
-    assert(Macros.hello.equals("name=a,b,c,d,hobby=basketball,soccer"))
+    assert(Macros.hello.equals("name=Mike,location=US,hobby=basketball,soccer"))
   }
 }
