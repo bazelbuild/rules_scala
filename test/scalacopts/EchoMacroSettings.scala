@@ -17,7 +17,7 @@ package scalacopts
 import org.scalatest._
 
 class EchoMacroSettings extends FlatSpec {
-  "HelloLib" should "call java" in {
+  "macro output" should "match scalac options" in {
     assert(Macros.hello.equals("name=a,b,c,d"))
   }
 }
