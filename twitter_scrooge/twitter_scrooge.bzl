@@ -70,45 +70,6 @@ def defaulted_twitter_scrooge_dependency(dependency_name, dependency_version, sh
     )
     return "@{}".format(external_name)
 
-# def default_scrooge_generator(maven_servers, major_version, sha, version):
-#     _scala_maven_import_external(
-#         name = "io_bazel_rules_scala_scrooge_generator",
-#         artifact = _scala_mvn_artifact(
-#             "com.twitter:scrooge-generator:{}".format(version),
-#             major_version,
-#         ),
-#         artifact_sha256 = sha,
-#         licenses = ["notice"],
-#         server_urls = maven_servers,
-#     )
-#     return "@io_bazel_rules_scala_scrooge_generator"
-
-# def default_util_core(maven_servers, major_version, sha, version):
-#     _scala_maven_import_external(
-#         name = "io_bazel_rules_scala_util_core",
-#         artifact = _scala_mvn_artifact(
-#             "com.twitter:util-core:{}".format(version),
-#             major_version,
-#         ),
-#         artifact_sha256 = sha,
-#         licenses = ["notice"],
-#         server_urls = maven_servers,
-#     )
-#     return "@io_bazel_rules_scala_util_core"
-
-# def default_util_logging(maven_servers, major_version, sha):
-#     _scala_maven_import_external(
-#         name = "io_bazel_rules_scala_util_logging",
-#         artifact = _scala_mvn_artifact(
-#             "com.twitter:util-logging:{}".format(version),
-#             major_version,
-#         ),
-#         artifact_sha256 = sha,
-#         licenses = ["notice"],
-#         server_urls = maven_servers,
-#     )
-#     return "@io_bazel_rules_scala_util_logging"
-
 def twitter_scrooge(
         scala_version = _default_scala_version(),
         maven_servers = _default_maven_server_urls(),
