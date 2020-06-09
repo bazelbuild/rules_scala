@@ -56,7 +56,7 @@ def _default_scala_jar_shas(major_version):
     }
     return scala_jar_shas[major_version]
 
-def defaulted_twitter_scrooge_dependency(dependency_name, dependency_version, sha, scala_major_version, maven_servers=_default_maven_server_urls()):
+def defaulted_twitter_scrooge_dependency(dependency_name, dependency_version, sha, scala_major_version, maven_servers = _default_maven_server_urls()):
     external_name = "io_bazel_rules_scala_{}".format(dependency_name.replace("-", "_"))
     _scala_maven_import_external(
         name = external_name,
