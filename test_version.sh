@@ -2,15 +2,14 @@
 
 set -e
 
-
 scala_2_11_version="2.11.12"
-scala_2_11_shas=' \
+scala_2_11_shas='\
   "scala_compiler": "3e892546b72ab547cb77de4d840bcfd05c853e73390fed7370a8f19acb0735a0", \
   "scala_library": "0b3d6fd42958ee98715ba2ec5fe221f4ca1e694d7c981b0ae0cd68e97baf6dce", \
   "scala_reflect": "6ba385b450a6311a15c918cf8688b9af9327c6104f0ecbd35933cfcd3095fe04" \
 '
 scala_2_12_version="2.12.10"
-scala_2_12_shas=' \
+scala_2_12_shas='\
   "scala_compiler": "cedc3b9c39d215a9a3ffc0cc75a1d784b51e9edc7f13051a1b4ad5ae22cfbc0c", \
   "scala_library": "0a57044d10895f8d3dd66ad4286891f607169d948845ac51e17b4c1cf0ab569d", \
   "scala_reflect": "56b609e1bab9144fb51525bfa01ccd72028154fc40a58685a1e9adcbe7835730" \
@@ -19,7 +18,7 @@ scala_2_12_shas=' \
 SCALA_VERSION_DEFAULT=$scala_2_11_version
 SCALA_VERSION_SHAS_DEFAULT=$scala_2_11_shas
 TWITTER_SCROOGE_VERSION_SHAS_DEFAULT=''
-TWITTER_SCROOGE_ETXTRA_IMPORTS_DEFAULTS=''
+TWITTER_SCROOGE_EXTRA_IMPORTS_DEFAULT=''
 TWITTER_SCROOGE_BINDINGS_DEFAULT='twitter_scrooge(scala_version)'
 
 run_in_test_repo() {
@@ -42,7 +41,7 @@ run_in_test_repo() {
 
   sed \
       -e "s/\${scala_version}/$SCALA_VERSION/" \
-      -e "s/\${scala_version_shas}/$SCALA_VERSION_SHAS/" \
+      -e "s%\${scala_version_shas}%$SCALA_VERSION_SHAS%" \
       -e "s%\${twitter_scrooge_bindings}%$TWITTER_SCROOGE_BINDINGS%" \
       -e "s%\${twitter_scrooge_extra_imports}%$TWITTER_SCROOGE_EXTRA_IMPORTS%" \
       -e "s%\${twitter_scrooge_version_shas}%$TWITTER_SCROOGE_VERSION_SHAS%" \
@@ -54,13 +53,18 @@ run_in_test_repo() {
   RESPONSE_CODE=$?
 
   cd ..
+  rm -rf $NEW_TEST_DIR
 
   exit $RESPONSE_CODE
 }
 
 test_scala_version() {
-  SCALA_VERSION=$1
-  SCALA_VERSION_SHAS=$2
+  SCALA_VERSION="$1"
+  if [[ $SCALA_VERSION == $scala_2_12_version ]]; then
+    SCALA_VERSION_SHAS=$scala_2_12_shas
+  else
+    SCALA_VERSION_SHAS=$scala_2_11_shas
+  fi
 
   run_in_test_repo "test //..." "scala_version"
 }
@@ -86,8 +90,6 @@ test_twitter_scrooge_versions() {
   TWITTER_SCROOGE_EXTRA_IMPORTS="load(\"//twitter_scrooge:twitter_scrooge_bindings.bzl\", \"twitter_scrooge_with_custom_dep_version\")"
   TWITTER_SCROOGE_BINDINGS="twitter_scrooge_with_custom_dep_version(\"${version_under_test}\", scala_version, twitter_scrooge_version_shas)"
 
-  echo $TWITTER_SCROOGE_VERSION_SHAS
-
   run_in_test_repo "test //twitter_scrooge/... --test_arg=${version_under_test}" "scrooge_version"
 }
 
@@ -101,8 +103,8 @@ dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 . "${dir}"/test/shell/test_runner.sh
 runner=$(get_test_runner "${1:-local}")
 
+$runner test_scala_version "${scala_2_11_version}" "${scala_2_11_shas}"
+$runner test_scala_version "${scala_2_12_version}" "${scala_2_12_shas}"
+
 $runner test_twitter_scrooge_versions "18.6.0"
 $runner test_twitter_scrooge_versions "20.5.0"
-
-$runner test_scala_version "${scala_2_11_version}" "${scala_2_11_version_shas}"
-$runner test_scala_version "${scala_2_12_version}" "${scala_2_12_version_shas}"
