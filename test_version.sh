@@ -103,8 +103,8 @@ dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 . "${dir}"/test/shell/test_runner.sh
 runner=$(get_test_runner "${1:-local}")
 
-$runner test_scala_version "${scala_2_11_version}" "${scala_2_11_shas}"
-$runner test_scala_version "${scala_2_12_version}" "${scala_2_12_shas}"
+$runner test_scala_version "${scala_2_11_version}"
+$runner test_scala_version "${scala_2_12_version}"
 
 $runner test_twitter_scrooge_versions "18.6.0"
 $runner test_twitter_scrooge_versions "20.5.0"
