@@ -10,7 +10,6 @@ set -x
 
 filename=$1
 dependency_version=$2
-echo $dependency_version $filename
 
 if grep -q "$dependency_version" <<< $filename; then
   exit 0
