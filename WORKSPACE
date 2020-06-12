@@ -63,7 +63,7 @@ jvm_maven_import_external(
         "com.twitter:scalding-date:0.17.0",
         default_scala_major_version(),
     ),
-    artifact_sha256 = "bf743cd6d224a4568d6486a2b794143e23145d2afd7a1d2de412d49e45bdb308",
+    artifact_sha256 = "973a7198121cc8dac9eeb3f325c93c497fe3b682f68ba56e34c1b210af7b15b3",
     server_urls = MAVEN_SERVER_URLS,
 )
 
@@ -74,7 +74,7 @@ jvm_maven_import_external(
         "org.typelevel:cats-core:0.9.0",
         default_scala_major_version(),
     ),
-    artifact_sha256 = "3fda7a27114b0d178107ace5c2cf04e91e9951810690421768e65038999ffca5",
+    artifact_sha256 = "3ca705cba9dc0632e60477d80779006f8c636c0e2e229dda3410a0c314c1ea1d",
     server_urls = MAVEN_SERVER_URLS,
 )
 
@@ -82,10 +82,10 @@ jvm_maven_import_external(
 jvm_maven_import_external(
     name = "org_psywerx_hairyfotr__linter",
     artifact = scala_mvn_artifact(
-        "org.psywerx.hairyfotr:linter:0.1.13",
+        "org.psywerx.hairyfotr:linter:0.1.17",
         default_scala_major_version(),
     ),
-    artifact_sha256 = "9444dd78684c0cc89d070af0f5ca3f3ae7d56b2a4d7ac1c038f8218ad4d66fad",
+    artifact_sha256 = "59becd7883613064842b3a62f84315b02457dc439f42ef62e3c80408393c905b",
     server_urls = MAVEN_SERVER_URLS,
 )
 
@@ -243,7 +243,7 @@ scala_maven_import_external(
         "org.spire-math:kind-projector:0.9.10",
         default_scala_major_version(),
     ),
-    artifact_sha256 = "897460d4488b7dd6ac9198937d6417b36cc6ec8ab3693fdf2c532652f26c4373",
+    artifact_sha256 = "36aca2493302e2c037328107a121cda1d28bf9119fbc04fb47ea1ff9bce3c03f",
     fetch_sources = False,
     licenses = ["notice"],
     server_urls = MAVEN_SERVER_URLS,
