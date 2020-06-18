@@ -7,6 +7,5 @@ import scalarules.test.twitter_scrooge.thrift.thrift2.thrift3.Struct3;
 
 public class JustScrooge1 {
   public static void main(String[] args) {
-    System.out.println("Hello");
   }
 }
