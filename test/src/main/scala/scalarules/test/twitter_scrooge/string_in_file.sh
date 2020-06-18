@@ -13,21 +13,21 @@
 
 should_be_in_file=$1
 
-if [ "$should_be_in_file" != "true" -a "$should_be_in_file" != "false" ]; then
+if test "$should_be_in_file" != "true" -a "$should_be_in_file" != "false" ; then
   echo "ERROR: Please use only (\"true\" or \"false\") to specify whether you need the substring to be in the file."
   echo "Refer to test/src/main/scala/scalarules/test/twitter_scrooge/string_in_file.sh for documentation."
   exit 1
 fi
 
 if grep -q $2 $3 ; then
-  if [ "$should_be_in_file" == "true" ]; then
+  if test "$should_be_in_file" = "true" ; then
     exit 0
   else
     echo "ERROR: Found string $2 in $3, when we were expecting not to find it."
     exit 1
   fi
 else
-  if [ "$should_be_in_file" == "true" ]; then
+  if test "$should_be_in_file" = "true" ; then
     echo "ERROR: Not found string $2 in $3, when we were expecting to find it."
     exit 1
   else
