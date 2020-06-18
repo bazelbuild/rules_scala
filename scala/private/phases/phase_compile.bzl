@@ -14,6 +14,7 @@ load(
 load(
     "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
     _compile_scala = "compile_scala",
+    _compile_java = "compile_java",
     _expand_location = "expand_location",
 )
 load(":resources.bzl", _resource_paths = "paths")
@@ -334,26 +335,13 @@ def _try_to_compile_java_jar(
 
     full_java_jar = ctx.actions.declare_file(ctx.label.name + "_java.jar")
 
-    provider = java_common.compile(
+    provider = _compile_java(
         ctx,
         source_jars = all_srcjars.to_list(),
         source_files = java_srcs,
         output = full_java_jar,
-        javac_opts = _expand_location(
-            ctx,
-            ctx.attr.javacopts + ctx.attr.javac_jvm_flags +
-            java_common.default_javac_opts(
-                java_toolchain = ctx.attr._java_toolchain[java_common.JavaToolchainInfo],
-            ),
-        ),
-        deps = providers_of_dependencies,
-        #exports can be empty since the manually created provider exposes exports
-        #needs to be empty since we want the provider.compile_jars to only contain the sources ijar
-        #workaround until https://github.com/bazelbuild/bazel/issues/3528 is resolved
-        exports = [],
-        java_toolchain = find_java_toolchain(ctx, ctx.attr._java_toolchain),
-        host_javabase = find_java_runtime_toolchain(ctx, ctx.attr._host_javabase),
-        strict_deps = ctx.fragments.java.strict_java_deps,
+        extra_javac_opts = ctx.attr.javacopts + ctx.attr.javac_jvm_flags,
+        providers_of_dependencies = providers_of_dependencies
     )
 
     return struct(

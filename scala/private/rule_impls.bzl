@@ -14,6 +14,7 @@
 """Rules for supporting the Scala language."""
 
 load("@bazel_skylib//lib:paths.bzl", "paths")
+load("@bazel_tools//tools/jdk:toolchain_utils.bzl", "find_java_runtime_toolchain", "find_java_toolchain")
 load(
     ":common.bzl",
     _collect_plugin_paths = "collect_plugin_paths",
@@ -207,6 +208,29 @@ StatsfileOutput: {statsfile_output}
             "--jvm_flag=%s" % f
             for f in expand_location(ctx, final_scalac_jvm_flags)
         ] + ["@" + argfile.path],
+    )
+
+def compile_java(ctx, source_jars, source_files, output, extra_javac_opts, providers_of_dependencies):
+    return java_common.compile(
+        ctx,
+        source_jars = source_jars,
+        source_files = source_files,
+        output = output,
+        javac_opts = expand_location(
+            ctx,
+            extra_javac_opts +
+            java_common.default_javac_opts(
+                java_toolchain = ctx.attr._java_toolchain[java_common.JavaToolchainInfo],
+            ),
+        ),
+        deps = providers_of_dependencies,
+        #exports can be empty since the manually created provider exposes exports
+        #needs to be empty since we want the provider.compile_jars to only contain the sources ijar
+        #workaround until https://github.com/bazelbuild/bazel/issues/3528 is resolved
+        exports = [],
+        java_toolchain = find_java_toolchain(ctx, ctx.attr._java_toolchain),
+        host_javabase = find_java_runtime_toolchain(ctx, ctx.attr._host_javabase),
+        strict_deps = ctx.fragments.java.strict_java_deps,
     )
 
 def runfiles_root(ctx):
