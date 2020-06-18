@@ -42,7 +42,7 @@ def test_scrooge_provides_transitive_jars():
             "thrift2_a_scrooge_scala.jar",
             "thrift2_b_scrooge_scala.jar",
             "thrift3_scrooge_java.jar",
-            "thrift_scrooge_scala.jar"
+            "thrift_scrooge_scala.jar",
         ],
     )
     scrooge_transitive_outputs_test(

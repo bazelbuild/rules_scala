@@ -1,5 +1,5 @@
 load("//scala:scala.bzl", "scala_binary", "scala_library")
-load("//twitter_scrooge:twitter_scrooge.bzl", "scrooge_scala_library", "scrooge_java_library")
+load("//twitter_scrooge:twitter_scrooge.bzl", "scrooge_java_library", "scrooge_scala_library")
 load("//thrift:thrift.bzl", "thrift_library")
 load("//test/src/main/scala/scalarules/test/twitter_scrooge:twitter_scrooge_test.bzl", "twitter_scrooge_test_suite")
 
@@ -303,7 +303,6 @@ sh_test(
     data = [":justscrooges"],
 )
 
-
 sh_test(
     name = "java_jar_on_classpath_in_scrooges",
     srcs = ["string_in_file.sh"],
@@ -314,6 +313,5 @@ sh_test(
     ],
     data = [":justscrooges_java"],
 )
-
 
 twitter_scrooge_test_suite()

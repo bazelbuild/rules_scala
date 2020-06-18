@@ -13,8 +13,8 @@ load(
 )
 load(
     "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
-    _compile_scala = "compile_scala",
     _compile_java = "compile_java",
+    _compile_scala = "compile_scala",
     _expand_location = "expand_location",
 )
 load(":resources.bzl", _resource_paths = "paths")
@@ -341,7 +341,7 @@ def _try_to_compile_java_jar(
         source_files = java_srcs,
         output = full_java_jar,
         extra_javac_opts = ctx.attr.javacopts + ctx.attr.javac_jvm_flags,
-        providers_of_dependencies = providers_of_dependencies
+        providers_of_dependencies = providers_of_dependencies,
     )
 
     return struct(
