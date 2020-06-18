@@ -1,5 +1,5 @@
 load("//scala:scala.bzl", "scala_binary", "scala_library")
-load("//twitter_scrooge:twitter_scrooge.bzl", "scrooge_scala_library")
+load("//twitter_scrooge:twitter_scrooge.bzl", "scrooge_scala_library", "scrooge_java_library")
 load("//thrift:thrift.bzl", "thrift_library")
 load("//test/src/main/scala/scalarules/test/twitter_scrooge:twitter_scrooge_test.bzl", "twitter_scrooge_test_suite")
 
@@ -15,10 +15,43 @@ scrooge_scala_library(
 )
 
 scrooge_scala_library(
+    name = "scrooge1_scala_and_java",
+    visibility = ["//visibility:public"],
+    exports = [
+        ":scrooge2_a",
+        ":scrooge2_b",
+        ":scrooge3_java",
+    ],
+    deps = ["//test/src/main/scala/scalarules/test/twitter_scrooge/thrift"],
+)
+
+scrooge_java_library(
+    name = "scrooge1_java",
+    visibility = ["//visibility:public"],
+    exports = [
+        ":scrooge2_a_java",
+        ":scrooge2_b_java",
+        ":scrooge3_java",
+    ],
+    deps = ["//test/src/main/scala/scalarules/test/twitter_scrooge/thrift"],
+)
+
+scrooge_scala_library(
     name = "scrooge2_a",
     visibility = ["//visibility:public"],
     exports = [
         ":scrooge3",
+    ],
+    deps = [
+        "//test/src/main/scala/scalarules/test/twitter_scrooge/thrift/thrift2:thrift2_a",
+    ],
+)
+
+scrooge_java_library(
+    name = "scrooge2_a_java",
+    visibility = ["//visibility:public"],
+    exports = [
+        ":scrooge3_java",
     ],
     deps = [
         "//test/src/main/scala/scalarules/test/twitter_scrooge/thrift/thrift2:thrift2_a",
@@ -36,6 +69,17 @@ scrooge_scala_library(
     ],
 )
 
+scrooge_java_library(
+    name = "scrooge2_b_java",
+    visibility = ["//visibility:public"],
+    exports = [
+        ":scrooge3_java",
+    ],
+    deps = [
+        "//test/src/main/scala/scalarules/test/twitter_scrooge/thrift/thrift2:thrift2_b",
+    ],
+)
+
 scrooge_scala_library(
     name = "scrooge2_b_imp",
     deps = [
@@ -45,6 +89,12 @@ scrooge_scala_library(
 
 scrooge_scala_library(
     name = "scrooge3",
+    visibility = ["//visibility:public"],
+    deps = ["//test/src/main/scala/scalarules/test/twitter_scrooge/thrift/thrift2/thrift3"],
+)
+
+scrooge_java_library(
+    name = "scrooge3_java",
     visibility = ["//visibility:public"],
     deps = ["//test/src/main/scala/scalarules/test/twitter_scrooge/thrift/thrift2/thrift3"],
 )
@@ -201,6 +251,24 @@ scala_binary(
 )
 
 scala_library(
+    name = "allscrooges_java",
+    exports = [
+        ":scrooge1_java",
+        ":scrooge2_a_java",
+        ":scrooge2_b_java",
+        ":scrooge3_java",
+    ],
+)
+
+java_binary(
+    name = "justscrooges_java",
+    srcs = ["JustScrooge1.java"],
+    main_class = "scalarules.test.twitter_scrooge.JustScrooge1",
+    visibility = ["//visibility:public"],
+    deps = [":allscrooges_java"],
+)
+
+scala_library(
     name = "barethriftslib",
     srcs = ["BareThrifts.scala"],
     deps = [":bare_thrift_scrooge"],
@@ -215,8 +283,9 @@ scala_binary(
 
 sh_test(
     name = "libthrift2_a_not_on_classpath",
-    srcs = ["grep.sh"],
+    srcs = ["string_in_file.sh"],
     args = [
+        "false",
         "libthrift2_a",
         "$(location :justscrooges)",
     ],
@@ -225,12 +294,26 @@ sh_test(
 
 sh_test(
     name = "java_jar_not_on_classpath",
-    srcs = ["grep.sh"],
+    srcs = ["string_in_file.sh"],
     args = [
+        "false",
         "_java.jar",
         "$(location :justscrooges)",
     ],
     data = [":justscrooges"],
 )
+
+
+sh_test(
+    name = "java_jar_on_classpath_in_scrooges",
+    srcs = ["string_in_file.sh"],
+    args = [
+        "true",
+        "_java.jar",
+        "$(location :justscrooges_java)",
+    ],
+    data = [":justscrooges_java"],
+)
+
 
 twitter_scrooge_test_suite()
