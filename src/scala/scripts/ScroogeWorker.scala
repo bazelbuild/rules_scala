@@ -58,8 +58,13 @@ object ScroogeWorker extends Worker.Interface {
 
     val scrooge = new Compiler
 
-    if (additionalFlags.contains("--with-finagle")) {
-      scrooge.flags += WithFinagle
+    additionalFlags.foreach {
+      case "--with-finagle" => {
+        scrooge.flags += WithFinagle
+      }
+      case f if f.startsWith("--language=") => {
+        scrooge.language = f.split("=")(1)
+      }
     }
 
     scrooge.compileJars ++= immediateThriftSrcJars

@@ -1,3 +1,4 @@
+load("@bazel_skylib//lib:dicts.bzl", "dicts")
 load(
     "//scala:scala_cross_version.bzl",
     _default_maven_server_urls = "default_maven_server_urls",
@@ -7,6 +8,7 @@ load(
 )
 load(
     "@io_bazel_rules_scala//scala:scala_maven_import_external.bzl",
+    _jvm_maven_import_external = "jvm_maven_import_external",
     _scala_maven_import_external = "scala_maven_import_external",
 )
 load(
@@ -20,6 +22,7 @@ load(
 load(
     "//scala/private:rule_impls.bzl",
     "compile_scala",
+    "compile_java",
 )
 load("@io_bazel_rules_scala//thrift:thrift_info.bzl", "ThriftInfo")
 load(
@@ -121,6 +124,20 @@ def twitter_scrooge(
         actual = util_logging,
     )
 
+    mustache_name = "io_bazel_rules_scala_mustache"
+    _jvm_maven_import_external(
+        name = mustache_name,
+        artifact = "com.github.spullara.mustache.java:compiler:0.8.18",
+        server_urls = maven_servers,
+        rule_name = "java_import",
+        licenses = ["notice"],
+        artifact_sha256 = "ddabc1ef897fd72319a761d29525fd61be57dc25d04d825f863f83cc89000e66",
+    )
+    native.bind(
+        name = "io_bazel_rules_scala/dependency/thrift/mustache",
+        actual = "@{}".format(mustache_name),
+    )
+
 def _colon_paths(data):
     return ":".join([f.path for f in sorted(data)])
 
@@ -148,7 +165,7 @@ def merge_scrooge_aspect_info(scrooges):
         java_info = java_common.merge([s.java_info for s in scrooges]),
     )
 
-def _compile_to_scala(ctx, label, compile_thrifts, include_thrifts, jar_output):
+def _generate_jvm_code(ctx, label, compile_thrifts, include_thrifts, jar_output, language):
     # bazel worker arguments cannot be empty so we pad to ensure non-empty
     # and drop it off on the other side
     # https://github.com/bazelbuild/bazel/issues/3329
@@ -164,11 +181,12 @@ def _compile_to_scala(ctx, label, compile_thrifts, include_thrifts, jar_output):
             # always add finagle option which is a no-op if there are no services
             # we could put "include_services" on thrift_info, if needed
             "--with-finagle",
+            "--language={}".format(language),
         ]),
     )
 
     argfile = ctx.actions.declare_file(
-        "%s_worker_input" % label.name,
+        "{}_{}_worker_input".format(label.name, language),
         sibling = jar_output,
     )
     ctx.actions.write(output = argfile, content = worker_content)
@@ -201,13 +219,24 @@ def _compiled_jar_file(actions, scrooge_jar):
     compiled_jar = without_suffix + "jar"
     return actions.declare_file(compiled_jar, sibling = scrooge_jar)
 
-def _compile_scala(
+def _create_java_info_provider(scrooge_jar, all_deps, output):
+    return JavaInfo(
+        source_jar = scrooge_jar,
+        deps = all_deps,
+        runtime_deps = all_deps,
+        exports = all_deps,
+        output_jar = output,
+        compile_jar = output,
+    )
+
+def _compile_generated_scala(
         ctx,
         label,
         output,
         scrooge_jar,
         deps_java_info,
-        implicit_deps):
+        implicit_deps,
+    ):
     manifest = ctx.actions.declare_file(
         label.name + "_MANIFEST.MF",
         sibling = scrooge_jar,
@@ -217,7 +246,8 @@ def _compile_scala(
         label.name + "_scalac.statsfile",
         sibling = scrooge_jar,
     )
-    merged_deps = java_common.merge(_concat_lists(deps_java_info, implicit_deps))
+    all_deps = _concat_lists(deps_java_info, implicit_deps)
+    merged_deps = java_common.merge(all_deps)
 
     # this only compiles scala, not the ijar, but we don't
     # want the ijar for generated code anyway: any change
@@ -247,14 +277,31 @@ def _compile_scala(
         unused_dependency_checker_ignored_targets = [],
     )
 
-    return JavaInfo(
-        source_jar = scrooge_jar,
-        deps = deps_java_info + implicit_deps,
-        runtime_deps = deps_java_info + implicit_deps,
-        exports = deps_java_info + implicit_deps,
-        output_jar = output,
-        compile_jar = output,
+    return _create_java_info_provider(scrooge_jar, all_deps, output)
+
+
+def _compile_generated_java(
+        ctx,
+        label,
+        output,
+        scrooge_jar,
+        deps_java_info,
+        implicit_deps,
+    ):
+    all_deps = _concat_lists(deps_java_info, implicit_deps)
+    merged_deps = java_common.merge(all_deps)
+
+    compile_java(
+        ctx,
+        source_jars = [scrooge_jar],
+        source_files = [],
+        output = output,
+        extra_javac_opts = [],
+        providers_of_dependencies = [merged_deps],
     )
+
+    return _create_java_info_provider(scrooge_jar, all_deps, output)
+
 
 def _concat_lists(list1, list2):
     all_providers = []
@@ -262,11 +309,7 @@ def _concat_lists(list1, list2):
     all_providers.extend(list2)
     return all_providers
 
-####
-# This is applied to the DAG of thrift_librarys reachable from a deps
-# or a scrooge_scala_library. Each thrift_library will be one scrooge
-# invocation assuming it has some sources.
-def _scrooge_aspect_impl(target, ctx):
+def _gather_thriftinfo_from_deps(target, ctx):
     if ScroogeImport in target:
         target_import = target[ScroogeImport]
         target_ti = target_import.thrift_info
@@ -281,35 +324,63 @@ def _scrooge_aspect_impl(target, ctx):
                 for d in ctx.rule.attr.deps
             ] + [target_ti],
         )
+    imps = [j[JavaInfo] for j in ctx.attr._implicit_compile_deps]
+
+    return (
+        target_ti,
+        transitive_ti,
+        deps,
+        imps,
+    )
+
+def _compile_thrift_to_language(target_ti, transitive_ti, language, target, ctx):
+    """Calls scrooge to compile thrift to the language specified in `language`.
+    Returns the name of the compiled jar."""
+
+    scrooge_file = ctx.actions.declare_file(
+        target.label.name + "_scrooge_{}.srcjar".format(language),
+    )
 
     # we sort so the inputs are always the same for caching
     compile_thrifts = sorted(target_ti.srcs.to_list())
-    imps = [j[JavaInfo] for j in ctx.attr._implicit_compile_deps]
-    if compile_thrifts:
-        # we sort so the inputs are always the same for caching
-        compile_thrift_map = {}
-        for ct in compile_thrifts:
-            compile_thrift_map[ct] = True
-        include_thrifts = sorted([
-            trans
-            for trans in transitive_ti.transitive_srcs.to_list()
-            if trans not in compile_thrift_map
-        ])
-        scrooge_file = ctx.actions.declare_file(
-            target.label.name + "_scrooge.srcjar",
-        )
-        _compile_to_scala(
-            ctx,
-            target.label,
-            compile_thrifts,
-            include_thrifts,
-            scrooge_file,
-        )
 
-        src_jars = depset([scrooge_file])
+    compile_thrift_map = {}
+    for ct in compile_thrifts:
+        compile_thrift_map[ct] = True
+    include_thrifts = sorted([
+        trans
+        for trans in transitive_ti.transitive_srcs.to_list()
+        if trans not in compile_thrift_map
+    ])
+    
+    _generate_jvm_code(
+        ctx,
+        target.label,
+        compile_thrifts,
+        include_thrifts,
+        scrooge_file,
+        language,
+    )
+    return scrooge_file
+
+def _common_aspect_implementation(target, ctx, language, compiler_function):
+    """Aspect implementation to generate code from thrift files in a language of choice, and then compile it.
+    Takes in a `language` (either "java" or "scala") and a function to compile the generated sources.
+    """
+    allowed_languages = ["java", "scala"]
+    if language not in allowed_languages:
+        fail("Trying to compile thrift to language {}, when only {} are allowed".format(language, allowed_languages))
+
+    (
+        target_ti,
+        transitive_ti,
+        deps,
+        imps,
+    ) = _gather_thriftinfo_from_deps(target, ctx)
+    if target_ti.srcs:
+        scrooge_file = _compile_thrift_to_language(target_ti, transitive_ti, language, target, ctx)
         output = _compiled_jar_file(ctx.actions, scrooge_file)
-        outs = depset([output])
-        java_info = _compile_scala(
+        java_info = compiler_function(
             ctx,
             target.label,
             output,
@@ -317,55 +388,72 @@ def _scrooge_aspect_impl(target, ctx):
             deps,
             imps,
         )
-
-    else:
-        # this target is only an aggregation target
-        src_jars = depset()
-        outs = depset()
-        java_info = java_common.merge(_concat_lists(deps, imps))
-
-    return [
-        ScroogeAspectInfo(
-            src_jars = src_jars,
-            output_files = outs,
+        return [ScroogeAspectInfo(
+            src_jars = depset([scrooge_file]),
+            output_files = depset([output]),
             thrift_info = transitive_ti,
             java_info = java_info,
-        ),
-    ]
+        )]
+    else:
+       # This target is an aggregation target. Aggregate the java_infos and return.
+        return [
+    ScroogeAspectInfo(
+        src_jars = depset(),
+        output_files = depset(),
+        thrift_info = transitive_ti,
+        java_info = java_common.merge(_concat_lists(deps, imps)),
+    )]
 
-scrooge_aspect = aspect(
-    implementation = _scrooge_aspect_impl,
-    attr_aspects = ["deps"],
-    attrs = {
-        "_pluck_scrooge_scala": attr.label(
-            executable = True,
-            cfg = "host",
-            default = Label("//src/scala/scripts:scrooge_worker"),
-            allow_files = True,
-        ),
-        "_scalac": attr.label(
-            default = Label(
-                "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac",
+
+def _scrooge_scala_aspect_impl(target, ctx):
+    return _common_aspect_implementation(target, ctx, "scala", _compile_generated_scala)
+    
+
+def _scrooge_java_aspect_impl(target, ctx):
+    return _common_aspect_implementation(target, ctx, "java", _compile_generated_java)
+
+
+# Common attributes for both java and scala aspects, needed to generate JVM code from Thrift
+common_attrs = {
+    "_pluck_scrooge_scala": attr.label(
+        executable = True,
+        cfg = "host",
+        default = Label("//src/scala/scripts:scrooge_worker"),
+        allow_files = True,
+    ),
+    "_implicit_compile_deps": attr.label_list(
+        providers = [JavaInfo],
+        default = [
+            Label(
+                "//external:io_bazel_rules_scala/dependency/scala/scala_library",
             ),
-        ),
-        "_implicit_compile_deps": attr.label_list(
-            providers = [JavaInfo],
-            default = [
-                Label(
-                    "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+            Label(
+                "//external:io_bazel_rules_scala/dependency/thrift/libthrift",
+            ),
+            Label(
+                "//external:io_bazel_rules_scala/dependency/thrift/scrooge_core",
+            ),
+            Label(
+                "//external:io_bazel_rules_scala/dependency/thrift/util_core",
+            ),
+        ],
+    ),
+}
+
+
+scrooge_scala_aspect = aspect(
+    implementation = _scrooge_scala_aspect_impl,
+    attr_aspects = ["deps"],
+    attrs = dicts.add(
+        common_attrs, 
+        {
+            "_scalac": attr.label(
+                default = Label(
+                    "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac",
                 ),
-                Label(
-                    "//external:io_bazel_rules_scala/dependency/thrift/libthrift",
-                ),
-                Label(
-                    "//external:io_bazel_rules_scala/dependency/thrift/scrooge_core",
-                ),
-                Label(
-                    "//external:io_bazel_rules_scala/dependency/thrift/util_core",
-                ),
-            ],
-        ),
-    },
+            ),
+        }
+    ),
     required_aspect_providers = [
         [ThriftInfo],
         [ScroogeImport],
@@ -373,7 +461,26 @@ scrooge_aspect = aspect(
     toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
 )
 
-def _scrooge_scala_library_impl(ctx):
+scrooge_java_aspect = aspect(
+    implementation = _scrooge_java_aspect_impl,
+    attr_aspects = ["deps"],
+    attrs = dicts.add(
+        common_attrs, 
+        {
+            "_java_toolchain": attr.label(default = Label("@bazel_tools//tools/jdk:toolchain_hostjdk8")),
+            "_host_javabase": attr.label(default = Label("@bazel_tools//tools/jdk:current_java_runtime")),
+        }
+    ),
+    required_aspect_providers = [
+        [ThriftInfo],
+        [ScroogeImport],
+    ],
+    toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
+    fragments = ["java"],
+)
+
+
+def _scrooge_jvm_library_impl(ctx):
     aspect_info = merge_scrooge_aspect_info(
         [dep[ScroogeAspectInfo] for dep in ctx.attr.deps],
     )
@@ -391,9 +498,19 @@ def _scrooge_scala_library_impl(ctx):
     ]
 
 scrooge_scala_library = rule(
-    implementation = _scrooge_scala_library_impl,
+    implementation = _scrooge_jvm_library_impl,
     attrs = {
-        "deps": attr.label_list(aspects = [scrooge_aspect]),
+        "deps": attr.label_list(aspects = [scrooge_scala_aspect]),
+        "exports": attr.label_list(providers = [JavaInfo]),
+    },
+    provides = [DefaultInfo, ScroogeInfo, JavaInfo],
+)
+
+scrooge_java_library = rule(
+     # They can use the same implementation, since it's just an aggregator for the aspect info.
+    implementation = _scrooge_jvm_library_impl,
+    attrs = {
+        "deps": attr.label_list(aspects = [scrooge_java_aspect]),
         "exports": attr.label_list(providers = [JavaInfo]),
     },
     provides = [DefaultInfo, ScroogeInfo, JavaInfo],
