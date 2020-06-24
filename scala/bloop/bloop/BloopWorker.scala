@@ -25,6 +25,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Promise}
 import zio._
+import zio.console._
 import zio.clock.Clock
 import zio.duration._
 
@@ -133,6 +134,7 @@ object WorkerUtils {
       map <- ref.get
       maybeV = map.get(k)
       v <- maybeV.fold({
+        println("hi")
         val v = ifNone
         ref.update(_ + (k -> v)) *> ZIO(v)
       })((v) => ZIO(v))
@@ -196,12 +198,18 @@ object WorkerUtils {
 object BloopWorker extends Worker.Interface {
   import WorkerUtils._
 
-  def main(args: Array[String]): Unit = Worker.workerMain(args, BloopWorker)
+  def main(args: Array[String]): Unit = {
+    System.err.println("main")
+    Worker.workerMain(args, BloopWorker)
+  }
 
-  val bloopServersByPackageRef: Ref[Map[String, BloopServer]] = Runtime.default.unsafeRun(Ref.make(Map[String, BloopServer]()))
+  //TODO just don't use this safe map
+  //val bloopServersByPackageRef: Ref[Map[String, BloopServer]] = Runtime.global.unsafeRun(Ref.make(Map[String, BloopServer]()))
+  val bloopServersByPackageRef: mutable.Map[String, BloopServer] = mutable.Map[String, BloopServer]()
 
   //Implements bazel worker interface so work is called externally. I will create or get a bloop server the given package
   def work(args: Array[String]) {
+    System.err.println("what")
 
     var argsArrayBuffer = scala.collection.mutable.ArrayBuffer[String]()
     for (i <- args.indices) {
@@ -214,7 +222,9 @@ object BloopWorker extends Worker.Interface {
     val label = namespace.getString("label")
     val srcs = parseFileList(namespace, "sources")
     val classpath = parseFileList(namespace, "target_classpath")
-    val bloopDir = namespace.get[File]("bloopDir").toPath
+    val bloopProjectConfig = namespace.get[File]("bloopProjectConfig").toPath
+
+    val bloopOutDir = namespace.get[File]("bloopProjectOutput").toPath
     val manifestPath = namespace.getString("manifest")
     val jarOut = namespace.getString("jarOut")
     val statsfile = namespace.get[File]("statsfile").toPath
@@ -223,10 +233,8 @@ object BloopWorker extends Worker.Interface {
 
     System.err.println(s"WORKER Compiling $label")
 
-    val packageDir = bloopDir.resolve("../")
-    val bloopOutDir = bloopDir.resolve("out").toAbsolutePath
+    val packageDir = bloopOutDir.resolve("../../")
     val projectClassesDir = bloopOutDir.resolve("classes")
-    val bloopConfigPath = bloopDir.resolve(s"$label.json")
 
     // TODO I could do this
     // val info = getInfo(namespace)
@@ -266,7 +274,7 @@ object BloopWorker extends Worker.Interface {
         )
       )
 
-      Files.write(bloopConfigPath, bloop.config.toStr(bloopConfig).getBytes)
+      Files.write(bloopProjectConfig, bloop.config.toStr(bloopConfig).getBytes)
     })
 
     def compile(bloopServer: BloopServer): Task[CompileResult] = {
@@ -284,18 +292,18 @@ object BloopWorker extends Worker.Interface {
 
     def writeStatsFile(time: Long): Task[Path] = ZIO.effect({Files.write(statsfile, s"build_time=$time".getBytes)})
 
-   val packageDirStr = packageDir.toString
+    val packageDirStr = packageDir.toString
     def getTime: ZIO[Clock, Nothing, Long] = ZIO.accessM[Clock] { x => x.get.currentTime(TimeUnit.MILLISECONDS) } //TODO delete
 
-    val program: ZIO[Clock, Throwable, Unit] = for {
-      bloopServer <- getOrUpdateMapRef(bloopServersByPackageRef, packageDirStr, {BloopUtil.initBloop(packageDirStr)})
+    val bloopServer = bloopServersByPackageRef.getOrElseUpdate(packageDirStr, {BloopUtil.initBloop(packageDirStr)})
+
+    val program: ZIO[Clock with Console, Throwable, Unit] = for {
       totalTime <- (generateBloopConfig *> compile(bloopServer) *> copyJar).timed
       _ <- writeStatsFile(totalTime._1.toMillis)
-      _ <- ZIO.sleep(5.seconds) //TODO don't do this
+      _ <- ZIO.sleep(1.seconds) //TODO don't do this
     } yield { () } //TODO
 
-    Runtime.default.unsafeRun(program.provideLayer(Clock.live))
-
+    Runtime.global.unsafeRun(program.provideLayer(Clock.live and Console.live))
 
   }
 }

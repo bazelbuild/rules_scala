@@ -45,7 +45,7 @@ def phase_bloop(ctx, p):
     args.add("--bloopProjectOutput", ctx.build_file_path)
 
     ctx.actions.run(
-        outputs = [full_jars, statsfile, bloopProjectConfig,bloopProjectOutput],
+        outputs = [full_jars, statsfile, bloopProjectConfig, bloopProjectOutput],
         inputs = [ctx.outputs.manifest] +  dependencyJars,
         arguments = ["--jvm_flag=-Dfile.encoding=UTF-8", args],
         executable = ctx.executable._bloop, # Run bloop runner with args
