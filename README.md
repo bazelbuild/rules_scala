@@ -2,7 +2,6 @@
 
 This is Twitter's fork of [bazelbuild/scala_rules](https://github.com/bazelbuild/rules_scala), intended for Twitter internal consumption to serve Twitter's short term needs. All changes are meant to be upstreamed back to [bazelbuild/scala_rules](https://github.com/bazelbuild/rules_scala).
 
-
 # Scala Rules for Bazel
 [![Build status](https://badge.buildkite.com/90ce5244556df74db805a3c24a703fb87458396f9e1ddd687e.svg?branch=master)](https://buildkite.com/bazel/scala-rules-scala-postsubmit) 
 
