@@ -12,6 +12,7 @@ load(
     "scala_library_suite",
     "scala_macro_library",
     "scala_repl",
+    "scala_service_provider",
     "scala_specs2_junit_test",
     "scala_test",
     "scala_test_suite",
@@ -637,6 +638,13 @@ scala_library(
     name = "lib_with_scala_proto_dep",
     srcs = ["TestServer.scala"],
     deps = ["//test/proto:test_proto"],
+)
+
+scala_service_provider(
+    name = "a_scala_service_provider",
+    srcs = ["TestServer.scala"],
+    deps = ["//test/proto:test_proto"],
+    services = {"com.scala.test.service": ["com.scala.test.Service1","com.scala.test.Service2",],}
 )
 
 scala_binary(

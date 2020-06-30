@@ -1,0 +1,2 @@
+com.scala.test.Service1
+com.scala.test.Service2

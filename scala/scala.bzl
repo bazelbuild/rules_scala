@@ -30,6 +30,10 @@ load(
     _scala_repl = "scala_repl",
 )
 load(
+    "@io_bazel_rules_scala//scala/private:rules/scala_service_provider.bzl",
+    _scala_service_provider = "scala_service_provider",
+)
+load(
     "@io_bazel_rules_scala//scala/private:rules/scala_test.bzl",
     _scala_test = "scala_test",
     _scala_test_suite = "scala_test_suite",
@@ -58,5 +62,6 @@ scala_library_suite = _scala_library_suite
 scala_macro_library = _scala_macro_library
 scala_repl = _scala_repl
 scala_repositories = _scala_repositories
+scala_service_provider = _scala_service_provider
 scala_test = _scala_test
 scala_test_suite = _scala_test_suite
