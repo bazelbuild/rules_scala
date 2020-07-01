@@ -65,6 +65,7 @@ object ScroogeWorker extends Worker.Interface {
       case f if f.startsWith("--language=") => {
         scrooge.language = f.split("=")(1)
       }
+      case flag => sys.error(s"Unrecognized scrooge flag: ${flag}. This is probably coming from your rule using our custom scrooge wrapper directly. Please modify this wrappers script to correctly handle this additional flag, or remove that flag from the call to the wrapper.")
     }
 
     scrooge.compileJars ++= immediateThriftSrcJars

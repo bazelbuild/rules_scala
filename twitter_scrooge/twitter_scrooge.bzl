@@ -359,14 +359,13 @@ def _compile_thrift_to_language(target_ti, transitive_ti, language, target, ctx)
     )
     return scrooge_file
 
-def _common_aspect_implementation(target, ctx, language, compiler_function):
+def _common_scrooge_aspect_implementation(target, ctx, language, compiler_function):
     """Aspect implementation to generate code from thrift files in a language of choice, and then compile it.
     Takes in a `language` (either "java" or "scala") and a function to compile the generated sources.
-    """
-    allowed_languages = ["java", "scala"]
-    if language not in allowed_languages:
-        fail("Trying to compile thrift to language {}, when only {} are allowed".format(language, allowed_languages))
 
+    This aspect is applied to the DAG of thrift_librarys reachable from a deps or a scrooge_scala_library.
+    Each thrift_library will be one scrooge invocation, assuming it has some sources.
+    """
     (
         target_ti,
         transitive_ti,
@@ -402,10 +401,10 @@ def _common_aspect_implementation(target, ctx, language, compiler_function):
         ]
 
 def _scrooge_scala_aspect_impl(target, ctx):
-    return _common_aspect_implementation(target, ctx, "scala", _compile_generated_scala)
+    return _common_scrooge_aspect_implementation(target, ctx, "scala", _compile_generated_scala)
 
 def _scrooge_java_aspect_impl(target, ctx):
-    return _common_aspect_implementation(target, ctx, "java", _compile_generated_java)
+    return _common_scrooge_aspect_implementation(target, ctx, "java", _compile_generated_java)
 
 # Common attributes for both java and scala aspects, needed to generate JVM code from Thrift
 common_attrs = {
