@@ -1,5 +1,6 @@
 load(
     "@io_bazel_rules_scala//scala:providers.bzl",
+    _DepsInfo = "DepsInfo",
     _ScalacProvider = "ScalacProvider",
 )
 
@@ -49,6 +50,7 @@ def _scala_toolchain_impl(ctx):
     toolchain = platform_common.ToolchainInfo(
         scalacopts = ctx.attr.scalacopts,
         scalac_provider_attr = ctx.attr.scalac_provider_attr,
+        dep_providers = ctx.attr.dep_providers,
         dependency_mode = dependency_mode,
         strict_deps_mode = strict_deps_mode,
         unused_dependency_checker_mode = unused_dependency_checker_mode,
@@ -66,6 +68,13 @@ scala_toolchain = rule(
         "scalac_provider_attr": attr.label(
             default = "@io_bazel_rules_scala//scala:scalac_default",
             providers = [_ScalacProvider],
+        ),
+        "dep_providers": attr.label_keyed_string_dict(
+            default = {
+                "@io_bazel_rules_scala//scala:scala_xml_provider": "scala_xml",
+                "@io_bazel_rules_scala//scala:parser_combinators_provider": "parser_combinators",
+            },
+            providers = [_DepsInfo],
         ),
         "dependency_mode": attr.string(
             default = "direct",

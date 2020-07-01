@@ -23,9 +23,14 @@ scala_register_toolchains()
     ```python
     # //toolchains/BUILD
     load("@io_bazel_rules_scala//scala:scala_toolchain.bzl", "scala_toolchain")
+    load("@io_bazel_rules_scala//scala:providers.bzl", "declare_deps_provider")
 
     scala_toolchain(
         name = "my_toolchain_impl",
+        dep_providers = {
+            ":my_scala_xml_provider": "scala_xml",
+            ":my_parser_combinators_provider": "parser_combinators",
+        },
         scalacopts = ["-Ywarn-unused"],
         unused_dependency_checker_mode = "off",
         visibility = ["//visibility:public"]
@@ -36,6 +41,18 @@ scala_register_toolchains()
         toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
         toolchain = "my_toolchain_impl",
         visibility = ["//visibility:public"]
+    )
+   
+    declare_deps_provider(
+        name = "my_scala_xml_provider",
+        visibility = ["//visibility:public"],
+        deps = ["@scala_xml_dep"],
+    )
+    
+    declare_deps_provider(
+        name = "my_parser_combinators_provider",
+        visibility = ["//visibility:public"],
+        deps = ["@parser_combinators_dep"],
     )
     ```
 
@@ -56,6 +73,16 @@ scala_register_toolchains()
     </tr>
   </thead>
   <tbody>
+    <tr>
+      <td><code>dep_providers</code></td>
+      <td>
+        <p><code>Mapping of Label to string; optional</code></p>
+        <p>
+          Allows to configure common dependencies lists by configuring <code>DepInfo</code> providers targets 
+          Currently supported common dependency ids: <code>scala_xml</code>, <code>parser_combinators</code>.     
+        </p>
+      </td>
+    </tr>
     <tr>
       <td><code>scalacopts</code></td>
       <td>

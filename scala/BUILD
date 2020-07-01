@@ -4,6 +4,8 @@ load(
     _declare_scalac_provider = "declare_scalac_provider",
 )
 load("//scala:scala_toolchain.bzl", "scala_toolchain")
+load("//scala/toolchains:toolchains.bzl", "declare_deps_toolchain")
+load("//scala:providers.bzl", "declare_deps_provider")
 
 toolchain_type(
     name = "toolchain_type",
@@ -93,4 +95,16 @@ java_library(
     name = "PlaceHolderClassToCreateEmptyJarForScalaImport",
     srcs = ["PlaceHolderClassToCreateEmptyJarForScalaImport.java"],
     visibility = ["//visibility:public"],
+)
+
+declare_deps_provider(
+    name = "scala_xml_provider",
+    visibility = ["//visibility:public"],
+    deps = ["//external:io_bazel_rules_scala/dependency/scala/scala_xml"],
+)
+
+declare_deps_provider(
+    name = "parser_combinators_provider",
+    visibility = ["//visibility:public"],
+    deps = ["//external:io_bazel_rules_scala/dependency/scala/parser_combinators"],
 )

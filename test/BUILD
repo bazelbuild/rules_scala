@@ -30,7 +30,7 @@ java_binary(
     main_class = "scalarules.test.JavaBinary",
     runtime_deps = [
         ":OtherJavaLib",
-        "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+        "//scala/private/toolchain_deps:scala_library_classpath",
     ],
     deps = [
         ":Exported",
