@@ -230,10 +230,10 @@ scalapb_aspect = aspect(
     attrs = {
         "_protoc": attr.label(executable = True, cfg = "host", default = "@com_google_protobuf//:protoc"),
         "_implicit_compile_deps": attr.label_list(cfg = "target", default = [
-            "//external:io_bazel_rules_scala/dependency/proto/implicit_compile_deps",
+            "@io_bazel_rules_scala//scala_proto:default_scalapb_compile_dependencies",
         ]),
         "_grpc_deps": attr.label_list(cfg = "target", default = [
-            "//external:io_bazel_rules_scala/dependency/proto/grpc_deps",
+            "@io_bazel_rules_scala//scala_proto:default_scalapb_grpc_dependencies",
         ]),
     },
     toolchains = [

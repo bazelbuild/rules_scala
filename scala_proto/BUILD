@@ -38,14 +38,16 @@ toolchain(
     visibility = ["//visibility:public"],
 )
 
-java_library(
+load("//scala_proto/toolchain:toolchain.bzl", "proto_toolchain_deps")
+
+proto_toolchain_deps(
     name = "default_scalapb_compile_dependencies",
+    provider_id = "compile_deps",
     visibility = ["//visibility:public"],
-    exports = DEFAULT_SCALAPB_COMPILE_DEPS,
 )
 
-java_library(
+proto_toolchain_deps(
     name = "default_scalapb_grpc_dependencies",
+    provider_id = "grpc_deps",
     visibility = ["//visibility:public"],
-    exports = DEFAULT_SCALAPB_GRPC_DEPS,
 )
