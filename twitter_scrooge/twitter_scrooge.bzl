@@ -185,6 +185,8 @@ def _generate_jvm_code(ctx, label, compile_thrifts, include_thrifts, jar_output,
         ]),
     )
 
+    # Since we may want to generate several languages from this thrift target,
+    # we need to mix the language into the worker input file.
     argfile = ctx.actions.declare_file(
         "{}_{}_worker_input".format(label.name, language),
         sibling = jar_output,
