@@ -59,7 +59,7 @@ def _default_scala_jar_shas(major_version):
     }
     return scala_jar_shas[major_version]
 
-def defaulted_twitter_scrooge_dependency(dependency_name, dependency_version, sha, scala_major_version, maven_servers = _default_maven_server_urls()):
+def defaulted_twitter_scrooge_dependency(dependency_name, dependency_version, sha, scala_major_version, maven_servers = _default_maven_server_urls(), runtime_deps = []):
     external_name = "io_bazel_rules_scala_{}".format(dependency_name.replace("-", "_"))
     _scala_maven_import_external(
         name = external_name,
@@ -70,6 +70,7 @@ def defaulted_twitter_scrooge_dependency(dependency_name, dependency_version, sh
         artifact_sha256 = sha,
         licenses = ["notice"],
         server_urls = maven_servers,
+        runtime_deps = runtime_deps,
     )
     return "@{}".format(external_name)
 
@@ -102,9 +103,27 @@ def twitter_scrooge(
         actual = scrooge_core,
     )
 
-    #scrooge-generator related dependencies
+    # Mustache is needed to generate java from thrift, and is pased further down.
+    mustache_name = "io_bazel_rules_scala_mustache"
+    _jvm_maven_import_external(
+        name = mustache_name,
+        artifact = "com.github.spullara.mustache.java:compiler:0.8.18",
+        server_urls = maven_servers,
+        rule_name = "java_import",
+        licenses = ["notice"],
+        artifact_sha256 = "ddabc1ef897fd72319a761d29525fd61be57dc25d04d825f863f83cc89000e66",
+    )
+    native.bind(
+        name = "io_bazel_rules_scala/dependency/thrift/mustache",
+        actual = "@{}".format(mustache_name),
+    )
+    # scrooge-generator needs these runtime_deps to generate java from thrift.
+    runtime_deps_for_generator = [
+        "//external:io_bazel_rules_scala/dependency/scala/guava",
+        "//external:io_bazel_rules_scala/dependency/thrift/mustache",
+    ]
     if not scrooge_generator:
-        scrooge_generator = defaulted_twitter_scrooge_dependency("scrooge-generator", default_scrooge_deps_version, scala_version_jar_shas["scrooge_generator"], major_version, maven_servers)
+        scrooge_generator = defaulted_twitter_scrooge_dependency("scrooge-generator", default_scrooge_deps_version, scala_version_jar_shas["scrooge_generator"], major_version, maven_servers, runtime_deps_for_generator)
     native.bind(
         name = "io_bazel_rules_scala/dependency/thrift/scrooge_generator",
         actual = scrooge_generator,
@@ -122,20 +141,6 @@ def twitter_scrooge(
     native.bind(
         name = "io_bazel_rules_scala/dependency/thrift/util_logging",
         actual = util_logging,
-    )
-
-    mustache_name = "io_bazel_rules_scala_mustache"
-    _jvm_maven_import_external(
-        name = mustache_name,
-        artifact = "com.github.spullara.mustache.java:compiler:0.8.18",
-        server_urls = maven_servers,
-        rule_name = "java_import",
-        licenses = ["notice"],
-        artifact_sha256 = "ddabc1ef897fd72319a761d29525fd61be57dc25d04d825f863f83cc89000e66",
-    )
-    native.bind(
-        name = "io_bazel_rules_scala/dependency/thrift/mustache",
-        actual = "@{}".format(mustache_name),
     )
 
 def _colon_paths(data):
