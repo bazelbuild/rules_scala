@@ -1,5 +1,5 @@
 load("@rules_java//java:defs.bzl", "java_library")
-load("//scala:scala.bzl", "scala_library")
+load("//scala:scala.bzl", "scala_library", "scala_test")
 load("//jmh:jmh.bzl", "scala_benchmark_jmh")
 
 java_library(
@@ -33,4 +33,11 @@ scala_benchmark_jmh(
     srcs = ["TestBenchmark.scala"],
     data = ["data.txt"],
     deps = [":add_numbers"],
+)
+
+scala_test(
+    name = "jmh_command_line_parsing_test",
+    args = ["-h"],
+    main_class = "org.openjdk.jmh.Main",
+    deps = [":test_benchmark"],
 )
