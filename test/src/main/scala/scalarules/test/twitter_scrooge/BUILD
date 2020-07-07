@@ -272,12 +272,12 @@ scala_library(
     name = "allscrooges_scala_and_java",
     exports = [
         ":scrooge1",
-        ":scrooge2_a",
-        ":scrooge2_b",
-        ":scrooge3",
         ":scrooge1_java",
+        ":scrooge2_a",
         ":scrooge2_a_java",
+        ":scrooge2_b",
         ":scrooge2_b_java",
+        ":scrooge3",
         ":scrooge3_java",
     ],
 )
