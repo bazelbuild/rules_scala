@@ -91,4 +91,4 @@ def specs2_repositories(
     )
 
 def specs2_dependencies():
-    return ["//external:io_bazel_rules_scala/dependency/specs2/specs2"]
+    return ["@io_bazel_rules_scala//specs2:specs2"]
