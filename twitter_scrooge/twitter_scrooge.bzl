@@ -114,17 +114,18 @@ def twitter_scrooge(
         artifact_sha256 = "ddabc1ef897fd72319a761d29525fd61be57dc25d04d825f863f83cc89000e66",
     )
     mustache_label = "@{}".format(mustache_name)
+    mustache_bind_target = "io_bazel_rules_scala/dependency/thrift/mustache"
     native.bind(
-        name = "io_bazel_rules_scala/dependency/thrift/mustache",
+        name = mustache_bind_target,
         actual = mustache_label,
     )
 
     # scrooge-generator needs these runtime_deps to generate java from thrift.
-    if not native.existing_rule("io_bazel_rules_scala_guava"):
+    if not native.existing_rule("io_bazel_rules_scala/dependency/scala/guava"):
         fail("Please make sure you've called scala_repositories() in your WORKSPACE file before calling twitter_scrooge()")
     runtime_deps_for_generator = [
-        "@io_bazel_rules_scala_guava",
-        mustache_label,
+        "//external:io_bazel_rules_scala/dependency/scala/guava",
+        "//external:{}".format(mustache_bind_target),
     ]
     if not scrooge_generator:
         scrooge_generator = defaulted_twitter_scrooge_dependency("scrooge-generator", default_scrooge_deps_version, scala_version_jar_shas["scrooge_generator"], major_version, maven_servers, runtime_deps_for_generator)
