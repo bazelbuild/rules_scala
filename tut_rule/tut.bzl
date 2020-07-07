@@ -50,7 +50,7 @@ def scala_tut_doc(**kw):
         main_class = "io.bazel.rules_scala.tut_support.TutCompiler",
         deps = deps + [
             "@io_bazel_rules_scala//src/scala/io/bazel/rules_scala/tut_support:tut_compiler_lib",
-            "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
+            "//scala/private/toolchain_deps:scala_library_classpath",
         ],
     )
     native.genrule(
