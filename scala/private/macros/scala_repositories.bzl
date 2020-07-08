@@ -59,7 +59,8 @@ def scala_repositories(
         ),
         maven_servers = _default_maven_server_urls(),
         scala_extra_jars = _default_scala_extra_jars(),
-        fetch_sources = False):
+        fetch_sources = False,
+        register_scalatest_toolchain = True):
     (scala_version, scala_version_jar_shas) = scala_version_shas
     major_version = _extract_major_version(scala_version)
 
@@ -250,3 +251,7 @@ def scala_repositories(
         name = "io_bazel_rules_scala/dependency/scala/scalactic/scalactic",
         actual = "@io_bazel_rules_scala_scalactic",
     )
+
+    # for bakcwards compatibility
+    if register_scalatest_toolchain:
+        native.register_toolchains("@io_bazel_rules_scala//scala/scalatest/toolchain:scalatest_toolchain")

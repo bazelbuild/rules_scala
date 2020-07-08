@@ -6,7 +6,6 @@ scala_import(
     name = "scalatest",
     jars = [],
     exports = [
-        "//external:io_bazel_rules_scala/dependency/scala/scalactic/scalactic",
-        "//external:io_bazel_rules_scala/dependency/scala/scalatest/scalatest",
+        "//scala/scalatest/toolchain:scalatest_classapth",
     ],
 )
