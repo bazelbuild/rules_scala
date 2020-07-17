@@ -1,14 +1,15 @@
-load("@bazel_skylib//:lib.bzl", "asserts", "unittest")
+load("@bazel_skylib//lib:unittest.bzl", "asserts", "unittest")
+load("@bazel_skylib//lib:collections.bzl", "collections")
 load("//twitter_scrooge:twitter_scrooge.bzl", "scrooge_scala_library")
 load("//thrift:thrift.bzl", "thrift_library")
 
 def _scrooge_transitive_outputs(ctx):
     env = unittest.begin(ctx)
 
-    asserts.set_equals(
+    asserts.equals(
         env,
-        depset(ctx.attr.expected_jars),
-        depset([out.class_jar.basename for out in ctx.attr.dep[JavaInfo].outputs.jars]),
+        sorted(ctx.attr.expected_jars),
+        sorted(collections.uniq([out.class_jar.basename for out in ctx.attr.dep[JavaInfo].outputs.jars])),
     )
 
     return unittest.end(env)
