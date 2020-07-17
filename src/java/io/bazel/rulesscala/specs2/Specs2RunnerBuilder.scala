@@ -100,18 +100,17 @@ class FilteredSpecs2ClassRunner(testClass: Class[_], testFilter: Pattern)
     * This is done by matching the actual (sanitized) string with the sanitized version
     * of the original example text.
     */
-  private def specs2Description(desc: String)(implicit ee: ExecutionEnv): String = {
+  private def specs2FragmentNamesBySanitizedName(implicit ee: ExecutionEnv): Map[String, String] =
     allFragmentDescriptions
       .keys
       .map(fragment => fragment.description.show)
-      .find(sanitize(_) == desc)
-      .getOrElse(desc)
-  }
+      .map(description => sanitize(description) -> description)
+      .toMap
 
-  private def toDisplayName(description: Description)(implicit ee: ExecutionEnv): Option[String] = for {
+  private def toDisplayName(description: Description, names: Map[String, String])(implicit ee: ExecutionEnv): Option[String] = for {
     name <- Option(description.getMethodName)
     desc <- name.split("::").reverse.headOption
-  } yield specs2Description(desc)
+  } yield names.getOrElse(desc, desc)
 
   /**
     * Turns a JUnit description structure into a flat list:
@@ -145,8 +144,11 @@ class FilteredSpecs2ClassRunner(testClass: Class[_], testFilter: Pattern)
     }
   }
 
-  private def specs2Examples(implicit ee: ExecutionEnv): List[String] =
-    flattenChildren(getDescription).flatMap(toDisplayName(_))
+  private def specs2Examples(implicit ee: ExecutionEnv): List[String] = {
+    val flatChildren = flattenChildren(getDescription)
+    val names = specs2FragmentNamesBySanitizedName
+    flatChildren.flatMap(toDisplayName(_, names))
+  }
 
   override def runWithEnv(n: RunNotifier, env: Env): Action[Stats] = {
     implicit val ee = env.executionEnv
