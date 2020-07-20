@@ -231,35 +231,8 @@ class ScalacWorker implements Worker.Interface {
     String[] compilerArgs =
         merge(ops.scalaOpts, ops.pluginArgs, constParams, pluginParams, scalaSources);
 
-    MainClass comp = new MainClass() {
-      private Global compiler;
+    MainClass comp = new ReportableMainClass(ops);
 
-      @Override
-      public Global newCompiler() {
-        if (compiler == null) {
-          Settings settings = super.settings();
-          ConsoleReporter consoleReporter = new ConsoleReporter(settings);
-          Reporter[] reporters;
-          if (ops.diagnosticsFile == null) {
-            reporters = new Reporter[] { consoleReporter };
-          } else {
-	        Path path = Paths.get(ops.diagnosticsFile);
-            try {
-              Files.deleteIfExists(path);
-              Files.createFile(path);
-            } catch (IOException e) {
-              throw new RuntimeException("Could not delete/make diagnostics proto file", e);
-            }
-            reporters = new Reporter[] {
-                consoleReporter,
-                new ProtoReporter(settings),
-            };
-          }
-          compiler = new Global(settings, new CompositeReporter(reporters));
-        }
-        return compiler;
-      }
-    };
     long start = System.currentTimeMillis();
     try {
       comp.process(compilerArgs);

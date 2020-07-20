@@ -2,10 +2,10 @@
 
 set -e
 
-#if ! bazel_loc="$(type -p 'bazel')" || [[ -z "$bazel_loc" ]]; then
-#  export PATH="$(cd "$(dirname "$0")"; pwd)"/tools:$PATH
-#  echo 'Using ./tools/bazel directly for bazel calls'
-#fi
+if ! bazel_loc="$(type -p 'bazel')" || [[ -z "$bazel_loc" ]]; then
+  export PATH="$(cd "$(dirname "$0")"; pwd)"/tools:$PATH
+  echo 'Using ./tools/bazel directly for bazel calls'
+fi
 
 test_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/test/shell
 # shellcheck source=./test_runner.sh
@@ -27,6 +27,7 @@ $runner bazel test //test/... --extra_toolchains="//test_expect_failure/plus_one
 . "${test_dir}"/test_build_event_protocol.sh
 . "${test_dir}"/test_compilation.sh
 . "${test_dir}"/test_deps.sh
+. "${test_dir}"/test_diagnostics_reporter.sh
 . "${test_dir}"/test_javac_jvm_flags.sh
 . "${test_dir}"/test_junit.sh
 . "${test_dir}"/test_misc.sh

@@ -250,5 +250,3 @@ scala_maven_import_external(
     licenses = ["notice"],
     server_urls = MAVEN_SERVER_URLS,
 )
-
-

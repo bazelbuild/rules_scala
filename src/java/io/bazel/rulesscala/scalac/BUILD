@@ -35,6 +35,7 @@ filegroup(
         "CompileOptions.java",
         "ProtoReporter.java",
         "CompositeReporter.java",
+        "ReportableMainClass.java",
         "Resource.java",
         "ScalacWorker.java",
     ],
