@@ -21,7 +21,6 @@ java_binary(
     visibility = ["//visibility:public"],
     deps = [
         ":exported_scalac_repositories_from_toolchain_to_jvm",
-        "@com_illicitonion_scalac_composite_reporter//jar",
         "//external:io_bazel_rules_scala/dependency/commons_io/commons_io",
         "//third_party/bazel/src/main/protobuf:worker_protocol_java_proto",
         "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/jar",
@@ -35,6 +34,7 @@ filegroup(
     srcs = [
         "CompileOptions.java",
         "ProtoReporter.java",
+        "CompositeReporter.java",
         "Resource.java",
         "ScalacWorker.java",
     ],

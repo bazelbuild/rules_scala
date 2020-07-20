@@ -93,10 +93,10 @@ test_twitter_scrooge_versions() {
   run_in_test_repo "test //twitter_scrooge/... --test_arg=${version_under_test}" "scrooge_version"
 }
 
-if ! bazel_loc="$(type -p 'bazel')" || [[ -z "$bazel_loc" ]]; then
-  export PATH="$(cd "$(dirname "$0")"; pwd)"/tools:$PATH
-  echo 'Using ./tools/bazel directly for bazel calls'
-fi
+#if ! bazel_loc="$(type -p 'bazel')" || [[ -z "$bazel_loc" ]]; then
+#  export PATH="$(cd "$(dirname "$0")"; pwd)"/tools:$PATH
+#  echo 'Using ./tools/bazel directly for bazel calls'
+#fi
 
 dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 # shellcheck source=./test_runner.sh

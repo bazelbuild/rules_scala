@@ -62,6 +62,10 @@ def _compile_scala(
         label.name + "_scalac.statsfile",
         sibling = scalapb_jar,
     )
+    diagnosticsfile = ctx.actions.declare_file(
+        label.name + "_scalac.diagnosticsproto",
+        sibling = scalapb_jar,
+    )
     merged_deps = java_common.merge(_concat_lists(deps_java_info, implicit_deps))
 
     # this only compiles scala, not the ijar, but we don't
@@ -74,6 +78,7 @@ def _compile_scala(
         output,
         manifest,
         statsfile,
+        diagnosticsfile,
         sources = [],
         cjars = merged_deps.compile_jars,
         all_srcjars = depset([scalapb_jar]),

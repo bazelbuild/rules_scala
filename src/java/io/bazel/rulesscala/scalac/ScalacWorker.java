@@ -1,6 +1,5 @@
 package io.bazel.rulesscala.scalac;
 
-import com.illicitonion.scalac.reporters.CompositeReporter;
 import io.bazel.rulesscala.jar.JarCreator;
 import io.bazel.rulesscala.worker.Worker;
 import java.io.File;
@@ -286,7 +285,7 @@ class ScalacWorker implements Worker.Interface {
     CompositeReporter compositeReporter = (CompositeReporter) reporterField.get(comp);
 
     boolean buildFailed = false;
-    for (Reporter reporter : compositeReporter.reporters()) {
+    for (Reporter reporter : compositeReporter.getReporters()) {
       if (reporter instanceof ConsoleReporter) {
         ConsoleReporter consoleReporter = (ConsoleReporter) reporter;
         if (consoleReporter.hasErrors()) {

@@ -2,10 +2,10 @@
 
 set -e
 
-if ! bazel_loc="$(type -p 'bazel')" || [[ -z "$bazel_loc" ]]; then
-  export PATH="$(cd "$(dirname "$0")"; pwd)"/tools:$PATH
-  echo 'Using ./tools/bazel directly for bazel calls'
-fi
+#if ! bazel_loc="$(type -p 'bazel')" || [[ -z "$bazel_loc" ]]; then
+#  export PATH="$(cd "$(dirname "$0")"; pwd)"/tools:$PATH
+#  echo 'Using ./tools/bazel directly for bazel calls'
+#fi
 
 md5_util() {
     if [[ "$OSTYPE" == "darwin"* ]]; then

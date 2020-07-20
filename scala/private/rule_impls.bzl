@@ -211,7 +211,7 @@ DiagnosticsFile: {diagnostics_output}
             "--jvm_flag=%s" % f
             for f in expand_location(ctx, final_scalac_jvm_flags)
         ] + ["@" + argfile.path],
-	diagnostics_file = diagnosticsfile,
+	    diagnostics_file = diagnosticsfile,
     )
 
 def compile_java(ctx, source_jars, source_files, output, extra_javac_opts, providers_of_dependencies):
