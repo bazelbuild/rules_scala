@@ -441,13 +441,6 @@ scala_specs2_junit_test(
 )
 
 scala_specs2_junit_test(
-    name = "Specs2LargeTests",
-    size = "small",
-    srcs = ["src/main/scala/scalarules/test/junit/specs2/JunitSpecs2LargeTest.scala"],
-    suffixes = ["Test"],
-)
-
-scala_specs2_junit_test(
     name = "Specs2Tests_unused_dependency_checker",
     size = "small",
     srcs = ["src/main/scala/scalarules/test/junit/specs2/Specs2Tests.scala"],

@@ -34,41 +34,6 @@ scala_specs2_junit_test_test_filter_everything(){
   done
 }
 
-scala_specs2_junit_test_test_large_unfiltered(){
-  local output=$(bazel test \
-    --nocache_test_results \
-    --test_output=streamed \
-    --test_timeout=10 \
-    test:Specs2LargeTests)
-    
-  local unexpected="TIMEOUT"  
-  if grep "$unexpected" <<<$output; then
-    echo "output:"
-    echo "$output"
-    echo "Not expecting $unexpected in output, but was found."
-    exit 1
-  fi
-}
-
-scala_specs2_junit_test_test_large_filtered(){
-  local output=$(bazel test \
-    --nocache_test_results \
-    --test_output=streamed \
-    --test_timeout=10 \
-    '--test_filter=.*' \
-    test:Specs2LargeTests)
-    
-  local unexpected="TIMEOUT"  
-  if grep "$unexpected" <<<$output; then
-    echo "output:"
-    echo "$output"
-    echo "Not expecting $unexpected in output, but was found."
-    exit 1
-  fi
-}
-
-
-
 scala_specs2_junit_test_test_filter_one_test(){
   local output=$(bazel test \
     --nocache_test_results \
@@ -299,8 +264,6 @@ scala_specs2_only_failed_test_shows_in_the_xml(){
   fi
 }
 
-$runner scala_specs2_junit_test_test_large_unfiltered
-$runner scala_specs2_junit_test_test_large_filtered
 $runner scala_specs2_junit_test_test_filter_everything
 $runner scala_specs2_junit_test_test_filter_one_test
 $runner scala_specs2_junit_test_test_filter_whole_spec
