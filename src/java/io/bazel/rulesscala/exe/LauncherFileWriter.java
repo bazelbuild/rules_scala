@@ -1,22 +1,20 @@
 package io.bazel.rulesscala.exe;
 
-import com.google.common.base.Preconditions;
-import com.google.common.io.ByteStreams;
 import com.google.devtools.build.runfiles.Runfiles;
+import io.bazel.rulesscala.io_utils.StreamCopy;
+import io.bazel.rulesscala.preconditions.Preconditions;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.List;
 
-
 public class LauncherFileWriter {
   public static void main(String[] args) throws IOException {
-    Preconditions.checkArgument(args.length == 6);
+    Preconditions.require(args.length == 6);
 
     final String location = args[0];
     final String workspaceName = args[1];
@@ -43,7 +41,7 @@ public class LauncherFileWriter {
     Path outPath = Paths.get(location);
 
     try (InputStream in = Files.newInputStream(launcher); OutputStream out = Files.newOutputStream(outPath)) {
-      ByteStreams.copy(in, out);
+      StreamCopy.copy(in, out);
 
       long dataLength = launchInfo.write(out);
       ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);

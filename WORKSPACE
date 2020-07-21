@@ -171,6 +171,7 @@ java_import_external(
     jar_urls = ["https://repo.maven.apache.org/maven2/org/apache/commons/commons-lang3/3.5/commons-lang3-3.5.jar"],
     licenses = ["notice"],  # Apache 2.0
     neverlink = True,
+    testonly_ = True,
 )
 
 ## Linting

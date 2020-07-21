@@ -120,25 +120,6 @@ def scala_repositories(
         fetch_sources = fetch_sources,
     )
 
-    # used by ScalacProcessor
-    _scala_maven_import_external(
-        name = "scalac_rules_commons_io",
-        artifact = "commons-io:commons-io:2.6",
-        artifact_sha256 = "f877d304660ac2a142f3865badfc971dec7ed73c747c7f8d5d2f5139ca736513",
-        licenses = ["notice"],
-        server_urls = maven_servers,
-        fetch_sources = fetch_sources,
-    )
-
-    _scala_maven_import_external(
-        name = "io_bazel_rules_scala_guava",
-        artifact = "com.google.guava:guava:21.0",
-        artifact_sha256 = "972139718abc8a4893fa78cba8cf7b2c903f35c97aaf44fa3031b0669948b480",
-        licenses = ["notice"],
-        server_urls = maven_servers,
-        fetch_sources = fetch_sources,
-    )
-
     if not native.existing_rule("com_google_protobuf"):
         http_archive(
             name = "com_google_protobuf",
@@ -202,11 +183,6 @@ def scala_repositories(
     )
 
     native.bind(
-        name = "io_bazel_rules_scala/dependency/commons_io/commons_io",
-        actual = "@scalac_rules_commons_io//jar",
-    )
-
-    native.bind(
         name = "io_bazel_rules_scala/dependency/scalatest/scalatest",
         actual = "@io_bazel_rules_scala//scala/scalatest:scalatest",
     )
@@ -234,11 +210,6 @@ def scala_repositories(
     native.bind(
         name = "io_bazel_rules_scala/dependency/scala/parser_combinators",
         actual = "@io_bazel_rules_scala_scala_parser_combinators",
-    )
-
-    native.bind(
-        name = "io_bazel_rules_scala/dependency/scala/guava",
-        actual = "@io_bazel_rules_scala_guava",
     )
 
     native.bind(

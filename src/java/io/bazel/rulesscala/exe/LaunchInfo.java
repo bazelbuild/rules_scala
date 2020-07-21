@@ -14,12 +14,13 @@
 
 package io.bazel.rulesscala.exe;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
+import io.bazel.rulesscala.preconditions.Preconditions;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Metadata that describes the payload of the native launcher binary.
@@ -28,9 +29,9 @@ import java.nio.charset.StandardCharsets;
  */
 public final class LaunchInfo {
 
-  private final ImmutableList<Entry> entries;
+  private final List<Entry> entries;
 
-  private LaunchInfo(ImmutableList<Entry> entries) {
+  private LaunchInfo(List<Entry> entries) {
     this.entries = entries;
   }
 
@@ -58,7 +59,7 @@ public final class LaunchInfo {
   }
 
   /** Represents one entry in {@link LaunchInfo.entries}. */
-  private static interface Entry {
+  private interface Entry {
     /** Writes this entry to {@code out}, returns the written length in bytes. */
     long write(OutputStream out) throws IOException;
   }
@@ -69,7 +70,7 @@ public final class LaunchInfo {
     private final String value;
 
     public KeyValuePair(String key, String value) {
-      this.key = Preconditions.checkNotNull(key);
+      this.key = Preconditions.requireNotNull(key);
       this.value = value;
     }
 
@@ -91,8 +92,8 @@ public final class LaunchInfo {
     private final Iterable<String> values;
 
     public JoinedValues(String key, String delimiter, Iterable<String> values) {
-      this.key = Preconditions.checkNotNull(key);
-      this.delimiter = Preconditions.checkNotNull(delimiter);
+      this.key = Preconditions.requireNotNull(key);
+      this.delimiter = Preconditions.requireNotNull(delimiter);
       this.values = values;
     }
 
@@ -117,11 +118,11 @@ public final class LaunchInfo {
 
   /** Builder for {@link LaunchInfo} instances. */
   public static final class Builder {
-    private ImmutableList.Builder<Entry> entries = ImmutableList.builder();
+    private List<Entry> entries = new ArrayList<>();
 
     /** Builds a {@link LaunchInfo} from this builder. This builder may be reused. */
     public LaunchInfo build() {
-      return new LaunchInfo(entries.build());
+      return new LaunchInfo(Collections.unmodifiableList(entries));
     }
 
     /**
@@ -136,7 +137,7 @@ public final class LaunchInfo {
      * </ul>
      */
     public Builder addKeyValuePair(String key, String value) {
-      Preconditions.checkNotNull(key);
+      Preconditions.requireNotNull(key);
       if (!key.isEmpty()) {
         entries.add(new KeyValuePair(key, value));
       }
@@ -157,8 +158,8 @@ public final class LaunchInfo {
      */
     public Builder addJoinedValues(
         String key, String delimiter, Iterable<String> values) {
-      Preconditions.checkNotNull(key);
-      Preconditions.checkNotNull(delimiter);
+      Preconditions.requireNotNull(key);
+      Preconditions.requireNotNull(delimiter);
       if (!key.isEmpty()) {
         entries.add(new JoinedValues(key, delimiter, values));
       }
