@@ -23,22 +23,22 @@ def _rule_impl(ctx):
     expected_deps = {
         "scala_library": [
             "//test/aspect:scala_library",
-            "@io_bazel_rules_scala_scala_library//:io_bazel_rules_scala_scala_library",
+            "//scala/private/toolchain_deps:scala_library_classpath",
         ],
         "scala_test": [
             "//test/aspect:scala_test",
-            "@io_bazel_rules_scala_scala_library//:io_bazel_rules_scala_scala_library",
+            "//scala/private/toolchain_deps:scala_library_classpath",
             "@io_bazel_rules_scala//scala/scalatest:scalatest",
         ],
         "scala_junit_test": [
             "//test/aspect:scala_junit_test",
-            "@io_bazel_rules_scala_scala_library//:io_bazel_rules_scala_scala_library",
+            "//scala/private/toolchain_deps:scala_library_classpath",
             "@io_bazel_rules_scala_junit_junit//:io_bazel_rules_scala_junit_junit",
             "@io_bazel_rules_scala_org_hamcrest_hamcrest_core//:io_bazel_rules_scala_org_hamcrest_hamcrest_core",
         ],
         "scala_specs2_junit_test": [
+            "//scala/private/toolchain_deps:scala_library_classpath",
             "//test/aspect:scala_specs2_junit_test",
-            "@io_bazel_rules_scala_scala_library//:io_bazel_rules_scala_scala_library",
             "@io_bazel_rules_scala_junit_junit//:io_bazel_rules_scala_junit_junit",
             "@io_bazel_rules_scala_org_hamcrest_hamcrest_core//:io_bazel_rules_scala_org_hamcrest_hamcrest_core",
             # From specs2/specs2.bzl:specs2_dependencies()
@@ -47,10 +47,8 @@ def _rule_impl(ctx):
             "@io_bazel_rules_scala_org_specs2_specs2_core//:io_bazel_rules_scala_org_specs2_specs2_core",
             "@io_bazel_rules_scala_org_specs2_specs2_fp//:io_bazel_rules_scala_org_specs2_specs2_fp",
             "@io_bazel_rules_scala_org_specs2_specs2_matcher//:io_bazel_rules_scala_org_specs2_specs2_matcher",
-            "@io_bazel_rules_scala_scala_xml//:io_bazel_rules_scala_scala_xml",
-            "@io_bazel_rules_scala_scala_parser_combinators//:io_bazel_rules_scala_scala_parser_combinators",
-            "@io_bazel_rules_scala_scala_library//:io_bazel_rules_scala_scala_library",
-            "@io_bazel_rules_scala_scala_reflect//:io_bazel_rules_scala_scala_reflect",
+            "@io_bazel_rules_scala//scala/private/toolchain_deps:scala_xml",
+            "@io_bazel_rules_scala//scala/private/toolchain_deps:scala_library_classpath",
             # From specs2/specs2_junit.bzl:specs2_junit_dependencies()
             "@io_bazel_rules_scala_org_specs2_specs2_junit//:io_bazel_rules_scala_org_specs2_specs2_junit",
         ],
