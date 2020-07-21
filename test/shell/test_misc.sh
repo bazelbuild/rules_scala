@@ -4,6 +4,7 @@ dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 . "${dir}"/test_helper.sh
 runner=$(get_test_runner "${1:-local}")
 
+
 test_disappearing_class() {
   git checkout test_expect_failure/disappearing_class/ClassProvider.scala
   bazel build test_expect_failure/disappearing_class:uses_class
