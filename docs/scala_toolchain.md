@@ -27,6 +27,7 @@ scala_register_toolchains()
 
     scala_toolchain(
         name = "my_toolchain_impl",
+        scalac_provider_attr = ":my_scalac_provider",
         dep_providers = {
             ":my_scala_xml_provider": "scala_xml",
             ":my_parser_combinators_provider": "parser_combinators",
@@ -43,6 +44,23 @@ scala_register_toolchains()
         visibility = ["//visibility:public"]
     )
    
+    declare_scalac_provider(
+        name = "my_scalac_provider",
+        default_classpath = [
+            "@org_scala_lang_scala_library",
+            "@org_scala_lang_scala_reflect",
+        ],
+        default_macro_classpath = [
+            "@org_scala_lang_scala_library",
+            "@org_scala_lang_scala_reflect",
+        ],
+        default_repl_classpath = [
+            "@org_scala_lang_scala_library",
+            "@org_scala_lang_scala_reflect",
+            "@org_scala_lang_scala_compiler",
+        ],
+    )
+     
     declare_deps_provider(
         name = "my_scala_xml_provider",
         visibility = ["//visibility:public"],
@@ -73,6 +91,15 @@ scala_register_toolchains()
     </tr>
   </thead>
   <tbody>
+    <tr>
+      <td><code>scalac_provider_attr</code></td>
+      <td>
+        <p><code>Label; optional</code></p>
+        <p>
+          Allows passing custom ScalacProvider to provide Scala classpath depsets.
+        </p>
+      </td>
+    </tr>
     <tr>
       <td><code>dep_providers</code></td>
       <td>
