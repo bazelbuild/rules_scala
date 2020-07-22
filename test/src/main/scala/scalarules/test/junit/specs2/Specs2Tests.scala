@@ -50,10 +50,3 @@ class JunitSpec2RegexTest extends SpecWithJUnit {
   }
 }
 
-class JunitSpecs2ManyFragmentsTest extends SpecWithJUnit {
-
-  (1 to 200) foreach { i =>
-    s"fragment no $i" in success
-  }
-
-}
