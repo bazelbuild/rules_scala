@@ -55,8 +55,6 @@ _library_attrs = {
 ##
 
 def _scala_library_impl(ctx):
-    print("scala_library %s" % ctx.label.name)
-
     # Build up information from dependency-like attributes
     return run_phases(
         ctx,
