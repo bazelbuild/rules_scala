@@ -43,6 +43,7 @@ class ScalacWorker implements Worker.Interface {
   }
 
   public static void main(String[] args) throws Exception {
+    System.out.println("dummy message");
     Worker.workerMain(args, new ScalacWorker());
   }
 
