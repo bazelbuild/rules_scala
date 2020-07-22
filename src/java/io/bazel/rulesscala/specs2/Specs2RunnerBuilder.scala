@@ -108,11 +108,6 @@ class FilteredSpecs2ClassRunner(testClass: Class[_], testFilter: Pattern)
       .getOrElse(desc)
   }
 
-  private def toDisplayNameX(description: Description)(implicit ee: ExecutionEnv): Option[String] = for {
-    name <- Option(description.getMethodName)
-    desc <- name.split("::").reverse.headOption
-  } yield specs2Description(desc)
-
   /**
     * Turns a JUnit description structure into a flat list:
     *
@@ -145,8 +140,14 @@ class FilteredSpecs2ClassRunner(testClass: Class[_], testFilter: Pattern)
     }
   }
 
-  private def specs2Examples(implicit ee: ExecutionEnv): List[String] =
-    flattenChildren(getDescription).flatMap(toDisplayNameX(_))
+  private def specs2Examples(implicit ee: ExecutionEnv): List[String] = {
+    def toDisplayName(description: Description)(implicit ee: ExecutionEnv): Option[String] = for {
+      name <- Option(description.getMethodName)
+      desc <- name.split("::").reverse.headOption
+    } yield specs2Description(desc)
+
+    flattenChildren(getDescription).flatMap(toDisplayName(_))
+  }
 
   override def runWithEnv(n: RunNotifier, env: Env): Action[Stats] = {
     implicit val ee = env.executionEnv
