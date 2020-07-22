@@ -9,7 +9,7 @@ addons:
 
 cache:
     directories:
-#     - .bazel_cache
+     - .bazel_cache
      - ~/.bazel_binaries
 
 _linux: &linux
