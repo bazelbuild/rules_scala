@@ -321,6 +321,9 @@ See [Customizable Phase](docs/customizable_phase.md) for more info.
  - [Scala Format](docs/phase_scalafmt.md)
 
 ## Building from source
+Setup bazel:
+We recommend using [Bazelisk](https://docs.bazel.build/versions/master/install.html) as your default bazel binary
+
 Test & Build:
 ```
 bash test_all.sh

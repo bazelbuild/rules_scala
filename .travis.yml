@@ -10,7 +10,7 @@ addons:
 cache:
     directories:
      - .bazel_cache
-     - ~/.bazel_binaries
+     - ~/xdg_cache
 
 _linux: &linux
   os: linux
@@ -24,56 +24,66 @@ _windows:
 #
 # Want to update/change bazel versions?
 #
-# 1. Update the bazel_version case statement in
-#    ./tools/bazel to include hashes for the bazel version
-#    you're targeting.
 #
-# 2. either
+# either
 #    - If you're updating the default bazel version, change
-#      default_bazel_version in ./tools/bazel.
+#      default_bazel_version in .bazelversion
 #    or
-#    - If you want to add an additional bazel version to the build
-#      matrix, set BAZEL_VERSION=<desired-version> along side
-#      TEST_SCRIPT below.
+#    - If you want to add an additional bazel version to 
+#      the build matrix, add below another job 
+#.     with variable USE_BAZEL_VERSION=<desired-version>
 #
-# 3. If you need to update the Windows version, adjust
-#    the windows specific install code below.
 #
 ###
 
 jobs:
   include:
 # Lint
-    - stage: test
+    - name: "Lint"
       <<: *linux
-      env: TEST_SCRIPT=test_lint
+      env: TEST_SCRIPT=test_lint XDG_CACHE_HOME=~/xdg_cache
 # Test
-    - <<: *linux
-      env: TEST_SCRIPT=test_rules_scala BAZEL_VERSION=2.0.0
-    - <<: *linux
-      env: TEST_SCRIPT=test_reproducibility BAZEL_VERSION=2.0.0
-    - <<: *linux
-      env: TEST_SCRIPT=test_version BAZEL_VERSION=2.0.0
-    - <<: *osx
-      env: TEST_SCRIPT=test_rules_scala BAZEL_VERSION=2.0.0
-    - <<: *osx
-      env: TEST_SCRIPT=test_reproducibility BAZEL_VERSION=2.0.0
-    - <<: *osx
-      env: TEST_SCRIPT=test_version BAZEL_VERSION=2.0.0
+    - name: "[linux] Test rules_scala"
+      <<: *linux
+      env: TEST_SCRIPT=test_rules_scala XDG_CACHE_HOME=~/xdg_cache
+    - name: "[linux] Test reproducibility"
+      <<: *linux
+      env: TEST_SCRIPT=test_reproducibility XDG_CACHE_HOME=~/xdg_cache
+    - name: "[linux] Test scala version"
+      <<: *linux
+      env: TEST_SCRIPT=test_version XDG_CACHE_HOME=~/xdg_cache
+    - name: "[osx] Test rules_scala"
+      <<: *osx
+      env: TEST_SCRIPT=test_rules_scala XDG_CACHE_HOME=~/xdg_cache
+    - name: "[osx] Test reproducibility"
+      <<: *osx
+      env: TEST_SCRIPT=test_reproducibility XDG_CACHE_HOME=~/xdg_cache
+    - name: "[osx] Test scala version"
+      <<: *osx
+      env: TEST_SCRIPT=test_version XDG_CACHE_HOME=~/xdg_cache
 
 before_install:
   - |
     if [[ "${TRAVIS_OS_NAME}" == "windows" ]]; then
       choco install jdk8 -params 'installdir=c:\\java8'
-      choco install bazel --version 0.28.0
+      mkdir %USERPROFILE%\bazel
+      powershell Invoke-WebRequest https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-windows-amd64.exe -OutFile %USERPROFILE%\bazel\bazel.exe
     fi
-  - cat .bazelrc.travis >> .bazelrc
-
+    if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+      sudo wget -O /usr/local/bin/bazel https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64
+      sudo chmod +x /usr/local/bin/bazel
+    fi
+    if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+      sudo wget -O /usr/local/bin/bazel https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-darwin-amd64
+      sudo chmod +x /usr/local/bin/bazel
+    fi
+    cat .bazelrc.travis >> .bazelrc
+    
 script:
   - |
     if [[ "${TRAVIS_OS_NAME}" == "windows" ]]; then
       powershell -Command 'Set-ExecutionPolicy RemoteSigned -scope CurrentUser'
       export JAVA_HOME='c:\\\\java8'
-      export BAZEL_VERSION=host
+      export PATH=%PATH%;%USERPROFILE%\bazel
     fi
     bash ./${TEST_SCRIPT}.sh ci
