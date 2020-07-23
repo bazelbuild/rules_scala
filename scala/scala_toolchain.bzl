@@ -49,7 +49,6 @@ def _scala_toolchain_impl(ctx):
 
     toolchain = platform_common.ToolchainInfo(
         scalacopts = ctx.attr.scalacopts,
-        scalac_provider_attr = ctx.attr.scalac_provider_attr,
         dep_providers = ctx.attr.dep_providers,
         dependency_mode = dependency_mode,
         strict_deps_mode = strict_deps_mode,
@@ -65,14 +64,13 @@ scala_toolchain = rule(
     _scala_toolchain_impl,
     attrs = {
         "scalacopts": attr.string_list(),
-        "scalac_provider_attr": attr.label(
-            default = "@io_bazel_rules_scala//scala:scalac_default",
-            providers = [_ScalacProvider],
-        ),
         "dep_providers": attr.label_keyed_string_dict(
             default = {
                 "@io_bazel_rules_scala//scala:scala_xml_provider": "scala_xml",
                 "@io_bazel_rules_scala//scala:parser_combinators_provider": "parser_combinators",
+                "@io_bazel_rules_scala//scala:scala_compile_classpath_provider": "scala_compile_classpath",
+                "@io_bazel_rules_scala//scala:scala_library_classpath_provider": "scala_library_classpath",
+                "@io_bazel_rules_scala//scala:scala_macro_classpath_provider": "scala_macro_classpath",
             },
             providers = [_DepsInfo],
         ),

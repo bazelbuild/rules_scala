@@ -1,19 +1,18 @@
 load(":toolchain_dep_rules.bzl", "common_toolchain_deps", "scala_toolchain_deps")
 
 # dependencies from ScalacProvider
-scala_toolchain_deps(
+common_toolchain_deps(
     name = "scala_compile_classpath",
-    from_classpath = "default_repl_classpath",
+    provider_id = "scala_compile_classpath",
     visibility = ["//visibility:public"],
 )
 
-scala_toolchain_deps(
+common_toolchain_deps(
     name = "scala_library_classpath",
-    from_classpath = "default_classpath",
+    provider_id = "scala_library_classpath",
     visibility = ["//visibility:public"],
 )
 
-# dependencies from DepsInfo
 common_toolchain_deps(
     name = "scala_xml",
     provider_id = "scala_xml",
