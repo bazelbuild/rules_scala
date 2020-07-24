@@ -15,8 +15,8 @@ toolchain(
 )
 
 scala_library(
-    name = "simple_file",
-    srcs = ["SimpleFile.scala"],
+    name = "error_file",
+    srcs = ["ErrorFile.scala"],
     visibility = ["//visibility:public"],
 )
 

@@ -6,8 +6,6 @@ dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 . "${dir}"/test_helper.sh
 runner=$(get_test_runner "${1:-local}")
 
-export PATH="$(bazel info workspace)"/tools:$PATH
-
 build_target() {
   target=$1
   bazel build --build_event_publish_all_actions //test_expect_failure/diagnostics_reporter:"$target" || true
@@ -17,7 +15,7 @@ verify_output() {
   target=$1
   expected_outputs=$2
   execution_root=$(bazel info execution_root)
-  output=$(protoc --decode_raw <"$execution_root"/bazel-out/darwin-fastbuild/bin/test_expect_failure/diagnostics_reporter/"$target".diagnosticsproto)
+  output=$("$execution_root/bazel-out/host/bin/external/com_google_protobuf/protoc" --decode_raw < "$execution_root"/bazel-out/darwin-fastbuild/bin/test_expect_failure/diagnostics_reporter/"$target".diagnosticsproto)
   for expected_output in "${expected_outputs[*]}"; do
     if [[ "$output" != *"$expected_output"* ]]; then
       echo "Expected: $expected_output, got: $output"
@@ -28,9 +26,9 @@ verify_output() {
 }
 
 verify_simple_file() {
-  build_target "simple_file"
+  build_target "error_file"
   outputs=("1 {
-  1: \"workspace-root://test_expect_failure/diagnostics_reporter/SimpleFile.scala\"
+  1: \"workspace-root://test_expect_failure/diagnostics_reporter/ErrorFile.scala\"
   2 {
     1 {
       1 {
@@ -45,7 +43,7 @@ verify_simple_file() {
     5: \"\')\' expected but \'}\' found.\"
   }
 }")
-  verify_output "simple_file" "${outputs[@]}"
+  verify_output "error_file" "${outputs[@]}"
 }
 
 verify_two_errors_file() {

@@ -1,4 +1,4 @@
-object SimpleFile {
+object ErrorFile {
   val value = "someVal"
 
   def main(args: Array[String]): Unit = {
