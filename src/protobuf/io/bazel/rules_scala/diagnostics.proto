@@ -1,5 +1,8 @@
 syntax = "proto3";
 
+// Definition of what is a Diagnostic, based in the definition provided by LSP
+// It is important to notice that not all fields may apply to a given compiler
+
 option java_package = "io.bazel.rules_scala.diagnostics";
 option java_outer_classname = "Diagnostics";
 

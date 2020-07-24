@@ -25,7 +25,7 @@ public class ReportableMainClass extends MainClass{
             Settings settings = super.settings();
             ConsoleReporter consoleReporter = new ConsoleReporter(settings);
             Reporter[] reporters;
-            if (ops.diagnosticsFile == null) {
+            if (ops.enableDiagnosticsReport) {
                 reporters = new Reporter[] { consoleReporter };
             } else {
                 Path path = Paths.get(ops.diagnosticsFile);

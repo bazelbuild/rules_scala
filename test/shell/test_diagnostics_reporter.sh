@@ -1,3 +1,5 @@
+# Diagnostics Reporters Tests. Diagnostics definition based off the definition provided by the LSP
+
 # shellcheck source=./test_runner.sh
 dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 . "${dir}"/test_runner.sh
