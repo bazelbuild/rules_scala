@@ -13,7 +13,8 @@ scala_specs2_junit_test_test_filter_everything(){
   local expected=(
     "[info] JunitSpec2RegexTest"
     "[info] JunitSpecs2AnotherTest"
-    "[info] JunitSpecs2Test")
+    "[info] JunitSpecs2Test"
+    "[info] JunitSpecs2ManyFragmentsTest")
   local unexpected=(
       "[info] UnrelatedTest")
   for method in "${expected[@]}"; do
