@@ -64,14 +64,14 @@ scala_toolchain = rule(
     _scala_toolchain_impl,
     attrs = {
         "scalacopts": attr.string_list(),
-        "dep_providers": attr.label_keyed_string_dict(
-            default = {
-                "@io_bazel_rules_scala//scala:scala_xml_provider": "scala_xml",
-                "@io_bazel_rules_scala//scala:parser_combinators_provider": "parser_combinators",
-                "@io_bazel_rules_scala//scala:scala_compile_classpath_provider": "scala_compile_classpath",
-                "@io_bazel_rules_scala//scala:scala_library_classpath_provider": "scala_library_classpath",
-                "@io_bazel_rules_scala//scala:scala_macro_classpath_provider": "scala_macro_classpath",
-            },
+        "dep_providers": attr.label_list(
+            default = [
+                "@io_bazel_rules_scala//scala:scala_xml_provider",
+                "@io_bazel_rules_scala//scala:parser_combinators_provider",
+                "@io_bazel_rules_scala//scala:scala_compile_classpath_provider",
+                "@io_bazel_rules_scala//scala:scala_library_classpath_provider",
+                "@io_bazel_rules_scala//scala:scala_macro_classpath_provider",
+            ],
             providers = [_DepsInfo],
         ),
         "dependency_mode": attr.string(

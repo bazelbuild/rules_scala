@@ -9,7 +9,7 @@ def _common_toolchain_deps(ctx):
 common_toolchain_deps = rule(
     implementation = _common_toolchain_deps,
     attrs = {
-        "provider_id": attr.string(mandatory = True),
+        "depset_id": attr.string(mandatory = True),
     },
     toolchains = [_toolchain_type],
 )
