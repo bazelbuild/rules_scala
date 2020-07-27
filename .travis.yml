@@ -61,6 +61,12 @@ jobs:
     - name: "[osx] Test scala version"
       <<: *osx
       env: TEST_SCRIPT=test_version XDG_CACHE_HOME=~/xdg_cache
+    - name: "[linux] Dry test rules_scala + latest bazel version"
+      <<: *linux
+      env: TEST_SCRIPT=test_rules_scala XDG_CACHE_HOME=~/xdg_cache USE_BAZEL_VERSION=latest
+
+  allow_failures:
+    env: TEST_SCRIPT=test_rules_scala XDG_CACHE_HOME=~/xdg_cache USE_BAZEL_VERSION=latest
 
 before_install:
   - |
