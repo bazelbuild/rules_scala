@@ -14,7 +14,7 @@ import scala.reflect.internal.util.RangePosition;
 import scala.tools.nsc.Settings;
 import scala.tools.nsc.reporters.AbstractReporter;
 
-import com.google.devtools.build.lib.diagnostics.Diagnostics;
+import io.bazel.rules_scala.diagnostics.Diagnostics;
 
 public class ProtoReporter extends AbstractReporter {
 
