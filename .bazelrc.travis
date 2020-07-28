@@ -4,7 +4,7 @@ startup --host_jvm_args=-Xms1024m
 # startup --batch # we actually start many bazels in the test script, we don't want batch
 
 # Just making sure that we don't OOM with parallel builds
-build --local_resources 3072,.5,1.0
+build --local_ram_resources=3072 --local_cpu_resources="HOST_CPUS*.5"
 
 # This is so we understand failures better
 build --verbose_failures
