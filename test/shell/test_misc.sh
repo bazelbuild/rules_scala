@@ -32,9 +32,10 @@ test_transitive_deps() {
     exit 1
   fi
 
-  bazel build test_expect_failure/transitive/java_to_scala:d
-  if [ $? -eq 0 ]; then
-    echo "'bazel build test_expect_failure/transitive/java_to_scala:d' should have failed."
+  expected_message="error: [strict] Using type example.A from an indirect dependency"
+  output=$(bazel build test_expect_failure/transitive/java_to_scala:d 2>&1)
+  if [ $? -eq 0 ] || [[ "$output" != *"$expected_message"* ]]; then
+    echo "'bazel build test_expect_failure/transitive/java_to_scala:d' should have failed with message '$expected_message'."
     exit 1
   fi
 
