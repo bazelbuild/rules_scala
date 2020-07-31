@@ -1,9 +1,9 @@
 java_binary(
-    name = "verify_diagnostics_output",
-    srcs = ["VerifyDiagnosticsOutput.java"],
+    name = "diagnostics_reporter_test",
+    srcs = ["VerifyDiagnosticsOutput.java", "DiagnosticsReporterTest.java"],
     deps = [
         "//src/protobuf/io/bazel/rules_scala:diagnostics_java_proto",
     ],
-    main_class = "diagnostics_reporter.VerifyDiagnosticsOutput",
+    main_class = "diagnostics_reporter.DiagnosticsReporterTest",
     visibility = ["//visibility:public"],
 )
