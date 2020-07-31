@@ -4,7 +4,7 @@ import io.bazel.rules_scala.diagnostics.Diagnostics;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -26,7 +26,7 @@ class VerifyDiagnosticsOutput {
     }
 
     public static List<Diagnostics.Diagnostic> getDiagnostics(String path) throws IOException {
-        return Diagnostics.TargetDiagnostics.parseFrom(Files.readAllBytes(Path.of(path)))
+        return Diagnostics.TargetDiagnostics.parseFrom(Files.readAllBytes(Paths.get(path)))
                 .getDiagnosticsList().stream().flatMap(diagnosticList -> diagnosticList.getDiagnosticsList().stream()).collect(Collectors.toList());
     }
 
