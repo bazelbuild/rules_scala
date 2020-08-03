@@ -2,7 +2,7 @@ package third_party.dependency_analyzer.src.test.io.bazel.rulesscala.dependencya
 
 import java.nio.file.Files
 import java.nio.file.Path
-import org.apache.commons.io.FileUtils
+import io.bazel.rulesscala.io_utils.DeleteDirectory
 import org.scalatest._
 import scala.tools.nsc.reporters.StoreReporter
 import third_party.dependency_analyzer.src.main.io.bazel.rulesscala.dependencyanalyzer.DependencyTrackingMethod
@@ -18,11 +18,10 @@ import third_party.utils.src.test.io.bazel.rulesscala.utils.TestUtil.DependencyA
 class AstUsedJarFinderTest extends FunSuite {
   private def withSandbox(action: Sandbox => Unit): Unit = {
     val tmpDir = Files.createTempDirectory("dependency_analyzer_test_temp")
-    val file = tmpDir.toFile
     try {
       action(new Sandbox(tmpDir))
     } finally {
-      FileUtils.deleteDirectory(file)
+      DeleteDirectory.delete(tmpDir)
     }
   }
 

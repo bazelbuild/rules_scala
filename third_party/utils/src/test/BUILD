@@ -10,8 +10,7 @@ scala_library(
     ],
     visibility = ["//visibility:public"],
     deps = [
-        "//external:io_bazel_rules_scala/dependency/scala/scala_compiler",
-        "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
+        "//scala/private/toolchain_deps:scala_compile_classpath",
         "//third_party/dependency_analyzer/src/main:dependency_analyzer",
     ],
 )

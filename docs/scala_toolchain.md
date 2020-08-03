@@ -23,9 +23,17 @@ scala_register_toolchains()
     ```python
     # //toolchains/BUILD
     load("@io_bazel_rules_scala//scala:scala_toolchain.bzl", "scala_toolchain")
+    load("@io_bazel_rules_scala//scala:providers.bzl", "declare_deps_provider")
 
     scala_toolchain(
         name = "my_toolchain_impl",
+        dep_providers = [
+            ":my_scala_compile_classpath_provider",
+            ":my_scala_library_classpath_provider",
+            ":my_scala_macro_classpath_provider",
+            ":my_scala_xml_provider",
+            ":my_parser_combinators_provider",
+        ],
         scalacopts = ["-Ywarn-unused"],
         unused_dependency_checker_mode = "off",
         visibility = ["//visibility:public"]
@@ -36,6 +44,47 @@ scala_register_toolchains()
         toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
         toolchain = "my_toolchain_impl",
         visibility = ["//visibility:public"]
+    )
+   
+    declare_deps_provider(
+        name = "my_scala_compile_classpath_provider",
+        deps_id = "scala_compile_classpath",
+        visibility = ["//visibility:public"],
+        deps = [
+            "//external:io_bazel_rules_scala/dependency/scala/scala_compiler",
+            "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+            "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
+        ],
+    )
+    
+    declare_deps_provider(
+        name = "my_scala_library_classpath_provider",
+        deps_id = "scala_library_classpath",
+        deps = [
+            "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+            "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
+        ],
+    )
+    
+    declare_deps_provider(
+        name = "my_scala_macro_classpath_provider",
+        deps_id = "scala_macro_classpath",
+        deps = [
+            "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+            "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
+        ],
+    )
+     
+    declare_deps_provider(
+        name = "my_scala_xml_provider",
+        deps_id = "scala_xml",
+        deps = ["@scala_xml_dep"],
+    )
+    
+    declare_deps_provider(
+        name = "my_parser_combinators_provider",
+        deps_id = "parser_combinators",
+        deps = ["@parser_combinators_dep"],
     )
     ```
 
@@ -56,6 +105,18 @@ scala_register_toolchains()
     </tr>
   </thead>
   <tbody>
+    <tr>
+      <td><code>dep_providers</code></td>
+      <td>
+        <p><code>List of labels; optional</code></p>
+        <p>
+          Allows to configure dependencies lists by configuring <code>DepInfo</code> provider targets. 
+          Currently supported depset ids: <code>scala_compile_classpath</code>, 
+          <code>scala_library_classpath</code>, <code>scala_macro_classpath</code>, <code>scala_xml</code>, 
+          <code>parser_combinators</code>.     
+        </p>
+      </td>
+    </tr>
     <tr>
       <td><code>scalacopts</code></td>
       <td>

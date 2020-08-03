@@ -8,7 +8,8 @@ java_library(
     ],
     visibility = ["//visibility:private"],
     deps = [
-        "//external:io_bazel_rules_scala/dependency/scala/guava",
+        "//src/java/io/bazel/rulesscala/io_utils",
+        "//src/java/io/bazel/rulesscala/preconditions",
         "@bazel_tools//tools/java/runfiles",
     ],
 )
