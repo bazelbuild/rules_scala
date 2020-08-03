@@ -48,7 +48,7 @@ scala_register_toolchains()
    
     declare_deps_provider(
         name = "my_scala_compile_classpath_provider",
-        depset_id = "scala_compile_classpath",
+        deps_id = "scala_compile_classpath",
         visibility = ["//visibility:public"],
         deps = [
             "//external:io_bazel_rules_scala/dependency/scala/scala_compiler",
@@ -59,7 +59,7 @@ scala_register_toolchains()
     
     declare_deps_provider(
         name = "my_scala_library_classpath_provider",
-        depset_id = "scala_library_classpath",
+        deps_id = "scala_library_classpath",
         deps = [
             "//external:io_bazel_rules_scala/dependency/scala/scala_library",
             "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
@@ -68,7 +68,7 @@ scala_register_toolchains()
     
     declare_deps_provider(
         name = "my_scala_macro_classpath_provider",
-        depset_id = "scala_macro_classpath",
+        deps_id = "scala_macro_classpath",
         deps = [
             "//external:io_bazel_rules_scala/dependency/scala/scala_library",
             "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
@@ -77,13 +77,13 @@ scala_register_toolchains()
      
     declare_deps_provider(
         name = "my_scala_xml_provider",
-        depset_id = "scala_xml",
+        deps_id = "scala_xml",
         deps = ["@scala_xml_dep"],
     )
     
     declare_deps_provider(
         name = "my_parser_combinators_provider",
-        depset_id = "parser_combinators",
+        deps_id = "parser_combinators",
         deps = ["@parser_combinators_dep"],
     )
     ```

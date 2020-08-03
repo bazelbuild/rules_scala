@@ -36,7 +36,7 @@ load("@io_bazel_rules_scala//scala:providers.bzl", "declare_deps_provider")
 
 declare_deps_provider(
     name = "my_compile_deps_provider",
-    depset_id = "runtime_deps"
+    deps_id = "runtime_deps"
     visibility = ["//visibility:public"],
     deps = [
         "@com_lihaoyi_fastparse_2_12",
@@ -46,7 +46,7 @@ declare_deps_provider(
     ],
 )
 ```
-`depset_id` is an id used by rules to lookup for depset defined by `DepsInfo` provider. Each rule
+`deps_id` is an id used by rules to lookup for dep list defined by `DepsInfo` provider. Each rule
 may define their own ids.
 
 Toolchain can be declared using rule `declare_deps_toolchain` and then wired with a `toolchain_type`
@@ -94,7 +94,7 @@ def _toolchain_deps(ctx):
 my_toolchain_deps = rule(
     implementation = _toolchain_deps,
     attrs = {
-        "depset_id": attr.string(
+        "deps_id": attr.string(
             mandatory = True,
         ),
     },
@@ -107,7 +107,7 @@ my_toolchain_deps = rule(
 ```starlark 
 my_toolchain_deps(
     name = "my_deps",
-    depset_id = "my_compile_deps_provider",
+    deps_id = "my_compile_deps_provider",
 )
 ```
 
@@ -122,7 +122,7 @@ toolchain
 ```starlark
 declare_deps_provider(
     name = "my_runtime_deps_provider",
-    depset_id = "runtime_deps"
+    deps_id = "runtime_deps"
     deps = ["@dep1", "@dep2"],
     visibility = ["//visibility:public"],
 )
@@ -154,7 +154,7 @@ def _toolchain_deps(ctx):
 my_toolchain_deps = rule(
     implementation = _toolchain_deps,
     attrs = {
-        "depset_id": attr.string(
+        "deps_id": attr.string(
             mandatory = True,
         ),
     },

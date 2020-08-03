@@ -77,7 +77,7 @@ java_library(
 
 declare_deps_provider(
     name = "scala_compile_classpath_provider",
-    depset_id = "scala_compile_classpath",
+    deps_id = "scala_compile_classpath",
     visibility = ["//visibility:public"],
     deps = [
         "//external:io_bazel_rules_scala/dependency/scala/scala_compiler",
@@ -88,7 +88,7 @@ declare_deps_provider(
 
 declare_deps_provider(
     name = "scala_library_classpath_provider",
-    depset_id = "scala_library_classpath",
+    deps_id = "scala_library_classpath",
     visibility = ["//visibility:public"],
     deps = [
         "//external:io_bazel_rules_scala/dependency/scala/scala_library",
@@ -98,7 +98,7 @@ declare_deps_provider(
 
 declare_deps_provider(
     name = "scala_macro_classpath_provider",
-    depset_id = "scala_macro_classpath",
+    deps_id = "scala_macro_classpath",
     visibility = ["//visibility:public"],
     deps = [
         "//external:io_bazel_rules_scala/dependency/scala/scala_library",
@@ -108,14 +108,14 @@ declare_deps_provider(
 
 declare_deps_provider(
     name = "scala_xml_provider",
-    depset_id = "scala_xml",
+    deps_id = "scala_xml",
     visibility = ["//visibility:public"],
     deps = ["//external:io_bazel_rules_scala/dependency/scala/scala_xml"],
 )
 
 declare_deps_provider(
     name = "parser_combinators_provider",
-    depset_id = "parser_combinators",
+    deps_id = "parser_combinators",
     visibility = ["//visibility:public"],
     deps = ["//external:io_bazel_rules_scala/dependency/scala/parser_combinators"],
 )
