@@ -255,25 +255,35 @@ class ScalacWorker implements Worker.Interface {
       throw new RuntimeException("Unable to write statsfile to " + ops.statsfile, ex);
     }
 
-    CompositeReporter compositeReporter = (CompositeReporter) reporterField.get(comp);
-
-    boolean buildFailed = false;
-    for (Reporter reporter : compositeReporter.getReporters()) {
-      if (reporter instanceof ConsoleReporter) {
-        ConsoleReporter consoleReporter = (ConsoleReporter) reporter;
-        if (consoleReporter.hasErrors()) {
-          consoleReporter.printSummary();
-          consoleReporter.flush();
-          buildFailed = true;
+    Object compilerReporter = reporterField.get(comp);
+    if(compilerReporter instanceof CompositeReporter){
+      CompositeReporter compositeReporter = (CompositeReporter) compilerReporter;
+      boolean buildFailed = false;
+      for (Reporter reporter : compositeReporter.getReporters()) {
+        if (reporter instanceof ConsoleReporter) {
+          ConsoleReporter consoleReporter = (ConsoleReporter) reporter;
+          if (consoleReporter.hasErrors()) {
+            consoleReporter.printSummary();
+            consoleReporter.flush();
+            buildFailed = true;
+          }
+        }
+        if (reporter instanceof ProtoReporter) {
+          ProtoReporter protoReporter = (ProtoReporter) reporter;
+          protoReporter.writeTo(Paths.get(ops.diagnosticsFile));
         }
       }
-      if (reporter instanceof ProtoReporter) {
-        ProtoReporter protoReporter = (ProtoReporter) reporter;
-        protoReporter.writeTo(Paths.get(ops.diagnosticsFile));
+      if (buildFailed) {
+        throw new RuntimeException("Build failed");
       }
-    }
-    if (buildFailed) {
-      throw new RuntimeException("Build failed");
+    } else {
+      ConsoleReporter reporter = (ConsoleReporter) compilerReporter;
+
+      if (reporter.hasErrors()) {
+        reporter.printSummary();
+        reporter.flush();
+        throw new RuntimeException("Build failed");
+      }
     }
   }
 
