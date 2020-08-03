@@ -131,19 +131,19 @@ declare_deps_provider(
 ```starlark
 declare_deps_toolchain(
     name = "my_toolchain_impl",
-    dep_providers = {
-        ":my_compile_deps_provider": "compile_deps",
-        ":my_runtime_deps_provider": "runtime_deps"
-    },
+    dep_providers = [
+        ":my_compile_deps_provider",
+        ":my_runtime_deps_provider",
+    ],
     visibility = ["//visibility:public"],
 )
 ```
 
-Attribute `dep_providers` maps dep provider label to an id used for indirection in toolchain 
-exporting rules 
+Attribute `dep_providers` is a list of DepInfo targets used for indirection in toolchain exporting 
+rules.  
 
-- `def expose_toolchain_deps(ctx, toolchain_type_label)` - helper to export export deps from 
-toolchain. Intended to be used when defining toolchain deps exporting rules. Eg.:
+- `def expose_toolchain_deps(ctx, toolchain_type_label)` - helper to export deps from a toolchain. 
+Intended to be used when defining toolchain deps exporting rules. Eg.:
 ```starlark
 load("//scala/private/toolchain_deps:toolchain_deps.bzl", "expose_toolchain_deps")
 
