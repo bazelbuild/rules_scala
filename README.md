@@ -65,6 +65,11 @@ http_archive(
     strip_prefix = "protobuf-%s" % protobuf_version,
     sha256 = protobuf_version_sha256,
 )
+
+# Dependencies needed for google_protobuf.
+# You may need to modify this if your project uses google_protobuf for other purposes.
+load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+protobuf_deps()
 ```
 
 This will load the `rules_scala` repository at the commit sha
