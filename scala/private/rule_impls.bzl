@@ -162,7 +162,7 @@ DiagnosticsFile: {diagnostics_output}
         unused_dependency_checker_mode = dependency_info.unused_deps_mode,
         dependency_tracking_method = dependency_info.dependency_tracking_method,
         statsfile_output = statsfile.path,
-        enable_diagnostics_report = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].enable_diagnostics_report,
+        enable_diagnostics_report = toolchain.enable_diagnostics_report,
         diagnostics_output = diagnosticsfile.path,
     )
 

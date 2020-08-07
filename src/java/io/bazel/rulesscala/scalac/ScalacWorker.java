@@ -255,35 +255,16 @@ class ScalacWorker implements Worker.Interface {
       throw new RuntimeException("Unable to write statsfile to " + ops.statsfile, ex);
     }
 
-    Object compilerReporter = reporterField.get(comp);
-    if(compilerReporter instanceof CompositeReporter){
-      CompositeReporter compositeReporter = (CompositeReporter) compilerReporter;
-      boolean buildFailed = false;
-      for (Reporter reporter : compositeReporter.getReporters()) {
-        if (reporter instanceof ConsoleReporter) {
-          ConsoleReporter consoleReporter = (ConsoleReporter) reporter;
-          if (consoleReporter.hasErrors()) {
-            consoleReporter.printSummary();
-            consoleReporter.flush();
-            buildFailed = true;
-          }
-        }
-        if (reporter instanceof ProtoReporter) {
-          ProtoReporter protoReporter = (ProtoReporter) reporter;
-          protoReporter.writeTo(Paths.get(ops.diagnosticsFile));
-        }
-      }
-      if (buildFailed) {
-        throw new RuntimeException("Build failed");
-      }
-    } else {
-      ConsoleReporter reporter = (ConsoleReporter) compilerReporter;
+    ConsoleReporter reporter = (ConsoleReporter) reporterField.get(comp);
+    if(reporter instanceof ProtoReporter) {
+      ProtoReporter protoReporter = (ProtoReporter) reporter;
+      protoReporter.writeTo(Paths.get(ops.diagnosticsFile));
+    }
 
-      if (reporter.hasErrors()) {
-        reporter.printSummary();
-        reporter.flush();
-        throw new RuntimeException("Build failed");
-      }
+    if (reporter.hasErrors()) {
+      reporter.printSummary();
+      reporter.flush();
+      throw new RuntimeException("Build failed");
     }
   }
 

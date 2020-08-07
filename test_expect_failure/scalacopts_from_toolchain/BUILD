@@ -17,5 +17,5 @@ toolchain(
 scala_library(
     name = "failing_build",
     srcs = ["ClassWithUnused.scala"],
-    scalacopts = ["-Yfatal-warnings"],
+    scalacopts = ["-Xfatal-warnings"],
 )

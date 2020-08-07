@@ -1,28 +1,37 @@
 package io.bazel.rulesscala.scalac;
 
+import io.bazel.rules_scala.diagnostics.Diagnostics;
+import scala.reflect.internal.util.Position;
+import scala.reflect.internal.util.RangePosition;
+import scala.tools.nsc.Settings;
+import scala.tools.nsc.reporters.ConsoleReporter;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import scala.reflect.internal.util.Position;
-import scala.reflect.internal.util.RangePosition;
-import scala.tools.nsc.Settings;
-import scala.tools.nsc.reporters.AbstractReporter;
-
-import io.bazel.rules_scala.diagnostics.Diagnostics;
-
-public class ProtoReporter extends AbstractReporter {
+public class ProtoReporter extends ConsoleReporter {
 
   private final Settings settings;
-  Map<String, List<Diagnostics.Diagnostic>> builder;
+  private final Map<String, List<Diagnostics.Diagnostic>> builder;
+  private final Map<Position, Severity> positions = new HashMap<>();
+  private final Map<Position, List<String>> messages = new HashMap<>();
+
+
+  private final boolean isVerbose;
+  private final boolean noWarnings;
+  private final boolean isPromptSet;
+  private final boolean isDebug;
 
   public ProtoReporter(Settings settings) {
+    super(settings);
     this.settings = settings;
+    this.isVerbose = (boolean) settings.verbose().value();
+    this.noWarnings = settings.nowarnings().value();
+    this.isPromptSet = settings.prompt().value();
+    this.isDebug = settings.debug().value();
     builder = new LinkedHashMap<>();
   }
 
@@ -35,20 +44,30 @@ public class ProtoReporter extends AbstractReporter {
   }
 
   @Override
-  public Settings settings() {
-    return settings;
-  }
-
-  @Override
-  public void display(Position pos, String msg, Severity severity) {
-  }
-
-  @Override
-  public void displayPrompt() {
-  }
-
-  @Override
   public void info0(Position pos, String msg, Object severity, boolean force) {
+    Severity actualSeverity = (Severity) severity;
+    if(severity.equals(INFO())){
+      if(isVerbose || force){
+        actualSeverity.count_$eq(actualSeverity.count());
+        display(pos, msg, actualSeverity);
+      } else {
+        boolean hidden = testAndLog(pos, actualSeverity, msg);
+        if (!severity.equals(WARNING()) || !noWarnings) {
+          if(!hidden || isPromptSet){
+            actualSeverity.count_$eq(actualSeverity.count() + 1);
+            display(pos, msg, actualSeverity);
+          }
+          else if(isDebug){
+            actualSeverity.count_$eq(actualSeverity.count() + 1);
+            display(pos, "[ suppressed ] " + msg, actualSeverity);
+          }
+
+          if(isPromptSet)
+            displayPrompt();
+        }
+      }
+    }
+
       Diagnostics.Diagnostic diagnostic = Diagnostics.Diagnostic
           .newBuilder()
           .setRange(positionToRange(pos))
@@ -59,6 +78,24 @@ public class ProtoReporter extends AbstractReporter {
       String uri = "workspace-root://" + pos.source().file().path();
       List<Diagnostics.Diagnostic> diagnostics = builder.computeIfAbsent(uri, key -> new ArrayList());
       diagnostics.add(diagnostic);
+  }
+
+  private boolean testAndLog(Position pos, Severity severity, String msg) {
+    Position fpos = pos.focus();
+    Severity focusSeverity = positions.getOrDefault(fpos, (Severity) INFO());
+    boolean supress = false;
+    if(focusSeverity.equals(ERROR()))
+      supress = true;
+
+    if(focusSeverity.id() > severity.id())
+      supress = true;
+
+    if(severity.equals(focusSeverity) && messages.computeIfAbsent(fpos,(key) -> new ArrayList<>()).contains(msg))
+      supress = true;
+
+    positions.put(fpos, severity);
+    messages.computeIfAbsent(fpos, (key) -> new ArrayList<>()).add(msg);
+    return supress;
   }
 
   private Diagnostics.Severity convertSeverity(Object severity) {
@@ -95,14 +132,5 @@ public class ProtoReporter extends AbstractReporter {
             .setStart(Diagnostics.Position.newBuilder().setLine(pos.line() - 1).setCharacter(pos.column() - 1))
             .setEnd(Diagnostics.Position.newBuilder().setLine(pos.line()))
             .build();
-  }
-
-  @Override
-  public int count(Object severity) {
-    return 0;
-  }
-
-  @Override
-  public void resetCount(Object severity) {
   }
 }
