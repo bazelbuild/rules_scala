@@ -35,6 +35,13 @@ public class ProtoReporter extends ConsoleReporter {
     builder = new LinkedHashMap<>();
   }
 
+  @Override
+  public void reset() {
+    super.reset();
+    positions.clear();
+    messages.clear();
+  }
+
   public void writeTo(Path path) throws IOException {
     Diagnostics.TargetDiagnostics.Builder targetDiagnostics = Diagnostics.TargetDiagnostics.newBuilder();
     for (Map.Entry<String, List<Diagnostics.Diagnostic>> entry : builder.entrySet()) {
@@ -50,23 +57,23 @@ public class ProtoReporter extends ConsoleReporter {
       if(isVerbose || force){
         actualSeverity.count_$eq(actualSeverity.count());
         display(pos, msg, actualSeverity);
-      } else {
+      }
+    } else {
         boolean hidden = testAndLog(pos, actualSeverity, msg);
         if (!severity.equals(WARNING()) || !noWarnings) {
-          if(!hidden || isPromptSet){
-            actualSeverity.count_$eq(actualSeverity.count() + 1);
-            display(pos, msg, actualSeverity);
-          }
-          else if(isDebug){
-            actualSeverity.count_$eq(actualSeverity.count() + 1);
-            display(pos, "[ suppressed ] " + msg, actualSeverity);
-          }
+            if(!hidden || isPromptSet){
+                actualSeverity.count_$eq(actualSeverity.count() + 1);
+                display(pos, msg, actualSeverity);
+            }
+            else if(isDebug){
+                actualSeverity.count_$eq(actualSeverity.count() + 1);
+                display(pos, "[ suppressed ] " + msg, actualSeverity);
+            }
 
-          if(isPromptSet)
-            displayPrompt();
-        }
-      }
+            if(isPromptSet)
+                displayPrompt();
     }
+  }
 
       Diagnostics.Diagnostic diagnostic = Diagnostics.Diagnostic
           .newBuilder()
