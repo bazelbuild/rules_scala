@@ -193,7 +193,7 @@ DiagnosticsFile: {diagnostics_output}
         scalac_jvm_flags,
         ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scalac_jvm_flags,
     )
-    if len(BAZEL_VERSION) == 0: # TODO: Add case for released version of bazel with diagnostics whenever it is released.
+    if len(BAZEL_VERSION) == 0:  # TODO: Add case for released version of bazel with diagnostics whenever it is released.
         ctx.actions.run(
             inputs = ins,
             outputs = outs,
@@ -238,7 +238,6 @@ DiagnosticsFile: {diagnostics_output}
                 for f in expand_location(ctx, final_scalac_jvm_flags)
             ] + ["@" + argfile.path],
         )
-
 
 def compile_java(ctx, source_jars, source_files, output, extra_javac_opts, providers_of_dependencies):
     return java_common.compile(

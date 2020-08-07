@@ -100,7 +100,7 @@ scala_toolchain = rule(
         "scalac_jvm_flags": attr.string_list(),
         "scala_test_jvm_flags": attr.string_list(),
         "enable_diagnostics_report": attr.bool(
-            doc = 'Enable the output of structured diagnostics through the BEP'
+            doc = "Enable the output of structured diagnostics through the BEP",
         ),
     },
     fragments = ["java"],

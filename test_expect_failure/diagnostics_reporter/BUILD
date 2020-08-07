@@ -3,8 +3,8 @@ load("//scala:scala_toolchain.bzl", "scala_toolchain")
 
 scala_toolchain(
     name = "diagnostics_reporter_toolchain_impl",
-    visibility = ["//visibility:public"],
     enable_diagnostics_report = True,
+    visibility = ["//visibility:public"],
 )
 
 toolchain(
@@ -29,20 +29,20 @@ scala_library(
 scala_library(
     name = "warning_file",
     srcs = ["WarningFile.scala"],
-    scalacopts =["-Ywarn-unused:imports"],
+    scalacopts = ["-Ywarn-unused:imports"],
     visibility = ["//visibility:public"],
 )
 
 scala_library(
     name = "error_and_warning_file",
     srcs = ["ErrorAndWarningFile.scala"],
-    scalacopts =["-Ywarn-unused:imports"],
+    scalacopts = ["-Ywarn-unused:imports"],
     visibility = ["//visibility:public"],
 )
 
 scala_library(
     name = "info_file",
     srcs = ["InfoFile.scala"],
-    scalacopts =["-Ydebug"],
+    scalacopts = ["-Ydebug"],
     visibility = ["//visibility:public"],
 )

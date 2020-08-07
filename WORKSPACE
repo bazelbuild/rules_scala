@@ -18,6 +18,7 @@ load("@com_github_bazelbuild_buildtools//buildifier:deps.bzl", "buildifier_depen
 buildifier_dependencies()
 
 load("@io_bazel_rules_scala//:version.bzl", "bazel_version")
+
 bazel_version(name = "bazel_version")
 
 load("//scala:scala.bzl", "scala_repositories")
