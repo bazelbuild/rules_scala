@@ -19,7 +19,6 @@ def scala_proto_default_repositories(
         "2.11": {
             "scalapb_plugin": "2d6793fa2565953ef2b5094fc37fae4933f3c42e4cb4048d54e7f358ec104a87",
             "protoc_bridge": "314e34bf331b10758ff7a780560c8b5a5b09e057695a643e33ab548e3d94aa03",
-            "scalapbc": "dd92db48d395b54de53297aa13f2666ab314540fe2c83e923d2cbd80f0c79541",
             "scalapb_runtime": "5131033e9536727891a38004ec707a93af1166cb8283c7db711c2c105fbf289e",
             "scalapb_runtime_grpc": "24d19df500ce6450d8f7aa72a9bad675fa4f3650f7736d548aa714058f887e23",
             "scalapb_lenses": "f8e3b526ceac998652b296014e9ab4c0ab906a40837dd1dfcf6948b6f5a1a8bf",
@@ -28,7 +27,6 @@ def scala_proto_default_repositories(
         "2.12": {
             "scalapb_plugin": "516ed567e2c3ac28b91a2f350d3febc7a6a396978718145f536853ffe8de40c2",
             "protoc_bridge": "2b8db0b71be5052768a96ccc41c9bb03f3f19e1e267e810a64963566538b1a2b",
-            "scalapbc": "5c2e8188f3c7c5e9528fdd648cd5dce9a91fcbecb5c3c022a50dd5df2d57511b",
             "scalapb_runtime": "82624a7fadaa323bbb8d33e37f055ce42e761c203573ace3ccf95bd0511917fe",
             "scalapb_runtime_grpc": "4c00f2a57cc1d00a2d454f695c3f1e565173e1d1297294f1cf81339bdeba3f4a",
             "scalapb_lenses": "fff4fc9d47ad44c1371ff2d8dfa2b5907826c4b98ca576baf67f14d31d0d9be1",
@@ -68,21 +66,6 @@ def scala_proto_default_repositories(
     native.bind(
         name = "io_bazel_rules_scala/dependency/proto/protoc_bridge",
         actual = "@scala_proto_rules_protoc_bridge",
-    )
-
-    _scala_maven_import_external(
-        name = "scala_proto_rules_scalapbc",
-        artifact = _scala_mvn_artifact(
-            "com.thesamet.scalapb:scalapbc:0.9.7",
-            major_version,
-        ),
-        artifact_sha256 = scala_version_jar_shas["scalapbc"],
-        licenses = ["notice"],
-        server_urls = maven_servers,
-    )
-    native.bind(
-        name = "io_bazel_rules_scala/dependency/proto/scalapbc",
-        actual = "@scala_proto_rules_scalapbc",
     )
 
     _scala_maven_import_external(

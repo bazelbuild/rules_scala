@@ -1,18 +1,13 @@
 package scripts
 
-import java.io.PrintStream
-import java.nio.file.{Path, FileAlreadyExistsException}
+import java.net.URLClassLoader
+import java.nio.file.Path
 
 import io.bazel.rulesscala.io_utils.DeleteRecursively
 import io.bazel.rulesscala.jar.JarCreator
 import io.bazel.rulesscala.worker.Worker
 import protocbridge.{ProtocBridge, ProtocCodeGenerator}
-import scala.collection.JavaConverters._
 import scalapb.ScalaPbCodeGenerator
-import java.nio.file.{Files, Paths}
-import scalapb.{ScalaPBC, ScalaPbCodeGenerator, ScalaPbcException}
-import java.net.URLClassLoader
-import scala.util.{Try, Failure}
 
 object ScalaPBWorker extends Worker.Interface {
 
@@ -38,24 +33,22 @@ object ScalaPBWorker extends Worker.Interface {
         clazz.getField("MODULE$").get(null).asInstanceOf[ProtocCodeGenerator]
       } catch {
         case _: NoSuchFieldException | _: java.lang.ClassNotFoundException =>
-    val clazz = extraClassesClassLoader.loadClass(className)
-    clazz.newInstance.asInstanceOf[ProtocCodeGenerator]
+          val clazz = extraClassesClassLoader.loadClass(className)
+          clazz.newInstance.asInstanceOf[ProtocCodeGenerator]
       }
       (nme, ins)
     }.toList
 
-    val config = ScalaPBC.processArgs(extractRequestResult.scalaPBArgs.toArray)
-
     val code = ProtocBridge.runWithGenerators(
       protoc = exec(extractRequestResult.protoc),
       namedGenerators = namedGeneratorsWithTypes ++ Seq("scala" -> ScalaPbCodeGenerator),
-      params = config.args)
+      params = extractRequestResult.scalaPBArgs)
 
     try {
-        if (code != 0) {
-          throw new ScalaPbcException(s"Exit with code $code")
-        }
-        JarCreator.buildJar(Array(extractRequestResult.jarOutput, extractRequestResult.scalaPBOutput.toString))
+      if (code != 0) {
+        sys.error(s"Exit with code $code")
+      }
+      JarCreator.buildJar(Array(extractRequestResult.jarOutput, extractRequestResult.scalaPBOutput.toString))
     } finally {
       deleteDir(extractRequestResult.scalaPBOutput)
     }
