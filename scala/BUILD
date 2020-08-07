@@ -1,9 +1,7 @@
 load("@rules_java//java:defs.bzl", "java_import", "java_library")
-load(
-    "@io_bazel_rules_scala//scala:providers.bzl",
-    _declare_scalac_provider = "declare_scalac_provider",
-)
 load("//scala:scala_toolchain.bzl", "scala_toolchain")
+load("//scala/toolchains:toolchains.bzl", "declare_deps_toolchain")
+load("//scala:providers.bzl", "declare_deps_provider")
 
 toolchain_type(
     name = "toolchain_type",
@@ -71,26 +69,53 @@ java_import(
     visibility = ["//visibility:public"],
 )
 
-_declare_scalac_provider(
-    name = "scalac_default",
-    default_classpath = [
-        "//external:io_bazel_rules_scala/dependency/scala/scala_library",
-        "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
-    ],
-    default_macro_classpath = [
-        "//external:io_bazel_rules_scala/dependency/scala/scala_library",
-        "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
-    ],
-    default_repl_classpath = [
-        "//external:io_bazel_rules_scala/dependency/scala/scala_library",
-        "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
-        "//external:io_bazel_rules_scala/dependency/scala/scala_compiler",
-    ],
-    visibility = ["//visibility:public"],
-)
-
 java_library(
     name = "PlaceHolderClassToCreateEmptyJarForScalaImport",
     srcs = ["PlaceHolderClassToCreateEmptyJarForScalaImport.java"],
     visibility = ["//visibility:public"],
+)
+
+declare_deps_provider(
+    name = "scala_compile_classpath_provider",
+    deps_id = "scala_compile_classpath",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//external:io_bazel_rules_scala/dependency/scala/scala_compiler",
+        "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+        "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
+    ],
+)
+
+declare_deps_provider(
+    name = "scala_library_classpath_provider",
+    deps_id = "scala_library_classpath",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+        "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
+    ],
+)
+
+declare_deps_provider(
+    name = "scala_macro_classpath_provider",
+    deps_id = "scala_macro_classpath",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+        "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
+    ],
+)
+
+declare_deps_provider(
+    name = "scala_xml_provider",
+    deps_id = "scala_xml",
+    visibility = ["//visibility:public"],
+    deps = ["//external:io_bazel_rules_scala/dependency/scala/scala_xml"],
+)
+
+declare_deps_provider(
+    name = "parser_combinators_provider",
+    deps_id = "parser_combinators",
+    visibility = ["//visibility:public"],
+    deps = ["//external:io_bazel_rules_scala/dependency/scala/parser_combinators"],
 )

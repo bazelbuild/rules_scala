@@ -5,13 +5,17 @@ dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 runner=$(get_test_runner "${1:-local}")
 
 test_disappearing_class() {
+  tmp=$(mktemp -d -t test_disappearing_class-XXXXXXXXXX)
+  out=$tmp/out
+  cache=$tmp/cache
   git checkout test_expect_failure/disappearing_class/ClassProvider.scala
-  bazel build test_expect_failure/disappearing_class:uses_class
+  bazel --output_base=$out build --disk_cache=$cache test_expect_failure/disappearing_class:uses_class
   echo -e "package scalarules.test\n\nobject BackgroundNoise{}" > test_expect_failure/disappearing_class/ClassProvider.scala
   set +e
-  bazel build test_expect_failure/disappearing_class:uses_class
+  bazel --output_base=$out build --disk_cache=$cache test_expect_failure/disappearing_class:uses_class
   RET=$?
   git checkout test_expect_failure/disappearing_class/ClassProvider.scala
+  rm -rf $tmp
   if [ $RET -eq 0 ]; then
     echo "Class caching at play. This should fail"
     exit 1
@@ -28,9 +32,10 @@ test_transitive_deps() {
     exit 1
   fi
 
-  bazel build test_expect_failure/transitive/java_to_scala:d
-  if [ $? -eq 0 ]; then
-    echo "'bazel build test_expect_failure/transitive/java_to_scala:d' should have failed."
+  expected_message="error: [strict] Using type example.A from an indirect dependency"
+  output=$(bazel build test_expect_failure/transitive/java_to_scala:d 2>&1)
+  if [ $? -eq 0 ] || [[ "$output" != *"$expected_message"* ]]; then
+    echo "'bazel build test_expect_failure/transitive/java_to_scala:d' should have failed with message '$expected_message'."
     exit 1
   fi
 

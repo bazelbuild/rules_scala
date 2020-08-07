@@ -122,7 +122,20 @@ def twitter_scrooge(
 
     # scrooge-generator needs these runtime_deps to generate java from thrift.
     if not native.existing_rule("io_bazel_rules_scala/dependency/scala/guava"):
-        fail("Please make sure you've called scala_repositories() in your WORKSPACE file before calling twitter_scrooge()")
+        _jvm_maven_import_external(
+            name = "io_bazel_rules_scala_guava",
+            artifact = "com.google.guava:guava:21.0",
+            server_urls = maven_servers,
+            rule_name = "java_import",
+            licenses = ["notice"],
+            artifact_sha256 = "972139718abc8a4893fa78cba8cf7b2c903f35c97aaf44fa3031b0669948b480",
+        )
+
+        native.bind(
+            name = "io_bazel_rules_scala/dependency/scala/guava",
+            actual = "@io_bazel_rules_scala_guava",
+        )
+
     runtime_deps_for_generator = [
         "//external:io_bazel_rules_scala/dependency/scala/guava",
         "//external:{}".format(mustache_bind_target),
@@ -435,7 +448,7 @@ common_attrs = {
         providers = [JavaInfo],
         default = [
             Label(
-                "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+                "//scala/private/toolchain_deps:scala_library_classpath",
             ),
             Label(
                 "//external:io_bazel_rules_scala/dependency/thrift/libthrift",
@@ -553,7 +566,7 @@ scrooge_scala_import = rule(
             providers = [JavaInfo],
             default = [
                 Label(
-                    "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+                    "//scala/private/toolchain_deps:scala_library_classpath",
                 ),
                 Label(
                     "//external:io_bazel_rules_scala/dependency/thrift/libthrift",

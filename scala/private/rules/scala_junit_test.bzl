@@ -91,7 +91,7 @@ _junit_resolve_deps = {
     "_scala_toolchain": attr.label_list(
         default = [
             Label(
-                "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+                "@io_bazel_rules_scala//scala/private/toolchain_deps:scala_library_classpath",
             ),
             Label("//external:io_bazel_rules_scala/dependency/junit/junit"),
             Label(

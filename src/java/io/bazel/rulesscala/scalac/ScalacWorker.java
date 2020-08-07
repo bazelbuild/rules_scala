@@ -1,5 +1,6 @@
 package io.bazel.rulesscala.scalac;
 
+import io.bazel.rulesscala.io_utils.StreamCopy;
 import io.bazel.rulesscala.jar.JarCreator;
 import io.bazel.rulesscala.worker.Worker;
 import java.io.File;
@@ -132,7 +133,7 @@ class ScalacWorker implements Worker.Interface {
   }
 
   private static List<File> extractJar(String jarPath, String outputFolder, String[] extensions)
-      throws IOException, FileNotFoundException {
+      throws IOException {
 
     List<File> outputPaths = new ArrayList<File>();
     JarFile jar = new JarFile(jarPath);
@@ -155,7 +156,7 @@ class ScalacWorker implements Worker.Interface {
 
       InputStream is = jar.getInputStream(file); // get the input stream
       OutputStream fos = new FileOutputStream(f);
-      IOUtils.copy(is, fos);
+      StreamCopy.copy(is, fos);
       fos.close();
       is.close();
     }
