@@ -1,6 +1,5 @@
 load("@rules_java//java:defs.bzl", "java_import", "java_library")
 load("//scala:scala_toolchain.bzl", "scala_toolchain")
-load("//scala/toolchains:toolchains.bzl", "declare_deps_toolchain")
 load("//scala:providers.bzl", "declare_deps_provider")
 
 toolchain_type(
