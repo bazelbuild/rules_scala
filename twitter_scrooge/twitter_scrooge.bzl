@@ -161,6 +161,21 @@ def twitter_scrooge(
         actual = util_logging,
     )
 
+    # This is a shim needed to import `@javax.annotation.Generated` when compiled with jdk11.
+    if not native.existing_rule("io_bazel_rules_scala/dependency/thrift/javax_annotation_api"):
+        _scala_maven_import_external(
+            name = "io_bazel_rules_scala_javax_annotation_api",
+            artifact = "javax.annotation:javax.annotation-api:1.3.2",
+            artifact_sha256 = "e04ba5195bcd555dc95650f7cc614d151e4bcd52d29a10b8aa2197f3ab89ab9b",
+            licenses = ["notice"],
+            server_urls = maven_servers,
+        )
+
+        native.bind(
+            name = "io_bazel_rules_scala/dependency/thrift/javax_annotation_api",
+            actual = "@io_bazel_rules_scala_javax_annotation_api",
+        )
+
 def _colon_paths(data):
     return ":".join([f.path for f in sorted(data)])
 
@@ -453,6 +468,9 @@ common_attrs = {
             ),
             Label(
                 "//external:io_bazel_rules_scala/dependency/thrift/util_core",
+            ),
+            Label(
+                "//external:io_bazel_rules_scala/dependency/thrift/javax_annotation_api",
             ),
         ],
     ),

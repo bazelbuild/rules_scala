@@ -42,3 +42,4 @@ $runner bazel test //test/... --extra_toolchains="//test_expect_failure/plus_one
 . "${test_dir}"/test_scala_specs2.sh
 . "${test_dir}"/test_toolchain.sh
 . "${test_dir}"/test_unused_dependency.sh
+. "${test_dir}"/test_twitter_scrooge.sh
