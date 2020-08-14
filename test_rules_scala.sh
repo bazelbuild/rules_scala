@@ -27,6 +27,9 @@ $runner bazel test //test/... --extra_toolchains="//test_expect_failure/plus_one
 . "${test_dir}"/test_build_event_protocol.sh
 . "${test_dir}"/test_compilation.sh
 . "${test_dir}"/test_deps.sh
+if [ "$(bazel --version)" = "bazel no_version" ]; then
+  . "${test_dir}"/test_diagnostics_reporter.sh
+fi
 . "${test_dir}"/test_javac_jvm_flags.sh
 . "${test_dir}"/test_junit.sh
 . "${test_dir}"/test_misc.sh

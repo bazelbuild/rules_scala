@@ -47,6 +47,8 @@ def _scala_toolchain_impl(ctx):
     if dependency_tracking_method not in ("ast", "high-level"):
         fail("Internal error: invalid dependency_tracking_method " + dependency_tracking_method)
 
+    enable_diagnostics_report = ctx.attr.enable_diagnostics_report
+
     toolchain = platform_common.ToolchainInfo(
         scalacopts = ctx.attr.scalacopts,
         dep_providers = ctx.attr.dep_providers,
@@ -57,6 +59,7 @@ def _scala_toolchain_impl(ctx):
         enable_code_coverage_aspect = ctx.attr.enable_code_coverage_aspect,
         scalac_jvm_flags = ctx.attr.scalac_jvm_flags,
         scala_test_jvm_flags = ctx.attr.scala_test_jvm_flags,
+        enable_diagnostics_report = enable_diagnostics_report,
     )
     return [toolchain]
 
@@ -96,6 +99,9 @@ scala_toolchain = rule(
         ),
         "scalac_jvm_flags": attr.string_list(),
         "scala_test_jvm_flags": attr.string_list(),
+        "enable_diagnostics_report": attr.bool(
+            doc = "Enable the output of structured diagnostics through the BEP",
+        ),
     },
     fragments = ["java"],
 )

@@ -16,6 +16,9 @@ local_repository(
     path = "../../"
 )
 
+load("@io_bazel_rules_scala//:version.bzl", "bazel_version")
+bazel_version(name = "bazel_version")
+
 load("@io_bazel_rules_scala//scala:scala_cross_version.bzl", "extract_major_version")
 
 scala_version = "${scala_version}"

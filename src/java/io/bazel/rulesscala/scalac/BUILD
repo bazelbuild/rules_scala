@@ -17,6 +17,7 @@ java_binary(
         "//third_party/bazel/src/main/protobuf:worker_protocol_java_proto",
         "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/jar",
         "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/worker",
+        "@io_bazel_rules_scala//src/protobuf/io/bazel/rules_scala:diagnostics_java_proto",
     ],
 )
 
@@ -24,6 +25,8 @@ filegroup(
     name = "scalac_files",
     srcs = [
         "CompileOptions.java",
+        "ProtoReporter.java",
+        "ReportableMainClass.java",
         "Resource.java",
         "ScalacWorker.java",
     ],

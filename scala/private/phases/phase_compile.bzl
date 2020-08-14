@@ -192,6 +192,7 @@ def _compile_or_empty(
             ctx.outputs.jar,
             manifest,
             ctx.outputs.statsfile,
+            ctx.outputs.diagnosticsfile,
             sources,
             jars,
             all_srcjars,
@@ -262,8 +263,9 @@ def _build_nosrc_jar(ctx):
     cmd = """
 rm -f {jar_output}
 {zipper} c {jar_output} @{path}
-# ensures that empty src targets still emit a statsfile
+# ensures that empty src targets still emit a statsfile and a diagnosticsfile
 touch {statsfile}
+touch {diagnosticsfile}
 """ + ijar_cmd
 
     cmd = cmd.format(
@@ -271,9 +273,10 @@ touch {statsfile}
         jar_output = ctx.outputs.jar.path,
         zipper = ctx.executable._zipper.path,
         statsfile = ctx.outputs.statsfile.path,
+        diagnosticsfile = ctx.outputs.diagnosticsfile.path,
     )
 
-    outs = [ctx.outputs.jar, ctx.outputs.statsfile]
+    outs = [ctx.outputs.jar, ctx.outputs.statsfile, ctx.outputs.diagnosticsfile]
     inputs = ctx.files.resources + [ctx.outputs.manifest]
 
     ctx.actions.run_shell(

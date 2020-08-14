@@ -20,6 +20,7 @@ load(
     _collect_plugin_paths = "collect_plugin_paths",
 )
 load(":resources.bzl", _resource_paths = "paths")
+load("@bazel_version//:def.bzl", "BAZEL_VERSION")
 
 def expand_location(ctx, flags):
     if hasattr(ctx.attr, "data"):
@@ -44,6 +45,7 @@ def compile_scala(
         output,
         manifest,
         statsfile,
+        diagnosticsfile,
         sources,
         cjars,
         all_srcjars,
@@ -137,6 +139,8 @@ StrictDepsMode: {strict_deps_mode}
 UnusedDependencyCheckerMode: {unused_dependency_checker_mode}
 DependencyTrackingMethod: {dependency_tracking_method}
 StatsfileOutput: {statsfile_output}
+EnableDiagnosticsReport: {enable_diagnostics_report}
+DiagnosticsFile: {diagnostics_output}
 """.format(
         out = output.path,
         manifest = manifest.path,
@@ -158,6 +162,8 @@ StatsfileOutput: {statsfile_output}
         unused_dependency_checker_mode = dependency_info.unused_deps_mode,
         dependency_tracking_method = dependency_info.dependency_tracking_method,
         statsfile_output = statsfile.path,
+        enable_diagnostics_report = toolchain.enable_diagnostics_report,
+        diagnostics_output = diagnosticsfile.path,
     )
 
     argfile = ctx.actions.declare_file(
@@ -174,7 +180,7 @@ StatsfileOutput: {statsfile_output}
         tools = [scalac],
     )
 
-    outs = [output, statsfile]
+    outs = [output, statsfile, diagnosticsfile]
     ins = (
         compiler_classpath_jars.to_list() + all_srcjars.to_list() + list(sources) +
         plugins_list + internal_plugin_jars + classpath_resources + resources +
@@ -187,28 +193,51 @@ StatsfileOutput: {statsfile_output}
         scalac_jvm_flags,
         ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scalac_jvm_flags,
     )
+    if len(BAZEL_VERSION) == 0:  # TODO: Add case for released version of bazel with diagnostics whenever it is released.
+        ctx.actions.run(
+            inputs = ins,
+            outputs = outs,
+            executable = scalac.files_to_run.executable,
+            input_manifests = scalac_input_manifests,
+            mnemonic = "Scalac",
+            progress_message = "scala %s" % target_label,
+            execution_requirements = {"supports-workers": "1"},
+            #  when we run with a worker, the `@argfile.path` is removed and passed
+            #  line by line as arguments in the protobuf. In that case,
+            #  the rest of the arguments are passed to the process that
+            #  starts up and stays resident.
 
-    ctx.actions.run(
-        inputs = ins,
-        outputs = outs,
-        executable = scalac.files_to_run.executable,
-        input_manifests = scalac_input_manifests,
-        mnemonic = "Scalac",
-        progress_message = "scala %s" % target_label,
-        execution_requirements = {"supports-workers": "1"},
-        #  when we run with a worker, the `@argfile.path` is removed and passed
-        #  line by line as arguments in the protobuf. In that case,
-        #  the rest of the arguments are passed to the process that
-        #  starts up and stays resident.
+            # In either case (worker or not), they will be jvm flags which will
+            # be correctly handled since the executable is a jvm app that will
+            # consume the flags on startup.
+            arguments = [
+                "--jvm_flag=%s" % f
+                for f in expand_location(ctx, final_scalac_jvm_flags)
+            ] + ["@" + argfile.path],
+            diagnostics_file = diagnosticsfile,
+        )
+    else:
+        ctx.actions.run(
+            inputs = ins,
+            outputs = outs,
+            executable = scalac.files_to_run.executable,
+            input_manifests = scalac_input_manifests,
+            mnemonic = "Scalac",
+            progress_message = "scala %s" % target_label,
+            execution_requirements = {"supports-workers": "1"},
+            #  when we run with a worker, the `@argfile.path` is removed and passed
+            #  line by line as arguments in the protobuf. In that case,
+            #  the rest of the arguments are passed to the process that
+            #  starts up and stays resident.
 
-        # In either case (worker or not), they will be jvm flags which will
-        # be correctly handled since the executable is a jvm app that will
-        # consume the flags on startup.
-        arguments = [
-            "--jvm_flag=%s" % f
-            for f in expand_location(ctx, final_scalac_jvm_flags)
-        ] + ["@" + argfile.path],
-    )
+            # In either case (worker or not), they will be jvm flags which will
+            # be correctly handled since the executable is a jvm app that will
+            # consume the flags on startup.
+            arguments = [
+                "--jvm_flag=%s" % f
+                for f in expand_location(ctx, final_scalac_jvm_flags)
+            ] + ["@" + argfile.path],
+        )
 
 def compile_java(ctx, source_jars, source_files, output, extra_javac_opts, providers_of_dependencies):
     return java_common.compile(
