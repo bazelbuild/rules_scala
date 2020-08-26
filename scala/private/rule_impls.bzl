@@ -195,7 +195,7 @@ DiagnosticsFile: {diagnostics_output}
         scalac_jvm_flags,
         ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scalac_jvm_flags,
     )
-    if len(BAZEL_VERSION) == 0 and enable_diagnostics_report:  # TODO: Add case for released version of bazel with diagnostics whenever it is released.
+    if False and enable_diagnostics_report:  # TODO: Add case for released version of bazel with diagnostics whenever it is released.
         ctx.actions.run(
             inputs = ins,
             outputs = outs,
