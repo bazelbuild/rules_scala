@@ -120,6 +120,7 @@ def compile_scala(
     toolchain = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"]
     scalacopts = [ctx.expand_location(v, input_plugins) for v in toolchain.scalacopts + in_scalacopts]
     resource_paths = _resource_paths(resources, resource_strip_prefix)
+    enable_diagnostics_report = toolchain.enable_diagnostics_report
 
     scalac_args = """
 Classpath: {cp}
@@ -162,7 +163,7 @@ DiagnosticsFile: {diagnostics_output}
         unused_dependency_checker_mode = dependency_info.unused_deps_mode,
         dependency_tracking_method = dependency_info.dependency_tracking_method,
         statsfile_output = statsfile.path,
-        enable_diagnostics_report = toolchain.enable_diagnostics_report,
+        enable_diagnostics_report = enable_diagnostics_report,
         diagnostics_output = diagnosticsfile.path,
     )
 
@@ -181,6 +182,7 @@ DiagnosticsFile: {diagnostics_output}
     )
 
     outs = [output, statsfile, diagnosticsfile]
+
     ins = (
         compiler_classpath_jars.to_list() + all_srcjars.to_list() + list(sources) +
         plugins_list + internal_plugin_jars + classpath_resources + resources +
@@ -193,7 +195,7 @@ DiagnosticsFile: {diagnostics_output}
         scalac_jvm_flags,
         ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scalac_jvm_flags,
     )
-    if len(BAZEL_VERSION) == 0:  # TODO: Add case for released version of bazel with diagnostics whenever it is released.
+    if len(BAZEL_VERSION) == 0 and enable_diagnostics_report:  # TODO: Add case for released version of bazel with diagnostics whenever it is released.
         ctx.actions.run(
             inputs = ins,
             outputs = outs,
