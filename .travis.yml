@@ -92,4 +92,5 @@ script:
       export JAVA_HOME='c:\\\\java8'
       export PATH=%PATH%;%USERPROFILE%\bazel
     fi
+    bazel --version
     bash ./${TEST_SCRIPT}.sh ci
