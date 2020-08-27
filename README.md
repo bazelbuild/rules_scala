@@ -157,7 +157,7 @@ for an example workspace using another scala version.
 
 ## Bazel compatible versions
 
-| bazel  | rules_scala gitsha |
+| minimal bazel version | rules_scala gitsha |
 |--------|--------------------|
 | 2.0.0  | HEAD               |
 | 1.1.0  | d681a952da74fc61a49fc3167b03548f42fc5dde |
@@ -168,6 +168,8 @@ for an example workspace using another scala version.
 | 0.15.x | 3b9ab9be31ac217d3337c709cb6bfeb89c8dcbb1 |
 | 0.14.x | 3b9ab9be31ac217d3337c709cb6bfeb89c8dcbb1 |
 | 0.13.x | 3c987b6ae8a453886759b132f1572c0efca2eca2 |
+
+PRs are also built with highest supported bazel version (see [Travis config](https://github.com/bazelbuild/rules_scala/blob/master/.travis.yml) for the exact highest version)
 
 ## Breaking changes
 
