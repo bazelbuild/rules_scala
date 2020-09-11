@@ -1,6 +1,7 @@
 load("@rules_java//java:defs.bzl", "java_library")
 load("//scala_proto:scala_proto_toolchain.bzl", "scala_proto_toolchain")
 load("//scala_proto:default_dep_sets.bzl", "DEFAULT_SCALAPB_COMPILE_DEPS", "DEFAULT_SCALAPB_GRPC_DEPS")
+load("//scala:providers.bzl", "declare_deps_provider")
 
 toolchain_type(
     name = "toolchain_type",
@@ -38,14 +39,16 @@ toolchain(
     visibility = ["//visibility:public"],
 )
 
-java_library(
-    name = "default_scalapb_compile_dependencies",
+declare_deps_provider(
+    name = "scalapb_compile_deps",
+    deps_id = "scalapb_compile_deps",
+    deps = DEFAULT_SCALAPB_COMPILE_DEPS,
     visibility = ["//visibility:public"],
-    exports = DEFAULT_SCALAPB_COMPILE_DEPS,
 )
 
-java_library(
-    name = "default_scalapb_grpc_dependencies",
+declare_deps_provider(
+    name = "scalapb_grpc_deps",
+    deps_id = "scalapb_grpc_deps",
+    deps = DEFAULT_SCALAPB_GRPC_DEPS,
     visibility = ["//visibility:public"],
-    exports = DEFAULT_SCALAPB_GRPC_DEPS,
 )

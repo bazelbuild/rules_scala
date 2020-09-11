@@ -3,6 +3,7 @@ load("//scala/private:common.bzl", "write_manifest_file")
 load("//scala/private:dependency.bzl", "legacy_unclear_dependency_info_for_protobuf_scrooge")
 load("//scala/private:rule_impls.bzl", "compile_scala")
 load("//scala_proto/private:proto_to_scala_src.bzl", "proto_to_scala_src")
+load("//scala/private/toolchain_deps:toolchain_deps.bzl", "find_deps_info_on", "java_info_for_deps")
 
 ScalaPBAspectInfo = provider(fields = [
     "proto_info",
@@ -139,13 +140,18 @@ def _scalapb_aspect_impl(target, ctx):
         compile_protos = sorted(target_ti.direct_sources)
         transitive_protos = sorted(target_ti.transitive_sources.to_list())
 
-        toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
+        toolchain_type_label = "@io_bazel_rules_scala//scala_proto:toolchain_type"
+        toolchain = ctx.toolchains[toolchain_type_label]
         flags = []
-        imps = [j[JavaInfo] for j in ctx.attr._implicit_compile_deps]
+
+        compile_deps = find_deps_info_on(ctx, toolchain_type_label, "scalapb_compile_deps").deps
+
+        imps = [dep[JavaInfo] for dep in compile_deps]
 
         if toolchain.with_grpc:
+            grpc_deps = find_deps_info_on(ctx, toolchain_type_label, "scalapb_grpc_deps").deps
             flags.append("grpc")
-            imps.extend([j[JavaInfo] for j in ctx.attr._grpc_deps])
+            imps.extend([dep[JavaInfo] for dep in grpc_deps])
 
         if toolchain.with_flat_package:
             flags.append("flat_package")
@@ -233,13 +239,11 @@ scalapb_aspect = aspect(
         [ScalaPBImport],
     ],
     attrs = {
-        "_protoc": attr.label(executable = True, cfg = "host", default = "@com_google_protobuf//:protoc"),
-        "_implicit_compile_deps": attr.label_list(cfg = "target", default = [
-            "//external:io_bazel_rules_scala/dependency/proto/implicit_compile_deps",
-        ]),
-        "_grpc_deps": attr.label_list(cfg = "target", default = [
-            "//external:io_bazel_rules_scala/dependency/proto/grpc_deps",
-        ]),
+        "_protoc": attr.label(
+            executable = True,
+            cfg = "host",
+            default = "@com_google_protobuf//:protoc",
+        ),
     },
     toolchains = [
         "@io_bazel_rules_scala//scala:toolchain_type",

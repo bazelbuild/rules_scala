@@ -1,4 +1,5 @@
 load("//scala_proto:default_dep_sets.bzl", "DEFAULT_SCALAPB_COMPILE_DEPS", "DEFAULT_SCALAPB_GRPC_DEPS")
+load("@io_bazel_rules_scala//scala:providers.bzl", "DepsInfo")
 
 def _scala_proto_toolchain_impl(ctx):
     toolchain = platform_common.ToolchainInfo(
@@ -10,6 +11,7 @@ def _scala_proto_toolchain_impl(ctx):
         extra_generator_dependencies = ctx.attr.extra_generator_dependencies,
         scalac = ctx.attr.scalac,
         named_generators = ctx.attr.named_generators,
+        dep_providers = ctx.attr.dep_providers,
     )
     return [toolchain]
 
@@ -40,6 +42,13 @@ scala_proto_toolchain = rule(
             default = Label(
                 "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac",
             ),
+        ),
+        "dep_providers": attr.label_list(
+            default = [
+                "//scala_proto:scalapb_compile_deps",
+                "//scala_proto:scalapb_grpc_deps",
+            ],
+            providers = [DepsInfo],
         ),
     },
 )
