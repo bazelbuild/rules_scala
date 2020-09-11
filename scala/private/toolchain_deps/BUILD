@@ -1,6 +1,5 @@
 load(":toolchain_dep_rules.bzl", "common_toolchain_deps")
 
-# dependencies from ScalacProvider
 common_toolchain_deps(
     name = "scala_compile_classpath",
     deps_id = "scala_compile_classpath",
