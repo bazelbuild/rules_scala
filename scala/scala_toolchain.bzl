@@ -1,7 +1,6 @@
 load(
     "@io_bazel_rules_scala//scala:providers.bzl",
     _DepsInfo = "DepsInfo",
-    _ScalacProvider = "ScalacProvider",
 )
 
 def _compute_strict_deps_mode(input_strict_deps_mode, dependency_mode):

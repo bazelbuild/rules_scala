@@ -10,7 +10,7 @@ ScalacProvider = provider(
 DepsInfo = provider(
     doc = "Defines depset required by rules",
     fields = {
-        "deps": "Depset",
+        "deps": "Deps",
         "deps_id": "Identifier by which rules access this depset",
     },
 )
