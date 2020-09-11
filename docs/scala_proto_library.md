@@ -34,6 +34,7 @@ To configure ScalaPB options, configure a different `scala_proto_toolchain` and 
 
 ```python
 load("@io_bazel_rules_scala//scala_proto:scala_proto_toolchain.bzl", "scala_proto_toolchain")
+load("@io_bazel_rules_scala//scala:providers.bzl", "declare_deps_provider")
 
 scala_proto_toolchain(
     name = "scala_proto_toolchain_configuration",
@@ -41,12 +42,27 @@ scala_proto_toolchain(
     with_flat_package = False,
     with_single_line_to_string = False,
     visibility = ["//visibility:public"],
+    dep_providers = [":my_grpc_deps", ":my_compile_deps"],
 )
 
 toolchain(
     name = "scalapb_toolchain",
     toolchain = ":scala_proto_toolchain_configuration",
     toolchain_type = "@io_bazel_rules_scala//scala_proto:toolchain_type",
+    visibility = ["//visibility:public"],
+)
+
+declare_deps_provider(
+    name = "my_compile_deps",
+    deps_id = "scalapb_compile_deps",
+    deps = ["@dep1", "@dep2"],
+    visibility = ["//visibility:public"],
+)
+
+declare_deps_provider(
+    name = "my_grpc_deps",
+    deps_id = "scalapb_grpc_deps",
+    deps = ["@dep3", "@dep4"],
     visibility = ["//visibility:public"],
 )
 ```
@@ -63,6 +79,5 @@ toolchain(
 | code_generator                | `Label, optional (has default)` <br> Which code generator to use. A sensible default is provided.
 | named_generators              | `String dict, optional` <br>
 | extra_generator_dependencies  | `List of labels, optional` <br>
-| grpc_deps                     | `List of labels, optional (has default)` <br> gRPC dependencies. A sensible default is provided.
-| implicit_compile_deps         | `List of labels, optional (has default)` <br> ScalaPB dependencies. A sensible default is provided.
 | scalac                        | `Label, optional (has default)` <br> Target for scalac. A sensible default is provided.
+| dep_providers                 | `List of labels, optional (has default)` <br> allows inject gRPC (deps_id - `scalapb_grpc_deps`) and ScalaPB (deps_id `scalapb_compile_deps`) dependencies
