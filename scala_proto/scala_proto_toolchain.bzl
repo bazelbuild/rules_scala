@@ -45,8 +45,8 @@ scala_proto_toolchain = rule(
         ),
         "dep_providers": attr.label_list(
             default = [
-                "//scala_proto:scalapb_compile_deps",
-                "//scala_proto:scalapb_grpc_deps",
+                "@io_bazel_rules_scala//scala_proto:scalapb_compile_deps",
+                "@io_bazel_rules_scala//scala_proto:scalapb_grpc_deps",
             ],
             providers = [DepsInfo],
         ),
