@@ -42,13 +42,13 @@ toolchain(
 declare_deps_provider(
     name = "scalapb_compile_deps",
     deps_id = "scalapb_compile_deps",
-    deps = DEFAULT_SCALAPB_COMPILE_DEPS,
     visibility = ["//visibility:public"],
+    deps = DEFAULT_SCALAPB_COMPILE_DEPS,
 )
 
 declare_deps_provider(
     name = "scalapb_grpc_deps",
     deps_id = "scalapb_grpc_deps",
-    deps = DEFAULT_SCALAPB_GRPC_DEPS,
     visibility = ["//visibility:public"],
+    deps = DEFAULT_SCALAPB_GRPC_DEPS,
 )
