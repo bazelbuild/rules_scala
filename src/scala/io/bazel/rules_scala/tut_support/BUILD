@@ -8,8 +8,8 @@ scala_library(
         "//scala/private/toolchain_deps:scala_compile_classpath",
     ],
     deps = [
-        "//external:io_bazel_rules_scala/dependency/tut/tut_core",
         "//src/java/io/bazel/rulesscala/io_utils",
+        "@io_bazel_rules_scala//tut_rule:tut_core",
     ],
 )
 
