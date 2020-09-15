@@ -498,3 +498,5 @@ def scalafmt_repositories(
         ],
         server_urls = maven_servers,
     )
+
+    native.register_toolchains("@io_bazel_rules_scala//scala/scalafmt:scalafmt_toolchain")
