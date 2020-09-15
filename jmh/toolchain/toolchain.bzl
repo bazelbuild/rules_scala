@@ -13,6 +13,8 @@ jmh_toolchain = rule(
         "dep_providers": attr.label_list(
             default = [
                 "@io_bazel_rules_scala//jmh:jmh_classpath_provider",
+                "@io_bazel_rules_scala//jmh:benchmark_generator_provider",
+                "@io_bazel_rules_scala//jmh:benchmark_generator_runtime_provider",
             ],
             providers = [_DepsInfo],
         ),
