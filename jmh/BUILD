@@ -13,6 +13,15 @@ toolchain(
 )
 
 declare_deps_provider(
+    name = "jmh_core_provider",
+    deps_id = "jmh_core",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//external:io_bazel_rules_scala/dependency/jmh/jmh_core",
+    ],
+)
+
+declare_deps_provider(
     name = "jmh_classpath_provider",
     deps_id = "jmh_classpath",
     visibility = ["//visibility:public"],
@@ -46,6 +55,12 @@ declare_deps_provider(
 export_toolchain_deps(
     name = "jmh_classpath",
     deps_id = "jmh_classpath",
+    visibility = ["//visibility:public"],
+)
+
+export_toolchain_deps(
+    name = "jmh_core",
+    deps_id = "jmh_core",
     visibility = ["//visibility:public"],
 )
 

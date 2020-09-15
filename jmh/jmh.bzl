@@ -144,7 +144,7 @@ def scala_benchmark_jmh(**kw):
         name = lib,
         srcs = srcs,
         deps = deps + [
-            "//external:io_bazel_rules_scala/dependency/jmh/jmh_core",
+            "@io_bazel_rules_scala//jmh:jmh_core",
         ],
         scalacopts = scalacopts,
         resources = kw.get("resources", []),
@@ -164,7 +164,7 @@ def scala_benchmark_jmh(**kw):
         name = compiled_lib,
         srcs = ["%s.srcjar" % codegen],
         deps = deps + [
-            "//external:io_bazel_rules_scala/dependency/jmh/jmh_core",
+            "@io_bazel_rules_scala//jmh:jmh_core",
             lib,
         ],
         resource_jars = ["%s_resources.jar" % codegen],
