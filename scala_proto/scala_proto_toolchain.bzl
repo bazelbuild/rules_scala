@@ -8,6 +8,8 @@ def _scala_proto_toolchain_impl(ctx):
         blacklisted_protos = ctx.attr.blacklisted_protos,
         code_generator = ctx.attr.code_generator,
         extra_generator_dependencies = ctx.attr.extra_generator_dependencies,
+        grpc_deps=ctx.attr.grpc_deps,
+        implicit_compile_deps=ctx.attr.implicit_compile_deps,
         scalac = ctx.attr.scalac,
         named_generators = ctx.attr.named_generators,
     )
@@ -35,6 +37,16 @@ scala_proto_toolchain = rule(
         "named_generators": attr.string_dict(),
         "extra_generator_dependencies": attr.label_list(
             providers = [JavaInfo],
+        ),
+        "grpc_deps": attr.label_list(
+            providers = [JavaInfo],
+            default = DEFAULT_SCALAPB_GRPC_DEPS,
+            cfg = "target"
+        ),
+        "implicit_compile_deps": attr.label_list(
+            providers = [JavaInfo],
+            default = DEFAULT_SCALAPB_COMPILE_DEPS,
+            cfg = "target"
         ),
         "scalac": attr.label(
             default = Label(
