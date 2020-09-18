@@ -30,7 +30,7 @@ scala_proto_toolchain = rule(
         "blacklisted_protos": attr.label_list(default = []),
         "code_generator": attr.label(
             executable = True,
-            cfg = "host",
+            cfg = "exec",
             default = Label("@io_bazel_rules_scala//src/scala/scripts:scalapb_worker"),
             allow_files = True,
         ),
@@ -61,6 +61,7 @@ scala_proto_deps_toolchain = rule(
                 "@io_bazel_rules_scala//scala_proto:scalapb_grpc_deps_provider",
                 "@io_bazel_rules_scala//scala_proto:scalapb_worker_deps_provider",
             ],
+            cfg = "target",
             providers = [DepsInfo],
         ),
     },
