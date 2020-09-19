@@ -79,6 +79,8 @@ def jmh_repositories(maven_servers = _default_maven_server_urls()):
         actual = "@io_bazel_rules_scala_org_apache_commons_commons_math3//jar",
     )
 
+    native.register_toolchains("@io_bazel_rules_scala//jmh:jmh_toolchain")
+
 def _scala_generate_benchmark(ctx):
     # we use required providers to ensure JavaInfo exists
     info = ctx.attr.src[JavaInfo]
@@ -142,7 +144,7 @@ def scala_benchmark_jmh(**kw):
         name = lib,
         srcs = srcs,
         deps = deps + [
-            "//external:io_bazel_rules_scala/dependency/jmh/jmh_core",
+            "@io_bazel_rules_scala//jmh:jmh_core",
         ],
         scalacopts = scalacopts,
         resources = kw.get("resources", []),
@@ -162,7 +164,7 @@ def scala_benchmark_jmh(**kw):
         name = compiled_lib,
         srcs = ["%s.srcjar" % codegen],
         deps = deps + [
-            "//external:io_bazel_rules_scala/dependency/jmh/jmh_core",
+            "@io_bazel_rules_scala//jmh:jmh_core",
             lib,
         ],
         resource_jars = ["%s_resources.jar" % codegen],
@@ -171,8 +173,7 @@ def scala_benchmark_jmh(**kw):
     scala_binary(
         name = name,
         deps = [
-            "//external:io_bazel_rules_scala/dependency/jmh/net_sf_jopt_simple_jopt_simple",
-            "//external:io_bazel_rules_scala/dependency/jmh/org_apache_commons_commons_math3",
+            "@io_bazel_rules_scala//jmh:jmh_classpath",
             compiled_lib,
         ],
         data = data,
