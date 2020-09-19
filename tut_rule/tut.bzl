@@ -40,6 +40,8 @@ def tut_repositories(
         actual = "@io_bazel_rules_scala_org_tpolecat_tut_core",
     )
 
+    native.register_toolchains("@io_bazel_rules_scala//tut_rule:tut_toolchain")
+
 def scala_tut_doc(**kw):
     name = kw["name"]
     deps = kw.get("deps", [])
