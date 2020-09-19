@@ -69,15 +69,8 @@ _scala_junit_test_attrs = {
         mandatory = False,
     ),
     "jvm_flags": attr.string_list(),
-    "_junit": attr.label(
-        default = Label(
-            "//external:io_bazel_rules_scala/dependency/junit/junit",
-        ),
-    ),
-    "_hamcrest": attr.label(
-        default = Label(
-            "//external:io_bazel_rules_scala/dependency/hamcrest/hamcrest_core",
-        ),
+    "_junit_classpath": attr.label(
+        default = Label("@io_bazel_rules_scala//testing/toolchain:junit_classpath"),
     ),
     "_bazel_test_runner": attr.label(
         default = Label(
@@ -93,10 +86,7 @@ _junit_resolve_deps = {
             Label(
                 "@io_bazel_rules_scala//scala/private/toolchain_deps:scala_library_classpath",
             ),
-            Label("//external:io_bazel_rules_scala/dependency/junit/junit"),
-            Label(
-                "//external:io_bazel_rules_scala/dependency/hamcrest/hamcrest_core",
-            ),
+            Label("@io_bazel_rules_scala//testing/toolchain:junit_classpath"),
         ],
         allow_files = False,
     ),

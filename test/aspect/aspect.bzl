@@ -33,14 +33,12 @@ def _rule_impl(ctx):
         "scala_junit_test": [
             "//test/aspect:scala_junit_test",
             "//scala/private/toolchain_deps:scala_library_classpath",
-            "@io_bazel_rules_scala_junit_junit//:io_bazel_rules_scala_junit_junit",
-            "@io_bazel_rules_scala_org_hamcrest_hamcrest_core//:io_bazel_rules_scala_org_hamcrest_hamcrest_core",
+            "//testing/toolchain:junit_classpath",
         ],
         "scala_specs2_junit_test": [
             "//scala/private/toolchain_deps:scala_library_classpath",
             "//test/aspect:scala_specs2_junit_test",
-            "@io_bazel_rules_scala_junit_junit//:io_bazel_rules_scala_junit_junit",
-            "@io_bazel_rules_scala_org_hamcrest_hamcrest_core//:io_bazel_rules_scala_org_hamcrest_hamcrest_core",
+            "//testing/toolchain:junit_classpath",
             # From specs2/specs2.bzl:specs2_dependencies()
             "@io_bazel_rules_scala//specs2:specs2",
             "@io_bazel_rules_scala_org_specs2_specs2_common//:io_bazel_rules_scala_org_specs2_specs2_common",

@@ -33,8 +33,7 @@ def phase_collect_jars_macro_library(ctx, p):
 def phase_collect_jars_junit_test(ctx, p):
     args = struct(
         extra_deps = [
-            ctx.attr._junit,
-            ctx.attr._hamcrest,
+            ctx.attr._junit_classpath,
             ctx.attr.suite_label,
             ctx.attr._bazel_test_runner,
         ],
