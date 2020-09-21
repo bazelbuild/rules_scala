@@ -47,6 +47,8 @@ load("//specs2:specs2_junit.bzl", "specs2_junit_repositories")
 
 specs2_junit_repositories()
 
+register_toolchains("//testing:testing_toolchain")
+
 load("//scala/scalafmt:scalafmt_repositories.bzl", "scalafmt_default_config", "scalafmt_repositories")
 
 scalafmt_default_config()

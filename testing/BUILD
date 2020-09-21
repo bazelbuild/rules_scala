@@ -17,6 +17,36 @@ toolchain(
     visibility = ["//visibility:public"],
 )
 
+scala_testing_toolchain(
+    name = "scalatest_toolchain_impl",
+    dep_providers = [
+        ":scalatest_classpath_provider",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+toolchain(
+    name = "scalatest_toolchain",
+    toolchain = ":scalatest_toolchain_impl",
+    toolchain_type = "@io_bazel_rules_scala//testing/toolchain:testing_toolchain_type",
+    visibility = ["//visibility:public"],
+)
+
+scala_testing_toolchain(
+    name = "junit_toolchain_impl",
+    dep_providers = [
+        ":junit_classpath_provider",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+toolchain(
+    name = "junit_toolchain",
+    toolchain = ":junit_toolchain_impl",
+    toolchain_type = "@io_bazel_rules_scala//testing/toolchain:testing_toolchain_type",
+    visibility = ["//visibility:public"],
+)
+
 declare_deps_provider(
     name = "junit_classpath_provider",
     deps_id = "junit_classpath",
