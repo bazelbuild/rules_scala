@@ -5,6 +5,7 @@ scala_testing_toolchain(
     name = "testing_toolchains_with_all_deps_impl",
     dep_providers = [
         ":junit_classpath_provider",
+        ":scalatest_classpath_provider",
     ],
     visibility = ["//visibility:public"],
 )
@@ -23,5 +24,15 @@ declare_deps_provider(
     deps = [
         "//external:io_bazel_rules_scala/dependency/hamcrest/hamcrest_core",
         "//external:io_bazel_rules_scala/dependency/junit/junit",
+    ],
+)
+
+declare_deps_provider(
+    name = "scalatest_classpath_provider",
+    deps_id = "scalatest_classpath",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//external:io_bazel_rules_scala/dependency/scala/scalactic/scalactic",
+        "//external:io_bazel_rules_scala/dependency/scala/scalatest/scalatest",
     ],
 )

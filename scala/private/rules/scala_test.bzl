@@ -59,7 +59,7 @@ _scala_test_attrs = {
     "jvm_flags": attr.string_list(),
     "_scalatest": attr.label(
         default = Label(
-            "//external:io_bazel_rules_scala/dependency/scalatest/scalatest",
+            "@io_bazel_rules_scala//testing/toolchain:scalatest_classpath",
         ),
     ),
     "_scalatest_runner": attr.label(
@@ -84,7 +84,7 @@ _test_resolve_deps = {
                 "@io_bazel_rules_scala//scala/private/toolchain_deps:scala_library_classpath",
             ),
             Label(
-                "//external:io_bazel_rules_scala/dependency/scalatest/scalatest",
+                "@io_bazel_rules_scala//testing/toolchain:scalatest_classpath",
             ),
         ],
         allow_files = False,

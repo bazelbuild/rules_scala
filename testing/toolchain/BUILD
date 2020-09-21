@@ -10,3 +10,9 @@ testing_toolchain_deps(
     deps_id = "junit_classpath",
     visibility = ["//visibility:public"],
 )
+
+testing_toolchain_deps(
+    name = "scalatest_classpath",
+    deps_id = "scalatest_classpath",
+    visibility = ["//visibility:public"],
+)

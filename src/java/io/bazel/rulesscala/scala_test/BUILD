@@ -5,7 +5,7 @@ java_library(
     srcs = ["Runner.java"],
     visibility = ["//visibility:public"],
     deps = [
-        "//external:io_bazel_rules_scala/dependency/scalatest/scalatest",
+        "//testing/toolchain:scalatest_classpath",
         "@bazel_tools//tools/java/runfiles",
     ],
 )
