@@ -86,8 +86,8 @@ Toolchain must be registered in your `WORKSPACE` file:
 register_toolchains('//my/package:testing_toolchain')
 ```
 
-Single toolchain can be used to configure multiple testing rules (JUnit 4, ScalaTest). Default 
-repositories and toolchains in your `WORKSPACE` can be loaded via:
+Single toolchain can be used to configure multiple testing rules (JUnit 4, ScalaTest, Specs2). 
+Default repositories and toolchains in your `WORKSPACE` can be loaded via:
 ```starlark
 # JUnit 4
 load("//testing:junit.bzl", "junit_repositories", "junit_toolchain")
@@ -98,5 +98,15 @@ junit_toolchain()
 load("//testing:scalatest.bzl", "scalatest_repositories", "scalatest_toolchain")
 scalatest_repositories()
 scalatest_toolchain()
+
+# Specs2
+load("//testing:specs2.bzl", "specs2_repositories", "specs2_toolchain")
+specs2_repositories()
+specs2_toolchain()
+
+# Specs2 JUnit runner
+load("//testing:specs2_junit.bzl", "specs2_junit_repositories", "specs2_junit_toolchain")
+specs2_junit_repositories()
+specs2_junit_toolchain()
 ```
 
