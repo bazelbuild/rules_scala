@@ -3,14 +3,8 @@ load(
     "@io_bazel_rules_scala//scala:scala_cross_version.bzl",
     _default_maven_server_urls = "default_maven_server_urls",
     _default_scala_version = "default_scala_version",
-    _default_scala_version_jar_shas = "default_scala_version_jar_shas",
-    _extract_major_version = "extract_major_version",
-    _new_scala_default_repository = "new_scala_default_repository",
 )
-load(
-    "@io_bazel_rules_scala//scala:scala_maven_import_external.bzl",
-    _scala_maven_import_external = "scala_maven_import_external",
-)
+load("//third_party/repositories:repositories.bzl", "repositories")
 
 def _default_scala_extra_jars():
     return {
@@ -116,73 +110,26 @@ def rules_scala_setup():
         )
 
 def scala_repositories(
-        scala_version_shas = (
-            _default_scala_version(),
-            _default_scala_version_jar_shas(),
-        ),
+        scala_version = _default_scala_version(),
         maven_servers = _default_maven_server_urls(),
-        scala_extra_jars = _default_scala_extra_jars(),
+        overriden_artifacts = {},
         fetch_sources = False):
     rules_scala_setup()
 
-    (scala_version, scala_version_jar_shas) = scala_version_shas
-    major_version = _extract_major_version(scala_version)
-
-    _new_scala_default_repository(
-        maven_servers = maven_servers,
+    repositories(
+        for_artifact_ids = [
+            "io_bazel_rules_scala_scala_library",
+            "io_bazel_rules_scala_scala_compiler",
+            "io_bazel_rules_scala_scala_reflect",
+            "io_bazel_rules_scala_scalatest",
+            "io_bazel_rules_scala_scalactic",
+            "io_bazel_rules_scala_scala_xml",
+            "io_bazel_rules_scala_scala_parser_combinators",
+        ],
+        maven_servers = _default_maven_server_urls(),
+        fetch_sources = fetch_sources,
+        overriden_artifacts = overriden_artifacts,
         scala_version = scala_version,
-        scala_version_jar_shas = scala_version_jar_shas,
-        fetch_sources = fetch_sources,
-    )
-
-    scala_version_extra_jars = scala_extra_jars[major_version]
-
-    _scala_maven_import_external(
-        name = "io_bazel_rules_scala_scalatest",
-        artifact = "org.scalatest:scalatest_{major_version}:{extra_jar_version}".format(
-            major_version = major_version,
-            extra_jar_version = scala_version_extra_jars["scalatest"]["version"],
-        ),
-        artifact_sha256 = scala_version_extra_jars["scalatest"]["sha256"],
-        licenses = ["notice"],
-        server_urls = maven_servers,
-        fetch_sources = fetch_sources,
-    )
-    _scala_maven_import_external(
-        name = "io_bazel_rules_scala_scalactic",
-        artifact = "org.scalactic:scalactic_{major_version}:{extra_jar_version}".format(
-            major_version = major_version,
-            extra_jar_version = scala_version_extra_jars["scalactic"]["version"],
-        ),
-        artifact_sha256 = scala_version_extra_jars["scalactic"]["sha256"],
-        licenses = ["notice"],
-        server_urls = maven_servers,
-        fetch_sources = fetch_sources,
-    )
-
-    _scala_maven_import_external(
-        name = "io_bazel_rules_scala_scala_xml",
-        artifact = "org.scala-lang.modules:scala-xml_{major_version}:{extra_jar_version}".format(
-            major_version = major_version,
-            extra_jar_version = scala_version_extra_jars["scala_xml"]["version"],
-        ),
-        artifact_sha256 = scala_version_extra_jars["scala_xml"]["sha256"],
-        licenses = ["notice"],
-        server_urls = maven_servers,
-        fetch_sources = fetch_sources,
-    )
-
-    _scala_maven_import_external(
-        name = "io_bazel_rules_scala_scala_parser_combinators",
-        artifact =
-            "org.scala-lang.modules:scala-parser-combinators_{major_version}:{extra_jar_version}".format(
-                major_version = major_version,
-                extra_jar_version = scala_version_extra_jars["scala_parser_combinators"]["version"],
-            ),
-        artifact_sha256 = scala_version_extra_jars["scala_parser_combinators"]["sha256"],
-        licenses = ["notice"],
-        server_urls = maven_servers,
-        fetch_sources = fetch_sources,
     )
 
     native.bind(

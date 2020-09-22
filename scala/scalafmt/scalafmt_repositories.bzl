@@ -2,7 +2,6 @@ load(
     "//scala:scala_cross_version.bzl",
     _default_maven_server_urls = "default_maven_server_urls",
     _default_scala_version = "default_scala_version",
-    _default_scala_version_jar_shas = "default_scala_version_jar_shas",
     _extract_major_version = "extract_major_version",
 )
 load(
@@ -172,13 +171,9 @@ def _default_scala_extra_jars():
     }
 
 def scalafmt_repositories(
-        scala_version_shas = (
-            _default_scala_version(),
-            _default_scala_version_jar_shas(),
-        ),
+        scala_version = _default_scala_version(),
         maven_servers = _default_maven_server_urls(),
         scala_extra_jars = _default_scala_extra_jars()):
-    (scala_version, scala_version_jar_shas) = scala_version_shas
     major_version = _extract_major_version(scala_version)
 
     scala_version_extra_jars = scala_extra_jars[major_version]
