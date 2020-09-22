@@ -6,46 +6,6 @@ load(
 )
 load("//third_party/repositories:repositories.bzl", "repositories")
 
-def _default_scala_extra_jars():
-    return {
-        "2.11": {
-            "scalatest": {
-                "version": "3.0.5",
-                "sha256": "2aafeb41257912cbba95f9d747df9ecdc7ff43f039d35014b4c2a8eb7ed9ba2f",
-            },
-            "scalactic": {
-                "version": "3.0.5",
-                "sha256": "84723064f5716f38990fe6e65468aa39700c725484efceef015771d267341cf2",
-            },
-            "scala_xml": {
-                "version": "1.0.5",
-                "sha256": "767e11f33eddcd506980f0ff213f9d553a6a21802e3be1330345f62f7ee3d50f",
-            },
-            "scala_parser_combinators": {
-                "version": "1.0.4",
-                "sha256": "0dfaafce29a9a245b0a9180ec2c1073d2bd8f0330f03a9f1f6a74d1bc83f62d6",
-            },
-        },
-        "2.12": {
-            "scalatest": {
-                "version": "3.0.5",
-                "sha256": "b416b5bcef6720da469a8d8a5726e457fc2d1cd5d316e1bc283aa75a2ae005e5",
-            },
-            "scalactic": {
-                "version": "3.0.5",
-                "sha256": "57e25b4fd969b1758fe042595112c874dfea99dca5cc48eebe07ac38772a0c41",
-            },
-            "scala_xml": {
-                "version": "1.0.5",
-                "sha256": "035015366f54f403d076d95f4529ce9eeaf544064dbc17c2d10e4f5908ef4256",
-            },
-            "scala_parser_combinators": {
-                "version": "1.0.4",
-                "sha256": "282c78d064d3e8f09b3663190d9494b85e0bb7d96b0da05994fe994384d96111",
-            },
-        },
-    }
-
 def rules_scala_setup():
     if not native.existing_rule("com_google_protobuf"):
         http_archive(
