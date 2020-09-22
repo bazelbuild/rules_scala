@@ -54,6 +54,8 @@ load("@io_bazel_rules_scala//specs2:specs2_junit.bzl", "specs2_junit_repositorie
 
 specs2_junit_repositories(scala_version)
 
+register_toolchains("@io_bazel_rules_scala//testing:testing_toolchain")
+
 load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_unused_deps_toolchains")
 
 scala_register_unused_deps_toolchains()
