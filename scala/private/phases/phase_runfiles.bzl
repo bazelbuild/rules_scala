@@ -16,7 +16,7 @@ def phase_runfiles_scalatest(ctx, p):
         ctx.outputs.jar.short_path,
         _scala_test_flags(ctx),
         "-C",
-        "io.bazel.rules.scala.JUnitXmlReporter",
+        ctx.attr.reporter_class,
     ])
     args_file = ctx.actions.declare_file("%s.args" % ctx.label.name)
     ctx.actions.write(args_file, args)
