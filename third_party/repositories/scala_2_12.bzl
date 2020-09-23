@@ -377,4 +377,40 @@ artifacts = {
         "artifact": "org.tpolecat:tut-core_2.12:0.6.13",
         "sha256": "a9dbf69c127983be9ead4fdae23ef9d06f3395d754eeef864fc504bb9205d510",
     },
+    "io_bazel_rules_scala_mustache": {
+        "artifact": "com.github.spullara.mustache.java:compiler:0.8.18",
+        "sha256": "ddabc1ef897fd72319a761d29525fd61be57dc25d04d825f863f83cc89000e66",
+    },
+    "io_bazel_rules_scala_guava": {
+        "artifact": "com.google.guava:guava:21.0",
+        "sha256": "972139718abc8a4893fa78cba8cf7b2c903f35c97aaf44fa3031b0669948b480",
+    },
+    "libthrift": {
+        "artifact": "org.apache.thrift:libthrift:0.8.0",
+        "sha256": "adea029247c3f16e55e29c1708b897812fd1fe335ac55fe3903e5d2f428ef4b3",
+    },
+    "io_bazel_rules_scala_scrooge_core": {
+        "artifact": "com.twitter:scrooge-core_2.12:18.6.0",
+        "sha256": "02a6d7cf9fe8d872dfabd20298e4315d677748708e153d8b464fd5abac9a7430",
+    },
+    "io_bazel_rules_scala_scrooge_generator": {
+        "artifact": "com.twitter:scrooge-generator_2.12:18.6.0",
+        "sha256": "e7d5da1e3f0e494d3c81a26f44f3e3dc92d7efd757133de8c71758646fd5a833",
+        "runtime_deps": [
+            "@io_bazel_rules_scala_guava",
+            "@io_bazel_rules_scala_mustache",
+        ],
+    },
+    "io_bazel_rules_scala_util_core": {
+        "artifact": "com.twitter:util-core_2.12:18.6.0",
+        "sha256": "65bb92e70f95cbbfc640e54a5823a16154eac1a2631dc0211347e085aaa6ed0b",
+    },
+    "io_bazel_rules_scala_util_logging": {
+        "artifact": "com.twitter:util-logging_2.12:18.6.0",
+        "sha256": "c0cba01705e9321b3444adcd4a9ce27c2acefd27e14c13b5aec2c318ce1b4fdf",
+    },
+    "io_bazel_rules_scala_javax_annotation_api": {
+        "artifact": "javax.annotation:javax.annotation-api:1.3.2",
+        "sha256": "e04ba5195bcd555dc95650f7cc614d151e4bcd52d29a10b8aa2197f3ab89ab9b",
+    },
 }
