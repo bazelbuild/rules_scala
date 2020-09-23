@@ -212,4 +212,12 @@ artifacts = {
         "artifact": "org.apache.commons:commons-math3:3.6.1",
         "sha256": "1e56d7b058d28b65abd256b8458e3885b674c1d588fa43cd7d1cbb9c7ef2b308",
     },
+    "io_bazel_rules_scala_junit_junit": {
+        "artifact": "junit:junit:4.12",
+        "sha256": "59721f0805e223d84b90677887d9ff567dc534d7c502ca903c0c2b17f05c116a",
+    },
+    "io_bazel_rules_scala_org_hamcrest_hamcrest_core": {
+        "artifact": "org.hamcrest:hamcrest-core:1.3",
+        "sha256": "66fdef91e9739348df7a096aa384a5685f4e875584cce89386a7a47251c4d8e9",
+    },
 }
