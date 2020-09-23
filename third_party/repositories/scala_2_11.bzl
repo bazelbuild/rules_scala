@@ -246,4 +246,11 @@ artifacts = {
             "@io_bazel_rules_scala_org_specs2_specs2_common",
         ],
     },
+    "io_bazel_rules_scala_org_specs2_specs2_junit": {
+        "artifact": "org.specs2:specs2-junit_2.11:4.4.1",
+        "sha256": "a8549d52e87896624200fe35ef7b841c1c698a8fb5d97d29bf082762aea9bb72",
+        "deps": [
+            "@io_bazel_rules_scala_org_specs2_specs2_core",
+        ],
+    },
 }
