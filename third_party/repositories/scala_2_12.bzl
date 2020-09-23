@@ -220,4 +220,30 @@ artifacts = {
         "artifact": "org.hamcrest:hamcrest-core:1.3",
         "sha256": "66fdef91e9739348df7a096aa384a5685f4e875584cce89386a7a47251c4d8e9",
     },
+    "io_bazel_rules_scala_org_specs2_specs2_common": {
+        "artifact": "org.specs2:specs2-common_2.12:4.4.1",
+        "sha256": "7b7d2497bfe10ad552f5ab3780537c7db9961d0ae841098d5ebd91c78d09438a",
+        "deps": [
+            "@io_bazel_rules_scala_org_specs2_specs2_fp",
+        ],
+    },
+    "io_bazel_rules_scala_org_specs2_specs2_core": {
+        "artifact": "org.specs2:specs2-core_2.12:4.4.1",
+        "sha256": "f92c3c83844aac13250acec4eb247a2a26a2b3f04e79ef1bf42c56de4e0bb2e7",
+        "deps": [
+            "@io_bazel_rules_scala_org_specs2_specs2_common",
+            "@io_bazel_rules_scala_org_specs2_specs2_matcher",
+        ],
+    },
+    "io_bazel_rules_scala_org_specs2_specs2_fp": {
+        "artifact": "org.specs2:specs2-fp_2.12:4.4.1",
+        "sha256": "834a145b28dbf57ba6d96f02a3862522e693b5aeec44d4cb2f305ef5617dc73f",
+    },
+    "io_bazel_rules_scala_org_specs2_specs2_matcher": {
+        "artifact": "org.specs2:specs2-matcher_2.12:4.4.1",
+        "sha256": "78c699001c307dcc5dcbec8a80cd9f14e9bdaa047579c3d1010ee4bea66805fe",
+        "deps": [
+            "@io_bazel_rules_scala_org_specs2_specs2_common",
+        ],
+    },
 }
