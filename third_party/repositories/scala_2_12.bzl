@@ -373,4 +373,8 @@ artifacts = {
         "artifact": "io.opencensus:opencensus-contrib-grpc-metrics:0.22.1",
         "sha256": "3f6f4d5bd332c516282583a01a7c940702608a49ed6e62eb87ef3b1d320d144b",
     },
+    "io_bazel_rules_scala_org_tpolecat_tut_core": {
+        "artifact": "org.tpolecat:tut-core_2.12:0.6.13",
+        "sha256": "a9dbf69c127983be9ead4fdae23ef9d06f3395d754eeef864fc504bb9205d510",
+    },
 }
