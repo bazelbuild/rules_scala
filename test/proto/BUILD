@@ -5,6 +5,10 @@ load(
     "scala_proto_library",
 )
 load(
+    "//scala_proto:scala_proto_extended.bzl",
+    "scala_proto_library_extended",
+)
+load(
     "//scala:scala.bzl",
     "scala_binary",
     "scala_library",
@@ -80,6 +84,20 @@ scala_proto_library(
     name = "test_external_dep",
     visibility = ["//visibility:public"],
     deps = [":test_external_dep_proto"],
+)
+
+proto_library(
+    name = "test_external_dep_proto_extended",
+    srcs = ["test_external_dep.proto"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "@com_google_protobuf//:wrappers_proto",
+    ],
+)
+
+scala_proto_library_extended(
+    name = "test_extended",
+    proto = ":test_external_dep_proto_extended",
 )
 
 # Test that the `proto_source_root` attribute is handled properly

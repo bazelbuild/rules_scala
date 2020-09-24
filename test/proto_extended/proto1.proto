@@ -1,0 +1,11 @@
+syntax = "proto2";
+
+import "test/proto_extended/scalapb.proto";
+
+option (scalapb.options) = {
+  import: "some.thing.TheObject.theValue"
+};
+
+message TestMessage1 {
+    required string message = 1;
+}
