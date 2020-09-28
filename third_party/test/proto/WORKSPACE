@@ -1,0 +1,43 @@
+workspace(name = "proto")
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+protobuf_version = "3.11.3"
+
+protobuf_version_sha256 = "cf754718b0aa945b00550ed7962ddc167167bd922b842199eeb6505e6f344852"
+
+http_archive(
+    name = "com_google_protobuf",
+    sha256 = protobuf_version_sha256,
+    strip_prefix = "protobuf-%s" % protobuf_version,
+    url = "https://github.com/protocolbuffers/protobuf/archive/v%s.tar.gz" % protobuf_version,
+)
+
+load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+
+protobuf_deps()
+
+local_repository(
+    name = "io_bazel_rules_scala",
+    path = "../../../",
+)
+
+load("@io_bazel_rules_scala//:version.bzl", "bazel_version")
+
+bazel_version(name = "bazel_version")
+
+load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
+
+scala_repositories()
+
+load("@io_bazel_rules_scala//scala_proto:scala_proto.bzl", "scala_proto_repositories")
+
+scala_proto_repositories()
+
+load("@io_bazel_rules_scala//scala_proto:toolchains.bzl", "scala_proto_register_toolchains")
+
+scala_proto_register_toolchains()
+
+load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_unused_deps_toolchains")
+
+scala_register_unused_deps_toolchains()
