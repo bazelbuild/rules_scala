@@ -1,8 +1,8 @@
 package io.bazel.rules_scala.tut_support
 
+import java.nio.file.{Files, Paths}
+
 import io.bazel.rulesscala.io_utils.DeleteRecursively
-import java.io.File
-import java.nio.file.{ Files, Paths }
 import tut.TutMain
 
 object TutCompiler {
@@ -25,8 +25,8 @@ object TutCompiler {
             System.exit(1)
         }
       case many =>
-          System.err.println(s"expected one file in $mdOutput, found: $many")
-          System.exit(1)
+        System.err.println(s"expected one file in $mdOutput, found: $many")
+        System.exit(1)
     }
   }
 }

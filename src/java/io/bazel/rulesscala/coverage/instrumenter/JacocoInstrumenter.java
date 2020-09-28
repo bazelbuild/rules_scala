@@ -1,25 +1,22 @@
 package io.bazel.rulesscala.coverage.instrumenter;
 
+import io.bazel.rulesscala.io_utils.DeleteRecursively;
 import io.bazel.rulesscala.jar.JarCreator;
 import io.bazel.rulesscala.worker.Worker;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.nio.file.Files;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
-import java.nio.file.FileVisitor;
 import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
-
 import org.jacoco.core.instr.Instrumenter;
 import org.jacoco.core.runtime.OfflineInstrumentationAccessGenerator;
-
-import static io.bazel.rulesscala.coverage.instrumenter.DirectoryUtils.deleteTempDir;
 
 public final class JacocoInstrumenter implements Worker.Interface {
 
@@ -83,7 +80,7 @@ public final class JacocoInstrumenter implements Worker.Interface {
             jarCreator.setCompression(true);
             jarCreator.execute();
         } finally {
-            deleteTempDir(instrumentedClassesDirectory);
+            DeleteRecursively.run(instrumentedClassesDirectory);
         }
     }
 

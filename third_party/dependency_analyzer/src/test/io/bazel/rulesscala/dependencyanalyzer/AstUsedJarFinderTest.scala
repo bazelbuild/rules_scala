@@ -2,7 +2,7 @@ package third_party.dependency_analyzer.src.test.io.bazel.rulesscala.dependencya
 
 import java.nio.file.Files
 import java.nio.file.Path
-import io.bazel.rulesscala.io_utils.DeleteDirectory
+import io.bazel.rulesscala.io_utils.DeleteRecursively
 import org.scalatest._
 import scala.tools.nsc.reporters.StoreReporter
 import third_party.dependency_analyzer.src.main.io.bazel.rulesscala.dependencyanalyzer.DependencyTrackingMethod
@@ -21,7 +21,7 @@ class AstUsedJarFinderTest extends FunSuite {
     try {
       action(new Sandbox(tmpDir))
     } finally {
-      DeleteDirectory.delete(tmpDir)
+      DeleteRecursively.run(tmpDir)
     }
   }
 
