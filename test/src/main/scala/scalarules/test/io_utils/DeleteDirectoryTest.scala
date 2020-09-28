@@ -1,12 +1,14 @@
-package coverage;
-import org.scalatest._
-import java.nio.file.Files
+package scalarules.test.io_utils
+
 import java.io.File
-import io.bazel.rulesscala.coverage.instrumenter.DirectoryUtils
+import java.nio.file.Files
 
-class TestAll extends FlatSpec with Matchers {
+import io.bazel.rulesscala.io_utils.DeleteRecursively
+import org.scalatest._
 
-  "DirectoryUtils.deleteTempDir" should "remove nested folders" in {
+class DeleteDirectoryTest extends FlatSpec with Matchers {
+
+  "DeleteDirectory.run" should "remove nested folders" in {
     // Arrange.
     val tempDir = Files.createTempDirectory("test-tempdir-")
 
@@ -17,7 +19,7 @@ class TestAll extends FlatSpec with Matchers {
     Files.createTempDirectory(tempDir, "ghi")
 
     // Act.
-    DirectoryUtils.deleteTempDir(tempDir)
+    DeleteRecursively.run(tempDir)
 
     // Assert.
     new File(tempDir.toUri) should not (exist)

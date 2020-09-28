@@ -1,14 +1,13 @@
 package scripts
 
-import io.bazel.rules_scala.scrooge_support.{ Compiler, CompilerDefaults }
+import java.io.File
+import java.nio.file.{Files, Path, Paths}
+
 import com.twitter.scrooge.backend.WithFinagle
-import io.bazel.rulesscala.jar.JarCreator
+import io.bazel.rules_scala.scrooge_support.{Compiler, CompilerDefaults}
 import io.bazel.rulesscala.io_utils.DeleteRecursively
-import java.io.{ File, PrintStream }
-import java.nio.file.{ Files, Path, Paths }
-import scala.collection.mutable.Buffer
+import io.bazel.rulesscala.jar.JarCreator
 import io.bazel.rulesscala.worker.Worker
-import scala.io.Source
 
 object ScroogeWorker extends Worker.Interface {
 
@@ -96,6 +95,6 @@ object ScroogeWorker extends Worker.Interface {
     JarCreator.buildJar(Array(jarOutput, scroogeOutput.toString))
 
     // Clean it out to be idempotent
-    dirsToDelete.foreach { deleteDir(_) }
+    dirsToDelete.foreach(deleteDir)
   }
 }

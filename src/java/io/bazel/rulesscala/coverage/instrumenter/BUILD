@@ -12,38 +12,18 @@ java_binary(
     main_class = "io.bazel.rulesscala.coverage.instrumenter.JacocoInstrumenter",
     visibility = ["//visibility:public"],
     deps = [
-        ":directory_utils",
+        "//src/java/io/bazel/rulesscala/io_utils",
+        "//src/java/io/bazel/rulesscala/jar",
+        "//src/java/io/bazel/rulesscala/worker",
         "//third_party/bazel/src/main/protobuf:worker_protocol_java_proto",
         "@bazel_tools//tools/jdk:JacocoCoverage",
-        "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/jar",
-        "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/worker",
     ],
-)
-
-java_library(
-    name = "directory_utils",
-    srcs = [
-        "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/coverage/instrumenter:directory_utils_files",
-    ],
-    javacopts = [
-        "-source 1.8",
-        "-target 1.8",
-    ],
-    visibility = ["//visibility:public"],
 )
 
 filegroup(
     name = "instrumenter_files",
     srcs = [
         "JacocoInstrumenter.java",
-    ],
-    visibility = ["//visibility:public"],
-)
-
-filegroup(
-    name = "directory_utils_files",
-    srcs = [
-        "DirectoryUtils.java",
     ],
     visibility = ["//visibility:public"],
 )
