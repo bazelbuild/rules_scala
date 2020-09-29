@@ -14,5 +14,5 @@ scala_test(
 scala_test(
     name = "custom_reporter",
     srcs = ["A.scala", "CustomReporter.scala"],
-    reporter_class = "scalarules.test.scala_test.CustomReporter"
+    reporter_class = "test.scala_test.CustomReporter"
 )
