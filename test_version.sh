@@ -102,7 +102,7 @@ dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 # shellcheck source=./test_runner.sh
 . "${dir}"/test/shell/test_runner.sh
 runner=$(get_test_runner "${1:-local}")
-
+export USE_BAZEL_VERSION=${USE_BAZEL_VERSION:-$(cat $dir/.bazelversion)}
 $runner test_scala_version "${scala_2_11_version}"
 $runner test_scala_version "${scala_2_12_version}"
 
