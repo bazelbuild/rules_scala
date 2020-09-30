@@ -413,4 +413,62 @@ artifacts = {
         "artifact": "javax.annotation:javax.annotation-api:1.3.2",
         "sha256": "e04ba5195bcd555dc95650f7cc614d151e4bcd52d29a10b8aa2197f3ab89ab9b",
     },
+
+    # test only
+    "com_twitter__scalding_date": {
+        "testonly": True,
+        "artifact": "com.twitter:scalding-date_2.11:0.17.0",
+        "sha256": "bf743cd6d224a4568d6486a2b794143e23145d2afd7a1d2de412d49e45bdb308",
+    },
+    "org_typelevel__cats_core": {
+        "testonly": True,
+        "artifact": "org.typelevel:cats-core_2.11:0.9.0",
+        "sha256": "3fda7a27114b0d178107ace5c2cf04e91e9951810690421768e65038999ffca5",
+    },
+    "org_psywerx_hairyfotr__linter": {
+        "testonly": True,
+        "artifact": "org.psywerx.hairyfotr:linter_2.11:0.1.17",
+        "sha256": "44a7dcc177cff78ed21ccbfa05309db4198992c84261f8a7818ebc5546499e8e",
+    },
+    "com_google_guava_guava_21_0_with_file": {
+        "testonly": True,
+        "artifact": "com.google.guava:guava:21.0",
+        "sha256": "972139718abc8a4893fa78cba8cf7b2c903f35c97aaf44fa3031b0669948b480",
+    },
+    "com_github_jnr_jffi_native": {
+        "testonly": True,
+        "artifact": "com.github.jnr:jffi:jar:native:1.2.17",
+        "sha256": "4eb582bc99d96c8df92fc6f0f608fd123d278223982555ba16219bf8be9f75a9",
+    },
+    "org_apache_commons_commons_lang_3_5": {
+        "testonly": True,
+        "artifact": "org.apache.commons:commons-lang3:3.5",
+        "sha256": "8ac96fc686512d777fca85e144f196cd7cfe0c0aec23127229497d1a38ff651c",
+    },
+    "org_springframework_spring_core": {
+        "testonly": True,
+        "artifact": "org.springframework:spring-core:5.1.5.RELEASE",
+        "sha256": "f771b605019eb9d2cf8f60c25c050233e39487ff54d74c93d687ea8de8b7285a",
+    },
+    "org_springframework_spring_tx": {
+        "testonly": True,
+        "artifact": "org.springframework:spring-tx:5.1.5.RELEASE",
+        "sha256": "666f72b73c7e6b34e5bb92a0d77a14cdeef491c00fcb07a1e89eb62b08500135",
+        "deps": [
+            "@org_springframework_spring_core",
+        ],
+    },
+    "com_google_guava_guava_21_0": {
+        "testonly": True,
+        "artifact": "com.google.guava:guava:21.0",
+        "sha256": "972139718abc8a4893fa78cba8cf7b2c903f35c97aaf44fa3031b0669948b480",
+        "deps": [
+            "@org_springframework_spring_core",
+        ],
+    },
+    "org_spire_math_kind_projector": {
+        "testonly": True,
+        "artifact": "org.spire-math:kind-projector_2.11:0.9.10",
+        "sha256": "897460d4488b7dd6ac9198937d6417b36cc6ec8ab3693fdf2c532652f26c4373",
+    },
 }

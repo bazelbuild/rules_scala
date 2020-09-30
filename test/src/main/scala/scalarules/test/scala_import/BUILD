@@ -13,6 +13,7 @@ scala_import(
 
 scala_import(
     name = "jffi_native_external",
+    testonly = True,
     jars = [
         "@com_github_jnr_jffi_native//jar",
     ],
@@ -44,6 +45,7 @@ scala_specs2_junit_test(
 
 scala_library(
     name = "source_jar_not_oncp",
+    testonly = True,
     srcs = ["ReferCatsImplicits.scala"],
     # jvm_maven_import_external doesn't fetch source jars automatically
     deps = ["@org_typelevel__cats_core//jar"],
@@ -52,6 +54,7 @@ scala_library(
 ##Runtime deps
 scala_import(
     name = "indirection_for_transitive_runtime_deps",
+    testonly = True,
     jars = [],
     # jvm_maven_import_external doesn't fetch source jars automatically
     deps = ["@org_typelevel__cats_core//jar"],
@@ -59,6 +62,7 @@ scala_import(
 
 scala_import(
     name = "cats_and_guava_and_commons_lang_as_runtime_deps",
+    testonly = True,
     jars = [],
     runtime_deps = [
         ":guava_and_commons_lang",

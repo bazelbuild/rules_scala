@@ -6,28 +6,33 @@ load("//scala:scala_import.bzl", "scala_import")
 
 scala_import(
     name = "dummy_dependency_to_trigger_create_provider_transitive_compile_jar_usage",
+    testonly = True,
     jars = ["@org_psywerx_hairyfotr__linter//jar"],
 )
 
 scala_import(
     name = "guava",
+    testonly = True,
     jars = ["@com_google_guava_guava_21_0_with_file//jar"],
     deps = [":dummy_dependency_to_trigger_create_provider_transitive_compile_jar_usage"],
 )
 
 scala_import(
     name = "cats",
+    testonly = True,
     jars = ["@org_typelevel__cats_core//jar"],
 )
 
 scala_import(
     name = "indirection_for_transitive_compile_deps",
+    testonly = True,
     jars = [],
     deps = [":cats"],
 )
 
 scala_import(
     name = "commons_lang_as_imported_jar_cats_and_guava_as_compile_deps",
+    testonly = True,
     jars = ["@org_apache_commons_commons_lang_3_5//jar"],
     deps = [
         ":guava",

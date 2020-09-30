@@ -4,6 +4,7 @@ load("//scala:scala.bzl", "scala_library", "scala_test")
 
 scala_library(
     name = "transitive_external_dependency_user",
+    testonly = True,
     srcs = [
         "A.scala",
     ],
@@ -12,6 +13,7 @@ scala_library(
 
 scala_library(
     name = "external_dependency_user",
+    testonly = True,
     srcs = [
         "B.scala",
     ],
@@ -20,6 +22,7 @@ scala_library(
 
 scala_library(
     name = "transitive_external_dependency_user_file_group",
+    testonly = True,
     srcs = [
         "A.scala",
     ],
@@ -28,6 +31,7 @@ scala_library(
 
 scala_library(
     name = "external_dependency_user_file_group",
+    testonly = True,
     srcs = [
         "B.scala",
     ],
