@@ -10,3 +10,12 @@ scala_test(
     srcs = ["B.scala"],
     deps = [":a"],
 )
+
+scala_test(
+    name = "custom_reporter",
+    srcs = [
+        "A.scala",
+        "CustomReporter.scala",
+    ],
+    reporter_class = "test.scala_test.CustomReporter",
+)
