@@ -30,11 +30,9 @@ scala_repositories(
     fetch_sources = True
 )
 
-load("@io_bazel_rules_scala//twitter_scrooge:twitter_scrooge.bzl", "twitter_scrooge", "scrooge_scala_library")
-
-${twitter_scrooge_version_shas}
-${twitter_scrooge_extra_imports}
-${twitter_scrooge_bindings}
+load("@io_bazel_rules_scala//twitter_scrooge:twitter_scrooge.bzl", "twitter_scrooge")
+${twitter_scrooge_artifacts}
+twitter_scrooge(scala_version, overriden_artifacts = twitter_scrooge_artifacts)
 
 load("@io_bazel_rules_scala//tut_rule:tut.bzl", "tut_repositories")
 

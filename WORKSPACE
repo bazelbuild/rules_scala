@@ -27,7 +27,7 @@ scala_repositories(fetch_sources = True)
 
 load("//scala:scala_cross_version.bzl", "default_maven_server_urls")
 load("//scala:scala_maven_import_external.bzl", "scala_maven_import_external")
-load("//twitter_scrooge:twitter_scrooge.bzl", "scrooge_scala_library", "twitter_scrooge")
+load("//twitter_scrooge:twitter_scrooge.bzl", "twitter_scrooge")
 
 twitter_scrooge()
 
