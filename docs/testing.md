@@ -1,6 +1,20 @@
 ## Testing toolchain configuration
 
-Toolchain type `testing_toolchain_type` is used to set up test dependencies. 
+Toolchain type `testing_toolchain_type` is used to set up test dependencies. You can customize
+test dependencies by defining a custom testing toolchain.
+
+In your `WORKSPACE` default repositories and toolchains can be loaded via:
+```starlark
+# JUnit 4
+load("@io_bazel_rules_scala//testing:junit.bzl", "junit_repositories", "junit_toolchain")
+junit_repositories()
+junit_toolchain()
+
+# ScalaTest
+load(""@io_bazel_rules_scala//testing:scalatest.bzl", "scalatest_repositories", "scalatest_toolchain")
+scalatest_repositories()
+scalatest_toolchain()
+```
 
 ### Example to set up JUnit dependencies
 
@@ -72,17 +86,4 @@ Toolchain must be registered in your `WORKSPACE` file:
 register_toolchains('//my/package:testing_toolchain')
 ```
 
-Single toolchain can be used to configure multiple testing rules (JUnit 4, ScalaTest). Default 
-repositories and toolchains in your `WORKSPACE` can be loaded via:
-```starlark
-# JUnit 4
-load("//testing:junit.bzl", "junit_repositories", "junit_toolchain")
-junit_repositories()
-junit_toolchain()
-
-# ScalaTest
-load("//testing:scalatest.bzl", "scalatest_repositories", "scalatest_toolchain")
-scalatest_repositories()
-scalatest_toolchain()
-```
-
+Single toolchain can be used to configure multiple testing rules (JUnit 4, ScalaTest).
