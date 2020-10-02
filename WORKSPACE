@@ -159,12 +159,22 @@ rbe_autoconfig(
 
 load("//third_party/repositories:repositories.bzl", "repositories")
 
+jvm_maven_import_external(
+    name = "org_typelevel__cats_core",
+    artifact = scala_mvn_artifact(
+        "org.typelevel:cats-core:0.9.0",
+        default_scala_major_version(),
+    ),
+    artifact_sha256 = "3ca705cba9dc0632e60477d80779006f8c636c0e2e229dda3410a0c314c1ea1d",
+    server_urls = MAVEN_SERVER_URLS,
+)
+
 repositories(
     for_artifact_ids = [
         # test adding a scala jar:
         "com_twitter__scalding_date",
         # For testing that we don't include sources jars to the classpath
-        "org_typelevel__cats_core",
+        #        "org_typelevel__cats_core",
         # test of a plugin
         "org_psywerx_hairyfotr__linter",
         # test of strict deps (scalac plugin UT + E2E)
