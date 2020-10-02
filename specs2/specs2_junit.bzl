@@ -4,7 +4,7 @@ load(
     "specs2_repositories",
     "specs2_version",
 )
-load("//junit:junit.bzl", "junit_repositories")
+load("//testing:junit.bzl", "junit_repositories")
 load(
     "//scala:scala_cross_version.bzl",
     _default_maven_server_urls = "default_maven_server_urls",

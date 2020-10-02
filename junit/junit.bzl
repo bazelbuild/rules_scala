@@ -31,5 +31,3 @@ def junit_repositories(maven_servers = _default_maven_server_urls()):
         name = "io_bazel_rules_scala/dependency/hamcrest/hamcrest_core",
         actual = "@io_bazel_rules_scala_org_hamcrest_hamcrest_core//jar",
     )
-
-    native.register_toolchains("@io_bazel_rules_scala//testing:testing_toolchain")

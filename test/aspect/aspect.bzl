@@ -28,7 +28,7 @@ def _rule_impl(ctx):
         "scala_test": [
             "//test/aspect:scala_test",
             "//scala/private/toolchain_deps:scala_library_classpath",
-            "@io_bazel_rules_scala//scala/scalatest:scalatest",
+            "//testing/toolchain:scalatest_classpath",
         ],
         "scala_junit_test": [
             "//test/aspect:scala_junit_test",

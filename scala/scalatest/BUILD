@@ -2,11 +2,7 @@ package(default_visibility = ["//visibility:public"])
 
 load("//scala:scala_import.bzl", "scala_import")
 
-scala_import(
+alias(
     name = "scalatest",
-    jars = [],
-    exports = [
-        "//external:io_bazel_rules_scala/dependency/scala/scalactic/scalactic",
-        "//external:io_bazel_rules_scala/dependency/scala/scalatest/scalatest",
-    ],
+    actual = "//testing/toolchain:scalatest_classpath",
 )
