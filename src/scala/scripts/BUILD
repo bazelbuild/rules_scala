@@ -9,7 +9,7 @@ scala_library(
         "//src/java/io/bazel/rulesscala/jar",
         "//src/java/io/bazel/rulesscala/worker",
         "//src/scala/io/bazel/rules_scala/scrooge_support:compiler",
-        "//twitter_scrooge:scrooge_generator",
+        "//twitter_scrooge:scrooge_generator_classpath",
     ],
 )
 

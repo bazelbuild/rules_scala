@@ -18,7 +18,7 @@ scrooge_toolchain = rule(
                 "@io_bazel_rules_scala//twitter_scrooge:compile_classpath_provider",
                 "@io_bazel_rules_scala//twitter_scrooge:aspect_compile_classpath_provider",
                 "@io_bazel_rules_scala//twitter_scrooge:compiler_classpath_provider",
-                "@io_bazel_rules_scala//twitter_scrooge:scrooge_generator_provider",
+                "@io_bazel_rules_scala//twitter_scrooge:scrooge_generator_classpath_provider",
             ],
             providers = [DepsInfo],
         ),

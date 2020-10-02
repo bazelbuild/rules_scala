@@ -38,8 +38,8 @@ declare_deps_provider(
 )
 
 declare_deps_provider(
-    name = "scrooge_generator_provider",
-    deps_id = "scrooge_generator",
+    name = "scrooge_generator_classpath_provider",
+    deps_id = "scrooge_generator_classpath",
     visibility = ["//visibility:public"],
     deps = [
         "//external:io_bazel_rules_scala/dependency/thrift/scrooge_generator",
@@ -71,8 +71,8 @@ export_scrooge_deps(
 )
 
 export_scrooge_deps(
-    name = "scrooge_generator",
-    deps_id = "scrooge_generator",
+    name = "scrooge_generator_classpath",
+    deps_id = "scrooge_generator_classpath",
     visibility = ["//visibility:public"],
 )
 
