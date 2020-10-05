@@ -423,7 +423,7 @@ def _scrooge_java_aspect_impl(target, ctx):
 common_attrs = {
     "_pluck_scrooge_scala": attr.label(
         executable = True,
-        cfg = "host",
+        cfg = "exec",
         default = Label("//src/scala/scripts:scrooge_worker"),
         allow_files = True,
     ),
@@ -452,6 +452,7 @@ scrooge_scala_aspect = aspect(
                 default = Label(
                     "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac",
                 ),
+                cfg = "exec",
             ),
         },
     ),
@@ -469,7 +470,10 @@ scrooge_java_aspect = aspect(
         common_attrs,
         {
             "_java_toolchain": attr.label(default = Label("@bazel_tools//tools/jdk:current_java_toolchain")),
-            "_host_javabase": attr.label(default = Label("@bazel_tools//tools/jdk:current_java_runtime"), cfg = "host"),
+            "_host_javabase": attr.label(
+                default = Label("@bazel_tools//tools/jdk:current_java_runtime"),
+                cfg = "exec",
+            ),
         },
     ),
     required_aspect_providers = common_aspect_providers,
