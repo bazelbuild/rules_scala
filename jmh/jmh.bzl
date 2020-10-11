@@ -1,77 +1,52 @@
 load("//scala:scala.bzl", "scala_binary", "scala_library")
 load(
     "//scala:scala_cross_version.bzl",
-    _default_maven_server_urls = "default_maven_server_urls",
+    "default_maven_server_urls",
+    "default_scala_version",
 )
-load(
-    "@io_bazel_rules_scala//scala:scala_maven_import_external.bzl",
-    _scala_maven_import_external = "scala_maven_import_external",
-)
+load("//third_party/repositories:repositories.bzl", "repositories")
 
-def jmh_repositories(maven_servers = _default_maven_server_urls()):
-    _scala_maven_import_external(
-        name = "io_bazel_rules_scala_org_openjdk_jmh_jmh_core",
-        artifact = "org.openjdk.jmh:jmh-core:1.20",
-        artifact_sha256 = "1688db5110ea6413bf63662113ed38084106ab1149e020c58c5ac22b91b842ca",
-        licenses = ["notice"],
-        server_urls = maven_servers,
+def jmh_repositories(
+        scala_version = default_scala_version(),
+        maven_servers = default_maven_server_urls(),
+        overriden_artifacts = {}):
+    repositories(
+        for_artifact_ids = [
+            "io_bazel_rules_scala_org_openjdk_jmh_jmh_core",
+            "io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_asm",
+            "io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_reflection",
+            "io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_reflection",
+            "io_bazel_rules_scala_org_ows2_asm_asm",
+            "io_bazel_rules_scala_net_sf_jopt_simple_jopt_simple",
+            "io_bazel_rules_scala_org_apache_commons_commons_math3",
+        ],
+        fetch_sources = False,
+        scala_version = scala_version,
+        maven_servers = maven_servers,
+        overriden_artifacts = {},
     )
+
     native.bind(
         name = "io_bazel_rules_scala/dependency/jmh/jmh_core",
         actual = "@io_bazel_rules_scala_org_openjdk_jmh_jmh_core//jar",
     )
-    _scala_maven_import_external(
-        name = "io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_asm",
-        artifact = "org.openjdk.jmh:jmh-generator-asm:1.20",
-        artifact_sha256 = "2dd4798b0c9120326310cda3864cc2e0035b8476346713d54a28d1adab1414a5",
-        licenses = ["notice"],
-        server_urls = maven_servers,
-    )
     native.bind(
         name = "io_bazel_rules_scala/dependency/jmh/jmh_generator_asm",
         actual = "@io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_asm//jar",
-    )
-    _scala_maven_import_external(
-        name = "io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_reflection",
-        artifact = "org.openjdk.jmh:jmh-generator-reflection:1.20",
-        artifact_sha256 = "57706f7c8278272594a9afc42753aaf9ba0ba05980bae0673b8195908d21204e",
-        licenses = ["notice"],
-        server_urls = maven_servers,
     )
     native.bind(
         name = "io_bazel_rules_scala/dependency/jmh/jmh_generator_reflection",
         actual =
             "@io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_reflection//jar",
     )
-    _scala_maven_import_external(
-        name = "io_bazel_rules_scala_org_ows2_asm_asm",
-        artifact = "org.ow2.asm:asm:6.1.1",
-        artifact_sha256 = "dd3b546415dd4bade2ebe3b47c7828ab0623ee2336604068e2d81023f9f8d833",
-        licenses = ["notice"],
-        server_urls = maven_servers,
-    )
     native.bind(
         name = "io_bazel_rules_scala/dependency/jmh/org_ows2_asm_asm",
         actual = "@io_bazel_rules_scala_org_ows2_asm_asm//jar",
-    )
-    _scala_maven_import_external(
-        name = "io_bazel_rules_scala_net_sf_jopt_simple_jopt_simple",
-        artifact = "net.sf.jopt-simple:jopt-simple:4.6",
-        artifact_sha256 = "3fcfbe3203c2ea521bf7640484fd35d6303186ea2e08e72f032d640ca067ffda",
-        licenses = ["notice"],
-        server_urls = maven_servers,
     )
     native.bind(
         name =
             "io_bazel_rules_scala/dependency/jmh/net_sf_jopt_simple_jopt_simple",
         actual = "@io_bazel_rules_scala_net_sf_jopt_simple_jopt_simple//jar",
-    )
-    _scala_maven_import_external(
-        name = "io_bazel_rules_scala_org_apache_commons_commons_math3",
-        artifact = "org.apache.commons:commons-math3:3.6.1",
-        artifact_sha256 = "1e56d7b058d28b65abd256b8458e3885b674c1d588fa43cd7d1cbb9c7ef2b308",
-        licenses = ["notice"],
-        server_urls = maven_servers,
     )
     native.bind(
         name =

@@ -3,30 +3,14 @@
 set -e
 
 scala_2_11_version="2.11.12"
-scala_2_11_shas='\
-  "scala_compiler": "3e892546b72ab547cb77de4d840bcfd05c853e73390fed7370a8f19acb0735a0", \
-  "scala_library": "0b3d6fd42958ee98715ba2ec5fe221f4ca1e694d7c981b0ae0cd68e97baf6dce", \
-  "scala_reflect": "6ba385b450a6311a15c918cf8688b9af9327c6104f0ecbd35933cfcd3095fe04" \
-'
-scala_2_12_version="2.12.10"
-scala_2_12_shas='\
-  "scala_compiler": "cedc3b9c39d215a9a3ffc0cc75a1d784b51e9edc7f13051a1b4ad5ae22cfbc0c", \
-  "scala_library": "0a57044d10895f8d3dd66ad4286891f607169d948845ac51e17b4c1cf0ab569d", \
-  "scala_reflect": "56b609e1bab9144fb51525bfa01ccd72028154fc40a58685a1e9adcbe7835730" \
-'
+scala_2_12_version="2.12.11"
 
 SCALA_VERSION_DEFAULT=$scala_2_11_version
 SCALA_VERSION_SHAS_DEFAULT=$scala_2_11_shas
-TWITTER_SCROOGE_VERSION_SHAS_DEFAULT=''
-TWITTER_SCROOGE_EXTRA_IMPORTS_DEFAULT=''
-TWITTER_SCROOGE_BINDINGS_DEFAULT='twitter_scrooge(scala_version)'
+TWITTER_SCROOGE_ARTIFACTS='twitter_scrooge_artifacts={}'
 
 run_in_test_repo() {
   local SCALA_VERSION=${SCALA_VERSION:-$SCALA_VERSION_DEFAULT}
-  local SCALA_VERSION_SHAS=${SCALA_VERSION_SHAS:-$SCALA_VERSION_SHAS_DEFAULT}
-  local TWITTER_SCROOGE_BINDINGS=${TWITTER_SCROOGE_BINDINGS:-$TWITTER_SCROOGE_BINDINGS_DEFAULT}
-  local TWITTER_SCROOGE_EXTRA_IMPORTS=${TWITTER_SCROOGE_EXTRA_IMPORTS:-$TWITTER_SCROOGE_EXTRA_IMPORTS_DEFAULT}
-  local TWITTER_SCROOGE_VERSION_SHAS=${TWITTER_SCROOGE_VERSION_SHAS:-$TWITTER_SCROOGE_VERSION_SHAS_DEFAULT}
 
   local test_command=$1
   local test_dir_prefix=$2
@@ -41,10 +25,7 @@ run_in_test_repo() {
 
   sed \
       -e "s/\${scala_version}/$SCALA_VERSION/" \
-      -e "s%\${scala_version_shas}%$SCALA_VERSION_SHAS%" \
-      -e "s%\${twitter_scrooge_bindings}%$TWITTER_SCROOGE_BINDINGS%" \
-      -e "s%\${twitter_scrooge_extra_imports}%$TWITTER_SCROOGE_EXTRA_IMPORTS%" \
-      -e "s%\${twitter_scrooge_version_shas}%$TWITTER_SCROOGE_VERSION_SHAS%" \
+      -e "s%\${twitter_scrooge_artifacts}%$TWITTER_SCROOGE_ARTIFACTS%" \
       WORKSPACE.template >> $NEW_TEST_DIR/WORKSPACE
 
   cd $NEW_TEST_DIR
@@ -72,23 +53,59 @@ test_scala_version() {
 test_twitter_scrooge_versions() {
   local version_under_test=$1
 
-  local TWITTER_SCROOGE_VERSION_SHAS='twitter_scrooge_version_shas= {\
-  "18.6.0": { \
-    "scrooge-generator": "0f0027e815e67985895a6f3caa137f02366ceeea4966498f34fb82cabb11dee6", \
-    "scrooge-core": "00351f73b555d61cfe7320ef3b1367a9641e694cfb8dfa8a733cfcf49df872e8", \
-    "util-core": "5336da4846dfc3db8ffe5ae076be1021828cfee35aa17bda9af461e203cf265c", \
-    "util-logging": "73ddd61cedabd4dab82b30e6c52c1be6c692b063b8ba310d716ead9e3b4e9267" \
-  }, \
-  "20.5.0": { \
-    "scrooge-generator": "a4cf7dd773e8c2ee0ccad52be1ebd4ae8a9defcbc9be28e370e44a46a34a005a", \
-    "scrooge-core": "b1aa0f3b9f10287644f1edc47b79a67b287656d97fbd157a806d69c82b27e21d", \
-    "util-core": "253cc631d3766e978bafd60dcee6976f7cf46d80106882c7b55b969ab14e3d7c", \
-    "util-logging": "77782dad82e4066a2b8aa1aa6c07c8c2d111f65365833a88592e303464a98654" \
-  } \
+  local TWITTER_SCROOGE_ARTIFACTS_18_6_0='twitter_scrooge_artifacts={ \
+    "io_bazel_rules_scala_scrooge_core": {\
+        "artifact": "com.twitter:scrooge-core_2.11:18.6.0",\
+        "sha256": "00351f73b555d61cfe7320ef3b1367a9641e694cfb8dfa8a733cfcf49df872e8",\
+    },\
+    "io_bazel_rules_scala_scrooge_generator": {\
+        "artifact": "com.twitter:scrooge-generator_2.11:18.6.0",\
+        "sha256": "0f0027e815e67985895a6f3caa137f02366ceeea4966498f34fb82cabb11dee6",\
+        "runtime_deps": [\
+            "@io_bazel_rules_scala_guava",\
+            "@io_bazel_rules_scala_mustache",\
+        ],\
+    },\
+    "io_bazel_rules_scala_util_core": {\
+        "artifact": "com.twitter:util-core_2.11:18.6.0",\
+        "sha256": "5336da4846dfc3db8ffe5ae076be1021828cfee35aa17bda9af461e203cf265c",\
+    },\
+    "io_bazel_rules_scala_util_logging": {\
+        "artifact": "com.twitter:util-logging_2.11:18.6.0",\
+        "sha256": "73ddd61cedabd4dab82b30e6c52c1be6c692b063b8ba310d716ead9e3b4e9267",\
+    },\
 }'
 
-  local TWITTER_SCROOGE_EXTRA_IMPORTS="load(\"//twitter_scrooge:twitter_scrooge_bindings.bzl\", \"twitter_scrooge_with_custom_dep_version\")"
-  local TWITTER_SCROOGE_BINDINGS="twitter_scrooge_with_custom_dep_version(\"${version_under_test}\", scala_version, twitter_scrooge_version_shas)"
+  local TWITTER_SCROOGE_ARTIFACTS_20_5_0='twitter_scrooge_artifacts={ \
+    "io_bazel_rules_scala_scrooge_core": {\
+        "artifact": "com.twitter:scrooge-core_2.11:20.5.0",\
+        "sha256": "b1aa0f3b9f10287644f1edc47b79a67b287656d97fbd157a806d69c82b27e21d",\
+    },\
+    "io_bazel_rules_scala_scrooge_generator": {\
+        "artifact": "com.twitter:scrooge-generator_2.11:20.5.0",\
+        "sha256": "a4cf7dd773e8c2ee0ccad52be1ebd4ae8a9defcbc9be28e370e44a46a34a005a",\
+        "runtime_deps": [\
+            "@io_bazel_rules_scala_guava",\
+            "@io_bazel_rules_scala_mustache",\
+        ],\
+    },\
+    "io_bazel_rules_scala_util_core": {\
+        "artifact": "com.twitter:util-core_2.11:20.5.0",\
+        "sha256": "253cc631d3766e978bafd60dcee6976f7cf46d80106882c7b55b969ab14e3d7c",\
+    },\
+    "io_bazel_rules_scala_util_logging": {\
+        "artifact": "com.twitter:util-logging_2.11:20.5.0",\
+        "sha256": "77782dad82e4066a2b8aa1aa6c07c8c2d111f65365833a88592e303464a98654",\
+    },\
+}'
+
+  if [ "18.6.0" = $version_under_test ]; then
+    TWITTER_SCROOGE_ARTIFACTS=$TWITTER_SCROOGE_ARTIFACTS_18_6_0
+  elif [ "20.5.0" = $version_under_test ]; then
+    TWITTER_SCROOGE_ARTIFACTS=$TWITTER_SCROOGE_ARTIFACTS_20_5_0
+  else
+    echo "Unknown Twitter Scrooge version given $version_under_test"
+  fi
 
   run_in_test_repo "test //twitter_scrooge/... --test_arg=${version_under_test}" "scrooge_version"
 }
