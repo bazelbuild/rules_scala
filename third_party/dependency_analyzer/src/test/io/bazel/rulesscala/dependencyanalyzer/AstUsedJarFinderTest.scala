@@ -270,7 +270,7 @@ class AstUsedJarFinderTest extends FunSuite {
       aCode =
         s"""
            |class A(
-           |)
+           |) extends scala.annotation.Annotation
            |""".stripMargin,
       bCode =
         s"""
@@ -286,7 +286,7 @@ class AstUsedJarFinderTest extends FunSuite {
       aCode =
         s"""
            |class A(
-           |)
+           |) extends scala.annotation.Annotation
            |""".stripMargin,
       bCode =
         s"""
@@ -342,7 +342,7 @@ class AstUsedJarFinderTest extends FunSuite {
   test("classOf in class annotation is direct") {
     checkDirectDependencyRecognized(
       aCode = "class A",
-      bCode = "class B(a: Any)",
+      bCode = "class B(a: Any) extends scala.annotation.Annotation",
       cCode =
         s"""
            |@B(classOf[A])
