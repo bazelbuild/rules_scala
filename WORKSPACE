@@ -178,13 +178,12 @@ jvm_maven_import_external(
 )
 
 repositories(
+    fetch_sources = False,
     for_artifact_ids = [
         # test adding a scala jar:
         "com_twitter__scalding_date",
         # For testing that we don't include sources jars to the classpath
         #        "org_typelevel__cats_core",
-        # test of a plugin
-        "org_psywerx_hairyfotr__linter",
         # test of strict deps (scalac plugin UT + E2E)
         "com_google_guava_guava_21_0_with_file",
         "com_github_jnr_jffi_native",
