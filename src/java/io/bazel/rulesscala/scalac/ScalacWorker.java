@@ -250,7 +250,6 @@ class ScalacWorker implements Worker.Interface {
     }
 
     if (reporter.hasErrors()) {
-      reporter.finish();
       reporter.flush();
       throw new RuntimeException("Build failed");
     }
