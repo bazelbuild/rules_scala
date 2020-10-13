@@ -47,7 +47,6 @@ scala_library(
     name = "source_jar_not_oncp",
     testonly = True,
     srcs = ["ReferCatsImplicits.scala"],
-    # jvm_maven_import_external doesn't fetch source jars automatically
     deps = ["@org_typelevel__cats_core//jar"],
 )
 
@@ -56,7 +55,6 @@ scala_import(
     name = "indirection_for_transitive_runtime_deps",
     testonly = True,
     jars = [],
-    # jvm_maven_import_external doesn't fetch source jars automatically
     deps = ["@org_typelevel__cats_core//jar"],
 )
 
@@ -75,7 +73,10 @@ scala_specs2_junit_test(
     size = "small",
     srcs = ["ScalaImportPropagatesRuntimeDepsTest.scala"],
     suffixes = ["Test"],
-    runtime_deps = [":cats_and_guava_and_commons_lang_as_runtime_deps"],
+    runtime_deps = [
+        ":cats_and_guava_and_commons_lang_as_runtime_deps",
+        "@org_typelevel__cats_core//jar",
+    ],
 )
 
 java_import(
