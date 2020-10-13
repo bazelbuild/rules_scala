@@ -1,10 +1,8 @@
 package third_party.dependency_analyzer.src.main.io.bazel.rulesscala.dependencyanalyzer
 
 import scala.reflect.io.AbstractFile
-import scala.tools.nsc.plugins.Plugin
-import scala.tools.nsc.plugins.PluginComponent
-import scala.tools.nsc.Global
-import scala.tools.nsc.Phase
+import scala.tools.nsc.{Global, Phase}
+import scala.tools.nsc.plugins.{Plugin, PluginComponent}
 
 class DependencyAnalyzer(val global: Global) extends Plugin {
 
@@ -148,13 +146,13 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
     errors: Map[String, global.Position]
   ): Unit = {
     val reportFunction: (String, global.Position) => Unit = analyzerMode match {
-      case AnalyzerMode.Error =>
-        { case (message, pos) =>
-          global.reporter.error(pos, message)
-        }
-      case AnalyzerMode.Warn =>
-      { case (message, pos) =>
-        global.reporter.warning(pos, message)
+      case AnalyzerMode.Error => {
+        case (message, pos) =>
+          global.reporter.doReport(pos, message, global.reporter.ERROR)
+      }
+      case AnalyzerMode.Warn => {
+        case (message, pos) =>
+          global.reporter.doReport(pos, message, global.reporter.WARNING)
       }
       case AnalyzerMode.Off => (_, _) => ()
     }
