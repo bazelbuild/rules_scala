@@ -74,7 +74,7 @@ def _compile_scala(
     # method bodies
     compile_scala(
         ctx,
-        Label("%s-fast" % (label)),
+        label,
         output,
         manifest,
         statsfile,
