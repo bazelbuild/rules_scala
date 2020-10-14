@@ -8,7 +8,7 @@ def _scala_proto_toolchain_impl(ctx):
         blacklisted_protos = ctx.attr.blacklisted_protos,
         code_generator = ctx.attr.code_generator,
         extra_generator_dependencies = ctx.attr.extra_generator_dependencies,
-        scalac = ctx.attr.scalac,
+        scalac = ctx.executable.scalac,
         named_generators = ctx.attr.named_generators,
     )
     return [toolchain]
@@ -37,9 +37,10 @@ scala_proto_toolchain = rule(
             providers = [JavaInfo],
         ),
         "scalac": attr.label(
-            default = Label(
-                "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac",
-            ),
+            executable = True,
+            cfg = "host",
+            default = Label("@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac"),
+            allow_files = True,
         ),
     },
 )

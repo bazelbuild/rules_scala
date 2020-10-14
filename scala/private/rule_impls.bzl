@@ -177,16 +177,12 @@ DiagnosticsFile: {diagnostics_output}
         content = scalac_args + optional_scalac_args,
     )
 
-    scalac_inputs, _, scalac_input_manifests = ctx.resolve_command(
-        tools = [scalac],
-    )
-
     outs = [output, statsfile, diagnosticsfile]
 
     ins = (
         compiler_classpath_jars.to_list() + all_srcjars.to_list() + list(sources) +
         plugins_list + internal_plugin_jars + classpath_resources + resources +
-        resource_jars + [manifest, argfile] + scalac_inputs
+        resource_jars + [manifest, argfile]
     )
 
     # scalac_jvm_flags passed in on the target override scalac_jvm_flags passed in on the
@@ -199,8 +195,7 @@ DiagnosticsFile: {diagnostics_output}
         ctx.actions.run(
             inputs = ins,
             outputs = outs,
-            executable = scalac.files_to_run.executable,
-            input_manifests = scalac_input_manifests,
+            executable = scalac,
             mnemonic = "Scalac",
             progress_message = "scala %s" % target_label,
             execution_requirements = {"supports-workers": "1"},
@@ -222,8 +217,7 @@ DiagnosticsFile: {diagnostics_output}
         ctx.actions.run(
             inputs = ins,
             outputs = outs,
-            executable = scalac.files_to_run.executable,
-            input_manifests = scalac_input_manifests,
+            executable = scalac,
             mnemonic = "Scalac",
             progress_message = "scala %s" % target_label,
             execution_requirements = {"supports-workers": "1"},

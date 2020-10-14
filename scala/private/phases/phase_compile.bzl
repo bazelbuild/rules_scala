@@ -204,7 +204,7 @@ def _compile_or_empty(
             ctx.attr.print_compile_time,
             ctx.attr.expect_java_output,
             ctx.attr.scalac_jvm_flags,
-            ctx.attr._scalac,
+            ctx.executable._scalac,
             dependency_info,
             unused_dependency_checker_ignored_targets,
         )
