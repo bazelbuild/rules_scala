@@ -14,4 +14,5 @@ test_scala_proto_library_action_label() {
   fi
 }
 
+export USE_BAZEL_VERSION=${USE_BAZEL_VERSION:-$(cat ../../../.bazelversion)}
 $runner test_scala_proto_library_action_label
