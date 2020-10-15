@@ -159,7 +159,8 @@ for an example workspace using another scala version.
 
 | minimal bazel version | rules_scala gitsha |
 |--------|--------------------|
-| 2.0.0  | HEAD               |
+| 3.5.0  | HEAD               |
+| 2.0.0  | 116709091e5e1aab3346184217b565f4cb7ba4eb |
 | 1.1.0  | d681a952da74fc61a49fc3167b03548f42fc5dde |
 | 0.28.1 | bd0c388125e12f4f173648fc4474f73160a5c628 |
 | 0.23.x | ca655e5a330cbf1d66ce1d9baa63522752ec6011 |
