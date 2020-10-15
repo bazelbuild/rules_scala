@@ -195,6 +195,7 @@ DiagnosticsFile: {diagnostics_output}
         ctx.actions.run(
             inputs = ins,
             outputs = outs,
+            tools = [scalac],
             executable = scalac,
             mnemonic = "Scalac",
             progress_message = "scala %s" % target_label,
@@ -217,6 +218,7 @@ DiagnosticsFile: {diagnostics_output}
         ctx.actions.run(
             inputs = ins,
             outputs = outs,
+            tools = [scalac],
             executable = scalac,
             mnemonic = "Scalac",
             progress_message = "scala %s" % target_label,
