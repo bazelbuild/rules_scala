@@ -1,0 +1,3 @@
+package neverlink
+
+class B
