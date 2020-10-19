@@ -219,6 +219,14 @@ scala_library(
 )
 
 scala_binary(
+    name = "test_binary_to_ensure_no_host_deps",
+    main_class = "scalarules.test.twitter_scrooge.JustScrooge2b",
+    deps = [
+        ":justscrooge2b",
+    ],
+)
+
+scala_binary(
     name = "twodeep_binary",
     main_class = "scalarules.test.twitter_scrooge.Twodeep",
     visibility = ["//visibility:public"],
