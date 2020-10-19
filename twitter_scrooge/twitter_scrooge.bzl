@@ -455,7 +455,7 @@ scrooge_scala_aspect = aspect(
         {
             "_scalac": attr.label(
                 executable = True,
-                cfg = "host",
+                cfg = "exec",
                 default = Label("@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac"),
                 allow_files = True,
             ),
