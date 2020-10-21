@@ -91,7 +91,7 @@ def compile_scala(
         indirect_jars = _join_path(transitive_cjars_list)
         indirect_targets = ",".join([str(labels[j.path]) for j in transitive_cjars_list])
 
-        args.add_joined("--IndirectJars", transitive_compile_jars, join_with = ",", omit_if_empty = False)
+        args.add_joined("--IndirectJars", transitive_compile_jars, join_with = ",")
         args.add("--IndirectTargets", indirect_targets)
 
     if dependency_info.unused_deps_mode != "off":
@@ -102,7 +102,7 @@ def compile_scala(
         cjars_list = cjars.to_list()
         if dependency_info.need_direct_jars:
             direct_jars = _join_path(cjars_list)
-            args.add_joined("--DirectJars", cjars_list, join_with = ",", omit_if_empty = False)
+            args.add_joined("--DirectJars", cjars_list, join_with = ",")
         if dependency_info.need_direct_targets:
             direct_targets = ",".join([str(labels[j.path]) for j in cjars_list])
             args.add("--DirectTargets", direct_targets)
@@ -112,19 +112,19 @@ def compile_scala(
     resource_paths = _resource_paths(resources, resource_strip_prefix)
     enable_diagnostics_report = toolchain.enable_diagnostics_report
 
-    args.add_joined("--Classpath", compiler_classpath_jars, join_with = ctx.configuration.host_path_separator, omit_if_empty = False)
-    args.add_joined("--ClasspathResourceSrcs", classpath_resources, join_with = ",", omit_if_empty = False)
-    args.add_joined("--Files", sources, join_with = ",", omit_if_empty = False)
+    args.add_joined("--Classpath", compiler_classpath_jars, join_with = ctx.configuration.host_path_separator)
+    args.add_joined("--ClasspathResourceSrcs", classpath_resources, join_with = ",")
+    args.add_joined("--Files", sources, join_with = ",")
     args.add("--JarOutput", output)
     args.add("--Manifest", manifest)
-    args.add_joined("--Plugins", plugins, join_with = ",", omit_if_empty = False)
+    args.add_joined("--Plugins", plugins, join_with = ",")
     args.add("--PrintCompileTime", print_compile_time)
     args.add("--ExpectJavaOutput", expect_java_output)
-    args.add_joined("--ResourceTargets", [p[0] for p in resource_paths], join_with = ",", omit_if_empty = False)
-    args.add_joined("--ResourceSources", [p[1] for p in resource_paths], join_with = ",", omit_if_empty = False)
-    args.add_joined("--ResourceJars", resource_jars, join_with = ",", omit_if_empty = False)
-    args.add_joined("--ScalacOpts", scalacopts, join_with = ":::", omit_if_empty = False)
-    args.add_joined("--SourceJars", all_srcjars, join_with = ",", omit_if_empty = False)
+    args.add_joined("--ResourceTargets", [p[0] for p in resource_paths], join_with = ",")
+    args.add_joined("--ResourceSources", [p[1] for p in resource_paths], join_with = ",")
+    args.add_joined("--ResourceJars", resource_jars, join_with = ",")
+    args.add_joined("--ScalacOpts", scalacopts, join_with = ":::")
+    args.add_joined("--SourceJars", all_srcjars, join_with = ",")
     args.add("--StrictDepsMode", dependency_info.strict_deps_mode)
     args.add("--UnusedDependencyCheckerMode", dependency_info.unused_deps_mode)
     args.add("--DependencyTrackingMethod", dependency_info.dependency_tracking_method)
