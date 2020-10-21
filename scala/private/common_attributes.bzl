@@ -40,6 +40,10 @@ common_attrs_for_plugin_bootstrapping = {
         default = False,
         mandatory = False,
     ),
+    "neverlink": attr.bool(
+        default = False,
+        mandatory = False,
+    ),
 }
 
 common_attrs = {}
