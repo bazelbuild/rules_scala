@@ -59,10 +59,6 @@ def compile_scala(
         dependency_info,
         unused_dependency_checker_ignored_targets):
 
-    args = ctx.actions.args()
-    args.set_param_file_format("multiline")
-    args.use_param_file(param_file_arg = "@%s", use_always = True)
-
     # look for any plugins:
     input_plugins = plugins
     plugins = _collect_plugin_paths(plugins)
@@ -75,12 +71,34 @@ def compile_scala(
         plugins = depset(transitive = [plugins, dep_plugin.files])
         internal_plugin_jars = ctx.files._dependency_analyzer_plugin
 
-    if dependency_info.need_indirect_info:
-        args.add_joined("--IndirectJars", transitive_compile_jars, join_with = ",")
-        args.add_joined("--IndirectTargets", [labels[j.path] for j in transitive_compile_jars.to_list()], join_with = ",")
+    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"]
+    scalacopts = [ctx.expand_location(v, input_plugins) for v in toolchain.scalacopts + in_scalacopts]
+    resource_paths = _resource_paths(resources, resource_strip_prefix)
+    enable_diagnostics_report = toolchain.enable_diagnostics_report
 
-    if dependency_info.unused_deps_mode != "off":
-        args.add_joined("--UnusedDepsIgnoredTargets", unused_dependency_checker_ignored_targets, join_with = ",")
+    args = ctx.actions.args()
+    args.set_param_file_format("multiline")
+    args.use_param_file(param_file_arg = "@%s", use_always = True)
+    args.add("--CurrentTarget", target_label)
+    args.add("--JarOutput", output)
+    args.add("--Manifest", manifest)
+    args.add("--PrintCompileTime", print_compile_time)
+    args.add("--ExpectJavaOutput", expect_java_output)
+    args.add("--StrictDepsMode", dependency_info.strict_deps_mode)
+    args.add("--UnusedDependencyCheckerMode", dependency_info.unused_deps_mode)
+    args.add("--DependencyTrackingMethod", dependency_info.dependency_tracking_method)
+    args.add("--StatsfileOutput", statsfile)
+    args.add("--EnableDiagnosticsReport", enable_diagnostics_report)
+    args.add("--DiagnosticsFile", diagnosticsfile)
+    args.add_joined("--Classpath", compiler_classpath_jars, join_with = ctx.configuration.host_path_separator)
+    args.add_joined("--ClasspathResourceSrcs", classpath_resources, join_with = ",")
+    args.add_joined("--Files", sources, join_with = ",")
+    args.add_joined("--Plugins", plugins, join_with = ",")
+    args.add_joined("--ResourceTargets", [p[0] for p in resource_paths], join_with = ",")
+    args.add_joined("--ResourceSources", [p[1] for p in resource_paths], join_with = ",")
+    args.add_joined("--ResourceJars", resource_jars, join_with = ",")
+    args.add_joined("--ScalacOpts", scalacopts, join_with = ":::")
+    args.add_joined("--SourceJars", all_srcjars, join_with = ",")
 
     if dependency_info.need_direct_info:
         if dependency_info.need_direct_jars:
@@ -88,31 +106,12 @@ def compile_scala(
         if dependency_info.need_direct_targets:
             args.add_joined("--DirectTargets", [labels[j.path] for j in cjars.to_list()], join_with = ",")
 
-    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"]
-    scalacopts = [ctx.expand_location(v, input_plugins) for v in toolchain.scalacopts + in_scalacopts]
-    resource_paths = _resource_paths(resources, resource_strip_prefix)
-    enable_diagnostics_report = toolchain.enable_diagnostics_report
+    if dependency_info.need_indirect_info:
+        args.add_joined("--IndirectJars", transitive_compile_jars, join_with = ",")
+        args.add_joined("--IndirectTargets", [labels[j.path] for j in transitive_compile_jars.to_list()], join_with = ",")
 
-    args.add("--CurrentTarget", target_label)
-    args.add_joined("--Classpath", compiler_classpath_jars, join_with = ctx.configuration.host_path_separator)
-    args.add_joined("--ClasspathResourceSrcs", classpath_resources, join_with = ",")
-    args.add_joined("--Files", sources, join_with = ",")
-    args.add("--JarOutput", output)
-    args.add("--Manifest", manifest)
-    args.add_joined("--Plugins", plugins, join_with = ",")
-    args.add("--PrintCompileTime", print_compile_time)
-    args.add("--ExpectJavaOutput", expect_java_output)
-    args.add_joined("--ResourceTargets", [p[0] for p in resource_paths], join_with = ",")
-    args.add_joined("--ResourceSources", [p[1] for p in resource_paths], join_with = ",")
-    args.add_joined("--ResourceJars", resource_jars, join_with = ",")
-    args.add_joined("--ScalacOpts", scalacopts, join_with = ":::")
-    args.add_joined("--SourceJars", all_srcjars, join_with = ",")
-    args.add("--StrictDepsMode", dependency_info.strict_deps_mode)
-    args.add("--UnusedDependencyCheckerMode", dependency_info.unused_deps_mode)
-    args.add("--DependencyTrackingMethod", dependency_info.dependency_tracking_method)
-    args.add("--StatsfileOutput", statsfile)
-    args.add("--EnableDiagnosticsReport", enable_diagnostics_report)
-    args.add("--DiagnosticsFile", diagnosticsfile)
+    if dependency_info.unused_deps_mode != "off":
+        args.add_joined("--UnusedDepsIgnoredTargets", unused_dependency_checker_ignored_targets, join_with = ",")
 
     outs = [output, statsfile, diagnosticsfile]
 
