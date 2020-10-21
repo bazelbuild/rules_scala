@@ -58,7 +58,6 @@ def compile_scala(
         scalac,
         dependency_info,
         unused_dependency_checker_ignored_targets):
-
     # look for any plugins:
     input_plugins = plugins
     plugins = _collect_plugin_paths(plugins)
@@ -113,7 +112,7 @@ def compile_scala(
 
     ins = depset(
         direct = [manifest] + sources + classpath_resources + resources + resource_jars + scalac_inputs,
-        transitive = [compiler_classpath_jars, all_srcjars, plugins]
+        transitive = [compiler_classpath_jars, all_srcjars, plugins],
     )
 
     # scalac_jvm_flags passed in on the target override scalac_jvm_flags passed in on the toolchain
