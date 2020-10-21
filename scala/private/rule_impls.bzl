@@ -77,9 +77,6 @@ def compile_scala(
         plugins = depset(transitive = [plugins, dep_plugin.files])
         internal_plugin_jars = ctx.files._dependency_analyzer_plugin
 
-        current_target = str(target_label)
-        args.add("--CurrentTarget", current_target)
-
     if dependency_info.need_indirect_info:
         args.add_joined("--IndirectJars", transitive_compile_jars, join_with = ",")
         args.add_joined("--IndirectTargets", [labels[j.path] for j in transitive_compile_jars.to_list()], join_with = ",")
@@ -98,6 +95,7 @@ def compile_scala(
     resource_paths = _resource_paths(resources, resource_strip_prefix)
     enable_diagnostics_report = toolchain.enable_diagnostics_report
 
+    args.add("--CurrentTarget", target_label)
     args.add_joined("--Classpath", compiler_classpath_jars, join_with = ctx.configuration.host_path_separator)
     args.add_joined("--ClasspathResourceSrcs", classpath_resources, join_with = ",")
     args.add_joined("--Files", sources, join_with = ",")
