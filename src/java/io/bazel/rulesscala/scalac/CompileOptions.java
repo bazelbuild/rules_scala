@@ -90,14 +90,12 @@ public class CompileOptions {
   }
 
   private static HashMap<String, String> buildArgMap(List<String> lines) {
-    HashMap hm = new HashMap();
-    for (String line : lines) {
-      String[] lSplit = line.split(": ");
-      if (lSplit.length > 2) {
-        throw new RuntimeException("Bad arg, should have at most 1 space/2 spans. arg: " + line);
-      }
-      if (lSplit.length > 1) {
-        hm.put(lSplit[0], lSplit[1]);
+    HashMap<String, String> hm = new HashMap<>();
+    for (int i = 0; i < lines.size() - 1; i += 2) {
+      String key = lines.get(i).substring(2);
+      String value = lines.get(i + 1);
+      if(!value.isEmpty()) {
+        hm.put(key, value);
       }
     }
     return hm;
