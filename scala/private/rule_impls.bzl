@@ -67,9 +67,7 @@ def compile_scala(
     input_plugins = plugins
     plugins = _collect_plugin_paths(plugins)
     internal_plugin_jars = []
-    compiler_classpath_jars = cjars
-    if dependency_info.dependency_mode != "direct":
-        compiler_classpath_jars = transitive_compile_jars
+    compiler_classpath_jars = cjars if dependency_info.dependency_mode == "direct" else transitive_compile_jars
     classpath_resources = getattr(ctx.files, "classpath_resources", [])
 
     if dependency_info.use_analyzer:
