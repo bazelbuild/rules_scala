@@ -28,9 +28,6 @@ def expand_location(ctx, flags):
         data = []
     return [ctx.expand_location(f, data) for f in flags]
 
-def _join_path(args, sep = ","):
-    return sep.join([f.path for f in args])
-
 # Return the first non-empty arg. If all are empty, return the last.
 def first_non_empty(*args):
     for arg in args:
@@ -87,25 +84,17 @@ def compile_scala(
         args.add("--CurrentTarget", current_target)
 
     if dependency_info.need_indirect_info:
-        transitive_cjars_list = transitive_compile_jars.to_list()
-        indirect_jars = _join_path(transitive_cjars_list)
-        indirect_targets = ",".join([str(labels[j.path]) for j in transitive_cjars_list])
-
         args.add_joined("--IndirectJars", transitive_compile_jars, join_with = ",")
-        args.add("--IndirectTargets", indirect_targets)
+        args.add_joined("--IndirectTargets", [labels[j.path] for j in transitive_compile_jars.to_list()], join_with = ",")
 
     if dependency_info.unused_deps_mode != "off":
-        ignored_targets = ",".join([str(d) for d in unused_dependency_checker_ignored_targets])
-        args.add("--UnusedDepsIgnoredTargets", ignored_targets)
+        args.add_joined("--UnusedDepsIgnoredTargets", unused_dependency_checker_ignored_targets, join_with = ",")
 
     if dependency_info.need_direct_info:
-        cjars_list = cjars.to_list()
         if dependency_info.need_direct_jars:
-            direct_jars = _join_path(cjars_list)
-            args.add_joined("--DirectJars", cjars_list, join_with = ",")
+            args.add_joined("--DirectJars", cjars, join_with = ",")
         if dependency_info.need_direct_targets:
-            direct_targets = ",".join([str(labels[j.path]) for j in cjars_list])
-            args.add("--DirectTargets", direct_targets)
+            args.add_joined("--DirectTargets", [labels[j.path] for j in cjars.to_list()], join_with = ",")
 
     toolchain = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"]
     scalacopts = [ctx.expand_location(v, input_plugins) for v in toolchain.scalacopts + in_scalacopts]
