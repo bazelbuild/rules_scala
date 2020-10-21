@@ -62,14 +62,12 @@ def compile_scala(
     # look for any plugins:
     input_plugins = plugins
     plugins = _collect_plugin_paths(plugins)
-    internal_plugin_jars = []
     compiler_classpath_jars = cjars if dependency_info.dependency_mode == "direct" else transitive_compile_jars
     classpath_resources = getattr(ctx.files, "classpath_resources", [])
 
     if dependency_info.use_analyzer:
         dep_plugin = ctx.attr._dependency_analyzer_plugin
         plugins = depset(transitive = [plugins, dep_plugin.files])
-        internal_plugin_jars = ctx.files._dependency_analyzer_plugin
 
     toolchain = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"]
     scalacopts = [ctx.expand_location(v, input_plugins) for v in toolchain.scalacopts + in_scalacopts]
@@ -116,7 +114,7 @@ def compile_scala(
     outs = [output, statsfile, diagnosticsfile]
 
     ins = depset(
-        direct = [manifest] + sources + internal_plugin_jars + classpath_resources + resources + resource_jars + scalac_inputs,
+        direct = [manifest] + sources + classpath_resources + resources + resource_jars + scalac_inputs,
         transitive = [compiler_classpath_jars, all_srcjars, plugins]
     )
 
