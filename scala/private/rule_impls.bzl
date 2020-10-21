@@ -62,14 +62,12 @@ def compile_scala(
     # look for any plugins:
     input_plugins = plugins
     plugins = _collect_plugin_paths(plugins)
-    compiler_classpath_jars = cjars if dependency_info.dependency_mode == "direct" else transitive_compile_jars
-    classpath_resources = getattr(ctx.files, "classpath_resources", [])
-
     if dependency_info.use_analyzer:
-        dep_plugin = ctx.attr._dependency_analyzer_plugin
-        plugins = depset(transitive = [plugins, dep_plugin.files])
+        plugins = depset(transitive = [plugins, ctx.attr._dependency_analyzer_plugin.files])
 
     toolchain = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"]
+    compiler_classpath_jars = cjars if dependency_info.dependency_mode == "direct" else transitive_compile_jars
+    classpath_resources = getattr(ctx.files, "classpath_resources", [])
     scalacopts = [ctx.expand_location(v, input_plugins) for v in toolchain.scalacopts + in_scalacopts]
     resource_paths = _resource_paths(resources, resource_strip_prefix)
     enable_diagnostics_report = toolchain.enable_diagnostics_report
