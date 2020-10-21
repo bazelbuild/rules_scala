@@ -570,7 +570,7 @@ class AstUsedJarFinderTest extends FunSuite {
     }
   }
 
-  ignore("classOf in class Java annotation is direct") {
+  test("classOf in class Java annotation is direct") {
     withSandbox { sandbox =>
       sandbox.compileJava(
         className = "Category",
