@@ -71,9 +71,7 @@ def compile_scala(
     if dependency_info.dependency_mode != "direct":
         compiler_classpath_jars = transitive_compile_jars
     optional_scalac_args = ""
-    classpath_resources = []
-    if (hasattr(ctx.files, "classpath_resources")):
-        classpath_resources = ctx.files.classpath_resources
+    classpath_resources = getattr(ctx.files, "classpath_resources", [])
 
     if dependency_info.use_analyzer:
         dep_plugin = ctx.attr._dependency_analyzer_plugin
