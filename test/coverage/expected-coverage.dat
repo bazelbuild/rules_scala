@@ -1,48 +1,57 @@
 SF:test/coverage/A1.scala
-FN:3,coverage/A1$::<clinit> ()V
+FN:-1,coverage/A1$::<clinit> ()V
+FN:3,coverage/A1$::<init> ()V
 FN:5,coverage/A1$::a1 (Z)Lcoverage/B1$;
 FN:-1,coverage/A1::a1 (Z)Lcoverage/B1$;
 FNDA:1,coverage/A1$::<clinit> ()V
+FNDA:1,coverage/A1$::<init> ()V
 FNDA:1,coverage/A1$::a1 (Z)Lcoverage/B1$;
 FNDA:0,coverage/A1::a1 (Z)Lcoverage/B1$;
-FNF:3
-FNH:2
+FNF:4
+FNH:3
 BA:5,2
 BRF:1
 BRH:1
-DA:3,5
+DA:3,1
 DA:5,4
 DA:6,1
-LH:3
-LF:3
+DA:7,4
+LH:4
+LF:4
 end_of_record
 SF:test/coverage/A2.scala
-FN:3,coverage/A2$::<clinit> ()V
+FN:-1,coverage/A2$::<clinit> ()V
+FN:3,coverage/A2$::<init> ()V
 FN:5,coverage/A2$::a2 ()V
 FN:-1,coverage/A2::a2 ()V
 FNDA:1,coverage/A2$::<clinit> ()V
+FNDA:1,coverage/A2$::<init> ()V
 FNDA:1,coverage/A2$::a2 ()V
 FNDA:0,coverage/A2::a2 ()V
-FNF:3
-FNH:2
-DA:3,5
+FNF:4
+FNH:3
+DA:3,1
 DA:5,12
-LH:2
-LF:2
+DA:8,4
+LH:3
+LF:3
 end_of_record
 SF:test/coverage/B1.scala
-FN:3,coverage/B1$::<clinit> ()V
+FN:-1,coverage/B1$::<clinit> ()V
+FN:3,coverage/B1$::<init> ()V
 FN:6,coverage/B1$::not_called ()V
 FN:-1,coverage/B1::not_called ()V
 FNDA:1,coverage/B1$::<clinit> ()V
+FNDA:1,coverage/B1$::<init> ()V
 FNDA:0,coverage/B1$::not_called ()V
 FNDA:0,coverage/B1::not_called ()V
-FNF:3
-FNH:1
-DA:3,5
+FNF:4
+FNH:2
+DA:3,1
 DA:6,0
-LH:1
-LF:2
+DA:9,4
+LH:2
+LF:3
 end_of_record
 SF:test/coverage/B2.java
 FN:3,coverage/B2::<init> ()V
@@ -61,33 +70,39 @@ LH:1
 LF:4
 end_of_record
 SF:test/coverage/C2.scala
-FN:3,coverage/C2$::<clinit> ()V
+FN:-1,coverage/C2$::<clinit> ()V
+FN:3,coverage/C2$::<init> ()V
 FN:5,coverage/C2$::c2 (Ljava/lang/String;)Ljava/lang/String;
 FN:-1,coverage/C2::c2 (Ljava/lang/String;)Ljava/lang/String;
 FNDA:1,coverage/C2$::<clinit> ()V
+FNDA:1,coverage/C2$::<init> ()V
 FNDA:1,coverage/C2$::c2 (Ljava/lang/String;)Ljava/lang/String;
 FNDA:1,coverage/C2::c2 (Ljava/lang/String;)Ljava/lang/String;
-FNF:3
-FNH:3
-DA:3,5
-DA:5,5
-LH:2
-LF:2
+FNF:4
+FNH:4
+DA:3,1
+DA:5,9
+DA:7,4
+LH:3
+LF:3
 end_of_record
 SF:test/coverage/D1.scala
-FN:3,coverage/D1$::<clinit> ()V
+FN:-1,coverage/D1$::<clinit> ()V
+FN:3,coverage/D1$::<init> ()V
 FN:5,coverage/D1$::veryLongFunctionNameIsHereAaaaaaaaa ()V
 FN:-1,coverage/D1::veryLongFunctionNameIsHereAaaaaaaaa ()V
 FNDA:1,coverage/D1$::<clinit> ()V
+FNDA:1,coverage/D1$::<init> ()V
 FNDA:1,coverage/D1$::veryLongFunctionNameIsHereAaaaaaaaa ()V
 FNDA:0,coverage/D1::veryLongFunctionNameIsHereAaaaaaaaa ()V
-FNF:3
-FNH:2
-DA:3,5
-DA:5,7
-DA:9,6
-LH:3
-LF:3
+FNF:4
+FNH:3
+DA:3,1
+DA:5,6
+DA:9,8
+DA:41,4
+LH:4
+LF:4
 end_of_record
 SF:test/coverage/TestAll.scala
 FN:4,coverage/TestAll::<init> ()V
