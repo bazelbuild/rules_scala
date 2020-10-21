@@ -1,4 +1,6 @@
 load("//scala_proto:default_dep_sets.bzl", "DEFAULT_SCALAPB_COMPILE_DEPS", "DEFAULT_SCALAPB_GRPC_DEPS")
+load("@io_bazel_rules_scala//scala:providers.bzl", "DepsInfo")
+load("//scala/private/toolchain_deps:toolchain_deps.bzl", "expose_toolchain_deps")
 
 def _scala_proto_toolchain_impl(ctx):
     toolchain = platform_common.ToolchainInfo(
@@ -28,7 +30,7 @@ scala_proto_toolchain = rule(
         "blacklisted_protos": attr.label_list(default = []),
         "code_generator": attr.label(
             executable = True,
-            cfg = "host",
+            cfg = "exec",
             default = Label("@io_bazel_rules_scala//src/scala/scripts:scalapb_worker"),
             allow_files = True,
         ),
@@ -42,4 +44,39 @@ scala_proto_toolchain = rule(
             ),
         ),
     },
+)
+
+def _scala_proto_deps_toolchain(ctx):
+    toolchain = platform_common.ToolchainInfo(
+        dep_providers = ctx.attr.dep_providers,
+    )
+    return [toolchain]
+
+scala_proto_deps_toolchain = rule(
+    _scala_proto_deps_toolchain,
+    attrs = {
+        "dep_providers": attr.label_list(
+            default = [
+                "@io_bazel_rules_scala//scala_proto:scalapb_compile_deps_provider",
+                "@io_bazel_rules_scala//scala_proto:scalapb_grpc_deps_provider",
+                "@io_bazel_rules_scala//scala_proto:scalapb_worker_deps_provider",
+            ],
+            cfg = "target",
+            providers = [DepsInfo],
+        ),
+    },
+)
+
+def _export_scalapb_toolchain_deps(ctx):
+    return expose_toolchain_deps(ctx, "@io_bazel_rules_scala//scala_proto:deps_toolchain_type")
+
+export_scalapb_toolchain_deps = rule(
+    _export_scalapb_toolchain_deps,
+    attrs = {
+        "deps_id": attr.string(
+            mandatory = True,
+        ),
+    },
+    incompatible_use_toolchain_transition = True,
+    toolchains = ["@io_bazel_rules_scala//scala_proto:deps_toolchain_type"],
 )
