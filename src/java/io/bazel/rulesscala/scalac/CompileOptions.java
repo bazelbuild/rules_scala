@@ -91,12 +91,8 @@ public class CompileOptions {
 
   private static HashMap<String, String> buildArgMap(List<String> lines) {
     HashMap<String, String> hm = new HashMap<>();
-    for (int i = 0; i < lines.size() - 1; i += 2) {
-      String key = lines.get(i).substring(2);
-      String value = lines.get(i + 1);
-      if(!value.isEmpty()) {
-        hm.put(key, value);
-      }
+    for (int i = 0; i < lines.size(); i += 2) {
+      hm.put(lines.get(i).substring(2), lines.get(i + 1));
     }
     return hm;
   }
