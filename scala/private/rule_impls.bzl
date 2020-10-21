@@ -120,12 +120,9 @@ def compile_scala(
         transitive = [compiler_classpath_jars, all_srcjars, plugins]
     )
 
-    # scalac_jvm_flags passed in on the target override scalac_jvm_flags passed in on the
-    # toolchain
-    final_scalac_jvm_flags = first_non_empty(
-        scalac_jvm_flags,
-        ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scalac_jvm_flags,
-    )
+    # scalac_jvm_flags passed in on the target override scalac_jvm_flags passed in on the toolchain
+    final_scalac_jvm_flags = first_non_empty(scalac_jvm_flags, toolchain.scalac_jvm_flags)
+
     if len(BAZEL_VERSION) == 0 and enable_diagnostics_report:  # TODO: Add case for released version of bazel with diagnostics whenever it is released.
         ctx.actions.run(
             inputs = ins,
