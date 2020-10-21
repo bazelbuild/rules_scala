@@ -4,6 +4,7 @@ set -e
 
 scala_2_11_version="2.11.12"
 scala_2_12_version="2.12.11"
+scala_2_13_version="2.13.3"
 
 SCALA_VERSION_DEFAULT=$scala_2_11_version
 SCALA_VERSION_SHAS_DEFAULT=$scala_2_11_shas
@@ -41,11 +42,6 @@ run_in_test_repo() {
 
 test_scala_version() {
   local SCALA_VERSION="$1"
-  if [[ $SCALA_VERSION == $scala_2_12_version ]]; then
-    local SCALA_VERSION_SHAS=$scala_2_12_shas
-  else
-    local SCALA_VERSION_SHAS=$scala_2_11_shas
-  fi
 
   run_in_test_repo "test //..." "scala_version"
 }
@@ -123,6 +119,7 @@ export USE_BAZEL_VERSION=${USE_BAZEL_VERSION:-$(cat $dir/.bazelversion)}
 
 TEST_TIMEOUT=15 $runner test_scala_version "${scala_2_11_version}"
 TEST_TIMEOUT=15 $runner test_scala_version "${scala_2_12_version}"
+TEST_TIMEOUT=15 $runner test_scala_version "${scala_2_13_version}"
 
 TEST_TIMEOUT=15 $runner test_twitter_scrooge_versions "18.6.0"
 TEST_TIMEOUT=15 $runner test_twitter_scrooge_versions "20.5.0"
