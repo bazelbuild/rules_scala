@@ -89,12 +89,12 @@ public class CompileOptions {
     return resources;
   }
 
-  private static HashMap<String, String> buildArgMap(List<String> lines) {
-    HashMap<String, String> hm = new HashMap<>();
+  private static Map<String, String> buildArgMap(List<String> lines) {
+    Map<String, String> args = new HashMap<>();
     for (int i = 0; i < lines.size(); i += 2) {
-      hm.put(lines.get(i).substring(2), lines.get(i + 1));
+      args.put(lines.get(i).substring(2), lines.get(i + 1));
     }
-    return hm;
+    return args;
   }
 
   protected static String[] getTripleColonList(Map<String, String> m, String k) {
