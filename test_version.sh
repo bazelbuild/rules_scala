@@ -120,8 +120,9 @@ dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 . "${dir}"/test/shell/test_runner.sh
 runner=$(get_test_runner "${1:-local}")
 export USE_BAZEL_VERSION=${USE_BAZEL_VERSION:-$(cat $dir/.bazelversion)}
-$runner test_scala_version "${scala_2_11_version}"
-$runner test_scala_version "${scala_2_12_version}"
 
-$runner test_twitter_scrooge_versions "18.6.0"
-$runner test_twitter_scrooge_versions "20.5.0"
+TEST_TIMEOUT=3 $runner test_scala_version "${scala_2_11_version}"
+TEST_TIMEOUT=5 $runner test_scala_version "${scala_2_12_version}"
+
+TEST_TIMEOUT=1 $runner test_twitter_scrooge_versions "18.6.0"
+TEST_TIMEOUT=1 $runner test_twitter_scrooge_versions "20.5.0"
