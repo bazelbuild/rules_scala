@@ -284,7 +284,7 @@ def _compile_generated_scala(
         print_compile_time = False,
         expect_java_output = False,
         scalac_jvm_flags = [],
-        scalac = ctx.attr._scalac,
+        scalac = ctx.executable._scalac,
         dependency_info = legacy_unclear_dependency_info_for_protobuf_scrooge(ctx),
         unused_dependency_checker_ignored_targets = [],
     )
@@ -449,10 +449,10 @@ scrooge_scala_aspect = aspect(
         common_attrs,
         {
             "_scalac": attr.label(
-                default = Label(
-                    "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac",
-                ),
+                executable = True,
                 cfg = "exec",
+                default = Label("@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac"),
+                allow_files = True,
             ),
         },
     ),
