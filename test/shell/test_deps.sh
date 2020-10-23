@@ -31,6 +31,21 @@ scala_pb_library_targets_do_not_have_host_deps() {
   fi
 }
 
+scrooge_library_targets_do_not_have_host_deps() {
+  set -e
+  bazel build //test/src/main/scala/scalarules/test/twitter_scrooge:test_binary_to_ensure_no_host_deps
+  set +e
+  find bazel-bin/test/src/main/scala/scalarules/test/twitter_scrooge/test_binary_to_ensure_no_host_deps.runfiles  -name '*.jar' -exec readlink {} \; | grep 'bazel-out/host'
+  RET=$?
+  set -e
+  if [ "$RET" == "0" ]; then
+    echo "Host deps exist in output of target:"
+    echo "Possibly toolchains limitation?"
+    find bazel-bin/test/proto/test_binary_to_ensure_no_host_deps.runfiles  -name '*.jar' -exec readlink {} \; | grep 'bazel-out/host'
+    exit 1
+  fi
+}
+
 test_scala_import_expect_failure_on_missing_direct_deps_warn_mode() {
   dependency_target1='//test_expect_failure/scala_import:cats'
   dependency_target2='//test_expect_failure/scala_import:guava'
@@ -57,5 +72,6 @@ test_plus_one_ast_analyzer_strict_deps() {
 $runner test_scala_import_library_passes_labels_of_direct_deps
 $runner test_plus_one_deps_only_works_for_java_info_targets
 $runner scala_pb_library_targets_do_not_have_host_deps
+$runner scrooge_library_targets_do_not_have_host_deps
 $runner test_scala_import_expect_failure_on_missing_direct_deps_warn_mode
 $runner test_plus_one_ast_analyzer_strict_deps
