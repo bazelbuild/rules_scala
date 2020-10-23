@@ -1,0 +1,7 @@
+SF:test/coverage/A1.scala
+SF:test/coverage/A2.scala
+SF:test/coverage/B1.scala
+SF:test/coverage/B2.java
+SF:test/coverage/C2.scala
+SF:test/coverage/D1.scala
+SF:test/coverage/TestAll.scala

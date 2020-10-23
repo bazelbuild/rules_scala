@@ -126,7 +126,8 @@ test_coverage_on() {
     bazel coverage \
           --extra_toolchains="//scala:code_coverage_toolchain" \
           //test/coverage/...
-    diff test/coverage/expected-coverage.dat $(bazel info bazel-testlogs)/test/coverage/test-all/coverage.dat
+    local COVERAGE_REPORT="$(bazel info bazel-testlogs)/test/coverage/test-all/coverage.dat"
+    diff test/coverage/expected-source-files.txt <(grep "^SF" $COVERAGE_REPORT)
 }
 
 xmllint_test() {
