@@ -253,6 +253,7 @@ def compile_java(ctx, source_jars, source_files, output, extra_javac_opts, provi
         #needs to be empty since we want the provider.compile_jars to only contain the sources ijar
         #workaround until https://github.com/bazelbuild/bazel/issues/3528 is resolved
         exports = [],
+        neverlink = getattr(ctx.attr, "neverlink", False),
         java_toolchain = find_java_toolchain(ctx, ctx.attr._java_toolchain),
         host_javabase = find_java_runtime_toolchain(ctx, ctx.attr._host_javabase),
         strict_deps = ctx.fragments.java.strict_java_deps,

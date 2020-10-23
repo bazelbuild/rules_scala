@@ -43,13 +43,11 @@ def _thrift_library_impl(ctx):
 
         if len(found_prefixes) == 0:
             fail(
-                "could not find prefix from available prefixes: {prefixes} in the common prefix: {common_prefix}"
-                    .format(prefixes = ",".join(prefixes), common_prefix = common_prefix),
+                "could not find prefix from available prefixes: {prefixes} in the common prefix: {common_prefix}".format(prefixes = ",".join(prefixes), common_prefix = common_prefix),
             )
         elif len(found_prefixes) > 1:
             fail(
-                "Too many not prefixes found, matched: {found_prefixes} in the common prefix: {common_prefix}"
-                    .format(
+                "Too many not prefixes found, matched: {found_prefixes} in the common prefix: {common_prefix}".format(
                     found_prefixes = ",".join(found_prefixes),
                     common_prefix = common_prefix,
                 ),
@@ -164,7 +162,7 @@ thrift_library = rule(
         "external_jars": attr.label_list(allow_files = [".jar"]),
         "_zipper": attr.label(
             executable = True,
-            cfg = "host",
+            cfg = "exec",
             default = Label("@bazel_tools//tools/zip:zipper"),
             allow_files = True,
         ),

@@ -300,6 +300,7 @@ def _create_scala_compilation_provider(ctx, ijar, source_jar, deps_providers):
         deps = deps_providers,
         exports = exports,
         runtime_deps = runtime_deps,
+        neverlink = ctx.attr.neverlink,
     )
 
 def _pack_source_jar(ctx, scala_srcs, in_srcjars):

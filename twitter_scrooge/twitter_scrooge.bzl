@@ -23,6 +23,11 @@ load(
     "merge_thrift_infos",
 )
 load("//third_party/repositories:repositories.bzl", "repositories")
+load(
+    "@io_bazel_rules_scala//scala/private/toolchain_deps:toolchain_deps.bzl",
+    "find_deps_info_on",
+    "java_info_for_deps",
+)
 
 _jar_extension = ".jar"
 
@@ -136,6 +141,8 @@ def twitter_scrooge(
             name = "io_bazel_rules_scala/dependency/thrift/javax_annotation_api",
             actual = "@io_bazel_rules_scala_javax_annotation_api",
         )
+
+    native.register_toolchains("@io_bazel_rules_scala//twitter_scrooge:scrooge_toolchain")
 
 def _colon_paths(data):
     return ":".join([f.path for f in sorted(data)])
@@ -416,7 +423,7 @@ def _scrooge_java_aspect_impl(target, ctx):
 common_attrs = {
     "_pluck_scrooge_scala": attr.label(
         executable = True,
-        cfg = "host",
+        cfg = "exec",
         default = Label("//src/scala/scripts:scrooge_worker"),
         allow_files = True,
     ),
@@ -424,19 +431,7 @@ common_attrs = {
         providers = [JavaInfo],
         default = [
             Label(
-                "//scala/private/toolchain_deps:scala_library_classpath",
-            ),
-            Label(
-                "//external:io_bazel_rules_scala/dependency/thrift/libthrift",
-            ),
-            Label(
-                "//external:io_bazel_rules_scala/dependency/thrift/scrooge_core",
-            ),
-            Label(
-                "//external:io_bazel_rules_scala/dependency/thrift/util_core",
-            ),
-            Label(
-                "//external:io_bazel_rules_scala/dependency/thrift/javax_annotation_api",
+                "@io_bazel_rules_scala//twitter_scrooge:aspect_compile_classpath",
             ),
         ],
     ),
@@ -462,7 +457,10 @@ scrooge_scala_aspect = aspect(
         },
     ),
     required_aspect_providers = common_aspect_providers,
-    toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
+    toolchains = [
+        "@io_bazel_rules_scala//scala:toolchain_type",
+        "@io_bazel_rules_scala//twitter_scrooge/toolchain:scrooge_toolchain_type",
+    ],
 )
 
 scrooge_java_aspect = aspect(
@@ -472,11 +470,17 @@ scrooge_java_aspect = aspect(
         common_attrs,
         {
             "_java_toolchain": attr.label(default = Label("@bazel_tools//tools/jdk:current_java_toolchain")),
-            "_host_javabase": attr.label(default = Label("@bazel_tools//tools/jdk:current_java_runtime"), cfg = "host"),
+            "_host_javabase": attr.label(
+                default = Label("@bazel_tools//tools/jdk:current_java_runtime"),
+                cfg = "exec",
+            ),
         },
     ),
     required_aspect_providers = common_aspect_providers,
-    toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
+    toolchains = [
+        "@io_bazel_rules_scala//scala:toolchain_type",
+        "@io_bazel_rules_scala//twitter_scrooge/toolchain:scrooge_toolchain_type",
+    ],
     fragments = ["java"],
 )
 
@@ -546,16 +550,11 @@ scrooge_scala_import = rule(
             providers = [JavaInfo],
             default = [
                 Label(
-                    "//scala/private/toolchain_deps:scala_library_classpath",
-                ),
-                Label(
-                    "//external:io_bazel_rules_scala/dependency/thrift/libthrift",
-                ),
-                Label(
-                    "//external:io_bazel_rules_scala/dependency/thrift/scrooge_core",
+                    "@io_bazel_rules_scala//twitter_scrooge:compile_classpath",
                 ),
             ],
         ),
     },
     provides = [ThriftInfo, JavaInfo, ScroogeImport],
+    toolchains = ["@io_bazel_rules_scala//twitter_scrooge/toolchain:scrooge_toolchain_type"],
 )
