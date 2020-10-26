@@ -5,7 +5,6 @@
 NC='\033[0m'
 GREEN='\033[0;32m'
 RED='\033[0;31m'
-TIMOUT=60
 
 run_test_ci() {
   # spawns the test to new process
@@ -15,6 +14,7 @@ run_test_ci() {
   eval $TEST_ARG &>$log_file &
   local test_pid=$!
   SECONDS=0
+  TIMOUT=${TEST_TIMEOUT-60}
   test_pulse_printer $! $TIMOUT $TEST_ARG &
   local pulse_printer_pid=$!
   local result
