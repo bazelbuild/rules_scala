@@ -1,8 +1,11 @@
 package scripts
 
+
 import java.io.File
 import java.nio.file.{Files, Path, Paths}
 
+// Move ScroogeConfig and ScroogeOptionParser to com.twitter.scrooge when these changes are added to scrooge
+import io.bazel.rules_scala.scrooge_support.{ Compiler, CompilerDefaults, ScroogeConfig, ScroogeOptionParser }
 import com.twitter.scrooge.backend.WithFinagle
 import io.bazel.rules_scala.scrooge_support.{Compiler, CompilerDefaults}
 import io.bazel.rulesscala.io_utils.DeleteRecursively
@@ -51,26 +54,11 @@ object ScroogeWorker extends Worker.Interface {
 
     // Further configuration options for scrooge.
     val additionalFlags = getIdx(5)
+    val thriftSources = immediateThriftSrcJars ++ remoteSelfThriftSources
+    val flags = additionalFlags :+ thriftSources.mkString(" ")
 
     val tmp = Paths.get(Option(System.getProperty("java.io.tmpdir")).getOrElse("/tmp"))
     val scroogeOutput = Files.createTempDirectory(tmp, "scrooge")
-
-    val scrooge = new Compiler
-
-    additionalFlags.foreach {
-      case "--with-finagle" => {
-        scrooge.flags += WithFinagle
-      }
-      case f if f.startsWith("--language=") => {
-        scrooge.language = f.split("=")(1)
-      }
-      case flag => sys.error(s"Unrecognized scrooge flag: ${flag}. This is probably coming from your rule using our custom scrooge wrapper directly. Please modify this wrappers script to correctly handle this additional flag, or remove that flag from the call to the wrapper.")
-    }
-
-    scrooge.compileJars ++= immediateThriftSrcJars
-    scrooge.compileJars ++= remoteSelfThriftSources
-    scrooge.includeJars ++= onlyTransitiveThriftSrcJars
-    scrooge.includeJars ++= remoteSrcJars
 
     // should check that we have no overlap in any of the types
     // we are just going to try extracting EVERYTHING to the same tree, and we will just error if there
@@ -86,10 +74,19 @@ object ScroogeWorker extends Worker.Interface {
       sys.error("onlyTransitiveThriftSrcs and immediateThriftSrcs should " +
         s"have not intersection, found: ${intersect.mkString(",")}")
 
+    // To preserve current default behaviour.
+    val defaultConfig = ScroogeConfig(
+      destFolder = scroogeOutput.toString,
+      includePaths = onlyTransitiveThriftSrcJars ++ remoteSrcJars,
+      // always add finagle option which is a no-op if there are no services
+      flags = Set(WithFinagle),
+      strict = false)
+
+    val scrooge = ScroogeOptionParser.parseOptions(flags, defaultConfig)
+      .map(cfg => new Compiler(cfg))
+      .getOrElse(throw new IllegalArgumentException(s"Failed to parse compiler args: ${args.mkString(",")}"))
+
     val dirsToDelete = Set(scroogeOutput)
-    scrooge.destFolder = scroogeOutput.toString
-    //TODO we should make this configurable
-    scrooge.strict = false
     scrooge.run()
 
     JarCreator.buildJar(Array(jarOutput, scroogeOutput.toString))

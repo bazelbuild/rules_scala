@@ -413,6 +413,11 @@ artifacts = {
         "artifact": "javax.annotation:javax.annotation-api:1.3.2",
         "sha256": "e04ba5195bcd555dc95650f7cc614d151e4bcd52d29a10b8aa2197f3ab89ab9b",
     },
+    # Remove this artifact when ScroogeConfig and ScroogeOptionParser are added to the com.twitter.scrooge
+    "io_bazel_rules_scala_scopt": {
+        "artifact": "com.github.scopt:scopt_2.11:4.0.0-RC2",
+        "sha256": "956dfc89d3208e4a6d8bbfe0205410c082cee90c4ce08be30f97c044dffc3435",
+    },
 
     # test only
     "com_twitter__scalding_date": {

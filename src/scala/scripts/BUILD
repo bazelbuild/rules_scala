@@ -10,6 +10,8 @@ scala_library(
         "//src/java/io/bazel/rulesscala/worker",
         "//src/scala/io/bazel/rules_scala/scrooge_support:compiler",
         "//twitter_scrooge:scrooge_generator_classpath",
+        # Remove this dependency when ScroogeConfig and ScroogeOptionParser are added to the com.twitter.scrooge
+        "//src/scala/io/bazel/rules_scala/scrooge_support:option_parser",
     ],
 )
 

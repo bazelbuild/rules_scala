@@ -160,6 +160,7 @@ thrift_library = rule(
         # This is a list of JARs which only Thrift files
         # these files WILL be compiled as part of the current target
         "external_jars": attr.label_list(allow_files = [".jar"]),
+        "compiler_args": attr.string_list(),
         "_zipper": attr.label(
             executable = True,
             cfg = "exec",
