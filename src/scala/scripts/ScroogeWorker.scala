@@ -82,6 +82,7 @@ object ScroogeWorker extends Worker.Interface {
       flags = Set(WithFinagle),
       strict = false)
 
+
     val scrooge = ScroogeOptionParser.parseOptions(flags, defaultConfig)
       .map(cfg => new Compiler(cfg))
       .getOrElse(throw new IllegalArgumentException(s"Failed to parse compiler args: ${args.mkString(",")}"))
