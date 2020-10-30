@@ -3,4 +3,4 @@ def scalatest_repositories():
     pass
 
 def scalatest_toolchain():
-    native.register_toolchain("//testing:scalatest_toolchain")
+    native.register_toolchains("@io_bazel_rules_scala//testing:scalatest_toolchain")
