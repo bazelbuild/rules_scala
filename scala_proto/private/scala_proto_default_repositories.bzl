@@ -1,13 +1,10 @@
 load(
     "//scala:scala_cross_version.bzl",
     _default_maven_server_urls = "default_maven_server_urls",
-    _default_scala_version = "default_scala_version",
-    _scala_mvn_artifact = "scala_mvn_artifact",
 )
 load("//third_party/repositories:repositories.bzl", "repositories")
 
 def scala_proto_default_repositories(
-        scala_version = _default_scala_version(),
         maven_servers = _default_maven_server_urls(),
         overriden_artifacts = {}):
     repositories(
@@ -43,7 +40,6 @@ def scala_proto_default_repositories(
             "scala_proto_rules_opencensus_impl_core",
             "scala_proto_rules_opencensus_contrib_grpc_metrics",
         ],
-        scala_version = scala_version,
         maven_servers = maven_servers,
         fetch_sources = True,
         overriden_artifacts = overriden_artifacts,

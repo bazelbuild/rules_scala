@@ -5,7 +5,6 @@ load(
 load(
     "//scala:scala_cross_version.bzl",
     _default_maven_server_urls = "default_maven_server_urls",
-    _default_scala_version = "default_scala_version",
 )
 load(
     "//scala_proto/private:scala_proto_default_repositories.bzl",
@@ -33,9 +32,8 @@ def register_default_proto_dependencies():
         )
 
 def scala_proto_repositories(
-        scala_version = _default_scala_version(),
         maven_servers = _default_maven_server_urls()):
-    ret = scala_proto_default_repositories(scala_version, maven_servers)
+    ret = scala_proto_default_repositories(maven_servers)
     register_default_proto_dependencies()
     return ret
 

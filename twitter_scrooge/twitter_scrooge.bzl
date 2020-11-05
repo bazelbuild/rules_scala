@@ -2,7 +2,6 @@ load("@bazel_skylib//lib:dicts.bzl", "dicts")
 load(
     "//scala:scala_cross_version.bzl",
     _default_maven_server_urls = "default_maven_server_urls",
-    _default_scala_version = "default_scala_version",
 )
 load(
     "//scala/private:common.bzl",
@@ -36,11 +35,9 @@ def _declare_and_bind(
         artifact_id,
         external_artifact_id,
         overriden_artifacts,
-        scala_version,
         maven_servers):
     if not label:
         repositories(
-            scala_version = scala_version,
             for_artifact_ids = [
                 artifact_id,
             ],
@@ -56,7 +53,6 @@ def _declare_and_bind(
     )
 
 def twitter_scrooge(
-        scala_version = _default_scala_version(),
         maven_servers = _default_maven_server_urls(),
         overriden_artifacts = {},
         # These target labels need maven_servers to compute sensible defaults.
@@ -71,7 +67,6 @@ def twitter_scrooge(
         "libthrift",
         "io_bazel_rules_scala/dependency/thrift/libthrift",
         overriden_artifacts,
-        scala_version,
         maven_servers,
     )
 
@@ -80,7 +75,6 @@ def twitter_scrooge(
         "io_bazel_rules_scala_scrooge_core",
         "io_bazel_rules_scala/dependency/thrift/scrooge_core",
         overriden_artifacts,
-        scala_version,
         maven_servers,
     )
 
@@ -89,7 +83,6 @@ def twitter_scrooge(
         "io_bazel_rules_scala_scrooge_generator",
         "io_bazel_rules_scala/dependency/thrift/scrooge_generator",
         overriden_artifacts,
-        scala_version,
         maven_servers,
     )
 
@@ -98,7 +91,6 @@ def twitter_scrooge(
         "io_bazel_rules_scala_util_core",
         "io_bazel_rules_scala/dependency/thrift/util_core",
         overriden_artifacts,
-        scala_version,
         maven_servers,
     )
 
@@ -107,12 +99,10 @@ def twitter_scrooge(
         "io_bazel_rules_scala_util_logging",
         "io_bazel_rules_scala/dependency/thrift/util_logging",
         overriden_artifacts,
-        scala_version,
         maven_servers,
     )
 
     repositories(
-        scala_version = scala_version,
         for_artifact_ids = [
             "io_bazel_rules_scala_mustache",  # Mustache is needed to generate java from thrift, and is passed further down.
             "io_bazel_rules_scala_guava",

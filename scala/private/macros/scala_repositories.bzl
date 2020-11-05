@@ -2,7 +2,6 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load(
     "@io_bazel_rules_scala//scala:scala_cross_version.bzl",
     _default_maven_server_urls = "default_maven_server_urls",
-    _default_scala_version = "default_scala_version",
 )
 load("//third_party/repositories:repositories.bzl", "repositories")
 
@@ -70,7 +69,6 @@ def rules_scala_setup():
         )
 
 def scala_repositories(
-        scala_version = _default_scala_version(),
         maven_servers = _default_maven_server_urls(),
         overriden_artifacts = {},
         fetch_sources = False):
@@ -89,7 +87,6 @@ def scala_repositories(
         maven_servers = _default_maven_server_urls(),
         fetch_sources = fetch_sources,
         overriden_artifacts = overriden_artifacts,
-        scala_version = scala_version,
     )
 
     native.bind(

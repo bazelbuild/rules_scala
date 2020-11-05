@@ -1,16 +1,10 @@
 load("//scala:scala.bzl", "scala_binary")
-load(
-    "//scala:scala_cross_version.bzl",
-    _default_scala_version = "default_scala_version",
-)
 load("//third_party/repositories:repositories.bzl", "repositories")
 
 def tut_repositories(
-        scala_version = _default_scala_version(),
         overriden_artifacts = {},
         server_urls = ["https://dl.bintray.com/tpolecat/maven/"]):
     repositories(
-        scala_version = scala_version,
         for_artifact_ids = [
             "io_bazel_rules_scala_org_tpolecat_tut_core",
         ],

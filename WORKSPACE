@@ -26,15 +26,16 @@ load("@com_github_bazelbuild_buildtools//buildifier:deps.bzl", "buildifier_depen
 
 buildifier_dependencies()
 
-load("@io_bazel_rules_scala//:version.bzl", "bazel_version")
+load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
 
-bazel_version(name = "bazel_version")
+scala_config()
 
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_MAJOR_VERSION")
 load("//scala:scala.bzl", "scala_repositories")
 
 scala_repositories(fetch_sources = True)
 
-load("//scala:scala_cross_version.bzl", "default_maven_server_urls")
+load("//scala:scala_cross_version.bzl", "default_maven_server_urls", "scala_mvn_artifact")
 load("//scala:scala_maven_import_external.bzl", "scala_maven_import_external")
 load("//twitter_scrooge:twitter_scrooge.bzl", "twitter_scrooge")
 
@@ -63,13 +64,6 @@ load("//scala/scalafmt:scalafmt_repositories.bzl", "scalafmt_default_config", "s
 scalafmt_default_config()
 
 scalafmt_repositories()
-
-load(
-    "//scala:scala_cross_version.bzl",
-    "default_scala_major_version",
-    "default_scala_version",
-    "scala_mvn_artifact",
-)
 
 MAVEN_SERVER_URLS = default_maven_server_urls()
 
@@ -177,7 +171,7 @@ jvm_maven_import_external(
     name = "org_typelevel__cats_core",
     artifact = scala_mvn_artifact(
         "org.typelevel:cats-core:0.9.0",
-        default_scala_major_version(),
+        SCALA_MAJOR_VERSION,
     ),
     artifact_sha256 = "3ca705cba9dc0632e60477d80779006f8c636c0e2e229dda3410a0c314c1ea1d",
     server_urls = MAVEN_SERVER_URLS,
@@ -207,5 +201,4 @@ repositories(
         "org_spire_math_kind_projector",
     ],
     maven_servers = MAVEN_SERVER_URLS,
-    scala_version = default_scala_version(),
 )

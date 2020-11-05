@@ -2,12 +2,10 @@ load("//scala:scala.bzl", "scala_binary", "scala_library")
 load(
     "//scala:scala_cross_version.bzl",
     "default_maven_server_urls",
-    "default_scala_version",
 )
 load("//third_party/repositories:repositories.bzl", "repositories")
 
 def jmh_repositories(
-        scala_version = default_scala_version(),
         maven_servers = default_maven_server_urls(),
         overriden_artifacts = {}):
     repositories(
@@ -21,7 +19,6 @@ def jmh_repositories(
             "io_bazel_rules_scala_org_apache_commons_commons_math3",
         ],
         fetch_sources = False,
-        scala_version = scala_version,
         maven_servers = maven_servers,
         overriden_artifacts = {},
     )
