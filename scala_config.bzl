@@ -6,14 +6,13 @@ def _default_scala_version():
     return "2.12.11"
 
 def _store_config(repository_ctx):
-    bazel_version = versions.get()
     repository_ctx.file("BUILD", "exports_files(['def.bzl'])")
 
     scala_version = repository_ctx.attr.scala_version
     scala_major_version = extract_major_version(scala_version)
 
     config_file_content = "\n".join([
-        "BAZEL_VERSION='" + bazel_version + "'",
+        "BAZEL_VERSION='" + native.bazel_version + "'",
         "SCALA_VERSION='" + scala_version + "'",
         "SCALA_MAJOR_VERSION='" + scala_major_version + "'",
     ])
