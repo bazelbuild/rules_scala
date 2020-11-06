@@ -1,4 +1,5 @@
 load("//scala:scala.bzl", "scala_library")
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_MAJOR_VERSION")
 
 scala_library(
     name = "test_reporter",
@@ -14,13 +15,28 @@ scala_library(
         "-unchecked",
         "-Xfatal-warnings",
         "-Xlint",
-        #  TODO: commented out due to Scala 2.13 "-Yno-adapted-args",
         "-Ywarn-dead-code",
         "-Ywarn-numeric-widen",
         "-Ywarn-value-discard",
-        #  TODO: commented out due to Scala 2.13       "-Xfuture",
-        #  TODO: commented out due to Scala 2.13       "-Ywarn-unused-import",
-        #  TODO: commented out due to Scala 2.13       "-Ypartial-unification",
+        "-Wunused:imports",
+    ] if SCALA_MAJOR_VERSION == "2.13" else [
+        "-deprecation:true",
+        "-encoding",
+        "UTF-8",
+        "-feature",
+        "-language:existentials",
+        "-language:higherKinds",
+        "-language:implicitConversions",
+        "-unchecked",
+        "-Xfatal-warnings",
+        "-Xlint",
+        "-Yno-adapted-args",
+        "-Ywarn-dead-code",
+        "-Ywarn-numeric-widen",
+        "-Ywarn-value-discard",
+        "-Xfuture",
+        "-Ywarn-unused-import",
+        "-Ypartial-unification",
     ],
     visibility = ["//visibility:public"],
     deps = [
