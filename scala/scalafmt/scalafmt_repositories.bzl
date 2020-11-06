@@ -1,9 +1,9 @@
 load(
     "//scala:scala_cross_version.bzl",
-    "extract_major_version",
     _default_maven_server_urls = "default_maven_server_urls",
 )
 load("//third_party/repositories:repositories.bzl", "repositories")
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_MAJOR_VERSION")
 
 def scalafmt_default_config(path = ".scalafmt.conf"):
     build = []
@@ -40,7 +40,7 @@ def scalafmt_repositories(
         "com_geirsson_metaconfig_core",
         "com_geirsson_metaconfig_typesafe_config",
     ]
-    if extract_major_version(scala_version) == "2.13":
+    if SCALA_MAJOR_VERSION == "2.13":
         artifact_ids.append("io_bazel_rules_scala_scala_parallel_collections")
 
     repositories(

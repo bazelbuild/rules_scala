@@ -171,7 +171,7 @@ jvm_maven_import_external(
     name = "org_typelevel__cats_core",
     artifact = scala_mvn_artifact(
         "org.typelevel:cats-core:2.2.0",
-        default_scala_major_version(),
+        SCALA_MAJOR_VERSION,
     ),
     artifact_sha256 = "d7b6f800b50028c61ebed12763a100f31e900eb2f7a4af0d68f9aaaf19c24dc3",
     server_urls = MAVEN_SERVER_URLS,
