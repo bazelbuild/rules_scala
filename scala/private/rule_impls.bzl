@@ -20,7 +20,7 @@ load(
     _collect_plugin_paths = "collect_plugin_paths",
 )
 load(":resources.bzl", _resource_paths = "paths")
-load("@bazel_version//:def.bzl", "BAZEL_VERSION")
+load("@io_bazel_rules_scala_config//:config.bzl", "BAZEL_VERSION")
 
 def expand_location(ctx, flags):
     if hasattr(ctx.attr, "data"):

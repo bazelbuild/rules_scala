@@ -1,7 +1,6 @@
 load(
     "//scala:scala_cross_version.bzl",
     _default_maven_server_urls = "default_maven_server_urls",
-    _default_scala_version = "default_scala_version",
 )
 load("//third_party/repositories:repositories.bzl", "repositories")
 
@@ -15,7 +14,6 @@ def scalafmt_default_config(path = ".scalafmt.conf"):
     native.new_local_repository(name = "scalafmt_default", build_file_content = "\n".join(build), path = "")
 
 def scalafmt_repositories(
-        scala_version = _default_scala_version(),
         maven_servers = _default_maven_server_urls(),
         overriden_artifacts = {}):
     repositories(
@@ -45,6 +43,5 @@ def scalafmt_repositories(
         maven_servers = maven_servers,
         fetch_sources = True,
         overriden_artifacts = overriden_artifacts,
-        scala_version = scala_version,
     )
     native.register_toolchains("@io_bazel_rules_scala//scala/scalafmt:scalafmt_toolchain")

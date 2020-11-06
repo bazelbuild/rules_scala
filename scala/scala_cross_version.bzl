@@ -15,10 +15,6 @@
 of abstracting over Scala major version (2.11, 2.12, etc) for dependency
 resolution."""
 
-def default_scala_version():
-    """return the scala version for use in maven coordinates"""
-    return "2.12.11"
-
 def default_maven_server_urls():
     return [
         "https://repo.maven.apache.org/maven2",
@@ -36,12 +32,9 @@ def extract_major_version_underscore(scala_version):
     e.g. "2.11.11" -> "2_11" """
     return extract_major_version(scala_version).replace(".", "_")
 
-def default_scala_major_version():
-    return extract_major_version(default_scala_version())
-
 def scala_mvn_artifact(
         artifact,
-        major_scala_version = default_scala_major_version()):
+        major_scala_version):
     """Add scala version to maven artifact"""
     gav = artifact.split(":")
     groupid = gav[0]

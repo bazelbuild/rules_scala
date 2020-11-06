@@ -16,9 +16,9 @@ local_repository(
     path = "../../..",
 )
 
-load("@io_bazel_rules_scala//:version.bzl", "bazel_version")
+load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
 
-bazel_version(name = "bazel_version")
+scala_config()
 
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
 

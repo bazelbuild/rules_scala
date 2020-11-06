@@ -15,32 +15,27 @@ local_repository(
     name = "io_bazel_rules_scala",
     path = "../../"
 )
-
-load("@io_bazel_rules_scala//:version.bzl", "bazel_version")
-bazel_version(name = "bazel_version")
+scala_version = "${scala_version}"
+load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
+scala_config(scala_version = scala_version)
 
 load("@io_bazel_rules_scala//scala:scala_cross_version.bzl", "extract_major_version")
 
-scala_version = "${scala_version}"
-
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
 
-scala_repositories(
-    scala_version,
-    fetch_sources = True
-)
+scala_repositories(fetch_sources = True)
 
 load("@io_bazel_rules_scala//twitter_scrooge:twitter_scrooge.bzl", "twitter_scrooge")
 ${twitter_scrooge_artifacts}
-twitter_scrooge(scala_version, overriden_artifacts = twitter_scrooge_artifacts)
+twitter_scrooge(overriden_artifacts = twitter_scrooge_artifacts)
 
 load("@io_bazel_rules_scala//tut_rule:tut.bzl", "tut_repositories")
 
-tut_repositories(scala_version)
+tut_repositories()
 
 load("@io_bazel_rules_scala//scala_proto:scala_proto.bzl", "scala_proto_repositories")
 
-scala_proto_repositories(scala_version)
+scala_proto_repositories()
 
 load("@io_bazel_rules_scala//scala_proto:toolchains.bzl", "scala_proto_register_toolchains")
 
@@ -48,7 +43,7 @@ scala_proto_register_toolchains()
 
 load("@io_bazel_rules_scala//specs2:specs2_junit.bzl", "specs2_junit_repositories")
 
-specs2_junit_repositories(scala_version)
+specs2_junit_repositories()
 
 register_toolchains("@io_bazel_rules_scala//testing:testing_toolchain")
 
