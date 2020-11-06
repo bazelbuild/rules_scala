@@ -1,4 +1,3 @@
-load("@bazel_skylib//lib:versions.bzl", "versions")
 load("//scala:scala_cross_version.bzl", "extract_major_version")
 
 def _default_scala_version():
