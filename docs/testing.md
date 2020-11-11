@@ -11,9 +11,14 @@ junit_repositories()
 junit_toolchain()
 
 # ScalaTest
-load(""@io_bazel_rules_scala//testing:scalatest.bzl", "scalatest_repositories", "scalatest_toolchain")
+load("@io_bazel_rules_scala//testing:scalatest.bzl", "scalatest_repositories", "scalatest_toolchain")
 scalatest_repositories()
 scalatest_toolchain()
+
+# Specs2 with Junit
+load("@io_bazel_rules_scala//testing:specs2_junit.bzl", "specs2_junit_repositories", "specs2_junit_toolchain")
+specs2_junit_repositories()
+specs2_junit_toolchain()
 ```
 
 ### Example to set up JUnit dependencies
@@ -81,12 +86,64 @@ declare_deps_provider(
 )
 ```
 
+Specs2 with Junit support can be enabled by configuring providers with ``, ``, `` ids:
+```starlark
+scala_testing_toolchain(
+    name = "specs2_junit_toolchain_impl",
+    dep_providers = [
+        ":junit_classpath_provider",
+        ":specs2_classpath_provider",
+        ":specs2_junit_classpath_provider",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+toolchain(
+    name = "specs2_junit_toolchain",
+    toolchain = ":specs2_junit_toolchain_impl",
+    toolchain_type = "@io_bazel_rules_scala//testing/toolchain:testing_toolchain_type",
+    visibility = ["//visibility:public"],
+)
+
+declare_deps_provider(
+    name = "junit_classpath_provider",
+    deps_id = "junit_classpath",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@my_hamcrest_core",
+        "@my_junit",
+    ],
+)
+
+declare_deps_provider(
+    name = "specs2_classpath_provider",
+    deps_id = "specs2_classpath",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@my_specs2_common",
+        "@my_specs2_core",
+        "@my_specs2_fp",
+        "@my_specs2_matcher",
+    ],
+)
+
+declare_deps_provider(
+    name = "specs2_junit_classpath_provider",
+    deps_id = "specs2_junit_classpath",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@my_specs2_junit",
+    ],
+)
+```
+
+
 Toolchain must be registered in your `WORKSPACE` file: 
 ```starlark
 register_toolchains('//my/package:testing_toolchain')
 ```
 
-Single toolchain can be used to configure multiple testing rules (JUnit 4, ScalaTest, Specs2). 
+Single toolchain can be used to configure multiple testing rules (JUnit 4, ScalaTest, Specs2 with Junit). 
 Default repositories and toolchains in your `WORKSPACE` can be loaded via:
 ```starlark
 # JUnit 4
@@ -98,11 +155,6 @@ junit_toolchain()
 load("//testing:scalatest.bzl", "scalatest_repositories", "scalatest_toolchain")
 scalatest_repositories()
 scalatest_toolchain()
-
-# Specs2
-load("//testing:specs2.bzl", "specs2_repositories", "specs2_toolchain")
-specs2_repositories()
-specs2_toolchain()
 
 # Specs2 JUnit runner
 load("//testing:specs2_junit.bzl", "specs2_junit_repositories", "specs2_junit_toolchain")

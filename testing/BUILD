@@ -35,23 +35,9 @@ toolchain(
 )
 
 scala_testing_toolchain(
-    name = "specs2_toolchain_impl",
-    dep_providers = [
-        ":specs2_classpath_provider",
-    ],
-    visibility = ["//visibility:public"],
-)
-
-toolchain(
-    name = "specs2_toolchain",
-    toolchain = ":specs2_toolchain_impl",
-    toolchain_type = "@io_bazel_rules_scala//testing/toolchain:testing_toolchain_type",
-    visibility = ["//visibility:public"],
-)
-
-scala_testing_toolchain(
     name = "specs2_junit_toolchain_impl",
     dep_providers = [
+        ":junit_classpath_provider",
         ":specs2_classpath_provider",
         ":specs2_junit_classpath_provider",
     ],
@@ -60,7 +46,7 @@ scala_testing_toolchain(
 
 toolchain(
     name = "specs2_junit_toolchain",
-    toolchain = ":specs2_toolchain_impl",
+    toolchain = ":specs2_junit_toolchain_impl",
     toolchain_type = "@io_bazel_rules_scala//testing/toolchain:testing_toolchain_type",
     visibility = ["//visibility:public"],
 )
