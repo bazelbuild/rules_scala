@@ -4,4 +4,4 @@ def specs2_repositories():
     _repositories()
 
 def specs2_toolchain():
-    native.register_toolchain("//testing:specs2_toolchain")
+    native.register_toolchain("@io_bazel_rules_scala//testing:specs2_toolchain")
