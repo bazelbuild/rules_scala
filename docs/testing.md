@@ -21,7 +21,7 @@ specs2_junit_repositories()
 specs2_junit_toolchain()
 ```
 
-### Configuring JUnit dependencies vai toolchain
+### Configuring JUnit dependencies via toolchain
 
 `BUILD` file content in your preferred package:
 ```starlark
