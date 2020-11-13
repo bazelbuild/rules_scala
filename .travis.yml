@@ -64,6 +64,10 @@ jobs:
     - name: "[linux] Dry test rules_scala + latest bazel version"
       <<: *linux
       env: TEST_SCRIPT=test_rules_scala XDG_CACHE_HOME=~/xdg_cache USE_BAZEL_VERSION=latest
+    - name: "[linux] Examples"
+      <<: *linux
+      env: TEST_SCRIPT=test_examples XDG_CACHE_HOME=~/xdg_cache
+
 
   allow_failures:
     env: TEST_SCRIPT=test_rules_scala XDG_CACHE_HOME=~/xdg_cache USE_BAZEL_VERSION=latest

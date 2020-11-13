@@ -6,6 +6,8 @@ scala_testing_toolchain(
     dep_providers = [
         ":junit_classpath_provider",
         ":scalatest_classpath_provider",
+        ":specs2_classpath_provider",
+        ":specs2_junit_classpath_provider",
     ],
     visibility = ["//visibility:public"],
 )
@@ -28,6 +30,23 @@ scala_testing_toolchain(
 toolchain(
     name = "scalatest_toolchain",
     toolchain = ":scalatest_toolchain_impl",
+    toolchain_type = "@io_bazel_rules_scala//testing/toolchain:testing_toolchain_type",
+    visibility = ["//visibility:public"],
+)
+
+scala_testing_toolchain(
+    name = "specs2_junit_toolchain_impl",
+    dep_providers = [
+        ":junit_classpath_provider",
+        ":specs2_classpath_provider",
+        ":specs2_junit_classpath_provider",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+toolchain(
+    name = "specs2_junit_toolchain",
+    toolchain = ":specs2_junit_toolchain_impl",
     toolchain_type = "@io_bazel_rules_scala//testing/toolchain:testing_toolchain_type",
     visibility = ["//visibility:public"],
 )
@@ -64,5 +83,26 @@ declare_deps_provider(
     deps = [
         "//external:io_bazel_rules_scala/dependency/scala/scalactic/scalactic",
         "//external:io_bazel_rules_scala/dependency/scala/scalatest/scalatest",
+    ],
+)
+
+declare_deps_provider(
+    name = "specs2_classpath_provider",
+    deps_id = "specs2_classpath",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@io_bazel_rules_scala_org_specs2_specs2_common",
+        "@io_bazel_rules_scala_org_specs2_specs2_core",
+        "@io_bazel_rules_scala_org_specs2_specs2_fp",
+        "@io_bazel_rules_scala_org_specs2_specs2_matcher",
+    ],
+)
+
+declare_deps_provider(
+    name = "specs2_junit_classpath_provider",
+    deps_id = "specs2_junit_classpath",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//external:io_bazel_rules_scala/dependency/specs2/specs2_junit",
     ],
 )

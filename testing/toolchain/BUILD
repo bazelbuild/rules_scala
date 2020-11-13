@@ -16,3 +16,15 @@ testing_toolchain_deps(
     deps_id = "scalatest_classpath",
     visibility = ["//visibility:public"],
 )
+
+testing_toolchain_deps(
+    name = "specs2_classapath",
+    deps_id = "specs2_classpath",
+    visibility = ["//visibility:public"],
+)
+
+testing_toolchain_deps(
+    name = "specs2_junit_classapath",
+    deps_id = "specs2_junit_classpath",
+    visibility = ["//visibility:public"],
+)
