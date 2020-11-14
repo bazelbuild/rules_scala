@@ -46,6 +46,7 @@ scala_specs2_junit_test(
 scala_library(
     name = "source_jar_not_oncp",
     testonly = True,
+    # jvm_maven_import_external doesn't fetch source jars automatically
     srcs = ["ReferCatsImplicits.scala"],
     deps = ["@org_typelevel__cats_core//jar"],
 )
@@ -73,10 +74,7 @@ scala_specs2_junit_test(
     size = "small",
     srcs = ["ScalaImportPropagatesRuntimeDepsTest.scala"],
     suffixes = ["Test"],
-    runtime_deps = [
-        ":cats_and_guava_and_commons_lang_as_runtime_deps",
-        "@org_typelevel__cats_core//jar",
-    ],
+    runtime_deps = [":cats_and_guava_and_commons_lang_as_runtime_deps"],
 )
 
 java_import(
