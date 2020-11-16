@@ -14,6 +14,6 @@ struct Struct1 {
 # which was moved between jdk8 and jdk11. So having this union is important for
 # testing jdk11, which requires the shims in javax.annotation:javax.annotation-api:1.3.2
 # to compile.
-union Union {
+union Union1 {
   1: Struct1 struct1
 }
