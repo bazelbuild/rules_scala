@@ -24,6 +24,7 @@ http_archive(
 )
 
 load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
+
 # Declares @com_google_protobuf//:protoc pointing to released binary
 # This should stop building protoc during bazel build
 # See https://github.com/bazelbuild/rules_proto/pull/36
