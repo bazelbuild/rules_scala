@@ -111,7 +111,7 @@ def compile_scala(
     outs = [output, statsfile, diagnosticsfile]
 
     ins = depset(
-        direct = [manifest] + sources + classpath_resources + resources + resource_jars + scalac_inputs,
+        direct = [manifest] + sources + classpath_resources + resources + resource_jars,
         transitive = [compiler_classpath_jars, all_srcjars, plugins],
     )
 
