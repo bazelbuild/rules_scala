@@ -12,16 +12,16 @@ artifacts = {
         "sha256": "6ba385b450a6311a15c918cf8688b9af9327c6104f0ecbd35933cfcd3095fe04",
     },
     "io_bazel_rules_scala_scalatest": {
-        "artifact": "org.scalatest:scalatest_2.11:3.0.5",
-        "sha256": "2aafeb41257912cbba95f9d747df9ecdc7ff43f039d35014b4c2a8eb7ed9ba2f",
+        "artifact": "org.scalatest:scalatest_2.11:3.1.2",
+        "sha256": "5a61de4a55b9bd1ce2b2936200c4d5b0b05d96ac9727d361ee37f7a5add5d86a",
     },
     "io_bazel_rules_scala_scalactic": {
-        "artifact": "org.scalactic:scalactic_2.11:3.0.5",
-        "sha256": "84723064f5716f38990fe6e65468aa39700c725484efceef015771d267341cf2",
+        "artifact": "org.scalactic:scalactic_2.11:3.1.2",
+        "sha256": "60642da4dcfa1e1fae02c394e9d8a1ce4c08f1b189bae86b8f3809310c12c29b",
     },
     "io_bazel_rules_scala_scala_xml": {
-        "artifact": "org.scala-lang.modules:scala-xml_2.11:1.0.5",
-        "sha256": "767e11f33eddcd506980f0ff213f9d553a6a21802e3be1330345f62f7ee3d50f",
+        "artifact": "org.scala-lang.modules:scala-xml_2.11:1.2.0",
+        "sha256": "eaddac168ef1e28978af768706490fa4358323a08964c25fa1027c52238e3702",
     },
     "io_bazel_rules_scala_scala_parser_combinators": {
         "artifact": "org.scala-lang.modules:scala-parser-combinators_2.11:1.0.4",
