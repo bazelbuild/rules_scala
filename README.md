@@ -40,6 +40,23 @@ http_archive(
     sha256 = "2ef429f5d7ce7111263289644d233707dba35e39696377ebab8b0bc701f7818e",
 )
 
+# rules_scala depend on rules_proto and @com_google_protobuf//:protoc
+http_archive(
+    name = "rules_proto",
+    sha256 = "8e7d59a5b12b233be5652e3d29f42fba01c7cbab09f6b3a8d0a57ed6d1e9a0da",
+    strip_prefix = "rules_proto-7e4afce6fe62dbff0a4a03450143146f9f2d7488",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/rules_proto/archive/7e4afce6fe62dbff0a4a03450143146f9f2d7488.tar.gz",
+        "https://github.com/bazelbuild/rules_proto/archive/7e4afce6fe62dbff0a4a03450143146f9f2d7488.tar.gz",
+    ],
+)
+
+load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
+
+rules_proto_dependencies() # defines @com_google_protobuf//:protoc
+
+rules_proto_toolchains()
+
 rules_scala_version="a2f5852902f5b9f0302c727eead52ca2c7b6c3e2" # update this as needed
 
 http_archive(
@@ -61,21 +78,6 @@ scala_register_toolchains()
 
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
 scala_repositories()
-
-protobuf_version="3.11.3"
-protobuf_version_sha256="cf754718b0aa945b00550ed7962ddc167167bd922b842199eeb6505e6f344852"
-
-http_archive(
-    name = "com_google_protobuf",
-    url = "https://github.com/protocolbuffers/protobuf/archive/v%s.tar.gz" % protobuf_version,
-    strip_prefix = "protobuf-%s" % protobuf_version,
-    sha256 = protobuf_version_sha256,
-)
-
-# Dependencies needed for google_protobuf.
-# You may need to modify this if your project uses google_protobuf for other purposes.
-load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
-protobuf_deps()
 ```
 
 This will load the `rules_scala` repository at the commit sha
