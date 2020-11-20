@@ -56,6 +56,7 @@ scala_import(
     name = "indirection_for_transitive_runtime_deps",
     testonly = True,
     jars = [],
+    # jvm_maven_import_external doesn't fetch source jars automatically
     deps = ["@org_typelevel__cats_core//jar"],
 )
 
