@@ -167,6 +167,7 @@ rbe_autoconfig(
 
 load("//third_party/repositories:repositories.bzl", "repositories")
 
+# `jvm_maven_import_external` is required by scala_import tests
 jvm_maven_import_external(
     name = "org_typelevel__cats_core",
     artifact = scala_mvn_artifact(

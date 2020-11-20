@@ -46,8 +46,8 @@ scala_specs2_junit_test(
 scala_library(
     name = "source_jar_not_oncp",
     testonly = True,
-    # jvm_maven_import_external doesn't fetch source jars automatically
     srcs = ["ReferCatsImplicits.scala"],
+    # jvm_maven_import_external doesn't fetch source jars automatically
     deps = ["@org_typelevel__cats_core//jar"],
 )
 
