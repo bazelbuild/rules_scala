@@ -24,8 +24,8 @@ artifacts = {
         "sha256": "eaddac168ef1e28978af768706490fa4358323a08964c25fa1027c52238e3702",
     },
     "io_bazel_rules_scala_scala_parser_combinators": {
-        "artifact": "org.scala-lang.modules:scala-parser-combinators_2.11:1.0.4",
-        "sha256": "0dfaafce29a9a245b0a9180ec2c1073d2bd8f0330f03a9f1f6a74d1bc83f62d6",
+        "artifact": "org.scala-lang.modules:scala-parser-combinators_2.11:1.1.2",
+        "sha256": "3e0889e95f5324da6420461f7147cb508241ed957ac5cfedc25eef19c5448f26",
     },
     "org_scalameta_common": {
         "artifact": "org.scalameta:common_2.11:4.3.0",
@@ -386,28 +386,28 @@ artifacts = {
         "sha256": "972139718abc8a4893fa78cba8cf7b2c903f35c97aaf44fa3031b0669948b480",
     },
     "libthrift": {
-        "artifact": "org.apache.thrift:libthrift:0.8.0",
-        "sha256": "adea029247c3f16e55e29c1708b897812fd1fe335ac55fe3903e5d2f428ef4b3",
+        "artifact": "org.apache.thrift:libthrift:0.10.0",
+        "sha256": "8591718c1884ac8001b4c5ca80f349c0a6deec691de0af720c5e3bc3a581dada",
     },
     "io_bazel_rules_scala_scrooge_core": {
-        "artifact": "com.twitter:scrooge-core_2.11:18.6.0",
-        "sha256": "00351f73b555d61cfe7320ef3b1367a9641e694cfb8dfa8a733cfcf49df872e8",
+        "artifact": "com.twitter:scrooge-core_2.11:20.9.0",
+        "sha256": "de21b01d356bfcae4d184ed877dac21753ae9c29e11d934f007789ec7b07961f",
     },
     "io_bazel_rules_scala_scrooge_generator": {
-        "artifact": "com.twitter:scrooge-generator_2.11:18.6.0",
-        "sha256": "0f0027e815e67985895a6f3caa137f02366ceeea4966498f34fb82cabb11dee6",
+        "artifact": "com.twitter:scrooge-generator_2.11:20.9.0",
+        "sha256": "1b027bb10604d34b0790a4936d9b5c95bf0a0ccac522521d9c7e898b87d16c79",
         "runtime_deps": [
             "@io_bazel_rules_scala_guava",
             "@io_bazel_rules_scala_mustache",
         ],
     },
     "io_bazel_rules_scala_util_core": {
-        "artifact": "com.twitter:util-core_2.11:18.6.0",
-        "sha256": "5336da4846dfc3db8ffe5ae076be1021828cfee35aa17bda9af461e203cf265c",
+        "artifact": "com.twitter:util-core_2.11:20.9.0",
+        "sha256": "59955ecc258bcdd5de0199e289548717a794c7a1020f34ebef69a5f2cb36e127",
     },
     "io_bazel_rules_scala_util_logging": {
-        "artifact": "com.twitter:util-logging_2.11:18.6.0",
-        "sha256": "73ddd61cedabd4dab82b30e6c52c1be6c692b063b8ba310d716ead9e3b4e9267",
+        "artifact": "com.twitter:util-logging_2.11:20.9.0",
+        "sha256": "32afd3278232cf504e77a7833eef812bb4e2ae16f6f524910896cf844e223eef",
     },
     "io_bazel_rules_scala_javax_annotation_api": {
         "artifact": "javax.annotation:javax.annotation-api:1.3.2",

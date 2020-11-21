@@ -76,33 +76,33 @@ test_twitter_scrooge_versions() {
     },\
 }'
 
-  local TWITTER_SCROOGE_ARTIFACTS_20_5_0='twitter_scrooge_artifacts={ \
+  local TWITTER_SCROOGE_ARTIFACTS_20_9_0='twitter_scrooge_artifacts={ \
     "io_bazel_rules_scala_scrooge_core": {\
-        "artifact": "com.twitter:scrooge-core_2.11:20.5.0",\
-        "sha256": "b1aa0f3b9f10287644f1edc47b79a67b287656d97fbd157a806d69c82b27e21d",\
+        "artifact": "com.twitter:scrooge-core_2.11:20.9.0",\
+        "sha256": "de21b01d356bfcae4d184ed877dac21753ae9c29e11d934f007789ec7b07961f",\
     },\
     "io_bazel_rules_scala_scrooge_generator": {\
-        "artifact": "com.twitter:scrooge-generator_2.11:20.5.0",\
-        "sha256": "a4cf7dd773e8c2ee0ccad52be1ebd4ae8a9defcbc9be28e370e44a46a34a005a",\
+        "artifact": "com.twitter:scrooge-generator_2.11:20.9.0",\
+        "sha256": "1b027bb10604d34b0790a4936d9b5c95bf0a0ccac522521d9c7e898b87d16c79",\
         "runtime_deps": [\
             "@io_bazel_rules_scala_guava",\
             "@io_bazel_rules_scala_mustache",\
         ],\
     },\
     "io_bazel_rules_scala_util_core": {\
-        "artifact": "com.twitter:util-core_2.11:20.5.0",\
-        "sha256": "253cc631d3766e978bafd60dcee6976f7cf46d80106882c7b55b969ab14e3d7c",\
+        "artifact": "com.twitter:util-core_2.11:20.9.0",\
+        "sha256": "59955ecc258bcdd5de0199e289548717a794c7a1020f34ebef69a5f2cb36e127",\
     },\
     "io_bazel_rules_scala_util_logging": {\
-        "artifact": "com.twitter:util-logging_2.11:20.5.0",\
-        "sha256": "77782dad82e4066a2b8aa1aa6c07c8c2d111f65365833a88592e303464a98654",\
+        "artifact": "com.twitter:util-logging_2.11:20.9.0",\
+        "sha256": "32afd3278232cf504e77a7833eef812bb4e2ae16f6f524910896cf844e223eef",\
     },\
 }'
 
   if [ "18.6.0" = $version_under_test ]; then
     TWITTER_SCROOGE_ARTIFACTS=$TWITTER_SCROOGE_ARTIFACTS_18_6_0
-  elif [ "20.5.0" = $version_under_test ]; then
-    TWITTER_SCROOGE_ARTIFACTS=$TWITTER_SCROOGE_ARTIFACTS_20_5_0
+  elif [ "20.9.0" = $version_under_test ]; then
+    TWITTER_SCROOGE_ARTIFACTS=$TWITTER_SCROOGE_ARTIFACTS_20_9_0
   else
     echo "Unknown Twitter Scrooge version given $version_under_test"
   fi
@@ -125,4 +125,4 @@ TEST_TIMEOUT=15 $runner test_scala_version "${scala_2_11_version}"
 TEST_TIMEOUT=15 $runner test_scala_version "${scala_2_12_version}"
 
 TEST_TIMEOUT=15 $runner test_twitter_scrooge_versions "18.6.0"
-TEST_TIMEOUT=15 $runner test_twitter_scrooge_versions "20.5.0"
+TEST_TIMEOUT=15 $runner test_twitter_scrooge_versions "20.9.0"
