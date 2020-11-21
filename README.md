@@ -369,6 +369,7 @@ Here's a (non-exhaustive) list of companies that use `rules_scala` in production
 * [Ascend](https://ascend.io/)
 * [Canva](https://www.canva.com/)
 * [Etsy](https://www.etsy.com/)
+* [Gemini](https://gemini.com/)
 * [Grand Rounds](http://grandrounds.com/)
 * [Kitty Hawk](https://kittyhawk.aero/)
 * [Meetup](https://meetup.com/)
