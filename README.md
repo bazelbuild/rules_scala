@@ -25,29 +25,30 @@ This project defines core build rules for [Scala](https://www.scala-lang.org/) t
 
 ## Getting started
 
-1. [Install Bazel](https://docs.bazel.build/versions/master/install.html), see the [compatibility table](#bazel-compatible-versions).
-2. Add the following to your `WORKSPACE` file and update the `githash` if needed:
+1. [Install Bazel](https://docs.bazel.build/versions/master/install.html), 
+see the [compatibility table](#bazel-compatible-versions).
+2. Add the following to your `WORKSPACE` file and update versions with their sha256s if needed:
 
-```python
+```starlark
+# WORKSPACE
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-# bazel-skylib 0.8.0 released 2019.03.20 (https://github.com/bazelbuild/bazel-skylib/releases/tag/0.8.0)
-skylib_version = "0.8.0"
+skylib_version = "1.0.3"
 http_archive(
     name = "bazel_skylib",
+    sha256 = "1c531376ac7e5a180e0237938a2536de0c54d93f5c278634818e0efc952dd56c",
     type = "tar.gz",
-    url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{}/bazel-skylib.{}.tar.gz".format (skylib_version, skylib_version),
-    sha256 = "2ef429f5d7ce7111263289644d233707dba35e39696377ebab8b0bc701f7818e",
+    url = "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/{}/bazel-skylib-{}.tar.gz".format(skylib_version, skylib_version),
 )
 
-rules_scala_version="a2f5852902f5b9f0302c727eead52ca2c7b6c3e2" # update this as needed
+rules_scala_version = "bc4896727a40e89d6b92e267c12a28964bc9a76b"
 
 http_archive(
     name = "io_bazel_rules_scala",
+    sha256 = "db147ab5abfe4380a441daea4420922b5416fccd70092604b6acec5262b0ff72",
     strip_prefix = "rules_scala-%s" % rules_scala_version,
     type = "zip",
-    url = "https://github.com/bazelbuild/rules_scala/archive/%s.zip" % rules_scala_version,
-    sha256 = "8c48283aeb70e7165af48191b0e39b7434b0368718709d1bced5c3781787d8e7",
+    url = "https://github.com/liucijus/rules_scala/archive/%s.zip" % rules_scala_version,
 )
 
 # Stores Scala version and other configuration
@@ -56,31 +57,21 @@ http_archive(
 load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
 scala_config()
 
-load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_toolchains")
-scala_register_toolchains()
-
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
 scala_repositories()
 
-protobuf_version="3.11.3"
-protobuf_version_sha256="cf754718b0aa945b00550ed7962ddc167167bd922b842199eeb6505e6f344852"
+load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_toolchains")
+scala_register_toolchains()
 
-http_archive(
-    name = "com_google_protobuf",
-    url = "https://github.com/protocolbuffers/protobuf/archive/v%s.tar.gz" % protobuf_version,
-    strip_prefix = "protobuf-%s" % protobuf_version,
-    sha256 = protobuf_version_sha256,
-)
-
-# Dependencies needed for google_protobuf.
-# You may need to modify this if your project uses google_protobuf for other purposes.
-load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
-protobuf_deps()
+# optional: setup ScalaTest toolchain and dependencies
+load("@io_bazel_rules_scala//testing:scalatest.bzl", "scalatest_repositories", "scalatest_toolchain")
+scalatest_repositories()
+scalatest_toolchain()
 ```
 
 This will load the `rules_scala` repository at the commit sha
 `rules_scala_version` into your Bazel project and register a [Scala
-toolchain](#scala_toolchain) at the default Scala version (2.11.12)
+toolchain](#scala_toolchain) at the default Scala version (2.12.11)
 
 Then in your BUILD file just add the following so the rules will be available:
 ```python
@@ -137,20 +128,21 @@ Please check [coverage.md](docs/coverage.md) for more details on coverage suppor
 Rules scala supports the last two released minor versions for each of Scala 2.11 and 2.12.
 Previous minor versions may work but are supported only on a best effort basis.
 
-By default `Scala 2.12.10` is used and to use another version you need to
-specify it when calling `scala_repositories`. `scala_repositories` takes a tuple `(scala_version, scala_version_jar_shas)`
-as a parameter where `scala_version` is the scala version and `scala_version_jar_shas` is a `dict` with
-`sha256` hashes for the maven artifacts `scala_compiler`, `scala_library`, and `scala_reflect`:
+To configure Scala version you must call `scala_config(scala_version = "2.xx.xx")` and configure 
+dependencies by declaring [scala_toolchain](https://github.com/bazelbuild/rules_scala/blob/master/docs/scala_toolchain.md). 
+For a quick start you can use `scala_repositories()` and `scala_register_toolchains()`, which have 
+dependency providers configured for `2.11.12` and `2.12.11` versions.
 
-```python
-scala_repositories((
-    "2.11.12",
-    {
-        "scala_compiler": "3e892546b72ab547cb77de4d840bcfd05c853e73390fed7370a8f19acb0735a0",
-        "scala_library": "0b3d6fd42958ee98715ba2ec5fe221f4ca1e694d7c981b0ae0cd68e97baf6dce",
-        "scala_reflect": "6ba385b450a6311a15c918cf8688b9af9327c6104f0ecbd35933cfcd3095fe04",
-    }
-))
+```starlark
+# WORKSPACE
+load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
+scala_config(scala_version = "2.11.12")
+
+load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
+scala_repositories()
+
+load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_toolchains")
+scala_register_toolchains()
 ```
 
 If you're using any of the rules `twitter_scrooge`, `tut_repositories`, `scala_proto_repositories`
