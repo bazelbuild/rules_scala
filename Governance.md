@@ -54,7 +54,8 @@ Maintainers are selected by 2/3 or more approval of the current set of maintaine
 
 
 #### Current maintainers: (edit as needed)  
-Ittai Zeidman, @ittaiz  
+Ittai Zeidman, @ittaiz   
+Vaidas Pilkauskas, @liucijus  
 #### Past maintainers:  
 Oscar Boykin, @johnynek  
 
