@@ -24,5 +24,6 @@ scala_library(
     deps = [
         "//external:io_bazel_rules_scala/dependency/scala/scopt",
         "//external:io_bazel_rules_scala/dependency/thrift/scrooge_generator",
+        "//external:io_bazel_rules_scala/dependency/scala/scopt"
     ],
 )
