@@ -41,14 +41,14 @@ http_archive(
     url = "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/{}/bazel-skylib-{}.tar.gz".format(skylib_version, skylib_version),
 )
 
-rules_scala_version = "bc4896727a40e89d6b92e267c12a28964bc9a76b"
+rules_scala_version = "9bd9ffd3e52ab9e92b4f7b43051d83231743f231"
 
 http_archive(
     name = "io_bazel_rules_scala",
-    sha256 = "db147ab5abfe4380a441daea4420922b5416fccd70092604b6acec5262b0ff72",
+    sha256 = "438bc03bbb971c45385fde5762ab368a3321e9db5aa78b96252736d86396a9da",
     strip_prefix = "rules_scala-%s" % rules_scala_version,
     type = "zip",
-    url = "https://github.com/liucijus/rules_scala/archive/%s.zip" % rules_scala_version,
+    url = "https://github.com/bazelbuild/rules_scala/archive/%s.zip" % rules_scala_version,
 )
 
 # Stores Scala version and other configuration
