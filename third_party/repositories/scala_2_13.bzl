@@ -17,12 +17,12 @@ artifacts = {
     },
     #
     "io_bazel_rules_scala_scalatest": {
-        "artifact": "org.scalatest:scalatest_2.13:3.0.9",
-        "sha256": "6a0d2c3ee32a4010f95dc2cae084b95a1d8c4bc75491326bbbf1c173f1400b8b",
+        "artifact": "org.scalatest:scalatest_2.13:3.1.2",
+        "sha256": "94b636ce8dc2caed3069069c97b94538e60e9a400833fb8086c8271978ad2c21",
     },
     "io_bazel_rules_scala_scalactic": {
-        "artifact": "org.scalactic:scalactic_2.13:3.0.9",
-        "sha256": "93072ee4ed5e31e3d1e4e4cd159bfc6d0765a627a3c884234e30841555ad7c62",
+        "artifact": "org.scalactic:scalactic_2.13:3.1.2",
+        "sha256": "6977c34cabeacca7c0d8f3be0c3f5644ddd922b4af7c32d5a59ca561807e728d",
     },
     "io_bazel_rules_scala_scala_xml": {
         "artifact": "org.scala-lang.modules:scala-xml_2.13:1.3.0",
