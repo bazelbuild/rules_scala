@@ -41,6 +41,7 @@ import java.util.jar.{ JarFile, JarEntry }
 import java.util.logging.Level
 import scala.collection.concurrent.TrieMap
 import scala.collection.mutable
+import scala.collection.JavaConverters._
 
 object CompilerDefaults {
   var language: String = "scala"
@@ -139,7 +140,8 @@ class Compiler {
           language,
           resolvedDoc,
           defaultNamespace,
-          experimentFlags)
+          experimentFlags.toList
+        )
 
         generator match {
           case g: ScalaGenerator => g.warnOnJavaNamespaceFallback = scalaWarnOnJavaNSFallback

@@ -7,7 +7,7 @@ import scala.tools.nsc.Global
 import scala.tools.nsc.Phase
 
 class DependencyAnalyzer(val global: Global) extends Plugin {
-
+  private val reporter = new Reporter(global)
   override val name = "dependency-analyzer"
   override val description =
     "Analyzes the used dependencies. Can check and warn or fail the " +
@@ -148,13 +148,13 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
     errors: Map[String, global.Position]
   ): Unit = {
     val reportFunction: (String, global.Position) => Unit = analyzerMode match {
-      case AnalyzerMode.Error =>
-        { case (message, pos) =>
-          global.reporter.error(pos, message)
-        }
-      case AnalyzerMode.Warn =>
-      { case (message, pos) =>
-        global.reporter.warning(pos, message)
+      case AnalyzerMode.Error => {
+        case (message, pos) =>
+          reporter.error(pos, message)
+      }
+      case AnalyzerMode.Warn => {
+        case (message, pos) =>
+          reporter.warning(pos, message)
       }
       case AnalyzerMode.Off => (_, _) => ()
     }

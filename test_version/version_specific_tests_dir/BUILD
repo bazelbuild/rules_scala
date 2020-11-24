@@ -107,10 +107,11 @@ scala_library(
     srcs = glob(["src/main/scala/scalarules/test/mix_java_scala/*.scala"]) + glob([
         "src/main/scala/scalarules/test/mix_java_scala/*.java",
     ]),
-    scalac_jvm_flags = [
-        "-Xms1G",
-        "-Xmx4G",
-    ],
+    #    disabled due to Travis CI memory failure
+    #    scalac_jvm_flags = [
+    #        "-Xms1G",
+    #        "-Xmx4G",
+    #    ],
 )
 
 #needed to test java sources are compiled

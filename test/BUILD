@@ -66,7 +66,6 @@ scala_binary(
 scala_library(
     name = "HelloLib",
     srcs = ["HelloLib.scala"],
-    plugins = ["@org_psywerx_hairyfotr__linter//jar"],
     deps = [
         "Exported",
         "MacroTest",
@@ -281,7 +280,7 @@ scala_repl(
 
 scala_library(
     name = "jar_export",
-    exports = ["@com_twitter__scalding_date//jar"],
+    exports = ["@org_typelevel__cats_core//jar"],
 )
 
 #Mix java scala

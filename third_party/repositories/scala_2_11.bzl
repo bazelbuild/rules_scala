@@ -425,11 +425,6 @@ artifacts = {
         "artifact": "org.typelevel:cats-core_2.11:0.9.0",
         "sha256": "3fda7a27114b0d178107ace5c2cf04e91e9951810690421768e65038999ffca5",
     },
-    "org_psywerx_hairyfotr__linter": {
-        "testonly": True,
-        "artifact": "org.psywerx.hairyfotr:linter_2.11:0.1.17",
-        "sha256": "44a7dcc177cff78ed21ccbfa05309db4198992c84261f8a7818ebc5546499e8e",
-    },
     "com_google_guava_guava_21_0_with_file": {
         "testonly": True,
         "artifact": "com.google.guava:guava:21.0",

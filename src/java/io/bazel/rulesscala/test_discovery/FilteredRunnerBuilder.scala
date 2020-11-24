@@ -10,7 +10,7 @@ import org.junit.runner.Runner
 import org.junit.runners.BlockJUnit4ClassRunner
 import org.junit.runners.model.{FrameworkMethod, RunnerBuilder, TestClass}
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 object FilteredRunnerBuilder {
   type FilteringRunnerBuilder = PartialFunction[(Runner, Class[_], Pattern), Runner]
@@ -31,8 +31,10 @@ class FilteredRunnerBuilder(builder: RunnerBuilder, filteringRunnerBuilder: Filt
 private[rulesscala] class FilteredTestClass(testClass: Class[_], pattern: Pattern) extends TestClass(testClass) {
   override def getAnnotatedMethods(aClass: Class[_ <: Annotation]): util.List[FrameworkMethod] = {
     val methods = super.getAnnotatedMethods(aClass)
-    if (aClass == classOf[Test]) methods.filter(method => methodMatchesPattern(method, pattern))
-    else methods
+    if (aClass == classOf[Test])
+      methods.asScala.filter(method => methodMatchesPattern(method, pattern)).asJava
+    else
+      methods
   }
 
   private def methodMatchesPattern(method: FrameworkMethod, pattern: Pattern): Boolean = {

@@ -51,29 +51,8 @@ public class ProtoReporter extends ConsoleReporter {
   }
 
   @Override
-  public void info0(Position pos, String msg, Object severity, boolean force) {
-    Severity actualSeverity = (Severity) severity;
-    if(severity.equals(INFO())){
-      if(isVerbose || force){
-        actualSeverity.count_$eq(actualSeverity.count());
-        display(pos, msg, actualSeverity);
-      }
-    } else {
-        boolean hidden = testAndLog(pos, actualSeverity, msg);
-        if (!severity.equals(WARNING()) || !noWarnings) {
-            if(!hidden || isPromptSet){
-                actualSeverity.count_$eq(actualSeverity.count() + 1);
-                display(pos, msg, actualSeverity);
-            }
-            else if(isDebug){
-                actualSeverity.count_$eq(actualSeverity.count() + 1);
-                display(pos, "[ suppressed ] " + msg, actualSeverity);
-            }
-
-            if(isPromptSet)
-                displayPrompt();
-    }
-  }
+  public void info0(Position pos, String msg, Severity severity, boolean force) {
+      super.info0(pos, msg, severity, force);
 
       Diagnostics.Diagnostic diagnostic = Diagnostics.Diagnostic
           .newBuilder()
