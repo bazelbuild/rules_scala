@@ -19,9 +19,5 @@ test_coverage_includes_test_targets() {
     grep -q "SF:test/coverage/TestAll.scala" $(bazel info bazel-testlogs)/test/coverage/test-all/coverage.dat
 }
 
-xmllint_test() {
-  find -L ./bazel-testlogs -iname "*.xml" | xargs -n1 xmllint > /dev/null
-}
-
 $runner test_coverage_on
 $runner test_coverage_includes_test_targets
