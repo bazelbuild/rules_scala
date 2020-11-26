@@ -109,7 +109,7 @@ def _write_executable_non_windows(ctx, executable, rjars, main_class, jvm_flags,
         wrapper.short_path,
     )
 
-    if use_jacoco and _coverage_replacements_provider.is_enabled(ctx):
+    if use_jacoco and ctx.configuration.coverage_enabled:
         classpath = ctx.configuration.host_path_separator.join(
             ["${RUNPATH}%s" % (j.short_path) for j in rjars.to_list() + ctx.files._jacocorunner],
         )

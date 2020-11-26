@@ -59,7 +59,7 @@ def _from_ctx(ctx, base = {}):
     )
 
 def _aspect_impl(target, ctx):
-    if JavaInfo in target and _is_enabled(ctx):
+    if JavaInfo in target and ctx.configuration.coverage_enabled:
         return [_from_ctx(ctx.rule)]
     else:
         return []
@@ -70,19 +70,12 @@ _aspect = aspect(
     toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
 )
 
-def _is_enabled(ctx):
-    if "@io_bazel_rules_scala//scala:toolchain_type" not in ctx.toolchains:
-        return False
-    else:
-        return ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].enable_code_coverage_aspect == "on"
-
 coverage_replacements_provider = struct(
     aspect = _aspect,
     combine = _combine,
     create = _CoverageReplacements,
     dependency_attributes = _dependency_attributes,
     from_ctx = _from_ctx,
-    is_enabled = _is_enabled,
 )
 
 # from bazel's skylib
