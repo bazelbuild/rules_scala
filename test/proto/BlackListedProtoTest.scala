@@ -1,7 +1,8 @@
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec._
+
 import scala.util.Try
 
-class BlackListedProtoTest extends FlatSpec {
+class BlackListedProtoTest extends AnyFlatSpec {
 
   "looking for a blacklisted proto" should "fail" in {
     // The direct test dep should be here.

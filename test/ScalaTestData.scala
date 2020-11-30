@@ -1,8 +1,8 @@
-import java.io.File
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
+
 import scala.io.Source
 
-class RunfileSpec extends FlatSpec {
+class RunfileSpec extends AnyFlatSpec {
 
   "The text property" should "point to a runfile" in {
     Option(System.getProperty("text"))

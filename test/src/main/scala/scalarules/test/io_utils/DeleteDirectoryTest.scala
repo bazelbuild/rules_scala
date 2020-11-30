@@ -5,8 +5,10 @@ import java.nio.file.Files
 
 import io.bazel.rulesscala.io_utils.DeleteRecursively
 import org.scalatest._
+import flatspec._
+import matchers.should._
 
-class DeleteDirectoryTest extends FlatSpec with Matchers {
+class DeleteDirectoryTest extends AnyFlatSpec with Matchers {
 
   "DeleteDirectory.run" should "remove nested folders" in {
     // Arrange.

@@ -2,7 +2,7 @@ package scalarules.test
 
 import language.experimental.macros
 
-import reflect.macros.Context
+import reflect.macros.whitebox.Context
 
 object MacroTest {
   def hello(param: Any): Unit = macro hello_impl

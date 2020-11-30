@@ -14,19 +14,19 @@
 
 package scalarules.test
 
-import org.scalatest._
+import org.scalatest.flatspec._
 
 object TestUtil {
   def foo: String = "bar"
 }
 
-class ScalaSuite extends FlatSpec {
+class ScalaSuite extends AnyFlatSpec {
   "HelloLib" should "call scala" in {
     assert(HelloLib.getOtherLibMessage("hello").equals("hello you all, everybody. I am Runtime"))
   }
 }
 
-class JavaSuite extends FlatSpec {
+class JavaSuite extends AnyFlatSpec {
   "HelloLib" should "call java" in {
     assert(HelloLib.getOtherJavaLibMessage("hello").equals("hello java!"))
   }
