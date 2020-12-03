@@ -19,22 +19,29 @@ public class ReportableMainClass extends MainClass {
 
     @Override
     public Global newCompiler() {
-        if (!ops.enableDiagnosticsReport)
+        if (!ops.enableDiagnosticsReport) {
+            createDiagnosticsFile();
             return super.newCompiler();
+        }
 
         if (compiler == null) {
+            createDiagnosticsFile();
+
             Settings settings = super.settings();
-            Path path = Paths.get(ops.diagnosticsFile);
-            try {
-                Files.deleteIfExists(path);
-                Files.createFile(path);
-            } catch (IOException e) {
-                throw new RuntimeException("Could not delete/make diagnostics proto file", e);
-            }
             ConsoleReporter reporter = new ProtoReporter(settings);
 
             compiler = new Global(settings, reporter);
         }
         return compiler;
+    }
+
+    private void createDiagnosticsFile() {
+        Path path = Paths.get(ops.diagnosticsFile);
+        try {
+            Files.deleteIfExists(path);
+            Files.createFile(path);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not delete/make diagnostics proto file", e);
+        }
     }
 }
