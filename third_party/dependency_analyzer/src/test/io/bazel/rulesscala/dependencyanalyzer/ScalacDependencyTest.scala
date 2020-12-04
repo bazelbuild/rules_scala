@@ -4,7 +4,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.util.UUID
 import io.bazel.rulesscala.io_utils.DeleteRecursively
-import org.scalatest._
+import org.scalatest.funsuite._
 import third_party.utils.src.test.io.bazel.rulesscala.utils.JavaCompileUtil
 import third_party.utils.src.test.io.bazel.rulesscala.utils.TestUtil
 
@@ -18,7 +18,7 @@ import third_party.utils.src.test.io.bazel.rulesscala.utils.TestUtil
  * deps as we are considering alternatives of how to mitigate scalac's
  * limitations.
  */
-class ScalacDependencyTest extends FunSuite {
+class ScalacDependencyTest extends AnyFunSuite {
   private def withSandbox(action: Sandbox => Unit): Unit = {
     val tmpDir = Files.createTempDirectory("dependency_analyzer_test_temp")
     try {

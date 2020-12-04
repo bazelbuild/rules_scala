@@ -1,10 +1,9 @@
+import org.scalatest.funsuite._
 
-import org.scalatest._
+abstract class A extends AnyFunSuite {
+  val Number: Int
 
-abstract class A extends FunSuite {
-	val Number: Int
-
-	test("number is positive") {
-		assert(Number > 0)
-	}
+  test("number is positive") {
+    assert(Number > 0)
+  }
 }

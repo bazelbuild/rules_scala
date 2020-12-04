@@ -1,4 +1,6 @@
-class PackProtosTest extends org.scalatest.FlatSpec {
+import org.scalatest.flatspec.AnyFlatSpec
+
+class PackProtosTest extends AnyFlatSpec {
   "scala_proto_library" should "pack input proto next to generated code" in {
     assert(getClass.getResource("test/proto/standalone.proto") != null)
     assert(getClass.getResource("proto/standalone.proto") != null)

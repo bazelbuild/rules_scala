@@ -3,7 +3,7 @@ package third_party.dependency_analyzer.src.test.io.bazel.rulesscala.dependencya
 import java.nio.file.Files
 import java.nio.file.Path
 import io.bazel.rulesscala.io_utils.DeleteRecursively
-import org.scalatest._
+import org.scalatest.funsuite._
 import scala.tools.nsc.reporters.StoreReporter
 import third_party.dependency_analyzer.src.main.io.bazel.rulesscala.dependencyanalyzer.DependencyTrackingMethod
 import third_party.dependency_analyzer.src.main.io.bazel.rulesscala.dependencyanalyzer.ScalaVersion
@@ -15,7 +15,7 @@ import third_party.utils.src.test.io.bazel.rulesscala.utils.TestUtil.DependencyA
 // cannot be fixed in older versions of Scala for various reasons.
 // Hence make sure to look at any version checks to understand
 // which versions do and don't support which cases.
-class AstUsedJarFinderTest extends FunSuite {
+class AstUsedJarFinderTest extends AnyFunSuite {
   private def withSandbox(action: Sandbox => Unit): Unit = {
     val tmpDir = Files.createTempDirectory("dependency_analyzer_test_temp")
     try {

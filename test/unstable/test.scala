@@ -1,8 +1,8 @@
 package test.v2
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite._
 
-class Test extends FunSuite {
+class Test extends AnyFunSuite {
   test("method1") {
     assert(Library.method1 == "hello")
   }

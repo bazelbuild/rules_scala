@@ -2,10 +2,10 @@ package foo
 
 import scala.io.Source
 
-import org.scalatest._
+import org.scalatest.flatspec._
 
 
-class TestResourceJars extends FlatSpec {
+class TestResourceJars extends AnyFlatSpec {
   "this jar" should "contain resources from its resource jar dependency" in {
     val expectedSubstrings = Map(
       "byes" -> "later",
