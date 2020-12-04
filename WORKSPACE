@@ -184,17 +184,6 @@ rbe_autoconfig(
 
 load("//third_party/repositories:repositories.bzl", "repositories")
 
-# `jvm_maven_import_external` is required by scala_import tests
-jvm_maven_import_external(
-    name = "org_typelevel__cats_core",
-    artifact = scala_mvn_artifact(
-        "org.typelevel:cats-core:2.2.0",
-        SCALA_MAJOR_VERSION,
-    ),
-    artifact_sha256 = "d7b6f800b50028c61ebed12763a100f31e900eb2f7a4af0d68f9aaaf19c24dc3",
-    server_urls = MAVEN_SERVER_URLS,
-)
-
 repositories(
     fetch_sources = False,
     for_artifact_ids = [
@@ -214,6 +203,8 @@ repositories(
         "org_springframework_spring_core",
         "org_springframework_spring_tx",
         "org_spire_math_kind_projector",
+        # For testing that we don't include sources jars to the classpath
+        "org_typelevel__cats_core",
     ],
     maven_servers = MAVEN_SERVER_URLS,
 )
