@@ -1,5 +1,15 @@
 load("@io_bazel_rules_scala//scala:jars_to_labels.bzl", "JarsToLabelsInfo")
 
+def _stamp_symlinked_jar(ctx, jar):
+    symlink_file = ctx.actions.declare_file(jar.basename)
+    ctx.actions.symlink(output = symlink_file, target_file = jar)
+    return java_common.stamp_jar(
+        actions = ctx.actions,
+        jar = symlink_file,
+        target_label = ctx.label,
+        java_toolchain = ctx.attr._java_toolchain[java_common.JavaToolchainInfo],
+    )
+
 #intellij part is tested manually, tread lightly when changing there
 #if you change make sure to manually re-import an intellij project and see imports
 #are resolved (not red) and clickable
@@ -12,11 +22,17 @@ def _scala_import_impl(ctx):
         current_target_compile_jars,
         intellij_metadata,
     ) = (target_data.code_jars, target_data.intellij_metadata)
-    current_jars = depset(current_target_compile_jars)
+
+    current_stamped_jars = [
+        _stamp_symlinked_jar(ctx, jar)
+        for jar in current_target_compile_jars
+    ]
+
+    current_jars = depset(current_stamped_jars)
+
     exports = java_common.merge([export[JavaInfo] for export in ctx.attr.exports])
     transitive_runtime_jars = \
-        java_common.merge([dep[JavaInfo] for dep in ctx.attr.runtime_deps]) \
-            .transitive_runtime_jars
+        java_common.merge([dep[JavaInfo] for dep in ctx.attr.runtime_deps]).transitive_runtime_jars
     jars2labels = {}
     _collect_labels(ctx.attr.deps, jars2labels)
     _collect_labels(ctx.attr.exports, jars2labels)  #untested
@@ -113,6 +129,9 @@ scala_import = rule(
         "_placeholder_jar": attr.label(
             allow_single_file = True,
             default = Label("@io_bazel_rules_scala//scala:libPlaceHolderClassToCreateEmptyJarForScalaImport.jar"),
+        ),
+        "_java_toolchain": attr.label(
+            default = Label("@bazel_tools//tools/jdk:current_java_toolchain"),
         ),
     },
 )
