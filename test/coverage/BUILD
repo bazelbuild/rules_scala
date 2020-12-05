@@ -7,6 +7,8 @@ scala_test(
     srcs = [
         "TestAll.scala",
     ],
+    # Test providing the default value.
+    jacocorunner = "@bazel_tools//tools/jdk:JacocoCoverage",
     deps = [
         ":a1",
         ":a2",

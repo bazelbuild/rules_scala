@@ -21,7 +21,7 @@ def phase_coverage_runfiles(ctx, p):
             coverage_replacements[jar] if jar in coverage_replacements else jar
             for jar in rjars.to_list()
         ])
-        coverage_runfiles = ctx.files._jacocorunner + ctx.files._lcov_merger + coverage_replacements.values()
+        coverage_runfiles = ctx.files.jacocorunner + ctx.files._lcov_merger + coverage_replacements.values()
     return struct(
         coverage_runfiles = coverage_runfiles,
         runfiles = depset(coverage_runfiles),

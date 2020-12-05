@@ -60,6 +60,9 @@ _scala_test_attrs = {
     "reporter_class": attr.string(
         default = "io.bazel.rules.scala.JUnitXmlReporter",
     ),
+    "jacocorunner": attr.label(
+        default = Label("@bazel_tools//tools/jdk:JacocoCoverage"),
+    ),
     "_scalatest": attr.label(
         default = Label(
             "@io_bazel_rules_scala//testing/toolchain:scalatest_classpath",
@@ -71,9 +74,6 @@ _scala_test_attrs = {
     ),
     "_scalatest_reporter": attr.label(
         default = Label("//scala/support:test_reporter"),
-    ),
-    "_jacocorunner": attr.label(
-        default = Label("@bazel_tools//tools/jdk:JacocoCoverage"),
     ),
     "_lcov_merger": attr.label(
         default = Label("@bazel_tools//tools/test/CoverageOutputGenerator/java/com/google/devtools/coverageoutputgenerator:Main"),
