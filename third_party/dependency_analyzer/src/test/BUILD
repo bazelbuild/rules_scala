@@ -4,8 +4,8 @@ load("//scala:scala.bzl", "scala_junit_test", "scala_test")
 
 common_jvm_flags = [
     "-Dplugin.jar.location=$(location //third_party/dependency_analyzer/src/main:dependency_analyzer)",
-    "-Dscala.library.location=$(location //external:io_bazel_rules_scala/dependency/scala/scala_library)",
-    "-Dscala.reflect.location=$(location //external:io_bazel_rules_scala/dependency/scala/scala_reflect)",
+    "-Dscala.library.location=$(rootpath //external:io_bazel_rules_scala/dependency/scala/scala_library)",
+    "-Dscala.reflect.location=$(rootpath //external:io_bazel_rules_scala/dependency/scala/scala_reflect)",
 ]
 
 scala_test(
@@ -64,7 +64,7 @@ scala_test(
         "io/bazel/rulesscala/dependencyanalyzer/StrictDepsTest.scala",
     ],
     jvm_flags = common_jvm_flags + [
-        "-Dguava.jar.location=$(location @com_google_guava_guava_21_0_with_file//jar)",
+        "-Dguava.jar.location=$(rootpath @com_google_guava_guava_21_0_with_file//jar)",
         "-Dapache.commons.jar.location=$(location @org_apache_commons_commons_lang_3_5_without_file//:linkable_org_apache_commons_commons_lang_3_5_without_file)",
     ],
     unused_dependency_checker_mode = "off",
