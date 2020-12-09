@@ -1,0 +1,33 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_test")
+
+java_binary(
+    name = "pickler",
+    srcs = ["Pickler.java", "FixedTimeJarFactory.java"],
+    main_class = "pipeline.Pickler",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//scala/private/toolchain_deps:scala_compile_classpath",
+        "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/worker",
+    ],
+)
+
+java_test(
+    name = "FixedTimeJarFactoryTest",
+    srcs = ["FixedTimeJarFactoryTest.java"],
+    test_class = "pipeline.FixedTimeJarFactoryTest",
+    deps = [
+        ":pickler",
+        "//scala/private/toolchain_deps:scala_compile_classpath",
+    ],
+)
+
+java_test(
+    name = "PicklerTest",
+    srcs = ["PicklerTest.java"],
+    test_class = "pipeline.PicklerTest",
+    deps = [
+        ":pickler",
+        "//scala/private/toolchain_deps:scala_compile_classpath",
+        "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/worker",
+    ],
+)

@@ -18,6 +18,7 @@ load(
     _expand_location = "expand_location",
 )
 load(":resources.bzl", _resource_paths = "paths")
+load("@io_bazel_rules_scala//scala/private/experiments/pipeline:pickler.bzl", "ScalaSigJar", "pickler")
 
 def phase_compile_binary(ctx, p):
     args = struct(
@@ -128,6 +129,8 @@ def _phase_compile(
     deps_providers = p.collect_jars.deps_providers
     default_classpath = p.scalac_provider.default_classpath
 
+    sig = pickler(ctx) if hasattr(ctx.executable, "_pickler") and ctx.attr.srcs else None
+
     out = _compile_or_empty(
         ctx,
         manifest,
@@ -145,7 +148,7 @@ def _phase_compile(
 
     # TODO: simplify the return values and use provider
     return struct(
-        files = depset(out.full_jars),
+        files = depset(out.full_jars + ([sig.direct] if sig else [])),
         rjars = depset(out.full_jars, transitive = [rjars]),
         merged_provider = out.merged_provider,
         external_providers = {

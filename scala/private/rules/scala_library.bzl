@@ -74,7 +74,14 @@ def _scala_library_impl(ctx):
         ],
     )
 
-_scala_library_attrs = {}
+_scala_library_attrs = {
+    "_pickler": attr.label(
+        executable = True,
+        cfg = "exec",
+        default = Label("@io_bazel_rules_scala//scala/private/experiments/pipeline:pickler"),
+        allow_files = True,
+    ),
+}
 
 _scala_library_attrs.update(implicit_deps)
 
