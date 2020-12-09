@@ -29,7 +29,6 @@ def phase_write_executable_scalatest(ctx, p):
             "-DRULES_SCALA_MAIN_WS_NAME=%s" % ctx.workspace_name,
             "-DRULES_SCALA_ARGS_FILE=%s" % p.runfiles.args_file.short_path,
         ] + expand_location(ctx, final_jvm_flags),
-        use_jacoco = ctx.configuration.coverage_enabled,
     )
     return _phase_write_executable_default(ctx, p, args)
 
@@ -56,7 +55,6 @@ def _phase_write_executable_default(ctx, p, _args = struct()):
         p,
         _args.rjars if hasattr(_args, "rjars") else p.compile.rjars,
         _args.jvm_flags if hasattr(_args, "jvm_flags") else ctx.attr.jvm_flags,
-        _args.use_jacoco if hasattr(_args, "use_jacoco") else False,
         _args.main_class if hasattr(_args, "main_class") else ctx.attr.main_class,
     )
 
@@ -65,18 +63,16 @@ def _phase_write_executable(
         p,
         rjars,
         jvm_flags,
-        use_jacoco,
         main_class):
     executable = p.declare_executable.executable
     wrapper = p.java_wrapper
 
     if (is_windows(ctx)):
-        return _write_executable_windows(ctx, executable, rjars, main_class, jvm_flags, wrapper, use_jacoco)
+        return _write_executable_windows(ctx, executable, rjars, main_class, jvm_flags, wrapper)
     else:
-        return _write_executable_non_windows(ctx, executable, rjars, main_class, jvm_flags, wrapper, use_jacoco)
+        return _write_executable_non_windows(ctx, executable, rjars, main_class, jvm_flags, wrapper)
 
-def _write_executable_windows(ctx, executable, rjars, main_class, jvm_flags, wrapper, use_jacoco):
-    # NOTE: `use_jacoco` is currently ignored on Windows.
+def _write_executable_windows(ctx, executable, rjars, main_class, jvm_flags, wrapper):
     # TODO: tests coverage support for Windows
     classpath = ";".join(
         [("external/%s" % (j.short_path[3:]) if j.short_path.startswith("../") else j.short_path) for j in rjars.to_list()],
@@ -97,7 +93,7 @@ def _write_executable_windows(ctx, executable, rjars, main_class, jvm_flags, wra
     )
     return []
 
-def _write_executable_non_windows(ctx, executable, rjars, main_class, jvm_flags, wrapper, use_jacoco):
+def _write_executable_non_windows(ctx, executable, rjars, main_class, jvm_flags, wrapper):
     template = ctx.attr._java_stub_template.files.to_list()[0]
 
     jvm_flags = " ".join(
@@ -109,7 +105,7 @@ def _write_executable_non_windows(ctx, executable, rjars, main_class, jvm_flags,
         wrapper.short_path,
     )
 
-    if use_jacoco and _coverage_replacements_provider.is_enabled(ctx):
+    if ctx.configuration.coverage_enabled:
         classpath = ctx.configuration.host_path_separator.join(
             ["${RUNPATH}%s" % (j.short_path) for j in rjars.to_list() + ctx.files._jacocorunner],
         )

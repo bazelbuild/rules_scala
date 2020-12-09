@@ -11,7 +11,7 @@ load(
 def phase_coverage_runfiles(ctx, p):
     coverage_runfiles = []
     rjars = p.compile.rjars
-    if ctx.configuration.coverage_enabled and _coverage_replacements_provider.is_enabled(ctx):
+    if ctx.configuration.coverage_enabled:
         coverage_replacements = _coverage_replacements_provider.from_ctx(
             ctx,
             base = p.coverage.replacements if ctx.coverage_instrumented() else {},
