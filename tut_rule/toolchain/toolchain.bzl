@@ -34,4 +34,5 @@ export_tut_deps = rule(
         ),
     },
     toolchains = ["@io_bazel_rules_scala//tut_rule/toolchain:tut_toolchain_type"],
+    incompatible_use_toolchain_transition = True,
 )
