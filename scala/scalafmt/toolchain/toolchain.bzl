@@ -33,4 +33,5 @@ export_scalafmt_deps = rule(
         ),
     },
     toolchains = ["@io_bazel_rules_scala//scala/scalafmt/toolchain:scalafmt_toolchain_type"],
+    incompatible_use_toolchain_transition = True,
 )
