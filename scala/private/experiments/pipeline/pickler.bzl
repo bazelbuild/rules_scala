@@ -1,4 +1,9 @@
 
+#load(
+#    "@io_bazel_rules_scala//scala/private/toolchain_deps:toolchain_deps.bzl",
+#    "find_deps_info_on",
+#)
+
 ScalaSigJar = provider(
     doc = "ScalaSigJar",
     fields = [
@@ -10,12 +15,13 @@ ScalaSigJar = provider(
 def pickler(ctx):
     jar = ctx.actions.declare_file(ctx.label.name + "-sig.jar")
 
-    classpath = depset(transitive = [
-        dep[ScalaSigJar].transitive
-        if ScalaSigJar in dep
-        else
-        dep[JavaInfo].transitive_deps
-        for dep in ctx.attr.deps
+    classpath = depset(
+#        direct = find_deps_info_on(ctx, "@io_bazel_rules_scala//scala:toolchain_type", "scala_compile_classpath").deps,
+        transitive = [
+            dep[ScalaSigJar].transitive
+            if ScalaSigJar in dep
+            else dep[JavaInfo].transitive_deps
+            for dep in ctx.attr.deps #+ find_deps_info_on(ctx, "@io_bazel_rules_scala//scala:toolchain_type", "scala_compile_classpath").deps
     ])
 
     plugins = ctx.files.plugins
@@ -35,8 +41,9 @@ def pickler(ctx):
     args.add("-Ymacro-expand:none")
     args.add("-usejavacp")
     args.add("-YjarFactory", "pipeline.FixedTimeJarFactory")
-    args.add("-Ypickle-write-api-only")
+#    args.add("-Ylog-classpath")
     args.add("-Ypickle-java")
+#    args.add("-Ypickle-write-api-only") # TODO: Breaks //test/jmh:test_benchmark_generator
     args.add("-Ypickle-write", jar)
     args.add_joined("-classpath", classpath, join_with = ctx.configuration.host_path_separator)
     args.add_all(ctx.files.srcs)
@@ -44,6 +51,7 @@ def pickler(ctx):
     ctx.actions.run(
         executable = ctx.executable._pickler,
         arguments = [args],
+        inputs = depset(direct = ctx.files.srcs + ctx.files.plugins, transitive = [classpath]),
         outputs = [jar],
         mnemonic = "ScalaPickler",
         execution_requirements = {"supports-workers": "1"},

@@ -147,13 +147,15 @@ def _phase_compile(
     )
 
     # TODO: simplify the return values and use provider
+    external_providers = {"JavaInfo": out.merged_provider}
+    if sig:
+        external_providers["ScalaSigJar"] = sig
+
     return struct(
         files = depset(out.full_jars + ([sig.direct] if sig else [])),
         rjars = depset(out.full_jars, transitive = [rjars]),
         merged_provider = out.merged_provider,
-        external_providers = {
-            "JavaInfo": out.merged_provider,
-        },
+        external_providers = external_providers
     )
 
 def _compile_or_empty(
