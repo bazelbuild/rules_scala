@@ -102,10 +102,11 @@ _scala_test_attrs.update(common_attrs)
 
 _scala_test_attrs.update(_test_resolve_deps)
 
-def make_scala_test(*extras):
+def make_scala_test(*extras, **kwargs):
     return rule(
         attrs = _dicts.add(
             _scala_test_attrs,
+            kwargs.get("attrs") if "attrs" in kwargs else {},
             extras_phases(extras),
             *[extra["attrs"] for extra in extras if "attrs" in extra]
         ),
