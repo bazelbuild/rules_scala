@@ -84,7 +84,7 @@ def scala_repositories(
             "io_bazel_rules_scala_scala_xml",
             "io_bazel_rules_scala_scala_parser_combinators",
         ],
-        maven_servers = _default_maven_server_urls(),
+        maven_servers = maven_servers,
         fetch_sources = fetch_sources,
         overriden_artifacts = overriden_artifacts,
     )
