@@ -1,0 +1,43 @@
+load("//scala:scala.bzl", "scala_library")
+load(":rules.bzl", "sig_provider_test")
+
+scala_library(
+    name = "A",
+    srcs = ["A.scala"],
+    deps = [":B", ":C"],
+)
+
+scala_library(
+    name = "B",
+    srcs = ["B.scala"],
+)
+
+scala_library(
+    name = "C",
+    srcs = ["C.scala"],
+    deps = [":D"],
+)
+
+scala_library(
+    name = "D",
+    srcs = ["D.scala"],
+)
+
+sig_provider_test(
+    name = "A_test",
+    rule = ":A",
+    provides = [
+        "B-sig.jar",
+        "D-sig.jar",
+        "C-sig.jar",
+        "A-sig.jar",
+    ]
+)
+
+sig_provider_test(
+    name = "B_test",
+    rule = ":B",
+    provides = [
+        "B-sig.jar",
+    ]
+)
