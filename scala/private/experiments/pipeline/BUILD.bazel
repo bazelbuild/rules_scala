@@ -1,8 +1,17 @@
-load("@rules_java//java:defs.bzl", "java_binary", "java_test")
+load("@rules_java//java:defs.bzl", "java_binary", "java_library", "java_test")
+
+java_library(
+    name = "ManifestMod",
+    srcs = ["ManifestMod.java"],
+    deps = ["//scala/private/toolchain_deps:scala_compile_classpath"],
+    resources = ["scalac-plugin.xml"],
+    resource_strip_prefix = package_name(),
+    visibility = ["//visibility:public"],
+)
 
 java_binary(
     name = "pickler",
-    srcs = ["Pickler.java", "FixedTimeJarFactory.java"],
+    srcs = ["Pickler.java", "FixedTimeJarFactory.java", "ManifestMod.java"],
     main_class = "pipeline.Pickler",
     visibility = ["//visibility:public"],
     deps = [

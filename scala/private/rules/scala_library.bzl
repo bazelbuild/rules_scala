@@ -81,6 +81,9 @@ _scala_library_attrs = {
         default = Label("@io_bazel_rules_scala//scala/private/experiments/pipeline:pickler"),
         allow_files = True,
     ),
+    "_manifest_mod": attr.label(
+        default = Label("@io_bazel_rules_scala//scala/private/experiments/pipeline:ManifestMod"),
+    ),
 }
 
 _scala_library_attrs.update(implicit_deps)

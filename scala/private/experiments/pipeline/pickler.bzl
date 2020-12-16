@@ -37,11 +37,16 @@ def pickler(ctx):
     args.add_all(plugins, before_each = "-Xplugin")
     args.add_all(plugins_opts)
     args.add("-Youtline")
+    args.add("-Xplugin-list")
     args.add("-Ystop-after:pickler")
     args.add("-Ymacro-expand:none")
     args.add("-usejavacp")
     args.add("-YjarFactory", "pipeline.FixedTimeJarFactory")
+    args.add("-Xplugin", ctx.files._manifest_mod[0])
+    args.add("-P:ManifestMod:Manifest-Version=1.0")
+    args.add("-P:ManifestMod:Target-Label=" + str(ctx.label))
 #    args.add("-Ylog-classpath")
+#    args.add("-verbose")
     args.add("-Ypickle-java")
 #    args.add("-Ypickle-write-api-only") # TODO: Breaks //test/jmh:test_benchmark_generator
     args.add("-Ypickle-write", jar)
@@ -51,7 +56,7 @@ def pickler(ctx):
     ctx.actions.run(
         executable = ctx.executable._pickler,
         arguments = [args],
-        inputs = depset(direct = ctx.files.srcs + ctx.files.plugins, transitive = [classpath]),
+        inputs = depset(direct = ctx.files.srcs + ctx.files.plugins + ctx.files._manifest_mod, transitive = [classpath]),
         outputs = [jar],
         mnemonic = "ScalaPickler",
         execution_requirements = {"supports-workers": "1"},
