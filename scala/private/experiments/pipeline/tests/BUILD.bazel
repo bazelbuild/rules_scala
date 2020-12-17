@@ -25,7 +25,7 @@ scala_library(
 
 sig_provider_test(
     name = "A_test",
-    rule = ":A",
+    target = ":A",
     provides = [
         "B-sig.jar",
         "D-sig.jar",
@@ -36,7 +36,7 @@ sig_provider_test(
 
 sig_provider_test(
     name = "B_test",
-    rule = ":B",
+    target = ":B",
     provides = [
         "B-sig.jar",
     ]

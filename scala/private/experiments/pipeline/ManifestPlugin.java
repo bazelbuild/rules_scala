@@ -15,22 +15,20 @@ import java.util.jar.Manifest;
 
 import static scala.collection.JavaConverters.asJavaCollection;
 
-// TODO: Rename
-public class ManifestMod extends Plugin {
+public class ManifestPlugin extends Plugin {
 
     private final Global global;
-    private Map<String, String> entries = new HashMap<>();
+    private final Map<String, String> entries = new HashMap<>();
 
-    public ManifestMod(Global global) {
+    public ManifestPlugin(Global global) {
         this.global = global;
     }
 
     @Override
     public boolean init(List<String> options, Function1<String, BoxedUnit> error) {
-        asJavaCollection(options).forEach(e -> {
-            // TODO: Cleanup
-            String[] x = e.split("=");
-            entries.put(x[0], x[1]);
+        asJavaCollection(options).forEach(option -> {
+            String[] entry = option.split("=");
+            entries.put(entry[0], entry[1]);
         });
         return true;
     }
@@ -43,17 +41,17 @@ public class ManifestMod extends Plugin {
 
     @Override
     public String name() {
-        return "ManifestMod";
+        return "Manifest";
+    }
+
+    @Override
+    public String description() {
+        return "Adds entries to main attributes of manifest";
     }
 
     @Override
     public List<PluginComponent> components() {
         return scala.collection.immutable.List.empty();
-    }
-
-    @Override
-    public String description() {
-        return "ManifestMod";
     }
 
     @Override

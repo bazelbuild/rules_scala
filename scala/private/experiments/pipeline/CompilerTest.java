@@ -17,7 +17,7 @@ import static java.util.jar.JarFile.MANIFEST_NAME;
 import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
 
-public class PicklerTest {
+public class CompilerTest {
 
     @Rule
     public TemporaryFolder temp = new TemporaryFolder();
@@ -30,7 +30,7 @@ public class PicklerTest {
 
         Files.write(src.toPath(), "package test { class Test }".getBytes());
 
-        Pickler.main("-usejavacp", "-d", out.getAbsolutePath(), src.getAbsolutePath());
+        pipeline.Compiler.main("-usejavacp", "-d", out.getAbsolutePath(), src.getAbsolutePath());
 
         assertEntries(out, "test/Test.class");
     }
@@ -43,13 +43,13 @@ public class PicklerTest {
 
         Files.write(src.toPath(), "package test { class A }".getBytes());
 
-        Pickler.main("-usejavacp", "-d", out.getAbsolutePath(), src.getAbsolutePath());
+        pipeline.Compiler.main("-usejavacp", "-d", out.getAbsolutePath(), src.getAbsolutePath());
 
         assertEntries(out, "test/A.class");
 
         Files.write(src.toPath(), "package test { class B }".getBytes());
 
-        Pickler.main("-usejavacp", "-d", out.getAbsolutePath(), src.getAbsolutePath());
+        pipeline.Compiler.main("-usejavacp", "-d", out.getAbsolutePath(), src.getAbsolutePath());
 
         assertEntries(out, "test/B.class");
     }
@@ -68,7 +68,7 @@ public class PicklerTest {
             jar.flush();
         }
 
-        Pickler.main("-usejavacp", "-d", out.getAbsolutePath(), src.getAbsolutePath());
+        pipeline.Compiler.main("-usejavacp", "-d", out.getAbsolutePath(), src.getAbsolutePath());
 
         assertEntries(out, "test/A.class");
     }
@@ -81,7 +81,7 @@ public class PicklerTest {
 
         Files.write(src.toPath(), "package test { class Test }".getBytes());
 
-        Pickler.main(
+        pipeline.Compiler.main(
                 "-usejavacp",
                 "-Youtline",
                 "-Ystop-after:pickler",

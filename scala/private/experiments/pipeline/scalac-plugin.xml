@@ -1,4 +1,4 @@
 <plugin>
-    <name>ManifestMod</name>
-    <classname>pipeline.ManifestMod</classname>
+    <name>Manifest</name>
+    <classname>pipeline.ManifestPlugin</classname>
 </plugin>

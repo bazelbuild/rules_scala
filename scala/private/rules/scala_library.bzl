@@ -75,14 +75,15 @@ def _scala_library_impl(ctx):
     )
 
 _scala_library_attrs = {
-    "_pickler": attr.label(
+    "_pipeline_compiler": attr.label(
         executable = True,
         cfg = "exec",
-        default = Label("@io_bazel_rules_scala//scala/private/experiments/pipeline:pickler"),
+        default = "@io_bazel_rules_scala//scala/private/experiments/pipeline:Compiler",
         allow_files = True,
     ),
-    "_manifest_mod": attr.label(
-        default = Label("@io_bazel_rules_scala//scala/private/experiments/pipeline:ManifestMod"),
+    "_pipeline_plugins": attr.label_list(
+        default = ["@io_bazel_rules_scala//scala/private/experiments/pipeline:ManifestPlugin"],
+        allow_files = [".jar"]
     ),
 }
 

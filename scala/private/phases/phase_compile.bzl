@@ -129,7 +129,7 @@ def _phase_compile(
     deps_providers = p.collect_jars.deps_providers
     default_classpath = p.scalac_provider.default_classpath
 
-    sig = pickler(ctx) if hasattr(ctx.executable, "_pickler") and ctx.attr.srcs else None
+    sig = pickler(ctx) if hasattr(ctx.executable, "_pipeline_compiler") and ctx.attr.srcs else None
 
     out = _compile_or_empty(
         ctx,

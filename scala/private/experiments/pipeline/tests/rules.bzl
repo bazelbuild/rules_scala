@@ -7,7 +7,7 @@ def _sig_provider_test(ctx):
         result = [
             f.basename
             for f
-            in ctx.attr.rule[ScalaSigJar].transitive.to_list()
+            in ctx.attr.target[ScalaSigJar].transitive.to_list()
         ],
         expect = ctx.attr.provides
     )
@@ -16,7 +16,7 @@ def _sig_provider_test(ctx):
 sig_provider_test = rule(
     implementation = _sig_provider_test,
     attrs = {
-        "rule": attr.label(mandatory = True, providers = [ScalaSigJar]),
+        "target": attr.label(mandatory = True, providers = [ScalaSigJar]),
         "provides": attr.string_list(),
     },
     test = True,

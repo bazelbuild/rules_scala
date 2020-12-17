@@ -2,8 +2,10 @@ package pipeline;
 
 import io.bazel.rulesscala.worker.Worker;
 import scala.collection.Traversable;
-import scala.reflect.io.*;
-import scala.runtime.BoxedUnit;
+import scala.reflect.io.AbstractFile;
+import scala.reflect.io.FileZipArchive;
+import scala.reflect.io.PlainFile;
+import scala.reflect.io.ZipArchive;
 import scala.tools.nsc.CompilerCommand;
 import scala.tools.nsc.Global;
 import scala.tools.nsc.Settings;
@@ -25,10 +27,10 @@ import static scala.collection.JavaConverters.asScalaBuffer;
     TODO: Encapsulate pickler flags?
     TODO: Rename to Compiler or Scalac?
 */
-public class Pickler implements Worker.Interface {
+public class Compiler implements Worker.Interface {
 
     public static void main(String... args) throws Exception {
-        Worker.workerMain(args, new Pickler());
+        Worker.workerMain(args, new pipeline.Compiler());
     }
 
     @Override

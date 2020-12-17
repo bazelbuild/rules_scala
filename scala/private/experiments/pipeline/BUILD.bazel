@@ -1,8 +1,8 @@
 load("@rules_java//java:defs.bzl", "java_binary", "java_library", "java_test")
 
 java_library(
-    name = "ManifestMod",
-    srcs = ["ManifestMod.java"],
+    name = "ManifestPlugin",
+    srcs = ["ManifestPlugin.java"],
     deps = ["//scala/private/toolchain_deps:scala_compile_classpath"],
     resources = ["scalac-plugin.xml"],
     resource_strip_prefix = package_name(),
@@ -10,9 +10,9 @@ java_library(
 )
 
 java_binary(
-    name = "pickler",
-    srcs = ["Pickler.java", "FixedTimeJarFactory.java", "ManifestMod.java"],
-    main_class = "pipeline.Pickler",
+    name = "Compiler",
+    srcs = ["Compiler.java", "FixedTimeJarFactory.java"],
+    main_class = "pipeline.Compiler",
     visibility = ["//visibility:public"],
     deps = [
         "//scala/private/toolchain_deps:scala_compile_classpath",
@@ -25,17 +25,17 @@ java_test(
     srcs = ["FixedTimeJarFactoryTest.java"],
     test_class = "pipeline.FixedTimeJarFactoryTest",
     deps = [
-        ":pickler",
+        ":Compiler",
         "//scala/private/toolchain_deps:scala_compile_classpath",
     ],
 )
 
 java_test(
-    name = "PicklerTest",
-    srcs = ["PicklerTest.java"],
-    test_class = "pipeline.PicklerTest",
+    name = "CompilerTest",
+    srcs = ["CompilerTest.java"],
+    test_class = "pipeline.CompilerTest",
     deps = [
-        ":pickler",
+        ":Compiler",
         "//scala/private/toolchain_deps:scala_compile_classpath",
         "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/worker",
     ],

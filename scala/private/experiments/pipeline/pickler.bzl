@@ -1,9 +1,4 @@
 
-#load(
-#    "@io_bazel_rules_scala//scala/private/toolchain_deps:toolchain_deps.bzl",
-#    "find_deps_info_on",
-#)
-
 ScalaSigJar = provider(
     doc = "ScalaSigJar",
     fields = [
@@ -16,47 +11,46 @@ def pickler(ctx):
     jar = ctx.actions.declare_file(ctx.label.name + "-sig.jar")
 
     classpath = depset(
-#        direct = find_deps_info_on(ctx, "@io_bazel_rules_scala//scala:toolchain_type", "scala_compile_classpath").deps,
         transitive = [
             dep[ScalaSigJar].transitive
             if ScalaSigJar in dep
             else dep[JavaInfo].transitive_deps
-            for dep in ctx.attr.deps #+ find_deps_info_on(ctx, "@io_bazel_rules_scala//scala:toolchain_type", "scala_compile_classpath").deps
+            for dep in ctx.attr.deps
     ])
 
-    plugins = ctx.files.plugins
+    plugins = ctx.files._pipeline_plugins + ctx.files.plugins
     plugins_opts = [
         ctx.expand_location(v, ctx.attr.plugins)
         for v in ctx.attr.scalacopts
         if v.startswith("-P:")
     ]
 
+    sources = ctx.files.srcs
+
     args = ctx.actions.args()
     args.set_param_file_format("multiline")
     args.use_param_file(param_file_arg = "@%s", use_always = True)
+    args.add_joined("-classpath", classpath, join_with = ctx.configuration.host_path_separator)
     args.add_all(plugins, before_each = "-Xplugin")
     args.add_all(plugins_opts)
+    args.add("-P:Manifest:Manifest-Version=1.0")
+    args.add("-P:Manifest:Target-Label=" + str(ctx.label))
+    args.add("-YjarFactory", "pipeline.FixedTimeJarFactory")
+    args.add("-usejavacp")
     args.add("-Youtline")
-    args.add("-Xplugin-list")
     args.add("-Ystop-after:pickler")
     args.add("-Ymacro-expand:none")
-    args.add("-usejavacp")
-    args.add("-YjarFactory", "pipeline.FixedTimeJarFactory")
-    args.add("-Xplugin", ctx.files._manifest_mod[0])
-    args.add("-P:ManifestMod:Manifest-Version=1.0")
-    args.add("-P:ManifestMod:Target-Label=" + str(ctx.label))
+    args.add("-Ypickle-java")
+    args.add("-Ypickle-write", jar)
+#    args.add("-Ypickle-write-api-only") # TODO: Breaks //test/jmh:test_benchmark_generator
 #    args.add("-Ylog-classpath")
 #    args.add("-verbose")
-    args.add("-Ypickle-java")
-#    args.add("-Ypickle-write-api-only") # TODO: Breaks //test/jmh:test_benchmark_generator
-    args.add("-Ypickle-write", jar)
-    args.add_joined("-classpath", classpath, join_with = ctx.configuration.host_path_separator)
-    args.add_all(ctx.files.srcs)
+    args.add_all(sources)
 
     ctx.actions.run(
-        executable = ctx.executable._pickler,
+        executable = ctx.executable._pipeline_compiler,
         arguments = [args],
-        inputs = depset(direct = ctx.files.srcs + ctx.files.plugins + ctx.files._manifest_mod, transitive = [classpath]),
+        inputs = depset(direct = sources + plugins, transitive = [classpath]),
         outputs = [jar],
         mnemonic = "ScalaPickler",
         execution_requirements = {"supports-workers": "1"},
