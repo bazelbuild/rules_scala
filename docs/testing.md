@@ -61,7 +61,7 @@ register_toolchains('//my/package:testing_toolchains_with_junit')
 `junit_classpath_provider` (deps_id `junit_classpath`) is where classpath required for junit tests
 is defined.
 
-### ScalaTest dependencies can be configured by decalring a provider with an id `scalatest_classpath`:
+### ScalaTest dependencies can be configured by declaring a provider with an id `scalatest_classpath`:
 
 ```starlark
 # my/package/BUILD

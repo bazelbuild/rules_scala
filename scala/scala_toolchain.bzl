@@ -58,6 +58,7 @@ def _scala_toolchain_impl(ctx):
         scalac_jvm_flags = ctx.attr.scalac_jvm_flags,
         scala_test_jvm_flags = ctx.attr.scala_test_jvm_flags,
         enable_diagnostics_report = enable_diagnostics_report,
+        jacocorunner = ctx.attr.jacocorunner,
     )
     return [toolchain]
 
@@ -95,6 +96,9 @@ scala_toolchain = rule(
         "scala_test_jvm_flags": attr.string_list(),
         "enable_diagnostics_report": attr.bool(
             doc = "Enable the output of structured diagnostics through the BEP",
+        ),
+        "jacocorunner": attr.label(
+            default = Label("@bazel_tools//tools/jdk:JacocoCoverage"),
         ),
     },
     fragments = ["java"],
