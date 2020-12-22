@@ -129,8 +129,6 @@ def _phase_compile(
     deps_providers = p.collect_jars.deps_providers
     default_classpath = p.scalac_provider.default_classpath
 
-    sig = pickler(ctx) if hasattr(ctx.executable, "_pipeline_compiler") and ctx.attr.srcs else None
-
     out = _compile_or_empty(
         ctx,
         manifest,
@@ -148,11 +146,11 @@ def _phase_compile(
 
     # TODO: simplify the return values and use provider
     external_providers = {"JavaInfo": out.merged_provider}
-    if sig:
-        external_providers["ScalaSigJar"] = sig
+    if hasattr(ctx.executable, "_pipeline_compiler") and ctx.attr.srcs:
+        external_providers["ScalaSigJar"] = pickler(ctx)
 
     return struct(
-        files = depset(out.full_jars + ([sig.direct] if sig else [])),
+        files = depset(out.full_jars),
         rjars = depset(out.full_jars, transitive = [rjars]),
         merged_provider = out.merged_provider,
         external_providers = external_providers
