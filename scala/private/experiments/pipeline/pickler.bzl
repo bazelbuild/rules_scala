@@ -1,4 +1,3 @@
-
 ScalaSigJar = provider(
     doc = "ScalaSigJar",
     fields = [
@@ -10,13 +9,28 @@ ScalaSigJar = provider(
 def pickler(ctx):
     jar = ctx.actions.declare_file(ctx.label.name + "-sig.jar")
 
-    classpath = depset(
-        transitive = [
-            dep[ScalaSigJar].transitive
-            if ScalaSigJar in dep
-            else dep[JavaInfo].transitive_deps
+    # TODO: Breaks //test/src/main/scala/scalarules/test/twitter_scrooge:twodeep
+    classpath_direct = depset(
+        direct = [
+            dep[ScalaSigJar].direct
             for dep in ctx.attr.deps
-    ])
+            if ScalaSigJar in dep
+        ],
+        transitive = [
+            dep[JavaInfo].compile_jars
+            for dep in ctx.attr.deps
+            if not ScalaSigJar in dep
+        ],
+    )
+
+    classpath_transitive = depset(
+        transitive = [
+            dep[ScalaSigJar].transitive if ScalaSigJar in dep else dep[JavaInfo].transitive_deps
+            for dep in ctx.attr.deps
+        ],
+    )
+
+    classpath = classpath_transitive
 
     plugins = ctx.files._pipeline_plugins + ctx.files.plugins
     plugins_opts = [
@@ -42,9 +56,10 @@ def pickler(ctx):
     args.add("-Ymacro-expand:none")
     args.add("-Ypickle-java")
     args.add("-Ypickle-write", jar)
-#    args.add("-Ypickle-write-api-only") # TODO: Breaks //test/jmh:test_benchmark_generator
-#    args.add("-Ylog-classpath")
-#    args.add("-verbose")
+
+    #    args.add("-Ypickle-write-api-only") # TODO: Breaks //test/jmh:test_benchmark_generator
+    #    args.add("-Ylog-classpath")
+    #    args.add("-verbose")
     args.add_all(sources)
 
     ctx.actions.run(
@@ -59,7 +74,7 @@ def pickler(ctx):
     return ScalaSigJar(
         direct = jar,
         transitive = depset(
-            direct = [jar], 
-            transitive = [classpath]
-        )
+            direct = [jar],
+            transitive = [classpath],
+        ),
     )

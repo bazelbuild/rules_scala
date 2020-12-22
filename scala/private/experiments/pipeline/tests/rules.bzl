@@ -6,12 +6,10 @@ def _sig_provider_test(ctx):
         ctx,
         result = [
             f.basename
-            for f
-            in ctx.attr.target[ScalaSigJar].transitive.to_list()
+            for f in ctx.attr.target[ScalaSigJar].transitive.to_list()
         ],
-        expect = ctx.attr.provides
+        expect = ctx.attr.provides,
     )
-
 
 sig_provider_test = rule(
     implementation = _sig_provider_test,

@@ -3,15 +3,18 @@ load("@rules_java//java:defs.bzl", "java_binary", "java_library", "java_test")
 java_library(
     name = "ManifestPlugin",
     srcs = ["ManifestPlugin.java"],
-    deps = ["//scala/private/toolchain_deps:scala_compile_classpath"],
-    resources = ["scalac-plugin.xml"],
     resource_strip_prefix = package_name(),
+    resources = ["scalac-plugin.xml"],
     visibility = ["//visibility:public"],
+    deps = ["//scala/private/toolchain_deps:scala_compile_classpath"],
 )
 
 java_binary(
     name = "Compiler",
-    srcs = ["Compiler.java", "FixedTimeJarFactory.java"],
+    srcs = [
+        "Compiler.java",
+        "FixedTimeJarFactory.java",
+    ],
     main_class = "pipeline.Compiler",
     visibility = ["//visibility:public"],
     deps = [

@@ -4,7 +4,10 @@ load(":rules.bzl", "sig_provider_test")
 scala_library(
     name = "A",
     srcs = ["A.scala"],
-    deps = [":B", ":C"],
+    deps = [
+        ":B",
+        ":C",
+    ],
 )
 
 scala_library(
@@ -25,19 +28,19 @@ scala_library(
 
 sig_provider_test(
     name = "A_test",
-    target = ":A",
     provides = [
         "B-sig.jar",
         "D-sig.jar",
         "C-sig.jar",
         "A-sig.jar",
-    ]
+    ],
+    target = ":A",
 )
 
 sig_provider_test(
     name = "B_test",
-    target = ":B",
     provides = [
         "B-sig.jar",
-    ]
+    ],
+    target = ":B",
 )

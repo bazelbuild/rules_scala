@@ -1,6 +1,7 @@
 package pipeline;
 
 import io.bazel.rulesscala.worker.Worker;
+import scala.Function1;
 import scala.collection.Traversable;
 import scala.reflect.io.AbstractFile;
 import scala.reflect.io.FileZipArchive;
@@ -69,7 +70,8 @@ public final class Compiler implements Worker.Interface {
         FileZipArchive zip = ZipArchive.fromFile(file);
 
         zip.allDirs().forEach((k, v) -> {
-            Traversable<ZipArchive.Entry> entryTraversable = v.entries().values().filter(f -> f.hasExtension("scala") || f.hasExtension("java"));
+            Function1<ZipArchive.Entry, Object> sources = f -> f.hasExtension("scala") || f.hasExtension("java");
+            Traversable<ZipArchive.Entry> entryTraversable = v.entries().values().filter(sources);
             files.addAll(asJavaCollection(entryTraversable.toList()));
         });
 
