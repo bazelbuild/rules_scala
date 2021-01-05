@@ -37,6 +37,7 @@ load(
     "phase_write_manifest",
     "run_phases",
 )
+load("@io_bazel_rules_scala//scala/private/experiments/pipeline:pickler.bzl", "phase_pickler")
 
 ##
 # Common stuff to _library rules
@@ -65,6 +66,7 @@ def _scala_library_impl(ctx):
             ("write_manifest", phase_write_manifest),
             ("dependency", phase_dependency_common),
             ("collect_jars", phase_collect_jars_common),
+            ("pickler", phase_pickler),
             ("compile", phase_compile_library),
             ("coverage", phase_coverage_library),
             ("merge_jars", phase_merge_jars),

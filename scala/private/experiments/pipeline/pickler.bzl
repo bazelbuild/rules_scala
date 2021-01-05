@@ -78,3 +78,11 @@ def pickler(ctx):
             transitive = [classpath],
         ),
     )
+
+def phase_pickler(ctx, p):
+    if ctx.attr.srcs:
+        return struct(
+            external_providers = {"ScalaSigJar": pickler(ctx)},
+        )
+    else:
+        return struct()
