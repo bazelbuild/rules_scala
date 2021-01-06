@@ -4,35 +4,32 @@ def _stamp_symlinked_jar(ctx, jar):
     symlink_file = ctx.actions.declare_file(jar.basename)
     ctx.actions.symlink(output = symlink_file, target_file = jar)
 
-    # TODO: use java_common.stamp_jar version after ijar stamping is fixed:
-    # https://github.com/bazelbuild/bazel/issues/12730
-    #
-    # return java_common.stamp_jar(
-    #     actions = ctx.actions,
-    #     jar = symlink_file,
-    #     target_label = ctx.label,
-    #     java_toolchain = ctx.attr._java_toolchain[java_common.JavaToolchainInfo],
-    # )
-
     stamped_jar_filename = jar.basename.rstrip(".jar") + "-stamped.jar"
+
+    # Preferred way, but currently broken:
+    # java toolchain's ijar incorrectly handles
+    #    return java_common.stamp_jar(
+    #        actions = ctx.actions,
+    #        jar = symlink_file,
+    #        target_label = ctx.label,
+    #        java_toolchain = ctx.attr._java_toolchain[java_common.JavaToolchainInfo],
+    #    )
+
+    # Stamp with custom built (https://github.com/bazelbuild/bazel/pull/12771)
     stamped_file = ctx.actions.declare_file(stamped_jar_filename)
 
-    # TODO: use java_common
     ctx.actions.run(
-        executable = ctx.executable._singlejar,
+        executable = ctx.executable.ijar,
         inputs = [symlink_file],
         outputs = [stamped_file],
         arguments = [
-            "--normalize",
-            "--sources",
+            "--nostrip_jar",
+            "--target_label",
+            ctx.label.name,
             symlink_file.path,
-            "--output",
             stamped_file.path,
-            "--deploy_manifest_lines",
-            "Target-Label: %s" % ctx.label,
         ],
-        mnemonic = "StampTargetLabel",
-        progress_message = "Stamping manifest of %s" % ctx.label,
+        mnemonic = "StampWithIjar",
     )
 
     return stamped_file
@@ -157,10 +154,11 @@ scala_import = rule(
             allow_single_file = True,
             default = Label("@io_bazel_rules_scala//scala:libPlaceHolderClassToCreateEmptyJarForScalaImport.jar"),
         ),
-        "_singlejar": attr.label(
-            default = Label("@bazel_tools//tools/jdk:singlejar"),
+        "ijar": attr.label(
+            default = Label("//third_party/java_tools/ijar:ijar"),
             executable = True,
             cfg = "exec",
+            allow_files = True,
         ),
     },
 )
