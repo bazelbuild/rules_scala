@@ -2,6 +2,7 @@ ScalaSigJar = provider(
     doc = "ScalaSigJar",
     fields = [
         "direct",
+        "plus_one",
         "transitive",
     ],
 )
@@ -73,9 +74,13 @@ def pickler(ctx):
 
     return ScalaSigJar(
         direct = jar,
+        plus_one = depset(
+            direct = [jar],
+            transitive = [classpath_direct]
+        ),
         transitive = depset(
             direct = [jar],
-            transitive = [classpath],
+            transitive = [classpath_transitive],
         ),
     )
 

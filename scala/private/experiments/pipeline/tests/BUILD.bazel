@@ -28,19 +28,29 @@ scala_library(
 
 sig_provider_test(
     name = "A_test",
-    provides = [
+    direct = "A-sig.jar",
+    plus_one = [
+        "B-sig.jar",
+        "C-sig.jar",
+        "A-sig.jar",
+    ],
+    target = ":A",
+    transitive = [
         "B-sig.jar",
         "D-sig.jar",
         "C-sig.jar",
         "A-sig.jar",
     ],
-    target = ":A",
 )
 
 sig_provider_test(
     name = "B_test",
-    provides = [
+    direct = "B-sig.jar",
+    plus_one = [
         "B-sig.jar",
     ],
     target = ":B",
+    transitive = [
+        "B-sig.jar",
+    ],
 )
