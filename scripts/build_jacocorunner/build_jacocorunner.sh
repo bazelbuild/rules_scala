@@ -42,7 +42,11 @@ set -e
 
 source_path=$(readlink -f $(dirname ${BASH_SOURCE[0]}))
 
-jacoco_repo=$HOME/Work/jacoco
+build_dir=/tmp/bazel_jacocorunner_build
+
+mkdir -p $build_dir
+
+jacoco_repo=$build_dir/jacoco
 # Take a fork for Jacoco that contains Scala fixes.
 jacoco_remote=https://github.com/gergelyfabian/jacoco
 # Choose a branch you'd like to use.
@@ -62,7 +66,7 @@ jacoco_patches="$jacoco_patches 0001-Build-Jacoco-for-Bazel.patch"
 # Jacoco version should be 0.8.3 in any case as Bazel is only compatible with that at this moment.
 jacoco_version=0.8.3
 
-bazel_repo=$HOME/Work/bazel
+bazel_repo=$build_dir/bazel
 bazel_remote=https://github.com/bazelbuild/bazel
 bazel_branch=master
 # Advanced option: take a fork that has fixes for Jacoco LCOV formatter, to respect Jacoco filtering
@@ -72,7 +76,7 @@ bazel_branch=master
 
 bazel_build_target=JacocoCoverage_jarjar_deploy.jar
 
-destination_dir=$HOME
+destination_dir=$build_dir
 
 # Generate the jar.
 
@@ -125,4 +129,3 @@ chmod +w $destination_dir/$bazel_build_target
 
 echo "JacocoRunner is available at: $destination_dir/$bazel_build_target"
 )
-
