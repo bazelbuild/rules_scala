@@ -10,7 +10,7 @@
 #    https://github.com/bazelbuild/rules_scala/issues/1056
 #    https://github.com/bazelbuild/bazel/issues/11674
 #
-#    Backported fix from Jacoco 0.8.5 to Jacoco 0.8.3:
+#    Backported fix from Jacoco 0.8.5 to Jacoco 0.8.3 (current Bazel is not compatible with Jacoco 0.8.5):
 #    https://github.com/gergelyfabian/jacoco/tree/0.8.3-scala-lambda-fix
 #
 # 2. Bazel ignores Jacoco's filtering for branch coverage metrics:
@@ -37,10 +37,36 @@
 # and then provide the built jar as a parameter of `java_toolchain` and/or `scala_toolchain` to use the changed behavior for coverage.
 #
 # Choose the fixes from the above list by configuring the used branches for Bazel and Jacoco repos below.
+#
+# Patches:
+#
+# There are also some patches that may need to be applied for Jacoco, according to your preferences:
+#
+# 1. Bazel is compatible only with Jacoco in a specific package name. This is not Jacoco-specific, so not committed to the Jacoco fork.
+#    See 0001-Build-Jacoco-for-Bazel.patch.
+# 2. Building Jacoco behind a proxy needs a workaround.
+#    See 0002-Build-Jacoco-behind-proxy.patch.
+#
+# Set up the patch file names in `jacoco_patches`.
+#
+# Dependencies:
+#
+# On OS X greadlink is needed (by running `brew install coreutils`).
 
 set -e
 
-source_path=$(readlink -f $(dirname ${BASH_SOURCE[0]}))
+
+
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+  readlink_cmd="readlink"
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  readlink_cmd="greadlink"
+else
+  echo "OS not supported: $OSTYPE"
+  exit 1
+fi
+
+source_path=$($readlink_cmd -f $(dirname ${BASH_SOURCE[0]}))
 
 build_dir=/tmp/bazel_jacocorunner_build
 
