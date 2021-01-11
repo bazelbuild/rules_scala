@@ -81,9 +81,6 @@ def compile_scala(
         plugins = depset(transitive = [plugins, dep_plugin.files])
         internal_plugin_jars = ctx.files._dependency_analyzer_plugin
 
-        current_target = str(target_label)
-        optional_scalac_args_map["CurrentTarget"] = current_target
-
     if dependency_info.need_indirect_info:
         transitive_cjars_list = transitive_compile_jars.to_list()
         indirect_jars = _join_path(transitive_cjars_list)
@@ -123,6 +120,7 @@ def compile_scala(
     enable_diagnostics_report = toolchain.enable_diagnostics_report
 
     scalac_args = """
+CurrentTarget: {current_target}
 Classpath: {cp}
 ClasspathResourceSrcs: {classpath_resource_src}
 Files: {files}
@@ -143,6 +141,7 @@ StatsfileOutput: {statsfile_output}
 EnableDiagnosticsReport: {enable_diagnostics_report}
 DiagnosticsFile: {diagnostics_output}
 """.format(
+        current_target = str(target_label),
         out = output.path,
         manifest = manifest.path,
         # Using ':::' as delimiter because ',' can collide with actual scalac options
