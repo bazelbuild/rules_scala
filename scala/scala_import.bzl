@@ -3,12 +3,38 @@ load("@io_bazel_rules_scala//scala:jars_to_labels.bzl", "JarsToLabelsInfo")
 def _stamp_symlinked_jar(ctx, jar):
     symlink_file = ctx.actions.declare_file(jar.basename)
     ctx.actions.symlink(output = symlink_file, target_file = jar)
-    return java_common.stamp_jar(
-        actions = ctx.actions,
-        jar = symlink_file,
-        target_label = ctx.label,
-        java_toolchain = ctx.attr._java_toolchain[java_common.JavaToolchainInfo],
+
+    # TODO: use java_common.stamp_jar version after ijar stamping is fixed:
+    # https://github.com/bazelbuild/bazel/issues/12730
+    #
+    # return java_common.stamp_jar(
+    #     actions = ctx.actions,
+    #     jar = symlink_file,
+    #     target_label = ctx.label,
+    #     java_toolchain = ctx.attr._java_toolchain[java_common.JavaToolchainInfo],
+    # )
+
+    stamped_jar_filename = jar.basename.rstrip(".jar") + "-stamped.jar"
+    stamped_file = ctx.actions.declare_file(stamped_jar_filename)
+
+    # TODO: use java_common
+    ctx.actions.run(
+        executable = ctx.executable._singlejar,
+        inputs = [symlink_file],
+        outputs = [stamped_file],
+        arguments = [
+            "--sources",
+            symlink_file.path,
+            "--output",
+            stamped_file.path,
+            "--deploy_manifest_lines",
+            "Target-Label: %s" % ctx.label,
+        ],
+        mnemonic = "StampTargetLabel",
+        progress_message = "Stamping manifest of %s" % ctx.label,
     )
+
+    return stamped_file
 
 #intellij part is tested manually, tread lightly when changing there
 #if you change make sure to manually re-import an intellij project and see imports
@@ -130,8 +156,10 @@ scala_import = rule(
             allow_single_file = True,
             default = Label("@io_bazel_rules_scala//scala:libPlaceHolderClassToCreateEmptyJarForScalaImport.jar"),
         ),
-        "_java_toolchain": attr.label(
-            default = Label("@bazel_tools//tools/jdk:current_java_toolchain"),
+        "_singlejar": attr.label(
+            default = Label("@bazel_tools//tools/jdk:singlejar"),
+            executable = True,
+            cfg = "exec",
         ),
     },
 )
