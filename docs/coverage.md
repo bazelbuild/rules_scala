@@ -58,3 +58,46 @@ echo "coverage report at file://${destdir}/index.html"
 ### Support for testing frameworks
 
 Coverage support has been only tested with [ScalaTest](http://www.scalatest.org/).
+
+### Working around missing lambda coverage with Scala 2.12+
+
+The current Jacoco version in Bazel (0.8.3) has missing coverage for lambdas
+(including for comprehensions; see issue https://github.com/bazelbuild/rules_scala/issues/1056).
+This can be worked around by building a fixed version of Jacoco yourselves (including backported fixes from 0.8.5) and reconfiguring your
+build to use that one instead of the default `jacocorunner`.
+
+You can build jacocorunner with a script in `scripts/build_jacocorunner/build_jacocorunner.sh` (see comments there for more explanation and options).
+
+Then, you can use the `jacocorunner` property of `scala_toolchain` to provide the jacocorunner you have built:
+
+```
+# Example contents of coverage_local_jacocorunner/BUILD
+scala_toolchain(
+    name = "local_jacocorunner_toolchain_impl",
+    jacocorunner = ":local_jacocorunner",
+    visibility = ["//visibility:public"],
+)
+
+toolchain(
+    name = "local_jacocorunner_scala_toolchain",
+    toolchain = "local_jacocorunner_toolchain_impl",
+    toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "local_jacocorunner",
+    srcs = ["JacocoCoverage_jarjar_deploy.jar"],
+)
+```
+
+In this example `jacocorunner` is provided as a local file, but you could also upload your version to an artifactory and then use `http_file` (to avoid
+keeping binaries in your repository).
+
+Finally provide the `scala_toolchain` in your `.bazelrc` or as an option to `bazel coverage`:
+
+```
+coverage --extra_toolchains="//coverage_local_jacocorunner:local_jacocorunner_scala_toolchain"
+```
+
+You can verify that the locally built `jacocorunner` works with `manual_test/coverage_local_jacocorunner/test.sh`.
