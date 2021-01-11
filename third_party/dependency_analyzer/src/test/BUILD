@@ -3,7 +3,7 @@ licenses(["notice"])  # 3-clause BSD
 load("//scala:scala.bzl", "scala_junit_test", "scala_test")
 
 common_jvm_flags = [
-    "-Dplugin.jar.location=$(location //third_party/dependency_analyzer/src/main:dependency_analyzer)",
+    "-Dplugin.jar.location=$(execpath //third_party/dependency_analyzer/src/main:dependency_analyzer)",
     "-Dscala.library.location=$(rootpath //external:io_bazel_rules_scala/dependency/scala/scala_library)",
     "-Dscala.reflect.location=$(rootpath //external:io_bazel_rules_scala/dependency/scala/scala_reflect)",
 ]
