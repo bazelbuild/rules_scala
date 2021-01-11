@@ -1,0 +1,37 @@
+From c789ef7cc8e97d80b8dabd7267b714bcb04febad Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Gergely=20F=C3=A1bi=C3=A1n?= <gergo.fb@gmail.com>
+Date: Sat, 19 Dec 2020 08:54:33 +0100
+Subject: [PATCH 2/2] Build Jacoco behind proxy
+
+---
+ jacoco-maven-plugin.test/it/settings.xml | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/jacoco-maven-plugin.test/it/settings.xml b/jacoco-maven-plugin.test/it/settings.xml
+index 31132fe4..6ae986d7 100644
+--- a/jacoco-maven-plugin.test/it/settings.xml
++++ b/jacoco-maven-plugin.test/it/settings.xml
+@@ -42,4 +42,20 @@
+       </pluginRepositories>
+     </profile>
+   </profiles>
++    <proxies>
++        <proxy>
++            <id>http_proxy</id>
++            <active>true</active>
++            <protocol>http</protocol>
++            <host>127.0.0.1</host>
++            <port>3128</port>
++        </proxy>
++        <proxy>
++            <id>https_proxy</id>
++            <active>true</active>
++            <protocol>https</protocol>
++            <host>127.0.0.1</host>
++            <port>3128</port>
++        </proxy>
++    </proxies>
+ </settings>
+-- 
+2.25.1
+
