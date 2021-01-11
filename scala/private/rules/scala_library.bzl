@@ -37,7 +37,7 @@ load(
     "phase_write_manifest",
     "run_phases",
 )
-load("@io_bazel_rules_scala//scala/private/experiments/pipeline:pickler.bzl", "phase_pickler")
+load("@io_bazel_rules_scala//scala/private/experiments/pipeline:pickler.bzl", "pickler_attrs", "phase_pickler", "phase_pickler_deps")
 
 ##
 # Common stuff to _library rules
@@ -66,6 +66,7 @@ def _scala_library_impl(ctx):
             ("write_manifest", phase_write_manifest),
             ("dependency", phase_dependency_common),
             ("collect_jars", phase_collect_jars_common),
+            ("pickler_deps", phase_pickler_deps),
             ("pickler", phase_pickler),
             ("compile", phase_compile_library),
             ("coverage", phase_coverage_library),
@@ -76,18 +77,9 @@ def _scala_library_impl(ctx):
         ],
     )
 
-_scala_library_attrs = {
-    "_pipeline_compiler": attr.label(
-        executable = True,
-        cfg = "exec",
-        default = "@io_bazel_rules_scala//scala/private/experiments/pipeline:Compiler",
-        allow_files = True,
-    ),
-    "_pipeline_plugins": attr.label_list(
-        default = ["@io_bazel_rules_scala//scala/private/experiments/pipeline:ManifestPlugin"],
-        allow_files = [".jar"]
-    ),
-}
+_scala_library_attrs = {}
+
+_scala_library_attrs.update(pickler_attrs)
 
 _scala_library_attrs.update(implicit_deps)
 

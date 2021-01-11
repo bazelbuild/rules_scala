@@ -121,6 +121,8 @@ def _phase_compile(
         implicit_junit_deps_needed_for_java_compilation,
         unused_dependency_checker_ignored_targets):
     manifest = ctx.outputs.manifest
+#    jars = p.pickler_deps.direct if hasattr(p, "pickler_deps") else p.collect_jars.compile_jars
+#    transitive_compile_jars = p.pickler_deps.transitive if hasattr(p, "pickler_deps") else p.collect_jars.transitive_compile_jars
     jars = p.collect_jars.compile_jars
     rjars = p.collect_jars.transitive_runtime_jars
     transitive_compile_jars = p.collect_jars.transitive_compile_jars

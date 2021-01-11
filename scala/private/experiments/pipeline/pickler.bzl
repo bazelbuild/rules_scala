@@ -7,30 +7,11 @@ ScalaSigJar = provider(
     ],
 )
 
-def pickler(ctx):
+def pickler(ctx, deps):
     jar = ctx.actions.declare_file(ctx.label.name + "-sig.jar")
 
-    # TODO: Breaks //test/src/main/scala/scalarules/test/twitter_scrooge:twodeep
-    classpath_direct = depset(
-        direct = [
-            dep[ScalaSigJar].direct
-            for dep in ctx.attr.deps
-            if ScalaSigJar in dep
-        ],
-        transitive = [
-            dep[JavaInfo].compile_jars
-            for dep in ctx.attr.deps
-            if not ScalaSigJar in dep
-        ],
-    )
-
-    classpath_transitive = depset(
-        transitive = [
-            dep[ScalaSigJar].transitive if ScalaSigJar in dep else dep[JavaInfo].transitive_deps
-            for dep in ctx.attr.deps
-        ],
-    )
-
+    classpath_direct = deps.direct # TODO: Breaks //test/src/main/scala/scalarules/test/twitter_scrooge:twodeep
+    classpath_transitive = deps.transitive
     classpath = classpath_transitive
 
     plugins = ctx.files._pipeline_plugins + ctx.files.plugins
@@ -87,7 +68,42 @@ def pickler(ctx):
 def phase_pickler(ctx, p):
     if ctx.attr.srcs:
         return struct(
-            external_providers = {"ScalaSigJar": pickler(ctx)},
+            external_providers = {"ScalaSigJar": pickler(ctx, p.pickler_deps)},
         )
     else:
         return struct()
+
+def phase_pickler_deps(ctx, p):
+    return struct(
+        direct = depset(
+            direct = [
+                dep[ScalaSigJar].direct
+                for dep in ctx.attr.deps
+                if ScalaSigJar in dep
+            ],
+            transitive = [
+                dep[JavaInfo].compile_jars
+                for dep in ctx.attr.deps
+                if not ScalaSigJar in dep
+            ],
+        ),
+        transitive = depset(
+            transitive = [
+                dep[ScalaSigJar].transitive if ScalaSigJar in dep else dep[JavaInfo].transitive_deps
+                for dep in ctx.attr.deps
+            ],
+        ),
+    )
+
+pickler_attrs = {
+    "_pipeline_compiler": attr.label(
+        executable = True,
+        cfg = "exec",
+        default = "@io_bazel_rules_scala//scala/private/experiments/pipeline:Compiler",
+        allow_files = True,
+    ),
+    "_pipeline_plugins": attr.label_list(
+        default = ["@io_bazel_rules_scala//scala/private/experiments/pipeline:ManifestPlugin"],
+        allow_files = [".jar"]
+    ),
+}
