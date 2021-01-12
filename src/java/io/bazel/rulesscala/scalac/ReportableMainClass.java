@@ -5,12 +5,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import scala.tools.nsc.Settings;
-import scala.tools.nsc.reporters.ConsoleReporter;
+import scala.tools.nsc.reporters.Reporter;
 import scala.tools.nsc.MainClass;
 import scala.tools.nsc.Global;
 
 public class ReportableMainClass extends MainClass {
     private Global compiler;
+    private Reporter reporter;
     private final CompileOptions ops;
 
     public ReportableMainClass(CompileOptions ops) {
@@ -21,14 +22,16 @@ public class ReportableMainClass extends MainClass {
     public Global newCompiler() {
         if (!ops.enableDiagnosticsReport) {
             createDiagnosticsFile();
-            return super.newCompiler();
+            Global global = super.newCompiler();
+            reporter = global.reporter();
+            return global;
         }
 
         if (compiler == null) {
             createDiagnosticsFile();
 
             Settings settings = super.settings();
-            ConsoleReporter reporter = new ProtoReporter(settings);
+            reporter = new ProtoReporter(settings);
 
             compiler = new Global(settings, reporter);
         }
@@ -43,5 +46,9 @@ public class ReportableMainClass extends MainClass {
         } catch (IOException e) {
             throw new RuntimeException("Could not delete/make diagnostics proto file", e);
         }
+    }
+
+    public Reporter getReporter(){
+        return this.reporter;
     }
 }
