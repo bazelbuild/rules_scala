@@ -23,6 +23,7 @@ def _stamp_symlinked_jar(ctx, jar):
         inputs = [symlink_file],
         outputs = [stamped_file],
         arguments = [
+            "--normalize",
             "--sources",
             symlink_file.path,
             "--output",
