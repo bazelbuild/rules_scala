@@ -7,7 +7,8 @@ def _stamp_symlinked_jar(ctx, jar):
     stamped_jar_filename = jar.basename.rstrip(".jar") + "-stamped.jar"
 
     # Preferred way, but currently broken:
-    # java toolchain's ijar incorrectly handles
+    # java toolchain's ijar incorrectly handles MANIFEST sections
+    # https://github.com/bazelbuild/bazel/issues/12730
     #    return java_common.stamp_jar(
     #        actions = ctx.actions,
     #        jar = symlink_file,
