@@ -27,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
@@ -265,8 +266,18 @@ public class JarCreator extends JarHelper {
       manifestFile = args[1];
       idx = 2;
     }
+
+    String targetLabel = null;
+    if (args[idx].equals("-t")) {
+      idx++;
+      targetLabel = args[idx];
+      idx++;
+    }
+
     String output = args[idx];
     JarCreator createJar = new JarCreator(output);
+    createJar.setJarOwner(targetLabel, null);
+
     createJar.setManifestFile(manifestFile);
     for (int i = (idx + 1); i < args.length; i++) {
       String thisName = args[i];

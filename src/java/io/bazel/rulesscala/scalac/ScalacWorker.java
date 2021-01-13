@@ -75,7 +75,12 @@ class ScalacWorker implements Worker.Interface {
       copyClasspathResourcesToRoot(ops.classpathResourceFiles, tmpPath);
 
       /** Now build the output jar */
-      String[] jarCreatorArgs = {"-m", ops.manifestPath, outputPath.toString(), tmpPath.toString()};
+      String[] jarCreatorArgs = {
+          "-m", ops.manifestPath,
+          "-t", ops.currentTarget,
+          outputPath.toString(),
+          tmpPath.toString()
+      };
       JarCreator.main(jarCreatorArgs);
     } finally {
       removeTmp(tmpPath);
