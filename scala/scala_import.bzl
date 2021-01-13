@@ -20,7 +20,7 @@ def _stamp_symlinked_jar(ctx, jar):
     stamped_file = ctx.actions.declare_file(stamped_jar_filename)
 
     ctx.actions.run(
-        executable = ctx.executable.ijar,
+        executable = ctx.executable._ijar,
         inputs = [symlink_file],
         outputs = [stamped_file],
         arguments = [
@@ -155,8 +155,8 @@ scala_import = rule(
             allow_single_file = True,
             default = Label("@io_bazel_rules_scala//scala:libPlaceHolderClassToCreateEmptyJarForScalaImport.jar"),
         ),
-        "ijar": attr.label(
-            default = Label("//third_party/java_tools/ijar:ijar"),
+        "_ijar": attr.label(
+            default = Label("@io_bazel_rules_scala//third_party/java_tools/ijar:ijar"),
             executable = True,
             cfg = "exec",
             allow_files = True,
