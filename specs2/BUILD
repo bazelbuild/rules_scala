@@ -6,7 +6,7 @@ java_import(
     name = "specs2",
     jars = [],
     exports = [
-        "//testing/toolchain:specs2_classapath",
+        "//testing/toolchain:specs2_classpath",
     ],
     deps = [
         "//scala/private/toolchain_deps:scala_library_classpath",

@@ -15,7 +15,7 @@ scala_library(
         "//scala/private/toolchain_deps:scala_xml",
         "//src/java/io/bazel/rulesscala/test_discovery",
         "//testing/toolchain:junit_classpath",
-        "//testing/toolchain:specs2_classapath",
-        "//testing/toolchain:specs2_junit_classapath",
+        "//testing/toolchain:specs2_classpath",
+        "//testing/toolchain:specs2_junit_classpath",
     ],
 )

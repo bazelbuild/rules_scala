@@ -18,13 +18,13 @@ testing_toolchain_deps(
 )
 
 testing_toolchain_deps(
-    name = "specs2_classapath",
+    name = "specs2_classpath",
     deps_id = "specs2_classpath",
     visibility = ["//visibility:public"],
 )
 
 testing_toolchain_deps(
-    name = "specs2_junit_classapath",
+    name = "specs2_junit_classpath",
     deps_id = "specs2_junit_classpath",
     visibility = ["//visibility:public"],
 )
