@@ -256,7 +256,7 @@ public class JarCreator extends JarHelper {
 
   public static void buildJar(String[] args) throws IOException {
     if (args.length < 1) {
-      System.err.println("usage: CreateJar [-m manifest] output [root directories]");
+      System.err.println("usage: CreateJar [-m manifest -t label] output [root directories]");
       System.exit(1);
     }
 
