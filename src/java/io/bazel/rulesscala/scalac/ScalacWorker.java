@@ -8,7 +8,6 @@ import scala.tools.nsc.MainClass;
 import scala.tools.nsc.reporters.ConsoleReporter;
 
 import java.io.*;
-import java.lang.reflect.Field;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
@@ -21,17 +20,6 @@ import java.util.jar.JarFile;
 class ScalacWorker implements Worker.Interface {
   private static boolean isWindows = System.getProperty("os.name").toLowerCase().contains("windows");
 
-  /** This is the reporter field for scalac, which we want to access */
-  private static Field reporterField;
-
-  static {
-    try {
-      reporterField = Driver.class.getDeclaredField("reporter"); // NoSuchFieldException
-      reporterField.setAccessible(true);
-    } catch (NoSuchFieldException ex) {
-      throw new RuntimeException("could not access reporter field on Driver", ex);
-    }
-  }
 
   public static void main(String[] args) throws Exception {
     Worker.workerMain(args, new ScalacWorker());
@@ -219,7 +207,7 @@ class ScalacWorker implements Worker.Interface {
     String[] compilerArgs =
         merge(ops.scalaOpts, ops.pluginArgs, constParams, pluginParams, scalaSources);
 
-    MainClass comp = new ReportableMainClass(ops);
+    ReportableMainClass comp = new ReportableMainClass(ops);
 
     long start = System.currentTimeMillis();
     try {
@@ -243,7 +231,7 @@ class ScalacWorker implements Worker.Interface {
       throw new RuntimeException("Unable to write statsfile to " + ops.statsfile, ex);
     }
 
-    ConsoleReporter reporter = (ConsoleReporter) reporterField.get(comp);
+    ConsoleReporter reporter = (ConsoleReporter) comp.getReporter();
     if(reporter instanceof ProtoReporter) {
       ProtoReporter protoReporter = (ProtoReporter) reporter;
       protoReporter.writeTo(Paths.get(ops.diagnosticsFile));
