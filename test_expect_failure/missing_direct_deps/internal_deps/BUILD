@@ -97,3 +97,28 @@ java_library(
     srcs = ["Placeholder.java"],
     deps = ["transitive_dependency"],
 )
+
+genrule(
+    name = "transitive_dependency_jar_without_manifest",
+    srcs = ["transitive_dependency.jar"],
+    outs = ["transitive_dependency_without_manifest.jar"],
+    cmd = "zip -d $(location transitive_dependency.jar) META-INF/MANIFEST.MF --out $@",
+)
+
+custom_jvm(
+    name = "unstamped_direct_java_provider_dependency",
+    deps = [":transitive_dep_without_manifest"],
+)
+
+custom_jvm(
+    name = "transitive_dep_without_manifest",
+    jar = "transitive_dependency_without_manifest.jar",
+)
+
+scala_library(
+    name = "unstamped_jar_dependent_on_some_java_provider",
+    srcs = [
+        "HasCustomJavaProviderDependency.scala",
+    ],
+    deps = ["unstamped_direct_java_provider_dependency"],
+)
