@@ -1,4 +1,4 @@
-package example;
+package examples.jni;
 
 public class Main {
 

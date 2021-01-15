@@ -1,4 +1,4 @@
-package example;
+package examples.jni;
 
 object MainScala {
   System.loadLibrary("hello-jni")

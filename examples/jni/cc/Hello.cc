@@ -3,7 +3,7 @@
 #include <string>
 #include "Hello.h"
 
-JNIEXPORT jstring JNICALL Java_example_Hello_hello
+JNIEXPORT jstring JNICALL Java_examples_jni_Hello_hello
   (JNIEnv *env, jobject thisObj, jstring name) {
     const char* nameCharPointer = env->GetStringUTFChars(name, NULL);
 

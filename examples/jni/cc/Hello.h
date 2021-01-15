@@ -8,11 +8,11 @@
 extern "C" {
 #endif
 /*
- * Class:     example.Hello
+ * Class:     examples.jni.Hello
  * Method:    hello
  * Signature: (Ljava/lang/String;)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_example_Hello_hello
+JNIEXPORT jstring JNICALL Java_examples_jni_Hello_hello
   (JNIEnv *, jobject, jstring);
 
 #ifdef __cplusplus

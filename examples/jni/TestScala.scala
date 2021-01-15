@@ -1,4 +1,4 @@
-package example
+package examples.jni
 import org.scalatest.funsuite.AnyFunSuite
 
 class TestScala extends AnyFunSuite {

@@ -6,9 +6,9 @@ java_binary(
         "Hello.java",
         "Main.java",
     ],
-    jvm_flags = ["-Djava.library.path=example/cc"],
-    main_class = "example.Main",
-    runtime_deps = ["//example/cc:hello-jni"],
+    jvm_flags = ["-Djava.library.path=examples/jni/cc"],
+    main_class = "examples.jni.Main",
+    runtime_deps = ["//examples/jni/cc:hello-jni"],
 )
 
 scala_binary(
@@ -17,9 +17,9 @@ scala_binary(
         "HelloScala.scala",
         "MainScala.scala",
     ],
-    data = ["//example/cc:hello-jni"],
-    jvm_flags = ["-Djava.library.path=example/cc"],
-    main_class = "example.MainScala",
+    data = ["//examples/jni/cc:hello-jni"],
+    jvm_flags = ["-Djava.library.path=examples/jni/cc"],
+    main_class = "examples.jni.MainScala",
 )
 
 scala_test(
@@ -28,6 +28,6 @@ scala_test(
         "HelloScala.scala",
         "TestScala.scala",
     ],
-    data = ["//example/cc:hello-jni"],
-    jvm_flags = ["-Djava.library.path=example/cc"],
+    data = ["//examples/jni/cc:hello-jni"],
+    jvm_flags = ["-Djava.library.path=examples/jni/cc"],
 )
