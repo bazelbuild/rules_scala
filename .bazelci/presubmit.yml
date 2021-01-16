@@ -8,8 +8,10 @@ tasks:
     - echo "import %workspace%/tools/bazel.rc" > .bazelrc
     build_targets:
     - "//test/..."
+    - "//examples/..."
     test_targets:
     - "//test/..."
+    - "//examples/..."
   ubuntu1804:
     platform: ubuntu1804
     shell_commands:
@@ -18,8 +20,10 @@ tasks:
     - echo "import %workspace%/tools/bazel.rc" > .bazelrc
     build_targets:
     - "//test/..."
+    - "//examples/..."
     test_targets:
     - "//test/..."
+    - "//examples/..."
   macos:
     platform: macos
     shell_commands:
@@ -28,11 +32,15 @@ tasks:
     - echo "import %workspace%/tools/bazel.rc" > .bazelrc
     build_targets:
     - "//test/..."
+    - "//examples/..."
     test_targets:
     - "//test/..."
+    - "//examples/..."
   rbe_ubuntu1604:
     platform: rbe_ubuntu1604
     build_targets:
     - "//test/..."
+    - "//examples/..."
     test_targets:
     - "//test/..."
+    - "//examples/..."    
