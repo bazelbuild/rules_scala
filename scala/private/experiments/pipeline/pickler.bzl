@@ -74,7 +74,17 @@ def phase_pickler(ctx, p):
         return struct()
 
 def phase_pickler_deps(ctx, p):
+
+    default_jars = [p[JavaInfo].compile_jars for p in p.scalac_provider.default_classpath]
+
+    jars_to_labels = {
+        dep[ScalaSigJar].direct.path: dep.label
+        for dep in ctx.attr.deps
+        if ScalaSigJar in dep
+    }
+
     return struct(
+        labels = jars_to_labels,
         direct = depset(
             direct = [
                 dep[ScalaSigJar].direct
@@ -85,13 +95,13 @@ def phase_pickler_deps(ctx, p):
                 dep[JavaInfo].compile_jars
                 for dep in ctx.attr.deps
                 if not ScalaSigJar in dep
-            ],
+            ] + default_jars,
         ),
         transitive = depset(
             transitive = [
                 dep[ScalaSigJar].transitive if ScalaSigJar in dep else dep[JavaInfo].transitive_deps
                 for dep in ctx.attr.deps
-            ],
+            ] + default_jars,
         ),
     )
 

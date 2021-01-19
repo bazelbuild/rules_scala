@@ -30,7 +30,7 @@ class HighLevelCrawlUsedJarFinder(
       else if (x.owner != root) { // exclude package class members
         if (x.hasRawInfo && x.rawInfo.isComplete) {
           val assocFile = x.associatedFile
-          if (assocFile.path.endsWith(".class") && assocFile.underlyingSource.isDefined)
+          if (assocFile.path.endsWith(".class") || assocFile.path.endsWith(".sig"))
             assocFile.underlyingSource.foreach(jars += _)
         }
       }
