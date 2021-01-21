@@ -26,12 +26,7 @@ def specs2_junit_repositories(
         overriden_artifacts = overriden_artifacts,
     )
 
-    native.bind(
-        name = "io_bazel_rules_scala/dependency/specs2/specs2_junit",
-        actual = "@io_bazel_rules_scala_org_specs2_specs2_junit",
-    )
-
 def specs2_junit_dependencies():
     return specs2_dependencies() + [
-        "//external:io_bazel_rules_scala/dependency/specs2/specs2_junit",
+        "@io_bazel_rules_scala//testing/toolchain:specs2_junit_classpath",
     ]
