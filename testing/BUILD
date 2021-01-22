@@ -103,6 +103,6 @@ declare_deps_provider(
     deps_id = "specs2_junit_classpath",
     visibility = ["//visibility:public"],
     deps = [
-        "//external:io_bazel_rules_scala/dependency/specs2/specs2_junit",
+        "@io_bazel_rules_scala_org_specs2_specs2_junit",
     ],
 )

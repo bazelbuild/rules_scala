@@ -40,15 +40,10 @@ def _rule_impl(ctx):
             "//test/aspect:scala_specs2_junit_test",
             "//testing/toolchain:junit_classpath",
             # From specs2/specs2.bzl:specs2_dependencies()
-            "@io_bazel_rules_scala//specs2:specs2",
-            "@io_bazel_rules_scala_org_specs2_specs2_common//:io_bazel_rules_scala_org_specs2_specs2_common",
-            "@io_bazel_rules_scala_org_specs2_specs2_core//:io_bazel_rules_scala_org_specs2_specs2_core",
-            "@io_bazel_rules_scala_org_specs2_specs2_fp//:io_bazel_rules_scala_org_specs2_specs2_fp",
-            "@io_bazel_rules_scala_org_specs2_specs2_matcher//:io_bazel_rules_scala_org_specs2_specs2_matcher",
-            "@io_bazel_rules_scala//scala/private/toolchain_deps:scala_xml",
-            "@io_bazel_rules_scala//scala/private/toolchain_deps:scala_library_classpath",
+            "//specs2:specs2",
+            "//scala/private/toolchain_deps:scala_xml",
             # From specs2/specs2_junit.bzl:specs2_junit_dependencies()
-            "@io_bazel_rules_scala_org_specs2_specs2_junit//:io_bazel_rules_scala_org_specs2_specs2_junit",
+            "//testing/toolchain:specs2_junit_classpath",
         ],
     }
     content = ""
