@@ -1,10 +1,11 @@
 package third_party.dependency_analyzer.src.main.io.bazel.rulesscala.dependencyanalyzer
 
+import java.util.jar.JarFile
+
 import scala.reflect.io.AbstractFile
-import scala.tools.nsc.plugins.Plugin
-import scala.tools.nsc.plugins.PluginComponent
-import scala.tools.nsc.Global
-import scala.tools.nsc.Phase
+import scala.tools.nsc.{Global, Phase}
+import scala.tools.nsc.plugins.{Plugin, PluginComponent}
+import scala.util.control.NonFatal
 
 class DependencyAnalyzer(val global: Global) extends Plugin {
   private val reporter = new Reporter(global)
@@ -95,7 +96,9 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
           settings.directTargetSet.jarSet.contains(jarPath)
         }
         .flatMap { case (jarPath, pos) =>
-          settings.indirectTargetSet.targetFromJarOpt(jarPath).map { target =>
+          settings.indirectTargetSet.targetFromJarOpt(jarPath)
+            .map(target => tryResolveUnknownLabel(target, jarPath))
+            .map { target =>
             target -> pos
           }
         }
@@ -108,6 +111,32 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
         }
 
     warnOrError(settings.strictDepsMode, errors)
+  }
+
+  private def findManifestTargetLabel(jarPath: String): Option[String] = {
+    try {
+      val jar = new JarFile(jarPath)
+      val targetLabel = Option(jar.getManifest)
+        .flatMap(manifest => Option(manifest.getMainAttributes.getValue("Target-Label")))
+      jar.close()
+      targetLabel
+    } catch {
+      case NonFatal(e) =>
+        println(s"Failed loading MANIFEST.MF from $jarPath")
+        e.printStackTrace()
+        None
+    }
+  }
+
+  private def isUnknownLabel(label: String): Boolean = label.startsWith("Unknown label of")
+
+  private def isJar(jarPath: String): Boolean = !jarPath.endsWith(".class")
+
+  private def tryResolveUnknownLabel(label: String, jarPath: String): String = {
+    if (isUnknownLabel(label) && isJar(jarPath))
+      findManifestTargetLabel(jarPath).getOrElse(label)
+    else
+      label
   }
 
   private def reportUnusedDepsFoundIn(
