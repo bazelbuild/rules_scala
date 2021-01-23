@@ -49,5 +49,5 @@ tasks:
   versions:
     platform: ubuntu2004
     shell_commands:
-    - test_version.sh
+    - ./test_version.sh
 
