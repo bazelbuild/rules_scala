@@ -21,6 +21,15 @@ tasks:
     - "//test/..."
     test_targets:
     - "//test/..."
+  ubuntu2004:
+    platform: ubuntu2004
+    shell_commands:
+    - mv tools/bazel.rc.buildkite tools/bazel.rc
+    - echo "import %workspace%/tools/bazel.rc" > .bazelrc
+    build_targets:
+    - "//test/..."
+    test_targets:
+    - "//test/..."
   macos:
     platform: macos
     shell_commands:
