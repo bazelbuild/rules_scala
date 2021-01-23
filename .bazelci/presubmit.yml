@@ -46,3 +46,8 @@ tasks:
     - "//test/..."
     test_targets:
     - "//test/..."
+  versions:
+    platform: ubuntu2004
+    shell_commands:
+    - test_version.sh
+
