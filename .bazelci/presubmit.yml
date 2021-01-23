@@ -46,8 +46,16 @@ tasks:
     - "//test/..."
     test_targets:
     - "//test/..."
-  versions:
+  versions_ubnutu2004:
+    name: "Versions test (Linux)"      
     platform: ubuntu2004
     shell_commands:
     - ./test_version.sh
+  versions_macos:
+    name: "Versions test (MacOS)"
+    platform: macos
+    shell_commands:
+    - ./test_version.sh
+
+
 
