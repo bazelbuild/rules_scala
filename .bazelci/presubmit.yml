@@ -2,7 +2,7 @@
 validate_config: 1
 tasks:
   ubuntu1604:
-    name: "Test //test/..."       
+    name: "bazel test //test/..."       
     platform: ubuntu1604
     shell_commands:
     # Disable local disk caching on CI.
@@ -13,7 +13,7 @@ tasks:
     test_targets:
     - "//test/..."
   ubuntu1804:
-    name: "Test //test/..."      
+    name: "bazel test //test/..."      
     platform: ubuntu1804
     shell_commands:
     # Disable local disk caching on CI.
@@ -24,7 +24,7 @@ tasks:
     test_targets:
     - "//test/..."
   ubuntu2004:
-    name: "Test //test/..."
+    name: "bazel test //test/..."
     platform: ubuntu2004
     shell_commands:
     - mv tools/bazel.rc.buildkite tools/bazel.rc
@@ -34,7 +34,7 @@ tasks:
     test_targets:
     - "//test/..."
   macos:
-    name: "Test //test/..."
+    name: "bazel test //test/..."
     platform: macos
     shell_commands:
     # Disable local disk caching on CI.
@@ -45,19 +45,19 @@ tasks:
     test_targets:
     - "//test/..."
   rbe_ubuntu1604:
-    name: "Test //test/..."
+    name: "bazel test //test/..."
     platform: rbe_ubuntu1604
     build_targets:
     - "//test/..."
     test_targets:
     - "//test/..."
   versions_ubnutu2004:
-    name: "Versions test"      
+    name: "./test_version.sh"      
     platform: ubuntu2004
     shell_commands:
     - ./test_version.sh
   versions_macos:
-    name: "Versions test"
+    name: "./test_version.sh"
     platform: macos
     shell_commands:
     - ./test_version.sh
