@@ -5,15 +5,15 @@ test dependencies by defining a custom testing toolchain.
 
 In your `WORKSPACE` default repositories and toolchains can be loaded via:
 ```starlark
-# JUnit 4
-load("@io_bazel_rules_scala//testing:junit.bzl", "junit_repositories", "junit_toolchain")
-junit_repositories()
-junit_toolchain()
-
 # ScalaTest
 load("@io_bazel_rules_scala//testing:scalatest.bzl", "scalatest_repositories", "scalatest_toolchain")
 scalatest_repositories()
 scalatest_toolchain()
+
+# JUnit 4
+load("@io_bazel_rules_scala//testing:junit.bzl", "junit_repositories", "junit_toolchain")
+junit_repositories()
+junit_toolchain()
 
 # Specs2 with Junit
 load("@io_bazel_rules_scala//testing:specs2_junit.bzl", "specs2_junit_repositories", "specs2_junit_toolchain")
