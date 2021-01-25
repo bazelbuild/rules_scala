@@ -33,8 +33,8 @@ def rules_scala_setup():
     if not native.existing_rule("rules_java"):
         http_archive(
             name = "rules_java",
-            sha256 = "220b87d8cfabd22d1c6d8e3cdb4249abd4c93dcc152e0667db061fb1b957ee68",
-            urls = ["https://github.com/bazelbuild/rules_java/releases/download/0.1.1/rules_java-0.1.1.tar.gz"],
+            url = "https://github.com/bazelbuild/rules_java/releases/download/3.7.2/rules_java-3.7.2.tar.gz",
+            sha256 = "b2fd0bb9327287edd388f80d842d5c1e90abfed2e17ed4fe8cb0e83650e8d918",
         )
 
     if not native.existing_rule("rules_proto"):
