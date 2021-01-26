@@ -2,8 +2,7 @@
 validate_config: 1
 buildifier:
   version: latest
-  lint_mode: ""
-
+  mode: "check"
 tasks:
   ubuntu1604:
     name: "bazel test //test/..."       
