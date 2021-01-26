@@ -1,14 +1,13 @@
 load("@io_bazel_rules_scala//scala:jars_to_labels.bzl", "JarsToLabelsInfo")
 
 def _stamp_symlinked_jar(ctx, jar):
-    symlink_file = ctx.actions.declare_file(jar.basename)
-    ctx.actions.symlink(output = symlink_file, target_file = jar)
-
-    stamped_jar_filename = jar.basename.rstrip(".jar") + "-stamped.jar"
+    stamped_jar_filename = "%s.stamp/%s-stamped.jar" % (ctx.label.name, jar.basename.rstrip(".jar"))
 
     # Preferred way, but currently broken:
     # java toolchain's ijar incorrectly handles MANIFEST sections
     # https://github.com/bazelbuild/bazel/issues/12730
+    #    symlink_file = ctx.actions.declare_file(jar.basename)
+    #    ctx.actions.symlink(output = symlink_file, target_file = jar)
     #    return java_common.stamp_jar(
     #        actions = ctx.actions,
     #        jar = symlink_file,
@@ -21,13 +20,13 @@ def _stamp_symlinked_jar(ctx, jar):
 
     ctx.actions.run(
         executable = ctx.executable._ijar,
-        inputs = [symlink_file],
+        inputs = [jar],
         outputs = [stamped_file],
         arguments = [
             "--nostrip_jar",
             "--target_label",
             ctx.label.name,
-            symlink_file.path,
+            jar.path,
             stamped_file.path,
         ],
         mnemonic = "StampWithIjar",
