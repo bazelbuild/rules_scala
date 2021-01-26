@@ -2,7 +2,7 @@
 validate_config: 1
 buildifier:
   version: latest
-  warnings: "duplicated-name,load-on-top,out-of-order-load,list-append,no-effect,output-group,redefined-variable,constant-glob,bzl-visibility,package-on-top,same-origin-load,unreachable,unused-variable"
+  warnings: "duplicated-name,load,load-on-top,out-of-order-load,list-append,no-effect,output-group,redefined-variable,constant-glob,bzl-visibility,package-on-top,same-origin-load,unreachable,unused-variable"
 tasks:
   ubuntu1604:
     name: "bazel test //test/..."       
