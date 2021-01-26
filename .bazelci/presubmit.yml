@@ -1,5 +1,6 @@
 ---
 validate_config: 1
+buildifier: latest
 tasks:
   ubuntu1604:
     name: "bazel test //test/..."       

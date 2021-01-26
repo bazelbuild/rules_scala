@@ -38,10 +38,6 @@ _windows:
 
 jobs:
   include:
-# Lint
-    - name: "Lint"
-      <<: *linux
-      env: TEST_SCRIPT=test_lint XDG_CACHE_HOME=~/xdg_cache
 # Test
     - name: "[linux] Test rules_scala"
       <<: *linux
