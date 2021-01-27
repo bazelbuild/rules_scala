@@ -1,3 +1,5 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
 # Description:
 #   C++ utility source for Bazel
 package_group(
@@ -8,8 +10,6 @@ package_group(
 )
 
 package(default_visibility = ["//visibility:public"])
-
-load("@rules_cc//cc:defs.bzl", "cc_library")
 
 cc_library(
     name = "util",

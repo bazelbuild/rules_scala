@@ -1,8 +1,5 @@
 load("@rules_python//python:defs.bzl", "py_binary")
 load("@rules_java//java:defs.bzl", "java_binary", "java_import", "java_library")
-
-package(default_testonly = 1)
-
 load(
     "//scala:scala.bzl",
     "scala_binary",
@@ -20,6 +17,9 @@ load(
     "//scala_proto:scala_proto.bzl",
     "scala_proto_library",
 )
+load(":check_statsfile.bzl", "check_statsfile")
+
+package(default_testonly = 1)
 
 # The examples below show how to combine Scala and Java rules.
 # ScalaBinary is the Scala equivalent of JavaBinary.
@@ -114,7 +114,7 @@ scala_test_suite(
 scala_test_suite(
     name = "TestSuitePassesKwArgs",
     size = "small",  # Not a macro, can pass test-specific attributes.
-    srcs = glob(["ScalaTestData.scala"]),
+    srcs = ["ScalaTestData.scala"],
     data = ["//test/data:foo.txt"],
     jvm_flags = ["-Dtext=$(location //test/data:foo.txt)"],
     scalac_jvm_flags = [
@@ -686,8 +686,6 @@ scala_library(
     name = "java_uses_scala_std_lib",
     srcs = ["JavaUsesScalaStdLib.java"],
 )
-
-load(":check_statsfile.bzl", "check_statsfile")
 
 check_statsfile("ScalaBinary")
 

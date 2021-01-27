@@ -1,5 +1,3 @@
-load("@bazel_skylib//lib:paths.bzl", _paths = "paths")
-
 def paths(resources, resource_strip_prefix):
     """Return a list of path tuples (target, source) where:
         target - is a path in the archive (with given prefix stripped off)

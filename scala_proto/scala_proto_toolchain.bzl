@@ -1,4 +1,3 @@
-load("//scala_proto:default_dep_sets.bzl", "DEFAULT_SCALAPB_COMPILE_DEPS", "DEFAULT_SCALAPB_GRPC_DEPS")
 load("@io_bazel_rules_scala//scala:providers.bzl", "DepsInfo")
 load("//scala/private/toolchain_deps:toolchain_deps.bzl", "expose_toolchain_deps")
 

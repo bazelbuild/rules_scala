@@ -1,5 +1,4 @@
 load("//scala:scala.bzl", "scala_library")
-load("//specs2:specs2_junit.bzl", "specs2_junit_dependencies", "specs2_junit_repositories")
 
 scala_library(
     name = "specs2_test_discovery",

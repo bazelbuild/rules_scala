@@ -1,6 +1,10 @@
 load("//scala:scala.bzl", "scala_binary")
 load("//scala/scalafmt/toolchain:toolchain.bzl", "export_scalafmt_deps", "scalafmt_toolchain")
 load("@io_bazel_rules_scala//scala:providers.bzl", "declare_deps_provider")
+load(
+    "//scala/scalafmt:phase_scalafmt_ext.bzl",
+    "scalafmt_singleton",
+)
 
 filegroup(
     name = "runner",
@@ -23,11 +27,6 @@ scala_binary(
         ":scalafmt_classpath",
         "//src/java/io/bazel/rulesscala/worker",
     ],
-)
-
-load(
-    "//scala/scalafmt:phase_scalafmt_ext.bzl",
-    "scalafmt_singleton",
 )
 
 scalafmt_singleton(

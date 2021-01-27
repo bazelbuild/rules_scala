@@ -1,7 +1,5 @@
 load("@bazel_skylib//lib:unittest.bzl", "asserts", "unittest")
 load("@bazel_skylib//lib:collections.bzl", "collections")
-load("//twitter_scrooge:twitter_scrooge.bzl", "scrooge_scala_library")
-load("//thrift:thrift.bzl", "thrift_library")
 
 def _scrooge_transitive_outputs(ctx):
     env = unittest.begin(ctx)

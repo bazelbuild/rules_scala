@@ -1,8 +1,3 @@
-load(
-    "//scala/private:common.bzl",
-    "write_manifest_file",
-)
-
 def _root_path(f):
     if f.is_source:
         return f.owner.workspace_root

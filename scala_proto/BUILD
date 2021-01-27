@@ -1,4 +1,3 @@
-load("@rules_java//java:defs.bzl", "java_library")
 load(
     "//scala_proto:scala_proto_toolchain.bzl",
     "export_scalapb_toolchain_deps",
