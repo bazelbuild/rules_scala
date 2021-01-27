@@ -7,3 +7,4 @@ if [[ "$lint_command" == "ci" ]]; then
 fi
 
 bazel run //tools:buildifier@$lint_command
+bazel run //tools:buildifier@lint_warn

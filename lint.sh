@@ -2,4 +2,6 @@
 
 set -eou pipefail
 
-./tools/bazel run //tools:buildifier@fix
+bazel run //tools:buildifier@fix
+
+bazel run //tools:buildifier@lint_fix
