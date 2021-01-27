@@ -26,6 +26,7 @@ def proto_to_scala_src(ctx, label, code_generator, compile_proto, include_proto,
         extra_generator_pairs = "-" + encode_named_generators(named_generators),
         extra_cp_entries = "-" + _colon_paths(extra_generator_jars),
     )
+    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
     argfile = ctx.actions.declare_file(
         "%s_worker_input" % label.name,
         sibling = jar_output,
@@ -39,5 +40,6 @@ def proto_to_scala_src(ctx, label, code_generator, compile_proto, include_proto,
         mnemonic = "ProtoScalaPBRule",
         progress_message = "creating scalapb files %s" % ctx.label,
         execution_requirements = {"supports-workers": "1"},
+        env = {"MAIN_GENERATOR": toolchain.main_generator},
         arguments = ["@" + argfile.path],
     )
