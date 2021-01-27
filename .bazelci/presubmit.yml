@@ -61,6 +61,11 @@ tasks:
     platform: macos
     shell_commands:
     - ./test_version.sh
+  examples:
+    name: "Examples"
+    paltform: ubuntu2004
+    shell_commands:
+    - ./test_examples.sh
 
 
 
