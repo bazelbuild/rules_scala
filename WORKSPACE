@@ -32,11 +32,11 @@ rules_proto_dependencies()
 
 rules_proto_toolchains()
 
-_build_tools_release = "3.3.0"
+_build_tools_release = "3.5.0"
 
 http_archive(
     name = "com_github_bazelbuild_buildtools",
-    sha256 = "f11fc80da0681a6d64632a850346ed2d4e5cbb0908306d9a2a2915f707048a10",
+    sha256 = "a02ba93b96a8151b5d8d3466580f6c1f7e77212c4eb181cba53eb2cae7752a23",
     strip_prefix = "buildtools-%s" % _build_tools_release,
     url = "https://github.com/bazelbuild/buildtools/archive/%s.tar.gz" % _build_tools_release,
 )
