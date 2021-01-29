@@ -3,7 +3,7 @@ package test.proto.custom_generator
 import com.google.protobuf.compiler.PluginProtos.CodeGeneratorResponse
 import protocbridge.ProtocCodeGenerator
 
-object CustomGenerator extends ProtocCodeGenerator {
+object DummyGenerator extends ProtocCodeGenerator {
   override def run(request: Array[Byte]): Array[Byte] = {
     val response = CodeGeneratorResponse.newBuilder
 
