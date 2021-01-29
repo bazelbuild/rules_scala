@@ -11,20 +11,15 @@ load("//scala_proto:scala_proto_toolchain.bzl", "scala_proto_toolchain", "scala_
 # --extra_toolchains=//test/proto/custom_generator:scala_proto_deps_toolchain \
 # --extra_toolchains=//test/proto/custom_generator:scala_proto_toolchain
 
-proto_library(
-    name = "message_proto",
-    srcs = ["message.proto"],
-)
-
 scala_proto_library(
-    name = "message_scala",
-    deps = [":message_proto"],
+    name = "any_proto_scala",
+    deps = ["@com_google_protobuf//:any_proto"],
 )
 
 scala_test(
     name = "CustomGeneratorTest",
     srcs = ["CustomGeneratorTest.scala"],
-    runtime_deps = [":message_scala"],
+    runtime_deps = [":any_proto_scala"],
     size = "small",
     tags = ["manual"],
 )

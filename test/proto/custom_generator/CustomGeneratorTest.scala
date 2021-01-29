@@ -8,7 +8,7 @@ class CustomGeneratorTest extends AnyFlatSpec {
 
   "custom generator" should "be invoked" in {
     assert(
-      Try(Class.forName("test_proto_custom_generator_message_proto")).isSuccess
+      Try(Class.forName("custom_generator.dummy")).isSuccess
     )
   }
 
