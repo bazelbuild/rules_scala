@@ -1,0 +1,77 @@
+load("@rules_java//java:defs.bzl", "java_proto_library")
+load("@rules_proto//proto:defs.bzl", "proto_library")
+load("//scala_proto:scala_proto.bzl", "scala_proto_library")
+load("//scala:scala.bzl", "scala_library", "scala_test")
+load("//scala:providers.bzl", "declare_deps_provider")
+load("//scala_proto:scala_proto_toolchain.bzl", "scala_proto_toolchain", "scala_proto_deps_toolchain")
+
+# This package contains manual tests for custom generator
+# which can be run with following command:
+# bazel test //test/proto/custom_generator:CustomGeneratorTest \
+# --extra_toolchains=//test/proto/custom_generator:scala_proto_deps_toolchain \
+# --extra_toolchains=//test/proto/custom_generator:scala_proto_toolchain
+
+proto_library(
+    name = "message_proto",
+    srcs = ["message.proto"],
+)
+
+scala_proto_library(
+    name = "message_scala",
+    deps = [":message_proto"],
+)
+
+scala_test(
+    name = "CustomGeneratorTest",
+    srcs = ["CustomGeneratorTest.scala"],
+    runtime_deps = [":message_scala"],
+    size = "small",
+    tags = ["manual"],
+)
+
+scala_library(
+    name = "CustomGenerator",
+    srcs = ["CustomGenerator.scala"],
+    deps = [
+        "@com_google_protobuf//:protobuf_java",
+        "@scala_proto_rules_protoc_bridge",
+        "@scala_proto_rules_scalapb_plugin",
+    ],
+)
+
+declare_deps_provider(
+    name = "scalapb_worker_deps_provider",
+    deps_id = "scalapb_worker_deps",
+    deps = [
+        ":CustomGenerator",
+        "@com_google_protobuf//:protobuf_java",
+        "@scala_proto_rules_protoc_bridge",
+        "@scala_proto_rules_scalapb_plugin",
+    ],
+)
+
+scala_proto_deps_toolchain(
+    name = "scala_proto_deps_toolchain_def",
+    dep_providers = [
+      ":scalapb_worker_deps_provider",
+      "@io_bazel_rules_scala//scala_proto:scalapb_compile_deps_provider",
+      "@io_bazel_rules_scala//scala_proto:scalapb_grpc_deps_provider",
+    ],
+)
+
+toolchain(
+    name = "scala_proto_deps_toolchain",
+    toolchain = ":scala_proto_deps_toolchain_def",
+    toolchain_type = "@io_bazel_rules_scala//scala_proto:deps_toolchain_type",
+)
+
+scala_proto_toolchain(
+    name = "scala_proto_toolchain_def",
+    main_generator = "test.proto.custom_generator.CustomGenerator",
+)
+
+toolchain(
+    name = "scala_proto_toolchain",
+    toolchain = ":scala_proto_toolchain_def",
+    toolchain_type = "@io_bazel_rules_scala//scala_proto:toolchain_type",
+)
