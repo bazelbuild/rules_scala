@@ -2,7 +2,6 @@ package test.proto.custom_generator
 
 import com.google.protobuf.compiler.PluginProtos.{CodeGeneratorRequest, CodeGeneratorResponse}
 import protocbridge.ProtocCodeGenerator
-import scalapb.compiler.ProtobufGenerator
 
 import scala.collection.JavaConverters._
 
@@ -11,14 +10,12 @@ object CustomGenerator extends ProtocCodeGenerator {
     val request = CodeGeneratorRequest.parseFrom(input)
     val response = CodeGeneratorResponse.newBuilder
 
-    val filesByName = ProtobufGenerator.getFileDescByName(request)
-    request.getFileToGenerateList.asScala.map(filesByName).foreach { f =>
-      f.getMessageTypes.asScala.map(_.getName).foreach { m =>
-        response.addFileBuilder()
-          .setContent(s"class ${m}Custom {}")
-          .setName("${m}Custom.scala")
-          .build()
-      }
+    for (file <- request.getFileToGenerateList.asScala) {
+      val name = file.replace('/', '_').replace('.', '_')
+      response.addFileBuilder()
+        .setName(s"$name.scala")
+        .setContent(s"object $name")
+        .build()
     }
 
     response.build().toByteArray
