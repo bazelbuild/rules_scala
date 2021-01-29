@@ -1,6 +1,6 @@
-licenses(["notice"])  # 3-clause BSD
+load("//scala:scala.bzl", "scala_test")
 
-load("//scala:scala.bzl", "scala_junit_test", "scala_test")
+licenses(["notice"])  # 3-clause BSD
 
 common_jvm_flags = [
     "-Dplugin.jar.location=$(execpath //third_party/dependency_analyzer/src/main:dependency_analyzer)",

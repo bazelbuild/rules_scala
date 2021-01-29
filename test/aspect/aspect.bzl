@@ -66,7 +66,7 @@ def _rule_impl(ctx):
         output = ctx.outputs.executable,
         content = content,
     )
-    return struct()
+    return []
 
 aspect_test = rule(
     implementation = _rule_impl,

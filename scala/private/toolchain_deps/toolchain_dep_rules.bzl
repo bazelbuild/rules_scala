@@ -1,7 +1,6 @@
 load(
     "//scala/private/toolchain_deps:toolchain_deps.bzl",
     "expose_toolchain_deps",
-    "java_info_for_deps",
 )
 
 _toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type"

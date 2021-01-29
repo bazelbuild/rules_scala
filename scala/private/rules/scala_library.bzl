@@ -22,7 +22,6 @@ load(
     "phase_collect_jars_common",
     "phase_collect_jars_macro_library",
     "phase_collect_srcjars",
-    "phase_compile_common",
     "phase_compile_library",
     "phase_compile_library_for_plugin_bootstrapping",
     "phase_compile_macro_library",

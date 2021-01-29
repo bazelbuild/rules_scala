@@ -1,8 +1,4 @@
 load(
-    "@rules_proto//proto:defs.bzl",
-    "ProtoInfo",
-)
-load(
     "//scala:scala_cross_version.bzl",
     _default_maven_server_urls = "default_maven_server_urls",
 )

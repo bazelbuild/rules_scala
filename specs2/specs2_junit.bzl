@@ -2,7 +2,6 @@ load(
     "//specs2:specs2.bzl",
     "specs2_dependencies",
     "specs2_repositories",
-    "specs2_version",
 )
 load("//testing:junit.bzl", "junit_repositories")
 load(

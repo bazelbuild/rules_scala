@@ -1,5 +1,4 @@
 load("//scala:scala_toolchain.bzl", "scala_toolchain")
-load("//scala:scala.bzl", "scala_test")
 
 scala_toolchain(
     name = "local_jacocorunner_toolchain_impl",

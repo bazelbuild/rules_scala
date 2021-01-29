@@ -22,11 +22,6 @@ load(
     "merge_thrift_infos",
 )
 load("//third_party/repositories:repositories.bzl", "repositories")
-load(
-    "@io_bazel_rules_scala//scala/private/toolchain_deps:toolchain_deps.bzl",
-    "find_deps_info_on",
-    "java_info_for_deps",
-)
 
 _jar_extension = ".jar"
 
