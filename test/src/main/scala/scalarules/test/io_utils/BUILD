@@ -1,4 +1,4 @@
-load("//scala:scala.bzl", "scala_library", "scala_test")
+load("//scala:scala.bzl", "scala_test")
 
 scala_test(
     name = "directory_utils",

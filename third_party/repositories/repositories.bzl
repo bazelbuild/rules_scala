@@ -4,7 +4,6 @@ load("//third_party/repositories:scala_2_13.bzl", _artifacts_2_13 = "artifacts")
 load(
     "@io_bazel_rules_scala//scala:scala_cross_version.bzl",
     "default_maven_server_urls",
-    "extract_major_version",
 )
 load(
     "@io_bazel_rules_scala//scala:scala_maven_import_external.bzl",

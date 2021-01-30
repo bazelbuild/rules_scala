@@ -1,8 +1,6 @@
 workspace(name = "io_bazel_rules_scala")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
-load("@bazel_tools//tools/build_defs/repo:jvm.bzl", "jvm_maven_import_external")
 
 skylib_version = "1.0.3"
 
@@ -32,11 +30,11 @@ rules_proto_dependencies()
 
 rules_proto_toolchains()
 
-_build_tools_release = "3.3.0"
+_build_tools_release = "3.5.0"
 
 http_archive(
     name = "com_github_bazelbuild_buildtools",
-    sha256 = "f11fc80da0681a6d64632a850346ed2d4e5cbb0908306d9a2a2915f707048a10",
+    sha256 = "a02ba93b96a8151b5d8d3466580f6c1f7e77212c4eb181cba53eb2cae7752a23",
     strip_prefix = "buildtools-%s" % _build_tools_release,
     url = "https://github.com/bazelbuild/buildtools/archive/%s.tar.gz" % _build_tools_release,
 )
@@ -49,13 +47,11 @@ load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
 
 scala_config()
 
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_MAJOR_VERSION")
 load("//scala:scala.bzl", "scala_repositories")
 
 scala_repositories(fetch_sources = True)
 
-load("//scala:scala_cross_version.bzl", "default_maven_server_urls", "scala_mvn_artifact")
-load("//scala:scala_maven_import_external.bzl", "scala_maven_import_external")
+load("//scala:scala_cross_version.bzl", "default_maven_server_urls")
 load("//twitter_scrooge:twitter_scrooge.bzl", "twitter_scrooge")
 
 twitter_scrooge()
@@ -115,14 +111,12 @@ scala_register_unused_deps_toolchains()
 
 register_toolchains("@io_bazel_rules_scala//test/proto:scalapb_toolchain")
 
-load("//scala:scala_maven_import_external.bzl", "java_import_external", "scala_maven_import_external")
+load("//scala:scala_maven_import_external.bzl", "java_import_external")
 
 # bazel's java_import_external has been altered in rules_scala to be a macro based on jvm_import_external
 # in order to allow for other jvm-language imports (e.g. scala_import)
 # the 3rd-party dependency below is using the java_import_external macro
 # in order to make sure no regression with the original java_import_external
-load("//scala:scala_maven_import_external.bzl", "java_import_external")
-
 java_import_external(
     name = "org_apache_commons_commons_lang_3_5_without_file",
     generated_linkable_rule_name = "linkable_org_apache_commons_commons_lang_3_5_without_file",

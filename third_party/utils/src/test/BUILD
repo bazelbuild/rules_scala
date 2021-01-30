@@ -1,6 +1,6 @@
-licenses(["notice"])  # 3-clause BSD
-
 load("//scala:scala.bzl", "scala_library")
+
+licenses(["notice"])  # 3-clause BSD
 
 scala_library(
     name = "test_util",

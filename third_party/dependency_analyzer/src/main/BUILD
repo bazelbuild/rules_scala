@@ -1,7 +1,7 @@
-licenses(["notice"])  # 3-clause BSD
-
 load("//scala:scala.bzl", "scala_library_for_plugin_bootstrapping")
 load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_MAJOR_VERSION")
+
+licenses(["notice"])  # 3-clause BSD
 
 scala_library_for_plugin_bootstrapping(
     name = "scala_version",

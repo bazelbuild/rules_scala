@@ -9,7 +9,6 @@ java_import(
         "//testing/toolchain:specs2_classpath",
     ],
     deps = [
-        "//scala/private/toolchain_deps:scala_library_classpath",
         "//scala/private/toolchain_deps:scala_xml",
     ],
 )

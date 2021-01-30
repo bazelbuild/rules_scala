@@ -7,7 +7,6 @@ load(
 load(
     "//scala:scala.bzl",
     "scala_binary",
-    "scala_library",
     "scala_test",
 )
 load(

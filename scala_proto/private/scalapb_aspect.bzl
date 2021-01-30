@@ -3,7 +3,7 @@ load("//scala/private:common.bzl", "write_manifest_file")
 load("//scala/private:dependency.bzl", "legacy_unclear_dependency_info_for_protobuf_scrooge")
 load("//scala/private:rule_impls.bzl", "compile_scala")
 load("//scala_proto/private:proto_to_scala_src.bzl", "proto_to_scala_src")
-load("//scala/private/toolchain_deps:toolchain_deps.bzl", "find_deps_info_on", "java_info_for_deps")
+load("//scala/private/toolchain_deps:toolchain_deps.bzl", "find_deps_info_on")
 
 ScalaPBAspectInfo = provider(fields = [
     "proto_info",

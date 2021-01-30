@@ -1,7 +1,4 @@
 load("@rules_java//java:defs.bzl", "java_binary", "java_library")
-
-package(default_testonly = 1)
-
 load(
     "@io_bazel_rules_scala//scala:scala.bzl",
     "scala_binary",
@@ -16,6 +13,8 @@ load(
     "@io_bazel_rules_scala//scala_proto:scala_proto.bzl",
     "scala_proto_library",
 )
+
+package(default_testonly = 1)
 
 # The examples below show how to combine Scala and Java rules.
 # ScalaBinary is the Scala equivalent of JavaBinary.
