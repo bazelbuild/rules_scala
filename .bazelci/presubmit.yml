@@ -51,17 +51,42 @@ tasks:
     - "//test/..."
     test_targets:
     - "//test/..."
+  test_rules_scala_linux:
+    name: "./test_rules_scala"
+    platform: ubuntu1804
+    shell_commands:
+    - "./test_rules_scala.sh"
+  test_rules_scala_macos:
+    name: "./test_rules_scala"
+    platform: macos
+    shell_commands:
+    - "./test_rules_scala.sh"
+  test_reproducibility_linux:
+    name: "./test_reproducibility.sh"
+    platform: ubuntu1804
+    shell_commands:
+    - "./test_reproducibility.sh"
+  test_reproducibility_macos:
+    name: "./test_reproducibility.sh"
+    platform: macos
+    shell_commands:
+    - "./test_reproducibility.sh"
   versions_ubuntu2004:
     name: "./test_version.sh"      
     platform: ubuntu2004
     shell_commands:
-    - ./test_version.sh
+    - "./test_version.sh"
   versions_macos:
     name: "./test_version.sh"
     platform: macos
     shell_commands:
-    - ./test_version.sh
+    - "./test_version.sh"
   examples_ubuntu2004:
+    name: "./test_examples"
+    platform: ubuntu2004
+    shell_commands:
+      - "./test_examples.sh"
+  lint_ubuntu2004:
     name: "bazel //tools:lint_check"
     platform: ubuntu2004
     run_targets:
