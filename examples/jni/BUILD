@@ -1,4 +1,5 @@
-load("@io_bazel_rules_scala//scala:scala.bzl", "scala_binary", "scala_library", "scala_test")
+load("@rules_java//java:defs.bzl", "java_binary")
+load("@io_bazel_rules_scala//scala:scala.bzl", "scala_binary", "scala_test")
 
 java_binary(
     name = "hello-from-jni-java",
