@@ -12,6 +12,7 @@ WARNINGS_CONFIG = [
     "-print",
     "-bzl-visibility",
     "-no-effect",
+    "-provider-params",
 ]
 
 buildifier(
