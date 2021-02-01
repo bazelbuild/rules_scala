@@ -8,6 +8,8 @@ import io.bazel.rulesscala.jar.JarCreator
 import io.bazel.rulesscala.worker.Worker
 import protocbridge.{ProtocBridge, ProtocCodeGenerator}
 
+import scala.sys.process._
+
 object ScalaPBWorker extends Worker.Interface {
 
   private val MainGenerator = {
@@ -60,5 +62,5 @@ object ScalaPBWorker extends Worker.Interface {
   }
 
   protected def exec(protoc: Path): Seq[String] => Int = (args: Seq[String]) =>
-    new ProcessBuilder(protoc.toString +: args: _*).inheritIO().start().waitFor()
+    Process(protoc.toString, args).!(ProcessLogger(stderr.println(_)))
 }
