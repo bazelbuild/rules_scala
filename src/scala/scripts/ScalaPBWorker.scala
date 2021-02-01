@@ -46,7 +46,7 @@ object ScalaPBWorker extends Worker.Interface {
 
     val code = ProtocBridge.runWithGenerators(
       protoc = exec(extractRequestResult.protoc),
-      namedGenerators = namedGeneratorsWithTypes ++ Seq("scala" -> MainGenerator),
+      namedGenerators = namedGeneratorsWithTypes :+ ("scala", MainGenerator),
       params = extractRequestResult.scalaPBArgs)
 
     try {
