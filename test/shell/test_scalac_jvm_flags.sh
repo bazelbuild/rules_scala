@@ -26,7 +26,7 @@ test_scalac_jvm_flags_are_configured(){
 
 test_scalac_jvm_flags_are_expanded(){
   action_should_fail_with_message \
-    "--ExpandedFlag=test_expect_failure/compilers_jvm_flags/args.txt" \
+    "--made_up_flag_to_expand=test_expect_failure/compilers_jvm_flags/args.txt" \
     build --verbose_failures //test_expect_failure/compilers_jvm_flags:can_expand_jvm_flags_for_scalac
 }
 
