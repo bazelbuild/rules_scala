@@ -117,4 +117,3 @@ scala_specs2_junit_test(
     suffixes = ["Test"],
     deps = [":guava_and_commons_lang_as_exports"],
 )
-
