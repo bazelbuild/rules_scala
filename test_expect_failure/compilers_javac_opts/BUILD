@@ -10,9 +10,6 @@ default_java_toolchain(
     name = "a_java_toolchain",
     bootclasspath = ["@bazel_tools//tools/jdk:platformclasspath.jar"],
     javac = ["@bazel_tools//third_party/java/jdk/langtools:javac_jar"],
-    jvm_opts = ["-Xbootclasspath/p:$(location @bazel_tools//third_party/java/jdk/langtools:javac_jar)"],
-    misc = [
-        "-InvalidFlag",
-    ],
+    javacopts = ["-InvalidFlag"],
     visibility = ["//visibility:public"],
 )
