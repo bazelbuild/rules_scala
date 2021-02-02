@@ -7,9 +7,14 @@ import io.bazel.rulesscala.io_utils.DeleteRecursively
 import io.bazel.rulesscala.jar.JarCreator
 import io.bazel.rulesscala.worker.Worker
 import protocbridge.{ProtocBridge, ProtocCodeGenerator}
-import scalapb.ScalaPbCodeGenerator
 
 object ScalaPBWorker extends Worker.Interface {
+
+  private val MainGenerator = {
+    val className = sys.env.getOrElse("MAIN_GENERATOR", sys.error("MAIN_GENERATOR env variable not found."))
+    val classLoader = getClass.getClassLoader
+    classLoader.loadClass(className + "$").getField("MODULE$").get(null).asInstanceOf[ProtocCodeGenerator]
+  }
 
   def main(args: Array[String]): Unit = Worker.workerMain(args, ScalaPBWorker)
 
@@ -41,7 +46,7 @@ object ScalaPBWorker extends Worker.Interface {
 
     val code = ProtocBridge.runWithGenerators(
       protoc = exec(extractRequestResult.protoc),
-      namedGenerators = namedGeneratorsWithTypes ++ Seq("scala" -> ScalaPbCodeGenerator),
+      namedGenerators = namedGeneratorsWithTypes :+ ("scala", MainGenerator),
       params = extractRequestResult.scalaPBArgs)
 
     try {

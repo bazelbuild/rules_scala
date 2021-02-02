@@ -8,6 +8,7 @@ def _scala_proto_toolchain_impl(ctx):
         with_single_line_to_string = ctx.attr.with_single_line_to_string,
         blacklisted_protos = ctx.attr.blacklisted_protos,
         code_generator = ctx.attr.code_generator,
+        main_generator = ctx.attr.main_generator,
         extra_generator_dependencies = ctx.attr.extra_generator_dependencies,
         scalac = ctx.attr.scalac.files_to_run,
         named_generators = ctx.attr.named_generators,
@@ -33,6 +34,7 @@ scala_proto_toolchain = rule(
             default = Label("@io_bazel_rules_scala//src/scala/scripts:scalapb_worker"),
             allow_files = True,
         ),
+        "main_generator": attr.string(default = "scalapb.ScalaPbCodeGenerator"),
         "named_generators": attr.string_dict(),
         "extra_generator_dependencies": attr.label_list(
             providers = [JavaInfo],
