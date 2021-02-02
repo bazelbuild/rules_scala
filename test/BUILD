@@ -595,7 +595,7 @@ scala_library(
 scala_library(
     name = "customJunitRunner",
     srcs = ["src/main/scala/scalarules/test/junit/JunitCustomRunner.java"],
-    deps = ["//external:io_bazel_rules_scala/dependency/junit/junit"],
+    deps = ["@io_bazel_rules_scala_junit_junit"],
 )
 
 # make sure making a fat jar strips signatures
@@ -695,7 +695,7 @@ check_statsfile("ScalaLibBinary")
 scala_library(
     name = "JunitSeparateTarget",
     srcs = ["src/main/scala/scalarules/test/junit/separate_target/JunitSeparateTargetTest.scala"],
-    deps = ["//external:io_bazel_rules_scala/dependency/junit/junit"],
+    deps = ["@io_bazel_rules_scala_junit_junit"],
 )
 
 scala_junit_test(
@@ -709,7 +709,7 @@ scala_junit_test(
 java_library(
     name = "JunitJavaSeparateTarget",
     srcs = ["src/main/scala/scalarules/test/junit/separate_target/JunitJavaSeparateTargetTest.java"],
-    deps = ["//external:io_bazel_rules_scala/dependency/junit/junit"],
+    deps = ["@io_bazel_rules_scala_junit_junit"],
 )
 
 scala_junit_test(
@@ -723,14 +723,14 @@ scala_junit_test(
 scala_library(
     name = "TargetWithTestThatShouldNotRun",
     srcs = ["src/main/scala/scalarules/test/junit/separate_target/FailingTest.scala"],
-    deps = ["//external:io_bazel_rules_scala/dependency/junit/junit"],
+    deps = ["@io_bazel_rules_scala_junit_junit"],
 )
 
 scala_library(
     name = "JunitSeparateTargetWithDependencyOnTest",
     srcs = ["src/main/scala/scalarules/test/junit/separate_target/JunitSeparateTargetTest.scala"],
     runtime_deps = [":TargetWithTestThatShouldNotRun"],
-    deps = ["//external:io_bazel_rules_scala/dependency/junit/junit"],
+    deps = ["@io_bazel_rules_scala_junit_junit"],
 )
 
 scala_junit_test(
@@ -745,7 +745,7 @@ java_library(
     name = "JunitSeparateJavaTargetWithDependencyOnTest",
     srcs = ["src/main/scala/scalarules/test/junit/separate_target/JunitJavaSeparateTargetTest.java"],
     runtime_deps = [":TargetWithTestThatShouldNotRun"],
-    deps = ["//external:io_bazel_rules_scala/dependency/junit/junit"],
+    deps = ["@io_bazel_rules_scala_junit_junit"],
 )
 
 scala_junit_test(
@@ -762,7 +762,7 @@ scala_library(
         "src/main/scala/scalarules/test/junit/separate_target/JunitJavaSeparateTargetTest.java",
         "src/main/scala/scalarules/test/junit/separate_target/SomeScalaClass.scala",
     ],
-    deps = ["//external:io_bazel_rules_scala/dependency/junit/junit"],
+    deps = ["@io_bazel_rules_scala_junit_junit"],
 )
 
 scala_junit_test(
