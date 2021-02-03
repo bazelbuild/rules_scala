@@ -61,7 +61,7 @@ tasks:
     platform: ubuntu1804
     bazel: latest
     shell_commands:
-    - "./test_rules_scala.sh"
+    - "./test_rules_scala.sh || buildkite-agent annotate --style 'warning' 'Latest version failed to run!'"
   test_rules_scala_macos:
     name: "./test_rules_scala"
     platform: macos
