@@ -107,6 +107,23 @@ def _compile_scala(
         compile_jar = output,
     )
 
+def _skip(target, ctx):
+    # This feels rather hacky and odd, but we can't compare the labels to ignore a target easily
+    # since the @ or // forms seem to not have good equality :( , so we aim to make them absolute
+    #
+    # the backlisted protos in the tool chain get made into to absolute paths
+    # so we make the local target we are looking at absolute too
+    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
+    target_absolute_label = target.label
+    if not str(target_absolute_label)[0] == "@":
+        target_absolute_label = Label("@%s//%s:%s" % (ctx.workspace_name, target.label.package, target.label.name))
+
+    for lbl in toolchain.blacklisted_protos:
+        if (lbl.label == target_absolute_label):
+            return True
+
+    return False
+
 def _compile_deps(ctx):
     deps_toolchain_type_label = "@io_bazel_rules_scala//scala_proto:deps_toolchain_type"
     toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
@@ -153,31 +170,16 @@ def _scalapb_aspect_impl(target, ctx):
                 for d in ctx.rule.attr.deps
             ] + [target_ti],
         )
-
-        # we sort so the inputs are always the same for caching
-        compile_protos = sorted(target_ti.direct_sources)
-        transitive_protos = sorted(target_ti.transitive_sources.to_list())
-
-        toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
         compile_deps = _compile_deps(ctx)
-        extra_generator_jars = toolchain.extra_generator_jars
 
-        # This feels rather hacky and odd, but we can't compare the labels to ignore a target easily
-        # since the @ or // forms seem to not have good equality :( , so we aim to make them absolute
-        #
-        # the backlisted protos in the tool chain get made into to absolute paths
-        # so we make the local target we are looking at absolute too
-        target_absolute_label = target.label
-        if not str(target_absolute_label)[0] == "@":
-            target_absolute_label = Label("@%s//%s:%s" % (ctx.workspace_name, target.label.package, target.label.name))
+        if not _skip(target, ctx):
+            toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
+            code_generator = toolchain.code_generator
+            extra_generator_jars = toolchain.extra_generator_jars
+            # we sort so the inputs are always the same for caching
+            compile_protos = sorted(target_ti.direct_sources)
+            transitive_protos = sorted(target_ti.transitive_sources.to_list())
 
-        for lbl in toolchain.blacklisted_protos:
-            if (lbl.label == target_absolute_label):
-                compile_protos = False
-
-        code_generator = toolchain.code_generator
-
-        if compile_protos:
             scalapb_file = ctx.actions.declare_file(
                 target.label.name + "_scalapb.srcjar",
             )
