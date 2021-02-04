@@ -160,11 +160,7 @@ def _scalapb_aspect_impl(target, ctx):
 
         toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
         compile_deps = _compile_deps(ctx)
-
-        extra_generator_jars = []
-        for generator_dep in toolchain.extra_generator_dependencies:
-            jinfo = generator_dep[JavaInfo]
-            extra_generator_jars.extend(jinfo.transitive_runtime_jars.to_list())
+        extra_generator_jars = toolchain.extra_generator_jars
 
         # This feels rather hacky and odd, but we can't compare the labels to ignore a target easily
         # since the @ or // forms seem to not have good equality :( , so we aim to make them absolute
@@ -195,7 +191,7 @@ def _scalapb_aspect_impl(target, ctx):
                 toolchain.opts,
                 scalapb_file,
                 toolchain.named_generators,
-                sorted(extra_generator_jars),
+                extra_generator_jars.to_list(),
             )
 
             src_jars = depset([scalapb_file])

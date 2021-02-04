@@ -11,16 +11,22 @@ def _opts(ctx):
         opts.append("single_line_to_proto_string")
     return opts
 
+def _extra_generator_jars(ctx):
+    return depset(transitive = [
+        dep[JavaInfo].transitive_runtime_jars
+        for dep in ctx.attr.extra_generator_dependencies
+    ])
+
 def _scala_proto_toolchain_impl(ctx):
     toolchain = platform_common.ToolchainInfo(
         opts = _opts(ctx),
+        extra_generator_jars = _extra_generator_jars(ctx),
         with_grpc = ctx.attr.with_grpc,
         with_flat_package = ctx.attr.with_flat_package,
         with_single_line_to_string = ctx.attr.with_single_line_to_string,
         blacklisted_protos = ctx.attr.blacklisted_protos,
         code_generator = ctx.attr.code_generator,
         main_generator = ctx.attr.main_generator,
-        extra_generator_dependencies = ctx.attr.extra_generator_dependencies,
         scalac = ctx.attr.scalac.files_to_run,
         named_generators = ctx.attr.named_generators,
     )
