@@ -1,8 +1,19 @@
 load("@io_bazel_rules_scala//scala:providers.bzl", "DepsInfo")
 load("//scala/private/toolchain_deps:toolchain_deps.bzl", "expose_toolchain_deps")
 
+def _opts(ctx):
+    opts = []
+    if ctx.attr.with_grpc:
+        opts.append("grpc")
+    if ctx.attr.with_flat_package:
+        opts.append("flat_package")
+    if ctx.attr.with_single_line_to_string:
+        opts.append("single_line_to_proto_string")
+    return opts
+
 def _scala_proto_toolchain_impl(ctx):
     toolchain = platform_common.ToolchainInfo(
+        opts = _opts(ctx),
         with_grpc = ctx.attr.with_grpc,
         with_flat_package = ctx.attr.with_flat_package,
         with_single_line_to_string = ctx.attr.with_single_line_to_string,

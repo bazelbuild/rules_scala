@@ -107,6 +107,24 @@ def _compile_scala(
         compile_jar = output,
     )
 
+def _compile_deps(ctx):
+    deps_toolchain_type_label = "@io_bazel_rules_scala//scala_proto:deps_toolchain_type"
+    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
+
+    compile_deps = find_deps_info_on(
+        ctx,
+        deps_toolchain_type_label,
+        "scalapb_compile_deps",
+    ).deps
+
+    imps = [dep[JavaInfo] for dep in compile_deps]
+
+    if toolchain.with_grpc:
+        grpc_deps = find_deps_info_on(ctx, deps_toolchain_type_label, "scalapb_grpc_deps").deps
+        imps.extend([dep[JavaInfo] for dep in grpc_deps])
+
+    return imps
+
 ####
 # This is applied to the DAG of proto_librarys reachable from a deps
 # or a scalapb_scala_library. Each proto_library will be one scalapb
@@ -140,29 +158,8 @@ def _scalapb_aspect_impl(target, ctx):
         compile_protos = sorted(target_ti.direct_sources)
         transitive_protos = sorted(target_ti.transitive_sources.to_list())
 
-        deps_toolchain_type_label = "@io_bazel_rules_scala//scala_proto:deps_toolchain_type"
-        toolchain_type_label = "@io_bazel_rules_scala//scala_proto:toolchain_type"
-        toolchain = ctx.toolchains[toolchain_type_label]
-        flags = []
-
-        compile_deps = find_deps_info_on(
-            ctx,
-            deps_toolchain_type_label,
-            "scalapb_compile_deps",
-        ).deps
-
-        imps = [dep[JavaInfo] for dep in compile_deps]
-
-        if toolchain.with_grpc:
-            grpc_deps = find_deps_info_on(ctx, deps_toolchain_type_label, "scalapb_grpc_deps").deps
-            flags.append("grpc")
-            imps.extend([dep[JavaInfo] for dep in grpc_deps])
-
-        if toolchain.with_flat_package:
-            flags.append("flat_package")
-
-        if toolchain.with_single_line_to_string:
-            flags.append("single_line_to_proto_string")
+        toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
+        compile_deps = _compile_deps(ctx)
 
         extra_generator_jars = []
         for generator_dep in toolchain.extra_generator_dependencies:
@@ -195,7 +192,7 @@ def _scalapb_aspect_impl(target, ctx):
                 compile_protos,
                 transitive_protos,
                 target_ti.transitive_proto_path.to_list(),
-                flags,
+                toolchain.opts,
                 scalapb_file,
                 toolchain.named_generators,
                 sorted(extra_generator_jars),
@@ -211,7 +208,7 @@ def _scalapb_aspect_impl(target, ctx):
                 output,
                 scalapb_file,
                 deps,
-                imps,
+                compile_deps,
                 compile_protos,
                 "" if target_ti.proto_source_root == "." else target_ti.proto_source_root,
             )
@@ -219,7 +216,7 @@ def _scalapb_aspect_impl(target, ctx):
             # this target is only an aggregation target
             src_jars = depset()
             outs = depset()
-            java_info = java_common.merge(_concat_lists(deps, imps))
+            java_info = java_common.merge(_concat_lists(deps, compile_deps))
 
     return [
         ScalaPBAspectInfo(
