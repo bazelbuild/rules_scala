@@ -107,26 +107,26 @@ def _compile_scala(
         compile_jar = output,
     )
 
-def _skip(target, ctx):
+def code_should_be_generated(target, ctx):
     # This feels rather hacky and odd, but we can't compare the labels to ignore a target easily
     # since the @ or // forms seem to not have good equality :( , so we aim to make them absolute
     #
     # the backlisted protos in the tool chain get made into to absolute paths
     # so we make the local target we are looking at absolute too
-    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
     target_absolute_label = target.label
     if not str(target_absolute_label)[0] == "@":
         target_absolute_label = Label("@%s//%s:%s" % (ctx.workspace_name, target.label.package, target.label.name))
 
+    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
+
     for lbl in toolchain.blacklisted_protos:
         if (lbl.label == target_absolute_label):
-            return True
+            return False
 
-    return False
+    return True
 
 def _compile_deps(ctx):
     deps_toolchain_type_label = "@io_bazel_rules_scala//scala_proto:deps_toolchain_type"
-    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
 
     compile_deps = find_deps_info_on(
         ctx,
@@ -135,6 +135,8 @@ def _compile_deps(ctx):
     ).deps
 
     imps = [dep[JavaInfo] for dep in compile_deps]
+
+    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
 
     if toolchain.with_grpc:
         grpc_deps = find_deps_info_on(ctx, deps_toolchain_type_label, "scalapb_grpc_deps").deps
@@ -172,10 +174,7 @@ def _scalapb_aspect_impl(target, ctx):
         )
         compile_deps = _compile_deps(ctx)
 
-        if not _skip(target, ctx):
-            toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
-            code_generator = toolchain.code_generator
-            extra_generator_jars = toolchain.extra_generator_jars
+        if code_should_be_generated(target, ctx):
             # we sort so the inputs are always the same for caching
             compile_protos = sorted(target_ti.direct_sources)
             transitive_protos = sorted(target_ti.transitive_sources.to_list())
@@ -183,17 +182,20 @@ def _scalapb_aspect_impl(target, ctx):
             scalapb_file = ctx.actions.declare_file(
                 target.label.name + "_scalapb.srcjar",
             )
+
+            toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
+
             proto_to_scala_src(
                 ctx,
                 target.label,
-                code_generator,
+                toolchain.code_generator,
                 compile_protos,
                 transitive_protos,
                 target_ti.transitive_proto_path.to_list(),
                 toolchain.opts,
                 scalapb_file,
                 toolchain.named_generators,
-                extra_generator_jars.to_list(),
+                toolchain.extra_generator_jars.to_list(),
             )
 
             src_jars = depset([scalapb_file])

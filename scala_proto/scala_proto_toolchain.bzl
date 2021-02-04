@@ -1,5 +1,5 @@
 load("@io_bazel_rules_scala//scala:providers.bzl", "DepsInfo")
-load("//scala/private/toolchain_deps:toolchain_deps.bzl", "expose_toolchain_deps")
+load("@io_bazel_rules_scala//scala/private/toolchain_deps:toolchain_deps.bzl", "expose_toolchain_deps")
 
 def _opts(ctx):
     opts = []
