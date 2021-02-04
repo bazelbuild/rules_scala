@@ -28,6 +28,7 @@ def _scala_proto_toolchain_impl(ctx):
         code_generator = ctx.attr.code_generator,
         main_generator = ctx.attr.main_generator,
         scalac = ctx.attr.scalac.files_to_run,
+        protoc = ctx.executable.protoc,
         named_generators = ctx.attr.named_generators,
     )
     return [toolchain]
@@ -61,6 +62,11 @@ scala_proto_toolchain = rule(
             cfg = "exec",
             default = Label("@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac"),
             allow_files = True,
+        ),
+        "protoc": attr.label(
+            executable = True,
+            cfg = "exec",
+            default = Label("@com_google_protobuf//:protoc"),
         ),
     },
 )

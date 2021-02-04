@@ -238,13 +238,6 @@ scalapb_aspect = aspect(
         [ProtoInfo],
         [ScalaPBImport],
     ],
-    attrs = {
-        "_protoc": attr.label(
-            executable = True,
-            cfg = "exec",
-            default = "@com_google_protobuf//:protoc",
-        ),
-    },
     incompatible_use_toolchain_transition = True,
     toolchains = [
         "@io_bazel_rules_scala//scala:toolchain_type",
