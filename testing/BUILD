@@ -71,8 +71,8 @@ declare_deps_provider(
     deps_id = "junit_classpath",
     visibility = ["//visibility:public"],
     deps = [
-        "//external:io_bazel_rules_scala/dependency/hamcrest/hamcrest_core",
-        "//external:io_bazel_rules_scala/dependency/junit/junit",
+        "@io_bazel_rules_scala_junit_junit",
+        "@io_bazel_rules_scala_org_hamcrest_hamcrest_core",
     ],
 )
 
