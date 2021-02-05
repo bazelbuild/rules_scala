@@ -33,10 +33,10 @@ scala_library(
     srcs = ["ScalaPBWorker.scala"],
     visibility = ["//visibility:public"],
     deps = [
-        ":scala_proto_request_extractor",
+#        ":scala_proto_request_extractor",
         "//scala_proto:scalapb_worker_deps",
-        "//src/java/io/bazel/rulesscala/io_utils",
-        "//src/java/io/bazel/rulesscala/jar",
+#        "//src/java/io/bazel/rulesscala/io_utils",
+#        "//src/java/io/bazel/rulesscala/jar",
         "//src/java/io/bazel/rulesscala/worker",
     ],
 )

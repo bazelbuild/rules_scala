@@ -17,8 +17,30 @@ def _extra_generator_jars(ctx):
         for dep in ctx.attr.extra_generator_dependencies
     ])
 
+def _generators(ctx):
+    g = {}
+    g.update(ctx.attr.named_generators)
+    g.update({"scala": ctx.attr.main_generator})
+    return g
+
+def _env(ctx):
+    e = {
+        "PROTOC": ctx.executable.protoc.path,
+        "EXTRA_JARS": ctx.configuration.host_path_separator.join(
+            [f.path for f in _extra_generator_jars(ctx).to_list()]
+        ),
+    }
+    e.update({
+        "GEN_" + k: v
+        for k, v in _generators(ctx).items()
+    })
+    return e
+
 def _scala_proto_toolchain_impl(ctx):
     toolchain = platform_common.ToolchainInfo(
+        worker = ctx.executable.code_generator,
+        env = _env(ctx),
+        generators = _generators(ctx),
         opts = _opts(ctx),
         extra_generator_jars = _extra_generator_jars(ctx),
         with_grpc = ctx.attr.with_grpc,

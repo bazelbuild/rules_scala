@@ -21,6 +21,14 @@ ScalaPBInfo = provider(fields = [
     "aspect_info",
 ])
 
+def _direct_sources(proto):
+    source_root = proto.proto_source_root
+    if "." == source_root:
+        return [src.path for src in proto.direct_sources]
+    else:
+        offset = len(source_root) + 1  # + '/'
+        return [src.path[offset:] for src in proto.direct_sources]
+
 def merge_proto_infos(tis):
     return struct(
         transitive_sources = [t.transitive_sources for t in tis],
@@ -49,24 +57,15 @@ def _compile_scala(
         scalac,
         label,
         output,
-        scalapb_jar,
+        src_jars,
         deps_java_info,
         implicit_deps,
         resources,
         resource_strip_prefix):
-    manifest = ctx.actions.declare_file(
-        label.name + "_MANIFEST.MF",
-        sibling = scalapb_jar,
-    )
+    manifest = ctx.actions.declare_file(label.name + "_MANIFEST.MF")
     write_manifest_file(ctx.actions, manifest, None)
-    statsfile = ctx.actions.declare_file(
-        label.name + "_scalac.statsfile",
-        sibling = scalapb_jar,
-    )
-    diagnosticsfile = ctx.actions.declare_file(
-        label.name + "_scalac.diagnosticsproto",
-        sibling = scalapb_jar,
-    )
+    statsfile = ctx.actions.declare_file(label.name + "_scalac.statsfile")
+    diagnosticsfile = ctx.actions.declare_file(label.name + "_scalac.diagnosticsproto")
     merged_deps = java_common.merge(_concat_lists(deps_java_info, implicit_deps))
 
     # this only compiles scala, not the ijar, but we don't
@@ -82,7 +81,7 @@ def _compile_scala(
         diagnosticsfile,
         sources = [],
         cjars = merged_deps.compile_jars,
-        all_srcjars = depset([scalapb_jar]),
+        all_srcjars = src_jars,
         transitive_compile_jars = merged_deps.transitive_compile_time_jars,
         plugins = [],
         resource_strip_prefix = resource_strip_prefix,
@@ -99,7 +98,7 @@ def _compile_scala(
     )
 
     return JavaInfo(
-        source_jar = scalapb_jar,
+#        source_jar = None,
         deps = deps_java_info + implicit_deps,
         runtime_deps = deps_java_info + implicit_deps,
         exports = deps_java_info + implicit_deps,
@@ -174,39 +173,50 @@ def _scalapb_aspect_impl(target, ctx):
         )
         compile_deps = _compile_deps(ctx)
 
-        if code_should_be_generated(target, ctx):
-            # we sort so the inputs are always the same for caching
+        if target_ti.direct_sources and code_should_be_generated(target, ctx):
+
             compile_protos = sorted(target_ti.direct_sources)
             transitive_protos = sorted(target_ti.transitive_sources.to_list())
 
-            scalapb_file = ctx.actions.declare_file(
-                target.label.name + "_scalapb.srcjar",
-            )
-
             toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
+            proto = target[ProtoInfo]
+            direct_sources = _direct_sources(proto)
+            descriptors = proto.transitive_descriptor_sets
+            outputs = {
+                k: ctx.actions.declare_file("%s_%s_scalapb.srcjar" % (target.label.name, k))
+                for k in toolchain.generators.keys()
+            }
+            opt = ",".join(toolchain.opts)
 
-            proto_to_scala_src(
-                ctx,
-                target.label,
-                toolchain.code_generator,
-                compile_protos,
-                transitive_protos,
-                target_ti.transitive_proto_path.to_list(),
-                toolchain.opts,
-                scalapb_file,
-                toolchain.named_generators,
-                toolchain.extra_generator_jars.to_list(),
+            args = ctx.actions.args()
+            args.set_param_file_format("multiline")
+            args.use_param_file(param_file_arg = "@%s", use_always = True)
+            for gen, out in outputs.items():
+                args.add("--" + gen + "_out", out)
+                args.add("--" + gen + "_opt", opt)
+            args.add_joined("--descriptor_set_in", descriptors, join_with = ctx.configuration.host_path_separator)
+            args.add_all(direct_sources)
+
+            ctx.actions.run(
+                executable = toolchain.worker,
+                arguments = [args],
+                inputs = depset(transitive = [descriptors, toolchain.extra_generator_jars]),
+                outputs = outputs.values(),
+                tools = [toolchain.protoc],
+                env = toolchain.env,
+                mnemonic = "ProtoScalaPBRule",
+                execution_requirements = {"supports-workers": "1"},
             )
 
-            src_jars = depset([scalapb_file])
-            output = _compiled_jar_file(ctx.actions, scalapb_file)
+            src_jars = depset(outputs.values())
+            output = ctx.actions.declare_file(target.label.name + "_scalapb.jar")
             outs = depset([output])
             java_info = _compile_scala(
                 ctx,
                 toolchain.scalac,
                 target.label,
                 output,
-                scalapb_file,
+                src_jars,
                 deps,
                 compile_deps,
                 compile_protos,
