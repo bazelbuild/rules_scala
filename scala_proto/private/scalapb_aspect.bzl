@@ -6,19 +6,7 @@ load("//scala_proto/private:proto_to_scala_src.bzl", "proto_to_scala_src")
 load("//scala/private/toolchain_deps:toolchain_deps.bzl", "find_deps_info_on")
 
 ScalaPBAspectInfo = provider(fields = [
-    "proto_info",
-    "src_jars",
-    "output_files",
     "java_info",
-])
-
-ScalaPBImport = provider(fields = [
-    "java_info",
-    "proto_info",
-])
-
-ScalaPBInfo = provider(fields = [
-    "aspect_info",
 ])
 
 def _direct_sources(proto):
@@ -154,32 +142,11 @@ def _scalapb_aspect_impl(target, ctx):
         # We allow some dependencies which are not protobuf, but instead
         # are jvm deps. This is to enable cases of custom generators which
         # add a needed jvm dependency.
-        java_info = target[JavaInfo]
-        src_jars = depset()
-        outs = depset()
-        transitive_ti = merge_proto_infos(
-            [
-                d[ScalaPBAspectInfo].proto_info
-                for d in ctx.rule.attr.deps
-            ],
-        )
+        return [ScalaPBAspectInfo(java_info = target[JavaInfo])]
     else:
-        target_ti = target[ProtoInfo]
-        transitive_ti = merge_proto_infos(
-            [
-                d[ScalaPBAspectInfo].proto_info
-                for d in ctx.rule.attr.deps
-            ] + [target_ti],
-        )
-        compile_deps = _compile_deps(ctx)
-
-        if target_ti.direct_sources and code_should_be_generated(target, ctx):
-
-            compile_protos = sorted(target_ti.direct_sources)
-            transitive_protos = sorted(target_ti.transitive_sources.to_list())
-
+        proto = target[ProtoInfo]
+        if proto.direct_sources and code_should_be_generated(target, ctx):
             toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
-            proto = target[ProtoInfo]
             direct_sources = _direct_sources(proto)
             descriptors = proto.transitive_descriptor_sets
             outputs = {
@@ -211,6 +178,7 @@ def _scalapb_aspect_impl(target, ctx):
             src_jars = depset(outputs.values())
             output = ctx.actions.declare_file(target.label.name + "_scalapb.jar")
             outs = depset([output])
+            compile_deps = _compile_deps(ctx)
             java_info = _compile_scala(
                 ctx,
                 toolchain.scalac,
@@ -219,23 +187,13 @@ def _scalapb_aspect_impl(target, ctx):
                 src_jars,
                 deps,
                 compile_deps,
-                compile_protos,
-                "" if target_ti.proto_source_root == "." else target_ti.proto_source_root,
+                proto.direct_sources,
+                "" if proto.proto_source_root == "." else proto.proto_source_root,
             )
+            return [ScalaPBAspectInfo(java_info = java_info)]
         else:
             # this target is only an aggregation target
-            src_jars = depset()
-            outs = depset()
-            java_info = java_common.merge(_concat_lists(deps, compile_deps))
-
-    return [
-        ScalaPBAspectInfo(
-            src_jars = src_jars,
-            output_files = outs,
-            proto_info = transitive_ti,
-            java_info = java_info,
-        ),
-    ]
+            return [ScalaPBAspectInfo(java_info = java_common.merge(deps))]
 
 def _concat_lists(list1, list2):
     all_providers = []
@@ -246,10 +204,6 @@ def _concat_lists(list1, list2):
 scalapb_aspect = aspect(
     implementation = _scalapb_aspect_impl,
     attr_aspects = ["deps"],
-    required_aspect_providers = [
-        [ProtoInfo],
-        [ScalaPBImport],
-    ],
     incompatible_use_toolchain_transition = True,
     toolchains = [
         "@io_bazel_rules_scala//scala:toolchain_type",
