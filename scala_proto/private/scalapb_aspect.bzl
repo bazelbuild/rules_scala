@@ -17,19 +17,6 @@ def _direct_sources(proto):
         offset = len(source_root) + 1  # + '/'
         return [src.path[offset:] for src in proto.direct_sources]
 
-def merge_proto_infos(tis):
-    return struct(
-        transitive_sources = [t.transitive_sources for t in tis],
-    )
-
-def merge_scalapb_aspect_info(scalapbs):
-    return ScalaPBAspectInfo(
-        src_jars = depset(transitive = [s.src_jars for s in scalapbs]),
-        output_files = depset(transitive = [s.output_files for s in scalapbs]),
-        proto_info = merge_proto_infos([s.proto_info for s in scalapbs]),
-        java_info = java_common.merge([s.java_info for s in scalapbs]),
-    )
-
 def _compiled_jar_file(actions, scalapb_jar):
     scalapb_jar_name = scalapb_jar.basename
 
