@@ -16,16 +16,6 @@ def _direct_sources(proto):
         offset = len(source_root) + 1  # + '/'
         return [src.path[offset:] for src in proto.direct_sources]
 
-def _compiled_jar_file(actions, scalapb_jar):
-    scalapb_jar_name = scalapb_jar.basename
-
-    # ends with .srcjar, so remove last 6 characters
-    without_suffix = scalapb_jar_name[0:len(scalapb_jar_name) - 6]
-
-    # this already ends with _scalapb because that is how scalapb_jar is named
-    compiled_jar = without_suffix + "jar"
-    return actions.declare_file(compiled_jar, sibling = scalapb_jar)
-
 def _compile_scala(
         ctx,
         scalac,
