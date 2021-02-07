@@ -9,7 +9,7 @@ def _opts(ctx):
         opts.append("flat_package")
     if ctx.attr.with_single_line_to_string:
         opts.append("single_line_to_proto_string")
-    return opts
+    return ",".join(opts)
 
 def _extra_generator_jars(ctx):
     return depset(transitive = [

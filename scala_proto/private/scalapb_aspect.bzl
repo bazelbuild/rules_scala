@@ -112,64 +112,62 @@ def _compile_deps(ctx):
 # or a scalapb_scala_library. Each proto_library will be one scalapb
 # invocation assuming it has some sources.
 def _scalapb_aspect_impl(target, ctx):
-    deps = [d[ScalaPBAspectInfo].java_info for d in ctx.rule.attr.deps]
-
     if ProtoInfo not in target:
         # We allow some dependencies which are not protobuf, but instead
         # are jvm deps. This is to enable cases of custom generators which
         # add a needed jvm dependency.
         return [ScalaPBAspectInfo(java_info = target[JavaInfo])]
+
+    deps = [d[ScalaPBAspectInfo].java_info for d in ctx.rule.attr.deps]
+    proto = target[ProtoInfo]
+
+    if proto.direct_sources and code_should_be_generated(target, ctx):
+        toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
+        direct_sources = _direct_sources(proto)
+        descriptors = proto.transitive_descriptor_sets
+        outputs = {
+            k: ctx.actions.declare_file("%s_%s_scalapb.srcjar" % (target.label.name, k))
+            for k in toolchain.generators.keys()
+        }
+
+        args = ctx.actions.args()
+        args.set_param_file_format("multiline")
+        args.use_param_file(param_file_arg = "@%s", use_always = True)
+        for gen, out in outputs.items():
+            args.add("--" + gen + "_out", out)
+            args.add("--" + gen + "_opt", toolchain.opts)
+        args.add_joined("--descriptor_set_in", descriptors, join_with = ctx.configuration.host_path_separator)
+        args.add_all(direct_sources)
+
+        ctx.actions.run(
+            executable = toolchain.worker,
+            arguments = [args],
+            inputs = depset(transitive = [descriptors, toolchain.extra_generator_jars]),
+            outputs = outputs.values(),
+            tools = [toolchain.protoc],
+            env = toolchain.env,
+            mnemonic = "ProtoScalaPBRule",
+            execution_requirements = {"supports-workers": "1"},
+        )
+
+        src_jars = depset(outputs.values())
+        output = ctx.actions.declare_file(target.label.name + "_scalapb.jar")
+        compile_deps = _compile_deps(ctx)
+        java_info = _compile_scala(
+            ctx,
+            toolchain.scalac,
+            target.label,
+            output,
+            src_jars,
+            deps,
+            compile_deps,
+            proto.direct_sources,
+            "" if proto.proto_source_root == "." else proto.proto_source_root,
+        )
+        return [ScalaPBAspectInfo(java_info = java_info)]
     else:
-        proto = target[ProtoInfo]
-        if proto.direct_sources and code_should_be_generated(target, ctx):
-            toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
-            direct_sources = _direct_sources(proto)
-            descriptors = proto.transitive_descriptor_sets
-            outputs = {
-                k: ctx.actions.declare_file("%s_%s_scalapb.srcjar" % (target.label.name, k))
-                for k in toolchain.generators.keys()
-            }
-            opt = ",".join(toolchain.opts)
-
-            args = ctx.actions.args()
-            args.set_param_file_format("multiline")
-            args.use_param_file(param_file_arg = "@%s", use_always = True)
-            for gen, out in outputs.items():
-                args.add("--" + gen + "_out", out)
-                args.add("--" + gen + "_opt", opt)
-            args.add_joined("--descriptor_set_in", descriptors, join_with = ctx.configuration.host_path_separator)
-            args.add_all(direct_sources)
-
-            ctx.actions.run(
-                executable = toolchain.worker,
-                arguments = [args],
-                inputs = depset(transitive = [descriptors, toolchain.extra_generator_jars]),
-                outputs = outputs.values(),
-                tools = [toolchain.protoc],
-                env = toolchain.env,
-                mnemonic = "ProtoScalaPBRule",
-                execution_requirements = {"supports-workers": "1"},
-            )
-
-            src_jars = depset(outputs.values())
-            output = ctx.actions.declare_file(target.label.name + "_scalapb.jar")
-            outs = depset([output])
-            compile_deps = _compile_deps(ctx)
-            java_info = _compile_scala(
-                ctx,
-                toolchain.scalac,
-                target.label,
-                output,
-                src_jars,
-                deps,
-                compile_deps,
-                proto.direct_sources,
-                "" if proto.proto_source_root == "." else proto.proto_source_root,
-            )
-            return [ScalaPBAspectInfo(java_info = java_info)]
-        else:
-            # this target is only an aggregation target
-            return [ScalaPBAspectInfo(java_info = java_common.merge(deps))]
+        # this target is only an aggregation target
+        return [ScalaPBAspectInfo(java_info = java_common.merge(deps))]
 
 def _concat_lists(list1, list2):
     all_providers = []
