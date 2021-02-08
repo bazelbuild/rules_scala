@@ -15,7 +15,7 @@ toolchain(
 declare_deps_provider(
     name = "tut_core_provider",
     deps_id = "tut_core",
-    deps = ["//external:io_bazel_rules_scala/dependency/tut/tut_core"],
+    deps = ["@io_bazel_rules_scala_org_tpolecat_tut_core"],
 )
 
 export_tut_deps(
