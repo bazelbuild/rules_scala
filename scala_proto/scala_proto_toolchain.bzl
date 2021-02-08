@@ -47,7 +47,7 @@ def _scala_proto_toolchain_impl(ctx):
         blacklisted_protos = ctx.attr.blacklisted_protos,
         protoc = ctx.executable.protoc,
         scalac = ctx.attr.scalac.files_to_run,
-        worker = ctx.executable.code_generator,
+        worker = ctx.attr.code_generator.files_to_run,
     )
     return [toolchain]
 

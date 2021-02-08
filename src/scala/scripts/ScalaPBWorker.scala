@@ -17,7 +17,7 @@ object ScalaPBWorker extends Worker.Interface {
   }
 
   private val classes = {
-    val jars = sys.env.getOrElse("EXTRA_JARS", "").split(pathSeparatorChar).map { e =>
+    val jars = sys.env.getOrElse("EXTRA_JARS", "").split(pathSeparatorChar).filter(_.nonEmpty).map { e =>
       val file = Paths.get(e)
       require(Files.exists(file), s"Expected file for classpath loading $file to exist")
       file.toUri.toURL
@@ -32,7 +32,7 @@ object ScalaPBWorker extends Worker.Interface {
       classes(className).newInstance.asInstanceOf[ProtocCodeGenerator]
   }
 
-  private val generators: Seq[(String, ProtocCodeGenerator)] = sys.env.toSeq.collect {
+  private def generators: Seq[(String, ProtocCodeGenerator)] = sys.env.toSeq.collect {
     case (k, v) if k.startsWith("GEN_") => k.stripPrefix("GEN_") -> generator(v)
   }
 
