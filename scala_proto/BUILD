@@ -82,9 +82,9 @@ declare_deps_provider(
     deps_id = "scalapb_worker_deps",
     visibility = ["//visibility:public"],
     deps = [
-        "//external:io_bazel_rules_scala/dependency/com_google_protobuf/protobuf_java",
-        "//external:io_bazel_rules_scala/dependency/proto/protoc_bridge",
-        "//external:io_bazel_rules_scala/dependency/proto/scalapb_plugin",
+        "@com_google_protobuf//:protobuf_java",
+        "@scala_proto_rules_protoc_bridge",
+        "@scala_proto_rules_scalapb_plugin",
     ],
 )
 
