@@ -2,7 +2,7 @@ package scripts
 
 import java.io.File.pathSeparatorChar
 import java.net.URLClassLoader
-import java.nio.file.Paths
+import java.nio.file.{Files, Paths}
 
 import io.bazel.rulesscala.worker.Worker
 import protocbridge.{ProtocBridge, ProtocCodeGenerator}
@@ -16,27 +16,24 @@ object ScalaPBWorker extends Worker.Interface {
     (args: Seq[String]) => Process(executable, args).!(ProcessLogger(stderr.println(_)))
   }
 
-  private val classpath = {
+  private val classes = {
     val jars = sys.env.getOrElse("EXTRA_JARS", "").split(pathSeparatorChar).map { e =>
-      val file = Paths.get(e).toFile
-      require(file.exists, s"Expected file for classpath loading $file to exist")
-      file.toURI.toURL
+      val file = Paths.get(e)
+      require(Files.exists(file), s"Expected file for classpath loading $file to exist")
+      file.toUri.toURL
     }
-    val loader = new URLClassLoader(jars)
+    new URLClassLoader(jars).loadClass(_)
+  }
 
-    (className: String) =>
-      try {
-        val clazz = loader.loadClass(className + "$")
-        clazz.getField("MODULE$").get(null).asInstanceOf[ProtocCodeGenerator]
-      } catch {
-        case _: NoSuchFieldException | _: java.lang.ClassNotFoundException =>
-          val clazz = loader.loadClass(className)
-          clazz.newInstance.asInstanceOf[ProtocCodeGenerator]
-      }
+  private val generator = (className: String) => try {
+    classes(className + "$").getField("MODULE$").get(null).asInstanceOf[ProtocCodeGenerator]
+  } catch {
+    case _: NoSuchFieldException | _: java.lang.ClassNotFoundException =>
+      classes(className).newInstance.asInstanceOf[ProtocCodeGenerator]
   }
 
   private val generators: Seq[(String, ProtocCodeGenerator)] = sys.env.toSeq.collect {
-    case (k, v) if k.startsWith("GEN_") => k.stripPrefix("GEN_") -> classpath(v)
+    case (k, v) if k.startsWith("GEN_") => k.stripPrefix("GEN_") -> generator(v)
   }
 
   def main(args: Array[String]): Unit = Worker.workerMain(args, ScalaPBWorker)
