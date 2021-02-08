@@ -11,6 +11,12 @@ def _opts(ctx):
         opts.append("single_line_to_proto_string")
     return ",".join(opts)
 
+def _deps_providers(ctx):
+    deps = ["scalapb_compile_deps"]
+    if ctx.attr.with_grpc:
+        deps.append("scalapb_grpc_deps")
+    return deps
+
 def _extra_generator_jars(ctx):
     return depset(transitive = [
         dep[JavaInfo].transitive_runtime_jars
@@ -18,40 +24,30 @@ def _extra_generator_jars(ctx):
     ])
 
 def _generators(ctx):
-    g = {}
+    g = {"main": ctx.attr.main_generator}
     g.update(ctx.attr.named_generators)
-    g.update({"scala": ctx.attr.main_generator})
     return g
 
-def _env(ctx):
-    e = {
-        "PROTOC": ctx.executable.protoc.path,
-        "EXTRA_JARS": ctx.configuration.host_path_separator.join(
-            [f.path for f in _extra_generator_jars(ctx).to_list()]
-        ),
-    }
-    e.update({
-        "GEN_" + k: v
-        for k, v in _generators(ctx).items()
-    })
-    return e
-
 def _scala_proto_toolchain_impl(ctx):
+    generators = _generators(ctx)
+    extra_generator_jars = _extra_generator_jars(ctx)
+    separator = ctx.configuration.host_path_separator
+    env = {
+        "PROTOC": ctx.executable.protoc.path,
+        "EXTRA_JARS": separator.join([f.path for f in extra_generator_jars.to_list()]),
+    }
+    env.update({"GEN_" + k: v for k, v in generators.items()})
+
     toolchain = platform_common.ToolchainInfo(
-        worker = ctx.executable.code_generator,
-        env = _env(ctx),
-        generators = _generators(ctx),
         opts = _opts(ctx),
-        extra_generator_jars = _extra_generator_jars(ctx),
-        with_grpc = ctx.attr.with_grpc,
-        with_flat_package = ctx.attr.with_flat_package,
-        with_single_line_to_string = ctx.attr.with_single_line_to_string,
+        compile_dep_ids = _deps_providers(ctx),
+        env = env,
+        generators = generators,
+        extra_generator_jars = extra_generator_jars,
         blacklisted_protos = ctx.attr.blacklisted_protos,
-        code_generator = ctx.attr.code_generator,
-        main_generator = ctx.attr.main_generator,
-        scalac = ctx.attr.scalac.files_to_run,
         protoc = ctx.executable.protoc,
-        named_generators = ctx.attr.named_generators,
+        scalac = ctx.attr.scalac.files_to_run,
+        worker = ctx.executable.code_generator,
     )
     return [toolchain]
 

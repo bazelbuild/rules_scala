@@ -89,23 +89,13 @@ def code_should_be_generated(target, ctx):
     return True
 
 def _compile_deps(ctx):
-    deps_toolchain_type_label = "@io_bazel_rules_scala//scala_proto:deps_toolchain_type"
-
-    compile_deps = find_deps_info_on(
-        ctx,
-        deps_toolchain_type_label,
-        "scalapb_compile_deps",
-    ).deps
-
-    imps = [dep[JavaInfo] for dep in compile_deps]
-
     toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
-
-    if toolchain.with_grpc:
-        grpc_deps = find_deps_info_on(ctx, deps_toolchain_type_label, "scalapb_grpc_deps").deps
-        imps.extend([dep[JavaInfo] for dep in grpc_deps])
-
-    return imps
+    deps_toolchain_type_label = "@io_bazel_rules_scala//scala_proto:deps_toolchain_type"
+    return [
+        dep[JavaInfo]
+        for id in toolchain.compile_dep_ids
+        for dep in find_deps_info_on(ctx, deps_toolchain_type_label, id).deps
+    ]
 
 ####
 # This is applied to the DAG of proto_librarys reachable from a deps
