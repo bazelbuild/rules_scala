@@ -110,7 +110,7 @@ artifacts = {
         "sha256": "b5f1d6071f1548d05be82f59f9039c7d37a1787bd8e3c677e31ee275af4a4621",
     },
     "org_scala_lang_scalap": {
-        "artifact": "org.scala-lang:scalap:2.11.10",
+        "artifact": "org.scala-lang:scalap:2.11.12",
         "sha256": "a6dd7203ce4af9d6185023d5dba9993eb8e80584ff4b1f6dec574a2aba4cd2b7",
         "deps": [
             "@io_bazel_rules_scala_scala_compiler",
