@@ -51,9 +51,9 @@ scala_register_toolchains()
         deps_id = "scala_compile_classpath",
         visibility = ["//visibility:public"],
         deps = [
-            "//external:io_bazel_rules_scala/dependency/scala/scala_compiler",
-            "//external:io_bazel_rules_scala/dependency/scala/scala_library",
-            "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
+            "@io_bazel_rules_scala_scala_compiler",
+            "@io_bazel_rules_scala_scala_library",
+            "@io_bazel_rules_scala_scala_reflect",
         ],
     )
     
@@ -61,8 +61,8 @@ scala_register_toolchains()
         name = "my_scala_library_classpath_provider",
         deps_id = "scala_library_classpath",
         deps = [
-            "//external:io_bazel_rules_scala/dependency/scala/scala_library",
-            "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
+            "@io_bazel_rules_scala_scala_library",
+            "@io_bazel_rules_scala_scala_reflect",
         ],
     )
     
@@ -70,8 +70,8 @@ scala_register_toolchains()
         name = "my_scala_macro_classpath_provider",
         deps_id = "scala_macro_classpath",
         deps = [
-            "//external:io_bazel_rules_scala/dependency/scala/scala_library",
-            "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
+            "@io_bazel_rules_scala_scala_library",
+            "@io_bazel_rules_scala_scala_reflect",
         ],
     )
      

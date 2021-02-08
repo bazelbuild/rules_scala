@@ -32,7 +32,7 @@ artifacts = {
         "sha256": "6330798bcbd78d14d371202749f32efda0465c3be5fd057a6055a67e21335ba0",
         "deps": [
             "@com_lihaoyi_sourcecode",
-            "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+            "@io_bazel_rules_scala_scala_library",
         ],
     },
     "org_scalameta_fastparse": {
@@ -40,7 +40,7 @@ artifacts = {
         "sha256": "49ecc30a4b47efc0038099da0c97515cf8f754ea631ea9f9935b36ca7d41b733",
         "deps": [
             "@com_lihaoyi_sourcecode",
-            "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+            "@io_bazel_rules_scala_scala_library",
             "@org_scalameta_fastparse_utils",
         ],
     },
@@ -49,21 +49,21 @@ artifacts = {
         "sha256": "93f58db540e53178a686621f7a9c401307a529b68e051e38804394a2a86cea94",
         "deps": [
             "@com_lihaoyi_sourcecode",
-            "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+            "@io_bazel_rules_scala_scala_library",
         ],
     },
     "org_scala_lang_modules_scala_collection_compat": {
         "artifact": "org.scala-lang.modules:scala-collection-compat_2.11:2.1.2",
         "sha256": "e9667b8b7276aeb42599f536fe4d7caab06eabc55e9995572267ad60c7a11c8b",
         "deps": [
-            "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+            "@io_bazel_rules_scala_scala_library",
         ],
     },
     "org_scalameta_parsers": {
         "artifact": "org.scalameta:parsers_2.11:4.3.0",
         "sha256": "724382abfac27b32dec6c21210562bc7e1b09b5268ccb704abe66dcc8844beeb",
         "deps": [
-            "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+            "@io_bazel_rules_scala_scala_library",
             "@org_scalameta_trees",
         ],
     },
@@ -73,8 +73,8 @@ artifacts = {
         "deps": [
             "@com_geirsson_metaconfig_core",
             "@com_geirsson_metaconfig_typesafe_config",
-            "//external:io_bazel_rules_scala/dependency/scala/scala_library",
-            "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
+            "@io_bazel_rules_scala_scala_library",
+            "@io_bazel_rules_scala_scala_reflect",
             "@org_scalameta_scalameta",
             "@org_scala_lang_modules_scala_collection_compat",
         ],
@@ -83,7 +83,7 @@ artifacts = {
         "artifact": "org.scalameta:scalameta_2.11:4.3.0",
         "sha256": "94fe739295447cd3ae877c279ccde1def06baea02d9c76a504dda23de1d90516",
         "deps": [
-            "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+            "@io_bazel_rules_scala_scala_library",
             "@org_scala_lang_scalap",
             "@org_scalameta_parsers",
         ],
@@ -93,7 +93,7 @@ artifacts = {
         "sha256": "d24d5d63d8deafe646d455c822593a66adc6fdf17c8373754a3834a6e92a8a72",
         "deps": [
             "@com_thesamet_scalapb_scalapb_runtime",
-            "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+            "@io_bazel_rules_scala_scala_library",
             "@org_scalameta_common",
             "@org_scalameta_fastparse",
         ],
@@ -102,7 +102,7 @@ artifacts = {
         "artifact": "org.typelevel:paiges-core_2.11:0.2.4",
         "sha256": "aa66fbe0457ca5cb5b9e522d4cb873623bb376a2e1ff58c464b5194c1d87c241",
         "deps": [
-            "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+            "@io_bazel_rules_scala_scala_library",
         ],
     },
     "com_typesafe_config": {
@@ -120,7 +120,7 @@ artifacts = {
         "artifact": "com.thesamet.scalapb:lenses_2.11:0.9.0",
         "sha256": "f4809760edee6abc97a7fe9b7fd6ae5fe1006795b1dc3963ab4e317a72f1a385",
         "deps": [
-            "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+            "@io_bazel_rules_scala_scala_library",
         ],
     },
     "com_thesamet_scalapb_scalapb_runtime": {
@@ -130,7 +130,7 @@ artifacts = {
             "@com_google_protobuf_protobuf_java",
             "@com_lihaoyi_fastparse",
             "@com_thesamet_scalapb_lenses",
-            "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+            "@io_bazel_rules_scala_scala_library",
         ],
     },
     "com_lihaoyi_fansi": {
@@ -138,7 +138,7 @@ artifacts = {
         "sha256": "1ff0a8304f322c1442e6bcf28fab07abf3cf560dd24573dbe671249aee5fc488",
         "deps": [
             "@com_lihaoyi_sourcecode",
-            "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+            "@io_bazel_rules_scala_scala_library",
         ],
     },
     "com_lihaoyi_fastparse": {
@@ -154,14 +154,14 @@ artifacts = {
         "deps": [
             "@com_lihaoyi_fansi",
             "@com_lihaoyi_sourcecode",
-            "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+            "@io_bazel_rules_scala_scala_library",
         ],
     },
     "com_lihaoyi_sourcecode": {
         "artifact": "com.lihaoyi:sourcecode_2.11:0.1.7",
         "sha256": "33516d7fd9411f74f05acfd5274e1b1889b7841d1993736118803fc727b2d5fc",
         "deps": [
-            "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+            "@io_bazel_rules_scala_scala_library",
         ],
     },
     "com_google_protobuf_protobuf_java": {
@@ -173,7 +173,7 @@ artifacts = {
         "sha256": "5d5704a1f1c4f74aed26248eeb9b577274d570b167cec0bf51d2908609c29118",
         "deps": [
             "@com_lihaoyi_pprint",
-            "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+            "@io_bazel_rules_scala_scala_library",
             "@org_typelevel_paiges_core",
             "@org_scala_lang_modules_scala_collection_compat",
         ],
@@ -184,7 +184,7 @@ artifacts = {
         "deps": [
             "@com_geirsson_metaconfig_core",
             "@com_typesafe_config",
-            "//external:io_bazel_rules_scala/dependency/scala/scala_library",
+            "@io_bazel_rules_scala_scala_library",
             "@org_scala_lang_modules_scala_collection_compat",
         ],
     },
