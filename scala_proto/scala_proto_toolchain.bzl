@@ -24,26 +24,29 @@ def _extra_generator_jars(ctx):
     ])
 
 def _generators(ctx):
-    g = {"main": ctx.attr.main_generator}
-    g.update(ctx.attr.named_generators)
-    return g
+    return dict(
+        ctx.attr.named_generators,
+        scala = ctx.attr.main_generator,
+    )
+
+def _env(ctx, generators, jars):
+    return dict(
+        {"GEN_" + k: v for k, v in generators.items()},
+        PROTOC = ctx.executable.protoc.path,
+        EXTRA_JARS = ctx.configuration.host_path_separator.join(
+            [f.path for f in jars.to_list()],
+        ),
+    )
 
 def _scala_proto_toolchain_impl(ctx):
     generators = _generators(ctx)
     extra_generator_jars = _extra_generator_jars(ctx)
-    separator = ctx.configuration.host_path_separator
-    env = {
-        "PROTOC": ctx.executable.protoc.path,
-        "EXTRA_JARS": separator.join([f.path for f in extra_generator_jars.to_list()]),
-    }
-    env.update({"GEN_" + k: v for k, v in generators.items()})
-
     toolchain = platform_common.ToolchainInfo(
-        opts = _opts(ctx),
-        compile_dep_ids = _deps_providers(ctx),
-        env = env,
         generators = generators,
         extra_generator_jars = extra_generator_jars,
+        env = _env(ctx, generators, extra_generator_jars),
+        opts = _opts(ctx),
+        compile_dep_ids = _deps_providers(ctx),
         blacklisted_protos = ctx.attr.blacklisted_protos,
         protoc = ctx.executable.protoc,
         scalac = ctx.attr.scalac.files_to_run,

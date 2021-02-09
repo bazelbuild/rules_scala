@@ -32,7 +32,7 @@ object ScalaPBWorker extends Worker.Interface {
       classes(className).newInstance.asInstanceOf[ProtocCodeGenerator]
   }
 
-  private def generators: Seq[(String, ProtocCodeGenerator)] = sys.env.toSeq.collect {
+  private val generators: Seq[(String, ProtocCodeGenerator)] = sys.env.toSeq.collect {
     case (k, v) if k.startsWith("GEN_") => k.stripPrefix("GEN_") -> generator(v)
   }
 
