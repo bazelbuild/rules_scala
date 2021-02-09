@@ -17,7 +17,7 @@ declare_deps_provider(
     deps_id = "jmh_core",
     visibility = ["//visibility:public"],
     deps = [
-        "//external:io_bazel_rules_scala/dependency/jmh/jmh_core",
+        "@io_bazel_rules_scala_org_openjdk_jmh_jmh_core",
     ],
 )
 
@@ -26,8 +26,8 @@ declare_deps_provider(
     deps_id = "jmh_classpath",
     visibility = ["//visibility:public"],
     deps = [
-        "//external:io_bazel_rules_scala/dependency/jmh/net_sf_jopt_simple_jopt_simple",
-        "//external:io_bazel_rules_scala/dependency/jmh/org_apache_commons_commons_math3",
+        "@io_bazel_rules_scala_net_sf_jopt_simple_jopt_simple",
+        "@io_bazel_rules_scala_org_apache_commons_commons_math3",
     ],
 )
 
@@ -36,10 +36,10 @@ declare_deps_provider(
     deps_id = "benchmark_generator",
     visibility = ["//visibility:public"],
     deps = [
-        "//external:io_bazel_rules_scala/dependency/jmh/jmh_core",
-        "//external:io_bazel_rules_scala/dependency/jmh/jmh_generator_asm",
-        "//external:io_bazel_rules_scala/dependency/jmh/jmh_generator_reflection",
         "//src/java/io/bazel/rulesscala/jar",
+        "@io_bazel_rules_scala_org_openjdk_jmh_jmh_core",
+        "@io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_asm",
+        "@io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_reflection",
     ],
 )
 
@@ -48,7 +48,7 @@ declare_deps_provider(
     deps_id = "benchmark_generator_runtime",
     visibility = ["//visibility:public"],
     deps = [
-        "//external:io_bazel_rules_scala/dependency/jmh/org_ows2_asm_asm",
+        "@io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_asm",
     ],
 )
 
