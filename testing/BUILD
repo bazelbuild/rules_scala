@@ -81,8 +81,8 @@ declare_deps_provider(
     deps_id = "scalatest_classpath",
     visibility = ["//visibility:public"],
     deps = [
-        "//external:io_bazel_rules_scala/dependency/scala/scalactic/scalactic",
-        "//external:io_bazel_rules_scala/dependency/scala/scalatest/scalatest",
+        "@io_bazel_rules_scala_scalactic",
+        "@io_bazel_rules_scala_scalatest",
     ],
 )
 
