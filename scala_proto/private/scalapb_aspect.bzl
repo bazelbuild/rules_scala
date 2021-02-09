@@ -16,61 +16,7 @@ def _direct_sources(proto):
         offset = len(source_root) + 1  # + '/'
         return [src.path[offset:] for src in proto.direct_sources]
 
-def _compile_scala(
-        ctx,
-        scalac,
-        label,
-        output,
-        src_jars,
-        deps_java_info,
-        implicit_deps,
-        resources,
-        resource_strip_prefix):
-    manifest = ctx.actions.declare_file(label.name + "_MANIFEST.MF")
-    write_manifest_file(ctx.actions, manifest, None)
-    statsfile = ctx.actions.declare_file(label.name + "_scalac.statsfile")
-    diagnosticsfile = ctx.actions.declare_file(label.name + "_scalac.diagnosticsproto")
-    merged_deps = java_common.merge(_concat_lists(deps_java_info, implicit_deps))
-
-    # this only compiles scala, not the ijar, but we don't
-    # want the ijar for generated code anyway: any change
-    # in the proto generally will change the interface and
-    # method bodies
-    compile_scala(
-        ctx,
-        label,
-        output,
-        manifest,
-        statsfile,
-        diagnosticsfile,
-        sources = [],
-        cjars = merged_deps.compile_jars,
-        all_srcjars = src_jars,
-        transitive_compile_jars = merged_deps.transitive_compile_time_jars,
-        plugins = [],
-        resource_strip_prefix = resource_strip_prefix,
-        resources = resources,
-        resource_jars = [],
-        labels = {},
-        in_scalacopts = [],
-        print_compile_time = False,
-        expect_java_output = False,
-        scalac_jvm_flags = [],
-        scalac = scalac,
-        dependency_info = legacy_unclear_dependency_info_for_protobuf_scrooge(ctx),
-        unused_dependency_checker_ignored_targets = [],
-    )
-
-    return JavaInfo(
-#        source_jar = None,
-        deps = deps_java_info + implicit_deps,
-        runtime_deps = deps_java_info + implicit_deps,
-        exports = deps_java_info + implicit_deps,
-        output_jar = output,
-        compile_jar = output,
-    )
-
-def code_should_be_generated(target, ctx):
+def _code_should_be_generated(target, ctx):
     # This feels rather hacky and odd, but we can't compare the labels to ignore a target easily
     # since the @ or // forms seem to not have good equality :( , so we aim to make them absolute
     #
@@ -97,6 +43,85 @@ def _compile_deps(ctx):
         for dep in find_deps_info_on(ctx, deps_toolchain_type_label, id).deps
     ]
 
+def _generate_sources(ctx, proto):
+    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
+    direct_sources = _direct_sources(proto)
+    descriptors = proto.transitive_descriptor_sets
+    outputs = {
+        k: ctx.actions.declare_file("%s_%s_scalapb.srcjar" % (ctx.label.name, k))
+        for k in toolchain.generators
+    }
+
+    args = ctx.actions.args()
+    args.set_param_file_format("multiline")
+    args.use_param_file(param_file_arg = "@%s", use_always = True)
+    for gen, out in outputs.items():
+        args.add("--" + gen + "_out", out)
+        args.add("--" + gen + "_opt", toolchain.opts)
+    args.add_joined("--descriptor_set_in", descriptors, join_with = ctx.configuration.host_path_separator)
+    args.add_all(direct_sources)
+
+    ctx.actions.run(
+        executable = toolchain.worker,
+        arguments = [args],
+        inputs = depset(transitive = [descriptors, toolchain.extra_generator_jars]),
+        outputs = outputs.values(),
+        tools = [toolchain.protoc],
+        env = toolchain.env,
+        mnemonic = "ProtoScalaPBRule",
+        execution_requirements = {"supports-workers": "1"},
+    )
+
+    return outputs.values()
+
+def _compile_sources(ctx, proto, src_jars, deps):
+    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
+    output = ctx.actions.declare_file(ctx.label.name + "_scalapb.jar")
+    manifest = ctx.actions.declare_file(ctx.label.name + "_MANIFEST.MF")
+    write_manifest_file(ctx.actions, manifest, None)
+    statsfile = ctx.actions.declare_file(ctx.label.name + "_scalac.statsfile")
+    diagnosticsfile = ctx.actions.declare_file(ctx.label.name + "_scalac.diagnosticsproto")
+    compile_deps = deps + _compile_deps(ctx)
+    merged_deps = java_common.merge(compile_deps)
+
+    # this only compiles scala, not the ijar, but we don't
+    # want the ijar for generated code anyway: any change
+    # in the proto generally will change the interface and
+    # method bodies
+    compile_scala(
+        ctx,
+        ctx.label,
+        output,
+        manifest,
+        statsfile,
+        diagnosticsfile,
+        sources = [],
+        cjars = merged_deps.compile_jars,
+        all_srcjars = depset(src_jars),
+        transitive_compile_jars = merged_deps.transitive_compile_time_jars,
+        plugins = [],
+        resource_strip_prefix = "" if proto.proto_source_root == "." else proto.proto_source_root,
+        resources = proto.direct_sources,
+        resource_jars = [],
+        labels = {},
+        in_scalacopts = [],
+        print_compile_time = False,
+        expect_java_output = False,
+        scalac_jvm_flags = [],
+        scalac = toolchain.scalac,
+        dependency_info = legacy_unclear_dependency_info_for_protobuf_scrooge(ctx),
+        unused_dependency_checker_ignored_targets = [],
+    )
+
+    return JavaInfo(
+        #        source_jar = None,
+        output_jar = output,
+        compile_jar = output,
+        deps = compile_deps,
+        exports = compile_deps,
+        runtime_deps = compile_deps,
+    )
+
 ####
 # This is applied to the DAG of proto_librarys reachable from a deps
 # or a scalapb_scala_library. Each proto_library will be one scalapb
@@ -108,62 +133,16 @@ def _scalapb_aspect_impl(target, ctx):
         # add a needed jvm dependency.
         return [ScalaPBAspectInfo(java_info = target[JavaInfo])]
 
-    deps = [d[ScalaPBAspectInfo].java_info for d in ctx.rule.attr.deps]
     proto = target[ProtoInfo]
+    deps = [d[ScalaPBAspectInfo].java_info for d in ctx.rule.attr.deps]
 
-    if proto.direct_sources and code_should_be_generated(target, ctx):
-        toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
-        direct_sources = _direct_sources(proto)
-        descriptors = proto.transitive_descriptor_sets
-        outputs = {
-            k: ctx.actions.declare_file("%s_%s_scalapb.srcjar" % (target.label.name, k))
-            for k in toolchain.generators.keys()
-        }
-
-        args = ctx.actions.args()
-        args.set_param_file_format("multiline")
-        args.use_param_file(param_file_arg = "@%s", use_always = True)
-        for gen, out in outputs.items():
-            args.add("--" + gen + "_out", out)
-            args.add("--" + gen + "_opt", toolchain.opts)
-        args.add_joined("--descriptor_set_in", descriptors, join_with = ctx.configuration.host_path_separator)
-        args.add_all(direct_sources)
-
-        ctx.actions.run(
-            executable = toolchain.worker,
-            arguments = [args],
-            inputs = depset(transitive = [descriptors, toolchain.extra_generator_jars]),
-            outputs = outputs.values(),
-            tools = [toolchain.protoc],
-            env = toolchain.env,
-            mnemonic = "ProtoScalaPBRule",
-            execution_requirements = {"supports-workers": "1"},
-        )
-
-        src_jars = depset(outputs.values())
-        output = ctx.actions.declare_file(target.label.name + "_scalapb.jar")
-        compile_deps = _compile_deps(ctx)
-        java_info = _compile_scala(
-            ctx,
-            toolchain.scalac,
-            target.label,
-            output,
-            src_jars,
-            deps,
-            compile_deps,
-            proto.direct_sources,
-            "" if proto.proto_source_root == "." else proto.proto_source_root,
-        )
+    if proto.direct_sources and _code_should_be_generated(target, ctx):
+        src_jars = _generate_sources(ctx, proto)
+        java_info = _compile_sources(ctx, proto, src_jars, deps)
         return [ScalaPBAspectInfo(java_info = java_info)]
     else:
         # this target is only an aggregation target
         return [ScalaPBAspectInfo(java_info = java_common.merge(deps))]
-
-def _concat_lists(list1, list2):
-    all_providers = []
-    all_providers.extend(list1)
-    all_providers.extend(list2)
-    return all_providers
 
 scalapb_aspect = aspect(
     implementation = _scalapb_aspect_impl,
