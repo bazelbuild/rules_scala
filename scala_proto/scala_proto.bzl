@@ -14,24 +14,9 @@ load(
     "scalapb_aspect",
 )
 
-def register_default_proto_dependencies():
-    if native.existing_rule("io_bazel_rules_scala/dependency/proto/grpc_deps") == None:
-        native.bind(
-            name = "io_bazel_rules_scala/dependency/proto/grpc_deps",
-            actual = "@io_bazel_rules_scala//scala_proto:default_scalapb_grpc_dependencies",
-        )
-
-    if native.existing_rule("io_bazel_rules_scala/dependency/proto/implicit_compile_deps") == None:
-        native.bind(
-            name = "io_bazel_rules_scala/dependency/proto/implicit_compile_deps",
-            actual = "@io_bazel_rules_scala//scala_proto:default_scalapb_compile_dependencies",
-        )
-
 def scala_proto_repositories(
         maven_servers = _default_maven_server_urls()):
-    ret = scala_proto_default_repositories(maven_servers)
-    register_default_proto_dependencies()
-    return ret
+    return scala_proto_default_repositories(maven_servers)
 
 def _scala_proto_library_impl(ctx):
     aspect_info = merge_scalapb_aspect_info(
