@@ -65,11 +65,10 @@ def _generate_sources(ctx, toolchain, proto):
 
     ctx.actions.run(
         executable = toolchain.worker,
-        arguments = [args],
+        arguments = [toolchain.worker_flags, args],
         inputs = depset(transitive = [descriptors, toolchain.extra_generator_jars]),
         outputs = outputs.values(),
         tools = [toolchain.protoc],
-        env = toolchain.env,
         mnemonic = "ProtoScalaPBRule",
         execution_requirements = {"supports-workers": "1"},
     )

@@ -32,14 +32,15 @@ def _generators(ctx):
         scala = ctx.attr.main_generator,
     )
 
-def _env(ctx, generators, jars):
-    return dict(
+def _worker_flags(ctx, generators, jars):
+    env = dict(
         {"GEN_" + k: v for k, v in generators.items()},
         PROTOC = ctx.executable.protoc.path,
         EXTRA_JARS = ctx.configuration.host_path_separator.join(
             [f.path for f in jars.to_list()],
         ),
     )
+    return "--jvm_flags=" + " ".join(["-D%s=%s" % i for i in env.items()])
 
 def _scala_proto_toolchain_impl(ctx):
     generators = _generators(ctx)
@@ -47,13 +48,13 @@ def _scala_proto_toolchain_impl(ctx):
     toolchain = platform_common.ToolchainInfo(
         generators = generators,
         extra_generator_jars = extra_generator_jars,
-        env = _env(ctx, generators, extra_generator_jars),
         opts = _opts(ctx),
         compile_dep_ids = _deps_providers(ctx),
         blacklisted_protos = _ignored_proto_targets_by_label(ctx),
         protoc = ctx.executable.protoc,
         scalac = ctx.attr.scalac.files_to_run,
         worker = ctx.attr.code_generator.files_to_run,
+        worker_flags = _worker_flags(ctx, generators, extra_generator_jars),
     )
     return [toolchain]
 
