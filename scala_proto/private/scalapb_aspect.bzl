@@ -59,14 +59,14 @@ def _generate_sources(ctx, toolchain, proto):
     args.use_param_file(param_file_arg = "@%s", use_always = True)
     for gen, out in outputs.items():
         args.add("--" + gen + "_out", out)
-        args.add("--" + gen + "_opt", toolchain.opts)
+        args.add("--" + gen + "_opt", toolchain.generators_opts)
     args.add_joined("--descriptor_set_in", descriptors, join_with = ctx.configuration.host_path_separator)
     args.add_all(sources)
 
     ctx.actions.run(
         executable = toolchain.worker,
         arguments = [toolchain.worker_flags, args],
-        inputs = depset(transitive = [descriptors, toolchain.extra_generator_jars]),
+        inputs = depset(transitive = [descriptors, toolchain.generators_jars]),
         outputs = outputs.values(),
         tools = [toolchain.protoc],
         mnemonic = "ProtoScalaPBRule",

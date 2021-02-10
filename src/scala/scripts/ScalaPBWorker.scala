@@ -12,12 +12,12 @@ import scala.sys.process._
 object ScalaPBWorker extends Worker.Interface {
 
   private val protoc = {
-    val executable = sys.props.getOrElse("PROTOC", sys.error("PROTOC not supplied."))
+    val executable = sys.props.getOrElse("PROTOC", sys.error("PROTOC not supplied"))
     (args: Seq[String]) => Process(executable, args).!(ProcessLogger(stderr.println(_)))
   }
 
   private val classes = {
-    val jars = sys.props.getOrElse("EXTRA_JARS", "").split(pathSeparatorChar).filter(_.nonEmpty).map { e =>
+    val jars = sys.props.getOrElse("JARS", "").split(pathSeparatorChar).filter(_.nonEmpty).map { e =>
       val file = Paths.get(e)
       require(Files.exists(file), s"Expected file for classpath loading $file to exist")
       file.toUri.toURL
