@@ -17,7 +17,7 @@ def _import_paths(proto):
         offset = len(source_root) + 1  # + '/'
         return [src.path[offset:] for src in proto.direct_sources]
 
-def _code_should_be_generated(ctx):
+def _code_should_be_generated(ctx, toolchain):
     # This feels rather hacky and odd, but we can't compare the labels to ignore a target easily
     # since the @ or // forms seem to not have good equality :( , so we aim to make them absolute
     #
@@ -27,12 +27,9 @@ def _code_should_be_generated(ctx):
     if not str(target_absolute_label)[0] == "@":
         target_absolute_label = Label("@%s//%s:%s" % (ctx.workspace_name, ctx.label.package, ctx.label.name))
 
-    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
-
     return toolchain.blacklisted_protos.get(target_absolute_label) == None
 
-def _compile_deps(ctx):
-    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
+def _compile_deps(ctx, toolchain):
     deps_toolchain_type_label = "@io_bazel_rules_scala//scala_proto:deps_toolchain_type"
     return [
         dep[JavaInfo]
@@ -49,8 +46,7 @@ def _pack_sources(ctx, src_jars):
         host_javabase = find_java_runtime_toolchain(ctx, ctx.attr._host_javabase),
     )
 
-def _generate_sources(ctx, proto):
-    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
+def _generate_sources(ctx, toolchain, proto):
     sources = _import_paths(proto)
     descriptors = proto.transitive_descriptor_sets
     outputs = {
@@ -80,14 +76,13 @@ def _generate_sources(ctx, proto):
 
     return outputs.values()
 
-def _compile_sources(ctx, proto, src_jars, deps):
-    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
+def _compile_sources(ctx, toolchain, proto, src_jars, deps):
     output = ctx.actions.declare_file(ctx.label.name + "_scalapb.jar")
     manifest = ctx.actions.declare_file(ctx.label.name + "_MANIFEST.MF")
     write_manifest_file(ctx.actions, manifest, None)
     statsfile = ctx.actions.declare_file(ctx.label.name + "_scalac.statsfile")
     diagnosticsfile = ctx.actions.declare_file(ctx.label.name + "_scalac.diagnosticsproto")
-    compile_deps = deps + _compile_deps(ctx)
+    compile_deps = deps + _compile_deps(ctx, toolchain)
     merged_deps = java_common.merge(compile_deps)
 
     # this only compiles scala, not the ijar, but we don't
@@ -139,12 +134,13 @@ def _scalapb_aspect_impl(target, ctx):
         # add a needed jvm dependency.
         return [ScalaPBAspectInfo(java_info = target[JavaInfo])]
 
+    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
     proto = target[ProtoInfo]
     deps = [d[ScalaPBAspectInfo].java_info for d in ctx.rule.attr.deps]
 
-    if proto.direct_sources and _code_should_be_generated(ctx):
-        src_jars = _generate_sources(ctx, proto)
-        java_info = _compile_sources(ctx, proto, src_jars, deps)
+    if proto.direct_sources and _code_should_be_generated(ctx, toolchain):
+        src_jars = _generate_sources(ctx, toolchain, proto)
+        java_info = _compile_sources(ctx, toolchain, proto, src_jars, deps)
         return [ScalaPBAspectInfo(java_info = java_info)]
     else:
         # this target is only an aggregation target
