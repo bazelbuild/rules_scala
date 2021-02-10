@@ -1,5 +1,39 @@
 load("@io_bazel_rules_scala//scala:jars_to_labels.bzl", "JarsToLabelsInfo")
 
+def _stamp_jar(ctx, jar):
+    stamped_jar_filename = "%s.stamp/%s-stamped.jar" % (ctx.label.name, jar.basename.rstrip(".jar"))
+
+    # Preferred way, but currently broken:
+    # java toolchain's ijar incorrectly handles MANIFEST sections
+    # https://github.com/bazelbuild/bazel/issues/12730
+    #    symlink_file = ctx.actions.declare_file(jar.basename)
+    #    ctx.actions.symlink(output = symlink_file, target_file = jar)
+    #    return java_common.stamp_jar(
+    #        actions = ctx.actions,
+    #        jar = symlink_file,
+    #        target_label = ctx.label,
+    #        java_toolchain = ctx.attr._java_toolchain[java_common.JavaToolchainInfo],
+    #    )
+
+    # Stamp with custom built (https://github.com/bazelbuild/bazel/pull/12771)
+    stamped_file = ctx.actions.declare_file(stamped_jar_filename)
+
+    ctx.actions.run(
+        executable = ctx.executable._ijar,
+        inputs = [jar],
+        outputs = [stamped_file],
+        arguments = [
+            "--nostrip_jar",
+            "--target_label",
+            ctx.label.name,
+            jar.path,
+            stamped_file.path,
+        ],
+        mnemonic = "StampWithIjar",
+    )
+
+    return stamped_file
+
 #intellij part is tested manually, tread lightly when changing there
 #if you change make sure to manually re-import an intellij project and see imports
 #are resolved (not red) and clickable
@@ -12,6 +46,11 @@ def _scala_import_impl(ctx):
         current_target_compile_jars,
         intellij_metadata,
     ) = (target_data.code_jars, target_data.intellij_metadata)
+
+    current_stamped_jars = [
+        _stamp_jar(ctx, jar)
+        for jar in current_target_compile_jars
+    ]
 
     current_jars = depset(current_target_compile_jars)
 
@@ -28,10 +67,13 @@ def _scala_import_impl(ctx):
     )  #last to override the label of the export compile jars to the current target
 
     if current_target_compile_jars:
-        current_target_providers = [_new_java_info(ctx, jar) for jar in current_target_compile_jars]
+        current_target_providers = [
+            _new_java_info(ctx, current_target_compile_jars[index], current_stamped_jars[index])
+            for index in range(len(current_target_compile_jars))
+        ]
     else:
         # TODO(#8867): Migrate away from the placeholder jar hack when #8867 is fixed.
-        current_target_providers = [_new_java_info(ctx, ctx.file._placeholder_jar)]
+        current_target_providers = [_new_java_info(ctx, ctx.file._placeholder_jar, ctx.file._placeholder_jar)]
 
     return [
         java_common.merge(current_target_providers),
@@ -41,10 +83,10 @@ def _scala_import_impl(ctx):
         JarsToLabelsInfo(jars_to_labels = jars2labels),
     ]
 
-def _new_java_info(ctx, jar):
+def _new_java_info(ctx, jar, stamped_jar):
     return JavaInfo(
         output_jar = jar,
-        compile_jar = jar,
+        compile_jar = stamped_jar,
         exports = [target[JavaInfo] for target in ctx.attr.exports],
         deps = [target[JavaInfo] for target in ctx.attr.deps],
         runtime_deps = [target[JavaInfo] for target in ctx.attr.runtime_deps],

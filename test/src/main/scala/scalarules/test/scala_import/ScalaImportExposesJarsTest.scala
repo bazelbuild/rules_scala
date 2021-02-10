@@ -20,6 +20,11 @@ class ScalaImportExposesJarsTest extends SpecificationWithJUnit {
       success
     }
 
+    "stamp jars with a target label" in {
+      findManifest[Cache[String, String]] must haveTargetLabel
+      findManifest[ArrayUtils] must haveTargetLabel
+    }.pendingUntilFixed("runtime jars are not stamped")
+
     "preserve existing Manifest attributes" in {
       findManifest[ArrayUtils] must haveMainAttribute("Bundle-Name")
     }
