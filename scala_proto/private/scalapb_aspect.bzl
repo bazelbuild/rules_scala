@@ -9,7 +9,7 @@ ScalaPBAspectInfo = provider(fields = [
     "java_info",
 ])
 
-def _direct_sources(proto):
+def _import_paths(proto):
     source_root = proto.proto_source_root
     if "." == source_root:
         return [src.path for src in proto.direct_sources]
@@ -17,15 +17,15 @@ def _direct_sources(proto):
         offset = len(source_root) + 1  # + '/'
         return [src.path[offset:] for src in proto.direct_sources]
 
-def _code_should_be_generated(target, ctx):
+def _code_should_be_generated(ctx):
     # This feels rather hacky and odd, but we can't compare the labels to ignore a target easily
     # since the @ or // forms seem to not have good equality :( , so we aim to make them absolute
     #
     # the backlisted protos in the tool chain get made into to absolute paths
     # so we make the local target we are looking at absolute too
-    target_absolute_label = target.label
+    target_absolute_label = ctx.label
     if not str(target_absolute_label)[0] == "@":
-        target_absolute_label = Label("@%s//%s:%s" % (ctx.workspace_name, target.label.package, target.label.name))
+        target_absolute_label = Label("@%s//%s:%s" % (ctx.workspace_name, ctx.label.package, ctx.label.name))
 
     toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
 
@@ -51,7 +51,7 @@ def _pack_sources(ctx, src_jars):
 
 def _generate_sources(ctx, proto):
     toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
-    direct_sources = _direct_sources(proto)
+    sources = _import_paths(proto)
     descriptors = proto.transitive_descriptor_sets
     outputs = {
         k: ctx.actions.declare_file("%s_%s_scalapb.srcjar" % (ctx.label.name, k))
@@ -65,7 +65,7 @@ def _generate_sources(ctx, proto):
         args.add("--" + gen + "_out", out)
         args.add("--" + gen + "_opt", toolchain.opts)
     args.add_joined("--descriptor_set_in", descriptors, join_with = ctx.configuration.host_path_separator)
-    args.add_all(direct_sources)
+    args.add_all(sources)
 
     ctx.actions.run(
         executable = toolchain.worker,
@@ -142,7 +142,7 @@ def _scalapb_aspect_impl(target, ctx):
     proto = target[ProtoInfo]
     deps = [d[ScalaPBAspectInfo].java_info for d in ctx.rule.attr.deps]
 
-    if proto.direct_sources and _code_should_be_generated(target, ctx):
+    if proto.direct_sources and _code_should_be_generated(ctx):
         src_jars = _generate_sources(ctx, proto)
         java_info = _compile_sources(ctx, proto, src_jars, deps)
         return [ScalaPBAspectInfo(java_info = java_info)]
