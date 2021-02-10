@@ -17,6 +17,9 @@ def _deps_providers(ctx):
         deps.append("scalapb_grpc_deps")
     return deps
 
+def _ignored_proto_targets_by_label(ctx):
+    return {p.label: p for p in ctx.attr.blacklisted_protos}
+
 def _extra_generator_jars(ctx):
     return depset(transitive = [
         dep[JavaInfo].transitive_runtime_jars
@@ -47,7 +50,7 @@ def _scala_proto_toolchain_impl(ctx):
         env = _env(ctx, generators, extra_generator_jars),
         opts = _opts(ctx),
         compile_dep_ids = _deps_providers(ctx),
-        blacklisted_protos = ctx.attr.blacklisted_protos,
+        blacklisted_protos = _ignored_proto_targets_by_label(ctx),
         protoc = ctx.executable.protoc,
         scalac = ctx.attr.scalac.files_to_run,
         worker = ctx.attr.code_generator.files_to_run,

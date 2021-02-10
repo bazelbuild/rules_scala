@@ -29,11 +29,7 @@ def _code_should_be_generated(target, ctx):
 
     toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
 
-    for lbl in toolchain.blacklisted_protos:
-        if (lbl.label == target_absolute_label):
-            return False
-
-    return True
+    return toolchain.blacklisted_protos.get(target_absolute_label) == None
 
 def _compile_deps(ctx):
     toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
