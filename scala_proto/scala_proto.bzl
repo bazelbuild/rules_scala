@@ -18,7 +18,7 @@ def scala_proto_repositories(
 
 def _scala_proto_library_impl(ctx):
     java_info = java_common.merge([dep[ScalaPBAspectInfo].java_info for dep in ctx.attr.deps])
-    default_info = DefaultInfo(files = java_info.full_compile_jars)
+    default_info = DefaultInfo(files = depset(java_info.source_jars, transitive = [java_info.full_compile_jars]))
     return [default_info, java_info]
 
 scala_proto_library = rule(

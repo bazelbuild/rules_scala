@@ -3,6 +3,7 @@ load("//scala/private:common.bzl", "write_manifest_file")
 load("//scala/private:dependency.bzl", "legacy_unclear_dependency_info_for_protobuf_scrooge")
 load("//scala/private:rule_impls.bzl", "compile_scala")
 load("//scala/private/toolchain_deps:toolchain_deps.bzl", "find_deps_info_on")
+load("@bazel_tools//tools/jdk:toolchain_utils.bzl", "find_java_runtime_toolchain", "find_java_toolchain")
 
 ScalaPBAspectInfo = provider(fields = [
     "java_info",
@@ -42,6 +43,15 @@ def _compile_deps(ctx):
         for id in toolchain.compile_dep_ids
         for dep in find_deps_info_on(ctx, deps_toolchain_type_label, id).deps
     ]
+
+def _pack_sources(ctx, src_jars):
+    return java_common.pack_sources(
+        ctx.actions,
+        source_jars = src_jars,
+        output_source_jar = ctx.actions.declare_file(ctx.label.name + "_scalapb-src.jar"),
+        java_toolchain = find_java_toolchain(ctx, ctx.attr._java_toolchain),
+        host_javabase = find_java_runtime_toolchain(ctx, ctx.attr._host_javabase),
+    )
 
 def _generate_sources(ctx, proto):
     toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
@@ -114,7 +124,7 @@ def _compile_sources(ctx, proto, src_jars, deps):
     )
 
     return JavaInfo(
-        #        source_jar = None,
+        source_jar = _pack_sources(ctx, src_jars),
         output_jar = output,
         compile_jar = output,
         deps = compile_deps,
@@ -148,6 +158,15 @@ scalapb_aspect = aspect(
     implementation = _scalapb_aspect_impl,
     attr_aspects = ["deps"],
     incompatible_use_toolchain_transition = True,
+    attrs = {
+        "_java_toolchain": attr.label(
+            default = Label("@bazel_tools//tools/jdk:current_java_toolchain"),
+        ),
+        "_host_javabase": attr.label(
+            default = Label("@bazel_tools//tools/jdk:current_java_runtime"),
+            cfg = "host",
+        ),
+    },
     toolchains = [
         "@io_bazel_rules_scala//scala:toolchain_type",
         "@io_bazel_rules_scala//scala_proto:toolchain_type",
