@@ -1,5 +1,6 @@
 load("@bazel_skylib//lib:unittest.bzl", "analysistest", "asserts")
 load("//scala:scala_import.bzl", "scala_import")
+load("//scala/settings:stamp_settings.bzl", "stamp_scala_import")
 
 def _assert_compile_dep_stamped(ctx):
     env = analysistest.begin(ctx)
@@ -51,12 +52,20 @@ stamp_deps_test = analysistest.make(
 def _test_dep_stamp(suite, name, jar, stamp_on):
     test_name = "%s_%s_%s" % (suite, name, stamp_on)
 
+    setting_name = "stamp_scala_import_%s" % stamp_on
+
+    stamp_scala_import(
+        name = setting_name,
+        build_setting_default = stamp_on,
+        visibility = ["//visibility:public"],
+    )
+
     scala_import_target_name = "scala_import_for_%s" % test_name
     scala_import(
         name = scala_import_target_name,
         jars = [jar],
         tags = ["manual"],
-        stamp = "//scala/settings:stamp_scala_import_%s" % ("on" if stamp_on else "off"),
+        stamp = setting_name,
     )
 
     stamp_deps_test(
