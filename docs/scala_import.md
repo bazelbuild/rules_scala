@@ -19,7 +19,7 @@ like `scala_library`, similar to `java_import` from Java rules.
 This rule reimplements `java_import` without support for ijars, which break Scala macros.
 Generally, ijars don’t help much for external dependencies, which rarely change.
 
-The jar's compile MANIFEST.MD is stamped with a Target-Label attribute for dependency tracking 
+The jar's compile MANIFEST.MF is stamped with a Target-Label attribute for dependency tracking 
 reporting. This behaviour can be changed per `scala_import` target with an attribute or globally 
 with a setting:
 ```
