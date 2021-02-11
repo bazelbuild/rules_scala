@@ -34,9 +34,9 @@ def _stamp_jar(ctx, jar):
 
     return stamped_file
 
-#intellij part is tested manually, tread lightly when changing there
-#if you change make sure to manually re-import an intellij project and see imports
-#are resolved (not red) and clickable
+# intellij part is tested manually, tread lightly when changing there
+# if you change make sure to manually re-import an intellij project and see imports
+# are resolved (not red) and clickable
 def _scala_import_impl(ctx):
     target_data = _code_jars_and_intellij_metadata_from(
         ctx.attr.jars,
@@ -55,8 +55,7 @@ def _scala_import_impl(ctx):
     current_jars = depset(current_target_compile_jars)
 
     exports = java_common.merge([export[JavaInfo] for export in ctx.attr.exports])
-    transitive_runtime_jars = \
-        java_common.merge([dep[JavaInfo] for dep in ctx.attr.runtime_deps]).transitive_runtime_jars
+
     jars2labels = {}
     _collect_labels(ctx.attr.deps, jars2labels)
     _collect_labels(ctx.attr.exports, jars2labels)  #untested
