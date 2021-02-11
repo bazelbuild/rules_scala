@@ -1,4 +1,5 @@
 load("@io_bazel_rules_scala//scala:jars_to_labels.bzl", "JarsToLabelsInfo")
+load("//scala/settings:stamp_settings.bzl", "StampScalaImport")
 
 def _stamp_jar(ctx, jar):
     stamped_jar_filename = "%s.stamp/%s-stamped.jar" % (ctx.label.name, jar.basename.rstrip(".jar"))
@@ -42,17 +43,18 @@ def _scala_import_impl(ctx):
         ctx.attr.jars,
         ctx.file.srcjar,
     )
-    (
-        current_target_compile_jars,
-        intellij_metadata,
-    ) = (target_data.code_jars, target_data.intellij_metadata)
 
-    current_stamped_jars = [
+    compile_jars = target_data.code_jars
+    intellij_metadata = arget_data.intellij_metadata
+
+    stamping_enabled = ctx.attr.stamp[StampScalaImport].enabled
+
+    maybe_stamped_jars = [
         _stamp_jar(ctx, jar)
-        for jar in current_target_compile_jars
-    ]
+        for jar in compile_jars
+    ] if stamping_enabled else compile_jars
 
-    current_jars = depset(current_target_compile_jars)
+    compile_jars_depset = depset(compile_jars)
 
     exports = java_common.merge([export[JavaInfo] for export in ctx.attr.exports])
 
@@ -60,15 +62,15 @@ def _scala_import_impl(ctx):
     _collect_labels(ctx.attr.deps, jars2labels)
     _collect_labels(ctx.attr.exports, jars2labels)  #untested
     _add_labels_of_current_code_jars(
-        depset(transitive = [current_jars, exports.compile_jars]),
+        depset(transitive = [compile_jars_depset, exports.compile_jars]),
         ctx.label,
         jars2labels,
     )  #last to override the label of the export compile jars to the current target
 
-    if current_target_compile_jars:
+    if compile_jars:
         current_target_providers = [
-            _new_java_info(ctx, current_target_compile_jars[index], current_stamped_jars[index])
-            for index in range(len(current_target_compile_jars))
+            _new_java_info(ctx, compile_jars[index], maybe_stamped_jars[index])
+            for index in range(len(compile_jars))
         ]
     else:
         # TODO(#8867): Migrate away from the placeholder jar hack when #8867 is fixed.
@@ -77,7 +79,7 @@ def _scala_import_impl(ctx):
     return [
         java_common.merge(current_target_providers),
         DefaultInfo(
-            files = current_jars,
+            files = compile_jars_depset,
         ),
         JarsToLabelsInfo(jars_to_labels = jars2labels),
     ]
@@ -161,6 +163,10 @@ scala_import = rule(
             executable = True,
             cfg = "exec",
             allow_files = True,
+        ),
+        "stamp": attr.label(
+            doc = "Adds Target-Label attribute to MANIFEST.MF for dep tracking",
+            default = Label("@io_bazel_rules_scala//scala/settings:stamp_scala_import"),
         ),
     },
 )
