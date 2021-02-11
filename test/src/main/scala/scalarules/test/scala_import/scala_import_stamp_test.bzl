@@ -45,6 +45,7 @@ def _test_dep_stamp(name, jar):
     stamp_deps_test(
         name = name,
         jar = jar,
+        tags = ["no-ide"],
         target_under_test = scala_import_target_name,
     )
 
