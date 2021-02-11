@@ -1,6 +1,7 @@
 load("@rules_java//java:defs.bzl", "java_import")
 load("//scala:scala.bzl", "scala_library", "scala_specs2_junit_test")
 load("//scala:scala_import.bzl", "scala_import")
+load(":scala_import_stamp_test.bzl", "scala_import_stamping_test_suite")
 
 #Many jars
 scala_import(
@@ -128,4 +129,9 @@ scala_import(
 scala_import(
     name = "stamping_second_time",
     jars = ["relate_2.11-2.1.1.jar"],
+)
+
+scala_import_stamping_test_suite(
+    name = "stamping_tests",
+    jar = "relate_2.11-2.1.1.jar",
 )
