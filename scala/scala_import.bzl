@@ -45,7 +45,7 @@ def _scala_import_impl(ctx):
     )
 
     compile_jars = target_data.code_jars
-    intellij_metadata = arget_data.intellij_metadata
+    intellij_metadata = target_data.intellij_metadata
 
     stamping_enabled = ctx.attr.stamp[StampScalaImport].enabled
 
