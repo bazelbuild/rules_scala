@@ -1,50 +1,93 @@
 load("@io_bazel_rules_scala//scala:jars_to_labels.bzl", "JarsToLabelsInfo")
+load("//scala/settings:stamp_settings.bzl", "StampScalaImport")
 
-#intellij part is tested manually, tread lightly when changing there
-#if you change make sure to manually re-import an intellij project and see imports
-#are resolved (not red) and clickable
+def _stamp_jar(ctx, jar):
+    stamped_jar_filename = "%s.stamp/%s-stamped.jar" % (ctx.label.name, jar.basename.rstrip(".jar"))
+
+    # Preferred way, but currently broken:
+    # java toolchain's ijar incorrectly handles MANIFEST sections
+    # https://github.com/bazelbuild/bazel/issues/12730
+    #    symlink_file = ctx.actions.declare_file(jar.basename)
+    #    ctx.actions.symlink(output = symlink_file, target_file = jar)
+    #    return java_common.stamp_jar(
+    #        actions = ctx.actions,
+    #        jar = symlink_file,
+    #        target_label = ctx.label,
+    #        java_toolchain = ctx.attr._java_toolchain[java_common.JavaToolchainInfo],
+    #    )
+
+    # Stamp with custom built (https://github.com/bazelbuild/bazel/pull/12771)
+    stamped_file = ctx.actions.declare_file(stamped_jar_filename)
+
+    ctx.actions.run(
+        executable = ctx.executable._ijar,
+        inputs = [jar],
+        outputs = [stamped_file],
+        arguments = [
+            "--nostrip_jar",
+            "--target_label",
+            ctx.label.name,
+            jar.path,
+            stamped_file.path,
+        ],
+        mnemonic = "StampWithIjar",
+    )
+
+    return stamped_file
+
+# intellij part is tested manually, tread lightly when changing there
+# if you change make sure to manually re-import an intellij project and see imports
+# are resolved (not red) and clickable
 def _scala_import_impl(ctx):
     target_data = _code_jars_and_intellij_metadata_from(
         ctx.attr.jars,
         ctx.file.srcjar,
     )
-    (
-        current_target_compile_jars,
-        intellij_metadata,
-    ) = (target_data.code_jars, target_data.intellij_metadata)
 
-    current_jars = depset(current_target_compile_jars)
+    compile_jars = target_data.code_jars
+    intellij_metadata = target_data.intellij_metadata
+
+    stamping_enabled = ctx.attr.stamp[StampScalaImport].enabled
+
+    maybe_stamped_jars = [
+        _stamp_jar(ctx, jar)
+        for jar in compile_jars
+    ] if stamping_enabled else compile_jars
+
+    compile_jars_depset = depset(compile_jars)
 
     exports = java_common.merge([export[JavaInfo] for export in ctx.attr.exports])
-    transitive_runtime_jars = \
-        java_common.merge([dep[JavaInfo] for dep in ctx.attr.runtime_deps]).transitive_runtime_jars
+
     jars2labels = {}
     _collect_labels(ctx.attr.deps, jars2labels)
     _collect_labels(ctx.attr.exports, jars2labels)  #untested
     _add_labels_of_current_code_jars(
-        depset(transitive = [current_jars, exports.compile_jars]),
+        depset(transitive = [compile_jars_depset, exports.compile_jars]),
         ctx.label,
         jars2labels,
     )  #last to override the label of the export compile jars to the current target
 
-    if current_target_compile_jars:
-        current_target_providers = [_new_java_info(ctx, jar) for jar in current_target_compile_jars]
+    if compile_jars:
+        current_target_providers = [
+            _new_java_info(ctx, compile_jars[index], maybe_stamped_jars[index])
+            for index in range(len(compile_jars))
+        ]
     else:
         # TODO(#8867): Migrate away from the placeholder jar hack when #8867 is fixed.
-        current_target_providers = [_new_java_info(ctx, ctx.file._placeholder_jar)]
+        current_target_providers = [_new_java_info(ctx, ctx.file._placeholder_jar, ctx.file._placeholder_jar)]
 
     return [
         java_common.merge(current_target_providers),
         DefaultInfo(
-            files = current_jars,
+            files = compile_jars_depset,
         ),
         JarsToLabelsInfo(jars_to_labels = jars2labels),
     ]
 
-def _new_java_info(ctx, jar):
+def _new_java_info(ctx, jar, stamped_jar):
     return JavaInfo(
         output_jar = jar,
-        compile_jar = jar,
+        compile_jar = stamped_jar,
         exports = [target[JavaInfo] for target in ctx.attr.exports],
         deps = [target[JavaInfo] for target in ctx.attr.deps],
         runtime_deps = [target[JavaInfo] for target in ctx.attr.runtime_deps],
@@ -120,6 +163,10 @@ scala_import = rule(
             executable = True,
             cfg = "exec",
             allow_files = True,
+        ),
+        "stamp": attr.label(
+            doc = "Adds Target-Label attribute to MANIFEST.MF for dep tracking",
+            default = Label("@io_bazel_rules_scala//scala/settings:stamp_scala_import"),
         ),
     },
 )

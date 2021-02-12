@@ -1,6 +1,7 @@
 load("@rules_java//java:defs.bzl", "java_import")
 load("//scala:scala.bzl", "scala_library", "scala_specs2_junit_test")
 load("//scala:scala_import.bzl", "scala_import")
+load(":scala_import_stamp_test.bzl", "scala_import_stamping_test_suite")
 
 #Many jars
 scala_import(
@@ -116,4 +117,21 @@ scala_specs2_junit_test(
     srcs = ["ScalaImportExposesJarsTest.scala"],
     suffixes = ["Test"],
     deps = [":guava_and_commons_lang_as_exports"],
+)
+
+# test stamping of the same dep twice
+# https://github.com/bazelbuild/rules_scala/issues/1188
+scala_import(
+    name = "stamping_first_time",
+    jars = ["relate_2.11-2.1.1.jar"],
+)
+
+scala_import(
+    name = "stamping_second_time",
+    jars = ["relate_2.11-2.1.1.jar"],
+)
+
+scala_import_stamping_test_suite(
+    name = "stamping_tests",
+    jar = "relate_2.11-2.1.1.jar",
 )
