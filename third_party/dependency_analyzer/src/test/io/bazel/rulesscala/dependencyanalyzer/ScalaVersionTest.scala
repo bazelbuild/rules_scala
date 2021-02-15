@@ -1,7 +1,7 @@
-package third_party.dependency_analyzer.src.test.io.bazel.rulesscala.dependencyanalyzer
+package io.bazel.rulesscala.dependencyanalyzer
 
 import org.scalatest.funsuite._
-import third_party.dependency_analyzer.src.main.io.bazel.rulesscala.dependencyanalyzer.ScalaVersion
+import io.bazel.rulesscala.dependencyanalyzer.ScalaVersion
 
 class ScalaVersionTest extends AnyFunSuite {
   test("version comparison works") {

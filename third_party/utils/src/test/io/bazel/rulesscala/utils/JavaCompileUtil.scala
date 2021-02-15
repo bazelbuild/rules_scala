@@ -1,4 +1,4 @@
-package third_party.utils.src.test.io.bazel.rulesscala.utils
+package io.bazel.rulesscala.utils
 
 import java.io.File
 import java.io.IOException
