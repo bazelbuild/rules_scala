@@ -62,13 +62,13 @@ tasks:
     shell_commands:
     - "./test_rules_scala.sh"
   test_coverage_linux_3_5_0:
-    name: "./test_rules_scala"
+    name: "./test_coverage"
     platform: ubuntu1804
     bazel: 3.5.0
     shell_commands:
       - "./test_coverage.sh"
   test_coverage_macos_3_5_0:
-    name: "./test_rules_scala"
+    name: "./test_coverage"
     platform: macos
     bazel: 3.5.0
     shell_commands:
