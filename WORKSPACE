@@ -39,10 +39,6 @@ http_archive(
     url = "https://github.com/bazelbuild/buildtools/archive/%s.tar.gz" % _build_tools_release,
 )
 
-load("@com_github_bazelbuild_buildtools//buildifier:deps.bzl", "buildifier_dependencies")
-
-buildifier_dependencies()
-
 load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
 
 scala_config()
