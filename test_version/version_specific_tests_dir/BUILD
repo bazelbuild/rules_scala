@@ -9,10 +9,6 @@ load(
     "scala_specs2_junit_test",
     "scala_test",
 )
-load(
-    "@io_bazel_rules_scala//scala_proto:scala_proto.bzl",
-    "scala_proto_library",
-)
 
 package(default_testonly = 1)
 
