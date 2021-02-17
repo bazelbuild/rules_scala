@@ -1,15 +1,15 @@
-package third_party.dependency_analyzer.src.test.io.bazel.rulesscala.dependencyanalyzer
+package io.bazel.rulesscala.dependencyanalyzer
 
 import java.nio.file.Files
 import java.nio.file.Path
 import io.bazel.rulesscala.io_utils.DeleteRecursively
 import org.scalatest.funsuite._
 import scala.tools.nsc.reporters.StoreReporter
-import third_party.dependency_analyzer.src.main.io.bazel.rulesscala.dependencyanalyzer.DependencyTrackingMethod
-import third_party.dependency_analyzer.src.main.io.bazel.rulesscala.dependencyanalyzer.ScalaVersion
-import third_party.utils.src.test.io.bazel.rulesscala.utils.JavaCompileUtil
-import third_party.utils.src.test.io.bazel.rulesscala.utils.TestUtil
-import third_party.utils.src.test.io.bazel.rulesscala.utils.TestUtil.DependencyAnalyzerTestParams
+import io.bazel.rulesscala.dependencyanalyzer.DependencyTrackingMethod
+import io.bazel.rulesscala.dependencyanalyzer.ScalaVersion
+import io.bazel.rulesscala.utils.JavaCompileUtil
+import io.bazel.rulesscala.utils.TestUtil
+import io.bazel.rulesscala.utils.TestUtil.DependencyAnalyzerTestParams
 
 // NOTE: Some tests are version-dependent as some false positives
 // cannot be fixed in older versions of Scala for various reasons.

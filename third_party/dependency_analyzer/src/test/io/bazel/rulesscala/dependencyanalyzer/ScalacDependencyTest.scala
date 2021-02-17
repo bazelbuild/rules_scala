@@ -1,12 +1,12 @@
-package third_party.dependency_analyzer.src.test.io.bazel.rulesscala.dependencyanalyzer
+package io.bazel.rulesscala.dependencyanalyzer
 
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.UUID
 import io.bazel.rulesscala.io_utils.DeleteRecursively
 import org.scalatest.funsuite._
-import third_party.utils.src.test.io.bazel.rulesscala.utils.JavaCompileUtil
-import third_party.utils.src.test.io.bazel.rulesscala.utils.TestUtil
+import io.bazel.rulesscala.utils.JavaCompileUtil
+import io.bazel.rulesscala.utils.TestUtil
 
 /**
  * Test that the scalac compiler behaves how we expect it to around

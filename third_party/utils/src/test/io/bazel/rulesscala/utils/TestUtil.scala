@@ -1,4 +1,4 @@
-package third_party.utils.src.test.io.bazel.rulesscala.utils
+package io.bazel.rulesscala.utils
 
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -12,7 +12,7 @@ import scala.tools.nsc.CompilerCommand
 import scala.tools.nsc.Global
 import scala.tools.nsc.Settings
 import scala.tools.nsc.reporters.StoreReporter
-import third_party.dependency_analyzer.src.main.io.bazel.rulesscala.dependencyanalyzer.DependencyTrackingMethod
+import io.bazel.rulesscala.dependencyanalyzer.DependencyTrackingMethod
 
 object TestUtil {
   final val defaultTarget = "//..."
