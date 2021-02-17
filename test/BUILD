@@ -13,10 +13,6 @@ load(
     "scala_test",
     "scala_test_suite",
 )
-load(
-    "//scala_proto:scala_proto.bzl",
-    "scala_proto_library",
-)
 load(":check_statsfile.bzl", "check_statsfile")
 
 package(default_testonly = 1)
