@@ -1,4 +1,3 @@
-load("@rules_java//java:defs.bzl", "java_proto_library")
 load("@rules_proto//proto:defs.bzl", "proto_library")
 load(
     "//scala_proto:scala_proto.bzl",
@@ -120,23 +119,6 @@ scala_binary(
     main_class = "a.b.c",
     visibility = ["//visibility:public"],
     deps = [":test_proto_nogrpc"],
-)
-
-java_proto_library(
-    name = "test_proto_java_lib",
-    deps = [
-        ":test2",
-        "//test/proto2:test",
-    ],
-)
-
-scala_proto_library(
-    name = "test_proto_java_conversions",
-    visibility = ["//visibility:public"],
-    deps = [
-        ":test2",
-        "//test/proto2:test",
-    ],
 )
 
 scala_proto_library(
