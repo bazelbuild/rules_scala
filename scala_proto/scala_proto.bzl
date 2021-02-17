@@ -24,7 +24,7 @@ def _scala_proto_library_impl(ctx):
 scala_proto_library = rule(
     implementation = _scala_proto_library_impl,
     attrs = {
-        "deps": attr.label_list(aspects = [scalapb_aspect]),
+        "deps": attr.label_list(providers = [ProtoInfo], aspects = [scalapb_aspect]),
     },
     provides = [DefaultInfo, JavaInfo],
 )

@@ -127,12 +127,6 @@ def _compile_sources(ctx, toolchain, proto, src_jars, deps):
 # or a scalapb_scala_library. Each proto_library will be one scalapb
 # invocation assuming it has some sources.
 def _scalapb_aspect_impl(target, ctx):
-    if ProtoInfo not in target:
-        # We allow some dependencies which are not protobuf, but instead
-        # are jvm deps. This is to enable cases of custom generators which
-        # add a needed jvm dependency.
-        return [ScalaPBAspectInfo(java_info = target[JavaInfo])]
-
     toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
     proto = target[ProtoInfo]
     deps = [d[ScalaPBAspectInfo].java_info for d in ctx.rule.attr.deps]

@@ -664,24 +664,6 @@ scala_binary(
     deps = [":lib_with_scala_proto_dep"],
 )
 
-scala_proto_library(
-    name = "test_proto_scala_dep",
-    visibility = ["//visibility:public"],
-    deps = [
-        ":HelloLib",
-        "//test/proto:test2",
-    ],
-)
-
-scala_proto_library(
-    name = "test_proto_scala_import_dep",
-    visibility = ["//visibility:public"],
-    deps = [
-        "//test/proto:test2",
-        "@com_github_jnr_jffi_native",
-    ],
-)
-
 scala_library(
     name = "java_uses_scala_std_lib",
     srcs = ["JavaUsesScalaStdLib.java"],
