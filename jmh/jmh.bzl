@@ -23,34 +23,6 @@ def jmh_repositories(
         overriden_artifacts = {},
     )
 
-    native.bind(
-        name = "io_bazel_rules_scala/dependency/jmh/jmh_core",
-        actual = "@io_bazel_rules_scala_org_openjdk_jmh_jmh_core//jar",
-    )
-    native.bind(
-        name = "io_bazel_rules_scala/dependency/jmh/jmh_generator_asm",
-        actual = "@io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_asm//jar",
-    )
-    native.bind(
-        name = "io_bazel_rules_scala/dependency/jmh/jmh_generator_reflection",
-        actual =
-            "@io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_reflection//jar",
-    )
-    native.bind(
-        name = "io_bazel_rules_scala/dependency/jmh/org_ows2_asm_asm",
-        actual = "@io_bazel_rules_scala_org_ows2_asm_asm//jar",
-    )
-    native.bind(
-        name =
-            "io_bazel_rules_scala/dependency/jmh/net_sf_jopt_simple_jopt_simple",
-        actual = "@io_bazel_rules_scala_net_sf_jopt_simple_jopt_simple//jar",
-    )
-    native.bind(
-        name =
-            "io_bazel_rules_scala/dependency/jmh/org_apache_commons_commons_math3",
-        actual = "@io_bazel_rules_scala_org_apache_commons_commons_math3//jar",
-    )
-
     native.register_toolchains("@io_bazel_rules_scala//jmh:jmh_toolchain")
 
 def _scala_generate_benchmark(ctx):

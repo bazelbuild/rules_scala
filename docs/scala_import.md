@@ -1,6 +1,6 @@
 # scala_import
 
-```python
+```starlark
 scala_import(
     name,
     jars,
@@ -8,7 +8,8 @@ scala_import(
     runtime_deps,
     exports,
     neverlink,
-    srcjar
+    srcjar,
+    stamp,
 )
 ```
 
@@ -17,6 +18,13 @@ like `scala_library`, similar to `java_import` from Java rules.
 
 This rule reimplements `java_import` without support for ijars, which break Scala macros.
 Generally, ijars don’t help much for external dependencies, which rarely change.
+
+The jar's compile MANIFEST.MF is stamped with a Target-Label attribute for dependency tracking 
+reporting. This behaviour can be changed per `scala_import` target with an attribute or globally 
+with a setting:
+```
+bazel build //my:target --//scala/settings:stamp_scala_import=False
+```
 
 ## Attributes
 
@@ -29,3 +37,4 @@ Generally, ijars don’t help much for external dependencies, which rarely chang
 | exports               | `List of labels, optional` <br> List of targets to add to the dependencies of those that depend on this target.
 | neverlink             | `boolean, optional (default False)` <br> If true only use this library for compilation and not at runtime.
 | srcjar                | `Label, optional` <br> The source jar that was used to create the jar.
+| stamp                 | `Label, optional` <br> Setting to control Target-Label stamping into compile jar Manifest <br> Default value is `@io_bazel_rules_scala//scala/settings:stamp_scala_import`

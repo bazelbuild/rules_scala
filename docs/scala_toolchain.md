@@ -51,9 +51,9 @@ scala_register_toolchains()
         deps_id = "scala_compile_classpath",
         visibility = ["//visibility:public"],
         deps = [
-            "//external:io_bazel_rules_scala/dependency/scala/scala_compiler",
-            "//external:io_bazel_rules_scala/dependency/scala/scala_library",
-            "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
+            "@io_bazel_rules_scala_scala_compiler",
+            "@io_bazel_rules_scala_scala_library",
+            "@io_bazel_rules_scala_scala_reflect",
         ],
     )
     
@@ -61,8 +61,8 @@ scala_register_toolchains()
         name = "my_scala_library_classpath_provider",
         deps_id = "scala_library_classpath",
         deps = [
-            "//external:io_bazel_rules_scala/dependency/scala/scala_library",
-            "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
+            "@io_bazel_rules_scala_scala_library",
+            "@io_bazel_rules_scala_scala_reflect",
         ],
     )
     
@@ -70,8 +70,8 @@ scala_register_toolchains()
         name = "my_scala_macro_classpath_provider",
         deps_id = "scala_macro_classpath",
         deps = [
-            "//external:io_bazel_rules_scala/dependency/scala/scala_library",
-            "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
+            "@io_bazel_rules_scala_scala_library",
+            "@io_bazel_rules_scala_scala_reflect",
         ],
     )
      
@@ -157,15 +157,6 @@ scala_register_toolchains()
         <p>
           Enable unused dependency checking (see <a href="https://github.com/bazelbuild/rules_scala#experimental-unused-dependency-checking">Unused dependency checking</a>).
           Possible values are: <code>off</code>, <code>warn</code> and <code>error</code>.
-        </p>
-      </td>
-    </tr>
-    <tr>
-      <td><code>enable_code_coverage_aspect</code></td>
-      <td>
-        <p><code>"on" or "off"; optional; defaults to "off"</code></p>
-        <p>
-            This enables instrumenting tests with jacoco code coverage.
         </p>
       </td>
     </tr>

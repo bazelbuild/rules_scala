@@ -1,9 +1,9 @@
-package third_party.dependency_analyzer.src.test.io.bazel.rulesscala.dependencyanalyzer
+package io.bazel.rulesscala.dependencyanalyzer
 
-import org.scalatest._
-import third_party.dependency_analyzer.src.main.io.bazel.rulesscala.dependencyanalyzer.ScalaVersion
+import org.scalatest.funsuite._
+import io.bazel.rulesscala.dependencyanalyzer.ScalaVersion
 
-class ScalaVersionTest extends FunSuite {
+class ScalaVersionTest extends AnyFunSuite {
   test("version comparison works") {
     // Test that when a > b, all the comparisons are as expected
     def testOrder(a: String, b: String): Unit = {

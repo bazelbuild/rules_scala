@@ -39,4 +39,5 @@ export_scrooge_deps = rule(
         ),
     },
     toolchains = ["@io_bazel_rules_scala//twitter_scrooge/toolchain:scrooge_toolchain_type"],
+    incompatible_use_toolchain_transition = True,
 )

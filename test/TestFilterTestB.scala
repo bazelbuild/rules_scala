@@ -1,10 +1,10 @@
 package scalarules.test
 
-import org.scalatest.FunSpec
+import org.scalatest.funspec.AnyFunSpec
 
-class TestFilterTestB extends FunSpec {
+class TestFilterTestB extends AnyFunSpec {
   describe("B") {
-    it ("tests b") {
+    it("tests b") {
       assert(true)
     }
   }

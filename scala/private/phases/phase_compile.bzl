@@ -15,7 +15,6 @@ load(
     "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
     _compile_java = "compile_java",
     _compile_scala = "compile_scala",
-    _expand_location = "expand_location",
 )
 load(":resources.bzl", _resource_paths = "paths")
 
@@ -237,7 +236,7 @@ def _compile_or_empty(
 
         full_jars = [ctx.outputs.jar]
         if java_jar:
-            full_jars += [java_jar.jar]
+            full_jars.append(java_jar.jar)
 
         if java_jar:
             merged_provider = java_common.merge([scala_compilation_provider, java_jar.java_compilation_provider])
@@ -333,7 +332,7 @@ def _try_to_compile_java_jar(
     scala_sources_java_provider = _interim_java_provider_for_java_compilation(
         scala_output,
     )
-    providers_of_dependencies += [scala_sources_java_provider]
+    providers_of_dependencies.append(scala_sources_java_provider)
 
     full_java_jar = ctx.actions.declare_file(ctx.label.name + "_java.jar")
 

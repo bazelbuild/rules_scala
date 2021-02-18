@@ -1,9 +1,9 @@
 load("//third_party/repositories:scala_2_11.bzl", _artifacts_2_11 = "artifacts")
 load("//third_party/repositories:scala_2_12.bzl", _artifacts_2_12 = "artifacts")
+load("//third_party/repositories:scala_2_13.bzl", _artifacts_2_13 = "artifacts")
 load(
     "@io_bazel_rules_scala//scala:scala_cross_version.bzl",
     "default_maven_server_urls",
-    "extract_major_version",
 )
 load(
     "@io_bazel_rules_scala//scala:scala_maven_import_external.bzl",
@@ -14,6 +14,7 @@ load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_MAJOR_VERSION")
 artifacts_by_major_scala_version = {
     "2.11": _artifacts_2_11,
     "2.12": _artifacts_2_12,
+    "2.13": _artifacts_2_13,
 }
 
 def repositories(

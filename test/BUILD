@@ -1,8 +1,5 @@
 load("@rules_python//python:defs.bzl", "py_binary")
 load("@rules_java//java:defs.bzl", "java_binary", "java_import", "java_library")
-
-package(default_testonly = 1)
-
 load(
     "//scala:scala.bzl",
     "scala_binary",
@@ -20,6 +17,9 @@ load(
     "//scala_proto:scala_proto.bzl",
     "scala_proto_library",
 )
+load(":check_statsfile.bzl", "check_statsfile")
+
+package(default_testonly = 1)
 
 # The examples below show how to combine Scala and Java rules.
 # ScalaBinary is the Scala equivalent of JavaBinary.
@@ -66,7 +66,6 @@ scala_binary(
 scala_library(
     name = "HelloLib",
     srcs = ["HelloLib.scala"],
-    plugins = ["@org_psywerx_hairyfotr__linter//jar"],
     deps = [
         "Exported",
         "MacroTest",
@@ -115,7 +114,7 @@ scala_test_suite(
 scala_test_suite(
     name = "TestSuitePassesKwArgs",
     size = "small",  # Not a macro, can pass test-specific attributes.
-    srcs = glob(["ScalaTestData.scala"]),
+    srcs = ["ScalaTestData.scala"],
     data = ["//test/data:foo.txt"],
     jvm_flags = ["-Dtext=$(location //test/data:foo.txt)"],
     scalac_jvm_flags = [
@@ -281,7 +280,7 @@ scala_repl(
 
 scala_library(
     name = "jar_export",
-    exports = ["@com_twitter__scalding_date//jar"],
+    exports = ["@org_typelevel__cats_core//jar"],
 )
 
 #Mix java scala
@@ -596,7 +595,7 @@ scala_library(
 scala_library(
     name = "customJunitRunner",
     srcs = ["src/main/scala/scalarules/test/junit/JunitCustomRunner.java"],
-    deps = ["//external:io_bazel_rules_scala/dependency/junit/junit"],
+    deps = ["@io_bazel_rules_scala_junit_junit"],
 )
 
 # make sure making a fat jar strips signatures
@@ -688,8 +687,6 @@ scala_library(
     srcs = ["JavaUsesScalaStdLib.java"],
 )
 
-load(":check_statsfile.bzl", "check_statsfile")
-
 check_statsfile("ScalaBinary")
 
 check_statsfile("ScalaLibBinary")
@@ -698,7 +695,7 @@ check_statsfile("ScalaLibBinary")
 scala_library(
     name = "JunitSeparateTarget",
     srcs = ["src/main/scala/scalarules/test/junit/separate_target/JunitSeparateTargetTest.scala"],
-    deps = ["//external:io_bazel_rules_scala/dependency/junit/junit"],
+    deps = ["@io_bazel_rules_scala_junit_junit"],
 )
 
 scala_junit_test(
@@ -712,7 +709,7 @@ scala_junit_test(
 java_library(
     name = "JunitJavaSeparateTarget",
     srcs = ["src/main/scala/scalarules/test/junit/separate_target/JunitJavaSeparateTargetTest.java"],
-    deps = ["//external:io_bazel_rules_scala/dependency/junit/junit"],
+    deps = ["@io_bazel_rules_scala_junit_junit"],
 )
 
 scala_junit_test(
@@ -726,14 +723,14 @@ scala_junit_test(
 scala_library(
     name = "TargetWithTestThatShouldNotRun",
     srcs = ["src/main/scala/scalarules/test/junit/separate_target/FailingTest.scala"],
-    deps = ["//external:io_bazel_rules_scala/dependency/junit/junit"],
+    deps = ["@io_bazel_rules_scala_junit_junit"],
 )
 
 scala_library(
     name = "JunitSeparateTargetWithDependencyOnTest",
     srcs = ["src/main/scala/scalarules/test/junit/separate_target/JunitSeparateTargetTest.scala"],
     runtime_deps = [":TargetWithTestThatShouldNotRun"],
-    deps = ["//external:io_bazel_rules_scala/dependency/junit/junit"],
+    deps = ["@io_bazel_rules_scala_junit_junit"],
 )
 
 scala_junit_test(
@@ -748,7 +745,7 @@ java_library(
     name = "JunitSeparateJavaTargetWithDependencyOnTest",
     srcs = ["src/main/scala/scalarules/test/junit/separate_target/JunitJavaSeparateTargetTest.java"],
     runtime_deps = [":TargetWithTestThatShouldNotRun"],
-    deps = ["//external:io_bazel_rules_scala/dependency/junit/junit"],
+    deps = ["@io_bazel_rules_scala_junit_junit"],
 )
 
 scala_junit_test(
@@ -765,7 +762,7 @@ scala_library(
         "src/main/scala/scalarules/test/junit/separate_target/JunitJavaSeparateTargetTest.java",
         "src/main/scala/scalarules/test/junit/separate_target/SomeScalaClass.scala",
     ],
-    deps = ["//external:io_bazel_rules_scala/dependency/junit/junit"],
+    deps = ["@io_bazel_rules_scala_junit_junit"],
 )
 
 scala_junit_test(

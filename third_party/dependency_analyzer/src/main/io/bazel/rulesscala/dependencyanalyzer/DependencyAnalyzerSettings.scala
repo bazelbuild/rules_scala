@@ -1,4 +1,4 @@
-package third_party.dependency_analyzer.src.main.io.bazel.rulesscala.dependencyanalyzer
+package io.bazel.rulesscala.dependencyanalyzer
 
 object AnalyzerMode {
   case object Error extends AnalyzerMode

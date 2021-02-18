@@ -1,4 +1,4 @@
-package scalarules.test.src.main.scala.scalarules.test.compiler_plugin
+package scalarules.test.compiler_plugin
 
 import scala.language.higherKinds
 

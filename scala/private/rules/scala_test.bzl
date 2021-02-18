@@ -72,9 +72,6 @@ _scala_test_attrs = {
     "_scalatest_reporter": attr.label(
         default = Label("//scala/support:test_reporter"),
     ),
-    "_jacocorunner": attr.label(
-        default = Label("@bazel_tools//tools/jdk:JacocoCoverage"),
-    ),
     "_lcov_merger": attr.label(
         default = Label("@bazel_tools//tools/test/CoverageOutputGenerator/java/com/google/devtools/coverageoutputgenerator:Main"),
     ),
@@ -117,6 +114,7 @@ def make_scala_test(*extras):
         ),
         test = True,
         toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
+        incompatible_use_toolchain_transition = True,
         implementation = _scala_test_impl,
     )
 

@@ -1,0 +1,118 @@
+load("//scala_proto:scala_proto.bzl", "scala_proto_library")
+load("//scala:scala.bzl", "scala_library", "scala_test")
+load("//scala:providers.bzl", "declare_deps_provider")
+load("//scala_proto:scala_proto_toolchain.bzl", "scala_proto_deps_toolchain", "scala_proto_toolchain")
+
+# This package contains manual tests for custom generators:
+#
+# bazel test //test/proto/custom_generator:DummyGeneratorTest \
+# --extra_toolchains=//test/proto/custom_generator:scala_proto_deps_toolchain \
+# --extra_toolchains=//test/proto/custom_generator:scala_proto_toolchain
+#
+# bazel build //test/proto/custom_generator:any_proto_scala \
+# --extra_toolchains=//test/proto/custom_generator:failing_scala_proto_deps_toolchain \
+# --extra_toolchains=//test/proto/custom_generator:failing_scala_proto_toolchain
+
+scala_proto_library(
+    name = "any_proto_scala",
+    deps = ["@com_google_protobuf//:any_proto"],
+)
+
+scala_test(
+    name = "DummyGeneratorTest",
+    size = "small",
+    srcs = ["DummyGeneratorTest.scala"],
+    tags = ["manual"],
+    runtime_deps = [":any_proto_scala"],
+)
+
+scala_library(
+    name = "DummyGenerator",
+    srcs = ["DummyGenerator.scala"],
+    deps = [
+        "@com_google_protobuf//:protobuf_java",
+        "@scala_proto_rules_protoc_bridge",
+    ],
+)
+
+declare_deps_provider(
+    name = "scalapb_worker_deps_provider",
+    deps_id = "scalapb_worker_deps",
+    deps = [
+        ":DummyGenerator",
+        "@com_google_protobuf//:protobuf_java",
+        "@scala_proto_rules_protoc_bridge",
+        "@scala_proto_rules_scalapb_plugin",
+    ],
+)
+
+scala_proto_deps_toolchain(
+    name = "scala_proto_deps_toolchain_def",
+    dep_providers = [
+        ":scalapb_worker_deps_provider",
+        "@io_bazel_rules_scala//scala_proto:scalapb_compile_deps_provider",
+        "@io_bazel_rules_scala//scala_proto:scalapb_grpc_deps_provider",
+    ],
+)
+
+toolchain(
+    name = "scala_proto_deps_toolchain",
+    toolchain = ":scala_proto_deps_toolchain_def",
+    toolchain_type = "@io_bazel_rules_scala//scala_proto:deps_toolchain_type",
+)
+
+scala_proto_toolchain(
+    name = "scala_proto_toolchain_def",
+    main_generator = "test.proto.custom_generator.DummyGenerator",
+)
+
+toolchain(
+    name = "scala_proto_toolchain",
+    toolchain = ":scala_proto_toolchain_def",
+    toolchain_type = "@io_bazel_rules_scala//scala_proto:toolchain_type",
+)
+
+scala_library(
+    name = "FailingGenerator",
+    srcs = ["FailingGenerator.scala"],
+    deps = [
+        "@scala_proto_rules_protoc_bridge",
+    ],
+)
+
+declare_deps_provider(
+    name = "failing_scalapb_worker_deps_provider",
+    deps_id = "scalapb_worker_deps",
+    deps = [
+        ":FailingGenerator",
+        "@com_google_protobuf//:protobuf_java",
+        "@scala_proto_rules_protoc_bridge",
+        "@scala_proto_rules_scalapb_plugin",
+    ],
+)
+
+scala_proto_deps_toolchain(
+    name = "failing_scala_proto_deps_toolchain_def",
+    dep_providers = [
+        ":failing_scalapb_worker_deps_provider",
+        "@io_bazel_rules_scala//scala_proto:scalapb_compile_deps_provider",
+        "@io_bazel_rules_scala//scala_proto:scalapb_grpc_deps_provider",
+    ],
+)
+
+toolchain(
+    name = "failing_scala_proto_deps_toolchain",
+    toolchain = ":failing_scala_proto_deps_toolchain_def",
+    toolchain_type = "@io_bazel_rules_scala//scala_proto:deps_toolchain_type",
+)
+
+scala_proto_toolchain(
+    name = "failing_scala_proto_toolchain_def",
+    main_generator = "test.proto.custom_generator.FailingGenerator",
+)
+
+toolchain(
+    name = "failing_scala_proto_toolchain",
+    toolchain = ":failing_scala_proto_toolchain_def",
+    toolchain_type = "@io_bazel_rules_scala//scala_proto:toolchain_type",
+)

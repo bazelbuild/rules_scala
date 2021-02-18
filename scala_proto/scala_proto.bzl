@@ -1,8 +1,4 @@
 load(
-    "@rules_proto//proto:defs.bzl",
-    "ProtoInfo",
-)
-load(
     "//scala:scala_cross_version.bzl",
     _default_maven_server_urls = "default_maven_server_urls",
 )
@@ -13,48 +9,24 @@ load(
 load(
     "//scala_proto/private:scalapb_aspect.bzl",
     "ScalaPBAspectInfo",
-    "ScalaPBInfo",
-    "merge_scalapb_aspect_info",
     "scalapb_aspect",
 )
 
-def register_default_proto_dependencies():
-    if native.existing_rule("io_bazel_rules_scala/dependency/proto/grpc_deps") == None:
-        native.bind(
-            name = "io_bazel_rules_scala/dependency/proto/grpc_deps",
-            actual = "@io_bazel_rules_scala//scala_proto:default_scalapb_grpc_dependencies",
-        )
-
-    if native.existing_rule("io_bazel_rules_scala/dependency/proto/implicit_compile_deps") == None:
-        native.bind(
-            name = "io_bazel_rules_scala/dependency/proto/implicit_compile_deps",
-            actual = "@io_bazel_rules_scala//scala_proto:default_scalapb_compile_dependencies",
-        )
-
 def scala_proto_repositories(
         maven_servers = _default_maven_server_urls()):
-    ret = scala_proto_default_repositories(maven_servers)
-    register_default_proto_dependencies()
-    return ret
+    return scala_proto_default_repositories(maven_servers)
 
 def _scala_proto_library_impl(ctx):
-    aspect_info = merge_scalapb_aspect_info(
-        [dep[ScalaPBAspectInfo] for dep in ctx.attr.deps],
-    )
-    all_java = aspect_info.java_info
-
-    return [
-        all_java,
-        ScalaPBInfo(aspect_info = aspect_info),
-        DefaultInfo(files = aspect_info.output_files),
-    ]
+    java_info = java_common.merge([dep[ScalaPBAspectInfo].java_info for dep in ctx.attr.deps])
+    default_info = DefaultInfo(files = depset(java_info.source_jars, transitive = [java_info.full_compile_jars]))
+    return [default_info, java_info]
 
 scala_proto_library = rule(
     implementation = _scala_proto_library_impl,
     attrs = {
         "deps": attr.label_list(aspects = [scalapb_aspect]),
     },
-    provides = [DefaultInfo, ScalaPBInfo, JavaInfo],
+    provides = [DefaultInfo, JavaInfo],
 )
 
 def scalapb_proto_library(**kwargs):

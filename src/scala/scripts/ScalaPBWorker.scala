@@ -1,59 +1,48 @@
 package scripts
 
+import java.io.File.pathSeparatorChar
 import java.net.URLClassLoader
-import java.nio.file.Path
+import java.nio.file.{Files, Paths}
 
-import io.bazel.rulesscala.io_utils.DeleteRecursively
-import io.bazel.rulesscala.jar.JarCreator
 import io.bazel.rulesscala.worker.Worker
 import protocbridge.{ProtocBridge, ProtocCodeGenerator}
-import scalapb.ScalaPbCodeGenerator
+
+import scala.sys.process._
 
 object ScalaPBWorker extends Worker.Interface {
 
+  private val protoc = {
+    val executable = sys.props.getOrElse("PROTOC", sys.error("PROTOC not supplied"))
+    (args: Seq[String]) => Process(executable, args).!(ProcessLogger(stderr.println(_)))
+  }
+
+  private val classes = {
+    val jars = sys.props.getOrElse("JARS", "").split(pathSeparatorChar).filter(_.nonEmpty).map { e =>
+      val file = Paths.get(e)
+      require(Files.exists(file), s"Expected file for classpath loading $file to exist")
+      file.toUri.toURL
+    }
+    new URLClassLoader(jars).loadClass(_)
+  }
+
+  private val generator = (className: String) => try {
+    classes(className + "$").getField("MODULE$").get(null).asInstanceOf[ProtocCodeGenerator]
+  } catch {
+    case _: NoSuchFieldException | _: java.lang.ClassNotFoundException =>
+      classes(className).newInstance.asInstanceOf[ProtocCodeGenerator]
+  }
+
+  private val generators: Seq[(String, ProtocCodeGenerator)] = sys.props.toSeq.collect {
+    case (k, v) if k.startsWith("GEN_") => k.stripPrefix("GEN_") -> generator(v)
+  }
+
   def main(args: Array[String]): Unit = Worker.workerMain(args, ScalaPBWorker)
 
-  def deleteDir(path: Path): Unit =
-    try DeleteRecursively.run(path)
-    catch {
-      case e: Exception => sys.error(s"Problem while deleting path [$path], e.getMessage= ${e.getMessage}")
-    }
-
   def work(args: Array[String]) {
-    val extractRequestResult = PBGenerateRequest.from(args)
-    val extraClassesClassLoader = new URLClassLoader(extractRequestResult.extraJars.map { e =>
-      val f = e.toFile
-      require(f.exists, s"Expected file for classpath loading $f to exist")
-      f.toURI.toURL
-    }.toArray)
-
-    val namedGeneratorsWithTypes = extractRequestResult.namedGenerators.map { case (nme, className) =>
-      val ins = try {
-        val clazz = extraClassesClassLoader.loadClass(className + "$")
-        clazz.getField("MODULE$").get(null).asInstanceOf[ProtocCodeGenerator]
-      } catch {
-        case _: NoSuchFieldException | _: java.lang.ClassNotFoundException =>
-          val clazz = extraClassesClassLoader.loadClass(className)
-          clazz.newInstance.asInstanceOf[ProtocCodeGenerator]
-      }
-      (nme, ins)
-    }.toList
-
-    val code = ProtocBridge.runWithGenerators(
-      protoc = exec(extractRequestResult.protoc),
-      namedGenerators = namedGeneratorsWithTypes ++ Seq("scala" -> ScalaPbCodeGenerator),
-      params = extractRequestResult.scalaPBArgs)
-
-    try {
-      if (code != 0) {
-        sys.error(s"Exit with code $code")
-      }
-      JarCreator.buildJar(Array(extractRequestResult.jarOutput, extractRequestResult.scalaPBOutput.toString))
-    } finally {
-      deleteDir(extractRequestResult.scalaPBOutput)
+    val code = ProtocBridge.runWithGenerators(protoc, generators, args)
+    if (code != 0) {
+      sys.error(s"Exit with code $code")
     }
   }
 
-  protected def exec(protoc: Path): Seq[String] => Int = (args: Seq[String]) =>
-    new ProcessBuilder(protoc.toString +: args: _*).inheritIO().start().waitFor()
 }

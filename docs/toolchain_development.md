@@ -99,6 +99,7 @@ my_toolchain_deps = rule(
         ),
     },
     toolchains = ["@io_bazel_rules_scala//my_rules/toolchain:my_toolchain_type"],
+    incompatible_use_toolchain_transition = True,
 )
 ```
 
@@ -159,5 +160,6 @@ my_toolchain_deps = rule(
         ),
     },
     toolchains = ["@io_bazel_rules_scala//my_rules/toolchain:my_toolchain_type"],
+    incompatible_use_toolchain_transition = True,
 )
 ```

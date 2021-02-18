@@ -1,6 +1,5 @@
 load("@rules_java//java:defs.bzl", "java_library", "java_test")
 load("//scala:scala.bzl", "scala_library", "scala_test")
-load("//scala:scala_toolchain.bzl", "scala_toolchain")
 
 scala_test(
     name = "test-all",
@@ -21,7 +20,7 @@ java_test(
         "TestB2.java",
     ],
     tags = ["manual"],
-    test_class = "TestB2",
+    test_class = "coverage.TestB2",
     deps = [
         ":b2",
     ],

@@ -14,9 +14,9 @@
 
 package scalacopts
 
-import org.scalatest._
+import org.scalatest.flatspec._
 
-class EchoMacroSettings extends FlatSpec {
+class EchoMacroSettings extends AnyFlatSpec {
   "macro output" should "match scalac options" in {
     assert(Macros.hello.equals("name=Mike,location=US,hobby=basketball,soccer"))
   }

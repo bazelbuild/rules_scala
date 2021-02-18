@@ -1,11 +1,11 @@
-package third_party.dependency_analyzer.src.test.io.bazel.rulesscala.dependencyanalyzer
+package io.bazel.rulesscala.dependencyanalyzer
 
-import org.scalatest._
-import third_party.dependency_analyzer.src.main.io.bazel.rulesscala.dependencyanalyzer.DependencyTrackingMethod
-import third_party.utils.src.test.io.bazel.rulesscala.utils.TestUtil
-import third_party.utils.src.test.io.bazel.rulesscala.utils.TestUtil._
+import org.scalatest.funsuite._
+import io.bazel.rulesscala.dependencyanalyzer.DependencyTrackingMethod
+import io.bazel.rulesscala.utils.TestUtil
+import io.bazel.rulesscala.utils.TestUtil._
 
-class UnusedDependencyCheckerTest extends FunSuite {
+class UnusedDependencyCheckerTest extends AnyFunSuite {
   def compileWithUnusedDependencyChecker(code: String, withDirect: List[(String, String)] = Nil): List[String] = {
     val extraClasspath = withDirect.map(_._1)
 

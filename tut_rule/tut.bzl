@@ -13,11 +13,6 @@ def tut_repositories(
         overriden_artifacts = overriden_artifacts,
     )
 
-    native.bind(
-        name = "io_bazel_rules_scala/dependency/tut/tut_core",
-        actual = "@io_bazel_rules_scala_org_tpolecat_tut_core",
-    )
-
     native.register_toolchains("@io_bazel_rules_scala//tut_rule:tut_toolchain")
 
 def scala_tut_doc(**kw):

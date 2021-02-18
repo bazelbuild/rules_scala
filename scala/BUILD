@@ -49,19 +49,6 @@ toolchain(
     visibility = ["//visibility:public"],
 )
 
-scala_toolchain(
-    name = "code_coverage_toolchain_impl",
-    enable_code_coverage_aspect = "on",
-    visibility = ["//visibility:public"],
-)
-
-toolchain(
-    name = "code_coverage_toolchain",
-    toolchain = "code_coverage_toolchain_impl",
-    toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
-    visibility = ["//visibility:public"],
-)
-
 java_import(
     name = "bazel_test_runner_deploy",
     jars = ["@bazel_tools//tools/jdk:TestRunner_deploy.jar"],
@@ -79,9 +66,9 @@ declare_deps_provider(
     deps_id = "scala_compile_classpath",
     visibility = ["//visibility:public"],
     deps = [
-        "//external:io_bazel_rules_scala/dependency/scala/scala_compiler",
-        "//external:io_bazel_rules_scala/dependency/scala/scala_library",
-        "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
+        "@io_bazel_rules_scala_scala_compiler",
+        "@io_bazel_rules_scala_scala_library",
+        "@io_bazel_rules_scala_scala_reflect",
     ],
 )
 
@@ -90,8 +77,8 @@ declare_deps_provider(
     deps_id = "scala_library_classpath",
     visibility = ["//visibility:public"],
     deps = [
-        "//external:io_bazel_rules_scala/dependency/scala/scala_library",
-        "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
+        "@io_bazel_rules_scala_scala_library",
+        "@io_bazel_rules_scala_scala_reflect",
     ],
 )
 
@@ -100,8 +87,8 @@ declare_deps_provider(
     deps_id = "scala_macro_classpath",
     visibility = ["//visibility:public"],
     deps = [
-        "//external:io_bazel_rules_scala/dependency/scala/scala_library",
-        "//external:io_bazel_rules_scala/dependency/scala/scala_reflect",
+        "@io_bazel_rules_scala_scala_library",
+        "@io_bazel_rules_scala_scala_reflect",
     ],
 )
 
@@ -109,12 +96,12 @@ declare_deps_provider(
     name = "scala_xml_provider",
     deps_id = "scala_xml",
     visibility = ["//visibility:public"],
-    deps = ["//external:io_bazel_rules_scala/dependency/scala/scala_xml"],
+    deps = ["@io_bazel_rules_scala_scala_xml"],
 )
 
 declare_deps_provider(
     name = "parser_combinators_provider",
     deps_id = "parser_combinators",
     visibility = ["//visibility:public"],
-    deps = ["//external:io_bazel_rules_scala/dependency/scala/parser_combinators"],
+    deps = ["@io_bazel_rules_scala_scala_parser_combinators"],
 )

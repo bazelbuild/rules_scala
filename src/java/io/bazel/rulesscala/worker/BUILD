@@ -1,3 +1,5 @@
+load("@rules_java//java:defs.bzl", "java_library", "java_test")
+
 java_library(
     name = "worker",
     srcs = ["Worker.java"],

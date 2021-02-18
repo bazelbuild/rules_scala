@@ -33,4 +33,5 @@ export_toolchain_deps = rule(
         ),
     },
     toolchains = ["@io_bazel_rules_scala//jmh/toolchain:jmh_toolchain_type"],
+    incompatible_use_toolchain_transition = True,
 )

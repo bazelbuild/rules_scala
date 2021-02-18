@@ -51,11 +51,11 @@ test_transitive_deps() {
 
 test_repl() {
   bazel build $(bazel query 'kind(scala_repl, //test/...)')
-  echo "import scalarules.test._; HelloLib.printMessage(\"foo\")" | bazel-bin/test/HelloLibRepl | grep "foo java" &&
-  echo "import scalarules.test._; TestUtil.foo" | bazel-bin/test/HelloLibTestRepl | grep "bar" &&
-  echo "import scalarules.test._; ScalaLibBinary.main(Array())" | bazel-bin/test/ScalaLibBinaryRepl | grep "A hui hou" &&
-  echo "import scalarules.test._; ResourcesStripScalaBinary.main(Array())" | bazel-bin/test/ResourcesStripScalaBinaryRepl | grep "More Hello"
-  echo "import scalarules.test._; A.main(Array())" | bazel-bin/test/ReplWithSources | grep "4 8 15"
+  echo "import scalarules.test._; HelloLib.printMessage(\"foo\")" | bazel-bin/test/HelloLibRepl -Xnojline | grep "foo java" &&
+  echo "import scalarules.test._; TestUtil.foo" | bazel-bin/test/HelloLibTestRepl -Xnojline | grep "bar" &&
+  echo "import scalarules.test._; ScalaLibBinary.main(Array())" | bazel-bin/test/ScalaLibBinaryRepl -Xnojline | grep "A hui hou" &&
+  echo "import scalarules.test._; ResourcesStripScalaBinary.main(Array())" | bazel-bin/test/ResourcesStripScalaBinaryRepl -Xnojline | grep "More Hello"
+  echo "import scalarules.test._; A.main(Array())" | bazel-bin/test/ReplWithSources -Xnojline | grep "4 8 15"
 }
 
 test_benchmark_jmh() {
@@ -122,13 +122,6 @@ test_override_javabin() {
   JAVABIN=/etc/basdf action_should_fail run test:ScalaBinary
 }
 
-test_coverage_on() {
-    bazel coverage \
-          --extra_toolchains="//scala:code_coverage_toolchain" \
-          //test/coverage/...
-    diff test/coverage/expected-coverage.dat $(bazel info bazel-testlogs)/test/coverage/test-all/coverage.dat
-}
-
 xmllint_test() {
   find -L ./bazel-testlogs -iname "*.xml" | xargs -n1 xmllint > /dev/null
 }
@@ -141,5 +134,4 @@ $runner test_benchmark_jmh_failure
 $runner scala_test_test_filters
 $runner test_multi_service_manifest
 $runner test_override_javabin
-$runner test_coverage_on
 $runner xmllint_test

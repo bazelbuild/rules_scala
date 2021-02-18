@@ -71,8 +71,8 @@ declare_deps_provider(
     deps_id = "junit_classpath",
     visibility = ["//visibility:public"],
     deps = [
-        "//external:io_bazel_rules_scala/dependency/hamcrest/hamcrest_core",
-        "//external:io_bazel_rules_scala/dependency/junit/junit",
+        "@io_bazel_rules_scala_junit_junit",
+        "@io_bazel_rules_scala_org_hamcrest_hamcrest_core",
     ],
 )
 
@@ -81,8 +81,8 @@ declare_deps_provider(
     deps_id = "scalatest_classpath",
     visibility = ["//visibility:public"],
     deps = [
-        "//external:io_bazel_rules_scala/dependency/scala/scalactic/scalactic",
-        "//external:io_bazel_rules_scala/dependency/scala/scalatest/scalatest",
+        "@io_bazel_rules_scala_scalactic",
+        "@io_bazel_rules_scala_scalatest",
     ],
 )
 
@@ -103,6 +103,6 @@ declare_deps_provider(
     deps_id = "specs2_junit_classpath",
     visibility = ["//visibility:public"],
     deps = [
-        "//external:io_bazel_rules_scala/dependency/specs2/specs2_junit",
+        "@io_bazel_rules_scala_org_specs2_specs2_junit",
     ],
 )

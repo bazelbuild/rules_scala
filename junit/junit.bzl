@@ -15,12 +15,3 @@ def junit_repositories(
         fetch_sources = fetch_sources,
         maven_servers = maven_servers,
     )
-
-    native.bind(
-        name = "io_bazel_rules_scala/dependency/junit/junit",
-        actual = "@io_bazel_rules_scala_junit_junit//jar",
-    )
-    native.bind(
-        name = "io_bazel_rules_scala/dependency/hamcrest/hamcrest_core",
-        actual = "@io_bazel_rules_scala_org_hamcrest_hamcrest_core//jar",
-    )

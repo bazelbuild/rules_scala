@@ -22,11 +22,6 @@ load(
     "merge_thrift_infos",
 )
 load("//third_party/repositories:repositories.bzl", "repositories")
-load(
-    "@io_bazel_rules_scala//scala/private/toolchain_deps:toolchain_deps.bzl",
-    "find_deps_info_on",
-    "java_info_for_deps",
-)
 
 _jar_extension = ".jar"
 
@@ -451,6 +446,7 @@ scrooge_scala_aspect = aspect(
         "@io_bazel_rules_scala//scala:toolchain_type",
         "@io_bazel_rules_scala//twitter_scrooge/toolchain:scrooge_toolchain_type",
     ],
+    incompatible_use_toolchain_transition = True,
 )
 
 scrooge_java_aspect = aspect(
@@ -471,6 +467,7 @@ scrooge_java_aspect = aspect(
         "@io_bazel_rules_scala//scala:toolchain_type",
         "@io_bazel_rules_scala//twitter_scrooge/toolchain:scrooge_toolchain_type",
     ],
+    incompatible_use_toolchain_transition = True,
     fragments = ["java"],
 )
 
@@ -547,4 +544,5 @@ scrooge_scala_import = rule(
     },
     provides = [ThriftInfo, JavaInfo, ScroogeImport],
     toolchains = ["@io_bazel_rules_scala//twitter_scrooge/toolchain:scrooge_toolchain_type"],
+    incompatible_use_toolchain_transition = True,
 )

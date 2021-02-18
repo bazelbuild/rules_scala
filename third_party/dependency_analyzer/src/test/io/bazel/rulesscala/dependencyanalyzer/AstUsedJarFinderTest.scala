@@ -1,21 +1,21 @@
-package third_party.dependency_analyzer.src.test.io.bazel.rulesscala.dependencyanalyzer
+package io.bazel.rulesscala.dependencyanalyzer
 
 import java.nio.file.Files
 import java.nio.file.Path
 import io.bazel.rulesscala.io_utils.DeleteRecursively
-import org.scalatest._
+import org.scalatest.funsuite._
 import scala.tools.nsc.reporters.StoreReporter
-import third_party.dependency_analyzer.src.main.io.bazel.rulesscala.dependencyanalyzer.DependencyTrackingMethod
-import third_party.dependency_analyzer.src.main.io.bazel.rulesscala.dependencyanalyzer.ScalaVersion
-import third_party.utils.src.test.io.bazel.rulesscala.utils.JavaCompileUtil
-import third_party.utils.src.test.io.bazel.rulesscala.utils.TestUtil
-import third_party.utils.src.test.io.bazel.rulesscala.utils.TestUtil.DependencyAnalyzerTestParams
+import io.bazel.rulesscala.dependencyanalyzer.DependencyTrackingMethod
+import io.bazel.rulesscala.dependencyanalyzer.ScalaVersion
+import io.bazel.rulesscala.utils.JavaCompileUtil
+import io.bazel.rulesscala.utils.TestUtil
+import io.bazel.rulesscala.utils.TestUtil.DependencyAnalyzerTestParams
 
 // NOTE: Some tests are version-dependent as some false positives
 // cannot be fixed in older versions of Scala for various reasons.
 // Hence make sure to look at any version checks to understand
 // which versions do and don't support which cases.
-class AstUsedJarFinderTest extends FunSuite {
+class AstUsedJarFinderTest extends AnyFunSuite {
   private def withSandbox(action: Sandbox => Unit): Unit = {
     val tmpDir = Files.createTempDirectory("dependency_analyzer_test_temp")
     try {
@@ -270,7 +270,7 @@ class AstUsedJarFinderTest extends FunSuite {
       aCode =
         s"""
            |class A(
-           |)
+           |) extends scala.annotation.Annotation
            |""".stripMargin,
       bCode =
         s"""
@@ -286,7 +286,7 @@ class AstUsedJarFinderTest extends FunSuite {
       aCode =
         s"""
            |class A(
-           |)
+           |) extends scala.annotation.Annotation
            |""".stripMargin,
       bCode =
         s"""
@@ -342,7 +342,7 @@ class AstUsedJarFinderTest extends FunSuite {
   test("classOf in class annotation is direct") {
     checkDirectDependencyRecognized(
       aCode = "class A",
-      bCode = "class B(a: Any)",
+      bCode = "class B(a: Any) extends scala.annotation.Annotation",
       cCode =
         s"""
            |@B(classOf[A])

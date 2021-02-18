@@ -7,7 +7,7 @@ load("//scala:scala_import.bzl", "scala_import")
 scala_import(
     name = "dummy_dependency_to_trigger_create_provider_transitive_compile_jar_usage",
     testonly = True,
-    jars = ["@org_psywerx_hairyfotr__linter//jar"],
+    jars = ["@org_springframework_spring_core//jar"],
 )
 
 scala_import(

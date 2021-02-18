@@ -1,4 +1,4 @@
-package third_party.utils.src.test.io.bazel.rulesscala.utils
+package io.bazel.rulesscala.utils
 
 import java.io.File
 import java.io.IOException
@@ -36,8 +36,8 @@ object JavaCompileUtil {
     fileManager.close()
     // If there's a compilation error, display error messages and fail the test
     if (!success) {
-      import scala.collection.JavaConversions._
-      for (diagnostic <- diagnostics.getDiagnostics) {
+      import scala.collection.JavaConverters._
+      for (diagnostic <- diagnostics.getDiagnostics.asScala) {
         println("Code: " + diagnostic.getCode)
         println("Kind: " + diagnostic.getKind)
         println("Position: " + diagnostic.getPosition)

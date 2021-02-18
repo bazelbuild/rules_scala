@@ -23,20 +23,11 @@ scala_binary(
 )
 
 scala_library(
-    name = "scala_proto_request_extractor",
-    srcs = ["PBGenerateRequest.scala"],
-    visibility = ["//visibility:public"],
-)
-
-scala_library(
     name = "scalapb_worker_lib",
     srcs = ["ScalaPBWorker.scala"],
     visibility = ["//visibility:public"],
     deps = [
-        ":scala_proto_request_extractor",
         "//scala_proto:scalapb_worker_deps",
-        "//src/java/io/bazel/rulesscala/io_utils",
-        "//src/java/io/bazel/rulesscala/jar",
         "//src/java/io/bazel/rulesscala/worker",
     ],
 )

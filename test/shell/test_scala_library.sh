@@ -159,10 +159,20 @@ test_scala_library_expect_failure_on_java_in_src_jar_when_disabled() {
   test_expect_failure_with_message "${expected_message}" $test_target
 }
 
-test_scala_library_expect_better_failure_message_on_missing_transitive_dependency_labels_from_other_jvm_rules() {
+test_scala_library_expect_better_failure_with_target_label_from_stamped_jar_on_missing_transitive_dependency() {
   transitive_target='.*transitive_dependency-ijar.jar'
   direct_target='//test_expect_failure/missing_direct_deps/internal_deps:direct_java_provider_dependency'
   test_target='//test_expect_failure/missing_direct_deps/internal_deps:dependent_on_some_java_provider'
+
+  expected_message='//test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency'
+
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" $test_target "--extra_toolchains=//test/toolchains:high_level_transitive_deps_strict_deps_error"
+}
+
+test_scala_library_expect_better_failure_message_on_missing_transitive_dependency_labels_from_other_jvm_rules() {
+  transitive_target='.*transitive_dependency_without_manifest.jar'
+  direct_target='//test_expect_failure/missing_direct_deps/internal_deps:unstamped_direct_java_provider_dependency'
+  test_target='//test_expect_failure/missing_direct_deps/internal_deps:unstamped_jar_dependent_on_some_java_provider'
 
   expected_message="Unknown label of file $transitive_target which came from $direct_target"
 
@@ -184,3 +194,4 @@ $runner test_scala_library_expect_no_java_recompilation_on_internal_change_of_sc
 $runner test_scala_library_expect_failure_on_missing_direct_java
 $runner test_scala_library_expect_failure_on_java_in_src_jar_when_disabled
 $runner test_scala_library_expect_better_failure_message_on_missing_transitive_dependency_labels_from_other_jvm_rules
+$runner test_scala_library_expect_better_failure_with_target_label_from_stamped_jar_on_missing_transitive_dependency

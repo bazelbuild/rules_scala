@@ -1,6 +1,9 @@
 ---
-platforms:
+validate_config: 1
+tasks:
   ubuntu1604:
+    name: "bazel test //test/..."       
+    platform: ubuntu1604
     shell_commands:
     # Disable local disk caching on CI.
     - mv tools/bazel.rc.buildkite tools/bazel.rc
@@ -10,6 +13,8 @@ platforms:
     test_targets:
     - "//test/..."
   ubuntu1804:
+    name: "bazel test //test/..."      
+    platform: ubuntu1804
     shell_commands:
     # Disable local disk caching on CI.
     - mv tools/bazel.rc.buildkite tools/bazel.rc
@@ -18,7 +23,19 @@ platforms:
     - "//test/..."
     test_targets:
     - "//test/..."
+  ubuntu2004:
+    name: "bazel test //test/..."
+    platform: ubuntu2004
+    shell_commands:
+    - mv tools/bazel.rc.buildkite tools/bazel.rc
+    - echo "import %workspace%/tools/bazel.rc" > .bazelrc
+    build_targets:
+    - "//test/..."
+    test_targets:
+    - "//test/..."
   macos:
+    name: "bazel test //test/..."
+    platform: macos
     shell_commands:
     # Disable local disk caching on CI.
     - mv tools/bazel.rc.buildkite tools/bazel.rc
@@ -28,7 +45,61 @@ platforms:
     test_targets:
     - "//test/..."
   rbe_ubuntu1604:
+    name: "bazel test //test/..."
+    platform: rbe_ubuntu1604
     build_targets:
     - "//test/..."
     test_targets:
     - "//test/..."
+  test_rules_scala_linux:
+    name: "./test_rules_scala"
+    platform: ubuntu1804
+    shell_commands:
+    - "./test_rules_scala.sh"
+  test_rules_scala_macos:
+    name: "./test_rules_scala"
+    platform: macos
+    shell_commands:
+    - "./test_rules_scala.sh"
+  test_coverage_linux_3_5_0:
+    name: "./test_coverage"
+    platform: ubuntu1804
+    bazel: 3.5.0
+    shell_commands:
+      - "./test_coverage.sh"
+  test_coverage_macos_3_5_0:
+    name: "./test_coverage"
+    platform: macos
+    bazel: 3.5.0
+    shell_commands:
+      - "./test_coverage.sh"
+  test_reproducibility_linux:
+    name: "./test_reproducibility.sh"
+    platform: ubuntu1804
+    shell_commands:
+    - "./test_reproducibility.sh"
+  test_reproducibility_macos:
+    name: "./test_reproducibility.sh"
+    platform: macos
+    shell_commands:
+    - "./test_reproducibility.sh"
+  versions_ubuntu2004:
+    name: "./test_version.sh"      
+    platform: ubuntu2004
+    shell_commands:
+    - "./test_version.sh"
+  versions_macos:
+    name: "./test_version.sh"
+    platform: macos
+    shell_commands:
+    - "./test_version.sh"
+  examples_ubuntu2004:
+    name: "./test_examples"
+    platform: ubuntu2004
+    shell_commands:
+      - "./test_examples.sh"
+  lint_ubuntu2004:
+    name: "bazel //tools:lint_check"
+    platform: ubuntu2004
+    run_targets:
+    -  "//tools:lint_check"

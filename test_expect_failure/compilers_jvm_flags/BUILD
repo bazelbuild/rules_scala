@@ -24,7 +24,7 @@ scala_library(
     name = "can_expand_jvm_flags_for_scalac",
     srcs = ["WillNotCompileScalaSinceXmxTooLow.scala"],
     data = [":args.txt"],
-    scalac_jvm_flags = ["$(location :args.txt)"],
+    scalac_jvm_flags = ["--made_up_flag_to_expand=$(location :args.txt)"],
 )
 
 scala_library(

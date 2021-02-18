@@ -1,12 +1,12 @@
-package third_party.dependency_analyzer.src.test.io.bazel.rulesscala.dependencyanalyzer
+package io.bazel.rulesscala.dependencyanalyzer
 
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.UUID
 import io.bazel.rulesscala.io_utils.DeleteRecursively
-import org.scalatest._
-import third_party.utils.src.test.io.bazel.rulesscala.utils.JavaCompileUtil
-import third_party.utils.src.test.io.bazel.rulesscala.utils.TestUtil
+import org.scalatest.funsuite._
+import io.bazel.rulesscala.utils.JavaCompileUtil
+import io.bazel.rulesscala.utils.TestUtil
 
 /**
  * Test that the scalac compiler behaves how we expect it to around
@@ -18,7 +18,7 @@ import third_party.utils.src.test.io.bazel.rulesscala.utils.TestUtil
  * deps as we are considering alternatives of how to mitigate scalac's
  * limitations.
  */
-class ScalacDependencyTest extends FunSuite {
+class ScalacDependencyTest extends AnyFunSuite {
   private def withSandbox(action: Sandbox => Unit): Unit = {
     val tmpDir = Files.createTempDirectory("dependency_analyzer_test_temp")
     try {
