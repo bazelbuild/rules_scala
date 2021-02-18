@@ -100,7 +100,7 @@ object DependencyAnalyzerSettings {
         strictDepsMode = extractAnalyzerMode("strict-deps-mode"),
         ignoredUnusedDependencyTargets =
           optionsParser
-            .takeStringSeqOpt(s"unused-deps-ignored-targets")
+            .takeStringSeqOpt("unused-deps-ignored-targets")
             .getOrElse(Seq.empty)
             .map(decodeTarget)
             .toSet

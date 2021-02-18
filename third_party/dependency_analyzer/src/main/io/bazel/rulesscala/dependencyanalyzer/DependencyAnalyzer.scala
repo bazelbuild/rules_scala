@@ -3,8 +3,8 @@ package io.bazel.rulesscala.dependencyanalyzer
 import java.util.jar.JarFile
 
 import scala.reflect.io.AbstractFile
-import scala.tools.nsc.{Global, Phase}
 import scala.tools.nsc.plugins.{Plugin, PluginComponent}
+import scala.tools.nsc.{Global, Phase}
 import scala.util.control.NonFatal
 
 class DependencyAnalyzer(val global: Global) extends Plugin {
@@ -56,6 +56,7 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
     override def newPhase(prev: Phase): StdPhase = new StdPhase(prev) {
       override def run(): Unit = {
         super.run()
+
         if (settings.dependencyTrackingMethod == handles) {
           runAnalysis()
         }

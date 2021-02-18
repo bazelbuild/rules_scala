@@ -36,12 +36,14 @@ def _phase_dependency(
         strict_deps_always_off):
     toolchain = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"]
 
-    if strict_deps_always_off:
+    is_target_included_for_analysis = _is_target_included(ctx)
+
+    if strict_deps_always_off or not is_target_included_for_analysis:
         strict_deps_mode = "off"
     else:
         strict_deps_mode = get_strict_deps_mode(ctx)
 
-    if unused_deps_always_off:
+    if unused_deps_always_off or not is_target_included_for_analysis:
         unused_deps_mode = "off"
     else:
         unused_deps_mode = _get_unused_deps_mode(ctx)
@@ -64,3 +66,14 @@ def _get_unused_deps_mode(ctx):
         return ctx.attr.unused_dependency_checker_mode
     else:
         return ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].unused_dependency_checker_mode
+
+def _is_target_included(ctx):
+    target = str(ctx.label)
+    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"]
+    includes = toolchain.dependency_tracking_include_patterns
+    excludes = toolchain.dependency_tracking_exclude_patterns
+
+    if len([exclude for exclude in excludes if target.startswith(exclude)]) > 0:
+        return False
+
+    return len([include for include in includes if target.startswith(include)]) > 0

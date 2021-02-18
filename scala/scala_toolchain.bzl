@@ -48,6 +48,19 @@ def _scala_toolchain_impl(ctx):
 
     enable_diagnostics_report = ctx.attr.enable_diagnostics_report
 
+    all_patterns = ctx.attr.dependency_tracking_patterns
+
+    dependency_tracking_include_patterns = [
+        pattern
+        for pattern in all_patterns
+        if not pattern.startswith("-")
+    ]
+    dependency_tracking_exclude_patterns = [
+        pattern.lstrip("-")
+        for pattern in all_patterns
+        if pattern.startswith("-")
+    ]
+
     toolchain = platform_common.ToolchainInfo(
         scalacopts = ctx.attr.scalacopts,
         dep_providers = ctx.attr.dep_providers,
@@ -55,6 +68,8 @@ def _scala_toolchain_impl(ctx):
         strict_deps_mode = strict_deps_mode,
         unused_dependency_checker_mode = unused_dependency_checker_mode,
         dependency_tracking_method = dependency_tracking_method,
+        dependency_tracking_include_patterns = dependency_tracking_include_patterns,
+        dependency_tracking_exclude_patterns = dependency_tracking_exclude_patterns,
         scalac_jvm_flags = ctx.attr.scalac_jvm_flags,
         scala_test_jvm_flags = ctx.attr.scala_test_jvm_flags,
         enable_diagnostics_report = enable_diagnostics_report,
@@ -91,6 +106,14 @@ scala_toolchain = rule(
         "dependency_tracking_method": attr.string(
             default = "default",
             values = ["ast", "high-level", "default"],
+        ),
+        "dependency_tracking_patterns": attr.string_list(
+            doc = """
+                List of target prefixes that will be reported by dependency tracking reporting.
+                Empty list includes all patterns. Targets can be excluded with patterns with a
+                '-' prefix.
+            """,
+            default = [""],
         ),
         "scalac_jvm_flags": attr.string_list(),
         "scala_test_jvm_flags": attr.string_list(),
