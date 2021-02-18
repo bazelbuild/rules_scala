@@ -13,10 +13,6 @@ load(
     "scala_test",
     "scala_test_suite",
 )
-load(
-    "//scala_proto:scala_proto.bzl",
-    "scala_proto_library",
-)
 load(":check_statsfile.bzl", "check_statsfile")
 
 package(default_testonly = 1)
@@ -662,24 +658,6 @@ scala_binary(
     name = "test_scala_proto_server",
     main_class = "test.proto.TestServer",
     deps = [":lib_with_scala_proto_dep"],
-)
-
-scala_proto_library(
-    name = "test_proto_scala_dep",
-    visibility = ["//visibility:public"],
-    deps = [
-        ":HelloLib",
-        "//test/proto:test2",
-    ],
-)
-
-scala_proto_library(
-    name = "test_proto_scala_import_dep",
-    visibility = ["//visibility:public"],
-    deps = [
-        "//test/proto:test2",
-        "@com_github_jnr_jffi_native",
-    ],
 )
 
 scala_library(

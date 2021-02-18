@@ -9,10 +9,6 @@ load(
     "scala_specs2_junit_test",
     "scala_test",
 )
-load(
-    "@io_bazel_rules_scala//scala_proto:scala_proto.bzl",
-    "scala_proto_library",
-)
 
 package(default_testonly = 1)
 
@@ -172,13 +168,4 @@ scala_binary(
     name = "test_scala_proto_server",
     main_class = "test.proto.TestServer",
     deps = [":lib_with_scala_proto_dep"],
-)
-
-scala_proto_library(
-    name = "test_proto_scala_dep",
-    visibility = ["//visibility:public"],
-    deps = [
-        ":HelloLib",
-        "//proto:test2",
-    ],
 )
