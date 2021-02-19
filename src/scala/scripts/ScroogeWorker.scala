@@ -4,8 +4,7 @@ package scripts
 import java.io.File
 import java.nio.file.{Files, Path, Paths}
 
-// Move ScroogeConfig and ScroogeOptionParser to com.twitter.scrooge when these changes are added to scrooge
-import io.bazel.rules_scala.scrooge_support.{ Compiler, CompilerDefaults, ScroogeConfig, ScroogeOptionParser }
+import com.twitter.scrooge.{ ScroogeConfig, ScroogeOptionParser }
 import com.twitter.scrooge.backend.WithFinagle
 import io.bazel.rules_scala.scrooge_support.{Compiler, CompilerDefaults}
 import io.bazel.rulesscala.io_utils.DeleteRecursively
