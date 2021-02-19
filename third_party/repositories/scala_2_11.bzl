@@ -390,24 +390,24 @@ artifacts = {
         "sha256": "8591718c1884ac8001b4c5ca80f349c0a6deec691de0af720c5e3bc3a581dada",
     },
     "io_bazel_rules_scala_scrooge_core": {
-        "artifact": "com.twitter:scrooge-core_2.11:20.9.0",
-        "sha256": "de21b01d356bfcae4d184ed877dac21753ae9c29e11d934f007789ec7b07961f",
+        "artifact": "com.twitter:scrooge-core_2.11:21.2.0",
+        "sha256": "d6cef1408e34b9989ea8bc4c567dac922db6248baffe2eeaa618a5b354edd2bb",
     },
     "io_bazel_rules_scala_scrooge_generator": {
-        "artifact": "com.twitter:scrooge-generator_2.11:20.9.0",
-        "sha256": "1b027bb10604d34b0790a4936d9b5c95bf0a0ccac522521d9c7e898b87d16c79",
+        "artifact": "com.twitter:scrooge-generator_2.11:21.2.0",
+        "sha256": "87094f01df2c0670063ab6ebe156bb1a1bcdabeb95bc45552660b030287d6acb",
         "runtime_deps": [
             "@io_bazel_rules_scala_guava",
             "@io_bazel_rules_scala_mustache",
         ],
     },
     "io_bazel_rules_scala_util_core": {
-        "artifact": "com.twitter:util-core_2.11:20.9.0",
-        "sha256": "59955ecc258bcdd5de0199e289548717a794c7a1020f34ebef69a5f2cb36e127",
+        "artifact": "com.twitter:util-core_2.11:21.2.0",
+        "sha256": "31c33d494ca5a877c1e5b5c1f569341e1d36e7b2c8b3fb0356fb2b6d4a3907ca",
     },
     "io_bazel_rules_scala_util_logging": {
-        "artifact": "com.twitter:util-logging_2.11:20.9.0",
-        "sha256": "32afd3278232cf504e77a7833eef812bb4e2ae16f6f524910896cf844e223eef",
+        "artifact": "com.twitter:util-logging_2.11:21.2.0",
+        "sha256": "f3b62465963fbf0fe9860036e6255337996bb48a1a3f21a29503a2750d34f319",
     },
     "io_bazel_rules_scala_javax_annotation_api": {
         "artifact": "javax.annotation:javax.annotation-api:1.3.2",
