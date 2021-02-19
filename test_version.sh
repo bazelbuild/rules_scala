@@ -89,6 +89,7 @@ test_twitter_scrooge_versions() {
         "runtime_deps": [\
             "@io_bazel_rules_scala_guava",\
             "@io_bazel_rules_scala_mustache",\
+            "@io_bazel_rules_scala_scopt",\
         ],\
     },\
     "io_bazel_rules_scala_util_core": {\
@@ -112,6 +113,7 @@ test_twitter_scrooge_versions() {
         "runtime_deps": [\
             "@io_bazel_rules_scala_guava",\
             "@io_bazel_rules_scala_mustache",\
+            "@io_bazel_rules_scala_scopt",\
         ],\
     },\
     "io_bazel_rules_scala_util_core": {\

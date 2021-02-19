@@ -102,6 +102,7 @@ def twitter_scrooge(
             "io_bazel_rules_scala_mustache",  # Mustache is needed to generate java from thrift, and is passed further down.
             "io_bazel_rules_scala_guava",
             "io_bazel_rules_scala_javax_annotation_api",
+            "io_bazel_rules_scala_scopt",
         ],
         maven_servers = maven_servers,
         fetch_sources = False,
@@ -111,6 +112,11 @@ def twitter_scrooge(
     native.bind(
         name = "io_bazel_rules_scala/dependency/thrift/mustache",
         actual = "@io_bazel_rules_scala_mustache",
+    )
+
+    native.bind(
+        name = "io_bazel_rules_scala/dependency/thrift/scopt",
+        actual = "@io_bazel_rules_scala_scopt",
     )
 
     # scrooge-generator needs these runtime_deps to generate java from thrift.
