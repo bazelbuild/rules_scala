@@ -118,49 +118,26 @@ def compile_scala(
     # scalac_jvm_flags passed in on the target override scalac_jvm_flags passed in on the toolchain
     final_scalac_jvm_flags = first_non_empty(scalac_jvm_flags, toolchain.scalac_jvm_flags)
 
-    if len(BAZEL_VERSION) == 0 and enable_diagnostics_report:  # TODO: Add case for released version of bazel with diagnostics whenever it is released.
-        ctx.actions.run(
-            inputs = ins,
-            outputs = outs,
-            executable = scalac,
-            mnemonic = "Scalac",
-            progress_message = "scala %s" % target_label,
-            execution_requirements = {"supports-workers": "1"},
-            #  when we run with a worker, the `@argfile.path` is removed and passed
-            #  line by line as arguments in the protobuf. In that case,
-            #  the rest of the arguments are passed to the process that
-            #  starts up and stays resident.
+    ctx.actions.run(
+        inputs = ins,
+        outputs = outs,
+        executable = scalac,
+        mnemonic = "Scalac",
+        progress_message = "scala %s" % target_label,
+        execution_requirements = {"supports-workers": "1"},
+        #  when we run with a worker, the `@argfile.path` is removed and passed
+        #  line by line as arguments in the protobuf. In that case,
+        #  the rest of the arguments are passed to the process that
+        #  starts up and stays resident.
 
-            # In either case (worker or not), they will be jvm flags which will
-            # be correctly handled since the executable is a jvm app that will
-            # consume the flags on startup.
-            arguments = [
-                "--jvm_flag=%s" % f
-                for f in expand_location(ctx, final_scalac_jvm_flags)
-            ] + [args],
-            diagnostics_file = diagnosticsfile,
-        )
-    else:
-        ctx.actions.run(
-            inputs = ins,
-            outputs = outs,
-            executable = scalac,
-            mnemonic = "Scalac",
-            progress_message = "scala %s" % target_label,
-            execution_requirements = {"supports-workers": "1"},
-            #  when we run with a worker, the `@argfile.path` is removed and passed
-            #  line by line as arguments in the protobuf. In that case,
-            #  the rest of the arguments are passed to the process that
-            #  starts up and stays resident.
-
-            # In either case (worker or not), they will be jvm flags which will
-            # be correctly handled since the executable is a jvm app that will
-            # consume the flags on startup.
-            arguments = [
-                "--jvm_flag=%s" % f
-                for f in expand_location(ctx, final_scalac_jvm_flags)
-            ] + [args],
-        )
+        # In either case (worker or not), they will be jvm flags which will
+        # be correctly handled since the executable is a jvm app that will
+        # consume the flags on startup.
+        arguments = [
+            "--jvm_flag=%s" % f
+            for f in expand_location(ctx, final_scalac_jvm_flags)
+        ] + [args],
+    )
 
 def compile_java(ctx, source_jars, source_files, output, extra_javac_opts, providers_of_dependencies):
     return java_common.compile(
