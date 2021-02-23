@@ -89,18 +89,12 @@ public class CompileOptions {
     return resources;
   }
 
-  private static HashMap<String, String> buildArgMap(List<String> lines) {
-    HashMap hm = new HashMap();
-    for (String line : lines) {
-      String[] lSplit = line.split(": ");
-      if (lSplit.length > 2) {
-        throw new RuntimeException("Bad arg, should have at most 1 space/2 spans. arg: " + line);
-      }
-      if (lSplit.length > 1) {
-        hm.put(lSplit[0], lSplit[1]);
-      }
+  private static Map<String, String> buildArgMap(List<String> lines) {
+    Map<String, String> args = new HashMap<>();
+    for (int i = 0; i < lines.size(); i += 2) {
+      args.put(lines.get(i).substring(2), lines.get(i + 1));
     }
-    return hm;
+    return args;
   }
 
   protected static String[] getTripleColonList(Map<String, String> m, String k) {
