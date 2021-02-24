@@ -212,6 +212,10 @@ class ScalacWorker implements Worker.Interface {
             .add("-P:dependency-analyzer:unused-deps-ignored-targets:" + String
                 .join(":", ignoredTargets));
       }
+      if (ops.dependencyTrackingLocalOnly) {
+        pluginParams.add("-P:dependecy-analyzer:local-only:True");
+      }
+
     }
 
     return pluginParams.toArray(new String[pluginParams.size()]);

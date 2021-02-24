@@ -26,6 +26,7 @@ public class CompileOptions {
   public final String[] indirectTargets;
   public final String strictDepsMode;
   public final String unusedDependencyCheckerMode;
+  public final boolean dependencyTrackingLocalOnly;
   public final String currentTarget;
   public final String statsfile;
   public final String dependencyTrackingMethod;
@@ -66,6 +67,7 @@ public class CompileOptions {
     unusedDependencyCheckerMode = getOrElse(argMap, "UnusedDependencyCheckerMode", "off");
     currentTarget = getOrElse(argMap, "CurrentTarget", "NA");
     dependencyTrackingMethod = getOrElse(argMap, "DependencyTrackingMethod", "high-level");
+    dependencyTrackingLocalOnly = booleanGetOrFalse(argMap, "DependencyTrackingLocalOnly");
 
     statsfile = getOrError(argMap, "StatsfileOutput", "Missing required arg StatsfileOutput");
     enableDiagnosticsReport = booleanGetOrFalse(argMap, "EnableDiagnosticsReport");

@@ -103,6 +103,7 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
             target -> pos
           }
         }
+        .filter {case (target, _) => !settings.localOnlyTracking || isLocalTarget(target)}
         .map { case (target, pos) =>
           val message =
             s"""Target '$target' is used but isn't explicitly declared, please add it to the deps.
@@ -161,7 +162,9 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
       .diff(settings.ignoredUnusedDependencyTargets)
 
     val toWarnOrError =
-      unusedTargets.map { target =>
+      unusedTargets
+        .filter(target => !settings.localOnlyTracking || isLocalTarget(target))
+        .map { target =>
         val message =
           s"""Target '$target' is specified as a dependency to ${settings.currentTarget} but isn't used, please remove it from the deps.
              |You can use the following buildozer command:
@@ -172,6 +175,8 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
 
     warnOrError(settings.unusedDepsMode, toWarnOrError.toMap)
   }
+
+  private def isLocalTarget(label: String): Boolean = !label.startsWith("@")
 
   private def warnOrError(
     analyzerMode: AnalyzerMode,

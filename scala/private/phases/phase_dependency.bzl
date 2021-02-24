@@ -59,6 +59,7 @@ def _phase_dependency(
         unused_deps_mode,
         strict_deps_mode,
         toolchain.dependency_tracking_method,
+        toolchain.dependency_tracking_local_only,
     )
 
 def _get_unused_deps_mode(ctx):

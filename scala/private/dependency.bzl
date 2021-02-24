@@ -6,7 +6,8 @@ def new_dependency_info(
         dependency_mode,
         unused_deps_mode,
         strict_deps_mode,
-        dependency_tracking_method):
+        dependency_tracking_method,
+        local_only = False):
     is_strict_deps_on = strict_deps_mode != "off"
     is_unused_deps_on = unused_deps_mode != "off"
 
@@ -23,6 +24,7 @@ def new_dependency_info(
         unused_deps_mode = unused_deps_mode,
         strict_deps_mode = strict_deps_mode,
         use_analyzer = is_strict_deps_on or is_unused_deps_on,
+        local_only = local_only,
     )
 
 # TODO(https://github.com/bazelbuild/rules_scala/issues/987): Clariy the situation

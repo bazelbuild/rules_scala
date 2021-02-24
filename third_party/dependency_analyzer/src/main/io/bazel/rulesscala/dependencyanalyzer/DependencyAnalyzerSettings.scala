@@ -103,7 +103,11 @@ object DependencyAnalyzerSettings {
             .takeStringSeqOpt("unused-deps-ignored-targets")
             .getOrElse(Seq.empty)
             .map(decodeTarget)
-            .toSet
+            .toSet,
+        localOnlyTracking =
+          optionsParser
+            .takeStringOpt("local-only")
+            .exists(_.toBoolean)
       )
     optionsParser.failOnUnparsedOptions()
     settings
@@ -117,5 +121,6 @@ case class DependencyAnalyzerSettings(
   dependencyTrackingMethod: DependencyTrackingMethod,
   unusedDepsMode: AnalyzerMode,
   strictDepsMode: AnalyzerMode,
-  ignoredUnusedDependencyTargets: Set[String]
+  ignoredUnusedDependencyTargets: Set[String],
+  localOnlyTracking: Boolean
 )

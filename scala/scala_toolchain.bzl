@@ -62,6 +62,7 @@ def _scala_toolchain_impl(ctx):
         dependency_tracking_method = dependency_tracking_method,
         dependency_tracking_include_patterns = dependency_tracking_patterns_provider.includes,
         dependency_tracking_exclude_patterns = dependency_tracking_patterns_provider.excludes,
+        dependency_tracking_local_only = ctx.attr.dependency_tracking_local_only,
         scalac_jvm_flags = ctx.attr.scalac_jvm_flags,
         scala_test_jvm_flags = ctx.attr.scala_test_jvm_flags,
         enable_diagnostics_report = enable_diagnostics_report,
@@ -100,7 +101,12 @@ scala_toolchain = rule(
             values = ["ast", "high-level", "default"],
         ),
         "dependency_tracking_patterns": attr.label(
+            doc = "Defines targets included for analyzer tracking. Right hand side of buildozer command.",
             default = "@io_bazel_rules_scala//scala:dependency_tracking_patterns",
+        ),
+        "dependency_tracking_local_only": attr.bool(
+            doc = "Only track local deps for targets. Left hand side of buidlozer command.",
+            default = False,
         ),
         "scalac_jvm_flags": attr.string_list(),
         "scala_test_jvm_flags": attr.string_list(),
