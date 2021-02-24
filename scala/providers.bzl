@@ -8,12 +8,14 @@ ScalacProvider = provider(
 )
 
 DepsInfo = provider(
-    doc = "Defines depset required by rules",
+    doc = "Defines dep required by rules",
     fields = {
         "deps": "Deps",
         "deps_id": "Identifier by which rules access this depset",
     },
 )
+
+DependencyTrackingPatternsInfo = provider(fields = ["includes", "excludes"])
 
 def _declare_deps_provider(ctx):
     return [

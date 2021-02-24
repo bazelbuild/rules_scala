@@ -1,5 +1,5 @@
 load("@rules_java//java:defs.bzl", "java_import", "java_library")
-load("//scala:scala_toolchain.bzl", "scala_toolchain")
+load("//scala:scala_toolchain.bzl", "scala_toolchain", "dependency_tracking_patterns_config")
 load("//scala:providers.bzl", "declare_deps_provider")
 
 toolchain_type(
@@ -104,4 +104,10 @@ declare_deps_provider(
     deps_id = "parser_combinators",
     visibility = ["//visibility:public"],
     deps = ["@io_bazel_rules_scala_scala_parser_combinators"],
+)
+
+dependency_tracking_patterns_config(
+    name = "dependency_tracking_patterns",
+    build_setting_default = [""], # includes all targets
+    visibility = ["//visibility:public"],
 )
