@@ -7,7 +7,7 @@ def new_dependency_info(
         unused_deps_mode,
         strict_deps_mode,
         dependency_tracking_method,
-        local_only = False):
+        local_only):
     is_strict_deps_on = strict_deps_mode != "off"
     is_unused_deps_on = unused_deps_mode != "off"
 
@@ -34,6 +34,7 @@ def legacy_unclear_dependency_info_for_protobuf_scrooge(ctx):
         unused_deps_mode = "off",
         strict_deps_mode = get_strict_deps_mode(ctx),
         dependency_tracking_method = "high-level",
+        local_only = False,
     )
 
 # TODO(https://github.com/bazelbuild/rules_scala/issues/987): Clariy the situation

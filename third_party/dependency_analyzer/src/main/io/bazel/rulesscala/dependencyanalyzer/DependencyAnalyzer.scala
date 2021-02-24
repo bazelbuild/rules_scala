@@ -58,6 +58,7 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
         super.run()
 
         if (settings.dependencyTrackingMethod == handles) {
+          println("Local tracking is: " + settings.localOnlyTracking)
           runAnalysis()
         }
       }
@@ -176,7 +177,12 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
     warnOrError(settings.unusedDepsMode, toWarnOrError.toMap)
   }
 
-  private def isLocalTarget(label: String): Boolean = !label.startsWith("@")
+  private def isLocalTarget(label: String): Boolean = {
+    !label.startsWith("@") && !isBrokenExternalLabel(label)
+  }
+
+  // workaround missing @ bug
+  private def isBrokenExternalLabel(label: String) = !label.contains("/")
 
   private def warnOrError(
     analyzerMode: AnalyzerMode,
