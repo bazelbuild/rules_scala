@@ -1,5 +1,5 @@
 load("@rules_java//java:defs.bzl", "java_import", "java_library")
-load("//scala:scala_toolchain.bzl", "scala_toolchain", "dependency_tracking_patterns_config")
+load("//scala:scala_toolchain.bzl", "dependency_tracking_patterns_config", "scala_toolchain")
 load("//scala:providers.bzl", "declare_deps_provider")
 
 toolchain_type(
@@ -108,6 +108,6 @@ declare_deps_provider(
 
 dependency_tracking_patterns_config(
     name = "dependency_tracking_patterns",
-    build_setting_default = [""], # includes all targets
+    build_setting_default = [""],  # includes all targets
     visibility = ["//visibility:public"],
 )
