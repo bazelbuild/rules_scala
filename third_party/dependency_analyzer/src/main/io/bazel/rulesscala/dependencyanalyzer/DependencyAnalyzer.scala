@@ -58,7 +58,6 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
         super.run()
 
         if (settings.dependencyTrackingMethod == handles) {
-          println("Local tracking is: " + settings.localOnlyTracking)
           runAnalysis()
         }
       }
