@@ -109,7 +109,7 @@ def compile_scala(
         args.add_joined("--UnusedDepsIgnoredTargets", unused_dependency_checker_ignored_targets, join_with = ",")
 
     if dependency_info.local_only:
-        args.add("--DependencyTrackingLocalOnly=True")
+        args.add("--DependencyTrackingLocalOnly", "True")
 
     outs = [output, statsfile, diagnosticsfile]
 

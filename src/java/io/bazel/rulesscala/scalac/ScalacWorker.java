@@ -213,7 +213,7 @@ class ScalacWorker implements Worker.Interface {
                 .join(":", ignoredTargets));
       }
       if (ops.dependencyTrackingLocalOnly) {
-        pluginParams.add("-P:dependecy-analyzer:local-only:True");
+        pluginParams.add("-P:dependency-analyzer:local-only:True");
       }
 
     }
