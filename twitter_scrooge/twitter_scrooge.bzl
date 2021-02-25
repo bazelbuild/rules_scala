@@ -179,7 +179,6 @@ def _generate_jvm_code(ctx, label, compile_thrifts, include_thrifts, jar_output,
     worker_content = "{output}\n{paths}\n{flags}".format(
         output = jar_output.path,
         paths = path_content,
-        # we could put "include_services" on thrift_info, if needed
         flags = worker_arg_pad + ":".join(flags),
     )
 

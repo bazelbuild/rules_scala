@@ -22,17 +22,19 @@ fi
 
 dir="$(dirname $4)"
 jar_file="$dir/$2"
+jar tf ${jar_file} | grep -q $3
+file_is_in_jar=$?
 
-if jar tf ${jar_file} | grep -q $3 ; then
+if [ $file_is_in_jar -eq 0 ] ; then
   if test "$should_be_in_file" = "true" ; then
     exit 0
   else
-    echo "ERROR: Found string $3 in ${jar_file}, when we were expecting not to find it."
+    echo "ERROR: Found file $3 in ${jar_file}, when we were expecting not to find it."
     exit 1
   fi
 else
   if test "$should_be_in_file" = "true" ; then
-    echo "ERROR: Not found string $3 in ${jar_file}, when we were expecting to find it."
+    echo "ERROR: Not found file $3 in ${jar_file}, when we were expecting to find it."
     exit 1
   else
     exit 0

@@ -33,16 +33,14 @@ package io.bazel.rules_scala.scrooge_support
 
 import com.twitter.scrooge._
 import com.twitter.scrooge.ast.Document
-import com.twitter.scrooge.backend.{GeneratorFactory, ScalaGenerator}
-import com.twitter.scrooge.frontend.{FileParseException, TypeResolver, ThriftParser, Importer, MultiImporter, ZipImporter}
+import com.twitter.scrooge.backend.{ GeneratorFactory, ScalaGenerator }
+import com.twitter.scrooge.frontend.{ FileParseException, TypeResolver, ThriftParser }
 import com.twitter.scrooge.java_generator.ApacheJavaGenerator
-import java.io.{File, FileWriter}
+import java.io.{ File, FileWriter }
 import java.nio.file.Paths
 import java.util.jar.{ JarFile, JarEntry }
 import java.util.logging.Level
 import scala.collection.concurrent.TrieMap
-import scala.collection.mutable
-import scala.collection.JavaConverters._
 
 object CompilerDefaults {
   def listJar(_jar: File): List[String] =
@@ -88,7 +86,7 @@ class Compiler(val config: ScroogeConfig) {
     }
 
     val allJars: List[File] =
-      ((includeJars) ::: (compileJars))
+      (includeJars ::: compileJars)
         .map { path => (new File(path)).getCanonicalFile }
 
     val isJava = config.language.equals("java")

@@ -2,11 +2,11 @@ package scripts
 
 
 import java.io.File
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.{ Files, Path, Paths }
 
 import com.twitter.scrooge.{ ScroogeConfig, ScroogeOptionParser }
 import com.twitter.scrooge.backend.WithFinagle
-import io.bazel.rules_scala.scrooge_support.{Compiler, CompilerDefaults}
+import io.bazel.rules_scala.scrooge_support.{ Compiler, CompilerDefaults }
 import io.bazel.rulesscala.io_utils.DeleteRecursively
 import io.bazel.rulesscala.jar.JarCreator
 import io.bazel.rulesscala.worker.Worker
