@@ -176,6 +176,25 @@ class ScalacWorker implements Worker.Interface {
     return !"off".equals(mode);
   }
 
+  public static String[] buildPluginArgs(String[] pluginElements) {
+    int numPlugins = 0;
+    for (int i = 0; i < pluginElements.length; i++) {
+      if (pluginElements[i].length() > 0) {
+        numPlugins += 1;
+      }
+    }
+
+    String[] result = new String[numPlugins];
+    int idx = 0;
+    for (int i = 0; i < pluginElements.length; i++) {
+      if (pluginElements[i].length() > 0) {
+        result[idx] = "-Xplugin:" + pluginElements[i];
+        idx += 1;
+      }
+    }
+    return result;
+  }
+
   private static String[] getPluginParamsFrom(CompileOptions ops) {
     List<String> pluginParams = new ArrayList<>(0);
 
@@ -222,12 +241,13 @@ class ScalacWorker implements Worker.Interface {
   private static void compileScalaSources(CompileOptions ops, String[] scalaSources, Path tmpPath)
       throws IllegalAccessException, IOException {
 
+    String[] pluginArgs = buildPluginArgs(ops.plugins);
     String[] pluginParams = getPluginParamsFrom(ops);
 
     String[] constParams = {"-classpath", String.join(pathSeparator, ops.classpath), "-d", tmpPath.toString()};
 
     String[] compilerArgs =
-        merge(ops.scalaOpts, ops.pluginArgs, constParams, pluginParams, scalaSources);
+        merge(ops.scalaOpts, pluginArgs, constParams, pluginParams, scalaSources);
 
     ReportableMainClass comp = new ReportableMainClass(ops);
 

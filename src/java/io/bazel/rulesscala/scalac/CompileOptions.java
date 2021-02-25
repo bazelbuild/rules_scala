@@ -10,7 +10,7 @@ public class CompileOptions {
     public final String[] scalaOpts;
     public final boolean printCompileTime;
     public final boolean expectJavaOutput;
-    public final String[] pluginArgs;
+    public final String[] plugins;
     public final String[] classpath;
     public final String[] files;
     public final String[] sourceJars;
@@ -41,7 +41,7 @@ public class CompileOptions {
         scalaOpts = getCommaList(argMap, "ScalacOpts");
         printCompileTime = Boolean.parseBoolean(getOrError(argMap, "PrintCompileTime"));
         expectJavaOutput = Boolean.parseBoolean(getOrError(argMap, "ExpectJavaOutput"));
-        pluginArgs = buildPluginArgs(getCommaList(argMap, "Plugins"));
+        plugins = getCommaList(argMap, "Plugins");
         classpath = getCommaList(argMap, "Classpath");
         files = getCommaList(argMap, "Files");
 
@@ -105,24 +105,5 @@ public class CompileOptions {
         } else {
             throw new RuntimeException("Missing required arg " + k);
         }
-    }
-
-    public static String[] buildPluginArgs(String[] pluginElements) {
-        int numPlugins = 0;
-        for (int i = 0; i < pluginElements.length; i++) {
-            if (pluginElements[i].length() > 0) {
-                numPlugins += 1;
-            }
-        }
-
-        String[] result = new String[numPlugins];
-        int idx = 0;
-        for (int i = 0; i < pluginElements.length; i++) {
-            if (pluginElements[i].length() > 0) {
-                result[idx] = "-Xplugin:" + pluginElements[i];
-                idx += 1;
-            }
-        }
-        return result;
     }
 }
