@@ -35,46 +35,44 @@ public class CompileOptions {
     public CompileOptions(String[] args) {
         Map<String, String[]> argMap = buildArgMap(args);
 
-        outputName = getOrError(argMap, "JarOutput");
-        manifestPath = getOrError(argMap, "Manifest");
+        outputName = getSingleOrError(argMap, "JarOutput");
+        manifestPath = getSingleOrError(argMap, "Manifest");
 
-        scalaOpts = getCommaList(argMap, "ScalacOpts");
-        printCompileTime = Boolean.parseBoolean(getOrError(argMap, "PrintCompileTime"));
-        expectJavaOutput = Boolean.parseBoolean(getOrError(argMap, "ExpectJavaOutput"));
-        plugins = getCommaList(argMap, "Plugins");
-        classpath = getCommaList(argMap, "Classpath");
-        files = getCommaList(argMap, "Files");
+        scalaOpts = getOrEmpty(argMap, "ScalacOpts");
+        printCompileTime = Boolean.parseBoolean(getSingleOrError(argMap, "PrintCompileTime"));
+        expectJavaOutput = Boolean.parseBoolean(getSingleOrError(argMap, "ExpectJavaOutput"));
+        plugins = getOrEmpty(argMap, "Plugins");
+        classpath = getOrEmpty(argMap, "Classpath");
+        files = getOrEmpty(argMap, "Files");
+        sourceJars = getOrEmpty(argMap, "SourceJars");
+        javaFiles = getOrEmpty(argMap, "JavaFiles");
 
-        javaFiles = getCommaList(argMap, "JavaFiles");
+        resourceSources = getOrEmpty(argMap, "ResourceSources");
+        resourceTargets = getOrEmpty(argMap, "ResourceTargets");
+        resourceJars = getOrEmpty(argMap, "ResourceJars");
+        classpathResourceFiles = getOrEmpty(argMap, "ClasspathResourceSrcs");
 
-        sourceJars = getCommaList(argMap, "SourceJars");
-        resourceSources = getCommaList(argMap, "ResourceSources");
-        resourceTargets = getCommaList(argMap, "ResourceTargets");
+        directJars = getOrEmpty(argMap, "DirectJars");
+        directTargets = getOrEmpty(argMap, "DirectTargets");
+        unusedDepsIgnoredTargets = getOrEmpty(argMap, "UnusedDepsIgnoredTargets");
+        indirectJars = getOrEmpty(argMap, "IndirectJars");
+        indirectTargets = getOrEmpty(argMap, "IndirectTargets");
 
-        resourceJars = getCommaList(argMap, "ResourceJars");
-        classpathResourceFiles = getCommaList(argMap, "ClasspathResourceSrcs");
+        strictDepsMode = getSingleOrError(argMap, "StrictDepsMode");
+        unusedDependencyCheckerMode = getSingleOrError(argMap, "UnusedDependencyCheckerMode");
+        currentTarget = getSingleOrError(argMap, "CurrentTarget");
+        dependencyTrackingMethod = getSingleOrError(argMap, "DependencyTrackingMethod");
 
-        directJars = getCommaList(argMap, "DirectJars");
-        directTargets = getCommaList(argMap, "DirectTargets");
-        unusedDepsIgnoredTargets = getCommaList(argMap, "UnusedDepsIgnoredTargets");
-        indirectJars = getCommaList(argMap, "IndirectJars");
-        indirectTargets = getCommaList(argMap, "IndirectTargets");
-
-        strictDepsMode = getOrError(argMap, "StrictDepsMode");
-        unusedDependencyCheckerMode = getOrError(argMap, "UnusedDependencyCheckerMode");
-        currentTarget = getOrError(argMap, "CurrentTarget");
-        dependencyTrackingMethod = getOrError(argMap, "DependencyTrackingMethod");
-
-        statsfile = getOrError(argMap, "StatsfileOutput");
-        enableDiagnosticsReport = Boolean.parseBoolean(getOrError(argMap, "EnableDiagnosticsReport"));
-        diagnosticsFile = getOrError(argMap, "DiagnosticsFile");
+        statsfile = getSingleOrError(argMap, "StatsfileOutput");
+        enableDiagnosticsReport = Boolean.parseBoolean(getSingleOrError(argMap, "EnableDiagnosticsReport"));
+        diagnosticsFile = getSingleOrError(argMap, "DiagnosticsFile");
     }
 
     private static Map<String, String[]> buildArgMap(String[] lines) {
         Map<String, String[]> args = new LinkedHashMap<>();
         int opt = 0;
-        for (int i = 1; i <= lines.length; i++) {
-            if (i == lines.length || lines[i].startsWith("--")) {
+        for (int i = 1, n = lines.length; i <= n; i++) {
+            if (i == n || lines[i].startsWith("--")) {
                 args.put(
                         lines[opt].substring(2),
                         Arrays.copyOfRange(lines, opt + 1, i)
@@ -85,13 +83,20 @@ public class CompileOptions {
         return args;
     }
 
-    private static String[] getCommaList(Map<String, String[]> m, String k) {
-        return m.getOrDefault(k, new String[]{});
+    private static final String[] EMPTY = new String[]{};
+
+    private static String[] getOrEmpty(Map<String, String[]> m, String k) {
+        return m.getOrDefault(k, EMPTY);
     }
 
-    private static String getOrError(Map<String, String[]> m, String k) {
+    private static String getSingleOrError(Map<String, String[]> m, String k) {
         if (m.containsKey(k)) {
-            return m.get(k)[0];
+            String[] v = m.get(k);
+            if (v.length == 1) {
+                return v[0];
+            } else {
+                throw new RuntimeException(k + " expected to contain single value but got " + Arrays.toString(v));
+            }
         } else {
             throw new RuntimeException("Missing required arg " + k);
         }
