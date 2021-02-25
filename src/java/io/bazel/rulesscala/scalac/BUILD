@@ -27,7 +27,6 @@ filegroup(
         "CompileOptions.java",
         "ProtoReporter.java",
         "ReportableMainClass.java",
-        "Resource.java",
         "ScalacWorker.java",
     ],
     visibility = ["//visibility:public"],

@@ -15,10 +15,7 @@
 
 load("@bazel_skylib//lib:paths.bzl", "paths")
 load("@bazel_tools//tools/jdk:toolchain_utils.bzl", "find_java_runtime_toolchain", "find_java_toolchain")
-load(
-    ":common.bzl",
-    _collect_plugin_paths = "collect_plugin_paths",
-)
+load(":common.bzl", _collect_plugin_paths = "collect_plugin_paths")
 load(":resources.bzl", _resource_paths = "paths")
 
 def expand_location(ctx, flags):
@@ -85,28 +82,28 @@ def compile_scala(
     args.add("--StatsfileOutput", statsfile)
     args.add("--EnableDiagnosticsReport", enable_diagnostics_report)
     args.add("--DiagnosticsFile", diagnosticsfile)
-    args.add_joined("--Classpath", compiler_classpath_jars, join_with = ctx.configuration.host_path_separator)
-    args.add_joined("--ClasspathResourceSrcs", classpath_resources, join_with = ",")
-    args.add_joined("--Files", sources, join_with = ",")
-    args.add_joined("--Plugins", plugins, join_with = ",")
-    args.add_joined("--ResourceTargets", [p[0] for p in resource_paths], join_with = ",")
-    args.add_joined("--ResourceSources", [p[1] for p in resource_paths], join_with = ",")
-    args.add_joined("--ResourceJars", resource_jars, join_with = ",")
-    args.add_joined("--ScalacOpts", scalacopts, join_with = ":::")
-    args.add_joined("--SourceJars", all_srcjars, join_with = ",")
+    args.add_all("--Classpath", compiler_classpath_jars)
+    args.add_all("--ClasspathResourceSrcs", classpath_resources)
+    args.add_all("--Files", sources)
+    args.add_all("--Plugins", plugins)
+    args.add_all("--ResourceTargets", [p[0] for p in resource_paths])
+    args.add_all("--ResourceSources", [p[1] for p in resource_paths])
+    args.add_all("--ResourceJars", resource_jars)
+    args.add_all("--ScalacOpts", scalacopts)
+    args.add_all("--SourceJars", all_srcjars)
 
     if dependency_info.need_direct_info:
         if dependency_info.need_direct_jars:
-            args.add_joined("--DirectJars", cjars, join_with = ",")
+            args.add_all("--DirectJars", cjars)
         if dependency_info.need_direct_targets:
-            args.add_joined("--DirectTargets", [labels[j.path] for j in cjars.to_list()], join_with = ",")
+            args.add_all("--DirectTargets", [labels[j.path] for j in cjars.to_list()])
 
     if dependency_info.need_indirect_info:
-        args.add_joined("--IndirectJars", transitive_compile_jars, join_with = ",")
-        args.add_joined("--IndirectTargets", [labels[j.path] for j in transitive_compile_jars.to_list()], join_with = ",")
+        args.add_all("--IndirectJars", transitive_compile_jars)
+        args.add_all("--IndirectTargets", [labels[j.path] for j in transitive_compile_jars.to_list()])
 
     if dependency_info.unused_deps_mode != "off":
-        args.add_joined("--UnusedDepsIgnoredTargets", unused_dependency_checker_ignored_targets, join_with = ",")
+        args.add_all("--UnusedDepsIgnoredTargets", unused_dependency_checker_ignored_targets)
 
     outs = [output, statsfile, diagnosticsfile]
 

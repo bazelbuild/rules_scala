@@ -23,6 +23,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import scala.tools.nsc.reporters.ConsoleReporter;
 
+import static java.io.File.pathSeparator;
+
 class ScalacWorker implements Worker.Interface {
 
   private static final boolean isWindows = System.getProperty("os.name").toLowerCase()
@@ -36,7 +38,7 @@ class ScalacWorker implements Worker.Interface {
   public void work(String[] args) throws Exception {
     Path tmpPath = null;
     try {
-      CompileOptions ops = new CompileOptions(Arrays.asList(args));
+      CompileOptions ops = new CompileOptions(args);
 
       Path outputPath = FileSystems.getDefault().getPath(ops.outputName);
       tmpPath = Files.createTempDirectory(outputPath.getParent(), "tmp");
@@ -66,7 +68,7 @@ class ScalacWorker implements Worker.Interface {
       }
 
       /** Copy the resources */
-      copyResources(ops.resourceFiles, tmpPath);
+      copyResources(ops.resourceSources, ops.resourceTargets, tmpPath);
 
       /** Extract and copy resources from resource jars */
       copyResourceJars(ops.resourceJars, tmpPath);
@@ -222,7 +224,7 @@ class ScalacWorker implements Worker.Interface {
 
     String[] pluginParams = getPluginParamsFrom(ops);
 
-    String[] constParams = {"-classpath", ops.classpath, "-d", tmpPath.toString()};
+    String[] constParams = {"-classpath", String.join(pathSeparator, ops.classpath), "-d", tmpPath.toString()};
 
     String[] compilerArgs =
         merge(ops.scalaOpts, ops.pluginArgs, constParams, pluginParams, scalaSources);
@@ -288,10 +290,10 @@ class ScalacWorker implements Worker.Interface {
     }
   }
 
-  private static void copyResources(List<Resource> resources, Path dest) throws IOException {
-    for (Resource r : resources) {
-      Path source = Paths.get(r.source);
-      Path target = dest.resolve(r.target);
+  private static void copyResources(String[] sources, String[] targets, Path dest) throws IOException {
+    for (int i = 0; i < sources.length; i++) {
+      Path source = Paths.get(sources[i]);
+      Path target = dest.resolve(targets[i]);
       target.getParent().toFile().mkdirs();
       Files.copy(source, target);
     }
