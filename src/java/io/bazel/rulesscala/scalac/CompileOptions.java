@@ -47,19 +47,9 @@ public class CompileOptions {
 
         javaFiles = getCommaList(argMap, "JavaFiles");
 
-        if (!expectJavaOutput && javaFiles.length != 0) {
-            throw new RuntimeException("Cannot hava java source files when no expected java output");
-        }
-
         sourceJars = getCommaList(argMap, "SourceJars");
         resourceSources = getCommaList(argMap, "ResourceSources");
         resourceTargets = getCommaList(argMap, "ResourceTargets");
-
-        if (resourceSources.length != resourceTargets.length)
-            throw new RuntimeException(
-                    String.format(
-                            "mismatch in resources: targets: %s sources: %s",
-                            Arrays.toString(resourceTargets), Arrays.toString(resourceSources)));
 
         resourceJars = getCommaList(argMap, "ResourceJars");
         classpathResourceFiles = getCommaList(argMap, "ClasspathResourceSrcs");

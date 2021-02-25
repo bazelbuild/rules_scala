@@ -3,17 +3,10 @@ package io.bazel.rulesscala.scalac;
 import io.bazel.rulesscala.io_utils.StreamCopy;
 import io.bazel.rulesscala.jar.JarCreator;
 import io.bazel.rulesscala.worker.Worker;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
+import scala.tools.nsc.reporters.ConsoleReporter;
+
+import java.io.*;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,7 +14,6 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import scala.tools.nsc.reporters.ConsoleReporter;
 
 import static java.io.File.pathSeparator;
 
@@ -46,6 +38,10 @@ class ScalacWorker implements Worker.Interface {
       List<File> jarFiles = extractSourceJars(ops, outputPath.getParent());
       List<File> scalaJarFiles = filterFilesByExtension(jarFiles, ".scala");
       List<File> javaJarFiles = filterFilesByExtension(jarFiles, ".java");
+
+      if (!ops.expectJavaOutput && ops.javaFiles.length != 0) {
+        throw new RuntimeException("Cannot have java source files when no expected java output");
+      }
 
       if (!ops.expectJavaOutput && !javaJarFiles.isEmpty()) {
         throw new RuntimeException(
@@ -311,6 +307,12 @@ class ScalacWorker implements Worker.Interface {
   }
 
   private static void copyResources(String[] sources, String[] targets, Path dest) throws IOException {
+    if (sources.length != targets.length)
+      throw new RuntimeException(String.format(
+              "mismatch in resources: sources: %s targets: %s",
+              Arrays.toString(sources), Arrays.toString(targets))
+      );
+
     for (int i = 0; i < sources.length; i++) {
       Path source = Paths.get(sources[i]);
       Path target = dest.resolve(targets[i]);
