@@ -1,8 +1,8 @@
 package io.bazel.rulesscala.scalac;
 
-import java.util.*;
-
-import static java.util.Arrays.copyOfRange;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class CompileOptions {
     public final String outputName;
@@ -35,12 +35,12 @@ public class CompileOptions {
     public CompileOptions(String[] args) {
         Map<String, String[]> argMap = buildArgMap(args);
 
-        outputName = getOrError(argMap, "JarOutput", "Missing required arg JarOutput");
-        manifestPath = getOrError(argMap, "Manifest", "Missing required arg Manifest");
+        outputName = getOrError(argMap, "JarOutput");
+        manifestPath = getOrError(argMap, "Manifest");
 
         scalaOpts = getCommaList(argMap, "ScalacOpts");
-        printCompileTime = booleanGetOrFalse(argMap, "PrintCompileTime");
-        expectJavaOutput = booleanGetOrTrue(argMap, "ExpectJavaOutput");
+        printCompileTime = Boolean.parseBoolean(getOrError(argMap, "PrintCompileTime"));
+        expectJavaOutput = Boolean.parseBoolean(getOrError(argMap, "ExpectJavaOutput"));
         pluginArgs = buildPluginArgs(getCommaList(argMap, "Plugins"));
         classpath = getCommaList(argMap, "Classpath");
         files = getCommaList(argMap, "Files");
@@ -70,14 +70,14 @@ public class CompileOptions {
         indirectJars = getCommaList(argMap, "IndirectJars");
         indirectTargets = getCommaList(argMap, "IndirectTargets");
 
-        strictDepsMode = getOrElse(argMap, "StrictDepsMode", "off");
-        unusedDependencyCheckerMode = getOrElse(argMap, "UnusedDependencyCheckerMode", "off");
-        currentTarget = getOrElse(argMap, "CurrentTarget", "NA");
-        dependencyTrackingMethod = getOrElse(argMap, "DependencyTrackingMethod", "high-level");
+        strictDepsMode = getOrError(argMap, "StrictDepsMode");
+        unusedDependencyCheckerMode = getOrError(argMap, "UnusedDependencyCheckerMode");
+        currentTarget = getOrError(argMap, "CurrentTarget");
+        dependencyTrackingMethod = getOrError(argMap, "DependencyTrackingMethod");
 
-        statsfile = getOrError(argMap, "StatsfileOutput", "Missing required arg StatsfileOutput");
-        enableDiagnosticsReport = booleanGetOrFalse(argMap, "EnableDiagnosticsReport");
-        diagnosticsFile = getOrError(argMap, "DiagnosticsFile", "Missing required arg DiagnosticsFile");
+        statsfile = getOrError(argMap, "StatsfileOutput");
+        enableDiagnosticsReport = Boolean.parseBoolean(getOrError(argMap, "EnableDiagnosticsReport"));
+        diagnosticsFile = getOrError(argMap, "DiagnosticsFile");
     }
 
     private static Map<String, String[]> buildArgMap(String[] lines) {
@@ -87,7 +87,7 @@ public class CompileOptions {
             if (i == lines.length || lines[i].startsWith("--")) {
                 args.put(
                         lines[opt].substring(2),
-                        copyOfRange(lines, opt + 1, i)
+                        Arrays.copyOfRange(lines, opt + 1, i)
                 );
                 opt = i;
             }
@@ -99,40 +99,12 @@ public class CompileOptions {
         return m.getOrDefault(k, new String[]{});
     }
 
-    private static String getOrElse(Map<String, String[]> attrs, String key, String defaultValue) {
-        if (attrs.containsKey(key)) {
-            return attrs.get(key)[0];
-        } else {
-            return defaultValue;
-        }
-    }
-
-    private static String getOrError(Map<String, String[]> m, String k, String errorMessage) {
+    private static String getOrError(Map<String, String[]> m, String k) {
         if (m.containsKey(k)) {
             return m.get(k)[0];
         } else {
-            throw new RuntimeException(errorMessage);
+            throw new RuntimeException("Missing required arg " + k);
         }
-    }
-
-    private static boolean booleanGetOrFalse(Map<String, String[]> m, String k) {
-        if (m.containsKey(k)) {
-            String v = m.get(k)[0];
-            if (v.trim().equals("True") || v.trim().equals("true")) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static boolean booleanGetOrTrue(Map<String, String[]> m, String k) {
-        if (m.containsKey(k)) {
-            String v = m.get(k)[0];
-            if (v.trim().equals("False") || v.trim().equals("false")) {
-                return false;
-            }
-        }
-        return true;
     }
 
     public static String[] buildPluginArgs(String[] pluginElements) {
