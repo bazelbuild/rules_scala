@@ -37,3 +37,18 @@ scala_library(
     ],
     deps = ["@com_google_guava_guava_21_0_with_file//jar"],
 )
+
+# tests if external jars are stamped with a correct label
+java_library(
+    name = "java_lib_with_unused_external_dep",
+    testonly = True,
+    srcs = ["Empty.java"],
+    deps = ["@io_bazel_rules_scala_guava"],
+)
+
+java_library(
+    name = "java_lib_with_a_transitive_external_dep",
+    testonly = True,
+    srcs = ["UsesExternalDep.java"],
+    deps = [":java_lib_with_unused_external_dep"],
+)
