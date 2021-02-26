@@ -26,7 +26,7 @@ def _stamp_jar(ctx, jar):
         arguments = [
             "--nostrip_jar",
             "--target_label",
-            ctx.label.name,
+            str(ctx.label),
             jar.path,
             stamped_file.path,
         ],
