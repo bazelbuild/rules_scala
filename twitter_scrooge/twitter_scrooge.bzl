@@ -102,6 +102,7 @@ def twitter_scrooge(
             "io_bazel_rules_scala_mustache",  # Mustache is needed to generate java from thrift, and is passed further down.
             "io_bazel_rules_scala_guava",
             "io_bazel_rules_scala_javax_annotation_api",
+            "io_bazel_rules_scala_scopt",
         ],
         maven_servers = maven_servers,
         fetch_sources = False,
@@ -111,6 +112,11 @@ def twitter_scrooge(
     native.bind(
         name = "io_bazel_rules_scala/dependency/thrift/mustache",
         actual = "@io_bazel_rules_scala_mustache",
+    )
+
+    native.bind(
+        name = "io_bazel_rules_scala/dependency/thrift/scopt",
+        actual = "@io_bazel_rules_scala_scopt",
     )
 
     # scrooge-generator needs these runtime_deps to generate java from thrift.
@@ -165,15 +171,15 @@ def _generate_jvm_code(ctx, label, compile_thrifts, include_thrifts, jar_output,
         worker_arg_pad + _colon_paths(ps)
         for ps in [compile_thrifts, include_thrifts, [], []]
     ])
+
+    compiler_args = getattr(ctx.rule.attr, "compiler_args", [])
+    lang_flag = ["--language", language]
+    flags = compiler_args + lang_flag
+
     worker_content = "{output}\n{paths}\n{flags}".format(
         output = jar_output.path,
         paths = path_content,
-        flags = worker_arg_pad + ":".join([
-            # always add finagle option which is a no-op if there are no services
-            # we could put "include_services" on thrift_info, if needed
-            "--with-finagle",
-            "--language={}".format(language),
-        ]),
+        flags = worker_arg_pad + ":".join(flags),
     )
 
     # Since we may want to generate several languages from this thrift target,

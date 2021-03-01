@@ -133,6 +133,12 @@ scrooge_scala_library(
     ],
 )
 
+scrooge_java_library(
+    name = "scrooge5_java",
+    visibility = ["//visibility:public"],
+    deps = ["//test/src/main/scala/scalarules/test/twitter_scrooge/thrift/thrift_with_compiler_args:thrift5"],
+)
+
 scrooge_scala_library(
     name = "scroogebarejar1",
     visibility = ["//visibility:public"],
@@ -265,6 +271,7 @@ scala_library(
         ":scrooge2_a_java",
         ":scrooge2_b_java",
         ":scrooge3_java",
+        ":scrooge5_java",
     ],
 )
 
@@ -340,6 +347,30 @@ sh_test(
         "true",
         "_java.jar",
         "$(location :justscrooges_java)",
+    ],
+    data = [":justscrooges_java"],
+)
+
+sh_test(
+    name = "thrift999_in_namespace_in_java_jar",
+    srcs = ["string_in_filename_in_jar.sh"],
+    args = [
+        "true",
+        "thrift/thrift_with_compiler_args/thrift5_scrooge_java.jar",
+        "thrift999",
+        "$(locations :justscrooges_java)",
+    ],
+    data = [":justscrooges_java"],
+)
+
+sh_test(
+    name = "thrift5_not_in_namespace_in_java_jar",
+    srcs = ["string_in_filename_in_jar.sh"],
+    args = [
+        "false",
+        "thrift/thrift_with_compiler_args/thrift5_scrooge_java.jar",
+        "thrift5",
+        "$(locations :justscrooges_java)",
     ],
     data = [":justscrooges_java"],
 )

@@ -405,6 +405,7 @@ artifacts = {
         "runtime_deps": [
             "@io_bazel_rules_scala_guava",
             "@io_bazel_rules_scala_mustache",
+            "@io_bazel_rules_scala_scopt",
         ],
     },
     "io_bazel_rules_scala_util_core": {
@@ -418,6 +419,10 @@ artifacts = {
     "io_bazel_rules_scala_javax_annotation_api": {
         "artifact": "javax.annotation:javax.annotation-api:1.3.2",
         "sha256": "e04ba5195bcd555dc95650f7cc614d151e4bcd52d29a10b8aa2197f3ab89ab9b",
+    },
+    "io_bazel_rules_scala_scopt": {
+        "artifact": "com.github.scopt:scopt_2.13:4.0.0-RC2",
+        "sha256": "07c1937cba53f7509d2ac62a0fc375943a3e0fef346625414c15d41b5a6cfb34",
     },
 
     # test only

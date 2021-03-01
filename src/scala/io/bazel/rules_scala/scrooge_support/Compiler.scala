@@ -33,20 +33,16 @@ package io.bazel.rules_scala.scrooge_support
 
 import com.twitter.scrooge._
 import com.twitter.scrooge.ast.Document
-import com.twitter.scrooge.backend.{GeneratorFactory, ScalaGenerator, ServiceOption}
-import com.twitter.scrooge.frontend.{FileParseException, TypeResolver, ThriftParser, Importer, MultiImporter, ZipImporter}
-import java.io.{File, FileWriter}
+import com.twitter.scrooge.backend.{ GeneratorFactory, ScalaGenerator }
+import com.twitter.scrooge.frontend.{ FileParseException, TypeResolver, ThriftParser }
+import com.twitter.scrooge.java_generator.ApacheJavaGenerator
+import java.io.{ File, FileWriter }
 import java.nio.file.Paths
 import java.util.jar.{ JarFile, JarEntry }
 import java.util.logging.Level
 import scala.collection.concurrent.TrieMap
-import scala.collection.mutable
-import scala.collection.JavaConverters._
 
 object CompilerDefaults {
-  var language: String = "scala"
-  var defaultNamespace: String = "thrift"
-
   def listJar(_jar: File): List[String] =
     try {
       val files = List.newBuilder[String]
@@ -66,46 +62,34 @@ object CompilerDefaults {
     }
 }
 
-class Compiler {
-  val defaultDestFolder = "."
-  var destFolder: String = defaultDestFolder
+class Compiler(val config: ScroogeConfig) {
   // These are jars we are including, but are not compiling
-  val includeJars = new mutable.ListBuffer[String]
+  val includeJars = config.includePaths
   // these are the jars we want to compile into scala source jars
-  val compileJars = new mutable.ListBuffer[String]
-  val flags = new mutable.HashSet[ServiceOption]
-  val namespaceMappings = new mutable.HashMap[String, String]
-  var verbose = false
-  var strict = true
-  var skipUnchanged = false
-  var experimentFlags = new mutable.ListBuffer[String]
-  var fileMapPath: scala.Option[String] = None
+  val compileJars = config.thriftFiles
+  val experimentFlags = config.languageFlags
   var fileMapWriter: scala.Option[FileWriter] = None
-  var dryRun: Boolean = false
-  var language: String = CompilerDefaults.language
-  var defaultNamespace: String = CompilerDefaults.defaultNamespace
-  var scalaWarnOnJavaNSFallback: Boolean = false
 
 
   def run() {
     // if --gen-file-map is specified, prepare the map file.
-    fileMapWriter = fileMapPath.map { path =>
+    fileMapWriter = config.fileMapPath.map { path =>
       val file = new File(path)
       val dir = file.getParentFile
       if (dir != null && !dir.exists()) {
         dir.mkdirs()
       }
-      if (verbose) {
+      if (config.verbose) {
         println("+ Writing file mapping to %s".format(path))
       }
       new FileWriter(file)
     }
 
     val allJars: List[File] =
-      ((includeJars.toList) ::: (compileJars.toList))
+      (includeJars ::: compileJars)
         .map { path => (new File(path)).getCanonicalFile }
 
-    val isJava = language.equals("java")
+    val isJava = config.language.equals("java")
     val documentCache = new TrieMap[String, Document]
 
     // compile
@@ -126,36 +110,37 @@ class Compiler {
         val importer = rootImporter.copy(focus = focus) +: rootImporter
         val parser = new ThriftParser(
           importer,
-          strict,
+          config.strict,
           defaultOptional = isJava,
           skipIncludes = false,
           documentCache
         )
         parser.logger.setLevel(Level.OFF) // scrooge warns on file names with "/"
-        val doc = parser.parseFile(inputFile).mapNamespaces(namespaceMappings.toMap)
+        val doc = parser.parseFile(inputFile).mapNamespaces(config.namespaceMappings)
 
-        if (verbose) println("+ Compiling %s".format(inputFile))
+        if (config.verbose) println("+ Compiling %s".format(inputFile))
         val resolvedDoc = TypeResolver()(doc)
         val generator = GeneratorFactory(
-          language,
+          config.language,
           resolvedDoc,
-          defaultNamespace,
-          experimentFlags.toList
-        )
+          config.defaultNamespace,
+          experimentFlags)
 
         generator match {
-          case g: ScalaGenerator => g.warnOnJavaNamespaceFallback = scalaWarnOnJavaNSFallback
+          case g: ScalaGenerator => g.warnOnJavaNamespaceFallback = config.scalaWarnOnJavaNSFallback
+          case g: ApacheJavaGenerator => g.serEnumType = config.javaSerEnumType
           case _ => ()
         }
 
         val generatedFiles = generator(
-          flags.toSet,
-          new File(destFolder),
-          dryRun
+          config.flags,
+          new File(config.destFolder),
+          config.dryRun,
+          config.genAdapt
         ).map {
           _.getPath
         }
-        if (verbose) {
+        if (config.verbose) {
           println("+ Generated %s".format(generatedFiles.mkString(", ")))
         }
         fileMapWriter.foreach { w =>
