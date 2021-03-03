@@ -1,3 +1,4 @@
+load("@rules_java//java:defs.bzl", "java_binary")
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_binary")
 
 package(default_visibility = ["//visibility:public"])
