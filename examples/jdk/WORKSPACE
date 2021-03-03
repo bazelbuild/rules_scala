@@ -1,0 +1,71 @@
+workspace(name = "jdk")
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "jdk8_linux",
+    build_file = "@local_jdk//:BUILD.bazel",
+    sha256 = "2b59b5282ff32bce7abba8ad6b9fde34c15a98f949ad8ae43e789bbd78fc8862",
+    strip_prefix = "jdk8u252-b09",
+    url = "https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u252-b09/OpenJDK8U-jdk_x64_linux_hotspot_8u252b09.tar.gz",
+)
+
+http_archive(
+    name = "jdk8_macos",
+    build_file = "@local_jdk//:BUILD.bazel",
+    sha256 = "2caed3ec07d108bda613f9b4614b22a8bdd196ccf2a432a126161cd4077f07a5",
+    strip_prefix = "jdk8u252-b09/Contents/Home",
+    url = "https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u252-b09.1/OpenJDK8U-jdk_x64_mac_hotspot_8u252b09.tar.gz",
+)
+
+http_archive(
+    name = "jdk11_linux",
+    build_file = "@local_jdk//:BUILD.bazel",
+    sha256 = "ee60304d782c9d5654bf1a6b3f38c683921c1711045e1db94525a51b7024a2ca",
+    strip_prefix = "jdk-11.0.7+10",
+    url = "https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.7%2B10/OpenJDK11U-jdk_x64_linux_hotspot_11.0.7_10.tar.gz",
+)
+
+http_archive(
+    name = "jdk11_macos",
+    build_file = "@local_jdk//:BUILD.bazel",
+    sha256 = "0ab1e15e8bd1916423960e91b932d2b17f4c15b02dbdf9fa30e9423280d9e5cc",
+    strip_prefix = "jdk-11.0.7+10/Contents/Home",
+    url = "https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.7%2B10/OpenJDK11U-jdk_x64_mac_hotspot_11.0.7_10.tar.gz",
+)
+
+http_archive(
+    name = "bazel_skylib",
+    sha256 = "1c531376ac7e5a180e0237938a2536de0c54d93f5c278634818e0efc952dd56c",
+    url = "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.0.3/bazel-skylib-1.0.3.tar.gz",
+)
+
+http_archive(
+    name = "rules_proto",
+    sha256 = "8e7d59a5b12b233be5652e3d29f42fba01c7cbab09f6b3a8d0a57ed6d1e9a0da",
+    strip_prefix = "rules_proto-7e4afce6fe62dbff0a4a03450143146f9f2d7488",
+    url = "https://mirror.bazel.build/github.com/bazelbuild/rules_proto/archive/7e4afce6fe62dbff0a4a03450143146f9f2d7488.tar.gz",
+)
+
+load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
+
+rules_proto_dependencies()
+
+rules_proto_toolchains()
+
+local_repository(
+    name = "io_bazel_rules_scala",
+    path = "../..",
+)
+
+load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
+
+scala_config()
+
+load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
+
+scala_repositories()
+
+load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_toolchains")
+
+scala_register_toolchains()
