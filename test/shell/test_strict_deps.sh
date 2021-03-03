@@ -49,8 +49,23 @@ test_stamped_target_label_loading() {
     "eq"
 }
 
+test_demonstrate_INCORRECT_scala_proto_library_stamp() {
+  local test_target="//test_expect_failure/missing_direct_deps/scala_proto_deps:uses_transitive_scala_proto"
+  local incorrectly_stamped_expected_message="buildozer 'add deps //test_expect_failure/missing_direct_deps/scala_proto_deps:proto' ${test_target}"
+
+  # When stamping is fixed, expected stamp is:
+  # local correctly_stamped_expected_message="buildozer 'add deps //test_expect_failure/missing_direct_deps/scala_proto_deps:scala_proto' ${test_target}"
+
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message \
+    "${incorrectly_stamped_expected_message}" ${test_target} \
+    "--extra_toolchains=//test/toolchains:ast_plus_one_deps_strict_deps_error" \
+    "eq"
+}
+
+
 $runner test_scala_import_library_passes_labels_of_direct_deps
 $runner test_plus_one_deps_only_works_for_java_info_targets
 $runner test_scala_import_expect_failure_on_missing_direct_deps_warn_mode
 $runner test_plus_one_ast_analyzer_strict_deps
 $runner test_stamped_target_label_loading
+$runner test_demonstrate_INCORRECT_scala_proto_library_stamp
