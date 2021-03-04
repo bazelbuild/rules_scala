@@ -20,10 +20,13 @@ This rule reimplements `java_import` without support for ijars, which break Scal
 Generally, ijars don’t help much for external dependencies, which rarely change.
 
 The jar's compile MANIFEST.MF is stamped with a Target-Label attribute for dependency tracking 
-reporting. This behaviour can be changed per `scala_import` target with an attribute or globally 
+reporting. 
+
+## Configuring stamping behavior
+This behaviour can be changed per `scala_import` target with an attribute or globally 
 with a setting:
 ```
-bazel build //my:target --//scala/settings:stamp_scala_import=False
+bazel build //my:target --@io_bazel_rules_scala//scala/settings:stamp_scala_import=False
 ```
 
 ## Attributes
