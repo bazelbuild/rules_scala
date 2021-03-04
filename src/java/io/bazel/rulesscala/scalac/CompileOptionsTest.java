@@ -11,7 +11,7 @@ import static org.junit.Assert.*;
 public class CompileOptionsTest {
 
     @Test
-    public void extract_values_from_parsed_args_file() {
+    public void extractValuesFromParsedArgsFile() {
         CompileOptions.Args args = new CompileOptions.Args(new String[]{
                 "--flag",
                 "--arg",
