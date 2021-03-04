@@ -2,6 +2,7 @@ package io.bazel.rulesscala.scalac;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class CompileOptions {
     public final String outputName;
@@ -31,51 +32,52 @@ public class CompileOptions {
     public final String diagnosticsFile;
     public final boolean enableDiagnosticsReport;
 
-    public CompileOptions(String[] args) {
-        ArgMap argMap = new ArgMap(args);
+    public CompileOptions(String[] lines) {
+        Args args = new Args(lines);
 
-        outputName = argMap.getSingleOrError("JarOutput");
-        manifestPath = argMap.getSingleOrError("Manifest");
+        outputName = args.getSingleOrError("JarOutput");
+        manifestPath = args.getSingleOrError("Manifest");
 
-        scalaOpts = argMap.getOrEmpty("ScalacOpts");
-        printCompileTime = Boolean.parseBoolean(argMap.getSingleOrError("PrintCompileTime"));
-        expectJavaOutput = Boolean.parseBoolean(argMap.getSingleOrError("ExpectJavaOutput"));
-        plugins = argMap.getOrEmpty("Plugins");
-        classpath = argMap.getOrEmpty("Classpath");
-        files = argMap.getOrEmpty("Files");
-        sourceJars = argMap.getOrEmpty("SourceJars");
-        javaFiles = argMap.getOrEmpty("JavaFiles");
+        scalaOpts = args.getOrEmpty("ScalacOpts");
+        printCompileTime = Boolean.parseBoolean(args.getSingleOrError("PrintCompileTime"));
+        expectJavaOutput = Boolean.parseBoolean(args.getSingleOrError("ExpectJavaOutput"));
+        plugins = args.getOrEmpty("Plugins");
+        classpath = args.getOrEmpty("Classpath");
+        files = args.getOrEmpty("Files");
+        sourceJars = args.getOrEmpty("SourceJars");
+        javaFiles = args.getOrEmpty("JavaFiles");
 
-        resourceSources = argMap.getOrEmpty("ResourceSources");
-        resourceTargets = argMap.getOrEmpty("ResourceTargets");
-        resourceJars = argMap.getOrEmpty("ResourceJars");
-        classpathResourceFiles = argMap.getOrEmpty("ClasspathResourceSrcs");
+        resourceSources = args.getOrEmpty("ResourceSources");
+        resourceTargets = args.getOrEmpty("ResourceTargets");
+        resourceJars = args.getOrEmpty("ResourceJars");
+        classpathResourceFiles = args.getOrEmpty("ClasspathResourceSrcs");
 
-        directJars = argMap.getOrEmpty("DirectJars");
-        directTargets = argMap.getOrEmpty("DirectTargets");
-        unusedDepsIgnoredTargets = argMap.getOrEmpty("UnusedDepsIgnoredTargets");
-        indirectJars = argMap.getOrEmpty("IndirectJars");
-        indirectTargets = argMap.getOrEmpty("IndirectTargets");
+        directJars = args.getOrEmpty("DirectJars");
+        directTargets = args.getOrEmpty("DirectTargets");
+        unusedDepsIgnoredTargets = args.getOrEmpty("UnusedDepsIgnoredTargets");
+        indirectJars = args.getOrEmpty("IndirectJars");
+        indirectTargets = args.getOrEmpty("IndirectTargets");
 
-        strictDepsMode = argMap.getSingleOrError("StrictDepsMode");
-        unusedDependencyCheckerMode = argMap.getSingleOrError("UnusedDependencyCheckerMode");
-        currentTarget = argMap.getSingleOrError("CurrentTarget");
-        dependencyTrackingMethod = argMap.getSingleOrError("DependencyTrackingMethod");
+        strictDepsMode = args.getSingleOrError("StrictDepsMode");
+        unusedDependencyCheckerMode = args.getSingleOrError("UnusedDependencyCheckerMode");
+        currentTarget = args.getSingleOrError("CurrentTarget");
+        dependencyTrackingMethod = args.getSingleOrError("DependencyTrackingMethod");
 
-        statsfile = argMap.getSingleOrError("StatsfileOutput");
-        enableDiagnosticsReport = Boolean.parseBoolean(argMap.getSingleOrError("EnableDiagnosticsReport"));
-        diagnosticsFile = argMap.getSingleOrError("DiagnosticsFile");
+        statsfile = args.getSingleOrError("StatsfileOutput");
+        enableDiagnosticsReport = Boolean.parseBoolean(args.getSingleOrError("EnableDiagnosticsReport"));
+        diagnosticsFile = args.getSingleOrError("DiagnosticsFile");
     }
 
-    static final class ArgMap extends LinkedHashMap<String, String[]> {
+    static final class Args {
 
         private static final String[] EMPTY = new String[]{};
+        private final Map<String, String[]> index = new LinkedHashMap<>();
 
-        ArgMap(String[] lines) {
+        Args(String[] lines) {
             int opt = 0;
             for (int i = 1, n = lines.length; i <= n; i++) {
                 if (i == n || lines[i].startsWith("--")) {
-                    this.put(
+                    index.put(
                             lines[opt].substring(2),
                             Arrays.copyOfRange(lines, opt + 1, i)
                     );
@@ -85,12 +87,12 @@ public class CompileOptions {
         }
 
         String[] getOrEmpty(String k) {
-            return this.getOrDefault(k, EMPTY);
+            return index.getOrDefault(k, EMPTY);
         }
 
         String getSingleOrError(String k) {
-            if (this.containsKey(k)) {
-                String[] v = this.get(k);
+            if (index.containsKey(k)) {
+                String[] v = index.get(k);
                 if (v.length == 1) {
                     return v[0];
                 } else {

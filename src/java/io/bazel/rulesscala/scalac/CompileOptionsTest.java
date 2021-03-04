@@ -1,6 +1,5 @@
 package io.bazel.rulesscala.scalac;
 
-import io.bazel.rulesscala.scalac.CompileOptions.ArgMap;
 import org.junit.Test;
 import org.junit.function.ThrowingRunnable;
 import org.junit.runner.RunWith;
@@ -12,39 +11,8 @@ import static org.junit.Assert.*;
 public class CompileOptionsTest {
 
     @Test
-    public void parse_empty_lines() {
-        ArgMap args = new ArgMap(new String[]{});
-
-        assertTrue(args.isEmpty());
-    }
-
-    @Test
-    public void parse_flag_without_values() {
-        ArgMap args = new ArgMap(new String[]{"--flag"});
-
-        assertArrayEquals(args.get("flag"), new String[]{});
-        assertEquals(args.size(), 1);
-    }
-
-    @Test
-    public void parse_arg_with_single_value() {
-        ArgMap args = new ArgMap(new String[]{"--arg", "value"});
-
-        assertArrayEquals(args.get("arg"), new String[]{"value"});
-        assertEquals(args.size(), 1);
-    }
-
-    @Test
-    public void parse_arg_with_multiple_values() {
-        ArgMap args = new ArgMap(new String[]{"--args", "value-1", "value-2", "value-3"});
-
-        assertArrayEquals(args.get("args"), new String[]{"value-1", "value-2", "value-3"});
-        assertEquals(args.size(), 1);
-    }
-
-    @Test
-    public void extract_values() {
-        ArgMap args = new ArgMap(new String[]{
+    public void extract_values_from_parsed_args_file() {
+        CompileOptions.Args args = new CompileOptions.Args(new String[]{
                 "--flag",
                 "--arg",
                 "value",
