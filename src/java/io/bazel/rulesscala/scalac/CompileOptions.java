@@ -2,7 +2,6 @@ package io.bazel.rulesscala.scalac;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 public class CompileOptions {
     public final String outputName;
@@ -33,72 +32,73 @@ public class CompileOptions {
     public final boolean enableDiagnosticsReport;
 
     public CompileOptions(String[] args) {
-        Map<String, String[]> argMap = buildArgMap(args);
+        ArgMap argMap = new ArgMap(args);
 
-        outputName = getSingleOrError(argMap, "JarOutput");
-        manifestPath = getSingleOrError(argMap, "Manifest");
+        outputName = argMap.getSingleOrError("JarOutput");
+        manifestPath = argMap.getSingleOrError("Manifest");
 
-        scalaOpts = getOrEmpty(argMap, "ScalacOpts");
-        printCompileTime = Boolean.parseBoolean(getSingleOrError(argMap, "PrintCompileTime"));
-        expectJavaOutput = Boolean.parseBoolean(getSingleOrError(argMap, "ExpectJavaOutput"));
-        plugins = getOrEmpty(argMap, "Plugins");
-        classpath = getOrEmpty(argMap, "Classpath");
-        files = getOrEmpty(argMap, "Files");
-        sourceJars = getOrEmpty(argMap, "SourceJars");
-        javaFiles = getOrEmpty(argMap, "JavaFiles");
+        scalaOpts = argMap.getOrEmpty("ScalacOpts");
+        printCompileTime = Boolean.parseBoolean(argMap.getSingleOrError("PrintCompileTime"));
+        expectJavaOutput = Boolean.parseBoolean(argMap.getSingleOrError("ExpectJavaOutput"));
+        plugins = argMap.getOrEmpty("Plugins");
+        classpath = argMap.getOrEmpty("Classpath");
+        files = argMap.getOrEmpty("Files");
+        sourceJars = argMap.getOrEmpty("SourceJars");
+        javaFiles = argMap.getOrEmpty("JavaFiles");
 
-        resourceSources = getOrEmpty(argMap, "ResourceSources");
-        resourceTargets = getOrEmpty(argMap, "ResourceTargets");
-        resourceJars = getOrEmpty(argMap, "ResourceJars");
-        classpathResourceFiles = getOrEmpty(argMap, "ClasspathResourceSrcs");
+        resourceSources = argMap.getOrEmpty("ResourceSources");
+        resourceTargets = argMap.getOrEmpty("ResourceTargets");
+        resourceJars = argMap.getOrEmpty("ResourceJars");
+        classpathResourceFiles = argMap.getOrEmpty("ClasspathResourceSrcs");
 
-        directJars = getOrEmpty(argMap, "DirectJars");
-        directTargets = getOrEmpty(argMap, "DirectTargets");
-        unusedDepsIgnoredTargets = getOrEmpty(argMap, "UnusedDepsIgnoredTargets");
-        indirectJars = getOrEmpty(argMap, "IndirectJars");
-        indirectTargets = getOrEmpty(argMap, "IndirectTargets");
+        directJars = argMap.getOrEmpty("DirectJars");
+        directTargets = argMap.getOrEmpty("DirectTargets");
+        unusedDepsIgnoredTargets = argMap.getOrEmpty("UnusedDepsIgnoredTargets");
+        indirectJars = argMap.getOrEmpty("IndirectJars");
+        indirectTargets = argMap.getOrEmpty("IndirectTargets");
 
-        strictDepsMode = getSingleOrError(argMap, "StrictDepsMode");
-        unusedDependencyCheckerMode = getSingleOrError(argMap, "UnusedDependencyCheckerMode");
-        currentTarget = getSingleOrError(argMap, "CurrentTarget");
-        dependencyTrackingMethod = getSingleOrError(argMap, "DependencyTrackingMethod");
+        strictDepsMode = argMap.getSingleOrError("StrictDepsMode");
+        unusedDependencyCheckerMode = argMap.getSingleOrError("UnusedDependencyCheckerMode");
+        currentTarget = argMap.getSingleOrError("CurrentTarget");
+        dependencyTrackingMethod = argMap.getSingleOrError("DependencyTrackingMethod");
 
-        statsfile = getSingleOrError(argMap, "StatsfileOutput");
-        enableDiagnosticsReport = Boolean.parseBoolean(getSingleOrError(argMap, "EnableDiagnosticsReport"));
-        diagnosticsFile = getSingleOrError(argMap, "DiagnosticsFile");
+        statsfile = argMap.getSingleOrError("StatsfileOutput");
+        enableDiagnosticsReport = Boolean.parseBoolean(argMap.getSingleOrError("EnableDiagnosticsReport"));
+        diagnosticsFile = argMap.getSingleOrError("DiagnosticsFile");
     }
 
-    private static Map<String, String[]> buildArgMap(String[] lines) {
-        Map<String, String[]> args = new LinkedHashMap<>();
-        int opt = 0;
-        for (int i = 1, n = lines.length; i <= n; i++) {
-            if (i == n || lines[i].startsWith("--")) {
-                args.put(
-                        lines[opt].substring(2),
-                        Arrays.copyOfRange(lines, opt + 1, i)
-                );
-                opt = i;
+    static final class ArgMap extends LinkedHashMap<String, String[]> {
+
+        private static final String[] EMPTY = new String[]{};
+
+        ArgMap(String[] lines) {
+            int opt = 0;
+            for (int i = 1, n = lines.length; i <= n; i++) {
+                if (i == n || lines[i].startsWith("--")) {
+                    this.put(
+                            lines[opt].substring(2),
+                            Arrays.copyOfRange(lines, opt + 1, i)
+                    );
+                    opt = i;
+                }
             }
         }
-        return args;
-    }
 
-    private static final String[] EMPTY = new String[]{};
+        String[] getOrEmpty(String k) {
+            return this.getOrDefault(k, EMPTY);
+        }
 
-    private static String[] getOrEmpty(Map<String, String[]> m, String k) {
-        return m.getOrDefault(k, EMPTY);
-    }
-
-    private static String getSingleOrError(Map<String, String[]> m, String k) {
-        if (m.containsKey(k)) {
-            String[] v = m.get(k);
-            if (v.length == 1) {
-                return v[0];
+        String getSingleOrError(String k) {
+            if (this.containsKey(k)) {
+                String[] v = this.get(k);
+                if (v.length == 1) {
+                    return v[0];
+                } else {
+                    throw new RuntimeException(k + " expected to contain single value but got " + Arrays.toString(v));
+                }
             } else {
-                throw new RuntimeException(k + " expected to contain single value but got " + Arrays.toString(v));
+                throw new RuntimeException("Missing required arg " + k);
             }
-        } else {
-            throw new RuntimeException("Missing required arg " + k);
         }
     }
 }
