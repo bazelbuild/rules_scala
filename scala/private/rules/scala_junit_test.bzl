@@ -14,6 +14,7 @@ load(
     "phase_collect_jars_junit_test",
     "phase_compile_junit_test",
     "phase_coverage_common",
+    "phase_coverage_runfiles",
     "phase_declare_executable",
     "phase_default_info",
     "phase_dependency_common",
@@ -47,6 +48,7 @@ def _scala_junit_test_impl(ctx):
             ("coverage", phase_coverage_common),
             ("merge_jars", phase_merge_jars),
             ("runfiles", phase_runfiles_common),
+            ("coverage_runfiles", phase_coverage_runfiles),
             ("jvm_flags", phase_jvm_flags),
             ("write_executable", phase_write_executable_junit_test),
             ("default_info", phase_default_info),
@@ -77,6 +79,9 @@ _scala_junit_test_attrs = {
             "@io_bazel_rules_scala//scala:bazel_test_runner_deploy",
         ),
         allow_files = True,
+    ),
+    "_lcov_merger": attr.label(
+        default = Label("@bazel_tools//tools/test/CoverageOutputGenerator/java/com/google/devtools/coverageoutputgenerator:Main"),
     ),
 }
 

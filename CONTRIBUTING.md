@@ -48,7 +48,7 @@ Note that Skylint failures are ignored and that the fix
 command will modify your files in place.
 
 ### Additional Tests to Run
-Some changes reqiring running additional tests which are not currently
+Some changes require running additional tests which are not currently
 part of the CI pipeline.
 
 When editing code in `./third_party`, please run `./dangerous_test_thirdparty_version.sh`
