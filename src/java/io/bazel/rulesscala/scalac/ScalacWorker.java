@@ -3,17 +3,10 @@ package io.bazel.rulesscala.scalac;
 import io.bazel.rulesscala.io_utils.StreamCopy;
 import io.bazel.rulesscala.jar.JarCreator;
 import io.bazel.rulesscala.worker.Worker;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
+import scala.tools.nsc.reporters.ConsoleReporter;
+
+import java.io.*;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,7 +14,8 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import scala.tools.nsc.reporters.ConsoleReporter;
+
+import static java.io.File.pathSeparator;
 
 class ScalacWorker implements Worker.Interface {
 
@@ -36,7 +30,7 @@ class ScalacWorker implements Worker.Interface {
   public void work(String[] args) throws Exception {
     Path tmpPath = null;
     try {
-      CompileOptions ops = new CompileOptions(Arrays.asList(args));
+      CompileOptions ops = new CompileOptions(args);
 
       Path outputPath = FileSystems.getDefault().getPath(ops.outputName);
       tmpPath = Files.createTempDirectory(outputPath.getParent(), "tmp");
@@ -44,6 +38,10 @@ class ScalacWorker implements Worker.Interface {
       List<File> jarFiles = extractSourceJars(ops, outputPath.getParent());
       List<File> scalaJarFiles = filterFilesByExtension(jarFiles, ".scala");
       List<File> javaJarFiles = filterFilesByExtension(jarFiles, ".java");
+
+      if (!ops.expectJavaOutput && ops.javaFiles.length != 0) {
+        throw new RuntimeException("Cannot have java source files when no expected java output");
+      }
 
       if (!ops.expectJavaOutput && !javaJarFiles.isEmpty()) {
         throw new RuntimeException(
@@ -66,7 +64,7 @@ class ScalacWorker implements Worker.Interface {
       }
 
       /** Copy the resources */
-      copyResources(ops.resourceFiles, tmpPath);
+      copyResources(ops.resourceSources, ops.resourceTargets, tmpPath);
 
       /** Extract and copy resources from resource jars */
       copyResourceJars(ops.resourceJars, tmpPath);
@@ -174,6 +172,25 @@ class ScalacWorker implements Worker.Interface {
     return !"off".equals(mode);
   }
 
+  public static String[] buildPluginArgs(String[] pluginElements) {
+    int numPlugins = 0;
+    for (int i = 0; i < pluginElements.length; i++) {
+      if (pluginElements[i].length() > 0) {
+        numPlugins += 1;
+      }
+    }
+
+    String[] result = new String[numPlugins];
+    int idx = 0;
+    for (int i = 0; i < pluginElements.length; i++) {
+      if (pluginElements[i].length() > 0) {
+        result[idx] = "-Xplugin:" + pluginElements[i];
+        idx += 1;
+      }
+    }
+    return result;
+  }
+
   private static String[] getPluginParamsFrom(CompileOptions ops) {
     List<String> pluginParams = new ArrayList<>(0);
 
@@ -220,12 +237,13 @@ class ScalacWorker implements Worker.Interface {
   private static void compileScalaSources(CompileOptions ops, String[] scalaSources, Path tmpPath)
       throws IllegalAccessException, IOException {
 
+    String[] pluginArgs = buildPluginArgs(ops.plugins);
     String[] pluginParams = getPluginParamsFrom(ops);
 
-    String[] constParams = {"-classpath", ops.classpath, "-d", tmpPath.toString()};
+    String[] constParams = {"-classpath", String.join(pathSeparator, ops.classpath), "-d", tmpPath.toString()};
 
     String[] compilerArgs =
-        merge(ops.scalaOpts, ops.pluginArgs, constParams, pluginParams, scalaSources);
+        merge(ops.scalaOpts, pluginArgs, constParams, pluginParams, scalaSources);
 
     ReportableMainClass comp = new ReportableMainClass(ops);
 
@@ -288,10 +306,16 @@ class ScalacWorker implements Worker.Interface {
     }
   }
 
-  private static void copyResources(List<Resource> resources, Path dest) throws IOException {
-    for (Resource r : resources) {
-      Path source = Paths.get(r.source);
-      Path target = dest.resolve(r.target);
+  private static void copyResources(String[] sources, String[] targets, Path dest) throws IOException {
+    if (sources.length != targets.length)
+      throw new RuntimeException(String.format(
+              "mismatch in resources: sources: %s targets: %s",
+              Arrays.toString(sources), Arrays.toString(targets))
+      );
+
+    for (int i = 0; i < sources.length; i++) {
+      Path source = Paths.get(sources[i]);
+      Path target = dest.resolve(targets[i]);
       target.getParent().toFile().mkdirs();
       Files.copy(source, target);
     }

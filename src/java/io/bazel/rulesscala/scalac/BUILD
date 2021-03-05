@@ -1,4 +1,4 @@
-load("@rules_java//java:defs.bzl", "java_binary")
+load("@rules_java//java:defs.bzl", "java_binary", "java_test")
 
 java_binary(
     name = "scalac",
@@ -27,8 +27,14 @@ filegroup(
         "CompileOptions.java",
         "ProtoReporter.java",
         "ReportableMainClass.java",
-        "Resource.java",
         "ScalacWorker.java",
     ],
     visibility = ["//visibility:public"],
+)
+
+java_test(
+    name = "CompileOptionsTest",
+    srcs = ["CompileOptionsTest.java"],
+    test_class = "io.bazel.rulesscala.scalac.CompileOptionsTest",
+    deps = [":scalac"],
 )
