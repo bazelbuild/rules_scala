@@ -50,8 +50,6 @@ def _scala_toolchain_impl(ctx):
 
     all_strict_deps_patterns = ctx.attr.dependency_tracking_strict_deps_patterns
 
-    # todo: add validation for empty patterns
-
     strict_deps_include_patterns = [
         pattern
         for pattern in all_strict_deps_patterns
