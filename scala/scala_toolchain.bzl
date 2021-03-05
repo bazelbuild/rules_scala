@@ -125,11 +125,11 @@ scala_toolchain = rule(
             values = ["ast", "high-level", "default"],
         ),
         "dependency_tracking_strict_deps_patterns": attr.string_list(
-            doc = "List of target prefixes included for strict deps analysis",
+            doc = "List of target prefixes included for strict deps analysis. Exclude patetrns with '-'",
             default = [""],
         ),
         "dependency_tracking_unused_deps_patterns": attr.string_list(
-            doc = "List of target prefixes included for unused deps analysis",
+            doc = "List of target prefixes included for unused deps analysis. Exclude patetrns with '-'",
             default = [""],
         ),
         "scalac_jvm_flags": attr.string_list(),
