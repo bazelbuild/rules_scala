@@ -1,5 +1,4 @@
 load("@io_bazel_rules_scala//scala:providers.bzl", "DepsInfo")
-load("@io_bazel_rules_scala//scala/private/toolchain_deps:toolchain_deps.bzl", "expose_toolchain_deps")
 
 def _generators(ctx):
     return dict(
@@ -65,7 +64,7 @@ def _scala_proto_toolchain_impl(ctx):
 #     blacklisted_protos: list of protobuf targets to exclude from recursive building
 #     code_generator: what code generator to use, usually you'll want the default
 scala_proto_toolchain = rule(
-    _scala_proto_toolchain_impl,
+    implementation = _scala_proto_toolchain_impl,
     attrs = {
         "with_grpc": attr.bool(),
         "with_flat_package": attr.bool(),
@@ -103,7 +102,7 @@ def _scala_proto_deps_toolchain(ctx):
     return [toolchain]
 
 scala_proto_deps_toolchain = rule(
-    _scala_proto_deps_toolchain,
+    implementation = _scala_proto_deps_toolchain,
     attrs = {
         "dep_providers": attr.label_list(
             default = [
@@ -115,18 +114,4 @@ scala_proto_deps_toolchain = rule(
             providers = [DepsInfo],
         ),
     },
-)
-
-def _export_scalapb_toolchain_deps(ctx):
-    return expose_toolchain_deps(ctx, "@io_bazel_rules_scala//scala_proto:deps_toolchain_type")
-
-export_scalapb_toolchain_deps = rule(
-    _export_scalapb_toolchain_deps,
-    attrs = {
-        "deps_id": attr.string(
-            mandatory = True,
-        ),
-    },
-    incompatible_use_toolchain_transition = True,
-    toolchains = ["@io_bazel_rules_scala//scala_proto:deps_toolchain_type"],
 )

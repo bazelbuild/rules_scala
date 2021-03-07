@@ -3,11 +3,15 @@ load("//scala/private:common.bzl", "write_manifest_file")
 load("//scala/private:dependency.bzl", "legacy_unclear_dependency_info_for_protobuf_scrooge")
 load("//scala/private:rule_impls.bzl", "compile_scala")
 load("//scala/private/toolchain_deps:toolchain_deps.bzl", "find_deps_info_on")
-load("@bazel_tools//tools/jdk:toolchain_utils.bzl", "find_java_runtime_toolchain", "find_java_toolchain")
-
-ScalaPBAspectInfo = provider(fields = [
-    "java_info",
-])
+load(
+    "@bazel_tools//tools/jdk:toolchain_utils.bzl",
+    "find_java_runtime_toolchain",
+    "find_java_toolchain",
+)
+load(
+    "@io_bazel_rules_scala//scala_proto/private:scala_proto_aspect_provider.bzl",
+    "ScalaProtoAspectInfo",
+)
 
 def _import_paths(proto):
     source_root = proto.proto_source_root
@@ -126,21 +130,21 @@ def _compile_sources(ctx, toolchain, proto, src_jars, deps):
 # This is applied to the DAG of proto_librarys reachable from a deps
 # or a scalapb_scala_library. Each proto_library will be one scalapb
 # invocation assuming it has some sources.
-def _scalapb_aspect_impl(target, ctx):
+def _scala_proto_aspect_impl(target, ctx):
     toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
     proto = target[ProtoInfo]
-    deps = [d[ScalaPBAspectInfo].java_info for d in ctx.rule.attr.deps]
+    deps = [d[ScalaProtoAspectInfo].java_info for d in ctx.rule.attr.deps]
 
     if proto.direct_sources and _code_should_be_generated(ctx, toolchain):
         src_jars = _generate_sources(ctx, toolchain, proto)
         java_info = _compile_sources(ctx, toolchain, proto, src_jars, deps)
-        return [ScalaPBAspectInfo(java_info = java_info)]
+        return [ScalaProtoAspectInfo(java_info = java_info)]
     else:
         # this target is only an aggregation target
-        return [ScalaPBAspectInfo(java_info = java_common.merge(deps))]
+        return [ScalaProtoAspectInfo(java_info = java_common.merge(deps))]
 
-scalapb_aspect = aspect(
-    implementation = _scalapb_aspect_impl,
+scala_proto_aspect = aspect(
+    implementation = _scala_proto_aspect_impl,
     attr_aspects = ["deps"],
     incompatible_use_toolchain_transition = True,
     attrs = {
