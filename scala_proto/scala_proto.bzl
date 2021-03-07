@@ -31,4 +31,8 @@ scala_proto_library = rule(
 )
 
 def scalapb_proto_library(**kwargs):
+    """
+    Deprecated:
+        Use scala_proto_library
+    """
     scala_proto_library(**kwargs)
