@@ -42,7 +42,7 @@ def _adjust_phases(phases, adjustments):
     return phases
 
 # Execute phases
-def run_phases(ctx, builtin_customizable_phases):
+def run_phases(ctx, builtin_customizable_phases, target = None):
     # Loading custom phases
     # Phases must be passed in by provider
     phase_providers = [
@@ -62,7 +62,9 @@ def run_phases(ctx, builtin_customizable_phases):
     )
 
     # A placeholder for data shared with later phases
-    global_provider = {}
+    global_provider = {
+        "target": target,
+    }
     current_provider = struct(**global_provider)
     acculmulated_external_providers = {}
     for (name, function) in adjusted_phases:

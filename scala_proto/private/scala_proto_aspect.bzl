@@ -13,6 +13,12 @@ load(
     "ScalaProtoAspectInfo",
 )
 load("@bazel_skylib//lib:dicts.bzl", _dicts = "dicts")
+load(
+    "@io_bazel_rules_scala//scala/private:phases/api.bzl",
+    "extras_phases",
+    "run_phases",
+)
+load("@bazel_skylib//lib:dicts.bzl", "dicts")
 
 def _import_paths(proto):
     source_root = proto.proto_source_root
@@ -131,7 +137,7 @@ def _compile_sources(ctx, toolchain, proto, src_jars, deps):
 # This is applied to the DAG of proto_librarys reachable from a deps
 # or a scalapb_scala_library. Each proto_library will be one scalapb
 # invocation assuming it has some sources.
-def _scala_proto_aspect_impl(target, ctx):
+def _scala_proto_aspect_impl2(target, ctx):
     toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
     proto = target[ProtoInfo]
     deps = [d[ScalaProtoAspectInfo].java_info for d in ctx.rule.attr.deps]
@@ -144,20 +150,64 @@ def _scala_proto_aspect_impl(target, ctx):
         # this target is only an aggregation target
         return [ScalaProtoAspectInfo(java_info = java_common.merge(deps))]
 
+def _phase_proto_provider(ctx, p):
+    target = p.target
+    return target[ProtoInfo]
+
+def _phase_deps(ctx, p):
+    return [d[ScalaProtoAspectInfo].java_info for d in ctx.rule.attr.deps]
+
+def _phase_generate_and_compile(ctx, p):
+    proto = p.proto_info
+    deps = p.deps
+    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
+
+    if proto.direct_sources and _code_should_be_generated(ctx, toolchain):
+        src_jars = _generate_sources(ctx, toolchain, proto)
+        java_info = _compile_sources(ctx, toolchain, proto, src_jars, deps)
+        return java_info
+    else:
+        # this target is only an aggregation target
+        return java_common.merge(deps)
+
+def _phase_aspect_provider(ctx, p):
+    return struct(
+        external_providers = {
+            "ScalaProtoAspectInfo": ScalaProtoAspectInfo(java_info = p.generate_and_compile),
+        },
+    )
+
+def _scala_proto_aspect_impl(target, ctx):
+    return run_phases(
+        ctx,
+        [
+            ("proto_info", _phase_proto_provider),
+            ("deps", _phase_deps),
+            ("generate_and_compile", _phase_generate_and_compile),
+            ("aspect_provider", _phase_aspect_provider),
+        ],
+        target = target,
+    )
+
 def make_scala_proto_aspect(*extras):
+    attrs = {
+        "_java_toolchain": attr.label(
+            default = Label("@bazel_tools//tools/jdk:current_java_toolchain"),
+        ),
+        "_host_javabase": attr.label(
+            default = Label("@bazel_tools//tools/jdk:current_java_runtime"),
+            cfg = "exec",
+        ),
+    }
     return aspect(
         implementation = _scala_proto_aspect_impl,
         attr_aspects = ["deps"],
         incompatible_use_toolchain_transition = True,
-        attrs = {
-            "_java_toolchain": attr.label(
-                default = Label("@bazel_tools//tools/jdk:current_java_toolchain"),
-            ),
-            "_host_javabase": attr.label(
-                default = Label("@bazel_tools//tools/jdk:current_java_runtime"),
-                cfg = "exec",
-            ),
-        },
+        attrs = dicts.add(
+            attrs,
+            extras_phases(extras),
+            *[extra["attrs"] for extra in extras if "attrs" in extra]
+        ),
         toolchains = [
             "@io_bazel_rules_scala//scala:toolchain_type",
             "@io_bazel_rules_scala//scala_proto:toolchain_type",

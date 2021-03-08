@@ -22,7 +22,6 @@ def phase_merge_aspect_java_info(ctx, p):
 
 def phase_default_info(ctx, p):
     java_info = p.merge_aspects.java_info
-    print(dir(java_info))
     return struct(
         external_providers = {
             "DefaultInfo": DefaultInfo(
