@@ -12,6 +12,7 @@ load(
     "@io_bazel_rules_scala//scala_proto/private:scala_proto_aspect_provider.bzl",
     "ScalaProtoAspectInfo",
 )
+load("@bazel_skylib//lib:dicts.bzl", _dicts = "dicts")
 
 def _import_paths(proto):
     source_root = proto.proto_source_root
@@ -143,22 +144,25 @@ def _scala_proto_aspect_impl(target, ctx):
         # this target is only an aggregation target
         return [ScalaProtoAspectInfo(java_info = java_common.merge(deps))]
 
-scala_proto_aspect = aspect(
-    implementation = _scala_proto_aspect_impl,
-    attr_aspects = ["deps"],
-    incompatible_use_toolchain_transition = True,
-    attrs = {
-        "_java_toolchain": attr.label(
-            default = Label("@bazel_tools//tools/jdk:current_java_toolchain"),
-        ),
-        "_host_javabase": attr.label(
-            default = Label("@bazel_tools//tools/jdk:current_java_runtime"),
-            cfg = "exec",
-        ),
-    },
-    toolchains = [
-        "@io_bazel_rules_scala//scala:toolchain_type",
-        "@io_bazel_rules_scala//scala_proto:toolchain_type",
-        "@io_bazel_rules_scala//scala_proto:deps_toolchain_type",
-    ],
-)
+def make_scala_proto_aspect(*extras):
+    return aspect(
+        implementation = _scala_proto_aspect_impl,
+        attr_aspects = ["deps"],
+        incompatible_use_toolchain_transition = True,
+        attrs = {
+            "_java_toolchain": attr.label(
+                default = Label("@bazel_tools//tools/jdk:current_java_toolchain"),
+            ),
+            "_host_javabase": attr.label(
+                default = Label("@bazel_tools//tools/jdk:current_java_runtime"),
+                cfg = "exec",
+            ),
+        },
+        toolchains = [
+            "@io_bazel_rules_scala//scala:toolchain_type",
+            "@io_bazel_rules_scala//scala_proto:toolchain_type",
+            "@io_bazel_rules_scala//scala_proto:deps_toolchain_type",
+        ],
+    )
+
+scala_proto_aspect = make_scala_proto_aspect()

@@ -4,16 +4,63 @@ load(
     "ScalaProtoAspectInfo",
 )
 load("//scala_proto/private:scala_proto_aspect.bzl", "scala_proto_aspect")
+load(
+    "@io_bazel_rules_scala//scala/private:phases/api.bzl",
+    "extras_phases",
+    "run_phases",
+)
+load("@bazel_skylib//lib:dicts.bzl", "dicts")
 
-def _scala_proto_library_impl(ctx):
+def phase_merge_aspect_java_info(ctx, p):
     java_info = java_common.merge([dep[ScalaProtoAspectInfo].java_info for dep in ctx.attr.deps])
-    default_info = DefaultInfo(files = depset(java_info.source_jars, transitive = [java_info.full_compile_jars]))
-    return [default_info, java_info]
+    return struct(
+        java_info = java_info,
+        external_providers = {
+            "JavaInfo": java_info,
+        },
+    )
 
-scala_proto_library = rule(
-    implementation = _scala_proto_library_impl,
+def phase_default_info(ctx, p):
+    java_info = p.merge_aspects.java_info
+    print(dir(java_info))
+    return struct(
+        external_providers = {
+            "DefaultInfo": DefaultInfo(
+                files = depset(
+                    java_info.source_jars,
+                    transitive = [java_info.full_compile_jars],
+                ),
+            ),
+        },
+    )
+
+def _scala_proto_library(ctx):
+    return run_phases(
+        ctx,
+        [
+            ("merge_aspects", phase_merge_aspect_java_info),
+            ("default_info", phase_default_info),
+        ],
+    )
+
+def make_scala_proto_library(*extras):
     attrs = {
         "deps": attr.label_list(providers = [ProtoInfo], aspects = [scala_proto_aspect]),
-    },
-    provides = [DefaultInfo, JavaInfo],
-)
+    }
+    return rule(
+        implementation = _scala_proto_library,
+        attrs = dicts.add(
+            attrs,
+            extras_phases(extras),
+            *[extra["attrs"] for extra in extras if "attrs" in extra]
+        ),
+        fragments = ["java"],
+        # TODO: add common outputs
+        #        outputs = _dicts.add(
+        #            common_outputs,
+        #            *[extra["outputs"] for extra in extras if "outputs" in extra]
+        #        ),
+        provides = [DefaultInfo, JavaInfo],
+    )
+
+scala_proto_library = make_scala_proto_library()
