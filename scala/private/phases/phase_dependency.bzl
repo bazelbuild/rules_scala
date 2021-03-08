@@ -80,7 +80,12 @@ def _get_unused_deps_mode(ctx):
         return ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].unused_dependency_checker_mode
 
 def _is_target_included(target, includes, excludes):
-    if len([exclude for exclude in excludes if target.startswith(exclude)]) > 0:
-        return False
+    for exclude in excludes:
+        if target.startswith(exclude):
+            return False
 
-    return len([include for include in includes if target.startswith(include)]) > 0
+    for include in includes:
+        if target.startswith(include):
+            return True
+
+    return False
