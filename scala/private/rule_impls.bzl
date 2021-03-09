@@ -62,6 +62,7 @@ def compile_scala(
         plugins = depset(transitive = [plugins, ctx.attr._dependency_analyzer_plugin.files])
 
     toolchain = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"]
+    java_toolchain = ctx.attr._java_toolchain[java_common.JavaToolchainInfo]
     compiler_classpath_jars = cjars if dependency_info.dependency_mode == "direct" else transitive_compile_jars
     classpath_resources = getattr(ctx.files, "classpath_resources", [])
     scalacopts = [ctx.expand_location(v, input_plugins) for v in toolchain.scalacopts + in_scalacopts]
@@ -71,6 +72,7 @@ def compile_scala(
     args = ctx.actions.args()
     args.set_param_file_format("multiline")
     args.use_param_file(param_file_arg = "@%s", use_always = True)
+    args.add("--Release", java_toolchain.target_version)
     args.add("--CurrentTarget", target_label)
     args.add("--JarOutput", output)
     args.add("--Manifest", manifest)

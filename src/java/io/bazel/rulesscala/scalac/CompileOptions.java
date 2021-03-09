@@ -31,9 +31,12 @@ public class CompileOptions {
     public final String dependencyTrackingMethod;
     public final String diagnosticsFile;
     public final boolean enableDiagnosticsReport;
+    public final String release;
 
     public CompileOptions(String[] lines) {
         Args args = new Args(lines);
+
+        release = args.getSingleOrError("Release");
 
         outputName = args.getSingleOrError("JarOutput");
         manifestPath = args.getSingleOrError("Manifest");

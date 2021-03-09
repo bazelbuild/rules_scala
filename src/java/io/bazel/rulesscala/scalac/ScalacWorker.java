@@ -240,7 +240,11 @@ class ScalacWorker implements Worker.Interface {
     String[] pluginArgs = buildPluginArgs(ops.plugins);
     String[] pluginParams = getPluginParamsFrom(ops);
 
-    String[] constParams = {"-classpath", String.join(pathSeparator, ops.classpath), "-d", tmpPath.toString()};
+    String[] constParams = {
+            "-release", ops.release,
+            "-classpath", String.join(pathSeparator, ops.classpath),
+            "-d", tmpPath.toString()
+    };
 
     String[] compilerArgs =
         merge(ops.scalaOpts, pluginArgs, constParams, pluginParams, scalaSources);
