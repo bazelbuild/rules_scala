@@ -103,7 +103,7 @@ scala_proto_toolchain = rule(
 
             Read about recommended code organization in
             [proto rules documentation](https://docs.bazel.build/versions/master/be/protocol-buffer.html#proto_library)
-            """
+            """,
         ),
     },
 )

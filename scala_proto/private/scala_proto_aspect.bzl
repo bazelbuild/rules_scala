@@ -12,7 +12,6 @@ load(
     "@io_bazel_rules_scala//scala_proto/private:scala_proto_aspect_provider.bzl",
     "ScalaProtoAspectInfo",
 )
-load("@bazel_skylib//lib:dicts.bzl", _dicts = "dicts")
 load(
     "@io_bazel_rules_scala//scala/private:phases/api.bzl",
     "extras_phases",

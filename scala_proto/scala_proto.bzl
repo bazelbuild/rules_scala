@@ -25,4 +25,3 @@ def scalapb_proto_library(**kwargs):
         Use scala_proto_library
     """
     _scala_proto_library(**kwargs)
-
