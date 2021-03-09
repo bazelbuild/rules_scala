@@ -54,6 +54,7 @@ def _scala_proto_toolchain_impl(ctx):
         scalac = ctx.attr.scalac.files_to_run,
         worker = ctx.attr.code_generator.files_to_run,
         worker_flags = _worker_flags(ctx, generators, generators_jars),
+        stamp_by_convention = ctx.attr.stamp_by_convention,
     )
     return [toolchain]
 
@@ -91,6 +92,18 @@ scala_proto_toolchain = rule(
             executable = True,
             cfg = "exec",
             default = Label("@com_google_protobuf//:protoc"),
+        ),
+        "stamp_by_convention": attr.bool(
+            default = False,
+            doc = """
+            Stamps source code compiled by aspects according to convention:
+            Aspects assume that the following naming is followed:
+            for `<name>.proto file proto_library` is named `<name>_proto`, and
+            `scala_proto_library` should be named `<name>_scala_proto`
+
+            Read about recommended code organization in
+            [proto rules documentation](https://docs.bazel.build/versions/master/be/protocol-buffer.html#proto_library)
+            """
         ),
     },
 )

@@ -86,7 +86,7 @@ def _generate_sources(ctx, toolchain, proto):
 
     return outputs.values()
 
-def _compile_sources(ctx, toolchain, proto, src_jars, deps):
+def _compile_sources(ctx, toolchain, proto, src_jars, deps, stamp_label):
     output = ctx.actions.declare_file(ctx.label.name + "_scalapb.jar")
     manifest = ctx.actions.declare_file(ctx.label.name + "_MANIFEST.MF")
     write_manifest_file(ctx.actions, manifest, None)
@@ -122,6 +122,7 @@ def _compile_sources(ctx, toolchain, proto, src_jars, deps):
         scalac = toolchain.scalac,
         dependency_info = legacy_unclear_dependency_info_for_protobuf_scrooge(ctx),
         unused_dependency_checker_ignored_targets = [],
+        stamp_target_label = stamp_label,
     )
 
     return JavaInfo(
@@ -160,11 +161,12 @@ def _phase_deps(ctx, p):
 def _phase_generate_and_compile(ctx, p):
     proto = p.proto_info
     deps = p.deps
+    stamp_label = p.stamp_label
     toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
 
     if proto.direct_sources and _code_should_be_generated(ctx, toolchain):
         src_jars = _generate_sources(ctx, toolchain, proto)
-        java_info = _compile_sources(ctx, toolchain, proto, src_jars, deps)
+        java_info = _compile_sources(ctx, toolchain, proto, src_jars, deps, stamp_label)
         return java_info
     else:
         # this target is only an aggregation target
@@ -177,12 +179,22 @@ def _phase_aspect_provider(ctx, p):
         },
     )
 
+def _phase_stamp_label(ctx, p):
+    rule_label = str(p.target.label)
+    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
+
+    if toolchain.stamp_by_convention and rule_label.endswith("_proto"):
+        return rule_label.rstrip("_proto") + "_scala_proto"
+    else:
+        return rule_label
+
 def _scala_proto_aspect_impl(target, ctx):
     return run_phases(
         ctx,
         [
             ("proto_info", _phase_proto_provider),
             ("deps", _phase_deps),
+            ("stamp_label", _phase_stamp_label),
             ("generate_and_compile", _phase_generate_and_compile),
             ("aspect_provider", _phase_aspect_provider),
         ],
