@@ -134,23 +134,6 @@ def _compile_sources(ctx, toolchain, proto, src_jars, deps, stamp_label):
         runtime_deps = compile_deps,
     )
 
-####
-# This is applied to the DAG of proto_librarys reachable from a deps
-# or a scalapb_scala_library. Each proto_library will be one scalapb
-# invocation assuming it has some sources.
-def _scala_proto_aspect_impl2(target, ctx):
-    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
-    proto = target[ProtoInfo]
-    deps = [d[ScalaProtoAspectInfo].java_info for d in ctx.rule.attr.deps]
-
-    if proto.direct_sources and _code_should_be_generated(ctx, toolchain):
-        src_jars = _generate_sources(ctx, toolchain, proto)
-        java_info = _compile_sources(ctx, toolchain, proto, src_jars, deps)
-        return [ScalaProtoAspectInfo(java_info = java_info)]
-    else:
-        # this target is only an aggregation target
-        return [ScalaProtoAspectInfo(java_info = java_common.merge(deps))]
-
 def _phase_proto_provider(ctx, p):
     target = p.target
     return target[ProtoInfo]
@@ -188,6 +171,10 @@ def _phase_stamp_label(ctx, p):
     else:
         return rule_label
 
+####
+# This is applied to the DAG of proto_librarys reachable from a deps
+# or a scalapb_scala_library. Each proto_library will be one scalapb
+# invocation assuming it has some sources.
 def _scala_proto_aspect_impl(target, ctx):
     return run_phases(
         ctx,

@@ -87,6 +87,16 @@ test_scala_proto_library_stamp_by_convention() {
     "eq"
 }
 
+test_scala_proto_library_custom_phase_stamping() {
+  local test_target="//test_expect_failure/missing_direct_deps/scala_proto_deps:uses_transitive_some_proto_scala"
+  local expected_message="buildozer 'add deps //test_expect_failure/missing_direct_deps/scala_proto_deps:some_proto_scala' ${test_target}"
+
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message \
+    "${expected_message}" ${test_target} \
+    "--extra_toolchains=//test/toolchains:ast_plus_one_deps_strict_deps_error,//test_expect_failure/missing_direct_deps/scala_proto_deps:stamp_by_convention_toolchain" \
+    "eq"
+}
+
 $runner test_scala_import_library_passes_labels_of_direct_deps
 $runner test_plus_one_deps_only_works_for_java_info_targets
 $runner test_scala_import_expect_failure_on_missing_direct_deps_warn_mode
@@ -96,3 +106,4 @@ $runner test_strict_deps_filter_excluded_target
 $runner test_strict_deps_filter_included_target
 $runner test_demonstrate_INCORRECT_scala_proto_library_stamp
 $runner test_scala_proto_library_stamp_by_convention
+$runner test_scala_proto_library_custom_phase_stamping
