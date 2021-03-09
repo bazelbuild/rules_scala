@@ -439,6 +439,7 @@ scrooge_scala_aspect = aspect(
     attrs = dicts.add(
         common_attrs,
         {
+            "_java_toolchain": attr.label(default = Label("@bazel_tools//tools/jdk:current_java_toolchain")),
             "_scalac": attr.label(
                 executable = True,
                 cfg = "exec",
