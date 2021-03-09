@@ -9,7 +9,6 @@ def _phase_custom_stamping_convention(ctx, p):
         return rule_label + "_scala"
     else:
         return rule_label
-    return ""
 
 def _custom_stamping_convention_implementation(ctx):
     return [
