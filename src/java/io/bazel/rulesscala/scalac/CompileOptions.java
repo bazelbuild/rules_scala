@@ -32,11 +32,13 @@ public class CompileOptions {
     public final String diagnosticsFile;
     public final boolean enableDiagnosticsReport;
     public final String release;
+    public final String[] javabootclasspath;
 
     public CompileOptions(String[] lines) {
         Args args = new Args(lines);
 
         release = args.getSingleOrError("Release");
+        javabootclasspath = args.getOrEmpty("JavaBootClassPath");
 
         outputName = args.getSingleOrError("JarOutput");
         manifestPath = args.getSingleOrError("Manifest");
