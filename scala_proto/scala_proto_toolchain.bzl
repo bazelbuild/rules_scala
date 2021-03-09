@@ -84,7 +84,7 @@ scala_proto_toolchain = rule(
         ),
         "scalac": attr.label(
             executable = True,
-            cfg = "exec",
+            cfg = "target",
             default = Label("@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac"),
             allow_files = True,
         ),
