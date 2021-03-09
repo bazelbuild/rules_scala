@@ -101,7 +101,7 @@ implicit_deps = {
     ),
     "_scalac": attr.label(
         executable = True,
-        cfg = "target",
+        cfg = "exec",
         default = Label("@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac"),
         allow_files = True,
     ),
