@@ -62,12 +62,13 @@ def compile_scala(
         plugins = depset(transitive = [plugins, ctx.attr._dependency_analyzer_plugin.files])
 
     toolchain = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"]
-    java_toolchain = ctx.attr._java_toolchain[java_common.JavaToolchainInfo]
     compiler_classpath_jars = cjars if dependency_info.dependency_mode == "direct" else transitive_compile_jars
     classpath_resources = getattr(ctx.files, "classpath_resources", [])
     scalacopts = [ctx.expand_location(v, input_plugins) for v in toolchain.scalacopts + in_scalacopts]
     resource_paths = _resource_paths(resources, resource_strip_prefix)
     enable_diagnostics_report = toolchain.enable_diagnostics_report
+    java_toolchain = ctx.attr._java_toolchain[java_common.JavaToolchainInfo]
+    javabootclasspath = java_toolchain.bootclasspath
 
     args = ctx.actions.args()
     args.set_param_file_format("multiline")
@@ -84,7 +85,7 @@ def compile_scala(
     args.add("--EnableDiagnosticsReport", enable_diagnostics_report)
     args.add("--DiagnosticsFile", diagnosticsfile)
     args.add("--Release", java_toolchain.target_version)
-    args.add_all("--JavaBootClassPath", java_toolchain.bootclasspath)
+    args.add_all("--JavaBootClassPath", javabootclasspath)
     args.add_all("--Classpath", compiler_classpath_jars)
     args.add_all("--ClasspathResourceSrcs", classpath_resources)
     args.add_all("--Files", sources)
@@ -112,7 +113,7 @@ def compile_scala(
 
     ins = depset(
         direct = [manifest] + sources + classpath_resources + resources + resource_jars,
-        transitive = [compiler_classpath_jars, all_srcjars, plugins],
+        transitive = [javabootclasspath, compiler_classpath_jars, all_srcjars, plugins],
     )
 
     # scalac_jvm_flags passed in on the target override scalac_jvm_flags passed in on the toolchain

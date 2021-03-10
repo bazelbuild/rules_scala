@@ -241,7 +241,8 @@ class ScalacWorker implements Worker.Interface {
     String[] pluginParams = getPluginParamsFrom(ops);
 
     String[] constParams = {
-//            "-Ylog-classpath",
+            "-Ylog-classpath",
+            "-verbose",
             "-release", ops.release,
             "-javabootclasspath", String.join(pathSeparator, ops.javabootclasspath),
             "-classpath", String.join(pathSeparator, ops.classpath),
