@@ -160,5 +160,23 @@ scala_register_toolchains()
         </p>
       </td>
     </tr>
+    <tr>
+      <td><code>dependency_tracking_strict_deps_patterns</code></td>
+      <td>
+        <p><code>List of Strings; optional</code></p>
+        <p>
+          List of target prefixes included for strict deps analysis. Exclude patetrns with '-'
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td><code>dependency_tracking_unused_deps_patterns</code></td>
+      <td>
+        <p><code>List of Strings; optional</code></p>
+        <p>
+          List of target prefixes included for unused deps analysis. Exclude patetrns with '-'
+        </p>
+      </td>
+    </tr>
   </tbody>
 </table>

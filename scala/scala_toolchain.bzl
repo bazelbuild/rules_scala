@@ -23,6 +23,19 @@ def _compute_dependency_tracking_method(
             return "ast"
     return input_dependency_tracking_method
 
+def _partition_patterns(patterns):
+    includes = [
+        pattern
+        for pattern in patterns
+        if not pattern.startswith("-")
+    ]
+    excludes = [
+        pattern.lstrip("-")
+        for pattern in patterns
+        if pattern.startswith("-")
+    ]
+    return includes, excludes
+
 def _scala_toolchain_impl(ctx):
     dependency_mode = ctx.attr.dependency_mode
     strict_deps_mode = _compute_strict_deps_mode(
@@ -48,6 +61,12 @@ def _scala_toolchain_impl(ctx):
 
     enable_diagnostics_report = ctx.attr.enable_diagnostics_report
 
+    all_strict_deps_patterns = ctx.attr.dependency_tracking_strict_deps_patterns
+    strict_deps_includes, strict_deps_excludes = _partition_patterns(all_strict_deps_patterns)
+
+    all_unused_deps_patterns = ctx.attr.dependency_tracking_unused_deps_patterns
+    unused_deps_includes, unused_deps_excludes = _partition_patterns(all_unused_deps_patterns)
+
     toolchain = platform_common.ToolchainInfo(
         scalacopts = ctx.attr.scalacopts,
         dep_providers = ctx.attr.dep_providers,
@@ -55,6 +74,10 @@ def _scala_toolchain_impl(ctx):
         strict_deps_mode = strict_deps_mode,
         unused_dependency_checker_mode = unused_dependency_checker_mode,
         dependency_tracking_method = dependency_tracking_method,
+        strict_deps_include_patterns = strict_deps_includes,
+        strict_deps_exclude_patterns = strict_deps_excludes,
+        unused_deps_include_patterns = unused_deps_includes,
+        unused_deps_exclude_patterns = unused_deps_excludes,
         scalac_jvm_flags = ctx.attr.scalac_jvm_flags,
         scala_test_jvm_flags = ctx.attr.scala_test_jvm_flags,
         enable_diagnostics_report = enable_diagnostics_report,
@@ -91,6 +114,14 @@ scala_toolchain = rule(
         "dependency_tracking_method": attr.string(
             default = "default",
             values = ["ast", "high-level", "default"],
+        ),
+        "dependency_tracking_strict_deps_patterns": attr.string_list(
+            doc = "List of target prefixes included for strict deps analysis. Exclude patetrns with '-'",
+            default = [""],
+        ),
+        "dependency_tracking_unused_deps_patterns": attr.string_list(
+            doc = "List of target prefixes included for unused deps analysis. Exclude patetrns with '-'",
+            default = [""],
         ),
         "scalac_jvm_flags": attr.string_list(),
         "scala_test_jvm_flags": attr.string_list(),

@@ -62,6 +62,20 @@ test_demonstrate_INCORRECT_scala_proto_library_stamp() {
     "eq"
 }
 
+test_strict_deps_filter_excluded_target() {
+  bazel build //test_expect_failure/missing_direct_deps/filtering:a \
+    --extra_toolchains=//test_expect_failure/missing_direct_deps/filtering:plus_one_strict_deps_filter
+}
+
+test_strict_deps_filter_included_target() {
+  local test_target="//test_expect_failure/missing_direct_deps/filtering:b"
+  local expected_message="buildozer 'add deps @com_google_guava_guava_21_0//:com_google_guava_guava_21_0' ${test_target}"
+
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message \
+    "${expected_message}" ${test_target} \
+    "--extra_toolchains=//test_expect_failure/missing_direct_deps/filtering:plus_one_strict_deps_filter" \
+    "eq"
+}
 
 $runner test_scala_import_library_passes_labels_of_direct_deps
 $runner test_plus_one_deps_only_works_for_java_info_targets
@@ -69,3 +83,5 @@ $runner test_scala_import_expect_failure_on_missing_direct_deps_warn_mode
 $runner test_plus_one_ast_analyzer_strict_deps
 $runner test_stamped_target_label_loading
 $runner test_demonstrate_INCORRECT_scala_proto_library_stamp
+$runner test_strict_deps_filter_excluded_target
+$runner test_strict_deps_filter_included_target
