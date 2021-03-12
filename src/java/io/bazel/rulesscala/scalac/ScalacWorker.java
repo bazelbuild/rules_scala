@@ -241,9 +241,11 @@ class ScalacWorker implements Worker.Interface {
     String[] pluginParams = getPluginParamsFrom(ops);
 
     String[] crossCompileOptions = {};
-    String[] releaseVerion = scala.util.Properties.releaseVersion().getOrElse(() -> "0.0.0").split("\\.");
+    String[] releaseVerion = scala.util.Properties.versionNumberString().split("\\.");
     boolean isJavaAtLeast_9 = scala.util.Properties.isJavaAtLeast("9");
-    boolean isScalaAtLeast_2_12 = Integer.parseInt(releaseVerion[0]) == 2 && Integer.parseInt(releaseVerion[1]) >= 12;
+    boolean isScalaAtLeast_2_12 = releaseVerion.length >= 2 &&
+            Integer.parseInt(releaseVerion[0]) == 2 &&
+            Integer.parseInt(releaseVerion[1]) >= 12;
     if (isJavaAtLeast_9 && isScalaAtLeast_2_12) {
       crossCompileOptions = new String[] {
               "-release", ops.release

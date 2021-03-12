@@ -1,4 +1,4 @@
-load("@bazel_tools//tools/jdk:default_java_toolchain.bzl", "DEFAULT_JAVACOPTS", "JDK8_JVM_OPTS", "JDK9_JVM_OPTS", "default_java_toolchain")
+load("@bazel_tools//tools/jdk:default_java_toolchain.bzl", "JDK8_JVM_OPTS", "JDK9_JVM_OPTS", "default_java_toolchain")
 load("@rules_java//java:defs.bzl", "java_binary")
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_binary")
 
