@@ -240,17 +240,25 @@ class ScalacWorker implements Worker.Interface {
     String[] pluginArgs = buildPluginArgs(ops.plugins);
     String[] pluginParams = getPluginParamsFrom(ops);
 
+    String[] crossCompileOptions = {};
+    String[] releaseVerion = scala.util.Properties.releaseVersion().getOrElse(() -> "0.0.0").split("\\.");
+    boolean isJavaAtLeast_9 = scala.util.Properties.isJavaAtLeast("9");
+    boolean isScalaAtLeast_2_12 = Integer.parseInt(releaseVerion[0]) == 2 && Integer.parseInt(releaseVerion[1]) >= 12;
+    if (isJavaAtLeast_9 && isScalaAtLeast_2_12) {
+      crossCompileOptions = new String[] {
+              "-release", ops.release
+      };
+    }
+
     String[] constParams = {
 //            "-Ylog-classpath",
 //            "-verbose",
-            "-release", ops.release,
-            "-javabootclasspath", String.join(pathSeparator, ops.javabootclasspath),
             "-classpath", String.join(pathSeparator, ops.classpath),
             "-d", tmpPath.toString()
     };
 
     String[] compilerArgs =
-        merge(ops.scalaOpts, pluginArgs, constParams, pluginParams, scalaSources);
+        merge(ops.scalaOpts, pluginArgs, crossCompileOptions, constParams, pluginParams, scalaSources);
 
     ReportableMainClass comp = new ReportableMainClass(ops);
 

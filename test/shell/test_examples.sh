@@ -12,8 +12,24 @@ function specs2_junit_repositories_example() {
   (cd examples/testing/specs2_junit_repositories; bazel test //...)
 }
 
+function build_java_with_javabase_11_and_host_javabase_11() {
+  (cd examples/jdk; bazel clean && bazel run --javabase=:jdk11 --host_javabase=:jdk11 :MainJava)
+}
+
+function build_java_with_javabase_8_and_host_javabase_8() {
+  (cd examples/jdk; bazel clean && bazel run --javabase=:jdk8 --java_toolchain=:toolchain_java8 --host_javabase=:jdk8 --host_java_toolchain=:toolchain_java8 :MainJava)
+}
+
 function build_java_with_javabase_8_and_host_javabase_11() {
   (cd examples/jdk; bazel clean && bazel run --javabase=:jdk8 --host_javabase=:jdk11 :MainJava)
+}
+
+function build_scala_with_javabase_11_and_host_javabase_11() {
+  (cd examples/jdk; bazel clean && bazel run --javabase=:jdk11 --host_javabase=:jdk11 :MainScala)
+}
+
+function build_scala_with_javabase_8_and_host_javabase_8() {
+  (cd examples/jdk; bazel clean && bazel run --javabase=:jdk8 --java_toolchain=:toolchain_java8 --host_javabase=:jdk8 --host_java_toolchain=:toolchain_java8 :MainScala)
 }
 
 function build_scala_with_javabase_8_and_host_javabase_11() {
@@ -22,5 +38,9 @@ function build_scala_with_javabase_8_and_host_javabase_11() {
 
 $runner scalatest_repositories_example
 $runner specs2_junit_repositories_example
+$runner build_java_with_javabase_11_and_host_javabase_11
+$runner build_java_with_javabase_8_and_host_javabase_8
 $runner build_java_with_javabase_8_and_host_javabase_11
+$runner build_scala_with_javabase_11_and_host_javabase_11
+$runner build_scala_with_javabase_8_and_host_javabase_8
 $runner build_scala_with_javabase_8_and_host_javabase_11
