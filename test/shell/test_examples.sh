@@ -38,9 +38,16 @@ function build_scala_with_javabase_8_and_host_javabase_11() {
 
 $runner scalatest_repositories_example
 $runner specs2_junit_repositories_example
+
 $runner build_java_with_javabase_11_and_host_javabase_11
 $runner build_java_with_javabase_8_and_host_javabase_8
 $runner build_java_with_javabase_8_and_host_javabase_11
-$runner build_scala_with_javabase_11_and_host_javabase_11
-$runner build_scala_with_javabase_8_and_host_javabase_8
-$runner build_scala_with_javabase_8_and_host_javabase_11
+
+for scala_version in "2.11.12" "2.12.11" "2.13.3"
+do
+  echo "Running java cross compile tests for scala $scala_version"
+  sed "s/scala_config()/scala_config(scala_version = \"$scala_version\")/g" examples/jdk/WORKSPACE > examples/jdk/WORKSPACE.bazel
+  $runner build_scala_with_javabase_11_and_host_javabase_11
+  $runner build_scala_with_javabase_8_and_host_javabase_8
+  $runner build_scala_with_javabase_8_and_host_javabase_11
+done
