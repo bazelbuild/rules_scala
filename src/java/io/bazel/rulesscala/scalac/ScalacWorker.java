@@ -250,6 +250,11 @@ class ScalacWorker implements Worker.Interface {
       crossCompileOptions = new String[] {
               "-release", ops.release
       };
+    } else if (isJavaAtLeast_9 && ops.release.equals("8")) {
+      crossCompileOptions = new String[] {
+              "-javabootclasspath", String.join(pathSeparator, ops.javabootclasspath),
+              "-target:jvm-1." + ops.release
+      };
     }
 
     String[] constParams = {
