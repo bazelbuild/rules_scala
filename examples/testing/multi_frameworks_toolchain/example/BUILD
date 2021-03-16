@@ -1,4 +1,4 @@
-load("@io_bazel_rules_scala//scala:scala.bzl", "scala_test", "scala_specs2_junit_test")
+load("@io_bazel_rules_scala//scala:scala.bzl", "scala_specs2_junit_test", "scala_test")
 
 scala_test(
     name = "scalatest_example",
