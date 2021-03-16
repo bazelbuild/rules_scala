@@ -1,29 +1,17 @@
-load("@rules_java//java:defs.bzl", "java_library", "java_test")
-load("//scala:scala.bzl", "scala_library", "scala_test")
+load("@rules_java//java:defs.bzl", "java_library")
+load("//scala:scala.bzl", "scala_library", "scala_specs2_junit_test")
 
-scala_test(
-    name = "test-scalatest",
-    srcs = [
-        "TestWithScalaTest.scala",
-    ],
+scala_specs2_junit_test(
+    name = "test-specs2-with-junit",
+    size = "medium",
+    srcs = ["TestWithSpecs2WithJUnit.scala"],
     deps = [
         ":a1",
         ":a2",
         ":b1",
         ":d1",
     ],
-)
-
-java_test(
-    name = "test-b2",
-    srcs = [
-        "TestB2.java",
-    ],
-    tags = ["manual"],
-    test_class = "coverage.TestB2",
-    deps = [
-        ":b2",
-    ],
+    prefixes = ["Test"]
 )
 
 scala_library(

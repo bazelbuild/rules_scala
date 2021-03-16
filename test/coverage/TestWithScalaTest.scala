@@ -1,7 +1,7 @@
 package coverage;
 import org.scalatest.flatspec._
 
-class TestAll extends AnyFlatSpec {
+class TestWithScalaTest extends AnyFlatSpec {
 
   "testA1" should "work" in {
     assert(A1.a1(true) == B1)
