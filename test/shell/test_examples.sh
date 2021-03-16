@@ -12,5 +12,10 @@ function specs2_junit_repositories_example() {
   (cd examples/testing/specs2_junit_repositories; bazel test //...)
 }
 
+function multi_framework_toolchain_example() {
+  (cd examples/testing/multi_framework_toolchain_example; bazel test //...)
+}
+
 $runner scalatest_repositories_example
 $runner specs2_junit_repositories_example
+$runner multi_framework_toolchain_example
