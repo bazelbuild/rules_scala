@@ -44,7 +44,7 @@ custom_stamping_convention(
 )
 
 custom_stamping_scala_proto_library(
-    name = "some_proto_scala",
+    name = "some_proto_custom_suffix",
     deps = [":some_proto"],
 )
 
@@ -52,11 +52,11 @@ custom_stamping_scala_proto_library(
 java_library(
     name = "custom_transitive",
     srcs = ["UseTestMessage.java"],
-    deps = [":some_proto_scala"],
+    deps = [":some_proto_custom_suffix"],
 )
 
 scala_library(
-    name = "uses_transitive_some_proto_scala",
+    name = "uses_transitive_some_proto_custom_suffix",
     srcs = ["UseScalaProtoIndirectly.scala"],
     deps = [":custom_transitive"],
 )

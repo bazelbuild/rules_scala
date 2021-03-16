@@ -41,8 +41,13 @@ def _adjust_phases(phases, adjustments):
                         break
     return phases
 
-# Execute phases
-def run_phases(ctx, builtin_customizable_phases, target = None):
+def run_phases(ctx, builtin_customizable_phases):
+    return _run_phases(ctx, builtin_customizable_phases, target = None)
+
+def run_aspect_phases(ctx, builtin_customizable_phases, target):
+    return _run_phases(ctx, builtin_customizable_phases, target)
+
+def _run_phases(ctx, builtin_customizable_phases, target):
     # Loading custom phases
     # Phases must be passed in by provider
     phase_providers = [

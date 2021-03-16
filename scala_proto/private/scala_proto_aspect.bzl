@@ -15,7 +15,7 @@ load(
 load(
     "@io_bazel_rules_scala//scala/private:phases/api.bzl",
     "extras_phases",
-    "run_phases",
+    "run_aspect_phases",
 )
 load("@bazel_skylib//lib:dicts.bzl", "dicts")
 
@@ -134,8 +134,7 @@ def _compile_sources(ctx, toolchain, proto, src_jars, deps, stamp_label):
     )
 
 def _phase_proto_provider(ctx, p):
-    target = p.target
-    return target[ProtoInfo]
+    return p.target[ProtoInfo]
 
 def _phase_deps(ctx, p):
     return [d[ScalaProtoAspectInfo].java_info for d in ctx.rule.attr.deps]
@@ -175,7 +174,7 @@ def _phase_stamp_label(ctx, p):
 # or a scalapb_scala_library. Each proto_library will be one scalapb
 # invocation assuming it has some sources.
 def _scala_proto_aspect_impl(target, ctx):
-    return run_phases(
+    return run_aspect_phases(
         ctx,
         [
             ("proto_info", _phase_proto_provider),

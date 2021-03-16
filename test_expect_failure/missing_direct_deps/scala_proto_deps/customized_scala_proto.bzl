@@ -6,7 +6,7 @@ def _phase_custom_stamping_convention(ctx, p):
     toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
 
     if toolchain.stamp_by_convention:
-        return rule_label + "_scala"
+        return rule_label + "_custom_suffix"
     else:
         return rule_label
 

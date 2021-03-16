@@ -88,8 +88,8 @@ test_scala_proto_library_stamp_by_convention() {
 }
 
 test_scala_proto_library_custom_phase_stamping() {
-  local test_target="//test_expect_failure/missing_direct_deps/scala_proto_deps:uses_transitive_some_proto_scala"
-  local expected_message="buildozer 'add deps //test_expect_failure/missing_direct_deps/scala_proto_deps:some_proto_scala' ${test_target}"
+  local test_target="//test_expect_failure/missing_direct_deps/scala_proto_deps:uses_transitive_some_proto_custom_suffix"
+  local expected_message="buildozer 'add deps //test_expect_failure/missing_direct_deps/scala_proto_deps:some_proto_custom_suffix' ${test_target}"
 
   test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message \
     "${expected_message}" ${test_target} \
