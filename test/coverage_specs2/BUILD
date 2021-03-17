@@ -5,13 +5,13 @@ scala_specs2_junit_test(
     name = "test-specs2-with-junit",
     size = "medium",
     srcs = ["TestWithSpecs2WithJUnit.scala"],
+    prefixes = ["Test"],
     deps = [
         ":a1",
         ":a2",
         ":b1",
         ":d1",
     ],
-    prefixes = ["Test"]
 )
 
 scala_library(

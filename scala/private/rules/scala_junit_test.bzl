@@ -82,7 +82,7 @@ _scala_junit_test_attrs = {
     ),
     "_lcov_merger": attr.label(
         default = Label(
-            "@bazel_tools//tools/test/CoverageOutputGenerator/java/com/google/devtools/coverageoutputgenerator:Main"
+            "@bazel_tools//tools/test/CoverageOutputGenerator/java/com/google/devtools/coverageoutputgenerator:Main",
         ),
     ),
 }
