@@ -5,8 +5,6 @@ import java.nio.file.Path
 import io.bazel.rulesscala.io_utils.DeleteRecursively
 import org.scalatest.funsuite._
 import scala.tools.nsc.reporters.StoreReporter
-import io.bazel.rulesscala.dependencyanalyzer.DependencyTrackingMethod
-import io.bazel.rulesscala.dependencyanalyzer.ScalaVersion
 import io.bazel.rulesscala.utils.JavaCompileUtil
 import io.bazel.rulesscala.utils.TestUtil
 import io.bazel.rulesscala.utils.TestUtil.DependencyAnalyzerTestParams
