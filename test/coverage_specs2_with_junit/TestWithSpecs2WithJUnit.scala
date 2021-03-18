@@ -1,4 +1,4 @@
-package coverage_specs2
+package coverage_specs2_with_junit
 
 import org.specs2.mutable.SpecWithJUnit
 import org.specs2.specification.Scope

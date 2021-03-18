@@ -1,4 +1,4 @@
-package coverage_specs2
+package coverage_specs2_with_junit
 
 object A2 {
   def a2(): Unit = {

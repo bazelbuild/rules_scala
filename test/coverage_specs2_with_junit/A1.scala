@@ -1,4 +1,4 @@
-package coverage_specs2
+package coverage_specs2_with_junit
 
 object A1 {
   def a1(flag: Boolean): B1.type =
