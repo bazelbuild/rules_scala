@@ -1,4 +1,4 @@
-package coverage
+package coverage_scalatest
 
 object D1 {
   def veryLongFunctionNameIsHereAaaaaaaaa(): Unit = {

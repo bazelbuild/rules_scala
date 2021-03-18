@@ -1,4 +1,4 @@
-package coverage;
+package coverage_scalatest
 
 object A2 {
   def a2(): Unit = {

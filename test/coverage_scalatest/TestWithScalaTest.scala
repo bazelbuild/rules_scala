@@ -1,4 +1,5 @@
-package coverage;
+package coverage_scalatest
+
 import org.scalatest.flatspec._
 
 class TestWithScalaTest extends AnyFlatSpec {

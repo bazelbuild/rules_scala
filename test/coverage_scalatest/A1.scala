@@ -1,4 +1,4 @@
-package coverage;
+package coverage_scalatest
 
 object A1 {
   def a1(flag: Boolean): B1.type =
