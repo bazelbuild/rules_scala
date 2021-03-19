@@ -104,3 +104,20 @@ DA:41,4
 LH:4
 LF:4
 end_of_record
+SF:test/coverage_specs2_with_junit/E1.scala
+FN:-1,coverage_specs2_with_junit/E1$::<clinit> ()V
+FN:3,coverage_specs2_with_junit/E1$::<init> ()V
+FN:5,coverage_specs2_with_junit/E1$::e1 (Ljava/lang/String;)Ljava/lang/String;
+FN:-1,coverage_specs2_with_junit/E1::e1 (Ljava/lang/String;)Ljava/lang/String;
+FNDA:1,coverage_specs2_with_junit/E1$::<clinit> ()V
+FNDA:1,coverage_specs2_with_junit/E1$::<init> ()V
+FNDA:1,coverage_specs2_with_junit/E1$::e1 (Ljava/lang/String;)Ljava/lang/String;
+FNDA:0,coverage_specs2_with_junit/E1::e1 (Ljava/lang/String;)Ljava/lang/String;
+FNF:4
+FNH:3
+DA:3,1
+DA:5,9
+DA:6,4
+LH:3
+LF:3
+end_of_record

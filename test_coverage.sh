@@ -11,3 +11,4 @@ test_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/test/shell
 
 . "${test_dir}"/test_coverage_specs2_with_junit.sh
 . "${test_dir}"/test_coverage_scalatest.sh
+. "${test_dir}"/test_coverage_equals_in_target.sh

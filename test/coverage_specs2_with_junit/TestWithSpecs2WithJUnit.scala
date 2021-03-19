@@ -15,4 +15,8 @@ class TestWithSpecs2WithJUnit extends SpecWithJUnit {
   "testD1" in new Scope {
     D1.veryLongFunctionNameIsHereAaaaaaaaa()
   }
+
+  "testE1" in new Scope {
+    E1.e1("test")
+  }
 }

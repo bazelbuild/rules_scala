@@ -5,6 +5,7 @@ import io.bazel.rulesscala.jar.JarCreator;
 import io.bazel.rulesscala.worker.Worker;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -17,6 +18,10 @@ import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import org.jacoco.core.instr.Instrumenter;
 import org.jacoco.core.runtime.OfflineInstrumentationAccessGenerator;
+import java.net.URLDecoder;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public final class JacocoInstrumenter implements Worker.Interface {
 
@@ -27,19 +32,17 @@ public final class JacocoInstrumenter implements Worker.Interface {
     @Override
     public void work(String[] args) throws Exception {
         Instrumenter jacoco = new Instrumenter(new OfflineInstrumentationAccessGenerator());
-        for (String arg : args) {
-            processArg(jacoco, arg);
-	}
+        processArg(jacoco, args);
     }
 
-    private void processArg(Instrumenter jacoco, String arg) throws Exception {
-        String[] parts = arg.split("=");
-        if (parts.length != 3) {
-            throw new Exception("expected `in_path=out_path=srcs` form for argument: " + arg);	
+    private void processArg(Instrumenter jacoco, String[] args) throws Exception {
+        if (args.length < 3) {
+            throw new Exception("expected format `in_path out_path src1 src2 ... srcN`  for arguments: " + Arrays.asList(args));
         }
-        Path inPath = Paths.get(parts[0]);
-        Path outPath = Paths.get(parts[1]);
-        String srcs = parts[2];
+
+        Path inPath = Paths.get(args[0]);
+        Path outPath = Paths.get(args[1]);
+        String[] srcs = Arrays.copyOfRange(args, 2, args.length);
 
         // Use a directory for coverage metadata that is unique to each built jar. Avoids
         // multiple threads performing read/write/delete actions on the instrumented classes directory.
@@ -73,7 +76,7 @@ public final class JacocoInstrumenter implements Worker.Interface {
             Path pathsForCoverage = instrumentedClassesDirectory.resolve("-paths-for-coverage.txt");
             Files.write(
                 pathsForCoverage,
-                srcs.replace(",", "\n").getBytes(java.nio.charset.StandardCharsets.UTF_8)
+                String.join("\n", srcs).getBytes(java.nio.charset.StandardCharsets.UTF_8)
             );
 
             jarCreator.addEntry(instrumentedClassesDirectory.relativize(pathsForCoverage).toString(), pathsForCoverage);

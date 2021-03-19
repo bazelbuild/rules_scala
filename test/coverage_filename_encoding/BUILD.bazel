@@ -1,0 +1,20 @@
+load("//scala:scala.bzl", "scala_library", "scala_specs2_junit_test")
+
+scala_specs2_junit_test(
+    name = "name-with-equals",
+    size = "small",
+    srcs = ["Test.scala"],
+    prefixes = ["Test"],
+    deps = [
+        "a1%3D=%3D%2Bagg",
+    ],
+)
+
+scala_library(
+    name = "a1%3D=%3D%2Bagg",
+    srcs = [
+        "A1.scala",
+    ],
+    deps = [
+    ],
+)

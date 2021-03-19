@@ -11,6 +11,7 @@ scala_specs2_junit_test(
         ":a2",
         ":b1",
         ":d1",
+        ":e1",
     ],
 )
 
@@ -62,5 +63,17 @@ scala_library(
     name = "d1",
     srcs = [
         "D1.scala",
+    ],
+)
+
+scala_library(
+    name = "e1",
+    srcs = [
+        "A1.scala",
+        "D1.scala",
+        "E1.scala",
+    ],
+    deps = [
+        ":b1",
     ],
 )
