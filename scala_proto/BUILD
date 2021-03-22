@@ -1,15 +1,15 @@
 load(
     "//scala_proto:scala_proto_toolchain.bzl",
-    "export_scalapb_toolchain_deps",
     "scala_proto_deps_toolchain",
     "scala_proto_toolchain",
 )
 load(
-    "//scala_proto:default_dep_sets.bzl",
+    "//scala_proto/default:default_deps.bzl",
     "DEFAULT_SCALAPB_COMPILE_DEPS",
     "DEFAULT_SCALAPB_GRPC_DEPS",
 )
 load("//scala:providers.bzl", "declare_deps_provider")
+load("//scala_proto/private:toolchain_deps.bzl", "export_scalapb_toolchain_deps")
 
 toolchain_type(
     name = "toolchain_type",
@@ -52,7 +52,6 @@ scala_proto_toolchain(
     visibility = ["//visibility:public"],
     with_flat_package = True,
     with_grpc = True,
-    # with_java=True,
     with_single_line_to_string = True,
 )
 

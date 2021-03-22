@@ -1,5 +1,4 @@
 load("@io_bazel_rules_scala//scala:providers.bzl", "DepsInfo")
-load("@io_bazel_rules_scala//scala/private/toolchain_deps:toolchain_deps.bzl", "expose_toolchain_deps")
 
 def _generators(ctx):
     return dict(
@@ -55,6 +54,7 @@ def _scala_proto_toolchain_impl(ctx):
         scalac = ctx.attr.scalac.files_to_run,
         worker = ctx.attr.code_generator.files_to_run,
         worker_flags = _worker_flags(ctx, generators, generators_jars),
+        stamp_by_convention = ctx.attr.stamp_by_convention,
     )
     return [toolchain]
 
@@ -65,7 +65,7 @@ def _scala_proto_toolchain_impl(ctx):
 #     blacklisted_protos: list of protobuf targets to exclude from recursive building
 #     code_generator: what code generator to use, usually you'll want the default
 scala_proto_toolchain = rule(
-    _scala_proto_toolchain_impl,
+    implementation = _scala_proto_toolchain_impl,
     attrs = {
         "with_grpc": attr.bool(),
         "with_flat_package": attr.bool(),
@@ -93,6 +93,18 @@ scala_proto_toolchain = rule(
             cfg = "exec",
             default = Label("@com_google_protobuf//:protoc"),
         ),
+        "stamp_by_convention": attr.bool(
+            default = False,
+            doc = """
+            Stamps source code compiled by aspects according to convention:
+            Aspects assume that the following naming is followed:
+            for `<name>.proto file proto_library` is named `<name>_proto`, and
+            `scala_proto_library` should be named `<name>_scala_proto`
+
+            Read about recommended code organization in
+            [proto rules documentation](https://docs.bazel.build/versions/master/be/protocol-buffer.html#proto_library)
+            """,
+        ),
     },
 )
 
@@ -103,7 +115,7 @@ def _scala_proto_deps_toolchain(ctx):
     return [toolchain]
 
 scala_proto_deps_toolchain = rule(
-    _scala_proto_deps_toolchain,
+    implementation = _scala_proto_deps_toolchain,
     attrs = {
         "dep_providers": attr.label_list(
             default = [
@@ -115,18 +127,4 @@ scala_proto_deps_toolchain = rule(
             providers = [DepsInfo],
         ),
     },
-)
-
-def _export_scalapb_toolchain_deps(ctx):
-    return expose_toolchain_deps(ctx, "@io_bazel_rules_scala//scala_proto:deps_toolchain_type")
-
-export_scalapb_toolchain_deps = rule(
-    _export_scalapb_toolchain_deps,
-    attrs = {
-        "deps_id": attr.string(
-            mandatory = True,
-        ),
-    },
-    incompatible_use_toolchain_transition = True,
-    toolchains = ["@io_bazel_rules_scala//scala_proto:deps_toolchain_type"],
 )
