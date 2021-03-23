@@ -425,10 +425,18 @@ artifacts = {
         "artifact": "com.twitter:scalding-date_2.11:0.17.0",
         "sha256": "bf743cd6d224a4568d6486a2b794143e23145d2afd7a1d2de412d49e45bdb308",
     },
+    "org_typelevel__cats_kernel": {
+        "testonly": True,
+        "artifact": "org.typelevel:cats-kernel_2.11:0.9.0",
+        "sha256": "7569a2f96da3ab31f5c1ddc885cb1e436dabbcf7f5368a3f0eccb0d4f22cffc5",
+    },
     "org_typelevel__cats_core": {
         "testonly": True,
         "artifact": "org.typelevel:cats-core_2.11:0.9.0",
         "sha256": "3fda7a27114b0d178107ace5c2cf04e91e9951810690421768e65038999ffca5",
+        "deps": [
+            "@org_typelevel__cats_kernel"
+        ],
     },
     "com_google_guava_guava_21_0_with_file": {
         "testonly": True,
