@@ -25,7 +25,12 @@ scala_library(
 java_library(
     name = "transitive",
     srcs = ["UseTestMessage.java"],
-    deps = [":some_scala_proto"],
+    exports = [
+        "@scala_proto_rules_scalapb_lenses",  # required due to plus one
+    ],
+    deps = [
+        ":some_scala_proto",
+    ],
 )
 
 scala_proto_toolchain(
@@ -52,11 +57,16 @@ custom_stamping_scala_proto_library(
 java_library(
     name = "custom_transitive",
     srcs = ["UseTestMessage.java"],
+    exports = [
+        "@scala_proto_rules_scalapb_lenses",  # required due to plus one
+    ],
     deps = [":some_proto_custom_suffix"],
 )
 
 scala_library(
     name = "uses_transitive_some_proto_custom_suffix",
     srcs = ["UseScalaProtoIndirectly.scala"],
-    deps = [":custom_transitive"],
+    deps = [
+        ":custom_transitive",
+    ],
 )

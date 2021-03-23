@@ -20,6 +20,12 @@ class AstUsedJarFinder(
     }
 
     def handleType(tpe: Type, pos: Position): Unit = {
+      tpe.baseClasses.foreach { baseClass =>
+        baseClass.associatedFile.underlyingSource.foreach { source =>
+          recordUse(source, pos)
+        }
+      }
+
       val sym = tpe.typeSymbol
       val assocFile = sym.associatedFile
       if (assocFile.path.endsWith(".class"))

@@ -1,13 +1,12 @@
 package io.bazel.rulesscala.dependencyanalyzer
 
-import java.nio.file.Files
-import java.nio.file.Path
 import io.bazel.rulesscala.io_utils.DeleteRecursively
-import org.scalatest.funsuite._
-import scala.tools.nsc.reporters.StoreReporter
-import io.bazel.rulesscala.utils.JavaCompileUtil
-import io.bazel.rulesscala.utils.TestUtil
+import io.bazel.rulesscala.utils.{JavaCompileUtil, TestUtil}
 import io.bazel.rulesscala.utils.TestUtil.DependencyAnalyzerTestParams
+import org.scalatest.funsuite._
+
+import java.nio.file.{Files, Path}
+import scala.tools.nsc.reporters.StoreReporter
 
 // NOTE: Some tests are version-dependent as some false positives
 // cannot be fixed in older versions of Scala for various reasons.
@@ -25,8 +24,8 @@ class AstUsedJarFinderTest extends AnyFunSuite {
 
   private class Sandbox(tmpDir: Path) {
     def compileWithoutAnalyzer(
-      code: String
-    ): Unit = {
+                                code: String
+                              ): Unit = {
       val errors =
         TestUtil.runCompiler(
           code = code,
@@ -37,9 +36,9 @@ class AstUsedJarFinderTest extends AnyFunSuite {
     }
 
     def compileJava(
-      className: String,
-      code: String
-    ): Unit = {
+                     className: String,
+                     code: String
+                   ): Unit = {
       JavaCompileUtil.compile(
         tmpDir = tmpDir.toString,
         className = className,
@@ -55,9 +54,9 @@ class AstUsedJarFinderTest extends AnyFunSuite {
     }
 
     def checkStrictDepsErrorsReported(
-      code: String,
-      expectedStrictDeps: List[String]
-    ): List[StoreReporter#Info] = {
+                                       code: String,
+                                       expectedStrictDeps: List[String]
+                                     ): List[StoreReporter#Info] = {
       val errors =
         TestUtil.runCompiler(
           code = code,
@@ -88,9 +87,9 @@ class AstUsedJarFinderTest extends AnyFunSuite {
     }
 
     def checkUnusedDepsErrorReported(
-      code: String,
-      expectedUnusedDeps: List[String]
-    ): Unit = {
+                                      code: String,
+                                      expectedUnusedDeps: List[String]
+                                    ): Unit = {
       val errors =
         TestUtil.runCompiler(
           code = code,
@@ -124,9 +123,9 @@ class AstUsedJarFinderTest extends AnyFunSuite {
    * dependency analyzer recognizes this fact.
    */
   private def checkDirectDependencyRecognized(
-    aCode: String,
-    bCode: String
-  ): Unit = {
+                                               aCode: String,
+                                               bCode: String
+                                             ): Unit = {
     withSandbox { sandbox =>
       sandbox.compileWithoutAnalyzer(aCode)
       sandbox.checkStrictDepsErrorsReported(
@@ -141,10 +140,10 @@ class AstUsedJarFinderTest extends AnyFunSuite {
    * that the dependency analyzer recognizes this fact.
    */
   private def checkDirectDependencyRecognized(
-    aCode: String,
-    bCode: String,
-    cCode: String
-  ): Unit = {
+                                               aCode: String,
+                                               bCode: String,
+                                               cCode: String
+                                             ): Unit = {
     withSandbox { sandbox =>
       sandbox.compileWithoutAnalyzer(aCode)
       sandbox.compileWithoutAnalyzer(bCode)
@@ -160,10 +159,10 @@ class AstUsedJarFinderTest extends AnyFunSuite {
    * that the dependency analyzer recognizes this fact.
    */
   private def checkIndirectDependencyDetected(
-    aCode: String,
-    bCode: String,
-    cCode: String
-  ): Unit = {
+                                               aCode: String,
+                                               bCode: String,
+                                               cCode: String
+                                             ): Unit = {
     withSandbox { sandbox =>
       sandbox.compileWithoutAnalyzer(aCode)
       sandbox.compileWithoutAnalyzer(bCode)
@@ -586,6 +585,30 @@ class AstUsedJarFinderTest extends AnyFunSuite {
           |class C
           |""".stripMargin,
         expectedStrictDeps = List("UnitTests", "Category")
+      )
+    }
+  }
+
+  test("base classes are direct") {
+    withSandbox { sanbox =>
+      sanbox.compileWithoutAnalyzer(code = """class Bar""")
+      sanbox.compileWithoutAnalyzer(code =
+        """
+          |class Foo extends Bar
+          |""".stripMargin)
+      sanbox.compileWithoutAnalyzer(code =
+        """
+          |class Baz extends Foo
+          |""".stripMargin)
+
+      sanbox.checkStrictDepsErrorsReported(
+        code =
+          """
+            |class Zoo {
+            |  val baz = new Baz
+            |}
+            |""".stripMargin,
+        expectedStrictDeps = List("Baz", "Foo", "Bar")
       )
     }
   }
