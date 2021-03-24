@@ -1,11 +1,8 @@
-load(
-    "//scala:scala_cross_version.bzl",
-    _default_maven_server_urls = "default_maven_server_urls",
-)
+load("//scala:scala_cross_version.bzl", "default_maven_server_urls")
 load("//third_party/repositories:repositories.bzl", "repositories")
 
 def scala_proto_default_repositories(
-        maven_servers = _default_maven_server_urls(),
+        maven_servers = default_maven_server_urls(),
         overriden_artifacts = {}):
     repositories(
         for_artifact_ids = [

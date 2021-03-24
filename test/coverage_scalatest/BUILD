@@ -2,9 +2,9 @@ load("@rules_java//java:defs.bzl", "java_library", "java_test")
 load("//scala:scala.bzl", "scala_library", "scala_test")
 
 scala_test(
-    name = "test-all",
+    name = "test-scalatest",
     srcs = [
-        "TestAll.scala",
+        "TestWithScalaTest.scala",
     ],
     deps = [
         ":a1",

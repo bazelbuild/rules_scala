@@ -3,11 +3,21 @@ load("//scala/private:common.bzl", "write_manifest_file")
 load("//scala/private:dependency.bzl", "legacy_unclear_dependency_info_for_protobuf_scrooge")
 load("//scala/private:rule_impls.bzl", "compile_scala")
 load("//scala/private/toolchain_deps:toolchain_deps.bzl", "find_deps_info_on")
-load("@bazel_tools//tools/jdk:toolchain_utils.bzl", "find_java_runtime_toolchain", "find_java_toolchain")
-
-ScalaPBAspectInfo = provider(fields = [
-    "java_info",
-])
+load(
+    "@bazel_tools//tools/jdk:toolchain_utils.bzl",
+    "find_java_runtime_toolchain",
+    "find_java_toolchain",
+)
+load(
+    "@io_bazel_rules_scala//scala_proto/private:scala_proto_aspect_provider.bzl",
+    "ScalaProtoAspectInfo",
+)
+load(
+    "@io_bazel_rules_scala//scala/private:phases/api.bzl",
+    "extras_phases",
+    "run_aspect_phases",
+)
+load("@bazel_skylib//lib:dicts.bzl", "dicts")
 
 def _import_paths(proto):
     source_root = proto.proto_source_root
@@ -75,7 +85,7 @@ def _generate_sources(ctx, toolchain, proto):
 
     return outputs.values()
 
-def _compile_sources(ctx, toolchain, proto, src_jars, deps):
+def _compile_sources(ctx, toolchain, proto, src_jars, deps, stamp_label):
     output = ctx.actions.declare_file(ctx.label.name + "_scalapb.jar")
     manifest = ctx.actions.declare_file(ctx.label.name + "_MANIFEST.MF")
     write_manifest_file(ctx.actions, manifest, None)
@@ -111,6 +121,7 @@ def _compile_sources(ctx, toolchain, proto, src_jars, deps):
         scalac = toolchain.scalac,
         dependency_info = legacy_unclear_dependency_info_for_protobuf_scrooge(ctx),
         unused_dependency_checker_ignored_targets = [],
+        stamp_target_label = stamp_label,
     )
 
     return JavaInfo(
@@ -122,27 +133,60 @@ def _compile_sources(ctx, toolchain, proto, src_jars, deps):
         runtime_deps = compile_deps,
     )
 
+def _phase_proto_provider(ctx, p):
+    return p.target[ProtoInfo]
+
+def _phase_deps(ctx, p):
+    return [d[ScalaProtoAspectInfo].java_info for d in ctx.rule.attr.deps]
+
+def _phase_generate_and_compile(ctx, p):
+    proto = p.proto_info
+    deps = p.deps
+    stamp_label = p.stamp_label
+    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
+
+    if proto.direct_sources and _code_should_be_generated(ctx, toolchain):
+        src_jars = _generate_sources(ctx, toolchain, proto)
+        java_info = _compile_sources(ctx, toolchain, proto, src_jars, deps, stamp_label)
+        return java_info
+    else:
+        # this target is only an aggregation target
+        return java_common.merge(deps)
+
+def _phase_aspect_provider(ctx, p):
+    return struct(
+        external_providers = {
+            "ScalaProtoAspectInfo": ScalaProtoAspectInfo(java_info = p.generate_and_compile),
+        },
+    )
+
+def _phase_stamp_label(ctx, p):
+    rule_label = str(p.target.label)
+    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
+
+    if toolchain.stamp_by_convention and rule_label.endswith("_proto"):
+        return rule_label.rstrip("_proto") + "_scala_proto"
+    else:
+        return rule_label
+
 ####
 # This is applied to the DAG of proto_librarys reachable from a deps
 # or a scalapb_scala_library. Each proto_library will be one scalapb
 # invocation assuming it has some sources.
-def _scalapb_aspect_impl(target, ctx):
-    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
-    proto = target[ProtoInfo]
-    deps = [d[ScalaPBAspectInfo].java_info for d in ctx.rule.attr.deps]
+def _scala_proto_aspect_impl(target, ctx):
+    return run_aspect_phases(
+        ctx,
+        [
+            ("proto_info", _phase_proto_provider),
+            ("deps", _phase_deps),
+            ("stamp_label", _phase_stamp_label),
+            ("generate_and_compile", _phase_generate_and_compile),
+            ("aspect_provider", _phase_aspect_provider),
+        ],
+        target = target,
+    )
 
-    if proto.direct_sources and _code_should_be_generated(ctx, toolchain):
-        src_jars = _generate_sources(ctx, toolchain, proto)
-        java_info = _compile_sources(ctx, toolchain, proto, src_jars, deps)
-        return [ScalaPBAspectInfo(java_info = java_info)]
-    else:
-        # this target is only an aggregation target
-        return [ScalaPBAspectInfo(java_info = java_common.merge(deps))]
-
-scalapb_aspect = aspect(
-    implementation = _scalapb_aspect_impl,
-    attr_aspects = ["deps"],
-    incompatible_use_toolchain_transition = True,
+def make_scala_proto_aspect(*extras):
     attrs = {
         "_java_toolchain": attr.label(
             default = Label("@bazel_tools//tools/jdk:current_java_toolchain"),
@@ -151,10 +195,21 @@ scalapb_aspect = aspect(
             default = Label("@bazel_tools//tools/jdk:current_java_runtime"),
             cfg = "exec",
         ),
-    },
-    toolchains = [
-        "@io_bazel_rules_scala//scala:toolchain_type",
-        "@io_bazel_rules_scala//scala_proto:toolchain_type",
-        "@io_bazel_rules_scala//scala_proto:deps_toolchain_type",
-    ],
-)
+    }
+    return aspect(
+        implementation = _scala_proto_aspect_impl,
+        attr_aspects = ["deps"],
+        incompatible_use_toolchain_transition = True,
+        attrs = dicts.add(
+            attrs,
+            extras_phases(extras),
+            *[extra["attrs"] for extra in extras if "attrs" in extra]
+        ),
+        toolchains = [
+            "@io_bazel_rules_scala//scala:toolchain_type",
+            "@io_bazel_rules_scala//scala_proto:toolchain_type",
+            "@io_bazel_rules_scala//scala_proto:deps_toolchain_type",
+        ],
+    )
+
+scala_proto_aspect = make_scala_proto_aspect()

@@ -12,6 +12,10 @@ function specs2_junit_repositories_example() {
   (cd examples/testing/specs2_junit_repositories; bazel test //...)
 }
 
+function multi_framework_toolchain_example() {
+  (cd examples/testing/multi_frameworks_toolchain; bazel test //...)
+}
+
 function build_java_with_javabase_11_and_host_javabase_11() {
   (cd examples/jdk; bazel clean && bazel run --javabase=:jdk11 --host_javabase=:jdk11 :MainJava)
 }
@@ -38,6 +42,7 @@ function build_scala_with_javabase_8_and_host_javabase_11() {
 
 $runner scalatest_repositories_example
 $runner specs2_junit_repositories_example
+$runner multi_framework_toolchain_example
 
 $runner build_java_with_javabase_11_and_host_javabase_11
 $runner build_java_with_javabase_8_and_host_javabase_8

@@ -54,7 +54,8 @@ def compile_scala(
         scalac_jvm_flags,
         scalac,
         dependency_info,
-        unused_dependency_checker_ignored_targets):
+        unused_dependency_checker_ignored_targets,
+        stamp_target_label = None):
     # look for any plugins:
     input_plugins = plugins
     plugins = _collect_plugin_paths(plugins)
@@ -74,6 +75,7 @@ def compile_scala(
     args.set_param_file_format("multiline")
     args.use_param_file(param_file_arg = "@%s", use_always = True)
     args.add("--CurrentTarget", target_label)
+    args.add("--StampLabel", stamp_target_label if stamp_target_label != None else target_label)
     args.add("--JarOutput", output)
     args.add("--Manifest", manifest)
     args.add("--PrintCompileTime", print_compile_time)

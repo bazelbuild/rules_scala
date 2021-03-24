@@ -11,7 +11,6 @@ def _store_config(repository_ctx):
     scala_major_version = extract_major_version(scala_version)
 
     config_file_content = "\n".join([
-        "BAZEL_VERSION='" + native.bazel_version + "'",
         "SCALA_VERSION='" + scala_version + "'",
         "SCALA_MAJOR_VERSION='" + scala_major_version + "'",
     ])

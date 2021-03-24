@@ -38,8 +38,10 @@ def phase_write_executable_repl(ctx, p):
 
 def phase_write_executable_junit_test(ctx, p):
     args = struct(
+        rjars = p.coverage_runfiles.rjars,
         jvm_flags = p.jvm_flags + ctx.attr.jvm_flags,
         main_class = "com.google.testing.junit.runner.BazelTestRunner",
+        use_jacoco = ctx.configuration.coverage_enabled,
     )
     return _phase_write_executable_default(ctx, p, args)
 

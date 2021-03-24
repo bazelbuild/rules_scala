@@ -27,6 +27,7 @@ public class CompileOptions {
     public final String strictDepsMode;
     public final String unusedDependencyCheckerMode;
     public final String currentTarget;
+    public final String stampLabel;
     public final String statsfile;
     public final String dependencyTrackingMethod;
     public final String diagnosticsFile;
@@ -64,6 +65,7 @@ public class CompileOptions {
         strictDepsMode = args.getSingleOrError("StrictDepsMode");
         unusedDependencyCheckerMode = args.getSingleOrError("UnusedDependencyCheckerMode");
         currentTarget = args.getSingleOrError("CurrentTarget");
+        stampLabel = args.getSingleOrError("StampLabel");
         dependencyTrackingMethod = args.getSingleOrError("DependencyTrackingMethod");
 
         statsfile = args.getSingleOrError("StatsfileOutput");

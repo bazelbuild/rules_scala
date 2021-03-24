@@ -1,34 +1,27 @@
-load("@rules_proto//proto:defs.bzl", "ProtoInfo")
+load("//scala_proto/default:repositories.bzl", "scala_proto_default_repositories")
 load(
-    "//scala:scala_cross_version.bzl",
-    _default_maven_server_urls = "default_maven_server_urls",
-)
-load(
-    "//scala_proto/private:scala_proto_default_repositories.bzl",
-    "scala_proto_default_repositories",
+    "//scala_proto/private:scala_proto.bzl",
+    _make_scala_proto_library = "make_scala_proto_library",
+    _scala_proto_library = "scala_proto_library",
 )
 load(
-    "//scala_proto/private:scalapb_aspect.bzl",
-    "ScalaPBAspectInfo",
-    "scalapb_aspect",
+    "//scala_proto/private:scala_proto_aspect.bzl",
+    _make_scala_proto_aspect = "make_scala_proto_aspect",
 )
 
-def scala_proto_repositories(
-        maven_servers = _default_maven_server_urls()):
-    return scala_proto_default_repositories(maven_servers)
+make_scala_proto_library = _make_scala_proto_library
 
-def _scala_proto_library_impl(ctx):
-    java_info = java_common.merge([dep[ScalaPBAspectInfo].java_info for dep in ctx.attr.deps])
-    default_info = DefaultInfo(files = depset(java_info.source_jars, transitive = [java_info.full_compile_jars]))
-    return [default_info, java_info]
+make_scala_proto_aspect = _make_scala_proto_aspect
 
-scala_proto_library = rule(
-    implementation = _scala_proto_library_impl,
-    attrs = {
-        "deps": attr.label_list(providers = [ProtoInfo], aspects = [scalapb_aspect]),
-    },
-    provides = [DefaultInfo, JavaInfo],
-)
+def scala_proto_repositories(**kwargs):
+    scala_proto_default_repositories(**kwargs)
+
+def scala_proto_library(**kwargs):
+    _scala_proto_library(**kwargs)
 
 def scalapb_proto_library(**kwargs):
-    scala_proto_library(**kwargs)
+    """
+    Deprecated:
+        Use scala_proto_library
+    """
+    _scala_proto_library(**kwargs)

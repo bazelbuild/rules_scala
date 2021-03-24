@@ -1,4 +1,4 @@
-package coverage
+package coverage_specs2_with_junit
 
 object D1 {
   def veryLongFunctionNameIsHereAaaaaaaaa(): Unit = {

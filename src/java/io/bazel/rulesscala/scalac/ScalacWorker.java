@@ -75,7 +75,7 @@ class ScalacWorker implements Worker.Interface {
       /** Now build the output jar */
       String[] jarCreatorArgs = {
           "-m", ops.manifestPath,
-          "-t", ops.currentTarget,
+          "-t", ops.stampLabel,
           outputPath.toString(),
           tmpPath.toString()
       };
