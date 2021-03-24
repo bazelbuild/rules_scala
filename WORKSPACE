@@ -195,6 +195,7 @@ repositories(
         "org_spire_math_kind_projector",
         # For testing that we don't include sources jars to the classpath
         "org_typelevel__cats_core",
+        "org_typelevel__cats_kernel",
     ],
     maven_servers = MAVEN_SERVER_URLS,
 )
