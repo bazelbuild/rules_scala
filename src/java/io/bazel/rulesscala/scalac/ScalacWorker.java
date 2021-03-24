@@ -234,32 +234,37 @@ class ScalacWorker implements Worker.Interface {
     return pluginParams.toArray(new String[pluginParams.size()]);
   }
 
+  // http://openjdk.java.net/jeps/247
+  // https://bugs.openjdk.java.net/browse/JDK-8058150
+  // https://github.com/bazelbuild/bazel/issues/5723
+  // https://docs.oracle.com/en/java/javase/11/tools/javac.html#GUID-AEEC9F07-CB49-4E96-8BC7-BCC2C7F725C9
+  private static String[] javaCrossCompileOptions(CompileOptions ops) {
+    String[] scalaVersion = scala.util.Properties.versionNumberString().split("\\.");
+    boolean isScalaAtLeast_2_12 = scalaVersion.length >= 2 &&
+            Integer.parseInt(scalaVersion[0]) == 2 &&
+            Integer.parseInt(scalaVersion[1]) >= 12;
+    boolean isJavaAtLeast_9 = scala.util.Properties.isJavaAtLeast("9");
+    if (isScalaAtLeast_2_12 && isJavaAtLeast_9) {
+      return new String[] {
+              "-release", ops.java_target
+      };
+    }
+    else {
+      return new String[] {
+              "-javabootclasspath", String.join(pathSeparator, ops.java_bootclasspath),
+      };
+    }
+  }
+
   private static void compileScalaSources(CompileOptions ops, String[] scalaSources, Path tmpPath)
       throws IllegalAccessException, IOException {
 
     String[] pluginArgs = buildPluginArgs(ops.plugins);
     String[] pluginParams = getPluginParamsFrom(ops);
 
-    String[] crossCompileOptions = {};
-    String[] releaseVerion = scala.util.Properties.versionNumberString().split("\\.");
-    boolean isJavaAtLeast_9 = scala.util.Properties.isJavaAtLeast("9");
-    boolean isScalaAtLeast_2_12 = releaseVerion.length >= 2 &&
-            Integer.parseInt(releaseVerion[0]) == 2 &&
-            Integer.parseInt(releaseVerion[1]) >= 12;
-    if (isJavaAtLeast_9 && isScalaAtLeast_2_12) {
-      crossCompileOptions = new String[] {
-              "-release", ops.release
-      };
-    } else if (isJavaAtLeast_9 && ops.release.equals("8")) {
-      crossCompileOptions = new String[] {
-              "-javabootclasspath", String.join(pathSeparator, ops.javabootclasspath),
-              "-target:jvm-1." + ops.release
-      };
-    }
+    String[] crossCompileOptions = javaCrossCompileOptions(ops);
 
     String[] constParams = {
-//            "-Ylog-classpath",
-//            "-verbose",
             "-classpath", String.join(pathSeparator, ops.classpath),
             "-d", tmpPath.toString()
     };

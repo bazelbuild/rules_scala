@@ -31,14 +31,12 @@ public class CompileOptions {
     public final String dependencyTrackingMethod;
     public final String diagnosticsFile;
     public final boolean enableDiagnosticsReport;
-    public final String release;
-    public final String[] javabootclasspath;
+    public final String java_source;
+    public final String java_target;
+    public final String[] java_bootclasspath;
 
     public CompileOptions(String[] lines) {
         Args args = new Args(lines);
-
-        release = args.getSingleOrError("Release");
-        javabootclasspath = args.getOrEmpty("JavaBootClassPath");
 
         outputName = args.getSingleOrError("JarOutput");
         manifestPath = args.getSingleOrError("Manifest");
@@ -71,6 +69,10 @@ public class CompileOptions {
         statsfile = args.getSingleOrError("StatsfileOutput");
         enableDiagnosticsReport = Boolean.parseBoolean(args.getSingleOrError("EnableDiagnosticsReport"));
         diagnosticsFile = args.getSingleOrError("DiagnosticsFile");
+
+        java_source = args.getSingleOrError("JavaSource");
+        java_target = args.getSingleOrError("JavaTarget");
+        java_bootclasspath = args.getOrEmpty("JavaBootClassPath");
     }
 
     static final class Args {
