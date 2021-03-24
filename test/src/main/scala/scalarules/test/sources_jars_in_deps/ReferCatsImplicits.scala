@@ -1,6 +1,6 @@
 package scala_rules.bazel
-import cats.implicits._
 
-
-object TestObj {}
+object TestObj {
+  val t = cats.Always
+}
 
