@@ -441,7 +441,7 @@ artifacts = {
         "artifact": "org.typelevel:cats-core_2.13:2.2.0",
         "sha256": "6058d02418e4eb5f1919a1156d63d2d1b93f2c6190b1a1806ee2b73f8726a92f",
         "deps": [
-            "@org_typelevel__cats_kernel"
+            "@org_typelevel__cats_kernel",
         ],
     },
     "com_google_guava_guava_21_0_with_file": {
