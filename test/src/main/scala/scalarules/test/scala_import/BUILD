@@ -44,14 +44,6 @@ scala_specs2_junit_test(
     deps = [":relate"],
 )
 
-scala_library(
-    name = "source_jar_not_oncp",
-    testonly = True,
-    srcs = ["ReferCatsImplicits.scala"],
-    # jvm_maven_import_external doesn't fetch source jars automatically
-    deps = ["@org_typelevel__cats_core//jar"],
-)
-
 ##Runtime deps
 scala_import(
     name = "indirection_for_transitive_runtime_deps",
