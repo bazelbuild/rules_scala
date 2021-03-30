@@ -1,4 +1,5 @@
 load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+load("@bazel_tools//tools/build_rules:test_rules.bzl", "file_test")
 
 package(
     default_visibility = [
@@ -132,3 +133,49 @@ filegroup(
 #    cmd = "$(location //src:zip_files) ijar $@ $(SRCS)",
 #    tools = ["//src:zip_files"],
 #)
+
+genrule(
+    name = "test-input-manifest",
+    outs = ["input.mf"],
+    cmd = """cat <<EOF >> $@
+Manifest-Version: 1.0
+Created-By: bazel
+Class-Path: class-path-entry
+EOF""",
+)
+
+genrule(
+    name = "test-input-jar",
+    outs = ["input.jar"],
+    cmd = "$(JAVABASE)/bin/jar -cfm $@ $(location :test-input-manifest)",
+    srcs = [":test-input-manifest"],
+    toolchains = ["@bazel_tools//tools/jdk:current_java_runtime"],
+)
+
+genrule(
+    name = "test-modified-jar",
+    outs = ["modified.jar"],
+    cmd = "$(location :ijar) --nostrip_jar --target_label label $(location :test-input-jar) $@",
+    srcs = [":test-input-jar"],
+    tools = [":ijar"],
+)
+
+genrule(
+    name = "test-modified-manifest",
+    outs = ["modified.mf"],
+    cmd = "$(JAVABASE)/bin/jar -xf $(location :test-modified-jar) META-INF/MANIFEST.MF && mv META-INF/MANIFEST.MF $@",
+    srcs = [":test-modified-jar"],
+    toolchains = ["@bazel_tools//tools/jdk:current_java_runtime"],
+)
+
+file_test(
+    name = "test-modified-manifest-content",
+    file = ":test-modified-manifest",
+    content = "\r\n".join([
+        "Manifest-Version: 1.0",
+        "Created-By: bazel",
+        "Target-Label: label",
+        "",
+        "",
+    ]),
+)

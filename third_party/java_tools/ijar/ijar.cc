@@ -54,6 +54,8 @@ const char *TARGET_LABEL_KEY = "Target-Label: ";
 const size_t TARGET_LABEL_KEY_LENGTH = strlen(TARGET_LABEL_KEY);
 const char *INJECTING_RULE_KIND_KEY = "Injecting-Rule-Kind: ";
 const size_t INJECTING_RULE_KIND_KEY_LENGTH = strlen(INJECTING_RULE_KIND_KEY);
+const char *CLASS_PATH_KEY = "Class-Path: ";
+const size_t CLASS_PATH_KEY_LENGTH = strlen(CLASS_PATH_KEY);
 
 class JarExtractorProcessor : public ZipExtractorProcessor {
  public:
@@ -305,11 +307,12 @@ u1 *JarCopierProcessor::AppendTargetLabelToManifest(
     // Go past return char to point to next line, or to end of data buffer
     line_end = line_end != nullptr ? line_end + 1 : data_end;
 
-    // Copy line unless it's Target-Label/Injecting-Rule-Kind and we're writing
-    // that ourselves
+    // Copy line unless it's Target-Label/Injecting-Rule-Kind/Class-Path
+    // Target-Label/Injecting-Rule-Kind we're writing that ourselves
+    // Class-Path is removed as it causes noise during build (see issue #1257)
     if (strncmp(line_start, TARGET_LABEL_KEY, TARGET_LABEL_KEY_LENGTH) != 0 &&
-        strncmp(line_start, INJECTING_RULE_KIND_KEY,
-                INJECTING_RULE_KIND_KEY_LENGTH) != 0) {
+        strncmp(line_start, INJECTING_RULE_KIND_KEY, INJECTING_RULE_KIND_KEY_LENGTH) != 0 &&
+        strncmp(line_start, CLASS_PATH_KEY, CLASS_PATH_KEY_LENGTH) != 0) {
       size_t len = line_end - line_start;
       memcpy(buf, line_start, len);
       buf += len;
