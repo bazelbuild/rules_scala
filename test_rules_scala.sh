@@ -37,6 +37,7 @@ $runner bazel test //test/... --extra_toolchains="//test_expect_failure/plus_one
 . "${test_dir}"/test_scala_binary.sh
 . "${test_dir}"/test_scalac_jvm_flags.sh
 . "${test_dir}"/test_scala_classpath.sh
+. "${test_dir}"/test_scala_config.sh
 . "${test_dir}"/test_scala_import_source_jar.sh
 . "${test_dir}"/test_scala_jvm_flags.sh
 . "${test_dir}"/test_scala_jacocorunner.sh

@@ -5,9 +5,11 @@ def _default_scala_version():
     return "2.12.11"
 
 def _store_config(repository_ctx):
-    repository_ctx.file("BUILD", "exports_files(['def.bzl'])")
+    scala_version = repository_ctx.os.environ.get(
+        "SCALA_VERSION_OVERRIDE",
+        repository_ctx.attr.scala_version,
+    )
 
-    scala_version = repository_ctx.attr.scala_version
     scala_major_version = extract_major_version(scala_version)
 
     config_file_content = "\n".join([
@@ -16,6 +18,7 @@ def _store_config(repository_ctx):
     ])
 
     repository_ctx.file("config.bzl", config_file_content)
+    repository_ctx.file("BUILD")
 
 _config_repository = repository_rule(
     implementation = _store_config,
@@ -24,6 +27,7 @@ _config_repository = repository_rule(
             mandatory = True,
         ),
     },
+    environ = ["SCALA_VERSION_OVERRIDE"],
 )
 
 def scala_config(scala_version = _default_scala_version()):
