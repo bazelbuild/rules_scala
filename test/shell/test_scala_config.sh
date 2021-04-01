@@ -4,16 +4,17 @@ dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 . "${dir}"/test_helper.sh
 runner=$(get_test_runner "${1:-local}")
 
-test_default_scala_library_version_on_classpath() {
+test_classpath_contains_2_12() {
   bazel aquery 'mnemonic("Javac", //src/java/io/bazel/rulesscala/scalac:scalac)' \
-   | grep scala-library-2.12.11
+   --repo_env=SCALA_VERSION=2.12.x \
+   | grep scala-library-2.12
 }
 
-test_overwritten_scala_library_version_on_classpath() {
+test_classpath_contains_2_13() {
   bazel aquery 'mnemonic("Javac", //src/java/io/bazel/rulesscala/scalac:scalac)' \
-   --repo_env=SCALA_VERSION_OVERRIDE=2.13.x \
-   | grep scala-library-2.13.3
+   --repo_env=SCALA_VERSION=2.13.x \
+   | grep scala-library-2.13
 }
 
-$runner test_default_scala_library_version_on_classpath
-$runner test_overwritten_scala_library_version_on_classpath
+$runner test_classpath_contains_2_12
+$runner test_classpath_contains_2_13

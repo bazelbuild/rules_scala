@@ -6,7 +6,7 @@ def _default_scala_version():
 
 def _store_config(repository_ctx):
     scala_version = repository_ctx.os.environ.get(
-        "SCALA_VERSION_OVERRIDE",
+        "SCALA_VERSION",
         repository_ctx.attr.scala_version,
     )
 
@@ -27,7 +27,7 @@ _config_repository = repository_rule(
             mandatory = True,
         ),
     },
-    environ = ["SCALA_VERSION_OVERRIDE"],
+    environ = ["SCALA_VERSION"],
 )
 
 def scala_config(scala_version = _default_scala_version()):
