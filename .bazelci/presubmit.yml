@@ -61,7 +61,7 @@ tasks:
     platform: ubuntu1804
     bazel: latest
     shell_commands:
-    - "./test_rules_scala.sh || buildkite-agent annotate --style 'warning' \"Optional build with latest Bazel version failed. [See here](${BUILDKITE_BUILD_URL}#${BUILDKITE_JOB_ID})\nIt is not mandatory but worth checking!\""
+    - "./test_rules_scala.sh || buildkite-agent annotate --style 'warning' \"Optional build with latest Bazel version failed, [see here](${BUILDKITE_BUILD_URL}#${BUILDKITE_JOB_ID}) (It is not mandatory but worth checking)\""
   test_rules_scala_macos:
     name: "./test_rules_scala"
     platform: macos
