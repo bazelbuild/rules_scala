@@ -8,21 +8,23 @@ class AstUsedJarFinder(
 ) {
   import global._
 
-  def findUsedJars: Map[AbstractFile, Global#Position] = {
-    val jars = collection.mutable.Map[AbstractFile, global.Position]()
+  def findUsedJars: Map[AbstractFile, Usage] = {
+    val jars = collection.mutable.Map[AbstractFile, Usage]()
 
-    def recordUse(source: AbstractFile, pos: Position): Unit = {
+    def recordUse(source: AbstractFile, pos: Position, usageType: UsageType): Unit = {
       // We prefer to report locations which have information (e.g.
       // we don't want NoPosition).
-      if (!jars.contains(source) || !jars(source).isDefined) {
-        jars.put(source, pos)
+      if (!jars.contains(source)
+        || !jars(source).position.isDefined
+        || (jars(source).usageType == BaseClass && usageType == Direct)) {
+        jars.put(source, Usage(pos, usageType))
       }
     }
 
     def handleType(tpe: Type, pos: Position): Unit = {
       tpe.baseClasses.foreach { baseClass =>
         baseClass.associatedFile.underlyingSource.foreach { source =>
-          recordUse(source, pos)
+          recordUse(source, pos, BaseClass)
         }
       }
 
@@ -30,7 +32,7 @@ class AstUsedJarFinder(
       val assocFile = sym.associatedFile
       if (assocFile.path.endsWith(".class"))
         assocFile.underlyingSource.foreach { source =>
-          recordUse(source, pos)
+          recordUse(source, pos, Direct)
         }
     }
 

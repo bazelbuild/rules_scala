@@ -28,6 +28,7 @@ scala_library_for_plugin_bootstrapping(
         "io/bazel/rulesscala/dependencyanalyzer/HighLevelCrawlUsedJarFinder.scala",
         "io/bazel/rulesscala/dependencyanalyzer/OptionsParser.scala",
         "io/bazel/rulesscala/dependencyanalyzer/Reporter%s.scala" % REPORTER_COMPATIBILITY,
+        "io/bazel/rulesscala/dependencyanalyzer/Usage.scala",
     ],
     resources = ["resources/scalac-plugin.xml"],
     visibility = ["//visibility:public"],

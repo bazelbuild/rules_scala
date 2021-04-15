@@ -104,7 +104,7 @@ test_base_class_is_direct_dependecy() {
   test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message \
     "${expected_message}" ${test_target} \
     "--extra_toolchains=//test/toolchains:ast_plus_one_deps_strict_deps_error" \
-    "eq"
+    "ne"
 }
 
 $runner test_scala_import_library_passes_labels_of_direct_deps

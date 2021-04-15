@@ -54,9 +54,9 @@ class AstUsedJarFinderTest extends AnyFunSuite {
     }
 
     def checkStrictDepsErrorsReported(
-                                       code: String,
-                                       expectedStrictDeps: List[String]
-                                     ): List[StoreReporter#Info] = {
+      code: String,
+      expectedStrictDeps: List[String]
+    ): List[StoreReporter#Info] = {
       val errors =
         TestUtil.runCompiler(
           code = code,

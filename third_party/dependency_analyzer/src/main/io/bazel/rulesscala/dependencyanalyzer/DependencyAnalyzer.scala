@@ -10,13 +10,13 @@ import scala.util.control.NonFatal
 class DependencyAnalyzer(val global: Global) extends Plugin {
   private val reporter = new Reporter(global)
   override val name = "dependency-analyzer"
-  override val description =
+  override val description: String =
     "Analyzes the used dependencies. Can check and warn or fail the " +
       "compilation for issues including not directly including " +
       "dependencies which are directly included in the code, or " +
       "including unused dependencies."
-  override val components =
-    List[PluginComponent](
+  override val components: List[PluginComponent] =
+    List(
       new AnalyzerComponent(
         runsAfterPhase = "typer",
         handles = DependencyTrackingMethod.Ast
@@ -87,27 +87,25 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
     }
   }
 
-  private def reportIndirectTargetsFoundIn(
-    usedJarPathAndPositions: Map[String, global.Position]
-  ): Unit = {
+  private def reportIndirectTargetsFoundIn(usedJarPathAndPositions: Map[String, Usage]): Unit = {
     val errors =
       usedJarPathAndPositions
         .filterNot { case (jarPath, _) =>
           settings.directTargetSet.jarSet.contains(jarPath)
         }
-        .flatMap { case (jarPath, pos) =>
+        .flatMap { case (jarPath, usage) =>
           settings.indirectTargetSet.targetFromJarOpt(jarPath)
             .map(target => tryResolveUnknownLabel(target, jarPath))
             .map { target =>
-            target -> pos
+            target -> usage
           }
         }
-        .map { case (target, pos) =>
+        .map { case (target, usage) =>
           val message =
             s"""Target '$target' is used but isn't explicitly declared, please add it to the deps.
                |You can use the following buildozer command:
                |buildozer 'add deps $target' ${settings.currentTarget}""".stripMargin
-          message -> pos
+          message -> usage
         }
 
     warnOrError(settings.strictDepsMode, errors)
@@ -139,11 +137,8 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
       label
   }
 
-  private def reportUnusedDepsFoundIn(
-    usedJarPathAndPositions: Map[String, global.Position]
-  ): Unit = {
+  private def reportUnusedDepsFoundIn(usedJarPathAndPositions: Map[String, Usage]): Unit = {
     val directJarPaths = settings.directTargetSet.jarSet
-
 
     val usedTargets =
       usedJarPathAndPositions
@@ -166,7 +161,7 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
              |You can use the following buildozer command:
              |buildozer 'remove deps $target' ${settings.currentTarget}
              |""".stripMargin
-        (message, global.NoPosition: global.Position)
+        (message, Usage(global.NoPosition: global.Position, Direct))
       }
 
     warnOrError(settings.unusedDepsMode, toWarnOrError.toMap)
@@ -174,31 +169,35 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
 
   private def warnOrError(
     analyzerMode: AnalyzerMode,
-    errors: Map[String, global.Position]
+    errors: Map[String, Usage]
   ): Unit = {
-    val reportFunction: (String, global.Position) => Unit = analyzerMode match {
+    val reportFunction: (String, Usage) => Unit = analyzerMode match {
       case AnalyzerMode.Error => {
-        case (message, pos) =>
-          reporter.error(pos, message)
+        case (message, usage) =>
+          usage.usageType match {
+            case Direct => reporter.error(usage.position, message)
+            case BaseClass => reporter.warning(usage.position, message)
+          }
+
       }
       case AnalyzerMode.Warn => {
-        case (message, pos) =>
-          reporter.warning(pos, message)
+        case (message, usage) =>
+          reporter.warning(usage.position, message)
       }
       case AnalyzerMode.Off => (_, _) => ()
     }
 
-    errors.foreach { case (message, pos) =>
-      reportFunction(message, pos)
+    errors.foreach { case (message, usage) =>
+      reportFunction(message, usage)
     }
   }
 
   /**
    *
-   * @return map of used jar file -> representative position in file where
-   *         it was used
+   * @return map of used jar file -> Usage(representative position, usage type)
+   *         in file where it was used
    */
-  private def findUsedJarsAndPositions: Map[AbstractFile, global.Position] = {
+  private def findUsedJarsAndPositions: Map[AbstractFile, Usage] = {
     settings.dependencyTrackingMethod match {
       case DependencyTrackingMethod.HighLevel =>
         new HighLevelCrawlUsedJarFinder(global).findUsedJars

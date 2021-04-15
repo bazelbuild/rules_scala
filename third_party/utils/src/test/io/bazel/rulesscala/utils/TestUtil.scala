@@ -126,7 +126,10 @@ object TestUtil {
     // tests verify that positions are reported successfully.
     val toCompile = new BatchSourceFile("CompiledCode.scala", code)
     run.compileSources(List(toCompile))
-    reporter.infos.filter(_.severity == reporter.ERROR).toList
+    reporter
+      .infos
+      .filter(info => info.severity == reporter.ERROR || info.severity == reporter.WARNING)
+      .toList
   }
 
   private lazy val baseDir = System.getProperty("user.dir")
