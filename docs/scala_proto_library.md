@@ -86,7 +86,7 @@ scala_proto_deps_toolchain(
 toolchain(
     name = "default_deps_toolchain",
     toolchain = ":default_deps_toolchain_impl",
-    toolchain_type = ":deps_toolchain_type",
+    toolchain_type = "@io_bazel_rules_scala//scala_proto:deps_toolchain_type",
 )
 
 declare_deps_provider(
