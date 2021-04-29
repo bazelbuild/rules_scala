@@ -170,7 +170,7 @@ def _phase_stamp_label(ctx, p):
     rule_label = str(p.target.label)
     toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
 
-    if toolchain.stamp_by_convention:
+    if toolchain.stamp_by_convention and rule_label.endswith("_proto"):
         return _strip_suffix(rule_label, "_proto") + "_scala_proto"
     else:
         return rule_label
