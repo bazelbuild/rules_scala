@@ -127,6 +127,7 @@ def scala_test_suite(
         srcs = [],
         visibility = None,
         use_short_names = False,
+        tags = [],
         **kwargs):
     ts = []
     i = 0
@@ -138,7 +139,8 @@ def scala_test_suite(
             srcs = [test_file],
             visibility = visibility,
             unused_dependency_checker_mode = "off",
+            tags = tags,
             **kwargs
         )
         ts.append(n)
-    native.test_suite(name = name, tests = ts, visibility = visibility)
+    native.test_suite(name = name, tests = ts, visibility = visibility, tags = tags)
