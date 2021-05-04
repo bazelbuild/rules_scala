@@ -52,9 +52,9 @@ load("//twitter_scrooge:twitter_scrooge.bzl", "twitter_scrooge")
 
 twitter_scrooge()
 
-load("//tut_rule:tut.bzl", "tut_repositories")
+load("//tut_rule:tut.bzl", "tut_source_repositories")
 
-tut_repositories()
+tut_source_repositories()
 
 load("//jmh:jmh.bzl", "jmh_repositories")
 
