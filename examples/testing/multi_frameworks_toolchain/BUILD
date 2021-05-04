@@ -56,6 +56,7 @@ declare_deps_provider(
     deps_id = "specs2_junit_classpath",
     visibility = ["//visibility:public"],
     deps = [
+        "@io_bazel_rules_scala//scala:bazel_test_runner_deploy",
         "@io_bazel_rules_scala_org_specs2_specs2_junit",
     ],
 )

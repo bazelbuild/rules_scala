@@ -1,0 +1,21 @@
+SF:test/coverage_filename_encoding/A1.scala
+FN:-1,coverage_filename_encoding/A1$::<clinit> ()V
+FN:3,coverage_filename_encoding/A1$::<init> ()V
+FN:5,coverage_filename_encoding/A1$::a1 (Z)Ljava/lang/String;
+FN:-1,coverage_filename_encoding/A1::a1 (Z)Ljava/lang/String;
+FNDA:1,coverage_filename_encoding/A1$::<clinit> ()V
+FNDA:1,coverage_filename_encoding/A1$::<init> ()V
+FNDA:1,coverage_filename_encoding/A1$::a1 (Z)Ljava/lang/String;
+FNDA:0,coverage_filename_encoding/A1::a1 (Z)Ljava/lang/String;
+FNF:4
+FNH:3
+BA:5,2
+BRF:1
+BRH:1
+DA:3,1
+DA:5,4
+DA:6,1
+DA:7,4
+LH:4
+LF:4
+end_of_record
