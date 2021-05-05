@@ -2,17 +2,14 @@ package io.bazel.rules_scala.jmh_support
 
 import java.net.URLClassLoader
 
-import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import org.openjdk.jmh.generators.core.{FileSystemDestination, GeneratorSource, BenchmarkGenerator => JMHGenerator}
 import org.openjdk.jmh.generators.asm.ASMGeneratorSource
 import org.openjdk.jmh.generators.reflection.RFGeneratorSource
-import org.openjdk.jmh.runner.{Runner, RunnerException}
-import org.openjdk.jmh.runner.options.{Options, OptionsBuilder}
 import java.net.URI
 
 import scala.collection.JavaConverters._
-import java.nio.file.{FileSystems, Files, Path, Paths}
+import java.nio.file.{FileSystems, Files, Path}
 
 import io.bazel.rulesscala.jar.JarCreator
 
@@ -123,7 +120,6 @@ object BenchmarkGenerator {
   }
 
   private def withTempDirectory[A](f: Path => A): A = {
-    val baseDir = System.getProperty("java.io.tmpdir")
     val tempDir = Files.createTempDirectory("jmh_benchmark_generator")
     try {
       f(tempDir)
