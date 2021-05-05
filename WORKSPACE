@@ -52,10 +52,6 @@ load("//twitter_scrooge:twitter_scrooge.bzl", "twitter_scrooge")
 
 twitter_scrooge()
 
-load("//tut_rule:tut.bzl", "tut_repositories")
-
-tut_repositories()
-
 load("//jmh:jmh.bzl", "jmh_repositories")
 
 jmh_repositories()

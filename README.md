@@ -143,7 +143,7 @@ load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_toolchains")
 scala_register_toolchains()
 ```
 
-If you're using any of the rules `twitter_scrooge`, `tut_repositories`, `scala_proto_repositories`
+If you're using any of the rules `twitter_scrooge`, `scala_proto_repositories`
 or `specs2_junit_repositories` you also need to specify `scala_version` for them. See `./test_version/WORKSPACE.template`
 for an example workspace using another scala version.
 

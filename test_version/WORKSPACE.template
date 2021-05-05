@@ -45,10 +45,6 @@ load("@io_bazel_rules_scala//twitter_scrooge:twitter_scrooge.bzl", "twitter_scro
 ${twitter_scrooge_artifacts}
 twitter_scrooge(overriden_artifacts = twitter_scrooge_artifacts)
 
-load("@io_bazel_rules_scala//tut_rule:tut.bzl", "tut_repositories")
-
-tut_repositories()
-
 load("@io_bazel_rules_scala//scala_proto:scala_proto.bzl", "scala_proto_repositories")
 
 scala_proto_repositories()
