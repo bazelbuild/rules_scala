@@ -14,32 +14,16 @@ import java.util.*;
 
 public class ProtoReporter extends ConsoleReporter {
 
-  private final Settings settings;
   private final Map<String, List<Diagnostics.Diagnostic>> builder;
-  private final Map<Position, Severity> positions = new HashMap<>();
-  private final Map<Position, List<String>> messages = new HashMap<>();
-
-
-  private final boolean isVerbose;
-  private final boolean noWarnings;
-  private final boolean isPromptSet;
-  private final boolean isDebug;
 
   public ProtoReporter(Settings settings) {
     super(settings);
-    this.settings = settings;
-    this.isVerbose = (boolean) settings.verbose().value();
-    this.noWarnings = settings.nowarnings().value();
-    this.isPromptSet = settings.prompt().value();
-    this.isDebug = settings.debug().value();
     builder = new LinkedHashMap<>();
   }
 
   @Override
   public void reset() {
     super.reset();
-    positions.clear();
-    messages.clear();
   }
 
   public void writeTo(Path path) throws IOException {
@@ -64,24 +48,6 @@ public class ProtoReporter extends ConsoleReporter {
       String uri = "workspace-root://" + pos.source().file().path();
       List<Diagnostics.Diagnostic> diagnostics = builder.computeIfAbsent(uri, key -> new ArrayList());
       diagnostics.add(diagnostic);
-  }
-
-  private boolean testAndLog(Position pos, Severity severity, String msg) {
-    Position fpos = pos.focus();
-    Severity focusSeverity = positions.getOrDefault(fpos, (Severity) INFO());
-    boolean supress = false;
-    if(focusSeverity.equals(ERROR()))
-      supress = true;
-
-    if(focusSeverity.id() > severity.id())
-      supress = true;
-
-    if(severity.equals(focusSeverity) && messages.computeIfAbsent(fpos,(key) -> new ArrayList<>()).contains(msg))
-      supress = true;
-
-    positions.put(fpos, severity);
-    messages.computeIfAbsent(fpos, (key) -> new ArrayList<>()).add(msg);
-    return supress;
   }
 
   private Diagnostics.Severity convertSeverity(Object severity) {
