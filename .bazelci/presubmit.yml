@@ -1,17 +1,6 @@
 ---
 validate_config: 1
 tasks:
-  ubuntu1604:
-    name: "bazel test //test/..."       
-    platform: ubuntu1604
-    shell_commands:
-    # Disable local disk caching on CI.
-    - mv tools/bazel.rc.buildkite tools/bazel.rc
-    - echo "import %workspace%/tools/bazel.rc" > .bazelrc
-    build_targets:
-    - "//test/..."
-    test_targets:
-    - "//test/..."
   ubuntu1804:
     name: "bazel test //test/..."      
     platform: ubuntu1804
