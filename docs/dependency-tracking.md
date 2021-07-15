@@ -1,4 +1,4 @@
-# Dependecy Tracking
+# Dependency Tracking
 
 ## [Experimental] Dependency options
 
@@ -160,6 +160,6 @@ Example patterns:
 other packages, which start with "some", eg. `//foo_bar`
 - `"//foo:bar"` includes target under label `//foo:bar`
 - `@junit_junit` includes external targets, which start with `"@junit_junit"`
-- `"-//foo:baz"` exludes target `//foo:baz`
+- `"-//foo:baz"` excludes target `//foo:baz`
 
 Exclusions take higher precedence over inclusions. Empty list will not match any targets.
