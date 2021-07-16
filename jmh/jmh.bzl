@@ -77,6 +77,7 @@ scala_generate_benchmark = rule(
 def scala_benchmark_jmh(**kw):
     name = kw["name"]
     deps = kw.get("deps", [])
+    runtime_deps = kw.get("runtime_deps", [])
     srcs = kw["srcs"]
     data = kw.get("data", [])
     generator_type = kw.get("generator_type", "reflection")
@@ -91,6 +92,7 @@ def scala_benchmark_jmh(**kw):
         deps = deps + [
             "@io_bazel_rules_scala//jmh:jmh_core",
         ],
+        runtime_deps = runtime_deps,
         scalacopts = scalacopts,
         resources = kw.get("resources", []),
         resource_jars = kw.get("resource_jars", []),
