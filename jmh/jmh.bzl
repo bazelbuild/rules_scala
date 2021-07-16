@@ -81,6 +81,7 @@ def scala_benchmark_jmh(**kw):
     data = kw.get("data", [])
     generator_type = kw.get("generator_type", "reflection")
     lib = "%s_generator" % name
+    testonly = kw.get("testonly", False)
     scalacopts = kw.get("scalacopts", [])
     main_class = kw.get("main_class", "org.openjdk.jmh.Main")
 
@@ -94,6 +95,7 @@ def scala_benchmark_jmh(**kw):
         resources = kw.get("resources", []),
         resource_jars = kw.get("resource_jars", []),
         visibility = ["//visibility:public"],
+        testonly = testonly,
         unused_dependency_checker_mode = "off",
     )
 
@@ -102,6 +104,7 @@ def scala_benchmark_jmh(**kw):
         name = codegen,
         src = lib,
         generator_type = generator_type,
+        testonly = testonly,
     )
     compiled_lib = name + "_compiled_benchmark_lib"
     scala_library(
@@ -112,6 +115,7 @@ def scala_benchmark_jmh(**kw):
             lib,
         ],
         resource_jars = ["%s_resources.jar" % codegen],
+        testonly = testonly,
         unused_dependency_checker_mode = "off",
     )
     scala_binary(
@@ -122,5 +126,6 @@ def scala_benchmark_jmh(**kw):
         ],
         data = data,
         main_class = main_class,
+        testonly = testonly,
         unused_dependency_checker_mode = "off",
     )
