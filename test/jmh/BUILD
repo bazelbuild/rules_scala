@@ -28,11 +28,34 @@ scala_library(
     ],
 )
 
+scala_library(
+    name = "add_numbers_testonly",
+    testonly = True,
+    srcs = ["AddNumbers.scala"],
+    visibility = ["//visibility:public"],
+    exports = [
+        ":java_type",
+        ":scala_type",
+    ],
+    deps = [
+        ":java_type",
+        ":scala_type",
+    ],
+)
+
 scala_benchmark_jmh(
     name = "test_benchmark",
     srcs = ["TestBenchmark.scala"],
     data = ["data.txt"],
     deps = [":add_numbers"],
+)
+
+scala_benchmark_jmh(
+    name = "test_benchmark_testonly",
+    testonly = True,
+    srcs = ["TestBenchmark.scala"],
+    data = ["data.txt"],
+    deps = [":add_numbers_testonly"],
 )
 
 scala_test(
