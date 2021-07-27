@@ -95,6 +95,8 @@ jacoco_version=0.8.3
 bazel_repo=$build_dir/bazel
 bazel_remote=https://github.com/bazelbuild/bazel
 bazel_branch=master
+bazel_tag=4.1.0
+
 # Advanced option: take a fork that has fixes for Jacoco LCOV formatter, to respect Jacoco filtering
 # (fixes for Scala in Jacoco respected in Bazel branch coverage):
 #bazel_remote=https://github.com/gergelyfabian/bazel
@@ -134,7 +136,10 @@ mvn clean install
 (
 cd $bazel_repo
 git remote update
-git checkout origin/$bazel_branch
+git checkout tags/$bazel_tag
+
+# Advanced option - check out a branch instead of the release tag
+# git checkout origin/$bazel_branch
 
 # Prepare Jacoco version.
 cd third_party/java/jacoco
