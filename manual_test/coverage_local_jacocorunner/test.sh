@@ -19,8 +19,8 @@ test_dir=$root_dir/test/shell
 runner=$(get_test_runner "${1:-local}")
 
 test_coverage_with_local_jacocorunner() {
-    bazel coverage --extra_toolchains="//manual_test/coverage_local_jacocorunner:local_jacocorunner_scala_toolchain" //test/coverage/...
-    diff $root_dir/manual_test/coverage_local_jacocorunner/expected-coverage.dat $(bazel info bazel-testlogs)/test/coverage/test-all/coverage.dat
+    bazel coverage --extra_toolchains="//manual_test/coverage_local_jacocorunner:local_jacocorunner_scala_toolchain" //test/coverage_scalatest:test-scalatest
+    diff $root_dir/manual_test/coverage_local_jacocorunner/expected-coverage.dat $(bazel info bazel-testlogs)/test/coverage_scalatest/test-scalatest/coverage.dat
 }
 
 build_local_jacocorunner() {
