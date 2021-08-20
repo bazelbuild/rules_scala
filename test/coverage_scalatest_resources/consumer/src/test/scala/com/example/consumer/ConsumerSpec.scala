@@ -7,12 +7,7 @@ import org.scalatest.matchers.should._
 
 class ConsumerSpec extends AnyFlatSpec with Matchers {
 
-    "ConsumerSpec" should "fetch hello" in {
-        val fixture = new Consumer()
-        fixture.hello should === ("Hello!")
-    }
-
-    it should "have valid classloaders" in {
+    "ConsumerSpec" should "have valid classloaders" in {
       val fixture = new Consumer()
       fixture.resourceList.hasMoreElements should be (true)
       val element = fixture.resourceList.nextElement

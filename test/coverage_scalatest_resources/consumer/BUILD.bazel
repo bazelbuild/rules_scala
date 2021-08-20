@@ -10,5 +10,8 @@ scala_library(
 scala_test(
     name = "tests",
     deps = ["//test/coverage_scalatest_resources/resource"],
-    srcs = glob(include = ["{}/**".format("src/main/scala")]) + glob(include = ["{}/**".format("src/test/scala")])
+    srcs = [
+        "src/main/scala/com/example/consumer/Consumer.scala",
+        "src/test/scala/com/example/consumer/ConsumerSpec.scala",
+        ]
 )
