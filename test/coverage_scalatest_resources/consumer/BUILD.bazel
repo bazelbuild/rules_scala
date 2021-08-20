@@ -2,15 +2,15 @@ load("//scala:scala.bzl", "scala_library", "scala_test")
 
 scala_library(
     name = "consumer",
+    srcs = ["src/main/scala/com/example/consumer/Consumer.scala"],
     deps = ["//test/coverage_scalatest_resources/resource"],
-    srcs = ["src/main/scala/com/example/consumer/Consumer.scala"]
 )
 
 scala_test(
     name = "tests",
-    deps = ["//test/coverage_scalatest_resources/resource"],
     srcs = [
         "src/main/scala/com/example/consumer/Consumer.scala",
         "src/test/scala/com/example/consumer/ConsumerSpec.scala",
-        ]
+    ],
+    deps = ["//test/coverage_scalatest_resources/resource"],
 )

@@ -3,7 +3,10 @@ load("//scala:scala.bzl", "scala_library")
 scala_library(
     name = "resource",
     srcs = ["src/main/scala/com/example/resource/Util.scala"],
-    resources =  ["src/main/resources/com/example/resource/example.sql"],
-    resource_strip_prefix = "{}/{}".format(package_name(), "src/main/resources"),
-    visibility = ["//visibility:public"]
+    resource_strip_prefix = "{}/{}".format(
+        package_name(),
+        "src/main/resources",
+    ),
+    resources = ["src/main/resources/com/example/resource/example.sql"],
+    visibility = ["//visibility:public"],
 )
