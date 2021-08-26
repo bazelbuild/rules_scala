@@ -91,6 +91,7 @@ rm -f {out}
             tools = [ctx.executable._zipper, zipper_arg_path],
             outputs = [ctx.outputs.libarchive],
             command = cmd,
+            mnemonic = "ScalaThriftArchive",
             progress_message = "making thrift archive %s (%s files)" %
                                (ctx.label, len(src_paths)),
         )
@@ -100,6 +101,7 @@ rm -f {out}
         ctx.actions.run_shell(
             tools = [ctx.executable._zipper],
             outputs = [ctx.outputs.libarchive],
+            mnemonic = "ScalaThriftArchive",
             command = """
 echo "empty" > {out}.contents
 rm -f {out}
