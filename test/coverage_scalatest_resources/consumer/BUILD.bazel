@@ -9,8 +9,7 @@ scala_library(
 scala_test(
     name = "tests",
     srcs = [
-        "src/main/scala/com/example/consumer/Consumer.scala",
         "src/test/scala/com/example/consumer/ConsumerSpec.scala",
     ],
-    deps = ["//test/coverage_scalatest_resources/resource"],
+    deps = [":consumer"],
 )
