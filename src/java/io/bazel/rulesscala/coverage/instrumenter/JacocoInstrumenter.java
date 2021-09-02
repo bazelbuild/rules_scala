@@ -5,6 +5,7 @@ import io.bazel.rulesscala.jar.JarCreator;
 import io.bazel.rulesscala.worker.Worker;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -21,6 +22,7 @@ import org.jacoco.core.runtime.OfflineInstrumentationAccessGenerator;
 import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public final class JacocoInstrumenter implements Worker.Interface {
@@ -101,6 +103,19 @@ public final class JacocoInstrumenter implements Worker.Interface {
                 } catch (final Exception e) {
                     throw new RuntimeException(e);
                 }
+            }
+
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
+                throws IOException
+            {
+                Objects.requireNonNull(dir);
+                Objects.requireNonNull(attrs);
+                // Adding non-root directories to the jar
+                if(!dir.toString().equals("/")){
+                    jarCreator.addEntry(dir.toString(),dir);
+                }
+                return FileVisitResult.CONTINUE;
             }
 
             private FileVisitResult actuallyVisitFile(Path inPath, BasicFileAttributes attrs) throws Exception {

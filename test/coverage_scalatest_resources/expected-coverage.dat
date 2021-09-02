@@ -1,0 +1,36 @@
+SF:test/coverage_scalatest_resources/consumer/src/main/scala/com/example/consumer/Consumer.scala
+FN:9,com/example/consumer/Consumer::<init> ()V
+FN:12,com/example/consumer/Consumer::classLoader ()Ljava/lang/ClassLoader;
+FN:10,com/example/consumer/Consumer::hello ()Ljava/lang/String;
+FN:13,com/example/consumer/Consumer::resourceList ()Ljava/util/Enumeration;
+FNDA:1,com/example/consumer/Consumer::<init> ()V
+FNDA:1,com/example/consumer/Consumer::classLoader ()Ljava/lang/ClassLoader;
+FNDA:0,com/example/consumer/Consumer::hello ()Ljava/lang/String;
+FNDA:1,com/example/consumer/Consumer::resourceList ()Ljava/util/Enumeration;
+FNF:4
+FNH:3
+DA:9,1
+DA:10,4
+DA:12,7
+DA:13,9
+DA:14,2
+LH:5
+LF:5
+end_of_record
+SF:test/coverage_scalatest_resources/resource/src/main/scala/com/example/resource/Util.scala
+FN:-1,com/example/resource/Util$::<clinit> ()V
+FN:3,com/example/resource/Util$::<init> ()V
+FN:4,com/example/resource/Util$::hello ()Ljava/lang/String;
+FN:-1,com/example/resource/Util::hello ()Ljava/lang/String;
+FNDA:1,com/example/resource/Util$::<clinit> ()V
+FNDA:1,com/example/resource/Util$::<init> ()V
+FNDA:1,com/example/resource/Util$::hello ()Ljava/lang/String;
+FNDA:0,com/example/resource/Util::hello ()Ljava/lang/String;
+FNF:4
+FNH:3
+DA:3,1
+DA:4,2
+DA:5,4
+LH:3
+LF:3
+end_of_record
