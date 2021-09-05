@@ -1,7 +1,6 @@
 package io.bazel.rulesscala.dependencyanalyzer
 
 import org.scalatest.funsuite._
-import io.bazel.rulesscala.dependencyanalyzer.DependencyTrackingMethod
 import io.bazel.rulesscala.utils.TestUtil
 import io.bazel.rulesscala.utils.TestUtil._
 
