@@ -9,13 +9,14 @@ FNDA:1,coverage_scalatest/A1$::a1 (Z)Lcoverage_scalatest/B1$;
 FNDA:0,coverage_scalatest/A1::a1 (Z)Lcoverage_scalatest/B1$;
 FNF:4
 FNH:3
-BA:5,2
-BRF:1
+BRDA:5,0,0,0
+BRDA:5,0,1,1
+BRF:2
 BRH:1
 DA:3,1
-DA:5,4
+DA:5,1
 DA:6,1
-DA:7,4
+DA:7,1
 LH:4
 LF:4
 end_of_record
@@ -31,8 +32,8 @@ FNDA:0,coverage_scalatest/A2::a2 ()V
 FNF:4
 FNH:3
 DA:3,1
-DA:5,12
-DA:8,4
+DA:5,1
+DA:8,1
 LH:3
 LF:3
 end_of_record
@@ -49,7 +50,7 @@ FNF:4
 FNH:2
 DA:3,1
 DA:6,0
-DA:9,4
+DA:9,1
 LH:2
 LF:3
 end_of_record
@@ -63,7 +64,7 @@ FNDA:0,coverage_scalatest/B2::b2_b ()V
 FNF:3
 FNH:1
 DA:3,0
-DA:5,3
+DA:5,1
 DA:9,0
 DA:10,0
 LH:1
@@ -81,8 +82,8 @@ FNDA:1,coverage_scalatest/C2::c2 (Ljava/lang/String;)Ljava/lang/String;
 FNF:4
 FNH:4
 DA:3,1
-DA:5,9
-DA:7,4
+DA:5,1
+DA:7,1
 LH:3
 LF:3
 end_of_record
@@ -98,9 +99,9 @@ FNDA:0,coverage_scalatest/D1::veryLongFunctionNameIsHereAaaaaaaaa ()V
 FNF:4
 FNH:3
 DA:3,1
-DA:5,6
-DA:9,8
-DA:41,4
+DA:5,1
+DA:9,1
+DA:41,1
 LH:4
 LF:4
 end_of_record

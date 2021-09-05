@@ -56,16 +56,16 @@ tasks:
     platform: macos
     shell_commands:
     - "./test_rules_scala.sh"
-  test_coverage_linux_3_5_0:
+  test_coverage_linux_4_1_0:
     name: "./test_coverage"
     platform: ubuntu1804
-    bazel: 3.5.0
+    bazel: 4.1.0
     shell_commands:
       - "./test_coverage.sh"
-  test_coverage_macos_3_5_0:
+  test_coverage_macos_4_1_0:
     name: "./test_coverage"
     platform: macos
-    bazel: 3.5.0
+    bazel: 4.1.0
     shell_commands:
       - "./test_coverage.sh"
   test_reproducibility_linux:
@@ -91,7 +91,7 @@ tasks:
   examples_ubuntu2004:
     name: "./test_examples"
     platform: ubuntu2004
-    bazel: 3.5.0
+    bazel: 4.1.0
     shell_commands:
       - "./test_examples.sh"
   lint_ubuntu2004:
