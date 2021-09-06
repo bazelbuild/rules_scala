@@ -10,10 +10,10 @@ FNDA:1,com/example/consumer/Consumer::resourceList ()Ljava/util/Enumeration;
 FNF:4
 FNH:3
 DA:9,1
-DA:10,4
-DA:12,7
-DA:13,9
-DA:14,2
+DA:10,1
+DA:12,1
+DA:13,1
+DA:14,1
 LH:5
 LF:5
 end_of_record
@@ -29,8 +29,8 @@ FNDA:0,com/example/resource/Util::hello ()Ljava/lang/String;
 FNF:4
 FNH:3
 DA:3,1
-DA:4,2
-DA:5,4
+DA:4,1
+DA:5,1
 LH:3
 LF:3
 end_of_record

@@ -134,11 +134,11 @@ go_rules_dependencies()
 
 go_register_toolchains()
 
-bazel_toolchains_version = "3.5.0"
+bazel_toolchains_version = "4.1.0"
 
 http_archive(
     name = "bazel_toolchains",
-    sha256 = "89a053218639b1c5e3589a859bb310e0a402dedbe4ee369560e66026ae5ef1f2",
+    sha256 = "179ec02f809e86abf56356d8898c8bd74069f1bd7c56044050c2cd3d79d0e024",
     strip_prefix = "bazel-toolchains-%s" % bazel_toolchains_version,
     urls = [
         "https://mirror.bazel.build/github.com/bazelbuild/bazel-toolchains/releases/download/%s/bazel-toolchains-%s.tar.gz" % (bazel_toolchains_version, bazel_toolchains_version),
