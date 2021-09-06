@@ -16,7 +16,6 @@ def _stamp_jar(ctx, jar):
     #        java_toolchain = ctx.attr._java_toolchain[java_common.JavaToolchainInfo],
     #    )
 
-    # Stamp with custom built (https://github.com/bazelbuild/bazel/pull/12771)
     stamped_file = ctx.actions.declare_file(stamped_jar_filename)
 
     ctx.actions.run(
@@ -159,7 +158,7 @@ scala_import = rule(
             default = Label("@io_bazel_rules_scala//scala:libPlaceHolderClassToCreateEmptyJarForScalaImport.jar"),
         ),
         "_ijar": attr.label(
-            default = Label("@io_bazel_rules_scala//third_party/java_tools/ijar:ijar"),
+            default = Label("@bazel_tools//tools/jdk:ijar"),
             executable = True,
             cfg = "exec",
             allow_files = True,
