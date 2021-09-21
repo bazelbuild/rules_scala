@@ -9,8 +9,8 @@ import java.nio.file.{Files, Paths}
 class ArchiveEntriesTest extends SpecWithJUnit {
   "List only class files from a directory" in {
     val dir = Files.createTempDirectory("temp")
-    Files.createFile(Paths.get(dir.toString, "SomeFile"))
-    Files.createFile(Paths.get(dir.toString, "Another.class"))
+    Files.createFile(dir.resolve("SomeFile"))
+    Files.createFile(dir.resolve( "Another.class"))
 
     listClassFiles(dir.toFile) must containTheSameElementsAs(Seq("Another.class"))
   }
