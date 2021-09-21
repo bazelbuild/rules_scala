@@ -24,7 +24,7 @@ object ArchiveEntries {
 
   private def jarEntries(jarInputStream: JarInputStream): Stream[String] =
     Stream.continually(getJarEntryOrCloseStream(jarInputStream))
-      .takeWhile(_.isDefined)
+      .takeWhile(_.isEmpty)
       .flatten
       .map(_.getName)
 
