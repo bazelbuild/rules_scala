@@ -6,7 +6,7 @@ import java.util.jar.{JarEntry, JarInputStream}
 object ArchiveEntries {
   def listClassFiles(file: File): Stream[String] = {
     val allEntries = if (file.isDirectory)
-      directoryEntries(file).map(_.stripPrefix(file.getPath).stripPrefix("/"))
+      directoryEntries(file).map(_.stripPrefix(file.toString).stripPrefix("/"))
     else
       jarEntries(new JarInputStream(new FileInputStream(file)))
 
@@ -24,7 +24,7 @@ object ArchiveEntries {
 
   private def jarEntries(jarInputStream: JarInputStream): Stream[String] =
     Stream.continually(getJarEntryOrCloseStream(jarInputStream))
-      .takeWhile(_.isEmpty)
+      .takeWhile(_.nonEmpty)
       .flatten
       .map(_.getName)
 
