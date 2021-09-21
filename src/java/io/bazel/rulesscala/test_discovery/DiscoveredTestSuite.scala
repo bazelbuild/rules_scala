@@ -1,14 +1,14 @@
 package io.bazel.rulesscala.test_discovery
 
-import java.io.File
-import java.io.FileInputStream
-import java.lang.annotation.Annotation
-import java.lang.reflect.Modifier
-import java.util.jar.JarInputStream
+import io.bazel.rulesscala.test_discovery.ArchiveEntries.listClassFiles
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Suite
 import org.junit.runners.model.RunnerBuilder
+
+import java.io.File
+import java.lang.annotation.Annotation
+import java.lang.reflect.Modifier
 import scala.annotation.tailrec
 
 /**
@@ -43,47 +43,48 @@ class PrefixSuffixTestDiscoveringSuite(testClass: Class[Any], builder: RunnerBui
 
 object PrefixSuffixTestDiscoveringSuite {
 
-  private[rulesscala] def discoverClasses(): Array[Class[_]] = {
+  private val runWithAnnotation = classOf[RunWith]
+  private val testAnnotation = classOf[Test]
 
-    val archives = archivesPath.split(',')
-    val classes = archives.flatMap(discoverClassesIn)
+  private[rulesscala] def discoverClasses(): Array[Class[_]] = {
+    val archives = archivesPath.split(',').filter(_.nonEmpty)
+    val classes = archives.map(new File(_)).flatMap(discoverClassesIn).distinct
     if (classes.isEmpty)
-      throw new IllegalStateException("Was not able to discover any classes " +
-                                      s"for archives=${archives.mkString(",")}, " +
-                                      s"prefixes=$prefixes, " +
-                                      s"suffixes=$suffixes")
+      throw new IllegalStateException(
+        "Was not able to discover any classes " +
+          s"for archives=${archives.mkString(",")}, " +
+          s"prefixes=$prefixes, " +
+          s"suffixes=$suffixes"
+      )
     classes
   }
 
-  private def discoverClassesIn(archivePath: String): Array[Class[_]] = {
-    val archive = archiveInputStream(archivePath)
-    val classes = discoverClasses(archive, prefixes, suffixesWithClassSuffix)
-    archive.close()
+  private def discoverClassesIn(file: File): Stream[Class[_]] = {
+    val classes = discoverClasses(listClassFiles(file), prefixes, suffixesWithClassSuffix)
+
     if (printDiscoveredClasses) {
-      println("Discovered classes:")
+      println(s"Discovered classes in $file")
       classes.foreach(c => println(c.getName))
     }
     classes
   }
 
-  private def discoverClasses(archive: JarInputStream,
+  private def discoverClasses(entries: Stream[String],
                               prefixes: Set[String],
-                              suffixes: Set[String]): Array[Class[_]] =
-    matchingEntries(archive, prefixes, suffixes)
+                              suffixes: Set[String]): Stream[Class[_]] =
+    matchingEntries(entries, prefixes, suffixes)
       .map(dropFileSuffix)
       .map(fileToClassFormat)
       .filterNot(innerClasses)
       .map(Class.forName)
       .filter(concreteClasses)
       .filter(containsTests)
-      .toArray
 
-  private def matchingEntries(archive: JarInputStream,
-    prefixes: Set[String],
-    suffixes: Set[String]) =
-        entries(archive)
-          .filter(isClass)
-          .filter(entry => endsWith(suffixes)(entry) || startsWith(prefixes)(entry))
+  private def matchingEntries(entries: Stream[String],
+                              prefixes: Set[String],
+                              suffixes: Set[String]): Stream[String] =
+    entries
+      .filter(entry => endsWith(suffixes)(entry) || startsWith(prefixes)(entry))
 
   private def startsWith(prefixes: Set[String])(entry: String): Boolean = {
     val entryName = entryFileName(entry)
@@ -103,19 +104,6 @@ object PrefixSuffixTestDiscoveringSuite {
 
   private def fileToClassFormat(classEntry: String): String =
     classEntry.replace('/', '.')
-
-  private def isClass(entry: String): Boolean =
-    entry.endsWith(".class")
-
-  private def entries(jarInputStream: JarInputStream) =
-    Stream.continually(Option(jarInputStream.getNextJarEntry))
-    .takeWhile(_.isDefined)
-    .flatten
-    .map(_.getName)
-    .toList
-
-  private def archiveInputStream(archivePath: String) =
-    new JarInputStream(new FileInputStream(archivePath))
 
   private def archivesPath: String =
     System.getProperty("bazel.discover.classes.archives.file.paths") //this is set by scala_junit_test rule in scala.bzl
@@ -164,7 +152,4 @@ object PrefixSuffixTestDiscoveringSuite {
         testAnnotation.isAssignableFrom(annotation.annotationType)
       }
     }
-
-  private val runWithAnnotation = classOf[RunWith]
-  private val testAnnotation = classOf[Test]
 }
