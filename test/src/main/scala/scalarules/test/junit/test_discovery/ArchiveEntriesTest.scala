@@ -4,13 +4,13 @@ import io.bazel.rulesscala.test_discovery.ArchiveEntries.listClassFiles
 import org.specs2.mutable.SpecWithJUnit
 
 import java.io.File
-import java.nio.file.{Files, Paths}
+import java.nio.file.Files
 
 class ArchiveEntriesTest extends SpecWithJUnit {
   "List only class files from a directory" in {
     val dir = Files.createTempDirectory("temp")
     Files.createFile(dir.resolve("SomeFile"))
-    Files.createFile(dir.resolve( "Another.class"))
+    Files.createFile(dir.resolve("Another.class"))
 
     listClassFiles(dir.toFile) must containTheSameElementsAs(Seq("Another.class"))
   }
