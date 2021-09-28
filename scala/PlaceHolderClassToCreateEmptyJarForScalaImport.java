@@ -1,1 +1,1 @@
-public class PlaceHolderClassToCreateEmptyJarForScalaImport { }
+public class PlaceHolderClassToCreateEmptyJarForScalaImport {}

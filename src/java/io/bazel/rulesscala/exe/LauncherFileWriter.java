@@ -37,10 +37,12 @@ public class LauncherFileWriter {
             .addJoinedValues("jvm_flags", "\t", jvmFlags)
             .build();
 
-    Path launcher = Paths.get(Runfiles.create().rlocation("bazel_tools/tools/launcher/launcher.exe"));
+    Path launcher =
+        Paths.get(Runfiles.create().rlocation("bazel_tools/tools/launcher/launcher.exe"));
     Path outPath = Paths.get(location);
 
-    try (InputStream in = Files.newInputStream(launcher); OutputStream out = Files.newOutputStream(outPath)) {
+    try (InputStream in = Files.newInputStream(launcher);
+        OutputStream out = Files.newOutputStream(outPath)) {
       StreamCopy.copy(in, out);
 
       long dataLength = launchInfo.write(out);

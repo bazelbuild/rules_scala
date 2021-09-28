@@ -1,10 +1,10 @@
 package io.bazel.rulesscala.scalac;
 
+import static java.io.File.pathSeparator;
+
 import io.bazel.rulesscala.io_utils.StreamCopy;
 import io.bazel.rulesscala.jar.JarCreator;
 import io.bazel.rulesscala.worker.Worker;
-import scala.tools.nsc.reporters.ConsoleReporter;
-
 import java.io.*;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -14,13 +14,12 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-
-import static java.io.File.pathSeparator;
+import scala.tools.nsc.reporters.ConsoleReporter;
 
 class ScalacWorker implements Worker.Interface {
 
-  private static final boolean isWindows = System.getProperty("os.name").toLowerCase()
-      .contains("windows");
+  private static final boolean isWindows =
+      System.getProperty("os.name").toLowerCase().contains("windows");
 
   public static void main(String[] args) throws Exception {
     Worker.workerMain(args, new ScalacWorker());
@@ -74,10 +73,7 @@ class ScalacWorker implements Worker.Interface {
 
       /** Now build the output jar */
       String[] jarCreatorArgs = {
-          "-m", ops.manifestPath,
-          "-t", ops.stampLabel,
-          outputPath.toString(),
-          tmpPath.toString()
+        "-m", ops.manifestPath, "-t", ops.stampLabel, outputPath.toString(), tmpPath.toString()
       };
       JarCreator.main(jarCreatorArgs);
     } finally {
@@ -141,10 +137,8 @@ class ScalacWorker implements Worker.Interface {
       parent.mkdirs();
       outputPaths.add(f);
 
-      try (
-          InputStream is = jar.getInputStream(file);
-          OutputStream fos = new FileOutputStream(f)
-      ) {
+      try (InputStream is = jar.getInputStream(file);
+          OutputStream fos = new FileOutputStream(f)) {
         StreamCopy.copy(is, fos);
       }
     }
@@ -198,10 +192,10 @@ class ScalacWorker implements Worker.Interface {
       String currentTarget = encodeBazelTarget(ops.currentTarget);
 
       String[] dependencyAnalyzerParams = {
-          "-P:dependency-analyzer:strict-deps-mode:" + ops.strictDepsMode,
-          "-P:dependency-analyzer:unused-deps-mode:" + ops.unusedDependencyCheckerMode,
-          "-P:dependency-analyzer:current-target:" + currentTarget,
-          "-P:dependency-analyzer:dependency-tracking-method:" + ops.dependencyTrackingMethod,
+        "-P:dependency-analyzer:strict-deps-mode:" + ops.strictDepsMode,
+        "-P:dependency-analyzer:unused-deps-mode:" + ops.unusedDependencyCheckerMode,
+        "-P:dependency-analyzer:current-target:" + currentTarget,
+        "-P:dependency-analyzer:dependency-tracking-method:" + ops.dependencyTrackingMethod,
       };
 
       pluginParams.addAll(Arrays.asList(dependencyAnalyzerParams));
@@ -211,23 +205,23 @@ class ScalacWorker implements Worker.Interface {
       }
       if (ops.directTargets.length > 0) {
         String[] directTargets = encodeBazelTargets(ops.directTargets);
-        pluginParams
-            .add("-P:dependency-analyzer:direct-targets:" + String.join(":", directTargets));
+        pluginParams.add(
+            "-P:dependency-analyzer:direct-targets:" + String.join(":", directTargets));
       }
       if (ops.indirectJars.length > 0) {
-        pluginParams
-            .add("-P:dependency-analyzer:indirect-jars:" + String.join(":", ops.indirectJars));
+        pluginParams.add(
+            "-P:dependency-analyzer:indirect-jars:" + String.join(":", ops.indirectJars));
       }
       if (ops.indirectTargets.length > 0) {
         String[] indirectTargets = encodeBazelTargets(ops.indirectTargets);
-        pluginParams
-            .add("-P:dependency-analyzer:indirect-targets:" + String.join(":", indirectTargets));
+        pluginParams.add(
+            "-P:dependency-analyzer:indirect-targets:" + String.join(":", indirectTargets));
       }
       if (ops.unusedDepsIgnoredTargets.length > 0) {
         String[] ignoredTargets = encodeBazelTargets(ops.unusedDepsIgnoredTargets);
-        pluginParams
-            .add("-P:dependency-analyzer:unused-deps-ignored-targets:" + String
-                .join(":", ignoredTargets));
+        pluginParams.add(
+            "-P:dependency-analyzer:unused-deps-ignored-targets:"
+                + String.join(":", ignoredTargets));
       }
     }
 
@@ -240,7 +234,9 @@ class ScalacWorker implements Worker.Interface {
     String[] pluginArgs = buildPluginArgs(ops.plugins);
     String[] pluginParams = getPluginParamsFrom(ops);
 
-    String[] constParams = {"-classpath", String.join(pathSeparator, ops.classpath), "-d", tmpPath.toString()};
+    String[] constParams = {
+      "-classpath", String.join(pathSeparator, ops.classpath), "-d", tmpPath.toString()
+    };
 
     String[] compilerArgs =
         merge(ops.scalaOpts, pluginArgs, constParams, pluginParams, scalaSources);
@@ -306,12 +302,13 @@ class ScalacWorker implements Worker.Interface {
     }
   }
 
-  private static void copyResources(String[] sources, String[] targets, Path dest) throws IOException {
+  private static void copyResources(String[] sources, String[] targets, Path dest)
+      throws IOException {
     if (sources.length != targets.length)
-      throw new RuntimeException(String.format(
+      throw new RuntimeException(
+          String.format(
               "mismatch in resources: sources: %s targets: %s",
-              Arrays.toString(sources), Arrays.toString(targets))
-      );
+              Arrays.toString(sources), Arrays.toString(targets)));
 
     for (int i = 0; i < sources.length; i++) {
       Path source = Paths.get(sources[i]);

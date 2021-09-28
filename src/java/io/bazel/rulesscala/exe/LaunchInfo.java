@@ -132,8 +132,7 @@ public final class LaunchInfo {
      *
      * <ul>
      *   <li>{@code key} is "foo" and {@code value} is "bar", the written value is "foo=bar\0"
-     *   <li>{@code key} is "foo" and {@code value} is null or empty, the written value is
-     *       "foo=\0"
+     *   <li>{@code key} is "foo" and {@code value} is null or empty, the written value is "foo=\0"
      * </ul>
      */
     public Builder addKeyValuePair(String key, String value) {
@@ -152,12 +151,11 @@ public final class LaunchInfo {
      * <ul>
      *   <li>{@code key} is "foo", {@code delimiter} is ";", {@code values} is ["bar", "baz",
      *       "qux"], the written value is "foo=bar;baz;qux\0"
-     *   <li>{@code key} is "foo", {@code delimiter} is irrelevant, {@code value} is null or
-     *       empty, the written value is "foo=\0"
+     *   <li>{@code key} is "foo", {@code delimiter} is irrelevant, {@code value} is null or empty,
+     *       the written value is "foo=\0"
      * </ul>
      */
-    public Builder addJoinedValues(
-        String key, String delimiter, Iterable<String> values) {
+    public Builder addJoinedValues(String key, String delimiter, Iterable<String> values) {
       Preconditions.requireNotNull(key);
       Preconditions.requireNotNull(delimiter);
       if (!key.isEmpty()) {
