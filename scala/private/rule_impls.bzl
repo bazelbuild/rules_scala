@@ -125,7 +125,7 @@ def compile_scala(
         executable = scalac,
         mnemonic = "Scalac",
         progress_message = "scala %s" % target_label,
-        execution_requirements = {"supports-workers": "1"},
+        execution_requirements = {"supports-workers": "1", "supports-multiplex-workers": "1"},
         #  when we run with a worker, the `@argfile.path` is removed and passed
         #  line by line as arguments in the protobuf. In that case,
         #  the rest of the arguments are passed to the process that

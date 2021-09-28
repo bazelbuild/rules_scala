@@ -2,7 +2,12 @@ load("@rules_java//java:defs.bzl", "java_library", "java_test")
 
 java_library(
     name = "worker",
-    srcs = ["Worker.java"],
+    srcs = [
+        "ExitTrapped.java",
+        "MultiplexWorker.java",
+        "PermissionSecurityManager.java",
+        "Worker.java",
+    ],
     visibility = ["//visibility:public"],
     deps = [
         "//third_party/bazel/src/main/protobuf:worker_protocol_java_proto",

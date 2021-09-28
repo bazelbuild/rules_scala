@@ -9,10 +9,7 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.security.Permission;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * A base for JVM workers.
@@ -44,14 +41,7 @@ public final class Worker {
 
   /** The main loop for persistent worker processes */
   private static void persistentWorkerMain(Interface workerInterface) {
-    System.setSecurityManager(
-        new SecurityManager() {
-          @Override
-          public void checkPermission(Permission permission) {
-            Matcher matcher = exitPattern.matcher(permission.getName());
-            if (matcher.find()) throw new ExitTrapped(Integer.parseInt(matcher.group(1)));
-          }
-        });
+    System.setSecurityManager(new PermissionSecurityManager());
 
     InputStream stdin = System.in;
     PrintStream stdout = System.out;
@@ -115,7 +105,7 @@ public final class Worker {
   }
 
   /** The single pass runner for ephemeral (non-persistent) worker processes */
-  private static void ephemeralWorkerMain(String workerArgs[], Interface workerInterface)
+  static void ephemeralWorkerMain(String workerArgs[], Interface workerInterface)
       throws Exception {
     String[] args = expandArgsIfArgsfile(workerArgs);
     workerInterface.work(args);
@@ -166,17 +156,6 @@ public final class Worker {
       }
     }
   }
-
-  static class ExitTrapped extends RuntimeException {
-    final int code;
-
-    ExitTrapped(int code) {
-      super();
-      this.code = code;
-    }
-  }
-
-  private static Pattern exitPattern = Pattern.compile("exitVM\\.(-?\\d+)");
 
   private static String[] stringListToArray(List<String> argList) {
     int numArgs = argList.size();

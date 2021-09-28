@@ -22,11 +22,14 @@ java_binary(
     ],
 )
 
+REPORTER_COMPATIBILITY = "211/" if SCALA_MAJOR_VERSION == "2.11" else ""
+
 filegroup(
     name = "scalac_files",
     srcs = ["CompileOptions.java"] + ([
         "ScalacWorker.java",
         "ProtoReporter.java",
+        "%sStreamReporter.java" % REPORTER_COMPATIBILITY,
         "ReportableMainClass.java",
     ] if SCALA_MAJOR_VERSION.startswith("2") else ["ScalacWorker3.java"]),
     visibility = ["//visibility:public"],

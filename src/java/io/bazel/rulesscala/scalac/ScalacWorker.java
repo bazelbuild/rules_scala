@@ -4,7 +4,7 @@ import static java.io.File.pathSeparator;
 
 import io.bazel.rulesscala.io_utils.StreamCopy;
 import io.bazel.rulesscala.jar.JarCreator;
-import io.bazel.rulesscala.worker.Worker;
+import io.bazel.rulesscala.worker.MultiplexWorker;
 import java.io.*;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -16,17 +16,17 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import scala.tools.nsc.reporters.ConsoleReporter;
 
-class ScalacWorker implements Worker.Interface {
+class ScalacWorker implements MultiplexWorker.Interface {
 
   private static final boolean isWindows =
       System.getProperty("os.name").toLowerCase().contains("windows");
 
   public static void main(String[] args) throws Exception {
-    Worker.workerMain(args, new ScalacWorker());
+    MultiplexWorker.workerMain(args, new ScalacWorker());
   }
 
   @Override
-  public void work(String[] args) throws Exception {
+  public void work(String[] args, PrintStream out) throws Exception {
     CompileOptions ops = new CompileOptions(args);
 
     Path outputJar = Paths.get(ops.outputName);
@@ -58,7 +58,7 @@ class ScalacWorker implements Worker.Interface {
      * Compile scala sources if available (if there are none, we will simply compile java sources).
      */
     if (scalaSources.length > 0) {
-      compileScalaSources(ops, scalaSources, classes);
+      compileScalaSources(ops, scalaSources, classes, out);
     }
 
     /** Copy the resources */
@@ -237,7 +237,8 @@ class ScalacWorker implements Worker.Interface {
     return pluginParams.toArray(new String[pluginParams.size()]);
   }
 
-  private static void compileScalaSources(CompileOptions ops, String[] scalaSources, Path classes)
+  private static void compileScalaSources(
+      CompileOptions ops, String[] scalaSources, Path classes, PrintStream out)
       throws IllegalAccessException, IOException {
 
     String[] pluginArgs = buildPluginArgs(ops.plugins);
@@ -250,7 +251,7 @@ class ScalacWorker implements Worker.Interface {
     String[] compilerArgs =
         merge(ops.scalaOpts, pluginArgs, constParams, pluginParams, scalaSources);
 
-    ReportableMainClass comp = new ReportableMainClass(ops);
+    ReportableMainClass comp = new ReportableMainClass(ops, out, out);
 
     long start = System.currentTimeMillis();
     try {

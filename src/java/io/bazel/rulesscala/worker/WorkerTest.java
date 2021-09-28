@@ -37,8 +37,7 @@ public class WorkerTest {
         };
 
     int code =
-        assertThrows(Worker.ExitTrapped.class, () -> Worker.workerMain(new String[] {}, worker))
-            .code;
+        assertThrows(ExitTrapped.class, () -> Worker.workerMain(new String[] {}, worker)).code;
 
     assert (code == 99);
   }
