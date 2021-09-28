@@ -18,5 +18,4 @@ public class StreamCopy {
       to.write(buffer, 0, readCount);
     }
   }
-
 }

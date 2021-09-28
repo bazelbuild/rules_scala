@@ -5,7 +5,5 @@ import org.junit.Test;
 public class JunitJavaSeparateTargetTest {
 
   @Test
-  public void someTest() {
-
-  }
+  public void someTest() {}
 }
