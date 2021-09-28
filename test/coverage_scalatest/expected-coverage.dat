@@ -55,18 +55,18 @@ LH:2
 LF:3
 end_of_record
 SF:test/coverage_scalatest/B2.java
-FN:3,coverage_scalatest/B2::<init> ()V
-FN:5,coverage_scalatest/B2::b2_a ()Ljava/lang/String;
-FN:9,coverage_scalatest/B2::b2_b ()V
+FN:4,coverage_scalatest/B2::<init> ()V
+FN:6,coverage_scalatest/B2::b2_a ()Ljava/lang/String;
+FN:10,coverage_scalatest/B2::b2_b ()V
 FNDA:0,coverage_scalatest/B2::<init> ()V
 FNDA:1,coverage_scalatest/B2::b2_a ()Ljava/lang/String;
 FNDA:0,coverage_scalatest/B2::b2_b ()V
 FNF:3
 FNH:1
-DA:3,0
-DA:5,1
-DA:9,0
+DA:4,0
+DA:6,1
 DA:10,0
+DA:11,0
 LH:1
 LF:4
 end_of_record
