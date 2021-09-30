@@ -12,7 +12,7 @@ import org.junit.runners.model.RunnerBuilder
 import org.specs2.concurrent.ExecutionEnv
 import org.specs2.control.Action
 import org.specs2.data.Trees._
-import org.specs2.fp.TreeLoc
+import org.specs2.fp.{Tree, TreeLoc}
 import org.specs2.main.{Arguments, CommandLine, Select}
 import org.specs2.specification.core.{Env, Fragment, SpecStructure}
 import org.specs2.specification.process.Stats
@@ -91,7 +91,13 @@ class FilteredSpecs2ClassRunner(testClass: Class[_], testFilter: Pattern)
       .getOrElse(allDescriptions[specs2_v3].createDescriptionTree(specStructure))
 
   private def allFragmentDescriptions(implicit ee: ExecutionEnv): Map[Fragment, Description] =
-    createDescriptionTree(ee).toTree.flattenLeft.toMap
+    flattenLeft(createDescriptionTree(ee).toTree).toMap
+
+  private def flattenLeft(tree: Tree[(Fragment, Description)]): Stream[(Fragment, Description)] =
+    squishLeft(tree, Stream.Empty)
+
+  private def squishLeft(tree: Tree[(Fragment, Description)], xs: Stream[(Fragment, Description)]): Stream[(Fragment, Description)] =
+    Stream.cons(tree.rootLabel, tree.subForest.reverse.foldLeft(xs)((s, t) => squishLeft(t, s)))
 
   /**
    * Creates a mapping from sanitized example fragment name to original (un-sanitized) text.
