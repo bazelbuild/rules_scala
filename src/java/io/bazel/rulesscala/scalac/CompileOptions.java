@@ -29,6 +29,7 @@ public class CompileOptions {
   public final String currentTarget;
   public final String stampLabel;
   public final String statsfile;
+  public final boolean enableStatsFile;
   public final String dependencyTrackingMethod;
   public final String diagnosticsFile;
   public final boolean enableDiagnosticsReport;
@@ -66,6 +67,7 @@ public class CompileOptions {
     dependencyTrackingMethod = args.getSingleOrError("DependencyTrackingMethod");
 
     statsfile = args.getSingleOrError("StatsfileOutput");
+    enableStatsFile = Boolean.parseBoolean(args.getSingleOrError("EnableStatsFile"));
     enableDiagnosticsReport =
         Boolean.parseBoolean(args.getSingleOrError("EnableDiagnosticsReport"));
     diagnosticsFile = args.getSingleOrError("DiagnosticsFile");
