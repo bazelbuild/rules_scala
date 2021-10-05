@@ -69,7 +69,7 @@ def compile_scala(
     resource_paths = _resource_paths(resources, resource_strip_prefix)
     enable_stats_file = toolchain.enable_stats_file
     enable_diagnostics_report = toolchain.enable_diagnostics_report
-    
+
     args = ctx.actions.args()
     args.set_param_file_format("multiline")
     args.use_param_file(param_file_arg = "@%s", use_always = True)
@@ -110,10 +110,6 @@ def compile_scala(
         args.add_all("--UnusedDepsIgnoredTargets", unused_dependency_checker_ignored_targets)
 
     outs = [output, statsfile, diagnosticsfile]
-    # if enable_stats_file:
-    #     outs = [output, statsfile, diagnosticsfile]
-    # else:
-    #     outs = [output, diagnosticsfile]
 
     ins = depset(
         direct = [manifest] + sources + classpath_resources + resources + resource_jars,
