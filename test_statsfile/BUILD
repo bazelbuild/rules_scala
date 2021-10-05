@@ -2,7 +2,6 @@ load(
     "//scala:scala.bzl",
     "scala_binary",
 )
-
 load("//test:check_statsfile.bzl", "check_statsfile", "check_statsfile_empty")
 
 scala_binary(

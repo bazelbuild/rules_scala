@@ -4,7 +4,7 @@ def check_statsfile(target):
 def check_statsfile_empty(target):
     _check_statsfile(target)
 
-def _check_statsfile(target, predicate=""):
+def _check_statsfile(target, predicate = ""):
     statsfile = ":%s.statsfile" % target
     outfile = "%s.statsfile.good" % target
 
