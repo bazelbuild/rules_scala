@@ -59,6 +59,7 @@ def _scala_toolchain_impl(ctx):
     if dependency_tracking_method not in ("ast", "high-level"):
         fail("Internal error: invalid dependency_tracking_method " + dependency_tracking_method)
 
+    enable_stats_file = ctx.attr.enable_stats_file
     enable_diagnostics_report = ctx.attr.enable_diagnostics_report
 
     all_strict_deps_patterns = ctx.attr.dependency_tracking_strict_deps_patterns
@@ -82,6 +83,7 @@ def _scala_toolchain_impl(ctx):
         scala_test_jvm_flags = ctx.attr.scala_test_jvm_flags,
         enable_diagnostics_report = enable_diagnostics_report,
         jacocorunner = ctx.attr.jacocorunner,
+        enable_stats_file = enable_stats_file,
     )
     return [toolchain]
 
@@ -130,6 +132,10 @@ scala_toolchain = rule(
         ),
         "jacocorunner": attr.label(
             default = Label("@bazel_tools//tools/jdk:JacocoCoverage"),
+        ),
+        "enable_stats_file": attr.bool(
+            default = True,
+            doc = "Enable writing of statsfile",
         ),
     },
     fragments = ["java"],

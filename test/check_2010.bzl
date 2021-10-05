@@ -1,16 +1,10 @@
-def check_statsfile(target):
-    _check_statsfile(target, "!")
-
-def check_statsfile_empty(target):
-    _check_statsfile(target)
-
-def _check_statsfile(target, predicate = ""):
+def check_2010(target):
     statsfile = ":%s.statsfile" % target
     outfile = "%s.statsfile.good" % target
 
     cmd = """
-TIME_MS=`awk -F '=' '$$1 == "build_time" {{ print $$2 }}' {statsfile}`
-if [ """ + predicate + """ -z "$$TIME_MS" ]; then
+TIMESTAMP=`TZ=UTC date -r {statsfile} "+%Y-%m-%d %H:%M:%S"`
+if [ "$$TIMESTAMP" == "2010-01-01 00:00:00" ]; then
   touch '{outfile}'
 fi
 """

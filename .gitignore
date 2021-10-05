@@ -8,3 +8,4 @@ hash2
 .ijwb
 .metals
 unformatted-*.backup.scala
+.vscode

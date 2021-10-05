@@ -13,6 +13,7 @@ load(
     "scala_test",
     "scala_test_suite",
 )
+load(":check_2010.bzl", "check_2010")
 load(":check_statsfile.bzl", "check_statsfile")
 
 package(default_testonly = 1)
@@ -235,6 +236,16 @@ scala_library(
         "//test/src/main/resources/scalarules/test:generated-hello",
         "//test/src/main/resources/scalarules/test:more-byes",
         "//test/src/main/resources/scalarules/test:more-hellos",
+    ],
+)
+
+scala_binary(
+    name = "NoSourceBinary",
+    srcs = [],
+    main_class = "scalarules.test.ScalaLibBinary",
+    resources = [
+        "//test/data:foo.txt",
+        "//test/data:more.txt",
     ],
 )
 
@@ -668,6 +679,8 @@ scala_library(
 check_statsfile("ScalaBinary")
 
 check_statsfile("ScalaLibBinary")
+
+check_2010("NoSourceBinary")
 
 #discovering tests from a separate target
 scala_library(

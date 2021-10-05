@@ -259,8 +259,14 @@ class ScalacWorker implements Worker.Interface {
     }
 
     try {
+      String buildTime = "";
+      // If enable stats file we write the volatile string component
+      // otherwise empty string for better remote cache performance.
+      if (ops.enableStatsFile) {
+        buildTime = Long.toString(stop - start);
+      }
       Files.write(
-          Paths.get(ops.statsfile), Arrays.asList("build_time=" + Long.toString(stop - start)));
+          Paths.get(ops.statsfile), Arrays.asList("build_time=" + buildTime));
     } catch (IOException ex) {
       throw new RuntimeException("Unable to write statsfile to " + ops.statsfile, ex);
     }

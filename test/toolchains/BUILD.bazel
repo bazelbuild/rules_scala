@@ -104,3 +104,16 @@ toolchain(
     toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
     visibility = ["//visibility:public"],
 )
+
+scala_toolchain(
+    name = "enable_stats_file_disabled_toolchain_impl",
+    enable_stats_file = False,
+    visibility = ["//visibility:public"],
+)
+
+toolchain(
+    name = "enable_stats_file_disabled_toolchain",
+    toolchain = "enable_stats_file_disabled_toolchain_impl",
+    toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
+    visibility = ["//visibility:public"],
+)
