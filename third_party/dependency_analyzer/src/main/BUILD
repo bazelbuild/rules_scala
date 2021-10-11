@@ -1,5 +1,5 @@
 load("//scala:scala.bzl", "scala_library_for_plugin_bootstrapping")
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_MAJOR_VERSION")
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_MAJOR_VERSION", "SCALA_VERSION")
 
 licenses(["notice"])  # 3-clause BSD
 
@@ -17,7 +17,14 @@ scala_library_for_plugin_bootstrapping(
     ],
 )
 
-REPORTER_COMPATIBILITY = "213" if SCALA_MAJOR_VERSION == "2.13" else ""
+SCALA_MINOR_VERSION = int(SCALA_VERSION.replace(
+    "%s." % SCALA_MAJOR_VERSION,
+    "",
+))
+
+REPORTER_COMPATIBILITY_FOR_212 = SCALA_MAJOR_VERSION == "2.12" and SCALA_MINOR_VERSION >= 13
+
+REPORTER_COMPATIBILITY = "213" if (SCALA_MAJOR_VERSION == "2.13" or REPORTER_COMPATIBILITY_FOR_212) else ""
 
 scala_library_for_plugin_bootstrapping(
     name = "dependency_analyzer",
