@@ -1,15 +1,15 @@
 artifacts = {
     "io_bazel_rules_scala_scala_library": {
-        "artifact": "org.scala-lang:scala-library:2.12.11",
-        "sha256": "dbfe77a3fc7a16c0c7cb6cb2b91fecec5438f2803112a744cb1b187926a138be",
+        "artifact": "org.scala-lang:scala-library:2.12.14",
+        "sha256": "0451dce8322903a6c2aa7d31232b54daa72a61ced8ade0b4c5022442a3f6cb57",
     },
     "io_bazel_rules_scala_scala_compiler": {
-        "artifact": "org.scala-lang:scala-compiler:2.12.11",
-        "sha256": "e901937dbeeae1715b231a7cfcd547a10d5bbf0dfb9d52d2886eae18b4d62ab6",
+        "artifact": "org.scala-lang:scala-compiler:2.12.14",
+        "sha256": "2a1b3fbf9c956073c8c5374098a6f987e3b8d76e34756ab985fc7d2ca37ee113",
     },
     "io_bazel_rules_scala_scala_reflect": {
-        "artifact": "org.scala-lang:scala-reflect:2.12.11",
-        "sha256": "5f9e156aeba45ef2c4d24b303405db259082739015190b3b334811843bd90d6a",
+        "artifact": "org.scala-lang:scala-reflect:2.12.14",
+        "sha256": "497f4603e9d19dc4fa591cd467de5e32238d240bbd955d3dac6390b270889522",
     },
     "io_bazel_rules_scala_scalatest": {
         "artifact": "org.scalatest:scalatest_2.12:3.1.2",
@@ -110,8 +110,8 @@ artifacts = {
         "sha256": "b5f1d6071f1548d05be82f59f9039c7d37a1787bd8e3c677e31ee275af4a4621",
     },
     "org_scala_lang_scalap": {
-        "artifact": "org.scala-lang:scalap:2.12.10",
-        "sha256": "4641b0a55fe1ebec995b4daea9183c21651c03f77d2ed08b345507474eeabe72",
+        "artifact": "org.scala-lang:scalap:2.12.14",
+        "sha256": "52c37b4e5a37146a9ce5e48b8fb2c39aa0ec7eb867c65708a5cdac786ac79f2a",
         "deps": [
             "@io_bazel_rules_scala_scala_compiler",
         ],

@@ -79,7 +79,7 @@ scalatest_toolchain()
 
 This will load the `rules_scala` repository at the commit sha
 `rules_scala_version` into your Bazel project and register a [Scala
-toolchain](#scala_toolchain) at the default Scala version (2.12.11)
+toolchain](#scala_toolchain) at the default Scala version (2.12.14)
 
 Then in your BUILD file just add the following so the rules will be available:
 ```python
@@ -134,7 +134,8 @@ Previous minor versions may work but are supported only on a best effort basis.
 To configure Scala version you must call `scala_config(scala_version = "2.xx.xx")` and configure 
 dependencies by declaring [scala_toolchain](https://github.com/bazelbuild/rules_scala/blob/master/docs/scala_toolchain.md). 
 For a quick start you can use `scala_repositories()` and `scala_register_toolchains()`, which have 
-dependency providers configured for `2.11.12`, `2.12.11` and `2.13.3` versions.
+dependency providers configured for `2.11.12`, `2.12.14` and `2.13.3` versions.
+
 
 ```starlark
 # WORKSPACE
