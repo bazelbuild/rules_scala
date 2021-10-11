@@ -134,13 +134,13 @@ Previous minor versions may work but are supported only on a best effort basis.
 To configure Scala version you must call `scala_config(scala_version = "2.xx.xx")` and configure 
 dependencies by declaring [scala_toolchain](https://github.com/bazelbuild/rules_scala/blob/master/docs/scala_toolchain.md). 
 For a quick start you can use `scala_repositories()` and `scala_register_toolchains()`, which have 
-dependency providers configured for `2.11.12`, `2.12.14` and `2.13.3` versions.
+dependency providers configured for `2.11.12`, `2.12.14` and `2.13.6` versions.
 
 
 ```starlark
 # WORKSPACE
 load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
-scala_config(scala_version = "2.13.3")
+scala_config(scala_version = "2.13.6")
 
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
 scala_repositories()
