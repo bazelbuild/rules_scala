@@ -126,6 +126,8 @@ Please check [coverage.md](docs/coverage.md) for more details on coverage suppor
 
 ## Selecting Scala version
 
+### With toolchains
+
 Rules scala supports the last two released minor versions for each of Scala 2.11, 2.12, 2.13.
 Previous minor versions may work but are supported only on a best effort basis.
 
@@ -150,6 +152,32 @@ If you're using any of the rules `twitter_scrooge`, `scala_proto_repositories`
 or `specs2_junit_repositories` you also need to specify `scala_version` for them. See `./test_version/WORKSPACE.template`
 for an example workspace using another scala version.
 
+### As an option for `scala_repositories()`
+
+It's also possible to override the scala artifacts while calling `scala_repositories()`:
+
+```starlark
+scala_repositories(
+  overriden_artifacts = {
+    # Change both the artifact names and sha256s.
+    "io_bazel_rules_scala_scala_library": {
+        "artifact": "org.scala-lang:scala-library:2.12.14",
+        "sha256": "0451dce8322903a6c2aa7d31232b54daa72a61ced8ade0b4c5022442a3f6cb57",
+    },
+    "io_bazel_rules_scala_scala_compiler": {
+        "artifact": "org.scala-lang:scala-compiler:2.12.14",
+        "sha256": "2a1b3fbf9c956073c8c5374098a6f987e3b8d76e34756ab985fc7d2ca37ee113",
+    },
+    "io_bazel_rules_scala_scala_reflect": {
+        "artifact": "org.scala-lang:scala-reflect:2.12.14",
+        "sha256": "497f4603e9d19dc4fa591cd467de5e32238d240bbd955d3dac6390b270889522",
+    }
+  }
+)
+```
+
+Note: Toolchains are a more flexible way to configure dependencies, so you should prefer that way.
+Please also note, that the `overriden_artifacts` parameter is likely to be removed in the future.
 
 ## Bazel compatible versions
 
