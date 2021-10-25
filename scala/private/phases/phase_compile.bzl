@@ -3,7 +3,7 @@
 #
 # DOCUMENT THIS
 #
-load("@bazel_tools//tools/jdk:toolchain_utils.bzl", "find_java_runtime_toolchain", "find_java_toolchain")
+load("@bazel_tools//tools/jdk:toolchain_utils.bzl", "find_java_toolchain")
 load(
     "@io_bazel_rules_scala//scala/private:paths.bzl",
     _get_files_with_extension = "get_files_with_extension",
@@ -309,7 +309,6 @@ def _pack_source_jar(ctx, scala_srcs, in_srcjars):
         sources = scala_srcs,
         source_jars = in_srcjars,
         java_toolchain = find_java_toolchain(ctx, ctx.attr._java_toolchain),
-        host_javabase = find_java_runtime_toolchain(ctx, ctx.attr._host_javabase),
     )
 
 def _try_to_compile_java_jar(

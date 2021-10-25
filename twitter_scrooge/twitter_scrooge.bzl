@@ -462,10 +462,6 @@ scrooge_java_aspect = aspect(
         common_attrs,
         {
             "_java_toolchain": attr.label(default = Label("@bazel_tools//tools/jdk:current_java_toolchain")),
-            "_host_javabase": attr.label(
-                default = Label("@bazel_tools//tools/jdk:current_java_runtime"),
-                cfg = "exec",
-            ),
         },
     ),
     required_aspect_providers = common_aspect_providers,

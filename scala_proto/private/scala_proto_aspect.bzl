@@ -5,7 +5,6 @@ load("//scala/private:rule_impls.bzl", "compile_scala")
 load("//scala/private/toolchain_deps:toolchain_deps.bzl", "find_deps_info_on")
 load(
     "@bazel_tools//tools/jdk:toolchain_utils.bzl",
-    "find_java_runtime_toolchain",
     "find_java_toolchain",
 )
 load(
@@ -53,7 +52,6 @@ def _pack_sources(ctx, src_jars):
         source_jars = src_jars,
         output_source_jar = ctx.actions.declare_file(ctx.label.name + "_scalapb-src.jar"),
         java_toolchain = find_java_toolchain(ctx, ctx.attr._java_toolchain),
-        host_javabase = find_java_runtime_toolchain(ctx, ctx.attr._host_javabase),
     )
 
 def _generate_sources(ctx, toolchain, proto):
@@ -196,10 +194,6 @@ def make_scala_proto_aspect(*extras):
     attrs = {
         "_java_toolchain": attr.label(
             default = Label("@bazel_tools//tools/jdk:current_java_toolchain"),
-        ),
-        "_host_javabase": attr.label(
-            default = Label("@bazel_tools//tools/jdk:current_java_runtime"),
-            cfg = "exec",
         ),
     }
     return aspect(
