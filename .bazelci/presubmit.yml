@@ -5,8 +5,6 @@ tasks:
     name: "bazel test //test/..."      
     platform: ubuntu1804
     shell_commands:
-    # Install xmllint
-    - sudo apt update && sudo apt install -y libxml2-utils
     # Disable local disk caching on CI.
     - mv tools/bazel.rc.buildkite tools/bazel.rc
     - echo "import %workspace%/tools/bazel.rc" > .bazelrc
@@ -46,6 +44,8 @@ tasks:
     name: "./test_rules_scala"
     platform: ubuntu1804
     shell_commands:
+    # Install xmllint
+    - sudo apt update && sudo apt install -y libxml2-utils
     - "./test_rules_scala.sh"
   test_rules_scala_linux_latest:
     name: "./test_rules_scala (latest bazel)"
