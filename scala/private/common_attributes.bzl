@@ -92,10 +92,6 @@ implicit_deps = {
     "_java_toolchain": attr.label(
         default = Label("@bazel_tools//tools/jdk:current_java_toolchain"),
     ),
-    "_host_javabase": attr.label(
-        default = Label("@bazel_tools//tools/jdk:current_java_runtime"),
-        cfg = "exec",
-    ),
     "_java_runtime": attr.label(
         default = Label("@bazel_tools//tools/jdk:current_java_runtime"),
     ),
