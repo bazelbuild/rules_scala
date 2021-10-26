@@ -5,6 +5,8 @@ tasks:
     name: "bazel test //test/..."      
     platform: ubuntu1804
     shell_commands:
+    # Install xmllint
+    - sudo apt update && sudo apt install -y libxml2-utils
     # Disable local disk caching on CI.
     - mv tools/bazel.rc.buildkite tools/bazel.rc
     - echo "import %workspace%/tools/bazel.rc" > .bazelrc
