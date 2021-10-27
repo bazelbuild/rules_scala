@@ -24,5 +24,4 @@ collect_plus_one_deps_aspect = aspect(
     toolchains = [
         "@io_bazel_rules_scala//scala:toolchain_type",
     ],
-    incompatible_use_toolchain_transition = True,
 )

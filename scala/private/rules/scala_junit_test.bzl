@@ -125,7 +125,6 @@ def make_scala_junit_test(*extras):
         ),
         test = True,
         toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
-        incompatible_use_toolchain_transition = True,
         implementation = _scala_junit_test_impl,
     )
 

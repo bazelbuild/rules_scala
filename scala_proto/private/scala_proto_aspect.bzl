@@ -199,7 +199,6 @@ def make_scala_proto_aspect(*extras):
     return aspect(
         implementation = _scala_proto_aspect_impl,
         attr_aspects = ["deps"],
-        incompatible_use_toolchain_transition = True,
         attrs = dicts.add(
             attrs,
             extras_phases(extras),

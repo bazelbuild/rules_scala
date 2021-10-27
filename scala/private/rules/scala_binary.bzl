@@ -76,7 +76,6 @@ def make_scala_binary(*extras):
             *[extra["outputs"] for extra in extras if "outputs" in extra]
         ),
         toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
-        incompatible_use_toolchain_transition = True,
         implementation = _scala_binary_impl,
     )
 

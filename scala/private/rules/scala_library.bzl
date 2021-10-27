@@ -96,7 +96,6 @@ def make_scala_library(*extras):
             *[extra["outputs"] for extra in extras if "outputs" in extra]
         ),
         toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
-        incompatible_use_toolchain_transition = True,
         implementation = _scala_library_impl,
     )
 
@@ -181,7 +180,6 @@ def make_scala_library_for_plugin_bootstrapping(*extras):
             *[extra["outputs"] for extra in extras if "outputs" in extra]
         ),
         toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
-        incompatible_use_toolchain_transition = True,
         implementation = _scala_library_for_plugin_bootstrapping_impl,
     )
 
@@ -248,7 +246,6 @@ def make_scala_macro_library(*extras):
             *[extra["outputs"] for extra in extras if "outputs" in extra]
         ),
         toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
-        incompatible_use_toolchain_transition = True,
         implementation = _scala_macro_library_impl,
     )
 

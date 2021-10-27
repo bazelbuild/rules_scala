@@ -114,7 +114,6 @@ def make_scala_test(*extras):
         ),
         test = True,
         toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
-        incompatible_use_toolchain_transition = True,
         implementation = _scala_test_impl,
     )
 

@@ -13,6 +13,5 @@ export_scalapb_toolchain_deps = rule(
             mandatory = True,
         ),
     },
-    incompatible_use_toolchain_transition = True,
     toolchains = ["@io_bazel_rules_scala//scala_proto:deps_toolchain_type"],
 )
