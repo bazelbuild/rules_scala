@@ -303,9 +303,12 @@ def _create_scala_compilation_provider(ctx, ijar, source_jar, deps_providers):
     )
 
 def _pack_source_jar(ctx, scala_srcs, in_srcjars):
+    output_jar = ctx.outputs.jar
+    source_jar_name = output_jar.basename[:-len(output_jar.extension)] + "-src.jar"
+    output_source_jar = ctx.actions.declare_file(source_jar_name, sibling = output_jar)
     return java_common.pack_sources(
         ctx.actions,
-        output_jar = ctx.outputs.jar,
+        output_source_jar = output_source_jar,
         sources = scala_srcs,
         source_jars = in_srcjars,
         java_toolchain = find_java_toolchain(ctx, ctx.attr._java_toolchain),
