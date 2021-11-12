@@ -27,58 +27,65 @@ class ScalacWorker implements Worker.Interface {
 
   @Override
   public void work(String[] args) throws Exception {
-    Path tmpPath = null;
-    try {
-      CompileOptions ops = new CompileOptions(args);
+    CompileOptions ops = new CompileOptions(args);
 
-      Path outputPath = FileSystems.getDefault().getPath(ops.outputName);
-      tmpPath = Files.createTempDirectory(outputPath.getParent(), "tmp");
+    Path outputJar = Paths.get(ops.outputName);
+    Path workdir = ensureEmptyWorkDirectory(outputJar, ops.currentTarget);
+    Path classes = Files.createDirectories(workdir.resolve("classes"));
+    Path sources = Files.createDirectories(workdir.resolve("sources"));
 
-      List<File> jarFiles = extractSourceJars(ops, outputPath.getParent());
-      List<File> scalaJarFiles = filterFilesByExtension(jarFiles, ".scala");
-      List<File> javaJarFiles = filterFilesByExtension(jarFiles, ".java");
+    List<File> jarFiles = extractSourceJars(ops, sources);
+    List<File> scalaJarFiles = filterFilesByExtension(jarFiles, ".scala");
+    List<File> javaJarFiles = filterFilesByExtension(jarFiles, ".java");
 
-      if (!ops.expectJavaOutput && ops.javaFiles.length != 0) {
-        throw new RuntimeException("Cannot have java source files when no expected java output");
-      }
-
-      if (!ops.expectJavaOutput && !javaJarFiles.isEmpty()) {
-        throw new RuntimeException(
-            "Found java files in source jars but expect Java output is set to false");
-      }
-
-      String[] scalaSources = collectSrcJarSources(ops.files, scalaJarFiles, javaJarFiles);
-
-      String[] javaSources = appendToString(ops.javaFiles, javaJarFiles);
-      if (scalaSources.length == 0 && javaSources.length == 0) {
-        throw new RuntimeException("Must have input files from either source jars or local files.");
-      }
-
-      /**
-       * Compile scala sources if available (if there are none, we will simply compile java
-       * sources).
-       */
-      if (scalaSources.length > 0) {
-        compileScalaSources(ops, scalaSources, tmpPath);
-      }
-
-      /** Copy the resources */
-      copyResources(ops.resourceSources, ops.resourceTargets, tmpPath);
-
-      /** Extract and copy resources from resource jars */
-      copyResourceJars(ops.resourceJars, tmpPath);
-
-      /** Copy classpath resources to root of jar */
-      copyClasspathResourcesToRoot(ops.classpathResourceFiles, tmpPath);
-
-      /** Now build the output jar */
-      String[] jarCreatorArgs = {
-        "-m", ops.manifestPath, "-t", ops.stampLabel, outputPath.toString(), tmpPath.toString()
-      };
-      JarCreator.main(jarCreatorArgs);
-    } finally {
-      removeTmp(tmpPath);
+    if (!ops.expectJavaOutput && ops.javaFiles.length != 0) {
+      throw new RuntimeException("Cannot have java source files when no expected java output");
     }
+
+    if (!ops.expectJavaOutput && !javaJarFiles.isEmpty()) {
+      throw new RuntimeException(
+          "Found java files in source jars but expect Java output is set to false");
+    }
+
+    String[] scalaSources = collectSrcJarSources(ops.files, scalaJarFiles, javaJarFiles);
+
+    String[] javaSources = appendToString(ops.javaFiles, javaJarFiles);
+    if (scalaSources.length == 0 && javaSources.length == 0) {
+      throw new RuntimeException("Must have input files from either source jars or local files.");
+    }
+
+    /**
+     * Compile scala sources if available (if there are none, we will simply compile java sources).
+     */
+    if (scalaSources.length > 0) {
+      compileScalaSources(ops, scalaSources, classes);
+    }
+
+    /** Copy the resources */
+    copyResources(ops.resourceSources, ops.resourceTargets, classes);
+
+    /** Extract and copy resources from resource jars */
+    copyResourceJars(ops.resourceJars, classes);
+
+    /** Copy classpath resources to root of jar */
+    copyClasspathResourcesToRoot(ops.classpathResourceFiles, classes);
+
+    /** Now build the output jar */
+    String[] jarCreatorArgs = {
+      "-m", ops.manifestPath, "-t", ops.stampLabel, outputJar.toString(), classes.toString()
+    };
+    JarCreator.main(jarCreatorArgs);
+  }
+
+  private static Path ensureEmptyWorkDirectory(Path output, String label) throws IOException {
+    String base = label.substring(label.lastIndexOf(':') + 1);
+    Path dir = output.resolveSibling("_scalac").resolve(base);
+
+    if (Files.exists(dir)) {
+      deleteRecursively(dir);
+    }
+
+    return Files.createDirectories(dir);
   }
 
   private static String[] collectSrcJarSources(
@@ -99,14 +106,15 @@ class ScalacWorker implements Worker.Interface {
 
   private static final String[] sourceExtensions = {".scala", ".java"};
 
-  private static List<File> extractSourceJars(CompileOptions opts, Path tmpParent)
+  private static List<File> extractSourceJars(CompileOptions opts, Path sources)
       throws IOException {
     List<File> sourceFiles = new ArrayList<File>();
 
     for (String jarPath : opts.sourceJars) {
       if (jarPath.length() > 0) {
-        Path tmpPath = Files.createTempDirectory(tmpParent, "tmp");
-        sourceFiles.addAll(extractJar(jarPath, tmpPath.toString(), sourceExtensions));
+        String sourceJarFileName = Paths.get(jarPath).toFile().getName();
+        Path sourceJarDestination = Files.createDirectories(sources.resolve(sourceJarFileName));
+        sourceFiles.addAll(extractJar(jarPath, sourceJarDestination.toString(), sourceExtensions));
       }
     }
 
@@ -228,14 +236,14 @@ class ScalacWorker implements Worker.Interface {
     return pluginParams.toArray(new String[pluginParams.size()]);
   }
 
-  private static void compileScalaSources(CompileOptions ops, String[] scalaSources, Path tmpPath)
+  private static void compileScalaSources(CompileOptions ops, String[] scalaSources, Path classes)
       throws IllegalAccessException, IOException {
 
     String[] pluginArgs = buildPluginArgs(ops.plugins);
     String[] pluginParams = getPluginParamsFrom(ops);
 
     String[] constParams = {
-      "-classpath", String.join(pathSeparator, ops.classpath), "-d", tmpPath.toString()
+      "-classpath", String.join(pathSeparator, ops.classpath), "-d", classes.toString()
     };
 
     String[] compilerArgs =
@@ -283,10 +291,10 @@ class ScalacWorker implements Worker.Interface {
     }
   }
 
-  private static void removeTmp(Path tmp) throws IOException {
-    if (tmp != null) {
+  private static void deleteRecursively(Path directory) throws IOException {
+    if (directory != null) {
       Files.walkFileTree(
-          tmp,
+          directory,
           new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
