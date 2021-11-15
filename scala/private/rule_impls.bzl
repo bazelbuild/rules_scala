@@ -14,7 +14,7 @@
 """Rules for supporting the Scala language."""
 
 load("@bazel_skylib//lib:paths.bzl", "paths")
-load("@bazel_tools//tools/jdk:toolchain_utils.bzl", "find_java_runtime_toolchain", "find_java_toolchain")
+load("@bazel_tools//tools/jdk:toolchain_utils.bzl", "find_java_toolchain")
 load(":common.bzl", _collect_plugin_paths = "collect_plugin_paths")
 load(":resources.bzl", _resource_paths = "paths")
 
@@ -160,7 +160,6 @@ def compile_java(ctx, source_jars, source_files, output, extra_javac_opts, provi
         exports = [],
         neverlink = getattr(ctx.attr, "neverlink", False),
         java_toolchain = find_java_toolchain(ctx, ctx.attr._java_toolchain),
-        host_javabase = find_java_runtime_toolchain(ctx, ctx.attr._host_javabase),
         strict_deps = ctx.fragments.java.strict_java_deps,
     )
 
