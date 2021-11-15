@@ -261,8 +261,8 @@ def _build_nosrc_jar(ctx):
 rm -f {jar_output}
 {zipper} c {jar_output} @{path}
 # ensures that empty src targets still emit a statsfile and a diagnosticsfile
-TZ=UTC touch -t 201001010000 {statsfile}
-TZ=UTC touch -t 201001010000 {diagnosticsfile}
+touch {statsfile}
+touch {diagnosticsfile}
 """ + ijar_cmd
 
     cmd = cmd.format(
