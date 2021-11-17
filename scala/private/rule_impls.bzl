@@ -67,6 +67,7 @@ def compile_scala(
     classpath_resources = getattr(ctx.files, "classpath_resources", [])
     scalacopts = [ctx.expand_location(v, input_plugins) for v in toolchain.scalacopts + in_scalacopts]
     resource_paths = _resource_paths(resources, resource_strip_prefix)
+    enable_stats_file = toolchain.enable_stats_file
     enable_diagnostics_report = toolchain.enable_diagnostics_report
 
     args = ctx.actions.args()
@@ -83,6 +84,7 @@ def compile_scala(
     args.add("--DependencyTrackingMethod", dependency_info.dependency_tracking_method)
     args.add("--StatsfileOutput", statsfile)
     args.add("--EnableDiagnosticsReport", enable_diagnostics_report)
+    args.add("--EnableStatsFile", enable_stats_file)
     args.add("--DiagnosticsFile", diagnosticsfile)
     args.add_all("--Classpath", compiler_classpath_jars)
     args.add_all("--ClasspathResourceSrcs", classpath_resources)

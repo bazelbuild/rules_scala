@@ -7,4 +7,5 @@ hash2
 .bazel_cache
 .ijwb
 .metals
+.vscode
 unformatted-*.backup.scala
