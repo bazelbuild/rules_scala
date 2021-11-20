@@ -84,7 +84,6 @@ _scala_library_attrs.update(_library_attrs)
 _scala_library_attrs.update(resolve_deps)
 
 def make_scala_library(*extras):
-    print("_scala_library_attrs:", _scala_library_attrs)
     return rule(
         attrs = _dicts.add(
             _scala_library_attrs,
