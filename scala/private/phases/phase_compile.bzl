@@ -250,6 +250,7 @@ def _compile_or_empty(
 
 def _build_nosrc_jar(ctx):
     resources = _add_resources_cmd(ctx)
+    print("_build_nosrc_jar", resources)
     ijar_cmd = ""
 
     # this ensures the file is not empty
@@ -356,6 +357,7 @@ def _try_to_compile_java_jar(
 
 def _add_resources_cmd(ctx):
     paths = _resource_paths(ctx.files.resources, ctx.attr.resource_strip_prefix)
+    print("paths:", paths)
     lines = ["{target}={source}\n".format(target = p[0], source = p[1]) for p in paths]
     return "".join(lines)
 

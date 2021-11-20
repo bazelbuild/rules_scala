@@ -9,7 +9,30 @@ def paths(resources, resource_strip_prefix):
         resources: list of file objects
         resource_strip_prefix: string to strip from resource path
     """
-    return [(_target_path(resource, resource_strip_prefix), resource.path) for resource in resources]
+    resources_zip_path_real_path_pairs = [(_target_path(resource, resource_strip_prefix), resource.path) for resource in resources]
+
+    # Explicitly output directory mapping in the zip file, because directory matters as well.
+    # E.g. if a/b/c.txt is selected, then we need to make sure a/ and a/b/ is in the zip file.
+    # Otherwise getClass.getResource("/a/b") will return null.
+    directory_mapping = dict()
+    for (path_zip, path_real) in resources_zip_path_real_path_pairs:
+        # 1M because there's no while loop, and there is no way for a dir
+        # to contain 1M "/"s.
+        for i in range(0, 1000000):
+            print(path_zip)
+            if "/" not in path_zip:
+                break
+            path_zip_dir = "/".join(path_zip.split("/")[:-1])
+            path_real_dir = "/".join(path_real.split("/")[:-1])
+            if path_zip_dir in directory_mapping:
+                break
+            directory_mapping[path_zip_dir] = path_real_dir
+            path_zip = path_zip_dir
+            path_real = path_real_dir
+    for k, v in directory_mapping.items():
+        resources_zip_path_real_path_pairs.append((k, v))
+
+    return resources_zip_path_real_path_pairs
 
 def _target_path(resource, resource_strip_prefix):
     path = _target_path_by_strip_prefix(resource, resource_strip_prefix) if resource_strip_prefix else _target_path_by_default_prefixes(resource)

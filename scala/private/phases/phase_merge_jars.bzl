@@ -13,6 +13,7 @@ def phase_merge_jars(ctx, p):
     """
     deploy_jar = ctx.outputs.deploy_jar
     runtime_jars = p.compile.rjars
+    print(runtime_jars)
     main_class = getattr(ctx.attr, "main_class", "")
     progress_message = "Merging Scala jar: %s" % ctx.label
     args = ctx.actions.args()
