@@ -1,0 +1,14 @@
+load("//scala:scala.bzl", "scala_library", "scala_test")
+
+scala_library(
+    name = "empty-lib-with-resources",
+    resource_strip_prefix = "test/resource_packaging",
+    resources = ["a/b/xxx.txt"],
+)
+
+scala_test(
+  name = "test",
+  srcs = ["Test.scala"],
+  deps = [":empty-lib-with-resources"],
+  unused_dependency_checker_mode = "off",
+)
