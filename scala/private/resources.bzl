@@ -19,18 +19,20 @@ def paths(resources, resource_strip_prefix):
         # 1M because there's no while loop, and there is no way for a dir
         # to contain 1M "/"s.
         for i in range(0, 1000000):
-            print(path_zip)
-            if "/" not in path_zip:
+            # META-INF was already properly handled.
+            if "/" not in path_zip or "META-INF/" in path_zip:
                 break
             path_zip_dir = "/".join(path_zip.split("/")[:-1])
             path_real_dir = "/".join(path_real.split("/")[:-1])
             if path_zip_dir in directory_mapping:
                 break
+#            print("zzz", path_zip, path_real)
             directory_mapping[path_zip_dir] = path_real_dir
             path_zip = path_zip_dir
             path_real = path_real_dir
     for k, v in directory_mapping.items():
         resources_zip_path_real_path_pairs.append((k, v))
+        print(k, v)
 
     return resources_zip_path_real_path_pairs
 
