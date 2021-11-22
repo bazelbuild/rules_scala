@@ -12,8 +12,6 @@ scala_library(
 
 scala_library(
     name = "direct_dependency",
-    resource_strip_prefix = "test/src/main/scala/scalarules/test/strict_deps/no_recompilation",
-    resources = ["tmp/xxx.txt"],
     srcs = [
         "B.scala",
     ],
