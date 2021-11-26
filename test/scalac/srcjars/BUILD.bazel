@@ -1,0 +1,23 @@
+load("//scala:scala.bzl", "scala_library", "scala_test")
+load("//test/scalac/srcjars:setup.bzl", "single_scala_file_srcjar")
+
+single_scala_file_srcjar(content = "package test {class A}")
+
+# Check case when two srcjars with identical file names
+# but different content are handled properly
+# shouldn't be common case but plausible with generated code
+scala_library(
+    name = "duplicates",
+    testonly = True,
+    srcs = [
+        "//test/scalac/srcjars:single_srcjar",
+        "//test/scalac/srcjars/duplicate:single_srcjar",
+    ],
+    expect_java_output = False,
+)
+
+scala_test(
+    name = "duplicates_test",
+    srcs = ["DuplicatesTest.scala"],
+    deps = [":duplicates"],
+)

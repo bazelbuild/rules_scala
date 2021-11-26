@@ -112,7 +112,9 @@ class ScalacWorker implements Worker.Interface {
 
     for (String jarPath : opts.sourceJars) {
       if (jarPath.length() > 0) {
-        String sourceJarFileName = Paths.get(jarPath).toFile().getName();
+        // Use full path as dest directory to handle duplicate file names
+        // TODO: might cause extremely long directory names, maybe replace with hash
+        String sourceJarFileName = jarPath.replace('/', '_');
         Path sourceJarDestination = Files.createDirectories(sources.resolve(sourceJarFileName));
         sourceFiles.addAll(extractJar(jarPath, sourceJarDestination.toString(), sourceExtensions));
       }

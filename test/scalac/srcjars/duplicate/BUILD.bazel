@@ -1,0 +1,3 @@
+load("//test/scalac/srcjars:setup.bzl", "single_scala_file_srcjar")
+
+single_scala_file_srcjar(content = "package test {class ADuplicate}")
