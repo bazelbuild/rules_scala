@@ -130,6 +130,11 @@ public final class MultiplexWorker {
   }
 
   private static String[] stringListToArray(List<String> argList) {
-    return argList.toArray(String[]::new);
+    int numArgs = argList.size();
+    String[] args = new String[numArgs];
+    for (int i = 0; i < numArgs; i++) {
+      args[i] = argList.get(i);
+    }
+    return args;
   }
 }
