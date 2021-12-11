@@ -110,11 +110,10 @@ class ScalacWorker implements Worker.Interface {
       throws IOException {
     List<File> sourceFiles = new ArrayList<File>();
 
-    for (String jarPath : opts.sourceJars) {
+    for (int i = 0; i < opts.sourceJars.length; i++) {
+      String jarPath = opts.sourceJars[i];
       if (jarPath.length() > 0) {
-        // Use full path as dest directory to handle duplicate file names
-        // TODO: might cause extremely long directory names, maybe replace with hash
-        String sourceJarFileName = jarPath.replace('/', '_');
+        String sourceJarFileName = String.format("%s_%s", i, Paths.get(jarPath).getFileName());
         Path sourceJarDestination = Files.createDirectories(sources.resolve(sourceJarFileName));
         sourceFiles.addAll(extractJar(jarPath, sourceJarDestination.toString(), sourceExtensions));
       }
@@ -275,8 +274,7 @@ class ScalacWorker implements Worker.Interface {
       if (ops.enableStatsFile) {
         buildTime = Long.toString(stop - start);
       }
-      Files.write(
-          Paths.get(ops.statsfile), Arrays.asList("build_time=" + buildTime));
+      Files.write(Paths.get(ops.statsfile), Arrays.asList("build_time=" + buildTime));
     } catch (IOException ex) {
       throw new RuntimeException("Unable to write statsfile to " + ops.statsfile, ex);
     }
