@@ -11,7 +11,7 @@ test_scalaopts_from_scala_toolchain() {
 java_toolchain_javacopts_are_used(){
   action_should_fail_with_message \
     "invalid flag: -InvalidFlag" \
-    build --javacopts="-InvalidFlag" \
+    build --javacopt="-InvalidFlag" \
       --verbose_failures //test_expect_failure/compilers_javac_opts:can_configure_jvm_flags_for_javac_via_javacopts
 }
 
