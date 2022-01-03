@@ -24,7 +24,7 @@ This project defines core build rules for [Scala](https://www.scala-lang.org/) t
 * [scala_test_suite](docs/scala_test_suite.md)
 * [thrift_library](docs/thrift_library.md)
 * [scala_proto_library](docs/scala_proto_library.md)
-* [scala_](docs/scala_toolchain.md)
+* [scala_toolchain](docs/scala_toolchain.md)
 * [scala_import](docs/scala_import.md)
 * [scala_doc](docs/scala_doc.md)
 
@@ -78,8 +78,7 @@ scalatest_toolchain()
 ```
 
 This will load the `rules_scala` repository at the commit sha
-`rules_scala_version` into your Bazel project and register a [Scala
-toolchain](docs/scala_toolchain.md) at the default Scala version (2.12.14)
+`rules_scala_version` into your Bazel project and register a [scala_toolchain](docs/scala_toolchain.md) at the default Scala version (2.12.14)
 
 Then in your BUILD file just add the following so the rules will be available:
 ```python
