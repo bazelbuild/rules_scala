@@ -58,6 +58,11 @@ common_attrs.update({
     "_dependency_analyzer_plugin": attr.label(
         default = Label(
             "@io_bazel_rules_scala//third_party/dependency_analyzer/src/main:dependency_analyzer",
+        ), allow_files = [".jar"], mandatory = False,
+    ),
+    "_semanticdb_scalac_plugin": attr.label(
+        default = Label(
+            "@io_bazel_rules_scala//scala/private/toolchain_deps:semanticdb_scalac",
         ),
         allow_files = [".jar"],
         mandatory = False,

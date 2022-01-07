@@ -93,6 +93,7 @@ scala_toolchain = rule(
         "scalacopts": attr.string_list(),
         "dep_providers": attr.label_list(
             default = [
+                "@io_bazel_rules_scala//scala:semanticdb_scalac_provider",
                 "@io_bazel_rules_scala//scala:scala_xml_provider",
                 "@io_bazel_rules_scala//scala:parser_combinators_provider",
                 "@io_bazel_rules_scala//scala:scala_compile_classpath_provider",

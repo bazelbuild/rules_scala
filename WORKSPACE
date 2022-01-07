@@ -61,10 +61,13 @@ specs2_junit_repositories()
 register_toolchains("//testing:testing_toolchain")
 
 load("//scala/scalafmt:scalafmt_repositories.bzl", "scalafmt_default_config", "scalafmt_repositories")
+load("//scala/semanticdb:semanticdb_repositories.bzl", "semanticdb_repositories")
 
 scalafmt_default_config()
 
 scalafmt_repositories()
+
+semanticdb_repositories()
 
 MAVEN_SERVER_URLS = default_maven_server_urls()
 

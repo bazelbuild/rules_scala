@@ -112,3 +112,10 @@ declare_deps_provider(
     visibility = ["//visibility:public"],
     deps = ["@io_bazel_rules_scala_scala_parser_combinators"],
 )
+
+declare_deps_provider(
+    name = "semanticdb_scalac_provider",
+    deps_id = "semanticdb_scalac",
+    visibility = ["//visibility:public"],
+    deps = ["@org_scalameta_semanticdb_scalac"],
+)
