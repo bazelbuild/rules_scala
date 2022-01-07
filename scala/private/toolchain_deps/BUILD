@@ -23,3 +23,9 @@ common_toolchain_deps(
     deps_id = "parser_combinators",
     visibility = ["//visibility:public"],
 )
+
+common_toolchain_deps(
+    name = "semanticdb_scalac",
+    deps_id = "semanticdb_scalac",
+    visibility = ["//visibility:public"],
+)

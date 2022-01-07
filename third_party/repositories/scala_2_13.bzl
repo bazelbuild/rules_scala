@@ -40,6 +40,10 @@ artifacts = {
             "@io_bazel_rules_scala_scala_library",
         ],
     },
+    "org_scalameta_semanticdb_scalac": {
+        "artifact": "org.scalameta:semanticdb-scalac_2.13.6:4.4.31",
+        "sha256": "09f270c275701cfba93620ddd5c0b287a5c123cf528e837c518d5b5dd85efff0",
+    },
     "org_scalameta_fastparse": {
         "artifact": "org.scalameta:fastparse_2.13:1.0.1",
         "sha256": "b43b99244d5b51948daf1467083b3850dc2727c604de98dc426dec14244fd18e",

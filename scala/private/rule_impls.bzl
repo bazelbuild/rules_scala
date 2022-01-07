@@ -61,6 +61,8 @@ def compile_scala(
     plugins = _collect_plugin_paths(plugins)
     if dependency_info.use_analyzer:
         plugins = depset(transitive = [plugins, ctx.attr._dependency_analyzer_plugin.files])
+    if dependency_info.use_semanticdb_scalac and False:
+        plugins = depset(transitive = [plugins, ctx.attr._semanticdb_scalac_plugin.files])
 
     toolchain = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"]
     compiler_classpath_jars = cjars if dependency_info.dependency_mode == "direct" else transitive_compile_jars
