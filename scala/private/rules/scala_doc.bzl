@@ -8,7 +8,11 @@ _ScaladocAspectInfo = provider(fields = [
     "plugins",
 ])
 
-def _scaladoc_aspect_impl(target, ctx):
+def _scaladoc_intransitive_aspect_impl(target, ctx):
+    """Build scaladocs only for the provided targets."""
+    return _scaladoc_aspect_impl(target, ctx, transitive = False)
+
+def _scaladoc_aspect_impl(target, ctx, transitive = True):
     """Collect source files and compile_jars from JavaInfo-returning deps."""
 
     # We really only care about visited targets with srcs, so only look at those.
@@ -19,7 +23,7 @@ def _scaladoc_aspect_impl(target, ctx):
 
         # Sometimes we only want to generate scaladocs for a single target and not all of its
         # dependencies
-        if ctx.attr.transitive == "true":
+        if transitive:
             transitive_deps = [dep[_ScaladocAspectInfo].src_files for dep in ctx.rule.attr.deps if _ScaladocAspectInfo in dep]
 
         src_files = depset(direct = direct_deps, transitive = transitive_deps)
@@ -45,12 +49,17 @@ def _scaladoc_aspect_impl(target, ctx):
     else:
         return []
 
-_scaladoc_aspect = aspect(
+_scaladoc_transitive_aspect = aspect(
     implementation = _scaladoc_aspect_impl,
     attr_aspects = ["deps"],
-    attrs = {
-        "transitive": attr.string(default = "true", values = ["true", "false"]),
-    },
+    required_aspect_providers = [
+        [JavaInfo],
+    ],
+)
+
+scaladoc_intransitive_aspect = aspect(
+    implementation = _scaladoc_intransitive_aspect_impl,
+    attr_aspects = ["deps"],
     required_aspect_providers = [
         [JavaInfo],
     ],
@@ -93,20 +102,20 @@ def _scala_doc_impl(ctx):
 
     return [DefaultInfo(files = depset(direct = [output_path]))]
 
-scala_doc = rule(
-    attrs = {
-        "deps": attr.label_list(
-            aspects = [_scaladoc_aspect],
-            providers = [JavaInfo],
-        ),
-        "scalacopts": attr.string_list(),
-        "transitive": attr.string(default = "true", values = ["true", "false"]),
-        "_scaladoc": attr.label(
-            cfg = "host",
-            executable = True,
-            default = Label("//src/scala/io/bazel/rules_scala/scaladoc_support:scaladoc_generator"),
-        ),
-    },
-    doc = "Generate Scaladoc HTML documentation for source files in from the given dependencies.",
-    implementation = _scala_doc_impl,
-)
+def make_scala_doc_rule(aspect = _scaladoc_transitive_aspect):
+    return rule(
+        attrs = {
+            "deps": attr.label_list(
+                aspects = [aspect],
+                providers = [JavaInfo],
+            ),
+            "scalacopts": attr.string_list(),
+            "_scaladoc": attr.label(
+                cfg = "host",
+                executable = True,
+                default = Label("//src/scala/io/bazel/rules_scala/scaladoc_support:scaladoc_generator"),
+            ),
+        },
+        doc = "Generate Scaladoc HTML documentation for source files in from the given dependencies.",
+        implementation = _scala_doc_impl,
+    )
