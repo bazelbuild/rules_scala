@@ -16,12 +16,14 @@ def _scaladoc_aspect_impl(target, ctx):
         # Collect only Java and Scala sources enumerated in visited targets, including src_files in deps.
         direct_deps = [file for file in ctx.rule.files.srcs if file.extension.lower() in ["java", "scala"]]
         transitive_deps = []
+
         # Sometimes we only want to generate scaladocs for a single target and not all of its
         # dependencies
         if ctx.attr.transitive == "true":
             transitive_deps = [dep[_ScaladocAspectInfo].src_files for dep in ctx.rule.attr.deps if _ScaladocAspectInfo in dep]
 
         src_files = depset(direct = direct_deps, transitive = transitive_deps)
+
         # Collect compile_jars from visited targets' deps.
         compile_jars = depset(
             direct = [file for file in ctx.rule.files.deps],
@@ -47,7 +49,7 @@ _scaladoc_aspect = aspect(
     implementation = _scaladoc_aspect_impl,
     attr_aspects = ["deps"],
     attrs = {
-        "transitive": attr.string(default="true", values=["true", "false"]),
+        "transitive": attr.string(default = "true", values = ["true", "false"]),
     },
     required_aspect_providers = [
         [JavaInfo],
@@ -98,7 +100,7 @@ scala_doc = rule(
             providers = [JavaInfo],
         ),
         "scalacopts": attr.string_list(),
-        "transitive": attr.string(default="true", values=["true", "false"]),
+        "transitive": attr.string(default = "true", values = ["true", "false"]),
         "_scaladoc": attr.label(
             cfg = "host",
             executable = True,
