@@ -17,6 +17,9 @@ load(
     _compile_scala = "compile_scala",
 )
 load(":resources.bzl", _resource_paths = "paths")
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
+
+buildijar_default_value = True if SCALA_VERSION.startswith("2.") else False
 
 def phase_compile_binary(ctx, p):
     args = struct(
@@ -106,7 +109,7 @@ def _phase_compile_default(ctx, p, _args = struct()):
         ctx,
         p,
         _args.srcjars if hasattr(_args, "srcjars") else depset(),
-        _args.buildijar if hasattr(_args, "buildijar") else True,
+        _args.buildijar if hasattr(_args, "buildijar") else buildijar_default_value,
         _args.implicit_junit_deps_needed_for_java_compilation if hasattr(_args, "implicit_junit_deps_needed_for_java_compilation") else [],
         unused_dependency_checker_ignored_targets = _args.unused_dependency_checker_ignored_targets if hasattr(_args, "unused_dependency_checker_ignored_targets") else [],
     )
