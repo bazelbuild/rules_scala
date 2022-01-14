@@ -5,7 +5,7 @@ import org.apache.commons.lang3.ArrayUtils
 import org.specs2.mutable.SpecWithJUnit
 
 class ScalaImportExposesJarsTest extends SpecWithJUnit {
-  "scala_import" should {
+  "scala_import" >> {
     "enable using the jars it exposes" in {
       println(classOf[Cache[String, String]])
       println(classOf[ArrayUtils])

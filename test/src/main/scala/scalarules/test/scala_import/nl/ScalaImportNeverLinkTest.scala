@@ -4,7 +4,7 @@ import org.specs2.mutable.SpecificationWithJUnit
 import scala.util.control.NonFatal
 
 class ScalaImportNeverLinkTest extends SpecificationWithJUnit {
-  "neverlinked scala_import" should {
+  "neverlinked scala_import" >> {
     "not be available in runtime" in {
       //ScalaImportNeverLink class is packaged in scala_import_never_link.jar. Since the scala_import target
       //is marked as "neverlink" - this test class/target will be built successfully but will fail on runtime with

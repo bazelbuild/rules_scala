@@ -5,7 +5,7 @@ import com.lucidchart.relate.SqlRow
 
 class ScalaImportExposesJarsTest extends SpecificationWithJUnit {
 
-  "scala_import" should {
+  "scala_import" >> {
     "enable importing jars from files" in {
       println(classOf[SqlRow])
       success

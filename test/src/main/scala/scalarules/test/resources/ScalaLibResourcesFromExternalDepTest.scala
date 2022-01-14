@@ -4,7 +4,7 @@ import org.specs2.mutable.SpecWithJUnit
 
 class ScalaLibResourcesFromExternalDepTest extends SpecWithJUnit {
 
-  "Scala library depending on resources from external resource-only jar" should {
+  "Scala library depending on resources from external resource-only jar" >> {
     "allow to load resources" >> {
       get("/external/test_new_local_repo/resource.txt") must beEqualTo("A resource\n")
     }

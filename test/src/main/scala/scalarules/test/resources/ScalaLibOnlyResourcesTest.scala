@@ -4,7 +4,7 @@ import org.specs2.mutable.SpecWithJUnit
 
 class ScalaLibOnlyResourcesTest extends SpecWithJUnit {
 
-  "Scala library with no srcs and only resources" should {
+  "Scala library with no srcs and only resources" >> {
     "allow to load resources" >> {
       get("/resource.txt") must beEqualTo("I am a text resource!")
     }
