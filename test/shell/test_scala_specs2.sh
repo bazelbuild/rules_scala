@@ -39,7 +39,7 @@ scala_specs2_junit_test_test_filter_one_test(){
   local output=$(bazel test \
     --nocache_test_results \
     --test_output=streamed \
-    '--test_filter=scalarules.test.junit.specs2.JunitSpecs2Test#specs2 tests should::run smoothly in bazel$' \
+    '--test_filter=scalarules.test.junit.specs2.JunitSpecs2Test#specs2 tests::run smoothly in bazel$' \
     test:Specs2Tests)
   local expected="+ run smoothly in bazel"
   local unexpected="+ not run smoothly in bazel"
@@ -90,7 +90,7 @@ scala_specs2_junit_test_test_filter_exact_match(){
   local output=$(bazel test \
     --nocache_test_results \
     --test_output=streamed \
-    '--test_filter=scalarules.test.junit.specs2.JunitSpecs2AnotherTest#other specs2 tests should::run from another test$' \
+    '--test_filter=scalarules.test.junit.specs2.JunitSpecs2AnotherTest#other specs2 tests::run from another test$' \
     test:Specs2Tests)
   local expected="+ run from another test"
   local unexpected="+ run from another test 2"
@@ -112,7 +112,7 @@ scala_specs2_junit_test_test_filter_exact_match_unsafe_characters(){
   local output=$(bazel test \
     --nocache_test_results \
     --test_output=streamed \
-    '--test_filter=scalarules.test.junit.specs2.JunitSpec2RegexTest#\Qtests with unsafe characters should::2 + 2 != 5\E$' \
+    '--test_filter=scalarules.test.junit.specs2.JunitSpec2RegexTest#\Qtests with unsafe characters::2 + 2 != 5\E$' \
     test:Specs2Tests)
   local expected="+ 2 + 2 != 5"
   local unexpected="+ work escaped (with regex)"
@@ -134,7 +134,7 @@ scala_specs2_junit_test_test_filter_exact_match_escaped_and_sanitized(){
   local output=$(bazel test \
     --nocache_test_results \
     --test_output=streamed \
-    '--test_filter=scalarules.test.junit.specs2.JunitSpec2RegexTest#\Qtests with unsafe characters should::work escaped [with regex]\E$' \
+    '--test_filter=scalarules.test.junit.specs2.JunitSpec2RegexTest#\Qtests with unsafe characters::work escaped [with regex]\E$' \
     test:Specs2Tests)
   local expected="+ work escaped (with regex)"
   local unexpected="+ 2 + 2 != 5"
@@ -156,7 +156,7 @@ scala_specs2_junit_test_test_filter_match_multiple_methods(){
   local output=$(bazel test \
     --nocache_test_results \
     --test_output=streamed \
-    '--test_filter=scalarules.test.junit.specs2.JunitSpecs2AnotherTest#other specs2 tests should::(\Qrun from another test\E|\Qrun from another test 2\E)$' \
+    '--test_filter=scalarules.test.junit.specs2.JunitSpecs2AnotherTest#other specs2 tests::(\Qrun from another test\E|\Qrun from another test 2\E)$' \
     test:Specs2Tests)
   local expected=(
       "+ run from another test"
@@ -222,7 +222,7 @@ scala_specs2_all_tests_show_in_the_xml(){
     --test_output=streamed \
     '--test_filter=scalarules.test.junit.specs2.JunitSpecs2Test#' \
     test:Specs2Tests
-  matches=$(grep -c -e "testcase name='specs2 tests should::run smoothly in bazel'" -e "testcase name='specs2 tests should::not run smoothly in bazel'" ./bazel-testlogs/test/Specs2Tests/test.xml)
+  matches=$(grep -c -e "testcase name='specs2 tests::run smoothly in bazel'" -e "testcase name='specs2 tests should::not run smoothly in bazel'" ./bazel-testlogs/test/Specs2Tests/test.xml)
   if [ $matches -eq 2 ]; then
     return 0
   else
@@ -236,9 +236,9 @@ scala_specs2_only_filtered_test_shows_in_the_xml(){
   bazel test \
     --nocache_test_results \
     --test_output=streamed \
-    '--test_filter=scalarules.test.junit.specs2.JunitSpecs2Test#specs2 tests should::run smoothly in bazel$' \
+    '--test_filter=scalarules.test.junit.specs2.JunitSpecs2Test#specs2 tests::run smoothly in bazel$' \
     test:Specs2Tests
-  matches=$(grep -c -e "testcase name='specs2 tests should::run smoothly in bazel'" -e "testcase name='specs2 tests should::not run smoothly in bazel'" ./bazel-testlogs/test/Specs2Tests/test.xml)
+  matches=$(grep -c -e "testcase name='specs2 tests::run smoothly in bazel'" -e "testcase name='specs2 tests::not run smoothly in bazel'" ./bazel-testlogs/test/Specs2Tests/test.xml)
   if [ $matches -eq 1 ]; then
     return 0
   else
