@@ -19,12 +19,13 @@ def _scaladoc_aspect_impl(target, ctx, transitive = True):
     if hasattr(ctx.rule.attr, "srcs"):
         # Collect only Java and Scala sources enumerated in visited targets, including src_files in deps.
         direct_deps = [file for file in ctx.rule.files.srcs if file.extension.lower() in ["java", "scala"]]
-        transitive_deps = []
 
         # Sometimes we only want to generate scaladocs for a single target and not all of its
         # dependencies
         if transitive:
             transitive_deps = [dep[_ScaladocAspectInfo].src_files for dep in ctx.rule.attr.deps if _ScaladocAspectInfo in dep]
+        else:
+            transitive_deps = []
 
         src_files = depset(direct = direct_deps, transitive = transitive_deps)
 
