@@ -148,7 +148,7 @@ object PrefixSuffixTestDiscoveringSuite {
 
   private def hasTestAnnotatedMethodsInCurrentClass(testClass: Class[_]): Boolean =
     testClass.getDeclaredMethods.exists { method =>
-      method.getAnnotations.exists { annotation: Annotation =>
+      method.getAnnotations.exists { (annotation: Annotation) =>
         testAnnotation.isAssignableFrom(annotation.annotationType)
       }
     }

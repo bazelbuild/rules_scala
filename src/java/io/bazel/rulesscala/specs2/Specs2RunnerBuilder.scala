@@ -1,8 +1,5 @@
 package io.bazel.rulesscala.specs2
 
-import java.util
-import java.util.regex.Pattern
-
 import io.bazel.rulesscala.test_discovery.FilteredRunnerBuilder.FilteringRunnerBuilder
 import io.bazel.rulesscala.test_discovery._
 import org.junit.runner.notification.RunNotifier
@@ -11,13 +8,16 @@ import org.junit.runners.Suite
 import org.junit.runners.model.RunnerBuilder
 import org.specs2.concurrent.ExecutionEnv
 import org.specs2.control.Action
-import org.specs2.data.Trees._
+import org.specs2.fp.Tree.Node
 import org.specs2.fp.{Tree, TreeLoc}
 import org.specs2.main.{Arguments, CommandLine, Select}
 import org.specs2.specification.core.{Env, Fragment, SpecStructure}
 import org.specs2.specification.process.Stats
 
+import java.util
+import java.util.regex.Pattern
 import scala.collection.JavaConverters._
+import scala.collection.immutable.Iterable
 import scala.language.reflectiveCalls
 import scala.util.Try
 import scala.util.control.NonFatal
@@ -63,14 +63,21 @@ class FilteredSpecs2ClassRunner(testClass: Class[_], testFilter: Pattern)
 
   private def createFilteredDescription(specStructure: SpecStructure, ee: ExecutionEnv): Description = {
     val descTree = createDescriptionTree(ee).map(_._2)
-    descTree.toTree.bottomUp {
-      (description: Description, children: Stream[Description]) =>
+
+    def bottomUp[A, B](t: Tree[A], f: ((A, Iterable[B]) => B)): Tree[B] = {
+      val tbs = t.subForest.map(t => bottomUp(t, f))
+      Node(f(t.rootLabel, tbs.map(_.rootLabel)), tbs)
+    }
+
+    bottomUp(descTree.toTree, {
+      (description: Description, children: Iterable[Description]) =>
         children.filter(matchingFilter).foreach {
           child => description.addChild(child)
         }
         description
-    }.rootLabel
+    }).rootLabel
 
+    descTree.getLabel
   }
 
   def matchesFilter: Boolean = {
@@ -118,7 +125,7 @@ class FilteredSpecs2ClassRunner(testClass: Class[_], testFilter: Pattern)
     *      "Do stuff" in {
     *        ...
     *      }
-  *      }
+    *    }
     *  }
     *
     *  Is represented as the following description:

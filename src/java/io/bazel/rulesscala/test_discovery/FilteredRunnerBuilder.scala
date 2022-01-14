@@ -1,10 +1,10 @@
 package io.bazel.rulesscala.test_discovery
 
+import FilteredRunnerBuilder.FilteringRunnerBuilder
+
 import java.lang.annotation.Annotation
 import java.util
 import java.util.regex.Pattern
-
-import io.bazel.rulesscala.test_discovery.FilteredRunnerBuilder.FilteringRunnerBuilder
 import org.junit.Test
 import org.junit.runner.Runner
 import org.junit.runners.BlockJUnit4ClassRunner
