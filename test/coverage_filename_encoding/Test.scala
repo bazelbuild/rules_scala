@@ -1,10 +1,9 @@
 package coverage_filename_encoding
 
 import org.specs2.mutable.SpecWithJUnit
-import org.specs2.specification.Scope
 
 class Test extends SpecWithJUnit {
-  "testA1" in new Scope {
-    A1.a1(true) must_!= 1
+  "testA1" in {
+    A1.a1(true) must be_!=(1)
   }
 }

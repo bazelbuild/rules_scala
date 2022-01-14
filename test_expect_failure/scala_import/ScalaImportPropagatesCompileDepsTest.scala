@@ -6,7 +6,7 @@ import org.specs2.mutable.SpecificationWithJUnit
 
 class ScalaImportPropagatesCompileDepsTest extends SpecificationWithJUnit {
 
-  "scala_import" should {
+  "scala_import" >> {
     "propagate compile time deps" in {
       println(classOf[Cache[String, String]])
       println(classOf[ArrayUtils])

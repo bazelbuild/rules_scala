@@ -1,22 +1,24 @@
 package coverage_specs2_with_junit
 
 import org.specs2.mutable.SpecWithJUnit
-import org.specs2.specification.Scope
 
 class TestWithSpecs2WithJUnit extends SpecWithJUnit {
-  "testA1" in new Scope {
-    A1.a1(true) must_== B1
+  "testA1" in {
+    A1.a1(true) must be_==(B1)
   }
 
-  "testA2" in new Scope {
+  "testA2" in {
     A2.a2()
+    success
   }
 
-  "testD1" in new Scope {
+  "testD1" in {
     D1.veryLongFunctionNameIsHereAaaaaaaaa()
+    success
   }
 
-  "testE1" in new Scope {
+  "testE1" in {
     E1.e1("test")
+    success
   }
 }

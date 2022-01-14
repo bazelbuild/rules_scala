@@ -4,7 +4,7 @@ import org.specs2.mutable.SpecWithJUnit
 
 class ScalaLibOnlyResourcesFilegroupTest extends SpecWithJUnit {
 
-  "Scala library with no srcs and only filegroup resources" should {
+  "Scala library with no srcs and only filegroup resources" >> {
     "allow to load resources" >> {
       get("/resource.txt") must beEqualTo("I am a text resource!")
       get("/subdir/resource.txt") must beEqualTo("I am a text resource in a subdir!")
