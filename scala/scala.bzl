@@ -51,6 +51,7 @@ def scala_specs2_junit_test(name, **kwargs):
 
 # Re-export private rules for public consumption
 scala_binary = _scala_binary
+
 # These are exported for enabling users to build scaladocs without transitive dependencies.
 make_scala_doc_rule = _make_scala_doc_rule
 scaladoc_intransitive_aspect = _scaladoc_intransitive_aspect
