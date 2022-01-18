@@ -112,7 +112,7 @@ def make_scala_doc_rule(aspect = _scaladoc_transitive_aspect):
             ),
             "scalacopts": attr.string_list(),
             "_scaladoc": attr.label(
-                cfg = "host",
+                cfg = "exec",
                 executable = True,
                 default = Label("//src/scala/io/bazel/rules_scala/scaladoc_support:scaladoc_generator"),
             ),
