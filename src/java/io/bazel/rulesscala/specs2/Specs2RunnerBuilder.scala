@@ -2,6 +2,7 @@ package io.bazel.rulesscala.specs2
 
 import io.bazel.rulesscala.test_discovery.FilteredRunnerBuilder.FilteringRunnerBuilder
 import io.bazel.rulesscala.test_discovery._
+import org.junit.runner.manipulation.Filter
 import org.junit.runner.notification.RunNotifier
 import org.junit.runner.{Description, RunWith, Runner}
 import org.junit.runners.Suite
@@ -11,7 +12,8 @@ import org.specs2.control.Action
 import org.specs2.fp.Tree.Node
 import org.specs2.fp.{Tree, TreeLoc}
 import org.specs2.main.{Arguments, CommandLine, Select}
-import org.specs2.specification.core.{Env, Fragment, SpecStructure}
+import org.specs2.reporter.JUnitPrinter
+import org.specs2.specification.core.{Env, Fragment, SpecStructure, SpecificationStructure}
 import org.specs2.specification.process.Stats
 
 import java.util
@@ -56,8 +58,23 @@ object Specs2FilteringRunnerBuilder {
 class FilteredSpecs2ClassRunner(parentRunner: org.specs2.runner.JUnitRunner, testClass: Class[_], testFilter: Pattern)
   extends org.specs2.runner.JUnitRunner(testClass) {
 
+  override lazy val specification: SpecificationStructure = parentRunner.specification
+  override lazy val arguments: Arguments = parentRunner.arguments
+  override lazy val env: Env = parentRunner.env
+  override lazy val getDescription: Description = parentRunner.getDescription
+  override lazy val specStructure: SpecStructure = parentRunner.specStructure
+
+  override def run(n: RunNotifier): Unit =
+    parentRunner.run(n)
+
+  override def createJUnitPrinter(specStructure: SpecStructure, n: RunNotifier, ee: ExecutionEnv): JUnitPrinter =
+    parentRunner.createJUnitPrinter(specStructure, n, ee)
+
+  override def filter(filter: Filter): Unit =
+    parentRunner.filter(filter)
+
   override def getDescription(env: Env): Description = {
-    try createFilteredDescription(parentRunner.specStructure, env.specs2ExecutionEnv)
+    try createFilteredDescription(specStructure, env.specs2ExecutionEnv)
     catch { case NonFatal(t) => env.shutdown; throw t; }
   }
 
@@ -94,8 +111,8 @@ class FilteredSpecs2ClassRunner(parentRunner: org.specs2.runner.JUnitRunner, tes
   }
 
   private def createDescriptionTree(implicit ee: ExecutionEnv): TreeLoc[(Fragment, Description)] =
-    Try(allDescriptions[specs2_v4].createDescriptionTree(parentRunner.specStructure)(ee))
-      .getOrElse(allDescriptions[specs2_v3].createDescriptionTree(parentRunner.specStructure))
+    Try(allDescriptions[specs2_v4].createDescriptionTree(specStructure)(ee))
+      .getOrElse(allDescriptions[specs2_v3].createDescriptionTree(specStructure))
 
   private def allFragmentDescriptions(implicit ee: ExecutionEnv): Map[Fragment, Description] =
     flattenLeft(createDescriptionTree(ee).toTree).toMap
@@ -164,7 +181,7 @@ class FilteredSpecs2ClassRunner(parentRunner: org.specs2.runner.JUnitRunner, tes
     val specs2MatchedExamplesRegex = specs2Examples.toRegexAlternation
 
     val newArgs = Arguments(select = Select(_ex = specs2MatchedExamplesRegex), commandLine = CommandLine.create(testClass.getName))
-    val newEnv = env.copy(parentRunner.arguments overrideWith newArgs)
+    val newEnv = env.copy(arguments overrideWith newArgs)
 
     parentRunner.runWithEnv(n, newEnv)
   }
