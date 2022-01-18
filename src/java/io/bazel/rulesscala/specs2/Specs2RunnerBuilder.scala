@@ -48,16 +48,16 @@ class Specs2PrefixSuffixTestDiscoveringSuite(suite: Class[Any], runnerBuilder: R
 
 object Specs2FilteringRunnerBuilder {
   val f: FilteringRunnerBuilder = {
-    case (_: org.specs2.runner.JUnitRunner, testClass: Class[_], pattern: Pattern) =>
-      new FilteredSpecs2ClassRunner(testClass, pattern)
+    case (parentRunner: org.specs2.runner.JUnitRunner, testClass: Class[_], pattern: Pattern) =>
+      new FilteredSpecs2ClassRunner(parentRunner, testClass, pattern)
   }
 }
 
-class FilteredSpecs2ClassRunner(testClass: Class[_], testFilter: Pattern)
+class FilteredSpecs2ClassRunner(parentRunner: org.specs2.runner.JUnitRunner, testClass: Class[_], testFilter: Pattern)
   extends org.specs2.runner.JUnitRunner(testClass) {
 
   override def getDescription(env: Env): Description = {
-    try createFilteredDescription(specStructure, env.specs2ExecutionEnv)
+    try createFilteredDescription(parentRunner.specStructure, env.specs2ExecutionEnv)
     catch { case NonFatal(t) => env.shutdown; throw t; }
   }
 
@@ -94,8 +94,8 @@ class FilteredSpecs2ClassRunner(testClass: Class[_], testFilter: Pattern)
   }
 
   private def createDescriptionTree(implicit ee: ExecutionEnv): TreeLoc[(Fragment, Description)] =
-    Try(allDescriptions[specs2_v4].createDescriptionTree(specStructure)(ee))
-      .getOrElse(allDescriptions[specs2_v3].createDescriptionTree(specStructure))
+    Try(allDescriptions[specs2_v4].createDescriptionTree(parentRunner.specStructure)(ee))
+      .getOrElse(allDescriptions[specs2_v3].createDescriptionTree(parentRunner.specStructure))
 
   private def allFragmentDescriptions(implicit ee: ExecutionEnv): Map[Fragment, Description] =
     flattenLeft(createDescriptionTree(ee).toTree).toMap
@@ -164,9 +164,9 @@ class FilteredSpecs2ClassRunner(testClass: Class[_], testFilter: Pattern)
     val specs2MatchedExamplesRegex = specs2Examples.toRegexAlternation
 
     val newArgs = Arguments(select = Select(_ex = specs2MatchedExamplesRegex), commandLine = CommandLine.create(testClass.getName))
-    val newEnv = env.copy(arguments overrideWith newArgs)
+    val newEnv = env.copy(parentRunner.arguments overrideWith newArgs)
 
-    super.runWithEnv(n, newEnv)
+    parentRunner.runWithEnv(n, newEnv)
   }
 
   private implicit class `Empty String to Option`(s: String) {
