@@ -12,7 +12,8 @@ load(
 )
 load(
     "@io_bazel_rules_scala//scala/private:rules/scala_doc.bzl",
-    _scala_doc = "scala_doc",
+    _make_scala_doc_rule = "make_scala_doc_rule",
+    _scaladoc_intransitive_aspect = "scaladoc_intransitive_aspect",
 )
 load(
     "@io_bazel_rules_scala//scala/private:rules/scala_junit_test.bzl",
@@ -50,7 +51,11 @@ def scala_specs2_junit_test(name, **kwargs):
 
 # Re-export private rules for public consumption
 scala_binary = _scala_binary
-scala_doc = _scala_doc
+
+# These are exported for enabling users to build scaladocs without transitive dependencies.
+make_scala_doc_rule = _make_scala_doc_rule
+scaladoc_intransitive_aspect = _scaladoc_intransitive_aspect
+scala_doc = _make_scala_doc_rule()
 scala_junit_test = _scala_junit_test
 scala_library = _scala_library
 scala_library_for_plugin_bootstrapping = _scala_library_for_plugin_bootstrapping
