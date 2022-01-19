@@ -2,7 +2,6 @@ package io.bazel.rulesscala.specs2
 
 import io.bazel.rulesscala.test_discovery.FilteredRunnerBuilder.FilteringRunnerBuilder
 import io.bazel.rulesscala.test_discovery._
-import org.junit.runner.manipulation.Filter
 import org.junit.runner.notification.RunNotifier
 import org.junit.runner.{Description, RunWith, Runner}
 import org.junit.runners.Suite
@@ -12,7 +11,6 @@ import org.specs2.control.Action
 import org.specs2.fp.Tree.Node
 import org.specs2.fp.{Tree, TreeLoc}
 import org.specs2.main.{Arguments, CommandLine, Select}
-import org.specs2.reporter.JUnitPrinter
 import org.specs2.specification.core.{Env, Fragment, SpecStructure, SpecificationStructure}
 import org.specs2.specification.process.Stats
 
