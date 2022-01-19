@@ -64,7 +64,7 @@ class FilteredSpecs2ClassRunner(parentRunner: org.specs2.runner.JUnitRunner, tes
   override lazy val env: Env = parentRunner.env
   override lazy val specStructure: SpecStructure = parentRunner.specStructure
 
-  //our override method is called instead of taking a possibly initialized lazy val from parent
+  //our override method is called to create our description instead of parents
   override lazy val getDescription: Description =
     getDescription(env)
 
