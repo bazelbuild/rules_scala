@@ -58,15 +58,8 @@ object Specs2FilteringRunnerBuilder {
 class FilteredSpecs2ClassRunner(parentRunner: org.specs2.runner.JUnitRunner, testClass: Class[_], testFilter: Pattern)
   extends org.specs2.runner.JUnitRunner(testClass) {
 
-  //taking these from parent so not to initialize test classes multiple times
+  //taking it from parent so not to initialize test classes multiple times
   override lazy val specification: SpecificationStructure = parentRunner.specification
-  override lazy val arguments: Arguments = parentRunner.arguments
-  override lazy val env: Env = parentRunner.env
-  override lazy val specStructure: SpecStructure = parentRunner.specStructure
-
-  //our override method is called to create our description instead of parents
-  override lazy val getDescription: Description =
-    getDescription(env)
 
   override def getDescription(env: Env): Description = {
     try createFilteredDescription(specStructure, env.specs2ExecutionEnv)
