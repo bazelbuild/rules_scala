@@ -58,20 +58,15 @@ object Specs2FilteringRunnerBuilder {
 class FilteredSpecs2ClassRunner(parentRunner: org.specs2.runner.JUnitRunner, testClass: Class[_], testFilter: Pattern)
   extends org.specs2.runner.JUnitRunner(testClass) {
 
+  //taking these from parent so not to initialize test classes multiple times
   override lazy val specification: SpecificationStructure = parentRunner.specification
   override lazy val arguments: Arguments = parentRunner.arguments
   override lazy val env: Env = parentRunner.env
-  override lazy val getDescription: Description = parentRunner.getDescription
   override lazy val specStructure: SpecStructure = parentRunner.specStructure
 
-  override def run(n: RunNotifier): Unit =
-    parentRunner.run(n)
-
-  override def createJUnitPrinter(specStructure: SpecStructure, n: RunNotifier, ee: ExecutionEnv): JUnitPrinter =
-    parentRunner.createJUnitPrinter(specStructure, n, ee)
-
-  override def filter(filter: Filter): Unit =
-    parentRunner.filter(filter)
+  //our override method is called instead of taking a possibly initialized lazy val from parent
+  override lazy val getDescription: Description =
+    getDescription(env)
 
   override def getDescription(env: Env): Description = {
     try createFilteredDescription(specStructure, env.specs2ExecutionEnv)
@@ -183,7 +178,7 @@ class FilteredSpecs2ClassRunner(parentRunner: org.specs2.runner.JUnitRunner, tes
     val newArgs = Arguments(select = Select(_ex = specs2MatchedExamplesRegex), commandLine = CommandLine.create(testClass.getName))
     val newEnv = env.copy(arguments overrideWith newArgs)
 
-    parentRunner.runWithEnv(n, newEnv)
+    super.runWithEnv(n, newEnv)
   }
 
   private implicit class `Empty String to Option`(s: String) {
