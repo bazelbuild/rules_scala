@@ -11,7 +11,7 @@ import org.specs2.control.Action
 import org.specs2.fp.Tree.Node
 import org.specs2.fp.{Tree, TreeLoc}
 import org.specs2.main.{Arguments, CommandLine, Select}
-import org.specs2.specification.core.{Env, Fragment, SpecStructure}
+import org.specs2.specification.core.{Env, Fragment, SpecStructure, SpecificationStructure}
 import org.specs2.specification.process.Stats
 
 import java.util
@@ -48,13 +48,16 @@ class Specs2PrefixSuffixTestDiscoveringSuite(suite: Class[Any], runnerBuilder: R
 
 object Specs2FilteringRunnerBuilder {
   val f: FilteringRunnerBuilder = {
-    case (_: org.specs2.runner.JUnitRunner, testClass: Class[_], pattern: Pattern) =>
-      new FilteredSpecs2ClassRunner(testClass, pattern)
+    case (parentRunner: org.specs2.runner.JUnitRunner, testClass: Class[_], pattern: Pattern) =>
+      new FilteredSpecs2ClassRunner(parentRunner, testClass, pattern)
   }
 }
 
-class FilteredSpecs2ClassRunner(testClass: Class[_], testFilter: Pattern)
+class FilteredSpecs2ClassRunner(parentRunner: org.specs2.runner.JUnitRunner, testClass: Class[_], testFilter: Pattern)
   extends org.specs2.runner.JUnitRunner(testClass) {
+
+  //taking it from parent so not to initialize test classes multiple times
+  override lazy val specification: SpecificationStructure = parentRunner.specification
 
   override def getDescription(env: Env): Description = {
     try createFilteredDescription(specStructure, env.specs2ExecutionEnv)
