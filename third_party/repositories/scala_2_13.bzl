@@ -267,6 +267,10 @@ artifacts = {
         "artifact": "com.thesamet.scalapb:protoc-bridge_2.13:0.9.5",
         "sha256": "276f3dc7f64da324c01efd4bd6cb11d1b1115c43d023ff707ad82551f46da16a",
     },
+    "scala_proto_rules_protoc_gen": {
+        "artifact": "com.thesamet.scalapb:protoc-gen_2.13:0.9.5",
+        "sha256": "bb2efb040abcd122c946afeba548590db73218d1b683c73b302c9736be7e4a9d",
+    },
     "scala_proto_rules_scalapb_runtime": {
         "artifact": "com.thesamet.scalapb:scalapb-runtime_2.13:0.11.8",
         "sha256": "d7a9ae13949a1112307b0f6a2e7a094c0542aa40363ebe9d70a6ed723b07708c",
@@ -430,7 +434,7 @@ artifacts = {
     "org_typelevel__cats_core": {
         "testonly": True,
         "artifact": "org.typelevel:cats-core_2.13:2.2.0",
-        "sha256": "6058d02418e4eb5f1919a1156d63d2d1b93f2c6190b1a1806ee2b73f8726a923",
+        "sha256": "6058d02418e4eb5f1919a1156d63d2d1b93f2c6190b1a1806ee2b73f8726a92f",
     },
     "com_google_guava_guava_21_0_with_file": {
         "testonly": True,

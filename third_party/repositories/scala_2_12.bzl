@@ -261,6 +261,10 @@ artifacts = {
         "artifact": "com.thesamet.scalapb:protoc-bridge_2.12:0.9.5",
         "sha256": "e72e3cf632475483240c5d099e458542d13389812f757907a1db95a3b41f6119",
     },
+    "scala_proto_rules_protoc_gen": {
+        "artifact": "com.thesamet.scalapb:protoc-gen_2.12:0.9.5",
+        "sha256": "607df518bdc68e52742c9ed28793b441ac6a47508960b74b7dbac1f0e6fc6252",
+    },
     "scala_proto_rules_scalapb_runtime": {
         "artifact": "com.thesamet.scalapb:scalapb-runtime_2.12:0.11.8",
         "sha256": "c51af42cd520d206d8071ede12f7cf0c36f102379a6e115b9454d4a09038f46e",

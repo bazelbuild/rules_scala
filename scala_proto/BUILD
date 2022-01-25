@@ -83,6 +83,7 @@ declare_deps_provider(
     deps = [
         "@com_google_protobuf//:protobuf_java",
         "@scala_proto_rules_protoc_bridge",
+        "@scala_proto_rules_protoc_gen",
         "@scala_proto_rules_scalapb_plugin",
     ],
 )
