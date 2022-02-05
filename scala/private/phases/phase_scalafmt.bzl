@@ -10,19 +10,25 @@ load(
 
 def phase_scalafmt(ctx, p):
     if ctx.attr.format:
-        manifest, files = _build_format(ctx)
+        manifest, files, srcs = _build_format(ctx)
         _formatter(ctx, manifest, files, ctx.file._runner, ctx.outputs.scalafmt_runner)
         _formatter(ctx, manifest, files, ctx.file._testrunner, ctx.outputs.scalafmt_testrunner)
+
+        # Return a depset containing all the relevant files, so a wrapping `sh_test` can successfully access them.
+        return struct(runfiles = depset([manifest] + files + srcs))
     else:
         _write_empty_content(ctx, ctx.outputs.scalafmt_runner)
         _write_empty_content(ctx, ctx.outputs.scalafmt_testrunner)
+        return None
 
 def _build_format(ctx):
     files = []
+    srcs = []
     manifest_content = []
     for src in ctx.files.srcs:
         # only format scala source files, not generated files
         if src.path.endswith(_scala_extension) and src.is_source:
+            srcs.append(src)
             file = ctx.actions.declare_file("{}.fmt.output".format(src.short_path))
             files.append(file)
             ctx.actions.run(
@@ -40,7 +46,7 @@ def _build_format(ctx):
     manifest = ctx.actions.declare_file("format/{}/manifest.txt".format(ctx.label.name))
     ctx.actions.write(manifest, "\n".join(manifest_content) + "\n")
 
-    return manifest, files
+    return manifest, files, srcs
 
 def _formatter(ctx, manifest, files, template, output_runner):
     ctx.actions.run_shell(
