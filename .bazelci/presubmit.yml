@@ -36,7 +36,7 @@ tasks:
     shell_commands:
     # Install xmllint
     - sudo apt update && sudo apt install -y libxml2-utils
-    - "./test_rules_scala.sh
+    - "./test_rules_scala.sh"
   test_rules_scala_linux_latest:
     name: "./test_rules_scala (latest Bazel)"
     platform: ubuntu2004
