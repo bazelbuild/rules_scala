@@ -45,7 +45,12 @@ def _scalafmt_singleton_implementation(ctx):
     return [
         _ScalaRulePhase(
             custom_phases = [
-                ("$", "", "scalafmt", _phase_scalafmt),
+                # Placed before `runfiles` phase so the captured outputs and sources during creation of the
+                # `TARGET.format-test` output script are made available as runfiles to other downstream
+                # targets (for instance, a wrapping `sh_test` target which invokes that `TARGET.format-test`
+                # script).  This allows them to by symlinked into the runfiles tree and thus accessible when
+                # run via `bazel test`.
+                ("-", "runfiles", "scalafmt", _phase_scalafmt),
             ],
         ),
     ]

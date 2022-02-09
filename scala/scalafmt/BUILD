@@ -40,8 +40,11 @@ declare_deps_provider(
     visibility = ["//visibility:public"],
     deps = [
         "@com_geirsson_metaconfig_core",
+        "@org_scalameta_common",
         "@org_scalameta_parsers",
         "@org_scalameta_scalafmt_core",
+        "@org_scalameta_scalameta",
+        "@org_scalameta_trees",
     ],
 )
 
