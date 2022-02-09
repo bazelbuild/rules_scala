@@ -37,10 +37,10 @@ tasks:
     # Install xmllint
     - sudo apt update && sudo apt install -y libxml2-utils
     - "./test_rules_scala.sh"
-  test_rules_scala_linux_latest:
-    name: "./test_rules_scala (latest Bazel)"
+  test_rules_scala_linux_last_green:
+    name: "./test_rules_scala (Bazel green head)"
     platform: ubuntu2004
-    bazel: latest
+    bazel: last_green
     shell_commands:
     # Install xmllint
     - sudo apt update && sudo apt install -y libxml2-utils
