@@ -71,7 +71,7 @@ class Compiler(val config: ScroogeConfig) {
   var fileMapWriter: scala.Option[FileWriter] = None
 
 
-  def run() {
+  def run(): Unit = {
     // if --gen-file-map is specified, prepare the map file.
     fileMapWriter = config.fileMapPath.map { path =>
       val file = new File(path)

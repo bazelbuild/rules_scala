@@ -1,9 +1,9 @@
 package io.bazel.rules_scala.scrooge_support
 
-import com.twitter.scrooge.frontend.{ FileContents, Importer }
+import com.twitter.scrooge.frontend.{FileContents, Importer}
 
 import java.io.File
-import java.util.zip.{ZipFile, ZipEntry}
+import java.util.zip.{ZipEntry, ZipFile}
 import scala.io.Source
 
 object FocusedZipImporter {
@@ -31,10 +31,13 @@ case class FocusedZipImporter(focus: Option[File], zips: List[File], zipFiles: L
         case "." :: tail => loop(leftPart, tail)
         case child :: tail => loop(new File(leftPart, child), tail)
       }
+
       val parts = n.split("/", -1).toList
-      val newPath = loop(f, parts).getPath.replaceAllLiterally(File.separator, "/")
-      if (parts(0) == File.pathSeparatorChar) newPath.substring(1)
-      else newPath
+      val newPath = loop(f, parts).getPath.replace(File.separator, "/")
+      if (parts.head == File.separator)
+        newPath.substring(1)
+      else
+        newPath
   }
 
   private def resolve(filename: String): Option[(ZipEntry, ZipFile, FocusedZipImporter)] = {
@@ -51,6 +54,7 @@ case class FocusedZipImporter(focus: Option[File], zips: List[File], zipFiles: L
   }
 
   private val maxLastMod = zips.map(_.lastModified).reduceOption(_ max _)
+
   // uses the lastModified time of the zip/jar file
   def lastModified(filename: String): Option[Long] =
     resolve(filename).flatMap(_ => maxLastMod)
