@@ -38,7 +38,7 @@ object ScalaPBWorker extends Worker.Interface {
 
   def main(args: Array[String]): Unit = Worker.workerMain(args, ScalaPBWorker)
 
-  def work(args: Array[String]) {
+  def work(args: Array[String]): Unit = {
     val code = ProtocBridge.runWithGenerators(protoc, generators, args)
     if (code != 0) {
       sys.error(s"Exit with code $code")
