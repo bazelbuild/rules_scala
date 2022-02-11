@@ -21,7 +21,7 @@ object ScroogeWorker extends Worker.Interface {
       case e: Exception => ()
     }
 
-  def work(args: Array[String]) {
+  def work(args: Array[String]): Unit = {
     def getIdx(i: Int): List[String] = {
       if (args.size > i) {
         // bazel worker arguments cannot be empty so we pad to ensure non-empty
