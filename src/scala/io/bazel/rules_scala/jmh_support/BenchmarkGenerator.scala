@@ -189,9 +189,9 @@ object BenchmarkGenerator {
       .stripSuffix(".class")
       .replace(separator, ".")
 
-    var index = -1
-    do {
-      s = s.substring(index + 1)
+    var index = 0
+    while (index != -1) {
+      s = s.substring(index)
       try {
         return Some(Class.forName(s, false, cl))
       } catch {
@@ -199,7 +199,7 @@ object BenchmarkGenerator {
           // ignore and try next one
           index = s.indexOf('.')
       }
-    } while (index != -1)
+    }
 
     log(s"Failed to find class for path $path")
     None
