@@ -40,7 +40,7 @@ def scalafmt_repositories(
         "com_geirsson_metaconfig_core",
         "com_geirsson_metaconfig_typesafe_config",
     ]
-    if SCALA_MAJOR_VERSION == "2.13":
+    if SCALA_MAJOR_VERSION == "2.13" or "3.1":
         artifact_ids.append("io_bazel_rules_scala_scala_parallel_collections")
 
     repositories(
