@@ -7,14 +7,13 @@ import org.scalafmt.Scalafmt
 import org.scalafmt.config.Config
 import org.scalafmt.util.FileOps
 import scala.annotation.tailrec
-import scala.collection.JavaConverters._
 import scala.io.Codec
 
 object ScalafmtWorker extends Worker.Interface {
 
   def main(args: Array[String]): Unit = Worker.workerMain(args, ScalafmtWorker)
 
-  def work(args: Array[String]) {
+  def work(args: Array[String]): Unit = {
     val argName = List("config", "input", "output")
     val argFile = args.map{x => new File(x)}
     val namespace = argName.zip(argFile).toMap
