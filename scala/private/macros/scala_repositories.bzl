@@ -4,6 +4,7 @@ load(
     _default_maven_server_urls = "default_maven_server_urls",
 )
 load("//third_party/repositories:repositories.bzl", "repositories")
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_MAJOR_VERSION")
 
 def rules_scala_setup():
     if not native.existing_rule("bazel_skylib"):
@@ -41,6 +42,28 @@ def rules_scala_setup():
             ],
         )
 
+ARTIFACT_IDS = [
+    "io_bazel_rules_scala_scala_library",
+    "io_bazel_rules_scala_scala_compiler",
+    "io_bazel_rules_scala_scala_reflect",
+    "io_bazel_rules_scala_scalatest",
+    "io_bazel_rules_scala_scalactic",
+    "io_bazel_rules_scala_scala_xml",
+    "io_bazel_rules_scala_scala_parser_combinators",
+] if SCALA_MAJOR_VERSION.startswith("2") else [
+    "io_bazel_rules_scala_scala_library",
+    "io_bazel_rules_scala_scala_compiler",
+    "io_bazel_rules_scala_scala_interfaces",
+    "io_bazel_rules_scala_scala_tasty_core",
+    "io_bazel_rules_scala_scala_asm",
+    #    "io_bazel_rules_scala_scala_reflect",
+    "io_bazel_rules_scala_scalatest",
+    "io_bazel_rules_scala_scalactic",
+    "io_bazel_rules_scala_scala_xml",
+    "io_bazel_rules_scala_scala_parser_combinators",
+    "io_bazel_rules_scala_scala_library_2",
+]
+
 def scala_repositories(
         maven_servers = _default_maven_server_urls(),
         overriden_artifacts = {},
@@ -52,15 +75,7 @@ def scala_repositories(
 
     if load_jar_deps:
         repositories(
-            for_artifact_ids = [
-                "io_bazel_rules_scala_scala_library",
-                "io_bazel_rules_scala_scala_compiler",
-                "io_bazel_rules_scala_scala_reflect",
-                "io_bazel_rules_scala_scalatest",
-                "io_bazel_rules_scala_scalactic",
-                "io_bazel_rules_scala_scala_xml",
-                "io_bazel_rules_scala_scala_parser_combinators",
-            ],
+            for_artifact_ids = ARTIFACT_IDS,
             maven_servers = maven_servers,
             fetch_sources = fetch_sources,
             overriden_artifacts = overriden_artifacts,
