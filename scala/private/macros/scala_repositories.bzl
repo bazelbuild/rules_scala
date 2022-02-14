@@ -56,7 +56,6 @@ ARTIFACT_IDS = [
     "io_bazel_rules_scala_scala_interfaces",
     "io_bazel_rules_scala_scala_tasty_core",
     "io_bazel_rules_scala_scala_asm",
-    #    "io_bazel_rules_scala_scala_reflect",
     "io_bazel_rules_scala_scalatest",
     "io_bazel_rules_scala_scalactic",
     "io_bazel_rules_scala_scala_xml",
