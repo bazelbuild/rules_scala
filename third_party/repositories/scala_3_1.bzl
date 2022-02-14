@@ -27,10 +27,10 @@ artifacts = {
         "sha256": "b85af6cbbd6075c4960177c2c3aa03d53b5221fa58b0bc74a31b72f25595e39f",
     },
 
-    # todo: update to 3.1 compatible version
+    # todo: update to Scala 3.1 versions
     "io_bazel_rules_scala_scala_parallel_collections": {
-        "artifact": "org.scala-lang.modules:scala-parallel-collections_3:jar:1.0.4",
-        "sha256": "d15f22f1308b98e9ac52a3d1ac8d582d548d6d852b1116cbdf5a50f431246ed2",
+        "artifact": "org.scala-lang.modules:scala-parallel-collections_2.13:jar:1.0.4",
+        "sha256": "68f266c4fa37cb20a76e905ad940e241190ce288b7e4a9877f1dd1261cd1a9a7",
     },
     #
     "io_bazel_rules_scala_scalatest": {
@@ -95,8 +95,6 @@ artifacts = {
         "deps": [
             "@com_geirsson_metaconfig_core",
             "@com_geirsson_metaconfig_typesafe_config",
-            "@io_bazel_rules_scala_scala_library",
-            "@io_bazel_rules_scala_scala_reflect",
             "@org_scalameta_scalameta",
             "@org_scala_lang_modules_scala_collection_compat",
             "@io_bazel_rules_scala_scala_parallel_collections",

@@ -16,6 +16,11 @@ function multi_framework_toolchain_example() {
   (cd examples/testing/multi_frameworks_toolchain; bazel test //...)
 }
 
+function scala3_example() {
+  (cd examples/scala3; bazel build //...)
+}
+
 $runner scalatest_repositories_example
 $runner specs2_junit_repositories_example
 $runner multi_framework_toolchain_example
+$runner scala3_example

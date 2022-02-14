@@ -1,6 +1,7 @@
 load("@rules_java//java:defs.bzl", "java_import", "java_library")
 load("//scala:scala_toolchain.bzl", "scala_toolchain")
 load("//scala:providers.bzl", "declare_deps_provider")
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_MAJOR_VERSION")
 
 toolchain_type(
     name = "toolchain_type",
@@ -68,8 +69,12 @@ declare_deps_provider(
     deps = [
         "@io_bazel_rules_scala_scala_compiler",
         "@io_bazel_rules_scala_scala_library",
-        "@io_bazel_rules_scala_scala_reflect",
-    ],
+    ] + (["@io_bazel_rules_scala_scala_reflect"] if SCALA_MAJOR_VERSION.startswith("2") else [
+        "@io_bazel_rules_scala_scala_interfaces",
+        "@io_bazel_rules_scala_scala_tasty_core",
+        "@io_bazel_rules_scala_scala_asm",
+        "@io_bazel_rules_scala_scala_library_2",
+    ]),
 )
 
 declare_deps_provider(
@@ -78,8 +83,9 @@ declare_deps_provider(
     visibility = ["//visibility:public"],
     deps = [
         "@io_bazel_rules_scala_scala_library",
-        "@io_bazel_rules_scala_scala_reflect",
-    ],
+    ] + (["@io_bazel_rules_scala_scala_reflect"] if SCALA_MAJOR_VERSION.startswith("2") else [
+        "@io_bazel_rules_scala_scala_library_2",
+    ]),
 )
 
 declare_deps_provider(
@@ -88,8 +94,9 @@ declare_deps_provider(
     visibility = ["//visibility:public"],
     deps = [
         "@io_bazel_rules_scala_scala_library",
-        "@io_bazel_rules_scala_scala_reflect",
-    ],
+    ] + (["@io_bazel_rules_scala_scala_reflect"] if SCALA_MAJOR_VERSION.startswith("2") else [
+        "@io_bazel_rules_scala_scala_library_2",
+    ]),
 )
 
 declare_deps_provider(
