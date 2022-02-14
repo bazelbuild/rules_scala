@@ -50,6 +50,10 @@ load("//scala_proto:scala_proto.bzl", "scala_proto_repositories")
 
 scala_proto_repositories()
 
+load("//scalatest:scalatest.bzl", "scalatest_repositories")
+
+scalatest_repositories()
+
 load("//specs2:specs2_junit.bzl", "specs2_junit_repositories")
 
 specs2_junit_repositories()

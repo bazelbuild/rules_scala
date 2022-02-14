@@ -15,7 +15,6 @@ artifacts = {
         "artifact": "org.scala-lang.modules:scala-parallel-collections_2.13:0.2.0",
         "sha256": "d15f22f1308b98e9ac52a3d1ac8d582d548d6d852b1116cbdf5a50f431246ed1",
     },
-    #
     "io_bazel_rules_scala_scalatest": {
         "artifact": "org.scalatest:scalatest_2.13:3.1.2",
         "sha256": "94b636ce8dc2caed3069069c97b94538e60e9a400833fb8086c8271978ad2c21",
