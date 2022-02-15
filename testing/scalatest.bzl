@@ -1,6 +1,7 @@
+load("//scalatest:scalatest.bzl", _repositories = "scalatest_repositories")
+
 def scalatest_repositories():
-    # currently ScalaTest dependencies are already loaded via //scala:scala.bzl#scala_repositories()
-    pass
+    _repositories()
 
 def scalatest_toolchain():
     native.register_toolchains("@io_bazel_rules_scala//testing:scalatest_toolchain")
