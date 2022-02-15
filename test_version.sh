@@ -7,7 +7,6 @@ scala_2_12_version="2.12.14"
 scala_2_13_version="2.13.6"
 
 SCALA_VERSION_DEFAULT=$scala_2_11_version
-SCALA_VERSION_SHAS_DEFAULT=$scala_2_11_shas
 TWITTER_SCROOGE_ARTIFACTS='twitter_scrooge_artifacts={}'
 
 diagnostics_reporter_toolchain="//:diagnostics_reporter_toolchain"
@@ -46,7 +45,6 @@ run_in_test_repo() {
   cp -r $test_target $NEW_TEST_DIR
 
   sed \
-      -e "s/\${scala_version}/$SCALA_VERSION/" \
       -e "s%\${twitter_scrooge_artifacts}%$TWITTER_SCROOGE_ARTIFACTS%" \
       -e "s%\${testing_toolchain}%$SCALA_TOOLCHAIN%" \
       WORKSPACE.template >> $NEW_TEST_DIR/WORKSPACE
@@ -65,14 +63,14 @@ run_in_test_repo() {
 test_scala_version() {
   local SCALA_VERSION="$1"
 
-  run_in_test_repo "bazel test //..." "scala_version" "version_specific_tests_dir/"
+  run_in_test_repo "bazel test //... --repo_env=SCALA_VERSION=${SCALA_VERSION}" "scala_version" "version_specific_tests_dir/"
 }
 
 test_reporter() {
   local SCALA_VERSION="$1"
   local SCALA_TOOLCHAIN="$2"
 
-  run_in_test_repo "compilation_should_fail build //..." "reporter" "test_reporter/"
+  run_in_test_repo "compilation_should_fail build //... --repo_env=SCALA_VERSION=${SCALA_VERSION}" "reporter" "test_reporter/"
 }
 
 test_twitter_scrooge_versions() {

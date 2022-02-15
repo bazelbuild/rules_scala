@@ -31,9 +31,9 @@ local_repository(
     name = "io_bazel_rules_scala",
     path = "../../"
 )
-scala_version = "${scala_version}"
+
 load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
-scala_config(scala_version = scala_version)
+scala_config()
 
 load("@io_bazel_rules_scala//scala:scala_cross_version.bzl", "extract_major_version")
 
