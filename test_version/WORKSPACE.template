@@ -31,9 +31,9 @@ local_repository(
     name = "io_bazel_rules_scala",
     path = "../../"
 )
-scala_version = "${scala_version}"
+
 load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
-scala_config(scala_version = scala_version)
+scala_config()
 
 load("@io_bazel_rules_scala//scala:scala_cross_version.bzl", "extract_major_version")
 
@@ -41,9 +41,11 @@ load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
 
 scala_repositories(fetch_sources = True)
 
+load(":scrooge_repositories.bzl", "scrooge_repositories")
+${twitter_scrooge_repositories}
+
 load("@io_bazel_rules_scala//twitter_scrooge:twitter_scrooge.bzl", "twitter_scrooge")
-${twitter_scrooge_artifacts}
-twitter_scrooge(overriden_artifacts = twitter_scrooge_artifacts)
+twitter_scrooge()
 
 load("@io_bazel_rules_scala//scala_proto:scala_proto.bzl", "scala_proto_repositories")
 
@@ -61,7 +63,7 @@ load("@io_bazel_rules_scala//testing:scalatest.bzl", "scalatest_repositories", "
 
 scalatest_repositories()
 
-register_toolchains("${testing_toolchain}")
+register_toolchains("@io_bazel_rules_scala//testing:testing_toolchain")
 
 load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_unused_deps_toolchains")
 
