@@ -24,6 +24,7 @@ toolchain(
 scala_toolchain(
     name = "unused_dependency_checker_error_toolchain_impl",
     unused_dependency_checker_mode = "off",
+    dependency_mode = "transitive",
     visibility = ["//visibility:public"],
 )
 
