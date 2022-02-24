@@ -53,7 +53,10 @@ def _formatter(ctx, manifest, files, template, output_runner):
         inputs = [template, manifest] + files,
         outputs = [output_runner],
         # replace %workspace% and %manifest% in template and rewrite it to output_runner
-        command = "cat $1 | sed -e s#%workspace%#$2# -e s#%manifest%#$3# > $4",
+        command = """
+set -e
+cat $1 | sed -e s#%workspace%#$2# -e s#%manifest%#$3# > $4
+""",
         arguments = [
             template.path,
             ctx.workspace_name,

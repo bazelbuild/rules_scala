@@ -261,6 +261,7 @@ def _build_nosrc_jar(ctx):
     zipper_arg_path = ctx.actions.declare_file("%s_zipper_args" % ctx.label.name)
     ctx.actions.write(zipper_arg_path, resources)
     cmd = """
+set -e
 rm -f {jar_output}
 {zipper} c {jar_output} @{path}
 # ensures that empty src targets still emit a statsfile and a diagnosticsfile
