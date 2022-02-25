@@ -77,6 +77,9 @@ def _thrift_library_impl(ctx):
         # We move the files and touch them so that the output file is a purely deterministic
         # product of the _content_ of the inputs
         cmd = """
+set -o errexit
+set -o nounset
+set -o pipefail
 rm -f {out}
 {zipper} c {out} @{path}
 """
@@ -103,6 +106,9 @@ rm -f {out}
             outputs = [ctx.outputs.libarchive],
             mnemonic = "ScalaThriftArchive",
             command = """
+set -o errexit
+set -o nounset
+set -o pipefail
 echo "empty" > {out}.contents
 rm -f {out}
 {zipper} c {out} {out}.contents
