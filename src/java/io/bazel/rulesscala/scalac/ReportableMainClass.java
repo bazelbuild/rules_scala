@@ -1,9 +1,7 @@
 package io.bazel.rulesscala.scalac;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.nio.file.Files;
@@ -32,8 +30,6 @@ public class ReportableMainClass extends MainClass {
     if (!ops.enableDiagnosticsReport) {
       createDiagnosticsFile();
       Settings settings = super.settings();
-      InputStream inputStream = new ByteArrayInputStream(new byte[0]);
-      BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
       reporter = new StreamReporter(settings, out, err);
       Global global = new Global(settings, reporter);
 
