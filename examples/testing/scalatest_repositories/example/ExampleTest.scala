@@ -1,8 +1,9 @@
 package examples.testing.scalatest_repositories.example
 
-import org.scalatest.{FlatSpec, MustMatchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.must.Matchers
 
-class ExampleTest extends FlatSpec with MustMatchers {
+class ExampleTest extends AnyFlatSpec with Matchers {
   "Exmaple" should "pass" in {
     1 must be(1)
   }
