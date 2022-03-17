@@ -29,7 +29,7 @@ object ScalaPBWorker extends Worker.Interface {
     classes(className + "$").getField("MODULE$").get(null).asInstanceOf[ProtocCodeGenerator]
   } catch {
     case _: NoSuchFieldException | _: java.lang.ClassNotFoundException =>
-      classes(className).newInstance.asInstanceOf[ProtocCodeGenerator]
+      classes(className).getDeclaredConstructor().newInstance().asInstanceOf[ProtocCodeGenerator]
   }
 
   private val generators: Seq[(String, ProtocCodeGenerator)] = sys.props.toSeq.collect {
