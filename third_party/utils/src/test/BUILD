@@ -5,8 +5,7 @@ licenses(["notice"])  # 3-clause BSD
 scala_library(
     name = "test_util",
     srcs = [
-        "io/bazel/rulesscala/utils/JavaCompileUtil.scala",
-        "io/bazel/rulesscala/utils/TestUtil.scala",
+        "io/bazel/rulesscala/utils/TestUtil3.scala",
     ],
     visibility = ["//visibility:public"],
     deps = [

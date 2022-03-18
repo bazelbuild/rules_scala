@@ -268,6 +268,7 @@ class ScalacWorker3 implements Worker.Interface {
 
     Reporter reporter = driver.doCompile(compiler, r._1, r._2);
 
+
     long stop = System.currentTimeMillis();
     if (ops.printCompileTime) {
       System.err.println("Compiler runtime: " + (stop - start) + "ms.");
