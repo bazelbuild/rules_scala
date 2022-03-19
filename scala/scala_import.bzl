@@ -3,36 +3,14 @@ load("//scala/settings:stamp_settings.bzl", "StampScalaImport")
 
 def _stamp_jar(ctx, jar):
     stamped_jar_filename = "%s.stamp/%s-stamped.jar" % (ctx.label.name, jar.basename.rstrip(".jar"))
-
-    # Preferred way, but currently broken:
-    # java toolchain's ijar incorrectly handles MANIFEST sections
-    # https://github.com/bazelbuild/bazel/issues/12730
-    #    symlink_file = ctx.actions.declare_file(jar.basename)
-    #    ctx.actions.symlink(output = symlink_file, target_file = jar)
-    #    return java_common.stamp_jar(
-    #        actions = ctx.actions,
-    #        jar = symlink_file,
-    #        target_label = ctx.label,
-    #        java_toolchain = ctx.attr._java_toolchain[java_common.JavaToolchainInfo],
-    #    )
-
-    stamped_file = ctx.actions.declare_file(stamped_jar_filename)
-
-    ctx.actions.run(
-        executable = ctx.executable._ijar,
-        inputs = [jar],
-        outputs = [stamped_file],
-        arguments = [
-            "--nostrip_jar",
-            "--target_label",
-            str(ctx.label),
-            jar.path,
-            stamped_file.path,
-        ],
-        mnemonic = "StampWithIjar",
+    symlink_file = ctx.actions.declare_file(stamped_jar_filename)
+    ctx.actions.symlink(output = symlink_file, target_file = jar)
+    return java_common.stamp_jar(
+        actions = ctx.actions,
+        jar = symlink_file,
+        target_label = ctx.label,
+        java_toolchain = ctx.attr._java_toolchain[java_common.JavaToolchainInfo],
     )
-
-    return stamped_file
 
 # intellij part is tested manually, tread lightly when changing there
 # if you change make sure to manually re-import an intellij project and see imports
@@ -157,15 +135,12 @@ scala_import = rule(
             allow_single_file = True,
             default = Label("@io_bazel_rules_scala//scala:libPlaceHolderClassToCreateEmptyJarForScalaImport.jar"),
         ),
-        "_ijar": attr.label(
-            default = Label("@bazel_tools//tools/jdk:ijar"),
-            executable = True,
-            cfg = "exec",
-            allow_files = True,
-        ),
         "stamp": attr.label(
             doc = "Adds Target-Label attribute to MANIFEST.MF for dep tracking",
             default = Label("@io_bazel_rules_scala//scala/settings:stamp_scala_import"),
+        ),
+        "_java_toolchain": attr.label(
+            default = Label("@bazel_tools//tools/jdk:current_java_toolchain"),
         ),
     },
 )
