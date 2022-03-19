@@ -6,14 +6,14 @@ def _assert_compile_dep_stamped(ctx):
     env = analysistest.begin(ctx)
     stamping_enabled = ctx.attr.stamp
     jar = ctx.attr.jar.files.to_list()[0].basename
-    expected_action_mnemonic = "StampWithIjar"
+    expected_action_mnemonic = "JavaIjar"
     expected_input = jar
     expected_stamped_output = jar.rstrip(".jar") + "-stamped.jar"
 
     target_under_test = analysistest.target_under_test(env)
 
     if stamping_enabled:
-        stamp_action = analysistest.target_actions(env)[0]
+        stamp_action = analysistest.target_actions(env)[1]
 
         actual_action_mnemonic = stamp_action.mnemonic
         asserts.equals(env, expected_action_mnemonic, actual_action_mnemonic)
