@@ -2,7 +2,7 @@ load("@io_bazel_rules_scala//scala:jars_to_labels.bzl", "JarsToLabelsInfo")
 load("//scala/settings:stamp_settings.bzl", "StampScalaImport")
 
 def _stamp_jar(ctx, jar):
-    stamped_jar_filename = "%s.stamp/%s.jar" % (ctx.label.name, jar.basename.rstrip(".jar"))
+    stamped_jar_filename = "%s.stamp/%s" % (ctx.label.name, jar.basename)
     symlink_file = ctx.actions.declare_file(stamped_jar_filename)
     ctx.actions.symlink(output = symlink_file, target_file = jar)
     return java_common.stamp_jar(
