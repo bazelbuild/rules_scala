@@ -4,6 +4,9 @@ def analyzer_tests_scala_3():
     common_jvm_flags = [
         "-Dplugin.jar.location=$(execpath //third_party/dependency_analyzer/src/main:dependency_analyzer)",
         "-Dscala.library.location=$(rootpath @io_bazel_rules_scala_scala_library)",
+        # Scala 2 standard library is required for compilation.
+        # Without it compilation fails with error:
+        # class dotty.tools.dotc.core.Symbols$NoSymbol$ cannot be cast to class dotty.tools.dotc.core.Symbols$ClassSymbol
         "-Dscala.library2.location=$(rootpath @io_bazel_rules_scala_scala_library_2)",
     ]
 
