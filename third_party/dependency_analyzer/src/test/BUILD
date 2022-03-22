@@ -1,3 +1,3 @@
-load(":analyzer_test.bzl", "analyzer_tests")
+load(":analyzer_test.bzl", "tests")
 
-analyzer_tests()
+tests()
