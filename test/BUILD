@@ -748,7 +748,24 @@ scala_junit_test(
     size = "small",
     suffixes = ["Test"],
     tests_from = [":JunitMixedSeparateTarget"],
-    runtime_deps = [":JunitMixedSeparateTarget"],
+    runtime_deps = [":JunitMixedSeparateTarget"]
+)
+
+scala_library(
+    name = "JunitRuntimePlatform",
+    srcs = [
+        "src/main/scala/scalarules/test/junit/runtime_platform/JunitRuntimePlatformTest.java",
+    ],
+    deps = ["@io_bazel_rules_scala_junit_junit"],
+)
+
+scala_junit_test(
+    name = "JunitRuntimePlatform_test_runner",
+    size = "small",
+    runtime_jdk = "@bazel_tools//tools/jdk:toolchain_java11",
+    suffixes = ["Test"],
+    tests_from = [":JunitRuntimePlatform"],
+    runtime_deps = [":JunitRuntimePlatform"]
 )
 
 py_binary(
