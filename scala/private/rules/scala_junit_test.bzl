@@ -72,8 +72,8 @@ _scala_junit_test_attrs = {
     ),
     "jvm_flags": attr.string_list(),
     "runtime_jdk": attr.label(
-        default=Label("@bazel_tools//tools/jdk:current_java_toolchain"),
-        providers = [java_common.JavaToolchainInfo]
+        default=Label("@bazel_tools//tools/jdk:current_java_runtime"),
+        providers = [java_common.JavaRuntimeInfo]
     ),
     "_junit_classpath": attr.label(
         default = Label("@io_bazel_rules_scala//testing/toolchain:junit_classpath"),

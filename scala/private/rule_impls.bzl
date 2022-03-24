@@ -169,7 +169,7 @@ def runfiles_root(ctx):
 def specified_java_runtime(ctx, default_runtime):
     use_specified_java = "runtime_jdk" in dir(ctx.attr)
     if use_specified_java:
-        return ctx.attr.runtime_jdk[java_common.JavaToolchainInfo].java_runtime
+        return ctx.attr.runtime_jdk[java_common.JavaRuntimeInfo]
     return default_runtime
 
 def java_bin(ctx):

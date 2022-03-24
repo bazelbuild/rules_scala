@@ -762,7 +762,7 @@ scala_library(
 scala_junit_test(
     name = "JunitRuntimePlatform_test_runner",
     size = "small",
-    runtime_jdk = "@bazel_tools//tools/jdk:toolchain_java11",
+    runtime_jdk = "@bazel_tools//tools/jdk:remote_jdk11",
     suffixes = ["Test"],
     tests_from = [":JunitRuntimePlatform"],
     runtime_deps = [":JunitRuntimePlatform"]
