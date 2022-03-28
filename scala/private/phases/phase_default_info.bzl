@@ -12,7 +12,7 @@ def phase_default_info(ctx, p):
     direct = None
     runfiles = []
 
-    java_runtime = specified_java_runtime(ctx, None)
+    java_runtime = specified_java_runtime(ctx)
     if java_runtime:
         runfiles.append(java_runtime.files)
 

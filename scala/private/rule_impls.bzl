@@ -166,7 +166,7 @@ def compile_java(ctx, source_jars, source_files, output, extra_javac_opts, provi
 def runfiles_root(ctx):
     return "${TEST_SRCDIR}/%s" % ctx.workspace_name
 
-def specified_java_runtime(ctx, default_runtime):
+def specified_java_runtime(ctx, default_runtime = None):
     use_specified_java = "runtime_jdk" in dir(ctx.attr)
     if use_specified_java:
         return ctx.attr.runtime_jdk[java_common.JavaRuntimeInfo]
