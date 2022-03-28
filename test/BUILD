@@ -748,7 +748,7 @@ scala_junit_test(
     size = "small",
     suffixes = ["Test"],
     tests_from = [":JunitMixedSeparateTarget"],
-    runtime_deps = [":JunitMixedSeparateTarget"]
+    runtime_deps = [":JunitMixedSeparateTarget"],
 )
 
 scala_library(
@@ -765,7 +765,7 @@ scala_junit_test(
     runtime_jdk = "@bazel_tools//tools/jdk:remote_jdk11",
     suffixes = ["Test"],
     tests_from = [":JunitRuntimePlatform"],
-    runtime_deps = [":JunitRuntimePlatform"]
+    runtime_deps = [":JunitRuntimePlatform"],
 )
 
 py_binary(

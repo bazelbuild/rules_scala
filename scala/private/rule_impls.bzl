@@ -175,7 +175,7 @@ def specified_java_runtime(ctx, default_runtime):
 def java_bin(ctx):
     java_runtime = specified_java_runtime(
         ctx,
-        default_runtime = ctx.attr._java_runtime[java_common.JavaRuntimeInfo]
+        default_runtime = ctx.attr._java_runtime[java_common.JavaRuntimeInfo],
     )
 
     java_path = str(java_runtime.java_executable_exec_path)
