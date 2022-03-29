@@ -166,8 +166,20 @@ def compile_java(ctx, source_jars, source_files, output, extra_javac_opts, provi
 def runfiles_root(ctx):
     return "${TEST_SRCDIR}/%s" % ctx.workspace_name
 
+def specified_java_runtime(ctx, default_runtime = None):
+    use_specified_java = "runtime_jdk" in dir(ctx.attr)
+    if use_specified_java:
+        return ctx.attr.runtime_jdk[java_common.JavaRuntimeInfo]
+    return default_runtime
+
 def java_bin(ctx):
-    java_path = str(ctx.attr._java_runtime[java_common.JavaRuntimeInfo].java_executable_runfiles_path)
+    java_runtime = specified_java_runtime(
+        ctx,
+        default_runtime = ctx.attr._java_runtime[java_common.JavaRuntimeInfo],
+    )
+
+    java_path = str(java_runtime.java_executable_exec_path)
+
     if paths.is_absolute(java_path):
         javabin = java_path
     else:

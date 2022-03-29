@@ -4,11 +4,17 @@
 # DOCUMENT THIS
 #
 
+load("@io_bazel_rules_scala//scala/private:rule_impls.bzl", "specified_java_runtime")
+
 def phase_default_info(ctx, p):
     executable = None
     files = []
     direct = None
     runfiles = []
+
+    java_runtime = specified_java_runtime(ctx)
+    if java_runtime:
+        runfiles.append(java_runtime.files)
 
     phase_names = dir(p)
     phase_names.remove("to_json")
