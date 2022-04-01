@@ -270,6 +270,7 @@ rm -f {jar_output}
 # ensures that empty src targets still emit a statsfile and a diagnosticsfile
 touch {statsfile}
 touch {diagnosticsfile}
+touch {jdepsfile}
 """ + ijar_cmd
 
     cmd = cmd.format(
@@ -278,9 +279,10 @@ touch {diagnosticsfile}
         zipper = ctx.executable._zipper.path,
         statsfile = ctx.outputs.statsfile.path,
         diagnosticsfile = ctx.outputs.diagnosticsfile.path,
+        jdepsfile = ctx.outputs.jdeps.path,
     )
 
-    outs = [ctx.outputs.jar, ctx.outputs.statsfile, ctx.outputs.diagnosticsfile]
+    outs = [ctx.outputs.jar, ctx.outputs.statsfile, ctx.outputs.diagnosticsfile, ctx.outputs.jdeps]
     inputs = ctx.files.resources + [ctx.outputs.manifest]
 
     ctx.actions.run_shell(
