@@ -39,6 +39,7 @@ def compile_scala(
         manifest,
         statsfile,
         diagnosticsfile,
+        jdepsPath,
         sources,
         cjars,
         all_srcjars,
@@ -79,6 +80,8 @@ def compile_scala(
     args.add("--Manifest", manifest)
     args.add("--PrintCompileTime", print_compile_time)
     args.add("--ExpectJavaOutput", expect_java_output)
+    if jdepsPath != None:
+        args.add("--JDepsFilePath", jdepsPath)
     args.add("--StrictDepsMode", dependency_info.strict_deps_mode)
     args.add("--UnusedDependencyCheckerMode", dependency_info.unused_deps_mode)
     args.add("--DependencyTrackingMethod", dependency_info.dependency_tracking_method)
@@ -110,6 +113,9 @@ def compile_scala(
         args.add_all("--UnusedDepsIgnoredTargets", unused_dependency_checker_ignored_targets)
 
     outs = [output, statsfile, diagnosticsfile]
+
+    if jdepsPath != None:
+        outs.append(jdepsPath)
 
     ins = depset(
         direct = [manifest] + sources + classpath_resources + resources + resource_jars,

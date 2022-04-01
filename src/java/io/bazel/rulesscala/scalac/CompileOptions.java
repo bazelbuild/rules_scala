@@ -24,6 +24,7 @@ public class CompileOptions {
   public final String[] unusedDepsIgnoredTargets;
   public final String[] indirectJars;
   public final String[] indirectTargets;
+  public final String jdepsFilePath;
   public final String strictDepsMode;
   public final String unusedDependencyCheckerMode;
   public final String currentTarget;
@@ -60,6 +61,7 @@ public class CompileOptions {
     indirectJars = args.getOrEmpty("IndirectJars");
     indirectTargets = args.getOrEmpty("IndirectTargets");
 
+    jdepsFilePath = args.getSingleOrNull("JDepsFilePath");
     strictDepsMode = args.getSingleOrError("StrictDepsMode");
     unusedDependencyCheckerMode = args.getSingleOrError("UnusedDependencyCheckerMode");
     currentTarget = args.getSingleOrError("CurrentTarget");
@@ -104,6 +106,20 @@ public class CompileOptions {
       } else {
         throw new RuntimeException("Missing required arg " + k);
       }
+    }
+
+    String getSingleOrNull(String k) {
+      if (index.containsKey(k)) {
+        String[] v = index.get(k);
+        if (v.length == 1) {
+          return v[0];
+        } else {
+          throw new RuntimeException(
+              k + " expected to contain single value but got " + Arrays.toString(v));
+        }
+      }
+
+      return null;
     }
   }
 }

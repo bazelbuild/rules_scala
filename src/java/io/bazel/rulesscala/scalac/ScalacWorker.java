@@ -4,9 +4,18 @@ import static java.io.File.pathSeparator;
 
 import io.bazel.rulesscala.io_utils.StreamCopy;
 import io.bazel.rulesscala.jar.JarCreator;
+import io.bazel.rulesscala.jdeps.JdepsWriter;
 import io.bazel.rulesscala.worker.Worker;
-import java.io.*;
-import java.nio.file.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,6 +70,10 @@ class ScalacWorker implements Worker.Interface {
       compileScalaSources(ops, scalaSources, classes);
     }
 
+    if (ops.jdepsFilePath != null) {
+      JdepsWriter.write(ops.jdepsFilePath, ops.currentTarget, ops.classpath);
+    }
+
     /** Copy the resources */
     copyResources(ops.resourceSources, ops.resourceTargets, classes);
 
@@ -95,7 +108,7 @@ class ScalacWorker implements Worker.Interface {
   }
 
   private static List<File> filterFilesByExtension(List<File> files, String extension) {
-    List<File> filtered = new ArrayList<File>();
+    List<File> filtered = new ArrayList<>();
     for (File f : files) {
       if (f.toString().endsWith(extension)) {
         filtered.add(f);
@@ -238,7 +251,7 @@ class ScalacWorker implements Worker.Interface {
   }
 
   private static void compileScalaSources(CompileOptions ops, String[] scalaSources, Path classes)
-      throws IllegalAccessException, IOException {
+      throws IOException {
 
     String[] pluginArgs = buildPluginArgs(ops.plugins);
     String[] pluginParams = getPluginParamsFrom(ops);
