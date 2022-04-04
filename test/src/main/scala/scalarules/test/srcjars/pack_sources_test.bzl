@@ -35,9 +35,8 @@ def _multi_source_jar_test_impl(ctx):
       [j.basename for j in target_under_test[JavaInfo].source_jars]
     )
 
-    # The first .-src.jar seems to have an incorrect name (with an extra ".")
     expected_names = sets.make([
-      "multi_source_jar.-src.jar",
+      "multi_source_jar-src.jar",
       "multi_source_jar_java-src.jar"
     ])
 
@@ -59,7 +58,7 @@ def _source_jar_with_srcs_test_impl(ctx):
     # Since we have source files, we don't output a .srcjar
     # Instead, we just return the bundle
     expected_names = sets.make([
-      "use_source_jar.-src.jar"
+      "use_source_jar-src.jar"
     ])
 
     asserts.set_equals(env, expected = expected_names, actual = srcjar_names)
