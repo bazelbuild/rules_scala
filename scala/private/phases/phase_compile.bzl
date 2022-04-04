@@ -308,7 +308,7 @@ def _create_scala_compilation_provider(ctx, ijar, source_jar, deps_providers):
         neverlink = ctx.attr.neverlink,
     )
 
-def _pack_source_jar(ctx, scala_srcs, in_srcjars):
+def _pack_source_jar(ctx, scala_srcs, input_srcjars):
     # https://github.com/bazelbuild/bazel/blob/ff6c0333e4f957bb9f7ab5401b01dbf3e9b515b1/src/main/java/com/google/devtools/build/lib/rules/java/JavaInfoBuildHelper.java#L180-L183
     # java_common.pack_sources checks for no srcs and only a single input jar
     # if so, it checks that output_source_jar is null
@@ -316,8 +316,8 @@ def _pack_source_jar(ctx, scala_srcs, in_srcjars):
     # However, pack_sources will FAIL if both output_source_jar and
     # the deprecated output_jar field are BOTH null
     # Therefore, we can return the single input jar ourselves
-    if not scala_srcs and len(in_srcjars) == 1:
-        return in_srcjars[0]
+    if not scala_srcs and len(input_srcjars) == 1:
+        return input_srcjars[0]
     else:
         output_jar = ctx.outputs.jar
         source_jar_name = output_jar.basename[:-len(output_jar.extension)] + "-src.jar"
@@ -326,7 +326,7 @@ def _pack_source_jar(ctx, scala_srcs, in_srcjars):
             ctx.actions,
             output_source_jar = output_source_jar,
             sources = scala_srcs,
-            source_jars = in_srcjars,
+            source_jars = input_srcjars,
             java_toolchain = find_java_toolchain(ctx, ctx.attr._java_toolchain),
         )
 
