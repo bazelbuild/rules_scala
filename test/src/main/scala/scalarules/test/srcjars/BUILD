@@ -18,7 +18,10 @@ scala_library(
     # SourceJar1.jar was created by:
     # jar -cfM test/src/main/scala/scalarules/test/srcjars/SourceJar1.srcjar \
     # test/src/main/scala/scalarules/test/srcjars/SourceJar1.scala
-    srcs = ["SourceJar1.srcjar", "SourceJar2.scala"],
+    srcs = [
+        "SourceJar1.srcjar",
+        "SourceJar2.scala",
+    ],
 )
 
 scala_library(
