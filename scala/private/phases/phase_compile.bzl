@@ -224,6 +224,12 @@ def _compile_or_empty(
             #  so set ijar == jar
             ijar = ctx.outputs.jar
 
+        # print("MAYBE DML?!")
+        # if "library-immediate" in ctx.outputs.jar.basename:
+        #     print("lib-imm")
+        #     print(ctx.outputs)
+        #     print(ctx.outputs.jar)
+        #     print(in_srcjars)
         source_jar = _pack_source_jar(ctx, scala_srcs, in_srcjars)
         scala_compilation_provider = _create_scala_compilation_provider(ctx, ijar, source_jar, deps_providers)
 
@@ -309,16 +315,26 @@ def _create_scala_compilation_provider(ctx, ijar, source_jar, deps_providers):
     )
 
 def _pack_source_jar(ctx, scala_srcs, in_srcjars):
-    output_jar = ctx.outputs.jar
-    source_jar_name = output_jar.basename[:-len(output_jar.extension)] + "-src.jar"
-    output_source_jar = ctx.actions.declare_file(source_jar_name, sibling = output_jar)
-    return java_common.pack_sources(
-        ctx.actions,
-        output_source_jar = output_source_jar,
-        sources = scala_srcs,
-        source_jars = in_srcjars,
-        java_toolchain = find_java_toolchain(ctx, ctx.attr._java_toolchain),
-    )
+    # https://github.com/bazelbuild/bazel/blob/ff6c0333e4f957bb9f7ab5401b01dbf3e9b515b1/src/main/java/com/google/devtools/build/lib/rules/java/JavaInfoBuildHelper.java#L180-L183
+    # java_common.pack_sources checks for no srcs and only a single input jar
+    # if so, it checks that output_source_jar is null
+    # passing that, it will return the input source jar directly
+    # However, pack_sources will FAIL if both output_source_jar and
+    # the deprecated output_jar field are BOTH null
+    # Therefore, we can return the single input jar ourselves
+    if not scala_srcs and len(in_srcjars) == 1:
+        return in_srcjars[0]
+    else:
+        output_jar = ctx.outputs.jar
+        source_jar_name = output_jar.basename[:-len(output_jar.extension)] + "-src.jar"
+        output_source_jar = ctx.actions.declare_file(source_jar_name, sibling = output_jar)
+        return java_common.pack_sources(
+            ctx.actions,
+            output_source_jar = output_source_jar,
+            sources = scala_srcs,
+            source_jars = in_srcjars,
+            java_toolchain = find_java_toolchain(ctx, ctx.attr._java_toolchain),
+        )
 
 def _try_to_compile_java_jar(
         ctx,
