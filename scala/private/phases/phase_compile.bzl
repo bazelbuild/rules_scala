@@ -224,12 +224,6 @@ def _compile_or_empty(
             #  so set ijar == jar
             ijar = ctx.outputs.jar
 
-        # print("MAYBE DML?!")
-        # if "library-immediate" in ctx.outputs.jar.basename:
-        #     print("lib-imm")
-        #     print(ctx.outputs)
-        #     print(ctx.outputs.jar)
-        #     print(in_srcjars)
         source_jar = _pack_source_jar(ctx, scala_srcs, in_srcjars)
         scala_compilation_provider = _create_scala_compilation_provider(ctx, ijar, source_jar, deps_providers)
 
