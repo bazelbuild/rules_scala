@@ -7,7 +7,7 @@ load(":pack_sources_test.bzl", "pack_sources_test_suite")
 
 scala_library(
     name = "source_jar",
-    # SourceJar1.jar was created by:
+    # SourceJar1.srcjar was created by:
     # jar -cfM test/src/main/scala/scalarules/test/srcjars/SourceJar1.srcjar \
     # test/src/main/scala/scalarules/test/srcjars/SourceJar1.scala
     srcs = ["SourceJar1.srcjar"],
@@ -21,9 +21,17 @@ scala_library(
 
 scala_library(
     name = "multi_source_jar",
-    # SourceJar1.jar was created by:
-    # jar -cfM test/src/main/scala/scalarules/test/srcjars/SourceJar1.srcjar \
-    # test/src/main/scala/scalarules/test/srcjars/SourceJar1.scala
+    # SourceJar2.srcjar was created the same way as SourceJar1.srcjar, i.e. by:
+    # jar -cfM test/src/main/scala/scalarules/test/srcjars/SourceJar2.srcjar \
+    # test/src/main/scala/scalarules/test/srcjars/SourceJar2.scala
+    srcs = [
+        "SourceJar1.srcjar",
+        "SourceJar2.srcjar",
+    ],
+)
+
+scala_library(
+    name = "mixed_source_jar",
     srcs = [
         "SourceJar1.srcjar",
         "SourceJar2.scala",
