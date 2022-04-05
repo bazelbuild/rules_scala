@@ -320,9 +320,10 @@ def _pack_source_jar(ctx, scala_srcs, input_srcjars):
         return input_srcjars[0]
     else:
         output_jar = ctx.outputs.jar
-        without_ext = output_jar.basename[:-len(output_jar.extension)]
-        if without_ext.endswith("."):
-            without_ext = without_ext[:-1]
+        without_ext = output_jar.basename
+        if output_jar.extension:
+            ext_len = len("." + output_jar.extension)
+            without_ext = output_jar.basename[:-ext_len]
         source_jar_name = without_ext + "-src.jar"
 
         output_source_jar = ctx.actions.declare_file(source_jar_name, sibling = output_jar)
