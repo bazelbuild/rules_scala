@@ -4,31 +4,31 @@ load("@bazel_skylib//lib:new_sets.bzl", "sets")
 # Tests and documents the functionality of phase_compile.bzl's _pack_source_jar
 
 def _source_jar_test_impl(ctx):
-  env = analysistest.begin(ctx)
+    env = analysistest.begin(ctx)
 
-  target_under_test = analysistest.target_under_test(env)
+    target_under_test = analysistest.target_under_test(env)
 
-  srcjar_names = sets.make(
-      [j.basename for j in target_under_test[JavaInfo].source_jars],
-  )
+    srcjar_names = sets.make(
+        [j.basename for j in target_under_test[JavaInfo].source_jars],
+    )
 
-  expected_names = sets.make(ctx.attr.expected_basenames)
+    expected_names = sets.make(ctx.attr.expected_basenames)
 
-  asserts.set_equals(env, expected = expected_names, actual = srcjar_names)
+    asserts.set_equals(env, expected = expected_names, actual = srcjar_names)
 
-  return analysistest.end(env)
+    return analysistest.end(env)
 
 def _make_source_jar_test():
     return analysistest.make(
         impl = _source_jar_test_impl,
         attrs = {
             "expected_basenames": attr.string_list(
-                mandatory=True,
-                allow_empty=True
-            )
-        }
+                mandatory = True,
+                allow_empty = True,
+            ),
+        },
     )
-    
+
 source_jar_test = _make_source_jar_test()
 
 def pack_sources_test_suite(name):
@@ -43,14 +43,14 @@ def pack_sources_test_suite(name):
         expected_basenames = [
             "SourceJar1.srcjar",
             "source_jar_java-src.jar",
-        ]
+        ],
     )
     source_jar_test(
         name = "single_source_jar_no_java_output_test",
         target_under_test = ":source_jar_no_expect_java_output",
         expected_basenames = [
             "SourceJar1.srcjar",
-        ]
+        ],
     )
     source_jar_test(
         name = "multi_source_jar_test",
@@ -72,7 +72,7 @@ def pack_sources_test_suite(name):
         name = "source_jar_with_srcs_test",
         target_under_test = ":use_source_jar",
         expected_basenames = [
-           "use_source_jar-src.jar"
+            "use_source_jar-src.jar",
         ],
     )
 
