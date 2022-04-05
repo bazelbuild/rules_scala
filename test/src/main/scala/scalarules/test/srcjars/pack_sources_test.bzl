@@ -15,6 +15,7 @@ def _single_source_jar_test_impl(ctx):
     # In line with Bazel's java_common.pack_sources,
     # We return the initial .srcjar file since there are no source files
     # Not sure where the second -src.jar comes from, maybe due to java rules
+    # It can be squelched by adding the target attr expect_java_output = False
     expected_names = sets.make([
         "SourceJar1.srcjar",
         "source_jar_java-src.jar",
@@ -25,6 +26,25 @@ def _single_source_jar_test_impl(ctx):
     return analysistest.end(env)
 
 single_source_jar_test = analysistest.make(_single_source_jar_test_impl)
+
+def _single_source_jar_no_java_output_test_impl(ctx):
+    env = analysistest.begin(ctx)
+
+    target_under_test = analysistest.target_under_test(env)
+
+    srcjar_names = sets.make(
+        [j.basename for j in target_under_test[JavaInfo].source_jars],
+    )
+
+    expected_names = sets.make([
+        "SourceJar1.srcjar",
+    ])
+
+    asserts.set_equals(env, expected = expected_names, actual = srcjar_names)
+
+    return analysistest.end(env)
+
+single_source_jar_no_java_output_test = analysistest.make(_single_source_jar_no_java_output_test_impl)
 
 def _multi_source_jar_test_impl(ctx):
     env = analysistest.begin(ctx)
@@ -72,6 +92,10 @@ def pack_sources_test_suite(name):
         name = "single_source_jar_test",
         target_under_test = ":source_jar",
     )
+    single_source_jar_no_java_output_test(
+        name = "single_source_jar_no_java_output_test",
+        target_under_test = ":source_jar_no_expect_java_output",
+    )
     multi_source_jar_test(
         name = "multi_source_jar_test",
         target_under_test = ":multi_source_jar",
@@ -85,6 +109,7 @@ def pack_sources_test_suite(name):
         name = name,
         tests = [
             ":single_source_jar_test",
+            ":single_source_jar_no_java_output_test",
             ":multi_source_jar_test",
             ":source_jar_with_srcs_test",
         ],

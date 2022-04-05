@@ -14,6 +14,12 @@ scala_library(
 )
 
 scala_library(
+    name = "source_jar_no_expect_java_output",
+    srcs = ["SourceJar1.srcjar"],
+    expect_java_output = False,
+)
+
+scala_library(
     name = "multi_source_jar",
     # SourceJar1.jar was created by:
     # jar -cfM test/src/main/scala/scalarules/test/srcjars/SourceJar1.srcjar \
