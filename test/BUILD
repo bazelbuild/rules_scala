@@ -471,18 +471,10 @@ scala_specs2_junit_test(
     "//test/src/main/scala/scalarules/test/twitter_scrooge:justscrooge2b_binary",
     "//test/src/main/scala/scalarules/test/large_classpath:largeClasspath",
     "//test:test_scala_proto_server",
-    "//test:scala_binary_jdk_8",
     "//test:scala_binary_jdk_11",
 ]]
 
 # Make sure scala_binary respects runtime_jdk on bazel run
-scala_binary(
-    name = "scala_binary_jdk_8",
-    srcs = ["ScalaBinaryJdk8.scala"],
-    main_class = "scalarules.test.ScalaBinaryJdk8",
-    runtime_jdk = "@bazel_tools//tools/jdk:remote_jdk8",
-)
-
 scala_binary(
     name = "scala_binary_jdk_11",
     srcs = ["ScalaBinaryJdk11.scala"],
