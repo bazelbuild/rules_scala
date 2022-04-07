@@ -266,34 +266,34 @@ artifacts = {
         "sha256": "66fdef91e9739348df7a096aa384a5685f4e875584cce89386a7a47251c4d8e9",
     },
     "io_bazel_rules_scala_org_specs2_specs2_common": {
-        "artifact": "org.specs2:specs2-common_2.13:4.10.3",
-        "sha256": "51636fb6a904b3c807de0673f283a971379c9886e03aedbecbf5d787b22346b0",
+        "artifact": "org.specs2:specs2-common_2.13:4.15.0",
+        "sha256": "919d9120415d625bc276b940badc71d1655c3b0b08c5e4724de5951e979021b3",
         "deps": [
             "@io_bazel_rules_scala_org_specs2_specs2_fp",
         ],
     },
     "io_bazel_rules_scala_org_specs2_specs2_core": {
-        "artifact": "org.specs2:specs2-core_2.13:4.10.3",
-        "sha256": "9cc55eb11781c9b77689cf8175795fad34b060718b04a225fffb0613a181256b",
+        "artifact": "org.specs2:specs2-core_2.13:4.15.0",
+        "sha256": "ce8c9939a63bb64bce39be9a7fbba61e13f1b56e42617478a191bd38099e15d0",
         "deps": [
             "@io_bazel_rules_scala_org_specs2_specs2_common",
             "@io_bazel_rules_scala_org_specs2_specs2_matcher",
         ],
     },
     "io_bazel_rules_scala_org_specs2_specs2_fp": {
-        "artifact": "org.specs2:specs2-fp_2.13:4.10.3",
-        "sha256": "48a908b345c93a3387ddd157ab338686513f450c7dd8afe0f32b6edc7ff15239",
+        "artifact": "org.specs2:specs2-fp_2.13:4.15.0",
+        "sha256": "980101e1af0e40e27e114ce40ff3cccdda505b6b139d1012c4e668cadfb7e3a8",
     },
     "io_bazel_rules_scala_org_specs2_specs2_matcher": {
-        "artifact": "org.specs2:specs2-matcher_2.13:4.10.3",
-        "sha256": "754465f58dad8f59b3bb299d5dc127027bf0c0c9ad25250260fc95abd705363b",
+        "artifact": "org.specs2:specs2-matcher_2.13:4.15.0",
+        "sha256": "fe75efe11feea1f1378739c293f4da80bc95ff1ed57da911f8d3517af19f5182",
         "deps": [
             "@io_bazel_rules_scala_org_specs2_specs2_common",
         ],
     },
     "io_bazel_rules_scala_org_specs2_specs2_junit": {
-        "artifact": "org.specs2:specs2-junit_2.13:4.10.3",
-        "sha256": "49c4e7cf5483aada90852314983fc046f72092da1a4e7900ace6574444f581ea",
+        "artifact": "org.specs2:specs2-junit_2.13:4.15.0",
+        "sha256": "205898d34c1694b95ca938df9f8533cbe3107701faefc6fd9b3ee88dc31f3219",
         "deps": [
             "@io_bazel_rules_scala_org_specs2_specs2_core",
         ],

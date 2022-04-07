@@ -282,34 +282,34 @@ artifacts = {
         "sha256": "66fdef91e9739348df7a096aa384a5685f4e875584cce89386a7a47251c4d8e9",
     },
     "io_bazel_rules_scala_org_specs2_specs2_common": {
-        "artifact": "org.specs2:specs2-common_3:jar:5.0.0-RC-21",
-        "sha256": "bfbc91a136493483ed5d2beba7f48520e72b66a9987ebec5b8f0ca38bda02801",
+        "artifact": "org.specs2:specs2-common_3:jar:4.15.0",
+        "sha256": "b75b4070165791978d3cbfb44fed71c24b1658edff1bfb629258cffc0f8cd048",
         "deps": [
             "@io_bazel_rules_scala_org_specs2_specs2_fp",
         ],
     },
     "io_bazel_rules_scala_org_specs2_specs2_core": {
-        "artifact": "org.specs2:specs2-core_3:jar:5.0.0-RC-21",
-        "sha256": "ad4197e181c5921e685ce30b38f8a536745c8f3728172df49f7be2256e675608",
+        "artifact": "org.specs2:specs2-core_3:jar:4.15.0",
+        "sha256": "55f217ba3bb35c4bf8626b202e4d8f5b7f88ed1945dcb93a303c466252a89178",
         "deps": [
             "@io_bazel_rules_scala_org_specs2_specs2_common",
             "@io_bazel_rules_scala_org_specs2_specs2_matcher",
         ],
     },
     "io_bazel_rules_scala_org_specs2_specs2_fp": {
-        "artifact": "org.specs2:specs2-fp_3:jar:5.0.0-RC-21",
-        "sha256": "60f26aa132decb52682bba7ce0355b0b749b1b5fe283ec8929b050bb794cc1b8",
+        "artifact": "org.specs2:specs2-fp_3:jar:4.15.0",
+        "sha256": "d097320ba21322e17aca16c2e9c0aa01eca7212e1e080f148fa3b3a71850722b",
     },
     "io_bazel_rules_scala_org_specs2_specs2_matcher": {
-        "artifact": "org.specs2:specs2-matcher_3:jar:5.0.0-RC-21",
-        "sha256": "e747c4f40f3a96bfec5ac4a4af7d6b8b8f6f74b2412513752730888f75050e0b",
+        "artifact": "org.specs2:specs2-matcher_3:jar:4.15.0",
+        "sha256": "4840bd5a4cb92c3cb54b6d1241c08d54e9105fc4f6d345a8aaa2eadbd0dd0387",
         "deps": [
             "@io_bazel_rules_scala_org_specs2_specs2_common",
         ],
     },
     "io_bazel_rules_scala_org_specs2_specs2_junit": {
-        "artifact": "org.specs2:specs2-junit_3:jar:5.0.0-RC-21",
-        "sha256": "7e8b2c8ab10e6ea1ee471fb0313ad4c81963f326aa66efc4a2f476815ac4f8d9",
+        "artifact": "org.specs2:specs2-junit_3:jar:4.15.0",
+        "sha256": "fd48b0f8294caf0396dc5e32fb0c10fa60e5b30eec5bf2fa1ee1e9c7e236b675",
         "deps": [
             "@io_bazel_rules_scala_org_specs2_specs2_core",
         ],
