@@ -6,7 +6,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class JdepsWriter {
+public final class JdepsWriter {
+
+  private JdepsWriter() {
+  }
 
   public static void write(String jdpesPath, String currentTarget, String[] classpath)
       throws IOException {
@@ -23,7 +26,7 @@ public class JdepsWriter {
     }
 
     try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(jdpesPath))) {
-      outputStream.write(builder.build().toByteArray());
+      builder.build().writeTo(outputStream);
     }
   }
 
