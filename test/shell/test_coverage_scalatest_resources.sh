@@ -5,7 +5,9 @@ dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 runner=$(get_test_runner "${1:-local}")
 
 test_coverage_succeeds_resource_call() {
-    bazel coverage //test/coverage_scalatest_resources/consumer:tests
+    bazel coverage \
+          --instrumentation_filter=^//test/coverage_scalatest_resources[:/] \
+          //test/coverage_scalatest_resources/consumer:tests
     diff test/coverage_scalatest_resources/expected-coverage.dat $(bazel info bazel-testlogs)/test/coverage_scalatest_resources/consumer/tests/coverage.dat
 }
 

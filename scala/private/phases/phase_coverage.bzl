@@ -26,10 +26,20 @@ def _phase_coverage_default(ctx, p, _args = struct()):
     )
 
 def _phase_coverage(ctx, p, srcjars):
-    if len(ctx.files.srcs) + len(srcjars.to_list()) == 0 or not ctx.configuration.coverage_enabled:
+    instrumented_files_provider = coverage_common.instrumented_files_info(
+        ctx,
+        source_attributes = ["srcs"],
+        dependency_attributes = _coverage_replacements_provider.dependency_attributes,
+        extensions = ["scala", "java"],
+    )
+    external_providers = {
+        "InstrumentedFilesInfo": instrumented_files_provider,
+    }
+
+    if len(ctx.files.srcs) + len(srcjars.to_list()) == 0 or not ctx.coverage_instrumented():
         return struct(
             replacements = {},
-            external_providers = {},
+            external_providers = external_providers,
         )
     else:
         input_jar = ctx.outputs.jar
@@ -57,16 +67,8 @@ def _phase_coverage(ctx, p, srcjars):
         provider = _coverage_replacements_provider.create(
             replacements = replacements,
         )
-        instrumented_files_provider = coverage_common.instrumented_files_info(
-            ctx,
-            source_attributes = ["srcs"],
-            dependency_attributes = _coverage_replacements_provider.dependency_attributes,
-            extensions = ["scala", "java"],
-        )
+        external_providers["_CoverageReplacements"] = provider
         return struct(
             replacements = replacements,
-            external_providers = {
-                "_CoverageReplacements": provider,
-                "InstrumentedFilesInfo": instrumented_files_provider,
-            },
+            external_providers = external_providers,
         )
