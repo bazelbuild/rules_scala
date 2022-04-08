@@ -1,6 +1,8 @@
 package io.bazel.rulesscala.scalac;
 
 import static java.io.File.pathSeparator;
+
+import io.bazel.rulesscala.jdeps.JdepsWriter;
 import scala.Tuple2;
 import io.bazel.rulesscala.io_utils.StreamCopy;
 import io.bazel.rulesscala.jar.JarCreator;
@@ -75,6 +77,8 @@ class ScalacWorker3 implements Worker.Interface {
       if (scalaSources.length > 0) {
         compileScalaSources(ops, scalaSources, tmpPath);
       }
+
+      JdepsWriter.write(ops.jdepsFilePath, ops.currentTarget, ops.classpath);
 
       /** Copy the resources */
       copyResources(ops.resourceSources, ops.resourceTargets, tmpPath);

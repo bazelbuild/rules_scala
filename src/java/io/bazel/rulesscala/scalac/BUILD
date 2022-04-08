@@ -15,6 +15,7 @@ java_binary(
     deps = [
         "//scala/private/toolchain_deps:scala_compile_classpath",
         "//src/java/io/bazel/rulesscala/io_utils",
+        "//src/java/io/bazel/rulesscala/jdeps",
         "//third_party/bazel/src/main/protobuf:worker_protocol_java_proto",
         "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/jar",
         "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/worker",
