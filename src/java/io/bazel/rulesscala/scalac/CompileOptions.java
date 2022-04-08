@@ -61,7 +61,7 @@ public class CompileOptions {
     indirectJars = args.getOrEmpty("IndirectJars");
     indirectTargets = args.getOrEmpty("IndirectTargets");
 
-    jdepsFilePath = args.getSingleOrNull("JDepsFilePath");
+    jdepsFilePath = args.getSingleOrError("JDepsFilePath");
     strictDepsMode = args.getSingleOrError("StrictDepsMode");
     unusedDependencyCheckerMode = args.getSingleOrError("UnusedDependencyCheckerMode");
     currentTarget = args.getSingleOrError("CurrentTarget");
@@ -77,7 +77,7 @@ public class CompileOptions {
 
   static final class Args {
 
-    private static final String[] EMPTY = new String[] {};
+    private static final String[] EMPTY = new String[]{};
     private final Map<String, String[]> index = new LinkedHashMap<>();
 
     Args(String[] lines) {
@@ -106,20 +106,6 @@ public class CompileOptions {
       } else {
         throw new RuntimeException("Missing required arg " + k);
       }
-    }
-
-    String getSingleOrNull(String k) {
-      if (index.containsKey(k)) {
-        String[] v = index.get(k);
-        if (v.length == 1) {
-          return v[0];
-        } else {
-          throw new RuntimeException(
-              k + " expected to contain single value but got " + Arrays.toString(v));
-        }
-      }
-
-      return null;
     }
   }
 }

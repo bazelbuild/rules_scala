@@ -70,9 +70,7 @@ class ScalacWorker implements Worker.Interface {
       compileScalaSources(ops, scalaSources, classes);
     }
 
-    if (ops.jdepsFilePath != null) {
-      JdepsWriter.write(ops.jdepsFilePath, ops.currentTarget, ops.classpath);
-    }
+    JdepsWriter.write(ops.jdepsFilePath, ops.currentTarget, ops.classpath);
 
     /** Copy the resources */
     copyResources(ops.resourceSources, ops.resourceTargets, classes);
