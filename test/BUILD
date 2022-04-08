@@ -471,7 +471,16 @@ scala_specs2_junit_test(
     "//test/src/main/scala/scalarules/test/twitter_scrooge:justscrooge2b_binary",
     "//test/src/main/scala/scalarules/test/large_classpath:largeClasspath",
     "//test:test_scala_proto_server",
+    "//test:scala_binary_jdk_11",
 ]]
+
+# Make sure scala_binary respects runtime_jdk on bazel run
+scala_binary(
+    name = "scala_binary_jdk_11",
+    srcs = ["ScalaBinaryJdk11.scala"],
+    main_class = "scalarules.test.ScalaBinaryJdk11",
+    runtime_jdk = "@bazel_tools//tools/jdk:remote_jdk11",
+)
 
 # Generate a file containing the rootpaths of a Scala binary.
 genrule(
