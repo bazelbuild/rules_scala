@@ -777,41 +777,23 @@ scala_junit_test(
     runtime_deps = [":JunitRuntimePlatform"],
 )
 
-scala_library(
-    name = "JunitNoTestEnvironment",
-    srcs = [
-        "src/main/scala/scalarules/test/junit/JunitNoTestEnvironmentTest.scala",
-    ],
-    deps = ["@io_bazel_rules_scala_junit_junit"],
-)
-
-scala_library(
-    name = "JunitSetTestEnvironment",
-    srcs = [
-        "src/main/scala/scalarules/test/junit/JunitSetTestEnvironmentTest.scala",
-    ],
-    deps = ["@io_bazel_rules_scala_junit_junit"],
-)
-
 scala_junit_test(
-    name = "JunitNoTestEnvironment_test_runner",
+    name = "JunitNoTestEnvironmentTest",
     size = "small",
-    runtime_jdk = "@bazel_tools//tools/jdk:remote_jdk11",
+    srcs = ["src/main/scala/scalarules/test/junit/JunitNoTestEnvironmentTest.scala"],
     suffixes = ["Test"],
-    tests_from = [":JunitNoTestEnvironment"],
-    runtime_deps = [":JunitNoTestEnvironment"],
+    deps = ["@io_bazel_rules_scala_junit_junit"],
 )
 
 scala_junit_test(
-    name = "JunitSetTestEnvironment_test_runner",
+    name = "JunitSetTestEnvironmentTest",
     size = "small",
+    srcs = ["src/main/scala/scalarules/test/junit/JunitSetTestEnvironmentTest.scala"],
     env = {
         "my_env_var": "my_value",
     },
-    runtime_jdk = "@bazel_tools//tools/jdk:remote_jdk11",
     suffixes = ["Test"],
-    tests_from = [":JunitSetTestEnvironment"],
-    runtime_deps = [":JunitSetTestEnvironment"],
+    deps = ["@io_bazel_rules_scala_junit_junit"],
 )
 
 py_binary(
