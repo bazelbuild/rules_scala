@@ -90,6 +90,7 @@ def _write_executable_windows(ctx, executable, rjars, main_class, jvm_flags, wra
         inputs = [cpfile],
         executable = ctx.attr._exe.files_to_run.executable,
         arguments = [executable.path, ctx.workspace_name, java_for_exe, main_class, cpfile.path, jvm_flags_str],
+        env = ctx.attr.env,
         mnemonic = "ExeLauncher",
         progress_message = "Creating exe launcher",
     )
