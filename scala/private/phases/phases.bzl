@@ -66,7 +66,6 @@ load("@io_bazel_rules_scala//scala/private:phases/phase_coverage_runfiles.bzl", 
 load("@io_bazel_rules_scala//scala/private:phases/phase_scalafmt.bzl", _phase_scalafmt = "phase_scalafmt")
 load("@io_bazel_rules_scala//scala/private:phases/phase_test_environment.bzl", _phase_test_environment = "phase_test_environment")
 
-
 # API
 run_phases = _run_phases
 extras_phases = _extras_phases

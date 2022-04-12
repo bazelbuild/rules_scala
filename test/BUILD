@@ -805,11 +805,11 @@ scala_junit_test(
 scala_junit_test(
     name = "JunitSetTestEnvironment_test_runner",
     size = "small",
+    env = {
+        "my_env_var": "my_value",
+    },
     runtime_jdk = "@bazel_tools//tools/jdk:remote_jdk11",
     suffixes = ["Test"],
-    env = {
-        "my_env_var": "my_value"
-    },
     tests_from = [":JunitSetTestEnvironment"],
     runtime_deps = [":JunitSetTestEnvironment"],
 )
