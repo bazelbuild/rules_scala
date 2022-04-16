@@ -2,7 +2,7 @@
 # https://bazel.build/rules/lib/testing#TestEnvironment
 
 def phase_test_environment(ctx, p):
-    test_env = getattr(ctx.attr, "env", None)
+    test_env = ctx.attr.env
 
     if test_env:
         return struct(
