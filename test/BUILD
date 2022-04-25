@@ -777,6 +777,25 @@ scala_junit_test(
     runtime_deps = [":JunitRuntimePlatform"],
 )
 
+scala_junit_test(
+    name = "JunitNoTestEnvironmentTest",
+    size = "small",
+    srcs = ["src/main/scala/scalarules/test/junit/JunitNoTestEnvironmentTest.scala"],
+    suffixes = ["Test"],
+    deps = ["@io_bazel_rules_scala_junit_junit"],
+)
+
+scala_junit_test(
+    name = "JunitSetTestEnvironmentTest",
+    size = "small",
+    srcs = ["src/main/scala/scalarules/test/junit/JunitSetTestEnvironmentTest.scala"],
+    env = {
+        "my_env_var": "my_value",
+    },
+    suffixes = ["Test"],
+    deps = ["@io_bazel_rules_scala_junit_junit"],
+)
+
 py_binary(
     name = "py_resource_binary",
     srcs = ["py_resource.py"],

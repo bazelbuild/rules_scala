@@ -64,6 +64,7 @@ load("@io_bazel_rules_scala//scala/private:phases/phase_merge_jars.bzl", _phase_
 load("@io_bazel_rules_scala//scala/private:phases/phase_jvm_flags.bzl", _phase_jvm_flags = "phase_jvm_flags")
 load("@io_bazel_rules_scala//scala/private:phases/phase_coverage_runfiles.bzl", _phase_coverage_runfiles = "phase_coverage_runfiles")
 load("@io_bazel_rules_scala//scala/private:phases/phase_scalafmt.bzl", _phase_scalafmt = "phase_scalafmt")
+load("@io_bazel_rules_scala//scala/private:phases/phase_test_environment.bzl", _phase_test_environment = "phase_test_environment")
 
 # API
 run_phases = _run_phases
@@ -135,6 +136,9 @@ phase_runfiles_common = _phase_runfiles_common
 
 # default_info
 phase_default_info = _phase_default_info
+
+# test_environment
+phase_test_environment = _phase_test_environment
 
 # scalafmt
 phase_scalafmt = _phase_scalafmt

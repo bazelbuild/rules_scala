@@ -23,6 +23,7 @@ load(
     "phase_merge_jars",
     "phase_runfiles_common",
     "phase_scalac_provider",
+    "phase_test_environment",
     "phase_write_executable_junit_test",
     "phase_write_manifest",
     "run_phases",
@@ -52,6 +53,7 @@ def _scala_junit_test_impl(ctx):
             ("jvm_flags", phase_jvm_flags),
             ("write_executable", phase_write_executable_junit_test),
             ("default_info", phase_default_info),
+            ("test_environment", phase_test_environment),
         ],
     )
 
@@ -75,6 +77,7 @@ _scala_junit_test_attrs = {
         default = Label("@bazel_tools//tools/jdk:current_java_runtime"),
         providers = [java_common.JavaRuntimeInfo],
     ),
+    "env": attr.string_dict(default = {}),
     "_junit_classpath": attr.label(
         default = Label("@io_bazel_rules_scala//testing/toolchain:junit_classpath"),
     ),
