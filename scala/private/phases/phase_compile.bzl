@@ -193,7 +193,6 @@ def _compile_or_empty(
             manifest,
             ctx.outputs.statsfile,
             ctx.outputs.diagnosticsfile,
-            ctx.outputs.jdeps,
             sources,
             jars,
             all_srcjars,
@@ -270,7 +269,6 @@ rm -f {jar_output}
 # ensures that empty src targets still emit a statsfile and a diagnosticsfile
 touch {statsfile}
 touch {diagnosticsfile}
-touch {jdepsfile}
 """ + ijar_cmd
 
     cmd = cmd.format(
@@ -279,10 +277,9 @@ touch {jdepsfile}
         zipper = ctx.executable._zipper.path,
         statsfile = ctx.outputs.statsfile.path,
         diagnosticsfile = ctx.outputs.diagnosticsfile.path,
-        jdepsfile = ctx.outputs.jdeps.path,
     )
 
-    outs = [ctx.outputs.jar, ctx.outputs.statsfile, ctx.outputs.diagnosticsfile, ctx.outputs.jdeps]
+    outs = [ctx.outputs.jar, ctx.outputs.statsfile, ctx.outputs.diagnosticsfile]
     inputs = ctx.files.resources + [ctx.outputs.manifest]
 
     ctx.actions.run_shell(
@@ -306,7 +303,6 @@ def _create_scala_compilation_provider(ctx, ijar, source_jar, deps_providers):
         compile_jar = ijar,
         source_jar = source_jar,
         deps = deps_providers,
-        jdeps = ctx.outputs.jdeps,
         exports = exports,
         runtime_deps = runtime_deps,
         neverlink = ctx.attr.neverlink,

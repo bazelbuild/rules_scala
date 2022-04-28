@@ -24,7 +24,6 @@ public class CompileOptions {
   public final String[] unusedDepsIgnoredTargets;
   public final String[] indirectJars;
   public final String[] indirectTargets;
-  public final String jdepsFilePath;
   public final String strictDepsMode;
   public final String unusedDependencyCheckerMode;
   public final String currentTarget;
@@ -61,7 +60,6 @@ public class CompileOptions {
     indirectJars = args.getOrEmpty("IndirectJars");
     indirectTargets = args.getOrEmpty("IndirectTargets");
 
-    jdepsFilePath = args.getSingleOrError("JDepsFilePath");
     strictDepsMode = args.getSingleOrError("StrictDepsMode");
     unusedDependencyCheckerMode = args.getSingleOrError("UnusedDependencyCheckerMode");
     currentTarget = args.getSingleOrError("CurrentTarget");
@@ -77,7 +75,7 @@ public class CompileOptions {
 
   static final class Args {
 
-    private static final String[] EMPTY = new String[]{};
+    private static final String[] EMPTY = new String[] {};
     private final Map<String, String[]> index = new LinkedHashMap<>();
 
     Args(String[] lines) {

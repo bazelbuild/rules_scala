@@ -6,5 +6,4 @@ common_outputs = {
     "manifest": "%{name}_MANIFEST.MF",
     "statsfile": "%{name}.statsfile",
     "diagnosticsfile": "%{name}.diagnosticsproto",
-    "jdeps": "%{name}.jdep",
 }
