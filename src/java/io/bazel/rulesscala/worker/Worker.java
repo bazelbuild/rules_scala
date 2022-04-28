@@ -81,7 +81,9 @@ public final class Worker {
           int code = 0;
 
           try {
-            workerInterface.work(stringListToArray(request.getArgumentsList()));
+            String[] workerArgs = stringListToArray(request.getArgumentsList());
+            String[] args = expandArgsIfArgsfile(workerArgs);
+            workerInterface.work(args);
           } catch (ExitTrapped e) {
             code = e.code;
           } catch (Exception e) {
@@ -115,15 +117,21 @@ public final class Worker {
   /** The single pass runner for ephemeral (non-persistent) worker processes */
   private static void ephemeralWorkerMain(String workerArgs[], Interface workerInterface)
       throws Exception {
-    String[] args;
-    if (workerArgs.length == 1 && workerArgs[0].startsWith("@")) {
-      args =
-          stringListToArray(
-              Files.readAllLines(Paths.get(workerArgs[0].substring(1)), StandardCharsets.UTF_8));
-    } else {
-      args = workerArgs;
-    }
+    String[] args = expandArgsIfArgsfile(workerArgs);
     workerInterface.work(args);
+  }
+
+  private static String[] expandArgsIfArgsfile(String[] allArgs) throws IOException {
+    if (allArgs.length == 1 && allArgs[0].startsWith("@")) {
+        return stringListToArray(
+                Files.readAllLines(
+                  Paths.get(allArgs[0].substring(1)),
+                  StandardCharsets.UTF_8)
+                );
+      
+    } else {
+      return allArgs;
+    }
   }
 
   /**

@@ -7,11 +7,17 @@ import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
+import static org.junit.Assert.assertEquals;
 
 @RunWith(JUnit4.class)
 public class WorkerTest {
@@ -86,6 +92,42 @@ public class WorkerTest {
 
       helper.runWorker(worker);
       assert (result.get() == -1);
+    }
+  }
+
+  @Test
+  public void testPersistentWorkerArgsfile() throws Exception {
+    Path tmpFile = Files.createTempFile("testPersistentWorkerArgsfiles-args", ".txt");
+
+    try (PersistentWorkerHelper helper = new PersistentWorkerHelper()) {
+      Worker.Interface worker =
+          new Worker.Interface() {
+            @Override
+            public void work(String[] args) {
+              for (String arg : args) {
+                System.out.println(arg);
+              }
+            }
+          };
+
+      String contents = "line 1\n--flag_1\nsome arg\n";
+
+      Files.write(tmpFile, contents.getBytes(StandardCharsets.UTF_8));
+
+      WorkerProtocol.WorkRequest.newBuilder()
+          .addArguments("@" + tmpFile)
+          .build()
+          .writeDelimitedTo(helper.requestOut);
+
+      helper.runWorker(worker);
+
+      WorkerProtocol.WorkResponse response =
+          WorkerProtocol.WorkResponse.parseDelimitedFrom(helper.responseIn);
+
+      assertEquals(response.getExitCode(), 0);
+      assertEquals(response.getOutput(), contents);
+    } finally {
+      Files.deleteIfExists(tmpFile);
     }
   }
 
