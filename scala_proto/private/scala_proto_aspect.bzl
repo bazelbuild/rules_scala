@@ -89,7 +89,6 @@ def _compile_sources(ctx, toolchain, proto, src_jars, deps, stamp_label):
     write_manifest_file(ctx.actions, manifest, None)
     statsfile = ctx.actions.declare_file(ctx.label.name + "_scalac.statsfile")
     diagnosticsfile = ctx.actions.declare_file(ctx.label.name + "_scalac.diagnosticsproto")
-    jdepsfile = ctx.actions.declare_file(ctx.label.name + ".jdeps")
     compile_deps = deps + _compile_deps(ctx, toolchain)
     merged_deps = java_common.merge(compile_deps)
 
@@ -104,7 +103,6 @@ def _compile_sources(ctx, toolchain, proto, src_jars, deps, stamp_label):
         manifest,
         statsfile,
         diagnosticsfile,
-        jdepsfile,
         sources = [],
         cjars = merged_deps.compile_jars,
         all_srcjars = depset(src_jars),
@@ -129,7 +127,6 @@ def _compile_sources(ctx, toolchain, proto, src_jars, deps, stamp_label):
         output_jar = output,
         compile_jar = output,
         deps = compile_deps,
-        jdeps = jdepsfile,
         exports = compile_deps,
         runtime_deps = compile_deps,
     )

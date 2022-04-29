@@ -248,12 +248,6 @@ def _compile_generated_scala(
         label.name + "_scalac.diagnosticsproto",
         sibling = scrooge_jar,
     )
-
-    jdepsFile = ctx.actions.declare_file(
-        label.name + ".jdeps",
-        sibling = scrooge_jar,
-    )
-
     all_deps = _concat_lists(deps_java_info, implicit_deps)
     merged_deps = java_common.merge(all_deps)
 
@@ -268,7 +262,6 @@ def _compile_generated_scala(
         manifest,
         statsfile,
         diagnosticsfile,
-        jdepsFile,
         sources = [],
         cjars = merged_deps.transitive_compile_time_jars,
         all_srcjars = depset([scrooge_jar]),
