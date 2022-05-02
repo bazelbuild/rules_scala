@@ -217,7 +217,7 @@ def _compile_or_empty(
                 ctx.actions,
                 jar = ctx.outputs.jar,
                 target_label = ctx.label,
-                java_toolchain = find_java_toolchain(ctx, ctx.attr._java_toolchain),
+                java_toolchain = find_java_toolchain(ctx, ctx.attr.java_compile_toolchain),
             )
         else:
             #  macro code needs to be available at compile-time,
@@ -333,7 +333,7 @@ def _pack_source_jar(ctx, scala_srcs, input_srcjars):
             output_source_jar = output_source_jar,
             sources = scala_srcs,
             source_jars = input_srcjars,
-            java_toolchain = find_java_toolchain(ctx, ctx.attr._java_toolchain),
+            java_toolchain = find_java_toolchain(ctx, ctx.attr.java_compile_toolchain),
         )
 
 def _try_to_compile_java_jar(

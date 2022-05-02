@@ -51,7 +51,7 @@ def _pack_sources(ctx, src_jars):
         ctx.actions,
         source_jars = src_jars,
         output_source_jar = ctx.actions.declare_file(ctx.label.name + "_scalapb-src.jar"),
-        java_toolchain = find_java_toolchain(ctx, ctx.attr._java_toolchain),
+        java_toolchain = find_java_toolchain(ctx, ctx.attr.compile_java_toolchain),
     )
 
 def _generate_sources(ctx, toolchain, proto):

@@ -141,6 +141,9 @@ def compile_scala(
     )
 
 def compile_java(ctx, source_jars, source_files, output, extra_javac_opts, providers_of_dependencies):
+
+    java_toolchain = find_java_toolchain(ctx, ctx.attr.java_compile_toolchain)\
+    
     return java_common.compile(
         ctx,
         source_jars = source_jars,
@@ -150,7 +153,7 @@ def compile_java(ctx, source_jars, source_files, output, extra_javac_opts, provi
             ctx,
             extra_javac_opts +
             java_common.default_javac_opts(
-                java_toolchain = ctx.attr._java_toolchain[java_common.JavaToolchainInfo],
+                java_toolchain = java_toolchain,
             ),
         ),
         deps = providers_of_dependencies,
@@ -159,7 +162,7 @@ def compile_java(ctx, source_jars, source_files, output, extra_javac_opts, provi
         #workaround until https://github.com/bazelbuild/bazel/issues/3528 is resolved
         exports = [],
         neverlink = getattr(ctx.attr, "neverlink", False),
-        java_toolchain = find_java_toolchain(ctx, ctx.attr._java_toolchain),
+        java_toolchain = java_toolchain,
         strict_deps = ctx.fragments.java.strict_java_deps,
     )
 
