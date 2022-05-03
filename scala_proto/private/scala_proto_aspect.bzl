@@ -4,7 +4,7 @@ load("//scala/private:dependency.bzl", "legacy_unclear_dependency_info_for_proto
 load(
     "//scala/private:rule_impls.bzl",
     "compile_scala",
-    "specified_java_compile_toolchain"
+    "specified_java_compile_toolchain",
 )
 load("//scala/private/toolchain_deps:toolchain_deps.bzl", "find_deps_info_on")
 load(

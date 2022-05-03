@@ -141,9 +141,8 @@ def compile_scala(
     )
 
 def compile_java(ctx, source_jars, source_files, output, extra_javac_opts, providers_of_dependencies):
-
     java_toolchain = specified_java_compile_toolchain(ctx)
-    
+
     return java_common.compile(
         ctx,
         source_jars = source_jars,
@@ -175,7 +174,7 @@ def specified_java_compile_toolchain(ctx):
     java_compile_toolchain = getattr(
         ctx.attr,
         "java_compile_toolchain",
-        getattr(ctx.attr, "_java_toolchain", None)
+        getattr(ctx.attr, "_java_toolchain", None),
     )
 
     return find_java_toolchain(ctx, java_compile_toolchain)

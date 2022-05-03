@@ -12,9 +12,9 @@ load(
 )
 load(
     "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
+    "specified_java_compile_toolchain",
     _compile_java = "compile_java",
     _compile_scala = "compile_scala",
-    "specified_java_compile_toolchain",
 )
 load(":resources.bzl", _resource_paths = "paths")
 load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
