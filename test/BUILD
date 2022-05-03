@@ -790,22 +790,6 @@ scala_junit_test(
 )
 
 scala_junit_test(
-    name = "JunitCompilePlatformTest",
-    size = "small",
-    srcs = [
-        "src/main/scala/scalarules/test/junit/compile_platform/JunitCompilePlatformTest.java",
-        "src/main/scala/scalarules/test/junit/compile_platform/JunitCompilePlatform2Test.scala",
-    ],
-    scalacopts = [
-        "-release",
-        "11"
-    ],
-    java_compile_toolchain = "@bazel_tools//tools/jdk:toolchain_java9",
-    suffixes = ["Test"],
-    deps = ["@io_bazel_rules_scala_junit_junit"],
-)
-
-scala_junit_test(
     name = "JunitNoTestEnvironmentTest",
     size = "small",
     srcs = ["src/main/scala/scalarules/test/junit/JunitNoTestEnvironmentTest.scala"],
