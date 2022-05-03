@@ -142,7 +142,7 @@ def compile_scala(
 
 def compile_java(ctx, source_jars, source_files, output, extra_javac_opts, providers_of_dependencies):
 
-    java_toolchain = find_java_toolchain(ctx, ctx.attr.java_compile_toolchain)\
+    java_toolchain = specified_java_compile_toolchain(ctx)
     
     return java_common.compile(
         ctx,
@@ -168,6 +168,17 @@ def compile_java(ctx, source_jars, source_files, output, extra_javac_opts, provi
 
 def runfiles_root(ctx):
     return "${TEST_SRCDIR}/%s" % ctx.workspace_name
+
+def specified_java_compile_toolchain(ctx):
+    # Aspects such as scrooge_java_aspect are not allowed public label attrs
+    # And so will still use an implicit _java_toolchain
+    java_compile_toolchain = getattr(
+        ctx.attr,
+        "java_compile_toolchain",
+        getattr(ctx.attr, "_java_toolchain", None)
+    )
+
+    return find_java_toolchain(ctx, java_compile_toolchain)
 
 def specified_java_runtime(ctx, default_runtime = None):
     use_specified_java = "runtime_jdk" in dir(ctx.attr)

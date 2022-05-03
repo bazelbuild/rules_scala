@@ -370,6 +370,8 @@ def _common_scrooge_aspect_implementation(target, ctx, language, compiler_functi
     This aspect is applied to the DAG of thrift_librarys reachable from a deps or a scrooge_scala_library.
     Each thrift_library will be one scrooge invocation, assuming it has some sources.
     """
+    print("target??")
+    print(target)
     (
         target_ti,
         transitive_ti,

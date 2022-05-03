@@ -3,7 +3,6 @@
 #
 # DOCUMENT THIS
 #
-load("@bazel_tools//tools/jdk:toolchain_utils.bzl", "find_java_toolchain")
 load(
     "@io_bazel_rules_scala//scala/private:paths.bzl",
     _get_files_with_extension = "get_files_with_extension",
@@ -15,6 +14,7 @@ load(
     "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
     _compile_java = "compile_java",
     _compile_scala = "compile_scala",
+    "specified_java_compile_toolchain",
 )
 load(":resources.bzl", _resource_paths = "paths")
 load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
@@ -217,7 +217,7 @@ def _compile_or_empty(
                 ctx.actions,
                 jar = ctx.outputs.jar,
                 target_label = ctx.label,
-                java_toolchain = find_java_toolchain(ctx, ctx.attr.java_compile_toolchain),
+                java_toolchain = specified_java_compile_toolchain(ctx),
             )
         else:
             #  macro code needs to be available at compile-time,
@@ -333,7 +333,7 @@ def _pack_source_jar(ctx, scala_srcs, input_srcjars):
             output_source_jar = output_source_jar,
             sources = scala_srcs,
             source_jars = input_srcjars,
-            java_toolchain = find_java_toolchain(ctx, ctx.attr.java_compile_toolchain),
+            java_toolchain = specified_java_compile_toolchain(ctx),
         )
 
 def _try_to_compile_java_jar(
