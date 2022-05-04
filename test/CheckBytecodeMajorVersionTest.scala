@@ -35,14 +35,16 @@ class CheckBytecodeMajorVersionTest {
         .getResourceAsStream("java_sources/SimpleJavaSourceFileB.class")
     )
       
-    Assert.assertTrue(
-      s"Expected java 8 (major version 52) but got major version $expectJava8",
-      majorVersionToJdkVersion(expectJava8) == 8
+    Assert.assertEquals(
+      s"Expected Java 8 bytecode (major version 52) but got major version $expectJava8",
+      8,
+      majorVersionToJdkVersion(expectJava8)
     )
       
-    Assert.assertTrue(
-      s"Expected java 11 (major version 55) but got major version $expectJava8",
-      majorVersionToJdkVersion(expectJava11) == 11
+    Assert.assertEquals(
+      s"Expected Java 11 bytecode (major version 55) but got major version $expectJava11",
+      11,
+      majorVersionToJdkVersion(expectJava11)
     )
   }
 }
