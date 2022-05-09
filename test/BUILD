@@ -482,6 +482,18 @@ scala_binary(
     runtime_jdk = "@bazel_tools//tools/jdk:remote_jdk11",
 )
 
+# Make sure scala_library respects java_compile_toolchain during builds
+scala_junit_test(
+    name = "CheckBytecodeMajorVersion",
+    srcs = ["CheckBytecodeMajorVersionTest.scala"],
+    suffixes = ["Test"],
+    runtime_deps = [
+        "//test/src/main/resources/java_sources:CompiledWithJava11",
+        "//test/src/main/resources/java_sources:CompiledWithJava8",
+    ],
+    deps = ["@io_bazel_rules_scala_junit_junit"],
+)
+
 # Generate a file containing the rootpaths of a Scala binary.
 genrule(
     name = "rootpath-script",

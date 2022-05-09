@@ -1,12 +1,12 @@
 load("@rules_proto//proto:defs.bzl", "ProtoInfo")
 load("//scala/private:common.bzl", "write_manifest_file")
 load("//scala/private:dependency.bzl", "legacy_unclear_dependency_info_for_protobuf_scrooge")
-load("//scala/private:rule_impls.bzl", "compile_scala")
-load("//scala/private/toolchain_deps:toolchain_deps.bzl", "find_deps_info_on")
 load(
-    "@bazel_tools//tools/jdk:toolchain_utils.bzl",
-    "find_java_toolchain",
+    "//scala/private:rule_impls.bzl",
+    "compile_scala",
+    "specified_java_compile_toolchain",
 )
+load("//scala/private/toolchain_deps:toolchain_deps.bzl", "find_deps_info_on")
 load(
     "@io_bazel_rules_scala//scala_proto/private:scala_proto_aspect_provider.bzl",
     "ScalaProtoAspectInfo",
@@ -51,7 +51,7 @@ def _pack_sources(ctx, src_jars):
         ctx.actions,
         source_jars = src_jars,
         output_source_jar = ctx.actions.declare_file(ctx.label.name + "_scalapb-src.jar"),
-        java_toolchain = find_java_toolchain(ctx, ctx.attr._java_toolchain),
+        java_toolchain = specified_java_compile_toolchain(ctx),
     )
 
 def _generate_sources(ctx, toolchain, proto):

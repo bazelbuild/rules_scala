@@ -141,6 +141,8 @@ def compile_scala(
     )
 
 def compile_java(ctx, source_jars, source_files, output, extra_javac_opts, providers_of_dependencies):
+    java_toolchain = specified_java_compile_toolchain(ctx)
+
     return java_common.compile(
         ctx,
         source_jars = source_jars,
@@ -150,7 +152,7 @@ def compile_java(ctx, source_jars, source_files, output, extra_javac_opts, provi
             ctx,
             extra_javac_opts +
             java_common.default_javac_opts(
-                java_toolchain = ctx.attr._java_toolchain[java_common.JavaToolchainInfo],
+                java_toolchain = java_toolchain,
             ),
         ),
         deps = providers_of_dependencies,
@@ -159,12 +161,23 @@ def compile_java(ctx, source_jars, source_files, output, extra_javac_opts, provi
         #workaround until https://github.com/bazelbuild/bazel/issues/3528 is resolved
         exports = [],
         neverlink = getattr(ctx.attr, "neverlink", False),
-        java_toolchain = find_java_toolchain(ctx, ctx.attr._java_toolchain),
+        java_toolchain = java_toolchain,
         strict_deps = ctx.fragments.java.strict_java_deps,
     )
 
 def runfiles_root(ctx):
     return "${TEST_SRCDIR}/%s" % ctx.workspace_name
+
+def specified_java_compile_toolchain(ctx):
+    # Aspects such as scrooge_java_aspect are not allowed public label attrs
+    # And so will still use an implicit _java_toolchain
+    java_compile_toolchain = getattr(
+        ctx.attr,
+        "java_compile_toolchain",
+        getattr(ctx.attr, "_java_toolchain", None),
+    )
+
+    return find_java_toolchain(ctx, java_compile_toolchain)
 
 def specified_java_runtime(ctx, default_runtime = None):
     use_specified_java = "runtime_jdk" in dir(ctx.attr)

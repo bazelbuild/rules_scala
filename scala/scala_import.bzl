@@ -1,5 +1,9 @@
 load("@io_bazel_rules_scala//scala:jars_to_labels.bzl", "JarsToLabelsInfo")
 load("//scala/settings:stamp_settings.bzl", "StampScalaImport")
+load(
+    "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
+    "specified_java_compile_toolchain",
+)
 
 def _stamp_jar(ctx, jar):
     stamped_jar_filename = "%s.stamp/%s" % (ctx.label.name, jar.basename)
@@ -9,7 +13,7 @@ def _stamp_jar(ctx, jar):
         actions = ctx.actions,
         jar = symlink_file,
         target_label = ctx.label,
-        java_toolchain = ctx.attr._java_toolchain[java_common.JavaToolchainInfo],
+        java_toolchain = specified_java_compile_toolchain(ctx),
     )
 
 # intellij part is tested manually, tread lightly when changing there
@@ -139,7 +143,7 @@ scala_import = rule(
             doc = "Adds Target-Label attribute to MANIFEST.MF for dep tracking",
             default = Label("@io_bazel_rules_scala//scala/settings:stamp_scala_import"),
         ),
-        "_java_toolchain": attr.label(
+        "java_compile_toolchain": attr.label(
             default = Label("@bazel_tools//tools/jdk:current_java_toolchain"),
         ),
     },
