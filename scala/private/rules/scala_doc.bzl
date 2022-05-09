@@ -83,6 +83,8 @@ def _scala_doc_impl(ctx):
     # Construct scaladoc args, which also include scalac args.
     # See `scaladoc -help` for more information.
     args = ctx.actions.args()
+    args.set_param_file_format("multiline")
+    args.use_param_file(param_file_arg = "@%s", use_always = True)
     args.add("-usejavacp")
     args.add("-nowarn")  # turn off warnings for now since they can obscure actual errors for large scala_doc targets
     args.add_all(ctx.attr.scalacopts)
