@@ -34,6 +34,7 @@ def _scaladoc_aspect_impl(target, ctx, transitive = True):
             direct = [file for file in ctx.rule.files.deps],
             transitive = (
                 [dep[JavaInfo].compile_jars for dep in ctx.rule.attr.deps if JavaInfo in dep] +
+                [dep[JavaInfo].transitive_runtime_jars for dep in ctx.rule.attr.deps if JavaInfo in dep] +
                 [dep[_ScaladocAspectInfo].compile_jars for dep in ctx.rule.attr.deps if _ScaladocAspectInfo in dep]
             ),
         )
