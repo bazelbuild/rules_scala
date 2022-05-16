@@ -1,0 +1,41 @@
+load("@rules_java//java:defs.bzl", "java_import")
+load("//scala:scala_import.bzl", "scala_import")
+load(":exposes_srcjar_test.bzl", "exposes_srcjar_test")
+
+scala_import(
+    name = "my-scala-import",
+    jars = [":my-jar"],
+    srcjar = ":my-src-jar",
+)
+
+java_import(
+    name = "my-java-import",
+    jars = [":my-jar"],
+    srcjar = ":my-src-jar",
+)
+
+exposes_srcjar_test(
+    name = "scala",
+    source_jar = "my-src-jar",
+    target_under_test = "my-scala-import",
+)
+
+exposes_srcjar_test(
+    name = "java",
+    source_jar = "my-src-jar",
+    target_under_test = "my-java-import",
+)
+
+genrule(
+    name = "my-jar",
+    srcs = [],
+    outs = ["my-jar.jar"],
+    cmd = "touch \"$@\"",
+)
+
+genrule(
+    name = "my-src-jar",
+    srcs = [],
+    outs = ["my-src-jar.jar"],
+    cmd = "touch \"$@\"",
+)
