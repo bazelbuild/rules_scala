@@ -8,6 +8,7 @@ def analyzer_tests_scala_3():
         # Without it compilation fails with error:
         # class dotty.tools.dotc.core.Symbols$NoSymbol$ cannot be cast to class dotty.tools.dotc.core.Symbols$ClassSymbol
         "-Dscala.library2.location=$(rootpath @io_bazel_rules_scala_scala_library_2)",
+        "-Dapache.commons.jar.location=$(location @org_apache_commons_commons_lang_3_5_without_file//:linkable_org_apache_commons_commons_lang_3_5_without_file)",
     ]
 
     scala_test(
@@ -17,6 +18,7 @@ def analyzer_tests_scala_3():
         srcs = [
             "io/bazel/rulesscala/dependencyanalyzer3/CompileTest.scala",
             "io/bazel/rulesscala/dependencyanalyzer3/ScalacDependencyTest.scala",
+            "io/bazel/rulesscala/dependencyanalyzer3/UnusedDependencyCheckerTest.scala",
         ],
         deps = [
             "//scala/private/toolchain_deps:scala_compile_classpath",
@@ -25,5 +27,6 @@ def analyzer_tests_scala_3():
             "//third_party/utils/src/test:test_util",
             "@io_bazel_rules_scala_scala_library",
             "@io_bazel_rules_scala_scala_library_2",
+            "@org_apache_commons_commons_lang_3_5_without_file//:linkable_org_apache_commons_commons_lang_3_5_without_file",
         ],
     )

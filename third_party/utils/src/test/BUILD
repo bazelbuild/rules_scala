@@ -12,8 +12,10 @@ scala_library(
         "io/bazel/rulesscala/utils/Scala3CompilerUtils.scala",
     ]),
     visibility = ["//visibility:public"],
-    deps = [
+    deps = ([
         "//scala/private/toolchain_deps:scala_compile_classpath",
         "//third_party/dependency_analyzer/src/main:dependency_analyzer",
-    ],
+    ] if SCALA_MAJOR_VERSION.startswith("2") else [
+        "//scala/private/toolchain_deps:scala_compile_classpath",
+    ]),
 )

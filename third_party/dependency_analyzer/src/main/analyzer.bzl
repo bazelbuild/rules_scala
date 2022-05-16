@@ -12,6 +12,10 @@ def _analyzer_scala_3():
         name = "dependency_analyzer",
         srcs = [
             "io/bazel/rulesscala/dependencyanalyzer3/DependencyAnalyzer.scala",
+            "io/bazel/rulesscala/dependencyanalyzer3/DependencyAnalyzerSettings.scala",
+            "io/bazel/rulesscala/dependencyanalyzer3/HighLevelCrawlUsedJarFinder.scala",
+            "io/bazel/rulesscala/dependencyanalyzer3/OptionsParser.scala",
+            "io/bazel/rulesscala/dependencyanalyzer3/Reporter.scala",
         ],
         resources = ["resources/plugin.properties"],
         visibility = ["//visibility:public"],
