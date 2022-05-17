@@ -110,7 +110,7 @@ class DependencyAnalyzer extends StandardPlugin {
      */
     private def findUsedJarsAndPositions(tree: Apply)(implicit ctx: Context): Map[AbstractFile, SourcePosition] = {
       settings.dependencyTrackingMethod match {
-        case DependencyTrackingMethod.HighLevel => ???
+        case DependencyTrackingMethod.HighLevel => new HighLevelCrawlUsedJarFinder().findUsedJars(tree)
         case DependencyTrackingMethod.Ast => ???
       }
     }
