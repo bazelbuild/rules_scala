@@ -57,12 +57,14 @@ def _scala_import_impl(ctx):
         # TODO(#8867): Migrate away from the placeholder jar hack when #8867 is fixed.
         current_target_providers = [_new_java_info(ctx, ctx.file._placeholder_jar, ctx.file._placeholder_jar)]
 
+    merged_providers = java_common.merge(current_target_providers)
     return [
-        java_common.merge(current_target_providers),
+        merged_providers,
         DefaultInfo(
             files = compile_jars_depset,
         ),
         JarsToLabelsInfo(jars_to_labels = jars2labels),
+        OutputGroupInfo(_source_jars = merged_providers.source_jars),
     ]
 
 def _new_java_info(ctx, jar, stamped_jar):
