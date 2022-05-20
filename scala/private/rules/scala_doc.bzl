@@ -10,9 +10,9 @@ _ScaladocAspectInfo = provider(fields = [
 
 def _scaladoc_intransitive_aspect_impl(target, ctx):
     """Build scaladocs only for the provided targets."""
-    return _scaladoc_aspect_impl(target, ctx, transitive = False)
+    return _scaladoc_aspect_impl(target, ctx, transitive = False, use_transitive_compile_jars = True)
 
-def _scaladoc_aspect_impl(target, ctx, transitive = True):
+def _scaladoc_aspect_impl(target, ctx, transitive = True, use_transitive_compile_jars = False):
     """Collect source files and compile_jars from JavaInfo-returning deps."""
 
     # We really only care about visited targets with srcs, so only look at those.
@@ -30,10 +30,14 @@ def _scaladoc_aspect_impl(target, ctx, transitive = True):
         src_files = depset(direct = direct_deps, transitive = transitive_deps)
 
         # Collect compile_jars from visited targets' deps.
+        if use_transitive_compile_jars:
+            transitive_compile_jars = [dep[JavaInfo].transitive_compile_time_jars for dep in ctx.rule.attr.deps if JavaInfo in dep]
+        else:
+            transitive_compile_jars = [dep[JavaInfo].compile_jars for dep in ctx.rule.attr.deps if JavaInfo in dep]
         compile_jars = depset(
             direct = [file for file in ctx.rule.files.deps],
             transitive = (
-                [dep[JavaInfo].transitive_runtime_jars for dep in ctx.rule.attr.deps if JavaInfo in dep] +
+                transitive_compile_jars +
                 [dep[_ScaladocAspectInfo].compile_jars for dep in ctx.rule.attr.deps if _ScaladocAspectInfo in dep]
             ),
         )
