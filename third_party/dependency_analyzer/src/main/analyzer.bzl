@@ -11,10 +11,10 @@ def _analyzer_scala_3():
     scala_library_for_plugin_bootstrapping(
         name = "dependency_analyzer",
         srcs = [
+            "io/bazel/rulesscala/common/OptionsParser.scala",
             "io/bazel/rulesscala/dependencyanalyzer3/DependencyAnalyzer.scala",
             "io/bazel/rulesscala/dependencyanalyzer3/DependencyAnalyzerSettings.scala",
             "io/bazel/rulesscala/dependencyanalyzer3/HighLevelCrawlUsedJarFinder.scala",
-            "io/bazel/rulesscala/dependencyanalyzer3/OptionsParser.scala",
             "io/bazel/rulesscala/dependencyanalyzer3/Reporter.scala",
         ],
         resources = ["resources/plugin.properties"],
@@ -51,11 +51,11 @@ def _analyzer_scala_2():
     scala_library_for_plugin_bootstrapping(
         name = "dependency_analyzer",
         srcs = [
+            "io/bazel/rulesscala/common/OptionsParser.scala",
             "io/bazel/rulesscala/dependencyanalyzer/AstUsedJarFinder.scala",
             "io/bazel/rulesscala/dependencyanalyzer/DependencyAnalyzer.scala",
             "io/bazel/rulesscala/dependencyanalyzer/DependencyAnalyzerSettings.scala",
             "io/bazel/rulesscala/dependencyanalyzer/HighLevelCrawlUsedJarFinder.scala",
-            "io/bazel/rulesscala/dependencyanalyzer/OptionsParser.scala",
             "io/bazel/rulesscala/dependencyanalyzer/Reporter%s.scala" % REPORTER_COMPATIBILITY,
         ],
         resources = ["resources/scalac-plugin.xml"],
