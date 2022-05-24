@@ -44,6 +44,8 @@ class UnusedDependencyCheckerTest extends AnyFunSuite {
 
   }
 
+  // Ignoring test because used dependency reporting is not implemented yet
+  // (test fails reporting that all of the dependencies are unused).
   ignore("do not error on used direct dependencies") {
     val testCode =
       """object Foo {
