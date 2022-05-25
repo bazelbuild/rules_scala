@@ -191,7 +191,7 @@ def java_bin(ctx):
         default_runtime = ctx.attr._java_runtime[java_common.JavaRuntimeInfo],
     )
 
-    java_path = str(java_runtime.java_executable_exec_path)
+    java_path = str(java_runtime.java_executable_runfiles_path)
 
     if paths.is_absolute(java_path):
         javabin = java_path
