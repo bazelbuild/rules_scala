@@ -78,6 +78,7 @@ _scala_junit_test_attrs = {
         providers = [java_common.JavaRuntimeInfo],
     ),
     "env": attr.string_dict(default = {}),
+    "env_inherit": attr.string_list(),
     "_junit_classpath": attr.label(
         default = Label("@io_bazel_rules_scala//testing/toolchain:junit_classpath"),
     ),
