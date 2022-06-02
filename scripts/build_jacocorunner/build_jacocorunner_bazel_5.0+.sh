@@ -72,7 +72,7 @@ jacoco_version=0.8.6
 
 bazel_repo=$build_dir/bazel
 bazel_remote=https://github.com/bazelbuild/bazel
-bazel_tag=5.1.1
+bazel_tag=6.0.0-pre.20220520.1
 
 bazel_build_target=JacocoCoverage_jarjar_deploy.jar
 
