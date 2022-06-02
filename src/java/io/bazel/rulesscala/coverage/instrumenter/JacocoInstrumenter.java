@@ -51,7 +51,7 @@ public final class JacocoInstrumenter implements Worker.Interface {
 
     JarCreator jarCreator = new JarCreator(outPath);
 
-    try (FileSystem inFS = FileSystems.newFileSystem(inPath, null)) {
+    try (FileSystem inFS = FileSystems.newFileSystem(inPath, (ClassLoader) null)) {
       FileVisitor fileVisitor =
           createInstrumenterVisitor(jacoco, instrumentedClassesDirectory, jarCreator);
       inFS.getRootDirectories()
