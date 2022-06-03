@@ -34,8 +34,23 @@ def merge_jars_to_output(ctx, output, jars):
 
 def phase_merge_jars(ctx, p):
     deploy_jar = ctx.outputs.deploy_jar
+    external_deps_component_jar = ctx.outputs.external_deps_component_jar
+    internal_deps_component_jar = ctx.outputs.internal_deps_component_jar
+
     runtime_jars = p.compile.rjars
+    internal_jars = []
+    external_jars = []
+    for jar in runtime_jars.to_list():
+        if jar.short_path.startswith("../"):
+            # External dependencies go here:
+            external_jars.append(jar)
+        elif jar != ctx.outputs.jar:
+            # Internal dependencies go here (except the currently built thin jar):
+            internal_jars.append(jar)
+
     merge_jars_to_output(ctx, deploy_jar, runtime_jars)
+    merge_jars_to_output(ctx, external_deps_component_jar, external_jars)
+    merge_jars_to_output(ctx, internal_deps_component_jar, internal_jars)
 
 def _fileToPath(file):
     return file.path
