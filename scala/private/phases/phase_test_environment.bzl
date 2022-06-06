@@ -3,12 +3,36 @@
 
 def phase_test_environment(ctx, p):
     test_env = ctx.attr.env
+    inherited_environment = ctx.attr.env_inherit
 
-    if test_env:
+    if inherited_environment and test_env:
         return struct(
             external_providers = {
-                "TestingEnvironment": testing.TestEnvironment(test_env),
+                "TestingEnvironment": testing.TestEnvironment(
+                    test_env,
+                    inherited_environment,
+                ),
             },
         )
 
-    return struct()
+    elif test_env:
+        return struct(
+            external_providers = {
+                "TestingEnvironment": testing.TestEnvironment(
+                    test_env,
+                ),
+            },
+        )
+
+    elif inherited_environment:
+        return struct(
+            external_providers = {
+                "TestingEnvironment": testing.TestEnvironment(
+                    {},
+                    inherited_environment,
+                ),
+            },
+        )
+
+    else:
+        return struct()
