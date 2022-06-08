@@ -12,6 +12,7 @@ load(
 )
 load(
     "@io_bazel_rules_scala//scala/private:rules/scala_doc.bzl",
+    _ScaladocAspectInfo = "ScaladocAspectInfo",
     _make_scala_doc_rule = "make_scala_doc_rule",
     _scaladoc_intransitive_aspect = "scaladoc_intransitive_aspect",
 )
@@ -56,6 +57,7 @@ scala_binary = _scala_binary
 make_scala_doc_rule = _make_scala_doc_rule
 scaladoc_intransitive_aspect = _scaladoc_intransitive_aspect
 scala_doc = _make_scala_doc_rule()
+ScaladocAspectInfo = _ScaladocAspectInfo
 scala_junit_test = _scala_junit_test
 scala_library = _scala_library
 scala_library_for_plugin_bootstrapping = _scala_library_for_plugin_bootstrapping

@@ -2,7 +2,7 @@
 
 load("@io_bazel_rules_scala//scala/private:common.bzl", "collect_plugin_paths")
 
-_ScaladocAspectInfo = provider(fields = [
+ScaladocAspectInfo = provider(fields = [
     "src_files",
     "compile_jars",
     "plugins",
@@ -23,7 +23,7 @@ def _scaladoc_aspect_impl(target, ctx, transitive = True):
         # Sometimes we only want to generate scaladocs for a single target and not all of its
         # dependencies
         if transitive:
-            transitive_deps = [dep[_ScaladocAspectInfo].src_files for dep in ctx.rule.attr.deps if _ScaladocAspectInfo in dep]
+            transitive_deps = [dep[ScaladocAspectInfo].src_files for dep in ctx.rule.attr.deps if ScaladocAspectInfo in dep]
         else:
             transitive_deps = []
 
@@ -34,7 +34,7 @@ def _scaladoc_aspect_impl(target, ctx, transitive = True):
             direct = [file for file in ctx.rule.files.deps],
             transitive = (
                 [dep[JavaInfo].compile_jars for dep in ctx.rule.attr.deps if JavaInfo in dep] +
-                [dep[_ScaladocAspectInfo].compile_jars for dep in ctx.rule.attr.deps if _ScaladocAspectInfo in dep]
+                [dep[ScaladocAspectInfo].compile_jars for dep in ctx.rule.attr.deps if ScaladocAspectInfo in dep]
             ),
         )
 
@@ -42,7 +42,7 @@ def _scaladoc_aspect_impl(target, ctx, transitive = True):
         if hasattr(ctx.rule.attr, "plugins"):
             plugins = depset(direct = ctx.rule.attr.plugins)
 
-        return [_ScaladocAspectInfo(
+        return [ScaladocAspectInfo(
             src_files = src_files,
             compile_jars = compile_jars,
             plugins = plugins,
@@ -71,11 +71,11 @@ def _scala_doc_impl(ctx):
     output_path = ctx.actions.declare_directory("{}.html".format(ctx.attr.name))
 
     # Collect all source files and compile_jars to pass to scaladoc by way of an aspect.
-    src_files = depset(transitive = [dep[_ScaladocAspectInfo].src_files for dep in ctx.attr.deps])
-    compile_jars = depset(transitive = [dep[_ScaladocAspectInfo].compile_jars for dep in ctx.attr.deps])
+    src_files = depset(transitive = [dep[ScaladocAspectInfo].src_files for dep in ctx.attr.deps])
+    compile_jars = depset(transitive = [dep[ScaladocAspectInfo].compile_jars for dep in ctx.attr.deps])
 
     # Get the 'real' paths to the plugin jars.
-    plugins = collect_plugin_paths(depset(transitive = [dep[_ScaladocAspectInfo].plugins for dep in ctx.attr.deps]).to_list())
+    plugins = collect_plugin_paths(depset(transitive = [dep[ScaladocAspectInfo].plugins for dep in ctx.attr.deps]).to_list())
 
     # Construct the full classpath depset since we need to add compiler plugins too.
     classpath = depset(transitive = [plugins, compile_jars])
