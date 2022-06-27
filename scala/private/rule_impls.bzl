@@ -119,13 +119,18 @@ def compile_scala(
     # scalac_jvm_flags passed in on the target override scalac_jvm_flags passed in on the toolchain
     final_scalac_jvm_flags = first_non_empty(scalac_jvm_flags, toolchain.scalac_jvm_flags)
 
+    if toolchain.multiplex_worker:
+        execution_requirements = {"supports-workers": "1", "supports-multiplex-workers": "1"}
+    else:
+        execution_requirements = {"supports-workers": "1"}
+
     ctx.actions.run(
         inputs = ins,
         outputs = outs,
         executable = scalac,
         mnemonic = "Scalac",
         progress_message = "scala %s" % target_label,
-        execution_requirements = {"supports-workers": "1", "supports-multiplex-workers": "1"},
+        execution_requirements = execution_requirements,
         #  when we run with a worker, the `@argfile.path` is removed and passed
         #  line by line as arguments in the protobuf. In that case,
         #  the rest of the arguments are passed to the process that

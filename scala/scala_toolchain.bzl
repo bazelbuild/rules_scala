@@ -68,6 +68,8 @@ def _scala_toolchain_impl(ctx):
     all_unused_deps_patterns = ctx.attr.dependency_tracking_unused_deps_patterns
     unused_deps_includes, unused_deps_excludes = _partition_patterns(all_unused_deps_patterns)
 
+    multiplex_worker = ctx.attr.multiplex_worker
+
     toolchain = platform_common.ToolchainInfo(
         scalacopts = ctx.attr.scalacopts,
         dep_providers = ctx.attr.dep_providers,
@@ -84,6 +86,7 @@ def _scala_toolchain_impl(ctx):
         enable_diagnostics_report = enable_diagnostics_report,
         jacocorunner = ctx.attr.jacocorunner,
         enable_stats_file = enable_stats_file,
+        multiplex_worker = multiplex_worker,
     )
     return [toolchain]
 
@@ -136,6 +139,10 @@ scala_toolchain = rule(
         "enable_stats_file": attr.bool(
             default = True,
             doc = "Enable writing of statsfile",
+        ),
+        "multiplex_worker": attr.bool(
+            default = False,
+            doc = "Enable multiplex worker",
         ),
     },
     fragments = ["java"],
