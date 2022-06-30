@@ -15,5 +15,5 @@ def phase_declare_executable(ctx, p):
         )
     else:
         return struct(
-            executable = ctx.actions.declare_file(ctx.label.name),
+            executable = ctx.actions.declare_file("%s.sh" % ctx.label.name),
         )
