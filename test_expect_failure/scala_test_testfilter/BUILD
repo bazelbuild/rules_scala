@@ -6,5 +6,4 @@ scala_test(
         "A.scala",
         "B.scala",
     ],
-    tags = ["manual"],
 )
