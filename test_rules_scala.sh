@@ -48,6 +48,7 @@ $runner bazel build //test_statsfile:SimpleNoStatsFile_statsfile --extra_toolcha
 . "${test_dir}"/test_scala_proto_library.sh
 . "${test_dir}"/test_scala_library.sh
 . "${test_dir}"/test_scala_specs2.sh
+. "${test_dir}"/test_scala_test_testfilter.sh
 . "${test_dir}"/test_toolchain.sh
 . "${test_dir}"/test_strict_dependency.sh
 . "${test_dir}"/test_unused_dependency.sh

@@ -35,7 +35,7 @@ public class Runner {
 
   private static String[] extendArgs(String[] args, Map<String, String> env) throws IOException {
     args = extendFromFileArgs(args);
-    args = extendFromEnvVar(args, env, TESTBRIDGE_TEST_ONLY, "-s");
+    args = prependFromEnvVar(args, env, TESTBRIDGE_TEST_ONLY, "-s");
     return args;
   }
 
@@ -65,7 +65,7 @@ public class Runner {
     return result;
   }
 
-  private static String[] extendFromEnvVar(
+  private static String[] prependFromEnvVar(
       String[] args, Map<String, String> env, String varName, String flagName) {
     String value = env.get(varName);
     if (value == null) {
@@ -73,8 +73,8 @@ public class Runner {
     }
     String[] flag = new String[] {flagName, value};
     String[] result = new String[args.length + flag.length];
-    System.arraycopy(args, 0, result, 0, args.length);
-    System.arraycopy(flag, 0, result, args.length, flag.length);
+    System.arraycopy(flag, 0, result, 0, flag.length);
+    System.arraycopy(args, 0, result, flag.length, args.length);
 
     return result;
   }
