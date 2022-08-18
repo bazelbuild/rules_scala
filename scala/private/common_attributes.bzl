@@ -64,7 +64,7 @@ common_attrs.update({
         default = Label(
             "@io_bazel_rules_scala//scala/private/toolchain_deps:semanticdb_scalac",
         ),
-        allow_files = [".jar"],
+        providers = [[JavaInfo]],
         mandatory = False,
     ),
     "unused_dependency_checker_mode": attr.string(

@@ -23,7 +23,6 @@ def new_dependency_info(
         unused_deps_mode = unused_deps_mode,
         strict_deps_mode = strict_deps_mode,
         use_analyzer = is_strict_deps_on or is_unused_deps_on,
-        use_semanticdb_scalac = True,
     )
 
 # TODO(https://github.com/bazelbuild/rules_scala/issues/987): Clariy the situation

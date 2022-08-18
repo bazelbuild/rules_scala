@@ -56,13 +56,16 @@ def compile_scala(
         dependency_info,
         unused_dependency_checker_ignored_targets,
         stamp_target_label = None):
+
+    outs = [output, statsfile, diagnosticsfile]
+
     # look for any plugins:
     input_plugins = plugins
+    if hasattr(ctx.attr, "_semanticdb_scalac_plugin"):
+        plugins = plugins + [ctx.attr._semanticdb_scalac_plugin]
     plugins = _collect_plugin_paths(plugins)
     if dependency_info.use_analyzer:
         plugins = depset(transitive = [plugins, ctx.attr._dependency_analyzer_plugin.files])
-    if dependency_info.use_semanticdb_scalac and False:
-        plugins = depset(transitive = [plugins, ctx.attr._semanticdb_scalac_plugin.files])
 
     toolchain = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"]
     compiler_classpath_jars = cjars if dependency_info.dependency_mode == "direct" else transitive_compile_jars
@@ -71,6 +74,16 @@ def compile_scala(
     resource_paths = _resource_paths(resources, resource_strip_prefix)
     enable_stats_file = toolchain.enable_stats_file
     enable_diagnostics_report = toolchain.enable_diagnostics_report
+
+    if hasattr(ctx.attr, "_semanticdb_scalac_plugin"):
+        semanticdb_dir = ctx.actions.declare_directory("{}.semanticdb".format(ctx.label.name))
+        outs.append(semanticdb_dir)
+        scalacopts = scalacopts + [
+            "-Yrangepos",
+            "-P:semanticdb:failures:error",
+            "-P:semanticdb:targetroot:{}/{}/{}.semanticdb".format(ctx.bin_dir.path, ctx.label.package, ctx.label.name),
+            "-Xplugin-require:semanticdb",
+        ]
 
     args = ctx.actions.args()
     args.set_param_file_format("multiline")
@@ -110,8 +123,6 @@ def compile_scala(
 
     if dependency_info.unused_deps_mode != "off":
         args.add_all("--UnusedDepsIgnoredTargets", unused_dependency_checker_ignored_targets)
-
-    outs = [output, statsfile, diagnosticsfile]
 
     ins = depset(
         direct = [manifest] + sources + classpath_resources + resources + resource_jars,
