@@ -11,11 +11,11 @@ http_archive(
     url = "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/{}/bazel-skylib-{}.tar.gz".format(skylib_version, skylib_version),
 )
 
-_build_tools_release = "3.5.0"
+_build_tools_release = "5.1.0"
 
 http_archive(
     name = "com_github_bazelbuild_buildtools",
-    sha256 = "a02ba93b96a8151b5d8d3466580f6c1f7e77212c4eb181cba53eb2cae7752a23",
+    sha256 = "e3bb0dc8b0274ea1aca75f1f8c0c835adbe589708ea89bf698069d0790701ea3",
     strip_prefix = "buildtools-%s" % _build_tools_release,
     url = "https://github.com/bazelbuild/buildtools/archive/%s.tar.gz" % _build_tools_release,
 )
