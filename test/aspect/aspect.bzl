@@ -5,8 +5,16 @@ sure the targets we expect are there.
 """
 attr_aspects = ["_scala_toolchain", "deps"]
 
+def _stringify_label(label):
+    s = str(label)
+    if s.startswith("@@//"):
+        return s[2:]
+    if s.startswith("@//"):
+        return s[1:]
+    return s
+
 def _aspect_impl(target, ctx):
-    visited = [str(target.label)]
+    visited = [_stringify_label(target.label)]
     for attr_name in attr_aspects:
         if hasattr(ctx.rule.attr, attr_name):
             for dep in getattr(ctx.rule.attr, attr_name):
