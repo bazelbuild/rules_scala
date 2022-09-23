@@ -88,22 +88,108 @@ LH:3
 LF:3
 end_of_record
 SF:test/coverage_specs2_with_junit/D1.scala
+FN:10,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FN:19,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$10 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FN:20,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$11 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FN:21,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$12 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FN:22,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$13 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FN:23,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$14 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FN:24,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$15 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FN:25,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$16 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FN:26,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$17 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FN:27,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$18 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FN:28,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$19 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FN:11,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$2 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FN:29,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$20 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FN:30,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$21 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FN:31,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$22 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FN:32,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$23 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FN:33,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$24 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FN:34,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$25 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FN:35,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$26 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FN:36,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$27 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FN:38,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$28 (Ljava/lang/String;)V
+FN:36,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$28$adapted (Ljava/lang/String;)Ljava/lang/Object;
+FN:12,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$3 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FN:13,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$4 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FN:14,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$5 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FN:15,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$6 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FN:16,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$7 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FN:17,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$8 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FN:18,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$9 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
 FN:-1,coverage_specs2_with_junit/D1$::<clinit> ()V
 FN:3,coverage_specs2_with_junit/D1$::<init> ()V
 FN:5,coverage_specs2_with_junit/D1$::veryLongFunctionNameIsHereAaaaaaaaa ()V
 FN:-1,coverage_specs2_with_junit/D1::veryLongFunctionNameIsHereAaaaaaaaa ()V
+FNDA:1,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FNDA:1,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$10 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FNDA:1,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$11 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FNDA:1,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$12 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FNDA:1,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$13 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FNDA:1,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$14 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FNDA:1,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$15 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FNDA:1,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$16 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FNDA:1,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$17 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FNDA:1,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$18 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FNDA:1,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$19 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FNDA:1,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$2 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FNDA:1,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$20 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FNDA:1,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$21 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FNDA:1,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$22 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FNDA:1,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$23 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FNDA:1,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$24 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FNDA:1,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$25 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FNDA:1,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$26 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FNDA:1,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$27 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FNDA:1,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$28 (Ljava/lang/String;)V
+FNDA:1,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$28$adapted (Ljava/lang/String;)Ljava/lang/Object;
+FNDA:1,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$3 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FNDA:1,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$4 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FNDA:1,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$5 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FNDA:1,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$6 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FNDA:1,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$7 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FNDA:1,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$8 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
+FNDA:1,coverage_specs2_with_junit/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$9 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
 FNDA:1,coverage_specs2_with_junit/D1$::<clinit> ()V
 FNDA:1,coverage_specs2_with_junit/D1$::<init> ()V
 FNDA:1,coverage_specs2_with_junit/D1$::veryLongFunctionNameIsHereAaaaaaaaa ()V
 FNDA:0,coverage_specs2_with_junit/D1::veryLongFunctionNameIsHereAaaaaaaaa ()V
-FNF:4
-FNH:3
+FNF:33
+FNH:32
 DA:3,1
 DA:5,1
 DA:9,1
+DA:10,1
+DA:11,1
+DA:12,1
+DA:13,1
+DA:14,1
+DA:15,1
+DA:16,1
+DA:17,1
+DA:18,1
+DA:19,1
+DA:20,1
+DA:21,1
+DA:22,1
+DA:23,1
+DA:24,1
+DA:25,1
+DA:26,1
+DA:27,1
+DA:28,1
+DA:29,1
+DA:30,1
+DA:31,1
+DA:32,1
+DA:33,1
+DA:34,1
+DA:35,1
+DA:36,1
+DA:38,1
 DA:41,1
-LH:4
-LF:4
+LH:32
+LF:32
 end_of_record
 SF:test/coverage_specs2_with_junit/E1.scala
 FN:-1,coverage_specs2_with_junit/E1$::<clinit> ()V
