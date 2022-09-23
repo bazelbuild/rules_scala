@@ -62,18 +62,6 @@ tasks:
     bazel: 4.1.0
     shell_commands:
       - "./test_coverage.sh"
-  test_bazel_52_linux:
-    name: "./test_bazel_5_2"
-    platform: ubuntu2004
-    bazel: 5.2.0rc2
-    shell_commands:
-      - "./test_bazel_5_2.sh"
-  test_bazel_52_macos:
-    name: "./test_bazel_5_2"
-    platform: macos
-    bazel: 5.2.0rc2
-    shell_commands:
-      - "./test_bazel_5_2.sh "
   test_reproducibility_linux:
     name: "./test_reproducibility.sh"
     platform: ubuntu1804
