@@ -29,14 +29,6 @@ tasks:
     # Install xmllint
     - sudo apt update && sudo apt install -y libxml2-utils
     - "./test_rules_scala.sh"
-  test_rules_scala_linux_Bazel5:
-    name: "./test_rules_scala (Bazel 5.0)"
-    platform: ubuntu2004
-    bazel: 5.0.0
-    shell_commands:
-    # Install xmllint
-    - sudo apt update && sudo apt install -y libxml2-utils
-    - "./test_rules_scala.sh"
   test_rules_scala_linux_last_green:
     name: "./test_rules_scala (Bazel green head)"
     platform: ubuntu2004
@@ -62,18 +54,6 @@ tasks:
     bazel: 4.1.0
     shell_commands:
       - "./test_coverage.sh"
-  test_bazel_52_linux:
-    name: "./test_bazel_5_2"
-    platform: ubuntu2004
-    bazel: 5.2.0rc2
-    shell_commands:
-      - "./test_bazel_5_2.sh"
-  test_bazel_52_macos:
-    name: "./test_bazel_5_2"
-    platform: macos
-    bazel: 5.2.0rc2
-    shell_commands:
-      - "./test_bazel_5_2.sh "
   test_reproducibility_linux:
     name: "./test_reproducibility.sh"
     platform: ubuntu1804
