@@ -42,16 +42,16 @@ tasks:
     platform: macos
     shell_commands:
     - "./test_rules_scala.sh"
-  test_coverage_linux_4_1_0:
+  test_coverage_linux_5_3_1:
     name: "./test_coverage"
     platform: ubuntu2004
-    bazel: 4.1.0
+    bazel: 5.3.1
     shell_commands:
       - "./test_coverage.sh"
-  test_coverage_macos_4_1_0:
+  test_coverage_macos_5_3_1:
     name: "./test_coverage"
     platform: macos
-    bazel: 4.1.0
+    bazel: 5.3.1
     shell_commands:
       - "./test_coverage.sh"
   test_reproducibility_linux:
