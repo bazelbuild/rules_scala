@@ -138,6 +138,25 @@ go_rules_dependencies()
 
 go_register_toolchains()
 
+# Explicitly pull in a different (newer) version of rules_java for remote jdks
+rules_java_extra_version = "5.1.0"
+
+rules_java_extra_sha = "d974a2d6e1a534856d1b60ad6a15e57f3970d8596fbb0bb17b9ee26ca209332a"
+
+rules_java_extra_url = "https://github.com/bazelbuild/rules_java/releases/download/{}/rules_java-{}.tar.gz".format(rules_java_extra_version, rules_java_extra_version)
+
+http_archive(
+    name = "rules_java_extra",
+    sha256 = rules_java_extra_sha,
+    url = rules_java_extra_url,
+)
+
+load("@rules_java//java:repositories.bzl", "remote_jdk8_repos")
+
+# We need to select based on platform when we use these
+# https://github.com/bazelbuild/bazel/issues/11655
+remote_jdk8_repos()
+
 bazel_toolchains_version = "4.1.0"
 
 http_archive(
