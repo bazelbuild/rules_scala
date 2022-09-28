@@ -109,9 +109,9 @@ A `scala_binary` requires a `main_class` attribute.
         <p><code>List of strings; optional</code></p>
         <p>
           Extra compiler options for this binary to be passed to scalac. Subject to
-          <a href="http://bazel.io/docs/be/make-variables.html">Make variable
+          <a href="https://bazel.build/reference/be/make-variables">Make variable
           substitution</a> and
-          <a href="http://bazel.io/docs/be/common-definitions.html#borne-shell-tokenization">Bourne shell tokenization.</a>
+          <a href="https://bazel.build/reference/be/common-definitions.html#sh-tokenization">Bourne shell tokenization.</a>
         </p>
       </td>
     </tr>
@@ -121,9 +121,9 @@ A `scala_binary` requires a `main_class` attribute.
         <p><code>List of strings; optional</code></p>
         <p>
           List of JVM flags to be passed to the executing JVM. Subject to
-          <a href="http://bazel.io/docs/be/make-variables.html">Make variable
+          <a href="https://bazel.build/reference/be/make-variables.html">Make variable
           substitution</a> and
-          <a href="http://bazel.io/docs/be/common-definitions.html#borne-shell-tokenization">Bourne shell tokenization.</a>
+          <a href="https://bazel.build/reference/be/common-definitions.html#sh-tokenization">Bourne shell tokenization.</a>
         </p>
       </td>
     </tr>
@@ -134,9 +134,9 @@ A `scala_binary` requires a `main_class` attribute.
         <p>
           List of JVM flags to be passed to scalac after the
           <code>scalacopts</code>. Subject to
-          <a href="http://bazel.io/docs/be/make-variables.html">Make variable
+          <a href="https://bazel.build/reference/be/make-variables.html">Make variable
           substitution</a> and
-          <a href="http://bazel.io/docs/be/common-definitions.html#borne-shell-tokenization">Bourne shell tokenization.</a>
+          <a href="https://bazel.build/reference/be/common-definitions.html#sh-tokenization">Bourne shell tokenization.</a>
         </p>
       </td>
     </tr>
@@ -147,9 +147,9 @@ A `scala_binary` requires a `main_class` attribute.
         <p>
           List of JVM flags to be passed to javac after the
           <code>javacopts</code>. Subject to
-          <a href="http://bazel.io/docs/be/make-variables.html">Make variable
+          <a href="https://bazel.build/reference/be/make-variables.html">Make variable
           substitution</a> and
-          <a href="http://bazel.io/docs/be/common-definitions.html#borne-shell-tokenization">Bourne shell tokenization.</a>
+          <a href="https://bazel.build/reference/be/common-definitions.html#sh-tokenization">Bourne shell tokenization.</a>
         </p>
       </td>
     </tr>
