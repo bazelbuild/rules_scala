@@ -25,7 +25,7 @@ in [./scala/scala.bzl](./scala/scala.bzl).
 
 ### Code reviews and other contributions.
 **All submissions, including submissions by project members, require review.**
-Please follow the instructions in [the contributors documentation](http://bazel.io/contributing.html).
+Please follow the instructions in [the contributors documentation](https://bazel.build/contribute).
 
 ### The small print
 Contributions made by corporations are covered by a different agreement than

@@ -121,9 +121,9 @@ In order to have a Java rule use this jar file, use the `java_import` rule.
         <p><code>List of strings; optional</code></p>
         <p>
           Extra compiler options for this library to be passed to scalac. Subject to
-          <a href="http://bazel.io/docs/be/make-variables.html">Make variable
+          <a href="https://bazel.build/reference/be/make-variables.html">Make variable
           substitution</a> and
-          <a href="http://bazel.io/docs/be/common-definitions.html#borne-shell-tokenization">Bourne shell tokenization.</a>
+          <a href="https://bazel.build/reference/be/common-definitions.html#sh-tokenization">Bourne shell tokenization.</a>
         </p>
       </td>
     </tr>
@@ -143,9 +143,9 @@ In order to have a Java rule use this jar file, use the `java_import` rule.
         <p>
           List of JVM flags to be passed to scalac after the
           <code>scalacopts</code>. Subject to
-          <a href="http://bazel.io/docs/be/make-variables.html">Make variable
+          <a href="https://bazel.build/reference/be/make-variables.html">Make variable
           substitution</a> and
-          <a href="http://bazel.io/docs/be/common-definitions.html#borne-shell-tokenization">Bourne shell tokenization.</a>
+          <a href="https://bazel.build/reference/be/common-definitions.html#sh-tokenization">Bourne shell tokenization.</a>
         </p>
       </td>
     </tr>
@@ -156,9 +156,9 @@ In order to have a Java rule use this jar file, use the `java_import` rule.
         <p>
           List of JVM flags to be passed to javac after the
           <code>javacopts</code>. Subject to
-          <a href="http://bazel.io/docs/be/make-variables.html">Make variable
+          <a href="https://bazel.build/reference/be/make-variables.html">Make variable
           substitution</a> and
-          <a href="http://bazel.io/docs/be/common-definitions.html#borne-shell-tokenization">Bourne shell tokenization.</a>
+          <a href="https://bazel.build/reference/be/common-definitions.html#sh-tokenization">Bourne shell tokenization.</a>
         </p>
       </td>
     </tr>
