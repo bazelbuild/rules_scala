@@ -78,7 +78,7 @@ scala_register_toolchains()
     declare_deps_provider(
         name = "my_scala_xml_provider",
         deps_id = "scala_xml",
-        deps = ["@scala_xml_dep"],
+        deps = ["@io_bazel_rules_scala_scala_xml"],
     )
     
     declare_deps_provider(
