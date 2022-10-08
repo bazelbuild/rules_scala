@@ -103,7 +103,7 @@ def _write_executable_non_windows(ctx, executable, rjars, main_class, jvm_flags,
         [ctx.expand_location(f, ctx.attr.data) for f in jvm_flags],
     )
 
-    javabin = "export REAL_EXTERNAL_JAVA_BIN=${JAVABIN};JAVABIN=%s/%s" % (
+    javabin = "export REAL_EXTERNAL_JAVA_BIN=${JAVABIN};JAVABIN=${JAVABIN:-%s/%s}" % (
         runfiles_root(ctx),
         wrapper.short_path,
     )
