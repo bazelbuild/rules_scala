@@ -46,6 +46,6 @@ class OptionsParser private(
   }
 
   def takeStringSeqOpt(key: String): Option[Seq[String]] = {
-    takeStringOpt(key).map(_.split(":"))
+    takeStringOpt(key).map(_.split(":").toSeq)
   }
 }
