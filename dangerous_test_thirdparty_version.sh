@@ -42,29 +42,15 @@ test_dir=$dir/test/shell
 runner=$(get_test_runner "${1:-local}")
 
 
-# Latest versions of each major version
-$runner test_scala_version "2.12.10"
+$runner test_scala_version "2.13.6"
+$runner test_scala_version "2.13.7"
+$runner test_scala_version "2.13.8"
+$runner test_scala_version "2.13.9"
+$runner test_scala_version "2.13.10"
+
+$runner test_scala_version "2.12.14"
+$runner test_scala_version "2.12.15"
+$runner test_scala_version "2.12.16"
+$runner test_scala_version "2.12.17"
+
 $runner test_scala_version "2.11.12"
-# Earliest functioning versions of each major version
-$runner test_scala_version "2.12.0"
-
-
-# Note: 2.11.0-2.11.8 do not work due to an error unrelated to the plugin
-# Error is that argument -Ypartial-unification is invalid
-# Hence we start with 2.11.9.
-$runner test_scala_version "2.11.9"
-
-# Intermediate versions of 2.12.x
-$runner test_scala_version "2.12.1"
-$runner test_scala_version "2.12.2"
-$runner test_scala_version "2.12.3"
-$runner test_scala_version "2.12.4"
-$runner test_scala_version "2.12.5"
-$runner test_scala_version "2.12.6"
-$runner test_scala_version "2.12.7"
-$runner test_scala_version "2.12.8"
-$runner test_scala_version "2.12.9"
-
-# Intermediate versions of 2.11.x
-$runner test_scala_version "2.11.10"
-$runner test_scala_version "2.11.11"
