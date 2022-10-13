@@ -48,10 +48,10 @@ def compile_scala(
         resources,
         resource_jars,
         labels,
-        in_scalacopts,
         print_compile_time,
         expect_java_output,
         scalac_jvm_flags,
+        scalacopts,
         scalac,
         dependency_info,
         unused_dependency_checker_ignored_targets,
@@ -65,7 +65,7 @@ def compile_scala(
     toolchain = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"]
     compiler_classpath_jars = cjars if dependency_info.dependency_mode == "direct" else transitive_compile_jars
     classpath_resources = getattr(ctx.files, "classpath_resources", [])
-    scalacopts = [ctx.expand_location(v, input_plugins) for v in toolchain.scalacopts + in_scalacopts]
+    scalacopts_expanded = [ctx.expand_location(v, input_plugins) for v in scalacopts]
     resource_paths = _resource_paths(resources, resource_strip_prefix)
     enable_stats_file = toolchain.enable_stats_file
     enable_diagnostics_report = toolchain.enable_diagnostics_report
@@ -93,7 +93,7 @@ def compile_scala(
     args.add_all("--ResourceTargets", [p[0] for p in resource_paths])
     args.add_all("--ResourceSources", [p[1] for p in resource_paths])
     args.add_all("--ResourceJars", resource_jars)
-    args.add_all("--ScalacOpts", scalacopts)
+    args.add_all("--ScalacOpts", scalacopts_expanded)
     args.add_all("--SourceJars", all_srcjars)
 
     if dependency_info.need_direct_info:

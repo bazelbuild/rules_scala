@@ -132,6 +132,7 @@ def _phase_compile(
 
     out = _compile_or_empty(
         ctx,
+        p.scalacopts,
         manifest,
         jars,
         srcjars,
@@ -157,6 +158,7 @@ def _phase_compile(
 
 def _compile_or_empty(
         ctx,
+        scalacopts,
         manifest,
         jars,
         srcjars,
@@ -202,10 +204,10 @@ def _compile_or_empty(
             ctx.files.resources,
             ctx.files.resource_jars,
             jars2labels,
-            ctx.attr.scalacopts,
             ctx.attr.print_compile_time,
             ctx.attr.expect_java_output,
             ctx.attr.scalac_jvm_flags,
+            scalacopts,
             ctx.executable._scalac,
             dependency_info,
             unused_dependency_checker_ignored_targets,

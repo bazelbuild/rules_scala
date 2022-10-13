@@ -23,6 +23,7 @@ load(
     "phase_merge_jars",
     "phase_runfiles_common",
     "phase_scalac_provider",
+    "phase_scalacopts",
     "phase_test_environment",
     "phase_write_executable_junit_test",
     "phase_write_manifest",
@@ -44,6 +45,7 @@ def _scala_junit_test_impl(ctx):
             ("collect_jars", phase_collect_jars_junit_test),
             ("java_wrapper", phase_java_wrapper_common),
             ("declare_executable", phase_declare_executable),
+            ("scalacopts", phase_scalacopts),
             # no need to build an ijar for an executable
             ("compile", phase_compile_junit_test),
             ("coverage", phase_coverage_common),

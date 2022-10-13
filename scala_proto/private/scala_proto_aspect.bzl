@@ -83,7 +83,7 @@ def _generate_sources(ctx, toolchain, proto):
 
     return outputs.values()
 
-def _compile_sources(ctx, toolchain, proto, src_jars, deps, stamp_label):
+def _compile_sources(ctx, toolchain, proto, src_jars, deps, scalacopts, stamp_label):
     output = ctx.actions.declare_file(ctx.label.name + "_scalapb.jar")
     manifest = ctx.actions.declare_file(ctx.label.name + "_MANIFEST.MF")
     write_manifest_file(ctx.actions, manifest, None)
@@ -112,10 +112,10 @@ def _compile_sources(ctx, toolchain, proto, src_jars, deps, stamp_label):
         resources = proto.direct_sources,
         resource_jars = [],
         labels = {},
-        in_scalacopts = [],
         print_compile_time = False,
         expect_java_output = False,
         scalac_jvm_flags = [],
+        scalacopts = scalacopts,
         scalac = toolchain.scalac,
         dependency_info = legacy_unclear_dependency_info_for_protobuf_scrooge(ctx),
         unused_dependency_checker_ignored_targets = [],
@@ -137,15 +137,19 @@ def _phase_proto_provider(ctx, p):
 def _phase_deps(ctx, p):
     return [d[ScalaProtoAspectInfo].java_info for d in ctx.rule.attr.deps]
 
+def _phase_scalacopts(ctx, p):
+    return ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scalacopts
+
 def _phase_generate_and_compile(ctx, p):
     proto = p.proto_info
     deps = p.deps
+    scalacopts = p.scalacopts
     stamp_label = p.stamp_label
     toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
 
     if proto.direct_sources and _code_should_be_generated(ctx, toolchain):
         src_jars = _generate_sources(ctx, toolchain, proto)
-        java_info = _compile_sources(ctx, toolchain, proto, src_jars, deps, stamp_label)
+        java_info = _compile_sources(ctx, toolchain, proto, src_jars, deps, scalacopts, stamp_label)
         return java_info
     else:
         # this target is only an aggregation target
@@ -184,6 +188,7 @@ def _scala_proto_aspect_impl(target, ctx):
             ("proto_info", _phase_proto_provider),
             ("deps", _phase_deps),
             ("stamp_label", _phase_stamp_label),
+            ("scalacopts", _phase_scalacopts),
             ("generate_and_compile", _phase_generate_and_compile),
             ("aspect_provider", _phase_aspect_provider),
         ],
