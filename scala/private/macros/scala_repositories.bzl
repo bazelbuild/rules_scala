@@ -59,6 +59,18 @@ ARTIFACT_IDS = [
     "io_bazel_rules_scala_scala_library_2",
 ]
 
+def rules_scala_toolchain_deps_repositories(
+        maven_servers = _default_maven_server_urls(),
+        overriden_artifacts = {},
+        fetch_sources = False):
+    repositories(
+        for_artifact_ids = ARTIFACT_IDS,
+        maven_servers = maven_servers,
+        fetch_sources = fetch_sources,
+        overriden_artifacts = overriden_artifacts,
+        validate_scala_version = True,
+    )
+
 def scala_repositories(
         maven_servers = _default_maven_server_urls(),
         overriden_artifacts = {},
@@ -69,9 +81,8 @@ def scala_repositories(
         rules_scala_setup()
 
     if load_jar_deps:
-        repositories(
-            for_artifact_ids = ARTIFACT_IDS,
-            maven_servers = maven_servers,
-            fetch_sources = fetch_sources,
-            overriden_artifacts = overriden_artifacts,
+        rules_scala_toolchain_deps_repositories(
+            maven_servers,
+            overriden_artifacts,
+            fetch_sources,
         )

@@ -4,6 +4,8 @@ load(
 )
 load(
     "@io_bazel_rules_scala//scala/private:macros/scala_repositories.bzl",
+    _rules_scala_setup = "rules_scala_setup",
+    _rules_scala_toolchain_deps_repositories = "rules_scala_toolchain_deps_repositories",
     _scala_repositories = "scala_repositories",
 )
 load(
@@ -65,5 +67,7 @@ scala_library_suite = _scala_library_suite
 scala_macro_library = _scala_macro_library
 scala_repl = _scala_repl
 scala_repositories = _scala_repositories
+rules_scala_setup = _rules_scala_setup
+rules_scala_toolchain_deps_repositories = _rules_scala_toolchain_deps_repositories
 scala_test = _scala_test
 scala_test_suite = _scala_test_suite
