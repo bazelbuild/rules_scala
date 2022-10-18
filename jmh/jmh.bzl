@@ -20,7 +20,7 @@ def jmh_repositories(
         ],
         fetch_sources = False,
         maven_servers = maven_servers,
-        overriden_artifacts = {},
+        overriden_artifacts = overriden_artifacts,
     )
 
     native.register_toolchains("@io_bazel_rules_scala//jmh:jmh_toolchain")
