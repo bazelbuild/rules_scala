@@ -1,14 +1,16 @@
+scala_version = "2.11.12"
+
 artifacts = {
     "io_bazel_rules_scala_scala_library": {
-        "artifact": "org.scala-lang:scala-library:2.11.12",
+        "artifact": "org.scala-lang:scala-library:%s" % scala_version,
         "sha256": "0b3d6fd42958ee98715ba2ec5fe221f4ca1e694d7c981b0ae0cd68e97baf6dce",
     },
     "io_bazel_rules_scala_scala_compiler": {
-        "artifact": "org.scala-lang:scala-compiler:2.11.12",
+        "artifact": "org.scala-lang:scala-compiler:%s" % scala_version,
         "sha256": "3e892546b72ab547cb77de4d840bcfd05c853e73390fed7370a8f19acb0735a0",
     },
     "io_bazel_rules_scala_scala_reflect": {
-        "artifact": "org.scala-lang:scala-reflect:2.11.12",
+        "artifact": "org.scala-lang:scala-reflect:%s" % scala_version,
         "sha256": "6ba385b450a6311a15c918cf8688b9af9327c6104f0ecbd35933cfcd3095fe04",
     },
     "io_bazel_rules_scala_scalatest": {

@@ -61,8 +61,14 @@ http_archive(
 load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
 scala_config()
 
-load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
-scala_repositories()
+load("//scala:scala.bzl", "rules_scala_setup", "rules_scala_toolchain_deps_repositories")
+
+# loads other rules Rules Scala depends on 
+rules_scala_setup()
+
+# loads Maven deps like Scala compiler and standard libs, on production projects you should consider 
+# defining a custom deps toolchains to use your project libs instead 
+rules_scala_toolchain_deps_repositories(fetch_sources = True)
 
 load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
 rules_proto_dependencies()
