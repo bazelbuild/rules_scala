@@ -10,7 +10,7 @@ load(
 )
 load(
     "@io_bazel_rules_scala//scala/private:macros/setup_scala_toolchain.bzl",
-    "setup_scala_toolchain",
+    _setup_scala_toolchain = "setup_scala_toolchain",
 )
 load(
     "@io_bazel_rules_scala//scala/private:rules/scala_binary.bzl",
