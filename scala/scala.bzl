@@ -9,10 +9,6 @@ load(
     _scala_repositories = "scala_repositories",
 )
 load(
-    "@io_bazel_rules_scala//scala/private:macros/setup_scala_toolchain.bzl",
-    _setup_scala_toolchain = "setup_scala_toolchain",
-)
-load(
     "@io_bazel_rules_scala//scala/private:rules/scala_binary.bzl",
     _scala_binary = "scala_binary",
 )
@@ -75,4 +71,3 @@ rules_scala_setup = _rules_scala_setup
 rules_scala_toolchain_deps_repositories = _rules_scala_toolchain_deps_repositories
 scala_test = _scala_test
 scala_test_suite = _scala_test_suite
-setup_scala_toolchain = _setup_scala_toolchain

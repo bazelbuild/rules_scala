@@ -22,11 +22,11 @@ scala_config()
 
 load(
     "@io_bazel_rules_scala//scala:scala.bzl",
+    "rules_scala_setup",
     "rules_scala_toolchain_deps_repositories",
-    "setup_scala_toolchain",
 )
 
-setup_scala_toolchain()
+rules_scala_setup()
 
 rules_scala_toolchain_deps_repositories(fetch_sources = True)
 
