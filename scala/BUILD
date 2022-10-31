@@ -1,4 +1,5 @@
 load("@rules_java//java:defs.bzl", "java_import", "java_library")
+load("//scala:providers.bzl", "declare_deps_provider")
 load("//scala:scala.bzl", "setup_scala_toolchain")
 load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_MAJOR_VERSION")
 
@@ -78,4 +79,39 @@ java_library(
     name = "PlaceHolderClassToCreateEmptyJarForScalaImport",
     srcs = ["PlaceHolderClassToCreateEmptyJarForScalaImport.java"],
     visibility = ["//visibility:public"],
+)
+
+declare_deps_provider(
+    name = "scala_compile_classpath_provider",
+    deps_id = "scala_compile_classpath",
+    visibility = ["//visibility:public"],
+    deps = _SCALA_COMPILE_CLASSPATH_DEPS,
+)
+
+declare_deps_provider(
+    name = "scala_library_classpath_provider",
+    deps_id = "scala_library_classpath",
+    visibility = ["//visibility:public"],
+    deps = _SCALA_LIBRARY_CLASSPATH_DEPS,
+)
+
+declare_deps_provider(
+    name = "scala_macro_classpath_provider",
+    deps_id = "scala_macro_classpath",
+    visibility = ["//visibility:public"],
+    deps = _SCALA_MACRO_CLASSPATH_DEPS,
+)
+
+declare_deps_provider(
+    name = "scala_xml_provider",
+    deps_id = "scala_xml",
+    visibility = ["//visibility:public"],
+    deps = _SCALA_XML_DEPS,
+)
+
+declare_deps_provider(
+    name = "parser_combinators_provider",
+    deps_id = "parser_combinators",
+    visibility = ["//visibility:public"],
+    deps = _PARSER_COMBINATORS_DEPS,
 )
