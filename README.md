@@ -66,7 +66,7 @@ load("@io_bazel_rules_scala//scala:scala.bzl", "rules_scala_setup", "rules_scala
 # loads other rules Rules Scala depends on 
 rules_scala_setup()
 
-# loads Maven deps like Scala compiler and standard libs, on production projects you should consider 
+# Loads Maven deps like Scala compiler and standard libs. On production projects you should consider 
 # defining a custom deps toolchains to use your project libs instead 
 rules_scala_toolchain_deps_repositories(fetch_sources = True)
 
@@ -87,7 +87,7 @@ This will load the `rules_scala` repository at the commit sha
 `rules_scala_version` into your Bazel project and register a [scala_toolchain](docs/scala_toolchain.md) at the default Scala version (2.12.14)
 
 Then in your BUILD file just add the following so the rules will be available:
-```python
+```starlark
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_library", "scala_binary", "scala_test")
 ```
 You may wish to have these rules loaded by default using bazel's prelude. You can add the above to the file `tools/build_rules/prelude_bazel` in your repo (don't forget to have a, possibly empty, BUILD file there) and then it will be automatically prepended to every BUILD file in the workspace.
@@ -147,39 +147,12 @@ dependency providers configured for `2.11.12`, `2.12.14` and `2.13.6` versions.
 load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
 scala_config(scala_version = "2.13.6")
 
-load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
-scala_repositories()
+load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
+rules_proto_dependencies()
+rules_proto_toolchains()
 
 load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_toolchains")
 scala_register_toolchains()
-```
-
-If you're using any of the rules `twitter_scrooge`, `scala_proto_repositories`
-or `specs2_junit_repositories` you also need to specify `scala_version` for them. See `./test_version/WORKSPACE.template`
-for an example workspace using another scala version.
-
-### As an option for `scala_repositories()`
-
-It's also possible to override the scala artifacts while calling `scala_repositories()`:
-
-```starlark
-scala_repositories(
-  overriden_artifacts = {
-    # Change both the artifact names and sha256s.
-    "io_bazel_rules_scala_scala_library": {
-        "artifact": "org.scala-lang:scala-library:2.12.14",
-        "sha256": "0451dce8322903a6c2aa7d31232b54daa72a61ced8ade0b4c5022442a3f6cb57",
-    },
-    "io_bazel_rules_scala_scala_compiler": {
-        "artifact": "org.scala-lang:scala-compiler:2.12.14",
-        "sha256": "2a1b3fbf9c956073c8c5374098a6f987e3b8d76e34756ab985fc7d2ca37ee113",
-    },
-    "io_bazel_rules_scala_scala_reflect": {
-        "artifact": "org.scala-lang:scala-reflect:2.12.14",
-        "sha256": "497f4603e9d19dc4fa591cd467de5e32238d240bbd955d3dac6390b270889522",
-    }
-  }
-)
 ```
 
 Note: Toolchains are a more flexible way to configure dependencies, so you should prefer that way.
