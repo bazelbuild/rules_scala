@@ -16,8 +16,6 @@ def setup_scala_toolchain(
     scala_library_classpath_provider = "%s_scala_library_classpath_provider" % name
     scala_macro_classpath_provider = "%s_scala_macro_classpath_provider" % name
 
-    print("XML", scala_xml_provider)
-
     declare_deps_provider(
         name = scala_compile_classpath_provider,
         deps_id = "scala_compile_classpath",
