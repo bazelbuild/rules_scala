@@ -3,9 +3,9 @@
 set -eou pipefail
 
 content="$(cat $1)"
-expected=$'test/ScalaBinary.jar\ntest/ScalaBinary.sh'
+expected=$'test/ScalaBinary\ntest/ScalaBinary.jar'
 if [ "$content" != "$expected" ]; then
     echo "Unexpected rootpaths: $content"
-    echo "Expected rootpaths: $expected"
+    echo "$expected"
     exit 1
 fi
