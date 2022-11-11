@@ -51,11 +51,11 @@ test_transitive_deps() {
 
 test_repl() {
   bazel build $(bazel query 'kind(scala_repl, //test/...)')
-  echo "import scalarules.test._; HelloLib.printMessage(\"foo\")" | bazel-bin/test/HelloLibRepl.sh -Xnojline | grep "foo java" &&
-  echo "import scalarules.test._; TestUtil.foo" | bazel-bin/test/HelloLibTestRepl.sh -Xnojline | grep "bar" &&
-  echo "import scalarules.test._; ScalaLibBinary.main(Array())" | bazel-bin/test/ScalaLibBinaryRepl.sh -Xnojline | grep "A hui hou" &&
-  echo "import scalarules.test._; ResourcesStripScalaBinary.main(Array())" | bazel-bin/test/ResourcesStripScalaBinaryRepl.sh -Xnojline | grep "More Hello"
-  echo "import scalarules.test._; A.main(Array())" | bazel-bin/test/ReplWithSources.sh -Xnojline | grep "4 8 15"
+  echo "import scalarules.test._; HelloLib.printMessage(\"foo\")" | bazel-bin/test/HelloLibRepl -Xnojline | grep "foo java" &&
+  echo "import scalarules.test._; TestUtil.foo" | bazel-bin/test/HelloLibTestRepl -Xnojline | grep "bar" &&
+  echo "import scalarules.test._; ScalaLibBinary.main(Array())" | bazel-bin/test/ScalaLibBinaryRepl -Xnojline | grep "A hui hou" &&
+  echo "import scalarules.test._; ResourcesStripScalaBinary.main(Array())" | bazel-bin/test/ResourcesStripScalaBinaryRepl -Xnojline | grep "More Hello"
+  echo "import scalarules.test._; A.main(Array())" | bazel-bin/test/ReplWithSources -Xnojline | grep "4 8 15"
 }
 
 test_benchmark_jmh() {

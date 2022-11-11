@@ -21,5 +21,5 @@ Instead, use `bazel build` to build the script, then run that script as normal t
 An example in this repo:
 ```
 bazel build test:HelloLibRepl
-bazel-bin/test/HelloLibRepl.sh
+bazel-bin/test/HelloLibRepl
 ```

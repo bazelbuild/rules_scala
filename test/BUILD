@@ -472,7 +472,6 @@ scala_specs2_junit_test(
     "//test/src/main/scala/scalarules/test/large_classpath:largeClasspath",
     "//test:test_scala_proto_server",
     "//test:scala_binary_jdk_11",
-    "//test/artifact_prefix_conflict_example/example:example",
 ]]
 
 # Make sure scala_binary respects runtime_jdk on bazel run
