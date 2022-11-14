@@ -46,6 +46,7 @@ declare_deps_provider(
         "@io_bazel_rules_scala_scalatest_matchers_core",
         "@io_bazel_rules_scala_scalatest_mustmatchers",
         "@io_bazel_rules_scala_scalatest_shouldmatchers",
+        "@io_bazel_rules_scala_scalatest_wordspec",
     ],
 )
 

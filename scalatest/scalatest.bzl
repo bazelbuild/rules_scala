@@ -17,6 +17,7 @@ def scalatest_repositories(
             "io_bazel_rules_scala_scalatest_freespec",
             "io_bazel_rules_scala_scalatest_funsuite",
             "io_bazel_rules_scala_scalatest_funspec",
+            "io_bazel_rules_scala_scalatest_wordspec",
             "io_bazel_rules_scala_scalatest_matchers_core",
             "io_bazel_rules_scala_scalatest_shouldmatchers",
             "io_bazel_rules_scala_scalatest_mustmatchers",

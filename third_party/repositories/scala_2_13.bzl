@@ -49,6 +49,10 @@ artifacts = {
         "artifact": "org.scalatest:scalatest-funspec_2.13:3.2.9",
         "sha256": "821d13ced0bf96d1470538cbcca3109694148f2637961e5c502639e16ab7eee9",
     },
+    "io_bazel_rules_scala_scalatest_wordspec": {
+        "artifact": "org.scalatest:scalatest-wordspec_2.13:3.2.9",
+        "sha256": "c5d5424bc43f02df9720bd83c57daa982af02ad7ae468875956ebe183f836277",
+    },
     "io_bazel_rules_scala_scalatest_matchers_core": {
         "artifact": "org.scalatest:scalatest-matchers-core_2.13:3.2.9",
         "sha256": "b86ed6f0986d005f4d54af5effdb73a18fe5741533f6663631d17a0731b9616f",
