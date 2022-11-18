@@ -36,21 +36,17 @@ _SCALA_XML_DEPS = ["@io_bazel_rules_scala_scala_xml"]
 
 setup_scala_toolchain(
     name = "default_toolchain",
-    parser_combinators_deps = _PARSER_COMBINATORS_DEPS,
     scala_compile_classpath = _SCALA_COMPILE_CLASSPATH_DEPS,
     scala_library_classpath = _SCALA_LIBRARY_CLASSPATH_DEPS,
     scala_macro_classpath = _SCALA_MACRO_CLASSPATH_DEPS,
-    scala_xml_deps = _SCALA_XML_DEPS,
     use_argument_file_in_runner = True,
 )
 
 setup_scala_toolchain(
     name = "unused_dependency_checker_error_toolchain",
-    parser_combinators_deps = _PARSER_COMBINATORS_DEPS,
     scala_compile_classpath = _SCALA_COMPILE_CLASSPATH_DEPS,
     scala_library_classpath = _SCALA_LIBRARY_CLASSPATH_DEPS,
     scala_macro_classpath = _SCALA_MACRO_CLASSPATH_DEPS,
-    scala_xml_deps = _SCALA_XML_DEPS,
     unused_dependency_checker_mode = "error",
     use_argument_file_in_runner = True,
 )
@@ -59,11 +55,9 @@ setup_scala_toolchain(
     name = "minimal_direct_source_deps",
     dependency_mode = "plus-one",
     dependency_tracking_method = "ast",
-    parser_combinators_deps = _PARSER_COMBINATORS_DEPS,
     scala_compile_classpath = _SCALA_COMPILE_CLASSPATH_DEPS,
     scala_library_classpath = _SCALA_LIBRARY_CLASSPATH_DEPS,
     scala_macro_classpath = _SCALA_MACRO_CLASSPATH_DEPS,
-    scala_xml_deps = _SCALA_XML_DEPS,
     strict_deps_mode = "error",
     unused_dependency_checker_mode = "error",
     use_argument_file_in_runner = True,

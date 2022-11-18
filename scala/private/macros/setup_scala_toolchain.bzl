@@ -3,11 +3,11 @@ load("//scala:providers.bzl", "declare_deps_provider")
 
 def setup_scala_toolchain(
         name,
-        scala_xml_deps,
-        parser_combinators_deps,
         scala_compile_classpath,
         scala_library_classpath,
         scala_macro_classpath,
+        scala_xml_deps = None,
+        parser_combinators_deps = None,
         visibility = ["//visibility:public"],
         **kwargs):
     scala_xml_provider = "%s_scala_xml_provider" % name
@@ -37,19 +37,25 @@ def setup_scala_toolchain(
         deps = scala_macro_classpath,
     )
 
-    declare_deps_provider(
-        name = scala_xml_provider,
-        deps_id = "scala_xml",
-        visibility = visibility,
-        deps = scala_xml_deps,
-    )
+    if scala_xml_deps != None:
+        declare_deps_provider(
+            name = scala_xml_provider,
+            deps_id = "scala_xml",
+            visibility = visibility,
+            deps = scala_xml_deps,
+        )
+    else:
+        scala_xml_provider = "@io_bazel_rules_scala//scala:scala_xml_provider"
 
-    declare_deps_provider(
-        name = parser_combinators_provider,
-        deps_id = "parser_combinators",
-        visibility = visibility,
-        deps = parser_combinators_deps,
-    )
+    if parser_combinators_deps != None:
+        declare_deps_provider(
+            name = parser_combinators_provider,
+            deps_id = "parser_combinators",
+            visibility = visibility,
+            deps = parser_combinators_deps,
+        )
+    else:
+        parser_combinators_provider = "@io_bazel_rules_scala//scala:parser_combinators_provider"
 
     scala_toolchain(
         name = "%s_impl" % name,
