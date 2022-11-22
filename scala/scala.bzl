@@ -38,6 +38,10 @@ load(
     _scala_test = "scala_test",
     _scala_test_suite = "scala_test_suite",
 )
+load(
+    "@io_bazel_rules_scala//testing:testing.bzl",
+    _setup_scala_testing_toolchain = "setup_scala_testing_toolchain",
+)
 
 def scala_specs2_junit_test(name, **kwargs):
     _scala_junit_test(
@@ -71,3 +75,4 @@ rules_scala_setup = _rules_scala_setup
 rules_scala_toolchain_deps_repositories = _rules_scala_toolchain_deps_repositories
 scala_test = _scala_test
 scala_test_suite = _scala_test_suite
+setup_scala_testing_toolchain = _setup_scala_testing_toolchain

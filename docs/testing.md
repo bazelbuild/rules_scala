@@ -21,135 +21,105 @@ specs2_junit_repositories()
 specs2_junit_toolchain()
 ```
 
-### Configuring JUnit dependencies via toolchain
+### Configuring testing dependencies via toolchain
 
-`BUILD` file content in your preferred package:
+Default dependencies, which come preconfigured with Rules Scala repositories are mostly tailored 
+towards supporting Rules Scala codebase, and may miss specific versions or libraries for your 
+usecase. You should prefer configuring dependencies via toolchains.
+
+Test framework dependencies are configured via testing toolchain. For convenience, macro
+`setup_scala_testing_toolchain` can be used to define such toolchains.
+
 ```starlark
-load("@io_bazel_rules_scala//scala:providers.bzl", "declare_deps_provider")
-load("@io_bazel_rules_scala//testing/toolchain:toolchain.bzl", "scala_testing_toolchain")
+load("@io_bazel_rules_scala//scala:scala.bzl", "setup_scala_testing_toolchain")
+```
 
-scala_testing_toolchain(
-    name = "testing_toolchains_with_junit",
-    dep_providers = [
-        ":junit_classpath_provider",
-    ],
-    visibility = ["//visibility:public"],
-)
+Attributes
 
-toolchain(
-    name = "testing_toolchain",
-    toolchain = ":testing_toolchains_with_junit",
-    toolchain_type = "@io_bazel_rules_scala//testing/toolchain:testing_toolchain_type",
-    visibility = ["//visibility:public"],
-)
+- `name` - toolchain name
+- `visibility` - optional, default value is `["//visibility:public"]`
+- `scalatest_classpath` - List of ScalaTest deps, can be omitted if ScalaTest rules won't be used.
+- `junit_classpath` - List of Junit 4 deps, required for Specs2 and JUnit rules support. Otherwise,
+  can
+  be omitted.
+- `specs2_classpath` - List of Specs2 deps, requires `specs2_junit_classpath` and `junit_classpath`
+  to be provided alongside.
+- `specs2_junit_classpath` - Specs2 JUnit runner dep, required for Specs2 rules as the use JUnit
+  runner.
 
-declare_deps_provider(
-    name = "junit_classpath_provider",
-    deps_id = "junit_classpath",
-    visibility = ["//visibility:public"],
-    deps = [
-        "@my_hamcrest_core",
-        "@my_junit",
+Examples (assumes maven deps are managed with rules_jvm_external):
+
+#### ScalaTest (flat spec with must matchers)
+
+```starlark
+# BUILD
+load("@io_bazel_rules_scala//scala:scala.bzl", "setup_scala_testing_toolchain")
+
+setup_scala_testing_toolchain(
+    name = "scalatest_toolchain",
+    scalatest_classpath = [ 
+       "@maven//:org_scalactic_scalactic_2_13",
+       "@maven//:org_scalatest_scalatest_2_13",
+       "@maven//:org_scalatest_scalatest_compatible",
+       "@maven//:org_scalatest_scalatest_core_2_13",
+       "@maven//:org_scalatest_scalatest_flatspec_2_13",
+       "@maven//:org_scalatest_scalatest_matchers_core_2_13",
+       "@maven//:org_scalatest_scalatest_mustmatchers_2_13",
     ],
 )
 ```
-Register toolchain
+Register the toolchain
 ```starlark
 # WORKSPACE
-register_toolchains('//my/package:testing_toolchains_with_junit')
+register_toolchains('//:scalatest_toolchain')
 ```
-`junit_classpath_provider` (deps_id `junit_classpath`) is where classpath required for junit tests
-is defined.
 
-### ScalaTest dependencies can be configured by declaring a provider with an id `scalatest_classpath`:
-
+#### JUnit 4
 ```starlark
-# my/package/BUILD
-scala_testing_toolchain(
-    name = "testing_toolchains_with_scalatest",
-    dep_providers = [
-        ":scalatest_classpath_provider",
-    ],
-    visibility = ["//visibility:public"],
-)
+# BUILD
+load("@io_bazel_rules_scala//scala:scala.bzl", "setup_scala_testing_toolchain")
 
-toolchain(
-    name = "testing_toolchain",
-    toolchain = ":testing_toolchains_with_scalatest",
-    toolchain_type = "@io_bazel_rules_scala//testing/toolchain:testing_toolchain_type",
-    visibility = ["//visibility:public"],
-)
-
-declare_deps_provider(
-    name = "scalatest_classpath_provider",
-    deps_id = "junit_classpath",
-    visibility = ["//visibility:public"],
-    deps = [
-        "@scalactic",
-        "@scalatest",
+setup_scala_testing_toolchain(
+    name = "junit_toolchain",
+    junit_classpath = [
+        "@maven//:junit_junit",
+        "@maven//:org_hamcrest_hamcrest_core",
     ],
 )
 ```
-Register toolchain
+Register the toolchain
 ```starlark
 # WORKSPACE
-register_toolchains('//my/package:testing_toolchains_with_scalatest')
+register_toolchains('//:junit_toolchain')
 ```
 
-### Specs2 with Junit support can be configured by declaring providers with
-`junit_classpath_provider`, `specs2_classpath_provider`, `specs2_junit_classpath_provider` ids:
-```starlark
-# my/package/BUILD
-scala_testing_toolchain(
-    name = "testing_toolchains_with_specs2_junit_impl",
-    dep_providers = [
-        ":junit_classpath_provider",
-        ":specs2_classpath_provider",
-        ":specs2_junit_classpath_provider",
-    ],
-    visibility = ["//visibility:public"],
-)
-
-toolchain(
-    name = "testing_toolchains_with_specs2_junit",
-    toolchain = ":testing_toolchains_with_specs2_junit_impl",
-    toolchain_type = "@io_bazel_rules_scala//testing/toolchain:testing_toolchain_type",
-    visibility = ["//visibility:public"],
-)
-
-declare_deps_provider(
-    name = "junit_classpath_provider",
-    deps_id = "junit_classpath",
-    visibility = ["//visibility:public"],
-    deps = [
-        "@my_hamcrest_core",
-        "@my_junit",
-    ],
-)
-
-declare_deps_provider(
-    name = "specs2_classpath_provider",
-    deps_id = "specs2_classpath",
-    visibility = ["//visibility:public"],
-    deps = [
-        "@my_specs2_common",
-        "@my_specs2_core",
-        "@my_specs2_fp",
-        "@my_specs2_matcher",
-    ],
-)
-
-declare_deps_provider(
-    name = "specs2_junit_classpath_provider",
-    deps_id = "specs2_junit_classpath",
-    visibility = ["//visibility:public"],
-    deps = [
-        "@my_specs2_junit",
-    ],
-)
+#### Specs2
+For Specs2 rules to work, `junit_classpath`, `specs2_junit_classpath` and `specs2_classpath` must
+be configured.
 ```
-Register toolchain
+# BUILD
+load("@io_bazel_rules_scala//scala:scala.bzl", "setup_scala_testing_toolchain")
+
+setup_scala_testing_toolchain(
+    name = "specs2_toolchain",
+    junit_classpath = [
+        "@maven//:junit_junit",
+        "@maven//:org_hamcrest_hamcrest_core",
+    ],
+    specs2_junit_classpath = [
+        "@maven//:org_specs2_specs2_junit_2_12",
+    ],
+    specs2_classpath = [
+        "@maven//:org_specs2_specs2_common_2_12",
+        "@maven//:org_specs2_specs2_core_2_12",
+        "@maven//:org_specs2_specs2_fp_2_12",
+        "@maven//:org_specs2_specs2_junit_2_12",
+        "@maven//:org_specs2_specs2_matcher_2_12",
+    ]
+)        
+```
+Register the toolchain
 ```starlark
 # WORKSPACE
-register_toolchains('//my/package:testing_toolchains_with_specs2_junit')
+register_toolchains('//:specs2_toolchain')
 ```
