@@ -56,7 +56,7 @@ def _scala_toolchain_impl(ctx):
     if strict_deps_mode not in ("off", "warn", "error"):
         fail("Internal error: invalid strict_deps_mode " + strict_deps_mode)
 
-    if dependency_tracking_method not in ("ast", "high-level"):
+    if dependency_tracking_method not in ("verbose-log", "ast", "high-level"):
         fail("Internal error: invalid dependency_tracking_method " + dependency_tracking_method)
 
     enable_stats_file = ctx.attr.enable_stats_file
@@ -116,7 +116,7 @@ scala_toolchain = rule(
         ),
         "dependency_tracking_method": attr.string(
             default = "default",
-            values = ["ast", "high-level", "default"],
+            values = ["verbose-log", "ast", "high-level", "default"],
         ),
         "dependency_tracking_strict_deps_patterns": attr.string_list(
             doc = "List of target prefixes included for strict deps analysis. Exclude patetrns with '-'",

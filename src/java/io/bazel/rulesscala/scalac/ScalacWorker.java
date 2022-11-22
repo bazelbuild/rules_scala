@@ -5,8 +5,16 @@ import static java.io.File.pathSeparator;
 import io.bazel.rulesscala.io_utils.StreamCopy;
 import io.bazel.rulesscala.jar.JarCreator;
 import io.bazel.rulesscala.worker.Worker;
-import java.io.*;
-import java.nio.file.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,7 +80,7 @@ class ScalacWorker implements Worker.Interface {
 
     /** Now build the output jar */
     String[] jarCreatorArgs = {
-      "-m", ops.manifestPath, "-t", ops.stampLabel, outputJar.toString(), classes.toString()
+        "-m", ops.manifestPath, "-t", ops.stampLabel, outputJar.toString(), classes.toString()
     };
     JarCreator.main(jarCreatorArgs);
   }
@@ -197,14 +205,15 @@ class ScalacWorker implements Worker.Interface {
   private static String[] getPluginParamsFrom(CompileOptions ops) {
     List<String> pluginParams = new ArrayList<>(0);
 
-    if (isModeEnabled(ops.strictDepsMode) || isModeEnabled(ops.unusedDependencyCheckerMode)) {
+    if ((isModeEnabled(ops.strictDepsMode) || isModeEnabled(ops.unusedDependencyCheckerMode)) &&
+        !ops.dependencyTrackingMethod.equals("verbose-log")) {
       String currentTarget = encodeBazelTarget(ops.currentTarget);
 
       String[] dependencyAnalyzerParams = {
-        "-P:dependency-analyzer:strict-deps-mode:" + ops.strictDepsMode,
-        "-P:dependency-analyzer:unused-deps-mode:" + ops.unusedDependencyCheckerMode,
-        "-P:dependency-analyzer:current-target:" + currentTarget,
-        "-P:dependency-analyzer:dependency-tracking-method:" + ops.dependencyTrackingMethod,
+          "-P:dependency-analyzer:strict-deps-mode:" + ops.strictDepsMode,
+          "-P:dependency-analyzer:unused-deps-mode:" + ops.unusedDependencyCheckerMode,
+          "-P:dependency-analyzer:current-target:" + currentTarget,
+          "-P:dependency-analyzer:dependency-tracking-method:" + ops.dependencyTrackingMethod,
       };
 
       pluginParams.addAll(Arrays.asList(dependencyAnalyzerParams));
@@ -238,17 +247,19 @@ class ScalacWorker implements Worker.Interface {
   }
 
   private static void compileScalaSources(CompileOptions ops, String[] scalaSources, Path classes)
-      throws IllegalAccessException, IOException {
+      throws IOException {
 
     String[] pluginArgs = buildPluginArgs(ops.plugins);
     String[] pluginParams = getPluginParamsFrom(ops);
 
     String[] constParams = {
-      "-classpath", String.join(pathSeparator, ops.classpath), "-d", classes.toString()
+        "-classpath", String.join(pathSeparator, ops.classpath), "-d", classes.toString()
     };
 
+    String[] verboseLogOpt = ((isModeEnabled(ops.strictDepsMode) || isModeEnabled(ops.unusedDependencyCheckerMode)) && ops.dependencyTrackingMethod.equals("verbose-log")) ? new String[] {"-verbose"} : new String[]{};
+
     String[] compilerArgs =
-        merge(ops.scalaOpts, pluginArgs, constParams, pluginParams, scalaSources);
+        merge(ops.scalaOpts, verboseLogOpt, pluginArgs, constParams, pluginParams, scalaSources);
 
     ReportableMainClass comp = new ReportableMainClass(ops);
 
@@ -285,6 +296,10 @@ class ScalacWorker implements Worker.Interface {
       protoReporter.writeTo(Paths.get(ops.diagnosticsFile));
     }
 
+    if (reporter instanceof DepsTrackingReporter) {
+      ((DepsTrackingReporter) reporter).prepareReport();
+    }
+
     if (reporter.hasErrors()) {
       reporter.flush();
       throw new RuntimeException("Build failed");
@@ -318,11 +333,12 @@ class ScalacWorker implements Worker.Interface {
 
   private static void copyResources(String[] sources, String[] targets, Path dest)
       throws IOException {
-    if (sources.length != targets.length)
+    if (sources.length != targets.length) {
       throw new RuntimeException(
           String.format(
               "mismatch in resources: sources: %s targets: %s",
               Arrays.toString(sources), Arrays.toString(targets)));
+    }
 
     for (int i = 0; i < sources.length; i++) {
       Path source = Paths.get(sources[i]);

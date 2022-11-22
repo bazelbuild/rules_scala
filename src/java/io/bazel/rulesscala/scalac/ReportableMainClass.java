@@ -20,22 +20,24 @@ public class ReportableMainClass extends MainClass {
 
   @Override
   public Global newCompiler() {
-    if (!ops.enableDiagnosticsReport) {
-      createDiagnosticsFile();
+    createDiagnosticsFile();
+    if (!ops.enableDiagnosticsReport && !ops.dependencyTrackingMethod.equals("verbose-log")) {
       Global global = super.newCompiler();
       reporter = global.reporter();
       return global;
-    }
-
-    if (compiler == null) {
-      createDiagnosticsFile();
-
+    } else {
       Settings settings = super.settings();
-      reporter = new ProtoReporter(settings);
+      if (ops.enableDiagnosticsReport) {
+        reporter = new ProtoReporter(settings);
+      }
+
+      if (ops.dependencyTrackingMethod.equals("verbose-log")) {
+        reporter = new DepsTrackingReporter(settings, ops, reporter);
+      }
 
       compiler = new Global(settings, reporter);
+      return compiler;
     }
-    return compiler;
   }
 
   private void createDiagnosticsFile() {

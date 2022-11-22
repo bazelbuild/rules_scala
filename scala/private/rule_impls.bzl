@@ -59,7 +59,7 @@ def compile_scala(
     # look for any plugins:
     input_plugins = plugins
     plugins = _collect_plugin_paths(plugins)
-    if dependency_info.use_analyzer:
+    if dependency_info.use_analyzer and dependency_info.dependency_tracking_method != "verbose-log":
         plugins = depset(transitive = [plugins, ctx.attr._dependency_analyzer_plugin.files])
 
     toolchain = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"]
