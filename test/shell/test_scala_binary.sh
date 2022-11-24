@@ -18,5 +18,12 @@ test_scala_binary_expect_failure_on_missing_direct_deps_located_in_dependency_wh
   test_scala_library_expect_failure_on_missing_direct_deps ${dependency_target} ${test_target}
 }
 
+test_scala_binary_allows_opt_in_to_use_of_argument_file_in_runner_for_improved_performance() {
+
+  bazel test --extra_toolchains="//test/toolchains:use_argument_file_in_runner_for_improved_performance" //test/src/main/scala/scalarules/test/large_classpath:largeClasspath
+
+}
+
 $runner test_scala_binary_expect_failure_on_missing_direct_deps
 $runner test_scala_binary_expect_failure_on_missing_direct_deps_located_in_dependency_which_is_scala_binary
+$runner test_scala_binary_allows_opt_in_to_use_of_argument_file_in_runner_for_improved_performance
