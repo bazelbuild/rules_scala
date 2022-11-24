@@ -140,8 +140,8 @@ scala_toolchain = rule(
         ),
         "use_argument_file_in_runner_for_improved_performance": attr.bool(
             default = False,
-            doc = "Changes java binaries scripts (including tests) to use argument files and not classpath jars to improve performance, requires java > 8"
-        )
+            doc = "Changes java binaries scripts (including tests) to use argument files and not classpath jars to improve performance, requires java > 8",
+        ),
     },
     fragments = ["java"],
 )
