@@ -11,7 +11,7 @@ toolchain_type(
 scala_toolchain(
     name = "default_toolchain_impl",
     scalacopts = [],
-    use_argument_file_in_runner_for_improved_performance = True,
+    use_argument_file_in_runner = True,
     visibility = ["//visibility:public"],
 )
 

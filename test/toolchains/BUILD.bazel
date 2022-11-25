@@ -119,14 +119,14 @@ toolchain(
 )
 
 scala_toolchain(
-    name = "use_argument_file_in_runner_for_improved_performance_impl",
-    use_argument_file_in_runner_for_improved_performance = True,
+    name = "use_argument_file_in_runner_impl",
+    use_argument_file_in_runner = True,
     visibility = ["//visibility:public"],
 )
 
 toolchain(
-    name = "use_argument_file_in_runner_for_improved_performance",
-    toolchain = "use_argument_file_in_runner_for_improved_performance_impl",
+    name = "use_argument_file_in_runner",
+    toolchain = "use_argument_file_in_runner_impl",
     toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
     visibility = ["//visibility:public"],
 )

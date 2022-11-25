@@ -20,7 +20,7 @@ test_scala_binary_expect_failure_on_missing_direct_deps_located_in_dependency_wh
 
 test_scala_binary_allows_opt_in_to_use_of_argument_file_in_runner_for_improved_performance() {
 
-  bazel run --extra_toolchains="//test/toolchains:use_argument_file_in_runner_for_improved_performance" //test/src/main/scala/scalarules/test/large_classpath:largeClasspath
+  bazel run --extra_toolchains="//test/toolchains:use_argument_file_in_runner" //test/src/main/scala/scalarules/test/large_classpath:largeClasspath
 
 }
 

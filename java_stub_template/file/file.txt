@@ -290,7 +290,7 @@ ARGS=(
 
 
 function run_test_with_large_classpath() {
-  if [ "%use_argument_file_in_runner_for_improved_performance%" == "True" ]; then
+  if [ "%use_argument_file%" == "True" ]; then
     run_test_with_argument_file "$1"
   else
     create_and_run_classpath_jar "$2"
