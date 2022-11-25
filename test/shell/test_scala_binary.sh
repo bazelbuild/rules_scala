@@ -21,6 +21,20 @@ test_scala_binary_expect_failure_on_missing_direct_deps_located_in_dependency_wh
 test_scala_binary_allows_opt_in_to_use_of_argument_file_in_runner_for_improved_performance() {
 
   bazel run --extra_toolchains="//test/toolchains:use_argument_file_in_runner" //test/src/main/scala/scalarules/test/large_classpath:largeClasspath
+  grep "\"True\" == \"True\"" bazel-bin/test/src/main/scala/scalarules/test/large_classpath/largeClasspath
+  RESPONSE_CODE=$?
+  if [ $RESPONSE_CODE -ne 0 ]; then
+    echo -e "${RED} Binary script does not use the argument file. $NC"
+    exit -1
+  fi
+
+  bazel run //test/src/main/scala/scalarules/test/large_classpath:largeClasspath
+  grep "\"False\" == \"True\"" bazel-bin/test/src/main/scala/scalarules/test/large_classpath/largeClasspath
+  RESPONSE_CODE=$?
+  if [ $RESPONSE_CODE -ne 0 ]; then
+    echo -e "${RED} Binary script does not use the classpath jar. $NC"
+    exit -1
+  fi
 
 }
 
