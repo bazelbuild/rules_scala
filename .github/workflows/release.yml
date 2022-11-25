@@ -5,7 +5,7 @@ name: Release
 on:
   push:
     tags:
-      - "v*.*.*"
+      - 'v*.*.*'
 
 jobs:
   build:
@@ -23,7 +23,7 @@ jobs:
           path: |
             "~/.cache/bazel"
             "~/.cache/bazel-repo"
-          key: bazel-cache-${{ hashFiles("**/BUILD", "**/*.bzl", "WORKSPACE", "**/*.scala") }}
+          key: bazel-cache-${{ hashFiles('**/BUILD', '**/*.bzl', 'WORKSPACE', '**/*.scala') }}
           restore-keys: bazel-cache-
 
       - name: bazel test //...
