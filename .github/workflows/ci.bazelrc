@@ -5,4 +5,6 @@ build --announce_rc
 build --disk_cache=$HOME/.cache/bazel
 build --repository_cache=$HOME/.cache/bazel-repo
 
+test --disk_cache=$HOME/.cache/bazel
+test --repository_cache=$HOME/.cache/bazel-repo
 test --test_output=errors
