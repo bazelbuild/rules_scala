@@ -307,7 +307,7 @@ function create_and_run_classpath_jar() {
     CLASSPATH_SEPARATOR=":"
     URI_PREFIX="file:$(pwd)/"  # e.g. "file:/usr/local/foo.jar"
   fi
-
+  
   URI_PREFIX=${URI_PREFIX//\//\\/}
   MANIFEST_CLASSPATH="${CLASSPATH_SEPARATOR}${CLASSPATH}"
 
