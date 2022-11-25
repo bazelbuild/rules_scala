@@ -26,11 +26,11 @@ jobs:
           key: bazel-cache-${{ hashFiles('**/BUILD', '**/*.bzl', 'WORKSPACE', '**/*.scala') }}
           restore-keys: bazel-cache-
 
-      - name: bazel test //...
+      - name: bazel test //test/...
         env:
           # Bazelisk will download bazel to here
           XDG_CACHE_HOME: ~/.cache/bazel-repo
-        run: bazel --bazelrc=.github/workflows/ci.bazelrc --bazelrc=tools/bazel.rc.buildkite test //...
+        run: bazel --bazelrc=.github/workflows/ci.bazelrc --bazelrc=tools/bazel.rc.buildkite test //test/...
 
       - name: Prepare workspace snippet
         run: .github/workflows/workspace_snippet.sh ${{ env.GITHUB_REF_NAME }} > release_notes.txt
