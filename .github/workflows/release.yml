@@ -1,0 +1,43 @@
+# Cut a release whenever a new tag is pushed to the repo.
+# You should use an annotated tag, like `git tag -a v1.2.3`.
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Mount bazel caches
+        uses: actions/cache@v3
+        with:
+          # Persist the Bazel action cache and repository cache across workflow runs. See
+          # https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows
+          # for an overview of the key lookup and fallback process.
+          path: |
+            "~/.cache/bazel"
+            "~/.cache/bazel-repo"
+          key: bazel-cache-${{ hashFiles("**/BUILD", "**/*.bzl", "WORKSPACE", "**/*.scala") }}
+          restore-keys: bazel-cache-
+
+      - name: bazel test //...
+        env:
+          # Bazelisk will download bazel to here
+          XDG_CACHE_HOME: ~/.cache/bazel-repo
+        run: bazel --bazelrc=.github/workflows/ci.bazelrc --bazelrc=tools/bazel.rc.buildkite test //...
+
+      - name: Prepare workspace snippet
+        run: .github/workflows/workspace_snippet.sh ${{ env.GITHUB_REF_NAME }} > release_notes.txt
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          # Use GH feature to populate the changelog automatically
+          generate_release_notes: true
+          body_path: release_notes.txt

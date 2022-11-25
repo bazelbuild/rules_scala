@@ -46,6 +46,7 @@ http_archive(
     url = "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/{}/bazel-skylib-{}.tar.gz".format(skylib_version, skylib_version),
 )
 
+# See https://github.com/bazelbuild/rules_scala/releases for up to date version information.
 rules_scala_version = "c711b4d1f0d1cc386c63ef748c9df14d2f3a187e"
 http_archive(
     name = "io_bazel_rules_scala",

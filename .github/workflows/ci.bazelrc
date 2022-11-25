@@ -1,0 +1,8 @@
+# Bazel settings to apply on CI only (currently just the GitHub actions release)
+# Included with a --bazelrc option in the call to bazel
+
+build --announce_rc
+build --disk_cache=$HOME/.cache/bazel
+build --repository_cache=$HOME/.cache/bazel-repo
+
+test --test_output=errors
