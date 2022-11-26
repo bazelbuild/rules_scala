@@ -21,8 +21,8 @@ jobs:
           # https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows
           # for an overview of the key lookup and fallback process.
           path: |
-            "~/.cache/bazel"
-            "~/.cache/bazel-repo"
+            ~/.cache/bazel
+            ~/.cache/bazel-repo
           key: bazel-cache-${{ hashFiles('**/BUILD', '**/*.bzl', 'WORKSPACE', '**/*.scala') }}
           restore-keys: bazel-cache-
 
@@ -31,9 +31,6 @@ jobs:
           # Bazelisk will download bazel to here
           XDG_CACHE_HOME: ~/.cache/bazel-repo
         run: bazel --bazelrc=.github/workflows/ci.bazelrc --bazelrc=tools/bazel.rc.buildkite test //test/...
-
-      - name: Check caches
-        run: ls ~/.cache/bazel*
 
       - name: Prepare workspace snippet
         run: .github/workflows/workspace_snippet.sh ${{ env.GITHUB_REF_NAME }} > release_notes.txt
