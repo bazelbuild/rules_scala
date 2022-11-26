@@ -32,6 +32,9 @@ jobs:
           XDG_CACHE_HOME: ~/.cache/bazel-repo
         run: bazel --bazelrc=.github/workflows/ci.bazelrc --bazelrc=tools/bazel.rc.buildkite test //test/...
 
+      - name: Check caches
+        run: ls ~/.cache/bazel*
+
       - name: Prepare workspace snippet
         run: .github/workflows/workspace_snippet.sh ${{ env.GITHUB_REF_NAME }} > release_notes.txt
 
