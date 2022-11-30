@@ -110,8 +110,8 @@ def _write_executable_non_windows(ctx, executable, rjars, main_class, jvm_flags,
 
     scala_toolchain = ctx.toolchains["//scala:toolchain_type"]
 
-    test_runner_classpath_mode = "argsfile" if scala_toolchain.use_argument_file_in_runner else "manifest" 
-    
+    test_runner_classpath_mode = "argsfile" if scala_toolchain.use_argument_file_in_runner else "manifest"
+
     if use_jacoco and ctx.configuration.coverage_enabled:
         jacocorunner = scala_toolchain.jacocorunner
         classpath = ctx.configuration.host_path_separator.join(
