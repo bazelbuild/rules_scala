@@ -84,6 +84,7 @@ def _scala_toolchain_impl(ctx):
         enable_diagnostics_report = enable_diagnostics_report,
         jacocorunner = ctx.attr.jacocorunner,
         enable_stats_file = enable_stats_file,
+        use_argument_file_in_runner = ctx.attr.use_argument_file_in_runner,
     )
     return [toolchain]
 
@@ -136,6 +137,10 @@ scala_toolchain = rule(
         "enable_stats_file": attr.bool(
             default = True,
             doc = "Enable writing of statsfile",
+        ),
+        "use_argument_file_in_runner": attr.bool(
+            default = False,
+            doc = "Changes java binaries scripts (including tests) to use argument files and not classpath jars to improve performance, requires java > 8",
         ),
     },
     fragments = ["java"],
