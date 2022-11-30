@@ -1,10 +1,9 @@
 package io.bazel.rulesscala.dependencyanalyzer
 
 import java.util.jar.JarFile
-
 import scala.reflect.io.AbstractFile
-import scala.tools.nsc.{Global, Phase}
 import scala.tools.nsc.plugins.{Plugin, PluginComponent}
+import scala.tools.nsc.{Global, Phase}
 import scala.util.control.NonFatal
 
 class DependencyAnalyzer(val global: Global) extends Plugin {
@@ -22,6 +21,10 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
         handles = DependencyTrackingMethod.Ast
       ),
       new AnalyzerComponent(
+        runsAfterPhase = "typer",
+        handles = DependencyTrackingMethod.VerboseLog
+      ),
+      new AnalyzerComponent(
         runsAfterPhase = "jvm",
         handles = DependencyTrackingMethod.HighLevel
       )
@@ -31,27 +34,27 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
   private var settings: DependencyAnalyzerSettings = null
 
   override def init(
-    options: List[String],
-    error: String => Unit
-  ): Boolean = {
+                     options: List[String],
+                     error: String => Unit
+                   ): Boolean = {
     settings = DependencyAnalyzerSettings.parseSettings(options = options, error = error)
     true
   }
 
   private class AnalyzerComponent(
-    // Typer seems to be the better method at least for AST - it seems like
-    // some things get eliminated in later phases. However, due to backwards
-    // compatibility we have to preserve using jvm for the high-level-crawl
-    // dependency tracking method
-    runsAfterPhase: String,
-    handles: DependencyTrackingMethod
-  ) extends PluginComponent {
+                                   // Typer seems to be the better method at least for AST - it seems like
+                                   // some things get eliminated in later phases. However, due to backwards
+                                   // compatibility we have to preserve using jvm for the high-level-crawl
+                                   // dependency tracking method
+                                   runsAfterPhase: String,
+                                   handles: DependencyTrackingMethod
+                                 ) extends PluginComponent {
     override val global: DependencyAnalyzer.this.global.type =
       DependencyAnalyzer.this.global
 
     override val runsAfter = List(runsAfterPhase)
 
-    val phaseName = s"${DependencyAnalyzer.this.name}-post-$runsAfterPhase"
+    val phaseName = s"${DependencyAnalyzer.this.name}-post-$runsAfterPhase-$handles"
 
     override def newPhase(prev: Phase): StdPhase = new StdPhase(prev) {
       override def run(): Unit = {
@@ -78,18 +81,22 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
         }
       }
 
-    if (settings.unusedDepsMode != AnalyzerMode.Off) {
-      reportUnusedDepsFoundIn(usedJarPathToPositions)
-    }
+    reporter.registerAstJars(usedJarPathToPositions)
 
-    if (settings.strictDepsMode != AnalyzerMode.Off) {
-      reportIndirectTargetsFoundIn(usedJarPathToPositions)
+    if (settings.dependencyTrackingMethod != DependencyTrackingMethod.VerboseLog) {
+      if (settings.unusedDepsMode != AnalyzerMode.Off) {
+        reportUnusedDepsFoundIn(usedJarPathToPositions)
+      }
+
+      if (settings.strictDepsMode != AnalyzerMode.Off) {
+        reportIndirectTargetsFoundIn(usedJarPathToPositions)
+      }
     }
   }
 
   private def reportIndirectTargetsFoundIn(
-    usedJarPathAndPositions: Map[String, global.Position]
-  ): Unit = {
+                                            usedJarPathAndPositions: Map[String, global.Position]
+                                          ): Unit = {
     val errors =
       usedJarPathAndPositions
         .filterNot { case (jarPath, _) =>
@@ -99,8 +106,8 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
           settings.indirectTargetSet.targetFromJarOpt(jarPath)
             .map(target => tryResolveUnknownLabel(target, jarPath))
             .map { target =>
-            target -> pos
-          }
+              target -> pos
+            }
         }
         .map { case (target, pos) =>
           val message =
@@ -140,10 +147,9 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
   }
 
   private def reportUnusedDepsFoundIn(
-    usedJarPathAndPositions: Map[String, global.Position]
-  ): Unit = {
+                                       usedJarPathAndPositions: Map[String, global.Position]
+                                     ): Unit = {
     val directJarPaths = settings.directTargetSet.jarSet
-
 
     val usedTargets =
       usedJarPathAndPositions
@@ -173,9 +179,9 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
   }
 
   private def warnOrError(
-    analyzerMode: AnalyzerMode,
-    errors: Map[String, global.Position]
-  ): Unit = {
+                           analyzerMode: AnalyzerMode,
+                           errors: Map[String, global.Position]
+                         ): Unit = {
     val reportFunction: (String, global.Position) => Unit = analyzerMode match {
       case AnalyzerMode.Error => {
         case (message, pos) =>
@@ -203,6 +209,8 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
       case DependencyTrackingMethod.HighLevel =>
         new HighLevelCrawlUsedJarFinder(global).findUsedJars
       case DependencyTrackingMethod.Ast =>
+        new AstUsedJarFinder(global).findUsedJars
+      case DependencyTrackingMethod.VerboseLog =>
         new AstUsedJarFinder(global).findUsedJars
     }
   }

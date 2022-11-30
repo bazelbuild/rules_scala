@@ -1,4 +1,4 @@
-package io.bazel.rulesscala.scalac;
+package io.bazel.rulesscala.scalac.compileoptions;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;

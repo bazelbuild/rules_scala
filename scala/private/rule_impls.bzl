@@ -59,7 +59,7 @@ def compile_scala(
     # look for any plugins:
     input_plugins = plugins
     plugins = _collect_plugin_paths(plugins)
-    if dependency_info.use_analyzer and dependency_info.dependency_tracking_method != "verbose-log":
+    if dependency_info.use_analyzer:
         plugins = depset(transitive = [plugins, ctx.attr._dependency_analyzer_plugin.files])
 
     toolchain = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"]
@@ -106,7 +106,7 @@ def compile_scala(
         args.add_all("--IndirectJars", transitive_compile_jars)
         args.add_all("--IndirectTargets", [labels[j.path] for j in transitive_compile_jars.to_list()])
 
-    if dependency_info.unused_deps_mode != "off":
+    if dependency_info.unused_deps_mode != "off" or dependency_info.strict_deps_mode != "off":
         args.add_all("--UnusedDepsIgnoredTargets", unused_dependency_checker_ignored_targets)
 
     outs = [output, statsfile, diagnosticsfile]

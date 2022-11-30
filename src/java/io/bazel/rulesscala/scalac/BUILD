@@ -19,23 +19,16 @@ java_binary(
         "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/jar",
         "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/worker",
         "@io_bazel_rules_scala//src/protobuf/io/bazel/rules_scala:diagnostics_java_proto",
-    ],
+        "//src/java/io/bazel/rulesscala/scalac/compileoptions",
+    ] + ["//src/java/io/bazel/rulesscala/scalac/reporter"] if SCALA_MAJOR_VERSION.startswith("2") else [],
 )
 
 filegroup(
     name = "scalac_files",
-    srcs = ["CompileOptions.java"] + ([
+    srcs = ([
         "ScalacWorker.java",
-        "DepsTrackingReporter.java",
         "ProtoReporter.java",
         "ReportableMainClass.java",
     ] if SCALA_MAJOR_VERSION.startswith("2") else ["ScalacWorker3.java"]),
     visibility = ["//visibility:public"],
-)
-
-java_test(
-    name = "CompileOptionsTest",
-    srcs = ["CompileOptionsTest.java"],
-    test_class = "io.bazel.rulesscala.scalac.CompileOptionsTest",
-    deps = [":scalac"],
 )

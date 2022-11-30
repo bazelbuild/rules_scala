@@ -11,7 +11,7 @@ def new_dependency_info(
     is_unused_deps_on = unused_deps_mode != "off"
 
     need_direct_jars = is_strict_deps_on or is_unused_deps_on
-    need_direct_targets = is_unused_deps_on
+    need_direct_targets = is_unused_deps_on or is_strict_deps_on
 
     return struct(
         dependency_mode = dependency_mode,

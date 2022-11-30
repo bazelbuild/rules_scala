@@ -4,6 +4,8 @@ import static java.io.File.pathSeparator;
 
 import io.bazel.rulesscala.io_utils.StreamCopy;
 import io.bazel.rulesscala.jar.JarCreator;
+import io.bazel.rulesscala.scalac.compileoptions.CompileOptions;
+import io.bazel.rulesscala.scalac.reporter.DepsTrackingReporter;
 import io.bazel.rulesscala.worker.Worker;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -205,8 +207,7 @@ class ScalacWorker implements Worker.Interface {
   private static String[] getPluginParamsFrom(CompileOptions ops) {
     List<String> pluginParams = new ArrayList<>(0);
 
-    if ((isModeEnabled(ops.strictDepsMode) || isModeEnabled(ops.unusedDependencyCheckerMode)) &&
-        !ops.dependencyTrackingMethod.equals("verbose-log")) {
+    if ((isModeEnabled(ops.strictDepsMode) || isModeEnabled(ops.unusedDependencyCheckerMode))) {
       String currentTarget = encodeBazelTarget(ops.currentTarget);
 
       String[] dependencyAnalyzerParams = {

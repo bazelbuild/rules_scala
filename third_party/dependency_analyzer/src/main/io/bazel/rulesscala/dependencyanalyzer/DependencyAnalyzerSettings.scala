@@ -25,8 +25,10 @@ object DependencyTrackingMethod {
    */
   case object Ast extends DependencyTrackingMethod("ast")
 
+  case object VerboseLog extends DependencyTrackingMethod(name = "verbose-log")
+
   def parse(mode: String): Option[DependencyTrackingMethod] = {
-    Seq(HighLevel, Ast).find(_.name == mode)
+    Seq(HighLevel, Ast, VerboseLog).find(_.name == mode)
   }
 }
 

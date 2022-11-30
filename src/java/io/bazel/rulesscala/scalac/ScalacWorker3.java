@@ -1,6 +1,8 @@
 package io.bazel.rulesscala.scalac;
 
 import static java.io.File.pathSeparator;
+
+import io.bazel.rulesscala.scalac.compileoptions.CompileOptions;
 import scala.Tuple2;
 import io.bazel.rulesscala.io_utils.StreamCopy;
 import io.bazel.rulesscala.jar.JarCreator;
