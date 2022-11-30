@@ -110,6 +110,8 @@ def _write_executable_non_windows(ctx, executable, rjars, main_class, jvm_flags,
 
     scala_toolchain = ctx.toolchains["//scala:toolchain_type"]
 
+    test_runner_classpath_mode = "argsfile" if scala_toolchain.use_argument_file_in_runner else "manifest" 
+    
     if use_jacoco and ctx.configuration.coverage_enabled:
         jacocorunner = scala_toolchain.jacocorunner
         classpath = ctx.configuration.host_path_separator.join(
@@ -139,7 +141,7 @@ def _write_executable_non_windows(ctx, executable, rjars, main_class, jvm_flags,
                 "%set_jacoco_main_class%": """export JACOCO_MAIN_CLASS={}""".format(main_class),
                 "%set_jacoco_java_runfiles_root%": """export JACOCO_JAVA_RUNFILES_ROOT=$JAVA_RUNFILES/{}/""".format(ctx.workspace_name),
                 "%set_java_coverage_new_implementation%": """export JAVA_COVERAGE_NEW_IMPLEMENTATION=YES""",
-                "%use_argument_file%": str(scala_toolchain.use_argument_file_in_runner),
+                "%test_runner_classpath_mode%": test_runner_classpath_mode,
             },
             is_executable = True,
         )
@@ -166,7 +168,7 @@ def _write_executable_non_windows(ctx, executable, rjars, main_class, jvm_flags,
                 "%set_jacoco_java_runfiles_root%": "",
                 "%workspace_prefix%": ctx.workspace_name + "/",
                 "%set_java_coverage_new_implementation%": """export JAVA_COVERAGE_NEW_IMPLEMENTATION=NO""",
-                "%use_argument_file%": str(scala_toolchain.use_argument_file_in_runner),
+                "%test_runner_classpath_mode%": test_runner_classpath_mode,
             },
             is_executable = True,
         )
