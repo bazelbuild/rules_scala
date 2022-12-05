@@ -12,7 +12,6 @@ import scala.tools.nsc.Settings;
 import scala.tools.nsc.reporters.Reporter;
 
 public class ReportableMainClass extends MainClass {
-  private Global compiler;
   private Reporter reporter;
   private final CompileOptions ops;
 
@@ -23,23 +22,14 @@ public class ReportableMainClass extends MainClass {
   @Override
   public Global newCompiler() {
     createDiagnosticsFile();
-    if (!ops.enableDiagnosticsReport && !ops.dependencyTrackingMethod.equals("verbose-log")) {
-      Global global = super.newCompiler();
-      reporter = global.reporter();
-      return global;
-    } else {
-      Settings settings = super.settings();
-      if (ops.enableDiagnosticsReport) {
-        reporter = new ProtoReporter(settings);
-      }
-
-      if (ops.dependencyTrackingMethod.equals("verbose-log")) {
-        reporter = new DepsTrackingReporter(settings, ops, reporter);
-      }
-
-      compiler = new Global(settings, reporter);
-      return compiler;
+    Settings settings = super.settings();
+    if (ops.enableDiagnosticsReport) {
+      reporter = new ProtoReporter(settings);
     }
+
+    reporter = new DepsTrackingReporter(settings, ops, reporter);
+
+    return new Global(settings, reporter);
   }
 
   private void createDiagnosticsFile() {

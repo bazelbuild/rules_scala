@@ -22,7 +22,6 @@ import scala.tools.nsc.reporters.Reporter;
 
 public class DepsTrackingReporter extends ConsoleReporter {
 
-  private final Set<String> classpathJars = new HashSet<>();
   private final Set<String> usedJars = new HashSet<>();
 
   private final Map<String, String> jarToTarget = new HashMap<>();
@@ -35,15 +34,13 @@ public class DepsTrackingReporter extends ConsoleReporter {
   // target -> used in ast
   private final Map<String, Boolean> usedTargets = new HashMap<>();
   private CompileOptions ops;
-  private Reporter delegate;
+  private Reporter delegateReporter;
   private Set<String> astUsedJars = new HashSet<>();
-
-  private boolean astAssigned = false;
 
   public DepsTrackingReporter(Settings settings, CompileOptions ops, Reporter delegate) {
     super(settings);
     this.ops = ops;
-    this.delegate = delegate;
+    this.delegateReporter = delegate;
 
     if (ops.directTargets.length == ops.directJars.length) {
       for (int i = 0; i < ops.directJars.length; i++) {
@@ -67,44 +64,28 @@ public class DepsTrackingReporter extends ConsoleReporter {
     indirectTargets = Arrays.stream(ops.indirectTargets).collect(Collectors.toSet());
   }
 
+  private boolean isDependecyTrackingOn() {
+    return Objects.equals(ops.dependencyTrackingMethod, "verbose-log")
+        && (!"off".equals(ops.strictDepsMode) || !"off".equals(ops.unusedDependencyCheckerMode));
+  }
+
   @Override
   public void info0(Position pos, String msg, Severity severity, boolean force) {
-    if (msg.contains("[")) {
-      // filter -verbose related messages
-      analyzeDeps(msg);
+    if (msg.startsWith("DT:")) {
+      if (isDependecyTrackingOn()) {
+        parseOpenedJar(msg);
+      }
     } else {
-      if (delegate != null) {
-        delegate.info0(pos, msg, severity, force);
+      if (delegateReporter != null) {
+        delegateReporter.info0(pos, msg, severity, force);
       } else {
         super.info0(pos, msg, severity, force);
       }
     }
   }
 
-  private void analyzeDeps(String msg) {
-    if (msg.startsWith("[search path for source files: ]")) {
-      parseClasspathLine(msg);
-    } else if (msg.startsWith("[loaded class file")) {
-      parseLoadedJar(msg);
-    }
-  }
-
-  private void parseClasspathLine(String msg) {
-    // [search path for source files: ]
-    // [search path for class files: bazel-out/k8-fastbuild/bin/external/io_bazel_rules_scala_mustache/io_bazel_rules_scala_mustache.stamp/compiler-0.8.18-stamped.jar:bazel-out/k8-fastbuild/bin/external/io_bazel_rules_scala_scopt/io_bazel_rules_scala_scopt.stamp/scopt_2.12-4.0.0-RC2-stamped.jar:bazel-out/k8-fastbuild/bin/external/io_bazel_rules_scala_scrooge_generator/io_bazel_rules_scala_scrooge_generator.stamp/scrooge-generator_2.12-21.2.0-stamped.jar:bazel-out/k8-fastbuild/bin/external/io_bazel_rules_scala_util_core/io_bazel_rules_scala_util_core.stamp/util-core_2.12-21.2.0-stamped.jar:bazel-out/k8-fastbuild/bin/external/io_bazel_rules_scala_util_logging/io_bazel_rules_scala_util_logging.stamp/util-logging_2.12-21.2.0-stamped.jar:bazel-out/k8-fastbuild/bin/external/io_bazel_rules_scala_scala_parser_combinators/io_bazel_rules_scala_scala_parser_combinators.stamp/scala-parser-combinators_2.12-1.1.2-stamped.jar:bazel-out/k8-fastbuild/bin/external/io_bazel_rules_scala_scala_library/io_bazel_rules_scala_scala_library.stamp/scala-library-2.12.14-stamped.jar:bazel-out/k8-fastbuild/bin/external/io_bazel_rules_scala_scala_reflect/io_bazel_rules_scala_scala_reflect.stamp/scala-reflect-2.12.14-stamped.jar]
-    String[] entries = msg.split("\n")[1].replaceFirst("^\\[search path for class files: ", "")
-        .replaceFirst("]$", "")
-        .split(":");
-
-    classpathJars.addAll(Arrays.asList(entries));
-  }
-
-  private void parseLoadedJar(String msg) {
-    //[loaded class file bazel-out/k8-fastbuild/bin/external/io_bazel_rules_scala_scala_library/io_bazel_rules_scala_scala_library.stamp/scala-library-2.12.14-stamped.jar(scala/annotation/Annotation.class) in 2ms]
-    String jar = msg.replaceFirst("^\\[loaded class file ", "").replaceFirst("\\(.*$", "");
-    if (jar.endsWith(".jar")) {
-      usedJars.add(jar);
-    }
+  private void parseOpenedJar(String msg) {
+    usedJars.add(msg.split(":")[1]);
   }
 
   public void prepareReport() {
@@ -117,7 +98,7 @@ public class DepsTrackingReporter extends ConsoleReporter {
         "\nverbose log dep tracking report:\n" + ops.strictDepsMode + "\n"
             + ops.unusedDependencyCheckerMode + "\n");
 
-    Reporter reporter = delegate != null ? delegate : this;
+    Reporter reporter = this.delegateReporter != null ? this.delegateReporter : this;
 
     List<String> openedJars = new ArrayList<>();
     Set<BuildozerCommand> buildozerUsedCommands = new HashSet<>();
@@ -148,10 +129,10 @@ public class DepsTrackingReporter extends ConsoleReporter {
       }
     }
 
-    report.append("\nTarget usage report:\n");
-    report.append("IG T: " + String.join(", ", ignoredTargets) + "\n");
-    report.append("D T: " + String.join(", ", directTargets) + "\n");
-    report.append("AST Assigned?: " + astAssigned + " r: " + String.join(", ", astUsedJars) + "\n");
+//    report.append("\nTarget usage report:\n");
+//    report.append("IG T: " + String.join(", ", ignoredTargets) + "\n");
+//    report.append("D T: " + String.join(", ", directTargets) + "\n");
+//    report.append("AST Assigned?: " + astAssigned + " r: " + String.join(", ", astUsedJars) + "\n");
 
     if (!ops.unusedDependencyCheckerMode.equals("off")) {
       for (String target : ops.directTargets) {
@@ -221,7 +202,6 @@ public class DepsTrackingReporter extends ConsoleReporter {
 
   public void registerAstUsedJars(Set<String> jars) {
     astUsedJars = jars;
-    astAssigned = true;
   }
 
   private static class BuildozerCommand {

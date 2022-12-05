@@ -4,7 +4,7 @@ load(
     _default_maven_server_urls = "default_maven_server_urls",
 )
 load("//third_party/repositories:repositories.bzl", "repositories")
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_MAJOR_VERSION")
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_MAJOR_VERSION", "SCALA_VERSION")
 
 def rules_scala_setup():
     if not native.existing_rule("bazel_skylib"):
@@ -41,6 +41,19 @@ def rules_scala_setup():
                 "https://github.com/bazelbuild/rules_proto/archive/7e4afce6fe62dbff0a4a03450143146f9f2d7488.tar.gz",
             ],
         )
+
+    http_archive(
+        name = "scala_compiler_source",
+        build_file_content = "\n".join([
+            "package(default_visibility = [\"//visibility:public\"])",
+            "filegroup(",
+            "    name = \"src\",",
+            "    srcs=[\"scala/tools/nsc/symtab/SymbolLoaders.scala\"],",
+            ")",
+        ]),
+        patches = ["@io_bazel_rules_scala//:dt_compiler.patch"],
+        url = "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/%s/scala-compiler-%s-sources.jar" % (SCALA_VERSION, SCALA_VERSION),
+    )
 
 ARTIFACT_IDS = [
     "io_bazel_rules_scala_scala_library",

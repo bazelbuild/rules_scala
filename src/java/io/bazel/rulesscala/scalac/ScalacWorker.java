@@ -257,10 +257,8 @@ class ScalacWorker implements Worker.Interface {
         "-classpath", String.join(pathSeparator, ops.classpath), "-d", classes.toString()
     };
 
-    String[] verboseLogOpt = ((isModeEnabled(ops.strictDepsMode) || isModeEnabled(ops.unusedDependencyCheckerMode)) && ops.dependencyTrackingMethod.equals("verbose-log")) ? new String[] {"-verbose"} : new String[]{};
-
     String[] compilerArgs =
-        merge(ops.scalaOpts, verboseLogOpt, pluginArgs, constParams, pluginParams, scalaSources);
+        merge(ops.scalaOpts, pluginArgs, constParams, pluginParams, scalaSources);
 
     ReportableMainClass comp = new ReportableMainClass(ops);
 
