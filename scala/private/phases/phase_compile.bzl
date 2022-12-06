@@ -254,44 +254,28 @@ def _compile_or_empty(
         )
 
 def _build_nosrc_jar(ctx):
-    resources = _add_resources_cmd(ctx)
-    ijar_cmd = ""
+    resources = [s + ":" + t for t, s in _resource_paths(ctx.files.resources, ctx.attr.resource_strip_prefix)]
 
-    # this ensures the file is not empty
-    resources += "META-INF/MANIFEST.MF=%s\n" % ctx.outputs.manifest.path
+    args = ctx.actions.args()
+    args.set_param_file_format("multiline")
+    args.use_param_file("@%s")
+    args.add("--compression")
+    args.add("--normalize")
+    args.add("--exclude_build_data")
+    args.add("--warn_duplicate_resources")
+    args.add("--output", ctx.outputs.jar)
+    args.add_all("--resources", resources)
 
-    zipper_arg_path = ctx.actions.declare_file("%s_zipper_args" % ctx.label.name)
-    ctx.actions.write(zipper_arg_path, resources)
-    cmd = """
-set -o errexit
-set -o nounset
-set -o pipefail
-rm -f {jar_output}
-{zipper} c {jar_output} @{path}
-# ensures that empty src targets still emit a statsfile and a diagnosticsfile
-touch {statsfile}
-touch {diagnosticsfile}
-""" + ijar_cmd
-
-    cmd = cmd.format(
-        path = zipper_arg_path.path,
-        jar_output = ctx.outputs.jar.path,
-        zipper = ctx.executable._zipper.path,
-        statsfile = ctx.outputs.statsfile.path,
-        diagnosticsfile = ctx.outputs.diagnosticsfile.path,
+    ctx.actions.run(
+        inputs = ctx.files.resources,
+        outputs = [ctx.outputs.jar],
+        executable = ctx.executable._singlejar,
+        progress_message = "scalac %s" % ctx.label,
+        arguments = [args],
     )
 
-    outs = [ctx.outputs.jar, ctx.outputs.statsfile, ctx.outputs.diagnosticsfile]
-    inputs = ctx.files.resources + [ctx.outputs.manifest]
-
-    ctx.actions.run_shell(
-        inputs = inputs,
-        tools = [ctx.executable._zipper, zipper_arg_path],
-        outputs = outs,
-        command = cmd,
-        progress_message = "scala %s" % ctx.label,
-        arguments = [],
-    )
+    ctx.actions.write(ctx.outputs.statsfile, "")
+    ctx.actions.write(ctx.outputs.diagnosticsfile, "")
 
 def _create_scala_compilation_provider(ctx, ijar, source_jar, deps_providers):
     exports = []
