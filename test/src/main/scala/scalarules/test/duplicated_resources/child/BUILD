@@ -5,8 +5,8 @@ scala_test(
     name = "child",
     size = "small",
     srcs = ["ScalaLibResourcesDuplicatedTest.scala"],
+    resource_strip_prefix = "test/src/main/scala/scalarules/test/duplicated_resources/child/",
     resources = ["resource.txt"],
     unused_dependency_checker_mode = "off",
-    resource_strip_prefix = "test/src/main/scala/scalarules/test/duplicated_resources/child/",
     deps = ["//test/src/main/scala/scalarules/test/duplicated_resources/parent"],
 )
