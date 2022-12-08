@@ -17,8 +17,7 @@ def setup_scala_testing_toolchain(
         specs2_classpath = None,
         specs2_junit_classpath = None,
         scalatest_classpath = None,
-        visibility = ["//visibility:public"],
-        **kwargs):
+        visibility = ["//visibility:public"]):
     dep_providers = []
 
     if junit_classpath != None:
