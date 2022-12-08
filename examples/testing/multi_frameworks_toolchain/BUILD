@@ -2,10 +2,6 @@ load("@io_bazel_rules_scala//scala:scala.bzl", "setup_scala_testing_toolchain")
 
 setup_scala_testing_toolchain(
     name = "testing_toolchain",
-    dep_providers = [
-        ":specs2_classpath_provider",
-        ":specs2_junit_classpath_provider",
-    ],
     junit_classpath = [
         "@io_bazel_rules_scala_junit_junit",
         "@io_bazel_rules_scala_org_hamcrest_hamcrest_core",
