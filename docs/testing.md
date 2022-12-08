@@ -96,7 +96,7 @@ register_toolchains('//:junit_toolchain')
 #### Specs2
 For Specs2 rules to work, `junit_classpath`, `specs2_junit_classpath` and `specs2_classpath` must
 be configured.
-```
+```starlark
 # BUILD
 load("@io_bazel_rules_scala//scala:scala.bzl", "setup_scala_testing_toolchain")
 
