@@ -4,7 +4,7 @@ import org.scalatest.funsuite._
 
 class ScalaLibResourcesDuplicatedTest extends AnyFunSuite {
 
-  test("Scala library depending on resources from external resource-only jar should allow to load resources") {
+  test("Scala library depends on resource + deps that contains same name resources, have higher priority on this target's resource.") {
     assert(get("/resource.txt") === "I am a text resource from child!\n")
   }
 
