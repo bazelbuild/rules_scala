@@ -33,7 +33,7 @@ public class CompileOptions {
   public final String dependencyTrackingMethod;
   public final String diagnosticsFile;
   public final boolean enableDiagnosticsReport;
-
+  public final String scalaDepsFile;
   public CompileOptions(String[] lines) {
     Args args = new Args(lines);
 
@@ -71,6 +71,7 @@ public class CompileOptions {
     enableDiagnosticsReport =
         Boolean.parseBoolean(args.getSingleOrError("EnableDiagnosticsReport"));
     diagnosticsFile = args.getSingleOrError("DiagnosticsFile");
+    scalaDepsFile = args.getSingleOrError("ScalaDepsFile");
   }
 
   static final class Args {

@@ -1,14 +1,16 @@
 package io.bazel.rulesscala.scalac.reporter;
 
-import static java.util.stream.Collectors.joining;
-
+import io.bazel.rulesscala.deps.proto.ScalaDeps;
+import io.bazel.rulesscala.deps.proto.ScalaDeps.Dependency.Kind;
 import io.bazel.rulesscala.scalac.compileoptions.CompileOptions;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -22,6 +24,8 @@ import scala.tools.nsc.reporters.Reporter;
 
 public class DepsTrackingReporter extends ConsoleReporter {
 
+  private static final String HJAR_JAR_SUFFIX = "-hjar.jar";
+  private static final String IJAR_JAR_SUFFIX = "-ijar.jar";
   private final Set<String> usedJars = new HashSet<>();
 
   private final Map<String, String> jarToTarget = new HashMap<>();
@@ -31,8 +35,6 @@ public class DepsTrackingReporter extends ConsoleReporter {
   private final Set<String> indirectTargets;
   private final Set<String> directTargets;
 
-  // target -> used in ast
-  private final Map<String, Boolean> usedTargets = new HashMap<>();
   private CompileOptions ops;
   private Reporter delegateReporter;
   private Set<String> astUsedJars = new HashSet<>();
@@ -88,108 +90,170 @@ public class DepsTrackingReporter extends ConsoleReporter {
     usedJars.add(msg.split(":")[1]);
   }
 
-  public void prepareReport() {
+  public void prepareReport() throws IOException {
+    Map<String, Dep> usedTargets = new HashMap<>();
 
-    if (Objects.equals(ops.strictDepsMode, "off")) {
-      return;
+    for (String jar : usedJars) {
+      String target = jarToTarget.get(jar);
+      boolean isDirect = target != null;
+
+      if (target == null) {
+        target = indirectJarToTarget.get(jar);
+      }
+
+      if (target.startsWith("Unknown")) {
+        target = jarLabel(jar);
+      }
+
+      if (target == null) {
+        // probably a bug if we get here
+        continue;
+      }
+
+      Dep dep = new Dep(
+          jar,
+          target,
+          astUsedJars.contains(jar),
+          isDirect,
+          ignoredTargets.contains(target)
+      );
+
+      usedTargets.put(target, dep);
     }
 
-    StringBuilder report = new StringBuilder(
-        "\nverbose log dep tracking report:\n" + ops.strictDepsMode + "\n"
-            + ops.unusedDependencyCheckerMode + "\n");
+    Set<Dep> unusedDeps = new HashSet<>();
+
+    for (int i = 0; i < ops.directTargets.length; i++) {
+      String directTarget = ops.directTargets[i];
+      if (usedTargets.containsKey(directTarget)) {
+        continue;
+      }
+
+      unusedDeps.add(
+          new Dep(
+              ops.directJars[i],
+              directTarget,
+              false,
+              true,
+              ignoredTargets.contains(directTarget)
+          )
+      );
+    }
+
+    ScalaDeps.Dependencies.Builder builder = ScalaDeps.Dependencies.newBuilder();
+    builder.setRuleLabel(ops.currentTarget);
+
+    for (Dep dep : usedTargets.values()) {
+      ScalaDeps.Dependency.Builder dependecyBuilder = ScalaDeps.Dependency.newBuilder();
+
+      ScalaDeps.Dependency.Kind kind = dep.usedInAst ? Kind.EXPLICIT : Kind.IMPLICIT;
+
+      dependecyBuilder.setKind(kind);
+      dependecyBuilder.setLabel(dep.target);
+      dependecyBuilder.setIjarPath(dep.jar);
+      dependecyBuilder.setPath(guessFullJarPath(dep.jar));
+      dependecyBuilder.setIgnored(dep.ignored);
+
+      builder.addDependency(dependecyBuilder.build());
+    }
+
+    for (Dep dep : unusedDeps) {
+      ScalaDeps.Dependency.Builder dependecyBuilder = ScalaDeps.Dependency.newBuilder();
+
+      ScalaDeps.Dependency.Kind kind = Kind.UNUSED;
+
+      dependecyBuilder.setKind(kind);
+      dependecyBuilder.setLabel(dep.target);
+      dependecyBuilder.setIjarPath(dep.jar);
+      dependecyBuilder.setPath(guessFullJarPath(dep.jar));
+      dependecyBuilder.setIgnored(dep.ignored);
+
+      builder.addDependency(dependecyBuilder.build());
+    }
+
+    try (OutputStream outputStream = new BufferedOutputStream(
+        Files.newOutputStream(Paths.get(ops.scalaDepsFile)))) {
+      outputStream.write(builder.build().toByteArray());
+    }
 
     Reporter reporter = this.delegateReporter != null ? this.delegateReporter : this;
 
-    List<String> openedJars = new ArrayList<>();
-    Set<BuildozerCommand> buildozerUsedCommands = new HashSet<>();
-    Set<BuildozerCommand> buildozerUnusedCommands = new HashSet<>();
+    if (!ops.strictDepsMode.equals("off")) {
+      StringBuilder strictDepsReport = new StringBuilder("Missing strict dependencies:\n");
+      StringBuilder compilerDepsReport = new StringBuilder("Missing compiler dependencies:\n");
+      int strictDepsCount = 0;
+      int compilerDepsCount = 0;
+      for (Dep dep : usedTargets.values()) {
+        String depReport = reportDep(dep, true);
+        if (dep.ignored) {
+          continue;
+        }
 
-    report.append("Jar usage report:\n");
-    // used, but not direct
-    for (String jar : usedJars) {
-      String target = jarToTarget.get(jar);
-      Boolean usedInAst = astUsedJars.contains(jar);
-      String indirectTarget = indirectJarToTarget.get(jar);
-      if (target != null) {
-        if (target.startsWith("Unknown")) {
-          target = jarLabel(jar);
-          openedJars.add(target + " " + jar + " " + jarToTarget.get(jar));
+        if (directTargets.contains(dep.target)) {
+          continue;
         }
-        report.append("  D: ").append(jar).append(" ").append(target).append("\n");
-        usedTargets.put(target, usedInAst);
-      } else if (indirectTarget != null) {
-        if (indirectTarget.startsWith("Unknown")) {
-          indirectTarget = jarLabel(jar);
-          openedJars.add(indirectTarget + " " + jar + " " + indirectJarToTarget.get(jar));
+
+        if (dep.usedInAst) {
+          strictDepsCount++;
+          strictDepsReport.append(depReport);
+        } else {
+          compilerDepsCount++;
+          compilerDepsReport.append(depReport);
         }
-        report.append("  I: ").append(jar).append(" ").append(indirectTarget).append("\n");
-        usedTargets.put(indirectTarget, usedInAst);
-      } else {
-        report.append("  Z: ").append(jar).append("\n");
+      }
+
+      if (strictDepsCount > 0) {
+        if (ops.strictDepsMode.equals("warn")) {
+          reporter.warning(NoPosition$.MODULE$, strictDepsReport.toString());
+        } else {
+          reporter.error(NoPosition$.MODULE$, strictDepsReport.toString());
+        }
+      }
+      if (compilerDepsCount > 0) {
+        reporter.warning(NoPosition$.MODULE$, compilerDepsReport.toString());
       }
     }
-
-//    report.append("\nTarget usage report:\n");
-//    report.append("IG T: " + String.join(", ", ignoredTargets) + "\n");
-//    report.append("D T: " + String.join(", ", directTargets) + "\n");
-//    report.append("AST Assigned?: " + astAssigned + " r: " + String.join(", ", astUsedJars) + "\n");
 
     if (!ops.unusedDependencyCheckerMode.equals("off")) {
-      for (String target : ops.directTargets) {
-        if (!usedTargets.containsKey(target) && !ignoredTargets.contains(target)) {
-          report.append("-").append(target).append("\n");
-          buildozerUnusedCommands.add(
-              new BuildozerCommand("buildozer 'remove deps " + target + "' " + ops.currentTarget,
-                  usedTargets.getOrDefault(target, false)));
+      StringBuilder unusedDepsReport = new StringBuilder("Unused dependencies:\n");
+      int count = 0;
+      for (Dep dep : unusedDeps) {
+        if (dep.ignored) {
+          continue;
+        }
+        count++;
+        unusedDepsReport.append(reportDep(dep, false));
+      }
+      if (count > 0) {
+        if (ops.unusedDependencyCheckerMode.equals("warn")) {
+          reporter.warning(NoPosition$.MODULE$, unusedDepsReport.toString());
+        } else if (ops.unusedDependencyCheckerMode.equals("error")) {
+          reporter.warning(NoPosition$.MODULE$, unusedDepsReport.toString());
         }
       }
     }
 
-    if (!ops.strictDepsMode.equals("off")) {
-      for (String target : usedTargets.keySet()) {
-        if (!directTargets.contains(target) && indirectTargets.contains(target)
-            && !ignoredTargets.contains(target)) {
-          report.append("+").append(target).append("\n");
-          buildozerUsedCommands.add(
-              new BuildozerCommand("buildozer 'add deps " + target + "' " + ops.currentTarget,
-                  usedTargets.get(target)));
-        }
-      }
+  }
+
+  private String reportDep(Dep dep, boolean add) {
+    String message = dep.target + "\n";
+    String command = add ? "add" : "remove";
+    String buildozer = "buildozer '" + command + " deps " + dep.target + "' " + ops.currentTarget;
+    return message + buildozer + "\n";
+  }
+
+  private String guessFullJarPath(String jar) {
+    if (jar.endsWith(IJAR_JAR_SUFFIX)) {
+      return stripIjarSuffix(jar, IJAR_JAR_SUFFIX);
+    } else if (jar.endsWith(HJAR_JAR_SUFFIX)) {
+      return stripIjarSuffix(jar, HJAR_JAR_SUFFIX);
+    } else {
+      return jar;
     }
+  }
 
-    if (openedJars.size() > 0) {
-      report.append("\nopened jars:\n");
-    }
-    for (String openedJar : openedJars) {
-      report.append("  ").append(openedJar).append("\n");
-    }
-
-    reporter.warning(NoPosition$.MODULE$, report.toString());
-
-
-    /* prints errors */
-
-    if (buildozerUsedCommands.size() > 0) {
-
-      for (BuildozerCommand command : buildozerUsedCommands) {
-        if (command.isError()) {
-          reporter.error(NoPosition$.MODULE$, "Fix missing direct deps:\n" + command + "\n");
-        } else {
-          reporter.warning(NoPosition$.MODULE$, "Fix missing direct deps:\n" + command + "\n");
-        }
-      }
-    }
-
-    if (buildozerUnusedCommands.size() > 0) {
-      String unusedCommands = buildozerUnusedCommands.stream().map(BuildozerCommand::toString)
-          .collect(
-              joining("\n"));
-      if (ops.unusedDependencyCheckerMode.equals("error")) {
-        reporter.error(NoPosition$.MODULE$, "Fix unused direct deps:\n" + unusedCommands);
-      } else {
-        reporter.warning(NoPosition$.MODULE$, "Fix unused direct deps:\n" + unusedCommands);
-      }
-    }
+  private static String stripIjarSuffix(String jar, String suffix) {
+    return jar.substring(0, jar.length() - suffix.length()) + ".jar";
   }
 
   private String jarLabel(String path) {
@@ -202,6 +266,23 @@ public class DepsTrackingReporter extends ConsoleReporter {
 
   public void registerAstUsedJars(Set<String> jars) {
     astUsedJars = jars;
+  }
+
+  private static class Dep {
+
+    public final String jar;
+    public final String target;
+    public final boolean usedInAst;
+    public final boolean direct;
+    public final boolean ignored;
+
+    public Dep(String jar, String target, boolean usedInAst, boolean direct, boolean ignored) {
+      this.jar = jar;
+      this.target = target;
+      this.usedInAst = usedInAst;
+      this.direct = direct;
+      this.ignored = ignored;
+    }
   }
 
   private static class BuildozerCommand {

@@ -22,6 +22,7 @@ public class ReportableMainClass extends MainClass {
   @Override
   public Global newCompiler() {
     createDiagnosticsFile();
+    createScalaDepsFile();
     Settings settings = super.settings();
     if (ops.enableDiagnosticsReport) {
       reporter = new ProtoReporter(settings);
@@ -39,6 +40,16 @@ public class ReportableMainClass extends MainClass {
       Files.createFile(path);
     } catch (IOException e) {
       throw new RuntimeException("Could not delete/make diagnostics proto file", e);
+    }
+  }
+
+  private void createScalaDepsFile() {
+    Path path = Paths.get(ops.scalaDepsFile);
+    try {
+      Files.deleteIfExists(path);
+      Files.createFile(path);
+    } catch (IOException e) {
+      throw new RuntimeException("Could not delete/make sdeps proto file", e);
     }
   }
 
