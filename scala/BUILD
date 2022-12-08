@@ -48,7 +48,6 @@ setup_scala_toolchain(
     scala_library_classpath = _SCALA_LIBRARY_CLASSPATH_DEPS,
     scala_macro_classpath = _SCALA_MACRO_CLASSPATH_DEPS,
     unused_dependency_checker_mode = "error",
-    use_argument_file_in_runner = True,
 )
 
 setup_scala_toolchain(
@@ -60,7 +59,6 @@ setup_scala_toolchain(
     scala_macro_classpath = _SCALA_MACRO_CLASSPATH_DEPS,
     strict_deps_mode = "error",
     unused_dependency_checker_mode = "error",
-    use_argument_file_in_runner = True,
 )
 
 java_import(
