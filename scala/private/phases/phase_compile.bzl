@@ -149,7 +149,7 @@ def _phase_compile(
     # TODO: simplify the return values and use provider
     return struct(
         files = depset(out.full_jars),
-        rjars = depset(out.full_jars, transitive = [rjars]),
+        rjars = depset(out.full_jars, transitive = [rjars], order = "preorder"),
         merged_provider = out.merged_provider,
         external_providers = {
             "JavaInfo": out.merged_provider,

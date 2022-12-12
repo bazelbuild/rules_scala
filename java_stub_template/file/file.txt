@@ -289,6 +289,14 @@ ARGS=(
   "${ARGS[@]}")
 
 
+function run_test_with_large_classpath() {
+  if [ "%test_runner_classpath_mode%" == "argsfile" ]; then
+    run_test_with_argument_file "$1"
+  else
+    create_and_run_classpath_jar "$2"
+  fi
+}
+
 function create_and_run_classpath_jar() {
   # Build class path as one single string separated by spaces
   MANIFEST_CLASSPATH=""
@@ -311,7 +319,7 @@ function create_and_run_classpath_jar() {
 
   (
     echo "Manifest-Version: 1.0"
-    
+
     CLASSPATH_LINE="Class-Path:$MANIFEST_CLASSPATH"
     # No line in the MANIFEST.MF file may be longer than 72 bytes.
     # A space prefix indicates the line is still the content of the last attribute.
@@ -338,6 +346,15 @@ function create_and_run_classpath_jar() {
   exit $exit_code
 }
 
+function run_test_with_argument_file() {
+  ARGS_FILE="$(mktemp -t XXXXXXXX.args)"
+  echo "-cp "$CLASSPATH >> $ARGS_FILE
+  $JAVABIN @$ARGS_FILE "${ARGS[@]}"
+  exit_code=$?
+  rm -f "$ARGS_FILE"
+  exit $exit_code
+}
+
 # If the user didn't specify a --classpath_limit, use the default value.
 if [ -z "$CLASSPATH_LIMIT" ]; then
   # Windows per-arg limit MAX_ARG_STRLEN == 8k
@@ -357,9 +374,9 @@ fi
 #Difference ends
 
 if is_windows && (("${#CLASSPATH}" > ${CLASSPATH_LIMIT} )); then
-  create_and_run_classpath_jar "${JARBIN}.exe"
+  run_test_with_large_classpath "${JARBIN}.exe"
 elif (("${#CLASSPATH}" > ${CLASSPATH_LIMIT})); then
-  create_and_run_classpath_jar "$JARBIN"
+  run_test_with_large_classpath "$JARBIN"
 else
   exec $JAVABIN -classpath $CLASSPATH "${ARGS[@]}"
 fi
