@@ -1,118 +1,61 @@
-load("@io_bazel_rules_scala//scala:providers.bzl", "declare_deps_provider")
-load("@io_bazel_rules_scala//testing/toolchain:toolchain.bzl", "scala_testing_toolchain")
+load("@io_bazel_rules_scala//scala:scala.bzl", "setup_scala_testing_toolchain")
 
-scala_testing_toolchain(
-    name = "testing_toolchains_with_all_deps_impl",
-    dep_providers = [
-        ":junit_classpath_provider",
-        ":scalatest_classpath_provider",
-        ":specs2_classpath_provider",
-        ":specs2_junit_classpath_provider",
-    ],
-    visibility = ["//visibility:public"],
-)
+_SPECS2_DEPS = [
+    "@io_bazel_rules_scala_org_specs2_specs2_common",
+    "@io_bazel_rules_scala_org_specs2_specs2_core",
+    "@io_bazel_rules_scala_org_specs2_specs2_fp",
+    "@io_bazel_rules_scala_org_specs2_specs2_matcher",
+]
 
-toolchain(
+_SPECS2_JUNIT_DEPS = [
+    "@io_bazel_rules_scala_org_specs2_specs2_junit",
+]
+
+_JUNIT_DEPS = [
+    "@io_bazel_rules_scala_junit_junit",
+    "@io_bazel_rules_scala_org_hamcrest_hamcrest_core",
+]
+
+_SCALATEST_DEPS = [
+    "@io_bazel_rules_scala_scalactic",
+    "@io_bazel_rules_scala_scalatest",
+    "@io_bazel_rules_scala_scalatest_compatible",
+    "@io_bazel_rules_scala_scalatest_core",
+    "@io_bazel_rules_scala_scalatest_featurespec",
+    "@io_bazel_rules_scala_scalatest_flatspec",
+    "@io_bazel_rules_scala_scalatest_freespec",
+    "@io_bazel_rules_scala_scalatest_funspec",
+    "@io_bazel_rules_scala_scalatest_funsuite",
+    "@io_bazel_rules_scala_scalatest_matchers_core",
+    "@io_bazel_rules_scala_scalatest_mustmatchers",
+    "@io_bazel_rules_scala_scalatest_shouldmatchers",
+]
+
+setup_scala_testing_toolchain(
     name = "testing_toolchain",
-    toolchain = ":testing_toolchains_with_all_deps_impl",
-    toolchain_type = "@io_bazel_rules_scala//testing/toolchain:testing_toolchain_type",
+    junit_classpath = _JUNIT_DEPS,
+    scalatest_classpath = _SCALATEST_DEPS,
+    specs2_classpath = _SPECS2_DEPS,
+    specs2_junit_classpath = _SPECS2_JUNIT_DEPS,
     visibility = ["//visibility:public"],
 )
 
-scala_testing_toolchain(
-    name = "scalatest_toolchain_impl",
-    dep_providers = [
-        ":scalatest_classpath_provider",
-    ],
-    visibility = ["//visibility:public"],
-)
-
-toolchain(
+setup_scala_testing_toolchain(
     name = "scalatest_toolchain",
-    toolchain = ":scalatest_toolchain_impl",
-    toolchain_type = "@io_bazel_rules_scala//testing/toolchain:testing_toolchain_type",
+    scalatest_classpath = _SCALATEST_DEPS,
     visibility = ["//visibility:public"],
 )
 
-scala_testing_toolchain(
-    name = "specs2_junit_toolchain_impl",
-    dep_providers = [
-        ":junit_classpath_provider",
-        ":specs2_classpath_provider",
-        ":specs2_junit_classpath_provider",
-    ],
-    visibility = ["//visibility:public"],
-)
-
-toolchain(
+setup_scala_testing_toolchain(
     name = "specs2_junit_toolchain",
-    toolchain = ":specs2_junit_toolchain_impl",
-    toolchain_type = "@io_bazel_rules_scala//testing/toolchain:testing_toolchain_type",
+    junit_classpath = _JUNIT_DEPS,
+    specs2_classpath = _SPECS2_DEPS,
+    specs2_junit_classpath = _SPECS2_JUNIT_DEPS,
     visibility = ["//visibility:public"],
 )
 
-scala_testing_toolchain(
-    name = "junit_toolchain_impl",
-    dep_providers = [
-        ":junit_classpath_provider",
-    ],
-    visibility = ["//visibility:public"],
-)
-
-toolchain(
+setup_scala_testing_toolchain(
     name = "junit_toolchain",
-    toolchain = ":junit_toolchain_impl",
-    toolchain_type = "@io_bazel_rules_scala//testing/toolchain:testing_toolchain_type",
+    junit_classpath = _JUNIT_DEPS,
     visibility = ["//visibility:public"],
-)
-
-declare_deps_provider(
-    name = "junit_classpath_provider",
-    deps_id = "junit_classpath",
-    visibility = ["//visibility:public"],
-    deps = [
-        "@io_bazel_rules_scala_junit_junit",
-        "@io_bazel_rules_scala_org_hamcrest_hamcrest_core",
-    ],
-)
-
-declare_deps_provider(
-    name = "scalatest_classpath_provider",
-    deps_id = "scalatest_classpath",
-    visibility = ["//visibility:public"],
-    deps = [
-        "@io_bazel_rules_scala_scalactic",
-        "@io_bazel_rules_scala_scalatest",
-        "@io_bazel_rules_scala_scalatest_compatible",
-        "@io_bazel_rules_scala_scalatest_core",
-        "@io_bazel_rules_scala_scalatest_featurespec",
-        "@io_bazel_rules_scala_scalatest_flatspec",
-        "@io_bazel_rules_scala_scalatest_freespec",
-        "@io_bazel_rules_scala_scalatest_funspec",
-        "@io_bazel_rules_scala_scalatest_funsuite",
-        "@io_bazel_rules_scala_scalatest_matchers_core",
-        "@io_bazel_rules_scala_scalatest_mustmatchers",
-        "@io_bazel_rules_scala_scalatest_shouldmatchers",
-    ],
-)
-
-declare_deps_provider(
-    name = "specs2_classpath_provider",
-    deps_id = "specs2_classpath",
-    visibility = ["//visibility:public"],
-    deps = [
-        "@io_bazel_rules_scala_org_specs2_specs2_common",
-        "@io_bazel_rules_scala_org_specs2_specs2_core",
-        "@io_bazel_rules_scala_org_specs2_specs2_fp",
-        "@io_bazel_rules_scala_org_specs2_specs2_matcher",
-    ],
-)
-
-declare_deps_provider(
-    name = "specs2_junit_classpath_provider",
-    deps_id = "specs2_junit_classpath",
-    visibility = ["//visibility:public"],
-    deps = [
-        "@io_bazel_rules_scala_org_specs2_specs2_junit",
-    ],
 )
