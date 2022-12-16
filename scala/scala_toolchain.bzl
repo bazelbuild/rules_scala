@@ -43,6 +43,8 @@ def _scala_toolchain_impl(ctx):
         dependency_mode,
     )
 
+    compiler_deps_mode = ctx.attr.compiler_deps_mode
+
     unused_dependency_checker_mode = ctx.attr.unused_dependency_checker_mode
     dependency_tracking_method = _compute_dependency_tracking_method(
         dependency_mode,
@@ -55,6 +57,9 @@ def _scala_toolchain_impl(ctx):
 
     if strict_deps_mode not in ("off", "warn", "error"):
         fail("Internal error: invalid strict_deps_mode " + strict_deps_mode)
+
+    if compiler_deps_mode not in ("off", "warn", "error"):
+        fail("Internal error: invalid compiler_deps_mode " + compiler_deps_mode)
 
     if dependency_tracking_method not in ("verbose-log", "ast", "high-level"):
         fail("Internal error: invalid dependency_tracking_method " + dependency_tracking_method)
@@ -74,6 +79,7 @@ def _scala_toolchain_impl(ctx):
         dependency_mode = dependency_mode,
         strict_deps_mode = strict_deps_mode,
         unused_dependency_checker_mode = unused_dependency_checker_mode,
+        compiler_deps_mode = compiler_deps_mode,
         dependency_tracking_method = dependency_tracking_method,
         strict_deps_include_patterns = strict_deps_includes,
         strict_deps_exclude_patterns = strict_deps_excludes,
@@ -111,6 +117,10 @@ scala_toolchain = rule(
             values = ["off", "warn", "error", "default"],
         ),
         "unused_dependency_checker_mode": attr.string(
+            default = "off",
+            values = ["off", "warn", "error"],
+        ),
+        "compiler_deps_mode": attr.string(
             default = "off",
             values = ["off", "warn", "error"],
         ),

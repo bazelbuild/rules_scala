@@ -25,6 +25,8 @@ public class CompileOptions {
   public final String[] indirectJars;
   public final String[] indirectTargets;
   public final String strictDepsMode;
+
+  public final String compilerDepsMode;
   public final String unusedDependencyCheckerMode;
   public final String currentTarget;
   public final String stampLabel;
@@ -61,6 +63,7 @@ public class CompileOptions {
     indirectTargets = args.getOrEmpty("IndirectTargets");
 
     strictDepsMode = args.getSingleOrError("StrictDepsMode");
+    compilerDepsMode = args.getSingleOrError("CompilerDepsMode");
     unusedDependencyCheckerMode = args.getSingleOrError("UnusedDependencyCheckerMode");
     currentTarget = args.getSingleOrError("CurrentTarget");
     stampLabel = args.getSingleOrError("StampLabel");

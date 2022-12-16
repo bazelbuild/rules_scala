@@ -2,6 +2,7 @@
 
 load(
     "@io_bazel_rules_scala//scala/private:dependency.bzl",
+    "get_compiler_deps_mode",
     "get_strict_deps_mode",
     "new_dependency_info",
 )
@@ -55,6 +56,11 @@ def _phase_dependency(
     else:
         strict_deps_mode = get_strict_deps_mode(ctx)
 
+    if strict_deps_always_off or not included_in_strict_deps_analysis:
+        compiler_deps_mode = "off"
+    else:
+        compiler_deps_mode = get_compiler_deps_mode(ctx)
+
     if unused_deps_always_off or not included_in_unused_deps_analysis:
         unused_deps_mode = "off"
     else:
@@ -70,6 +76,7 @@ def _phase_dependency(
         toolchain.dependency_mode,
         unused_deps_mode,
         strict_deps_mode,
+        compiler_deps_mode,
         toolchain.dependency_tracking_method,
     )
 

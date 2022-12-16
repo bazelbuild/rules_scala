@@ -210,7 +210,11 @@ public class DepsTrackingReporter extends ConsoleReporter {
         }
       }
       if (compilerDepsCount > 0) {
-        reporter.warning(NoPosition$.MODULE$, compilerDepsReport.toString());
+        if (ops.compilerDepsMode.equals("warn")) {
+          reporter.warning(NoPosition$.MODULE$, compilerDepsReport.toString());
+        } else {
+          reporter.error(NoPosition$.MODULE$, compilerDepsReport.toString());
+        }
       }
     }
 
@@ -282,26 +286,6 @@ public class DepsTrackingReporter extends ConsoleReporter {
       this.usedInAst = usedInAst;
       this.direct = direct;
       this.ignored = ignored;
-    }
-  }
-
-  private static class BuildozerCommand {
-
-    private final String command;
-    private final boolean error;
-
-    public BuildozerCommand(String command, boolean error) {
-      this.command = command;
-      this.error = error;
-    }
-
-    @Override
-    public String toString() {
-      return command;
-    }
-
-    public boolean isError() {
-      return error;
     }
   }
 }

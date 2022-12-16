@@ -81,6 +81,7 @@ def compile_scala(
     args.add("--PrintCompileTime", print_compile_time)
     args.add("--ExpectJavaOutput", expect_java_output)
     args.add("--StrictDepsMode", dependency_info.strict_deps_mode)
+    args.add("--CompilerDepsMode", dependency_info.compiler_deps_mode)
     args.add("--UnusedDependencyCheckerMode", dependency_info.unused_deps_mode)
     args.add("--DependencyTrackingMethod", dependency_info.dependency_tracking_method)
     args.add("--StatsfileOutput", statsfile)
