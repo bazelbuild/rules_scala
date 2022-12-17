@@ -209,7 +209,8 @@ public class DepsTrackingReporter extends ConsoleReporter {
           reporter.error(NoPosition$.MODULE$, strictDepsReport.toString());
         }
       }
-      if (compilerDepsCount > 0) {
+
+      if (!ops.compilerDepsMode.equals("off") && compilerDepsCount > 0) {
         if (ops.compilerDepsMode.equals("warn")) {
           reporter.warning(NoPosition$.MODULE$, compilerDepsReport.toString());
         } else {
