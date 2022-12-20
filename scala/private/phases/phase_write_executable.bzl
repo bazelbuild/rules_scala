@@ -108,7 +108,7 @@ def _write_executable_non_windows(ctx, executable, rjars, main_class, jvm_flags,
         wrapper.short_path,
     )
 
-    scala_toolchain = ctx.toolchains["//scala:toolchain_type"]
+    scala_toolchain = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"]
 
     test_runner_classpath_mode = "argsfile" if scala_toolchain.use_argument_file_in_runner else "manifest"
 
