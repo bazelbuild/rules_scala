@@ -178,62 +178,65 @@ public class DepsTrackingReporter extends ConsoleReporter {
 
     Reporter reporter = this.delegateReporter != null ? this.delegateReporter : this;
 
-    if (!ops.strictDepsMode.equals("off")) {
-      StringBuilder strictDepsReport = new StringBuilder("Missing strict dependencies:\n");
-      StringBuilder compilerDepsReport = new StringBuilder("Missing compiler dependencies:\n");
-      int strictDepsCount = 0;
-      int compilerDepsCount = 0;
-      for (Dep dep : usedTargets.values()) {
-        String depReport = reportDep(dep, true);
-        if (dep.ignored) {
-          continue;
+    if (ops.unusedDependencyCheckerMode.equals("verbose-log")) {
+
+      if (!ops.strictDepsMode.equals("off")) {
+        StringBuilder strictDepsReport = new StringBuilder("Missing strict dependencies:\n");
+        StringBuilder compilerDepsReport = new StringBuilder("Missing compiler dependencies:\n");
+        int strictDepsCount = 0;
+        int compilerDepsCount = 0;
+        for (Dep dep : usedTargets.values()) {
+          String depReport = reportDep(dep, true);
+          if (dep.ignored) {
+            continue;
+          }
+
+          if (directTargets.contains(dep.target)) {
+            continue;
+          }
+
+          if (dep.usedInAst) {
+            strictDepsCount++;
+            strictDepsReport.append(depReport);
+          } else {
+            compilerDepsCount++;
+            compilerDepsReport.append(depReport);
+          }
         }
 
-        if (directTargets.contains(dep.target)) {
-          continue;
+        if (strictDepsCount > 0) {
+          if (ops.strictDepsMode.equals("warn")) {
+            reporter.warning(NoPosition$.MODULE$, strictDepsReport.toString());
+          } else {
+            reporter.error(NoPosition$.MODULE$, strictDepsReport.toString());
+          }
         }
 
-        if (dep.usedInAst) {
-          strictDepsCount++;
-          strictDepsReport.append(depReport);
-        } else {
-          compilerDepsCount++;
-          compilerDepsReport.append(depReport);
+        if (!ops.compilerDepsMode.equals("off") && compilerDepsCount > 0) {
+          if (ops.compilerDepsMode.equals("warn")) {
+            reporter.warning(NoPosition$.MODULE$, compilerDepsReport.toString());
+          } else {
+            reporter.error(NoPosition$.MODULE$, compilerDepsReport.toString());
+          }
         }
       }
 
-      if (strictDepsCount > 0) {
-        if (ops.strictDepsMode.equals("warn")) {
-          reporter.warning(NoPosition$.MODULE$, strictDepsReport.toString());
-        } else {
-          reporter.error(NoPosition$.MODULE$, strictDepsReport.toString());
+      if (!ops.unusedDependencyCheckerMode.equals("off")) {
+        StringBuilder unusedDepsReport = new StringBuilder("Unused dependencies:\n");
+        int count = 0;
+        for (Dep dep : unusedDeps) {
+          if (dep.ignored) {
+            continue;
+          }
+          count++;
+          unusedDepsReport.append(reportDep(dep, false));
         }
-      }
-
-      if (!ops.compilerDepsMode.equals("off") && compilerDepsCount > 0) {
-        if (ops.compilerDepsMode.equals("warn")) {
-          reporter.warning(NoPosition$.MODULE$, compilerDepsReport.toString());
-        } else {
-          reporter.error(NoPosition$.MODULE$, compilerDepsReport.toString());
-        }
-      }
-    }
-
-    if (!ops.unusedDependencyCheckerMode.equals("off")) {
-      StringBuilder unusedDepsReport = new StringBuilder("Unused dependencies:\n");
-      int count = 0;
-      for (Dep dep : unusedDeps) {
-        if (dep.ignored) {
-          continue;
-        }
-        count++;
-        unusedDepsReport.append(reportDep(dep, false));
-      }
-      if (count > 0) {
-        if (ops.unusedDependencyCheckerMode.equals("warn")) {
-          reporter.warning(NoPosition$.MODULE$, unusedDepsReport.toString());
-        } else if (ops.unusedDependencyCheckerMode.equals("error")) {
-          reporter.warning(NoPosition$.MODULE$, unusedDepsReport.toString());
+        if (count > 0) {
+          if (ops.unusedDependencyCheckerMode.equals("warn")) {
+            reporter.warning(NoPosition$.MODULE$, unusedDepsReport.toString());
+          } else if (ops.unusedDependencyCheckerMode.equals("error")) {
+            reporter.error(NoPosition$.MODULE$, unusedDepsReport.toString());
+          }
         }
       }
     }
@@ -276,6 +279,7 @@ public class DepsTrackingReporter extends ConsoleReporter {
   private static class Dep {
 
     public final String jar;
+
     public final String target;
     public final boolean usedInAst;
     public final boolean direct;
