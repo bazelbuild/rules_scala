@@ -36,7 +36,7 @@ public class DepsTrackingReporter extends ConsoleReporter {
   private final Set<String> directTargets;
 
   private CompileOptions ops;
-  private Reporter delegateReporter;
+  public final Reporter delegateReporter;
   private Set<String> astUsedJars = new HashSet<>();
 
   public DepsTrackingReporter(Settings settings, CompileOptions ops, Reporter delegate) {
@@ -178,7 +178,7 @@ public class DepsTrackingReporter extends ConsoleReporter {
 
     Reporter reporter = this.delegateReporter != null ? this.delegateReporter : this;
 
-    if (ops.unusedDependencyCheckerMode.equals("verbose-log")) {
+    if (ops.dependencyTrackingMethod.equals("verbose-log")) {
 
       if (!ops.strictDepsMode.equals("off")) {
         StringBuilder strictDepsReport = new StringBuilder("Missing strict dependencies:\n");
@@ -274,6 +274,15 @@ public class DepsTrackingReporter extends ConsoleReporter {
 
   public void registerAstUsedJars(Set<String> jars) {
     astUsedJars = jars;
+  }
+
+  public void writeDiagnostics(String diagnosticsFile) throws IOException {
+    if (delegateReporter == null) {
+      return;
+    }
+
+    ProtoReporter protoReporter = (ProtoReporter) delegateReporter;
+    protoReporter.writeTo(Paths.get(diagnosticsFile));
   }
 
   private static class Dep {

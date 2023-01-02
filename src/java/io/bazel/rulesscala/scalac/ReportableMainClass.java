@@ -2,6 +2,7 @@ package io.bazel.rulesscala.scalac;
 
 import io.bazel.rulesscala.scalac.compileoptions.CompileOptions;
 import io.bazel.rulesscala.scalac.reporter.DepsTrackingReporter;
+import io.bazel.rulesscala.scalac.reporter.ProtoReporter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

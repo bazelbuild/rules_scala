@@ -3,12 +3,16 @@ load("@rules_java//java:defs.bzl", "java_binary", "java_library", "java_proto_li
 
 java_library(
     name = "reporter",
-    srcs = ["DepsTrackingReporter.java"],
+    srcs = [
+        "DepsTrackingReporter.java",
+        "ProtoReporter.java",
+    ],
     visibility = ["//visibility:public"],
     deps = [
         ":scala_deps_java_proto",
         "//scala/private/toolchain_deps:scala_compile_classpath",
         "//src/java/io/bazel/rulesscala/scalac/compileoptions",
+        "@io_bazel_rules_scala//src/protobuf/io/bazel/rules_scala:diagnostics_java_proto",
     ],
 )
 

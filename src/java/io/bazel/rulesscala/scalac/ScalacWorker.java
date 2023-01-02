@@ -6,6 +6,7 @@ import io.bazel.rulesscala.io_utils.StreamCopy;
 import io.bazel.rulesscala.jar.JarCreator;
 import io.bazel.rulesscala.scalac.compileoptions.CompileOptions;
 import io.bazel.rulesscala.scalac.reporter.DepsTrackingReporter;
+import io.bazel.rulesscala.scalac.reporter.ProtoReporter;
 import io.bazel.rulesscala.worker.Worker;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -296,7 +297,9 @@ class ScalacWorker implements Worker.Interface {
     }
 
     if (reporter instanceof DepsTrackingReporter) {
-      ((DepsTrackingReporter) reporter).prepareReport();
+      DepsTrackingReporter depTrackingReporter = (DepsTrackingReporter) reporter;
+      depTrackingReporter.prepareReport();
+      depTrackingReporter.writeDiagnostics(ops.diagnosticsFile);
     }
 
     if (reporter.hasErrors()) {

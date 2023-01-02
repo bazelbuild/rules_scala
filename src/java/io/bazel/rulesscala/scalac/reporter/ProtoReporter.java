@@ -1,4 +1,4 @@
-package io.bazel.rulesscala.scalac;
+package io.bazel.rulesscala.scalac.reporter;
 
 import io.bazel.rules_scala.diagnostics.Diagnostics;
 import java.io.IOException;

@@ -51,7 +51,7 @@ def rules_scala_setup():
             "    srcs=[\"scala/tools/nsc/symtab/SymbolLoaders.scala\"],",
             ")",
         ]),
-        patches = ["@io_bazel_rules_scala//:dt_compiler.patch"],
+        patches = ["@io_bazel_rules_scala//:dt_compiler_%s.patch" % SCALA_MAJOR_VERSION],
         url = "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/%s/scala-compiler-%s-sources.jar" % (SCALA_VERSION, SCALA_VERSION),
     )
 

@@ -49,7 +49,6 @@ filegroup(
     name = "scalac_files",
     srcs = ([
         "ScalacWorker.java",
-        "ProtoReporter.java",
         "ReportableMainClass.java",
     ] if SCALA_MAJOR_VERSION.startswith("2") else ["ScalacWorker3.java"]),
     visibility = ["//visibility:public"],
