@@ -293,6 +293,8 @@ class ScalacWorker3 implements Worker.Interface {
               Paths.get(ops.statsfile), Arrays.asList("build_time=" + buildTime));
       Files.createFile(
               Paths.get(ops.diagnosticsFile));
+      Files.createFile(
+              Paths.get(ops.scalaDepsFile));
     } catch (IOException ex) {
       throw new RuntimeException("Unable to write statsfile to " + ops.statsfile, ex);
     }

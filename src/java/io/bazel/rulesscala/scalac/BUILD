@@ -12,7 +12,7 @@ java_binary(
     ],
     main_class = "io.bazel.rulesscala.scalac.ScalacWorker" if SCALA_MAJOR_VERSION.startswith("2") else "io.bazel.rulesscala.scalac.ScalacWorker3",
     visibility = ["//visibility:public"],
-    deps = ["//third_party/dependency_analyzer/src/main/io/bazel/rulesscala/dependencyanalyzer/compiler:dep_reporting_compiler"] + [
+    deps = (["//third_party/dependency_analyzer/src/main/io/bazel/rulesscala/dependencyanalyzer/compiler:dep_reporting_compiler"] if SCALA_MAJOR_VERSION.startswith("2") else []) + [
         "//scala/private/toolchain_deps:scala_compile_classpath",
         "//src/java/io/bazel/rulesscala/io_utils",
         "//third_party/bazel/src/main/protobuf:worker_protocol_java_proto",
@@ -20,7 +20,8 @@ java_binary(
         "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/worker",
         "@io_bazel_rules_scala//src/protobuf/io/bazel/rules_scala:diagnostics_java_proto",
         "//src/java/io/bazel/rulesscala/scalac/compileoptions",
-    ] + ["//src/java/io/bazel/rulesscala/scalac/reporter"] if SCALA_MAJOR_VERSION.startswith("2") else [],
+        "//src/java/io/bazel/rulesscala/scalac/reporter",
+    ],
 )
 
 java_binary(
@@ -37,12 +38,13 @@ java_binary(
     deps = [
         "//scala/private/toolchain_deps:scala_compile_classpath",
         "//src/java/io/bazel/rulesscala/io_utils",
+        "//src/java/io/bazel/rulesscala/scalac/compileoptions",
+        "//src/java/io/bazel/rulesscala/scalac/reporter",
         "//third_party/bazel/src/main/protobuf:worker_protocol_java_proto",
         "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/jar",
         "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/worker",
         "@io_bazel_rules_scala//src/protobuf/io/bazel/rules_scala:diagnostics_java_proto",
-        "//src/java/io/bazel/rulesscala/scalac/compileoptions",
-    ] + ["//src/java/io/bazel/rulesscala/scalac/reporter"] if SCALA_MAJOR_VERSION.startswith("2") else [],
+    ],
 )
 
 filegroup(
