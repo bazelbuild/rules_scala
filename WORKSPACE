@@ -22,7 +22,7 @@ http_archive(
 
 load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
 
-scala_config()
+scala_config(enable_compiler_dependency_tracking = True)
 
 load("//scala:scala.bzl", "rules_scala_setup", "rules_scala_toolchain_deps_repositories")
 

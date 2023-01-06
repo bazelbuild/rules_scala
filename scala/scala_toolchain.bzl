@@ -2,6 +2,10 @@ load(
     "@io_bazel_rules_scala//scala:providers.bzl",
     _DepsInfo = "DepsInfo",
 )
+load(
+    "@io_bazel_rules_scala_config//:config.bzl",
+    "ENABLE_COMPILER_DEPENDENCY_TRACKING",
+)
 
 def _compute_strict_deps_mode(input_strict_deps_mode, dependency_mode):
     if dependency_mode == "direct":
@@ -63,6 +67,9 @@ def _scala_toolchain_impl(ctx):
 
     if dependency_tracking_method not in ("verbose-log", "ast", "high-level"):
         fail("Internal error: invalid dependency_tracking_method " + dependency_tracking_method)
+
+    if "verbose-log" == dependency_tracking_method and not ENABLE_COMPILER_DEPENDENCY_TRACKING:
+        fail("To use 'verbose-log' dependency tracking, you must set 'enable_compiler_dependency_tracking' to True in scala_config")
 
     enable_stats_file = ctx.attr.enable_stats_file
     enable_diagnostics_report = ctx.attr.enable_diagnostics_report
