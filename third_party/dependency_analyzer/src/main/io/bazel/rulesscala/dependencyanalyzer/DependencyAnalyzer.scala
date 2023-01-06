@@ -22,7 +22,7 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
       ),
       new AnalyzerComponent(
         runsAfterPhase = "typer",
-        handles = DependencyTrackingMethod.VerboseLog
+        handles = DependencyTrackingMethod.AstPlus
       ),
       new AnalyzerComponent(
         runsAfterPhase = "jvm",
@@ -83,7 +83,7 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
 
     reporter.registerAstJars(usedJarPathToPositions)
 
-    if (settings.dependencyTrackingMethod != DependencyTrackingMethod.VerboseLog) {
+    if (settings.dependencyTrackingMethod != DependencyTrackingMethod.AstPlus) {
       if (settings.unusedDepsMode != AnalyzerMode.Off) {
         reportUnusedDepsFoundIn(usedJarPathToPositions)
       }
@@ -210,7 +210,7 @@ class DependencyAnalyzer(val global: Global) extends Plugin {
         new HighLevelCrawlUsedJarFinder(global).findUsedJars
       case DependencyTrackingMethod.Ast =>
         new AstUsedJarFinder(global).findUsedJars
-      case DependencyTrackingMethod.VerboseLog =>
+      case DependencyTrackingMethod.AstPlus =>
         new AstUsedJarFinder(global).findUsedJars
     }
   }

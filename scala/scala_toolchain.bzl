@@ -65,11 +65,11 @@ def _scala_toolchain_impl(ctx):
     if compiler_deps_mode not in ("off", "warn", "error"):
         fail("Internal error: invalid compiler_deps_mode " + compiler_deps_mode)
 
-    if dependency_tracking_method not in ("verbose-log", "ast", "high-level"):
+    if dependency_tracking_method not in ("ast-plus", "ast", "high-level"):
         fail("Internal error: invalid dependency_tracking_method " + dependency_tracking_method)
 
-    if "verbose-log" == dependency_tracking_method and not ENABLE_COMPILER_DEPENDENCY_TRACKING:
-        fail("To use 'verbose-log' dependency tracking, you must set 'enable_compiler_dependency_tracking' to True in scala_config")
+    if "ast-plus" == dependency_tracking_method and not ENABLE_COMPILER_DEPENDENCY_TRACKING:
+        fail("To use 'ast-plus' dependency tracking, you must set 'enable_compiler_dependency_tracking' to True in scala_config")
 
     enable_stats_file = ctx.attr.enable_stats_file
     enable_diagnostics_report = ctx.attr.enable_diagnostics_report
@@ -133,7 +133,7 @@ scala_toolchain = rule(
         ),
         "dependency_tracking_method": attr.string(
             default = "default",
-            values = ["verbose-log", "ast", "high-level", "default"],
+            values = ["ast-plus", "ast", "high-level", "default"],
         ),
         "dependency_tracking_strict_deps_patterns": attr.string_list(
             doc = "List of target prefixes included for strict deps analysis. Exclude patetrns with '-'",

@@ -44,7 +44,7 @@ setup_scala_toolchain(
 
 setup_scala_toolchain(
     name = "unused_dependency_checker_error_toolchain",
-    dependency_tracking_method = "verbose-log",
+    dependency_tracking_method = "ast-plus",
     scala_compile_classpath = _SCALA_COMPILE_CLASSPATH_DEPS,
     scala_library_classpath = _SCALA_LIBRARY_CLASSPATH_DEPS,
     scala_macro_classpath = _SCALA_MACRO_CLASSPATH_DEPS,

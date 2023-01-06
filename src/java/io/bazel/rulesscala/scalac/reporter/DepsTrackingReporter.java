@@ -67,7 +67,7 @@ public class DepsTrackingReporter extends ConsoleReporter {
   }
 
   private boolean isDependecyTrackingOn() {
-    return Objects.equals(ops.dependencyTrackingMethod, "verbose-log")
+    return Objects.equals(ops.dependencyTrackingMethod, "ast-plus")
         && (!"off".equals(ops.strictDepsMode) || !"off".equals(ops.unusedDependencyCheckerMode));
   }
 
@@ -178,7 +178,7 @@ public class DepsTrackingReporter extends ConsoleReporter {
 
     Reporter reporter = this.delegateReporter != null ? this.delegateReporter : this;
 
-    if (ops.dependencyTrackingMethod.equals("verbose-log")) {
+    if (ops.dependencyTrackingMethod.equals("ast-plus")) {
 
       if (!ops.strictDepsMode.equals("off")) {
         StringBuilder strictDepsReport = new StringBuilder("Missing strict dependencies:\n");
