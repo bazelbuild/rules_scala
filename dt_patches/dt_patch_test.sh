@@ -51,7 +51,7 @@ test_compiler_patch() {
 #run_test_local test_compiler_patch 2.11.9
 #run_test_local test_compiler_patch 2.11.10
 #run_test_local test_compiler_patch 2.11.11
-#run_test_local test_compiler_patch 2.11.12
+run_test_local test_compiler_patch 2.11.12
 
 #run_test_local test_compiler_patch 2.12.0
 run_test_local test_compiler_patch 2.12.1
