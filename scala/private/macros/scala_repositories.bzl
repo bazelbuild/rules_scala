@@ -6,6 +6,29 @@ load(
 load("//third_party/repositories:repositories.bzl", "repositories")
 load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_MAJOR_VERSION", "SCALA_VERSION")
 
+def dt_patched_compiler_setup():
+    patch = "@io_bazel_rules_scala//dt_patches:dt_compiler_%s.patch" % SCALA_MAJOR_VERSION
+
+    if SCALA_MAJOR_VERSION == "2.12":
+        minor_version = int(SCALA_VERSION[SCALA_VERSION.find(".", 2) + 1:])
+        if minor_version >= 1 and minor_version <= 7:
+            patch = "@io_bazel_rules_scala//dt_patches:dt_compiler_%s.1.patch" % SCALA_MAJOR_VERSION
+        elif minor_version <= 11:
+            patch = "@io_bazel_rules_scala//dt_patches:dt_compiler_%s.8.patch" % SCALA_MAJOR_VERSION
+
+    http_archive(
+        name = "scala_compiler_source",
+        build_file_content = "\n".join([
+            "package(default_visibility = [\"//visibility:public\"])",
+            "filegroup(",
+            "    name = \"src\",",
+            "    srcs=[\"scala/tools/nsc/symtab/SymbolLoaders.scala\"],",
+            ")",
+        ]),
+        patches = [patch],
+        url = "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/%s/scala-compiler-%s-sources.jar" % (SCALA_VERSION, SCALA_VERSION),
+    )
+
 def rules_scala_setup():
     if not native.existing_rule("bazel_skylib"):
         skylib_version = "1.0.3"
@@ -42,18 +65,7 @@ def rules_scala_setup():
             ],
         )
 
-    http_archive(
-        name = "scala_compiler_source",
-        build_file_content = "\n".join([
-            "package(default_visibility = [\"//visibility:public\"])",
-            "filegroup(",
-            "    name = \"src\",",
-            "    srcs=[\"scala/tools/nsc/symtab/SymbolLoaders.scala\"],",
-            ")",
-        ]),
-        patches = ["@io_bazel_rules_scala//:dt_compiler_%s.patch" % SCALA_MAJOR_VERSION],
-        url = "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/%s/scala-compiler-%s-sources.jar" % (SCALA_VERSION, SCALA_VERSION),
-    )
+    dt_patched_compiler_setup()
 
 ARTIFACT_IDS = [
     "io_bazel_rules_scala_scala_library",
@@ -75,13 +87,14 @@ ARTIFACT_IDS = [
 def rules_scala_toolchain_deps_repositories(
         maven_servers = _default_maven_server_urls(),
         overriden_artifacts = {},
-        fetch_sources = False):
+        fetch_sources = False,
+        validate_scala_version = True):
     repositories(
         for_artifact_ids = ARTIFACT_IDS,
         maven_servers = maven_servers,
         fetch_sources = fetch_sources,
         overriden_artifacts = overriden_artifacts,
-        validate_scala_version = True,
+        validate_scala_version = validate_scala_version,
     )
 
 def scala_repositories(

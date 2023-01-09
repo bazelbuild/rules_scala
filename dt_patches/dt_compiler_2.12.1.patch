@@ -1,12 +1,12 @@
 Subject: [PATCH] for patch
-IDEA additional info:
-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+---
+Index: scala/tools/nsc/symtab/SymbolLoaders.scala
 <+>UTF-8
 ===================================================================
 diff --git scala/tools/nsc/symtab/SymbolLoaders.scala scala/tools/nsc/symtab/SymbolLoaders.scala
---- scala/tools/nsc/symtab/SymbolLoaders.scala	(revision 2e2f65a201b0b06e01a39fec4ae232c5b94efcca)
-+++ scala/tools/nsc/symtab/SymbolLoaders.scala	(revision 21ecced66f88cff2a81a7f69340be63dd0bc9b88)
-@@ -210,6 +210,11 @@
+--- scala/tools/nsc/symtab/SymbolLoaders.scala	(revision 8684ae833dcfeac6107343fcca5501301e509eef)
++++ scala/tools/nsc/symtab/SymbolLoaders.scala	(revision 74239a150e641ebfe220a6698dbc88c8c3f6f092)
+@@ -208,6 +208,11 @@
          val currentphase = phase
          doComplete(root)
          phase = currentphase

@@ -1,8 +1,14 @@
-load("//scala:scala_cross_version.bzl", "extract_major_version")
+load("//scala:scala_cross_version.bzl", "extract_major_version", "extract_minor_version")
 
 def _default_scala_version():
     """return the scala version for use in maven coordinates"""
     return "2.12.14"
+
+def _validate_supported_scala_version(scala_major_version, scala_minor_version):
+    if scala_major_version == "2.11":
+        fail("Scala 2.11 is not supported with compiler dependency tracking.")
+    elif scala_major_version == "2.12" and int(scala_minor_version) < 1:
+        fail("Scala version must be newer or eaqual to 2.12.1 to use compiler dependency tracking.")
 
 def _store_config(repository_ctx):
     scala_version = repository_ctx.os.environ.get(
@@ -16,6 +22,10 @@ def _store_config(repository_ctx):
     )
 
     scala_major_version = extract_major_version(scala_version)
+
+    if enable_compiler_dependency_tracking:
+        scala_minor_version = extract_minor_version(scala_version)
+        _validate_supported_scala_version(scala_major_version, scala_minor_version)
 
     config_file_content = "\n".join([
         "SCALA_VERSION='" + scala_version + "'",
@@ -36,7 +46,7 @@ _config_repository = repository_rule(
             mandatory = True,
         ),
     },
-    environ = ["SCALA_VERSION"],
+    environ = ["SCALA_VERSION", "ENABLE_COMPILER_DEPENDENCY_TRACKING"],
 )
 
 def scala_config(
