@@ -70,7 +70,7 @@ _scala_test_attrs = {
         ),
     ),
     "_scalatest_runner": attr.label(
-        cfg = "host",
+        cfg = "exec",
         default = Label("//src/java/io/bazel/rulesscala/scala_test:runner"),
     ),
     "_scalatest_reporter": attr.label(

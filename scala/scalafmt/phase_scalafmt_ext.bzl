@@ -19,7 +19,7 @@ ext_scalafmt = {
             doc = "Switch of enabling formatting.",
         ),
         "_fmt": attr.label(
-            cfg = "host",
+            cfg = "exec",
             default = "//scala/scalafmt",
             executable = True,
         ),
