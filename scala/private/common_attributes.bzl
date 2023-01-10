@@ -76,20 +76,20 @@ common_attrs.update({
         default = "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/coverage/instrumenter",
         allow_files = True,
         executable = True,
-        cfg = "host",
+        cfg = "exec",
     ),
 })
 
 implicit_deps = {
     "_singlejar": attr.label(
         executable = True,
-        cfg = "host",
+        cfg = "exec",
         default = Label("@bazel_tools//tools/jdk:singlejar"),
         allow_files = True,
     ),
     "_zipper": attr.label(
         executable = True,
-        cfg = "host",
+        cfg = "exec",
         default = Label("@bazel_tools//tools/zip:zipper"),
         allow_files = True,
     ),
@@ -104,7 +104,7 @@ implicit_deps = {
     ),
     "_exe": attr.label(
         executable = True,
-        cfg = "host",
+        cfg = "exec",
         default = Label("@io_bazel_rules_scala//src/java/io/bazel/rulesscala/exe:exe"),
     ),
 }
