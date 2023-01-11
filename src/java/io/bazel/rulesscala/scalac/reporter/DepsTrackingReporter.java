@@ -244,10 +244,15 @@ public class DepsTrackingReporter extends ConsoleReporter {
   }
 
   private String reportDep(Dep dep, boolean add) {
-    String message = dep.target + "\n";
-    String command = add ? "add" : "remove";
-    String buildozer = "buildozer '" + command + " deps " + dep.target + "' " + ops.currentTarget;
-    return message + buildozer + "\n";
+    if (add) {
+      String message = "error: Target '" + dep.target + "' (via jar: ' " + dep.jar +" ') is being used by " + ops.currentTarget + " but is is not specified as a dependency, please add it to the deps.\nYou can use the following buildozer command:\n";
+      String command = "buildozer 'add deps " + dep.target + "' " + ops.currentTarget;
+      return message + command + "\n";
+    } else {
+      String message = "error: Target '" + dep.target + "' (via jar: ' " + dep.jar +" ')  is specified as a dependency to " + ops.currentTarget + " but isn't used, please remove it from the deps.\nYou can use the following buildozer command:\n";
+      String command = "buildozer 'remove deps " + dep.target + "' " + ops.currentTarget;
+      return message + command + "\n";
+    }
   }
 
   private String guessFullJarPath(String jar) {
