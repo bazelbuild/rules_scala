@@ -107,3 +107,10 @@ declare_deps_provider(
     visibility = ["//visibility:public"],
     deps = _PARSER_COMBINATORS_DEPS,
 )
+
+declare_deps_provider(
+    name = "semanticdb_scalac_provider",
+    deps_id = "semanticdb_scalac",
+    visibility = ["//visibility:public"],
+    deps = ["@org_scalameta_semanticdb_scalac"],
+)
