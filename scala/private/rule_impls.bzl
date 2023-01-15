@@ -78,7 +78,7 @@ def compile_scala(
     if hasattr(ctx.attr, "_semanticdb_scalac_plugin"):
         semanticdb_dir = ctx.actions.declare_directory("{}.semanticdb".format(ctx.label.name))
         outs.append(semanticdb_dir)
-        scalacopts = scalacopts + [
+        scalacopts_expanded = scalacopts_expanded + [
             "-Yrangepos",
             "-P:semanticdb:failures:error",
             "-P:semanticdb:targetroot:{}/{}/{}.semanticdb".format(ctx.bin_dir.path, ctx.label.package, ctx.label.name),
