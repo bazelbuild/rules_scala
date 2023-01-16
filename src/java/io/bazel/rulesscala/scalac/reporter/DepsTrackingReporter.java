@@ -87,7 +87,13 @@ public class DepsTrackingReporter extends ConsoleReporter {
   }
 
   private void parseOpenedJar(String msg) {
-    usedJars.add(msg.split(":")[1]);
+    String jar = msg.split(":")[1];
+
+    // track only jars from dependency targets
+    // this should exclude things like rt.jar which come from JDK
+    if (jarToTarget.containsKey(jar)) {
+      usedJars.add(jar);
+    }
   }
 
   public void prepareReport() throws IOException {
@@ -245,11 +251,16 @@ public class DepsTrackingReporter extends ConsoleReporter {
 
   private String reportDep(Dep dep, boolean add) {
     if (add) {
-      String message = "error: Target '" + dep.target + "' (via jar: ' " + dep.jar +" ') is being used by " + ops.currentTarget + " but is is not specified as a dependency, please add it to the deps.\nYou can use the following buildozer command:\n";
+      String message =
+          "error: Target '" + dep.target + "' (via jar: ' " + dep.jar + " ') is being used by "
+              + ops.currentTarget
+              + " but is is not specified as a dependency, please add it to the deps.\nYou can use the following buildozer command:\n";
       String command = "buildozer 'add deps " + dep.target + "' " + ops.currentTarget;
       return message + command + "\n";
     } else {
-      String message = "error: Target '" + dep.target + "' (via jar: ' " + dep.jar +" ')  is specified as a dependency to " + ops.currentTarget + " but isn't used, please remove it from the deps.\nYou can use the following buildozer command:\n";
+      String message = "error: Target '" + dep.target + "' (via jar: ' " + dep.jar
+          + " ')  is specified as a dependency to " + ops.currentTarget
+          + " but isn't used, please remove it from the deps.\nYou can use the following buildozer command:\n";
       String command = "buildozer 'remove deps " + dep.target + "' " + ops.currentTarget;
       return message + command + "\n";
     }
