@@ -148,6 +148,7 @@ public class DepsTrackingReporter extends ConsoleReporter {
 
     ScalaDeps.Dependencies.Builder builder = ScalaDeps.Dependencies.newBuilder();
     builder.setRuleLabel(ops.currentTarget);
+    builder.setDependencyTrackingMethod(ops.dependencyTrackingMethod);
 
     for (Dep dep : usedTargets.values()) {
       ScalaDeps.Dependency.Builder dependecyBuilder = ScalaDeps.Dependency.newBuilder();

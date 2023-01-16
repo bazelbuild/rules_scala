@@ -37,4 +37,7 @@ message Dependencies {
 
   // Name of the rule being analyzed.
   string rule_label = 2;
+
+  // Dependency tracking method used to calculate dependency information
+  string dependency_tracking_method = 3;
 }
