@@ -89,7 +89,7 @@ public class DepsTrackingReporter extends ConsoleReporter {
 
     // track only jars from dependency targets
     // this should exclude things like rt.jar which come from JDK
-    if (jarToTarget.containsKey(jar)) {
+    if (jarToTarget.containsKey(jar) || indirectJarToTarget.containsKey(jar)) {
       usedJars.add(jar);
     }
   }
