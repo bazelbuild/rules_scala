@@ -10,6 +10,6 @@ java_library(
 java_test(
     name = "CompileOptionsTest",
     srcs = ["CompileOptionsTest.java"],
-    test_class = "io.bazel.rulesscala.scalac.CompileOptionsTest",
+    test_class = "io.bazel.rulesscala.scalac.compileoptions.CompileOptionsTest",
     deps = [":compileoptions"],
 )
