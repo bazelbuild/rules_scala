@@ -32,7 +32,6 @@ public class DepsTrackingReporter extends ConsoleReporter {
   private final Map<String, String> indirectJarToTarget = new HashMap<>();
 
   private final Set<String> ignoredTargets;
-  private final Set<String> indirectTargets;
   private final Set<String> directTargets;
 
   private CompileOptions ops;
@@ -63,7 +62,6 @@ public class DepsTrackingReporter extends ConsoleReporter {
 
     ignoredTargets = Arrays.stream(ops.unusedDepsIgnoredTargets).collect(Collectors.toSet());
     directTargets = Arrays.stream(ops.directTargets).collect(Collectors.toSet());
-    indirectTargets = Arrays.stream(ops.indirectTargets).collect(Collectors.toSet());
   }
 
   private boolean isDependecyTrackingOn() {
