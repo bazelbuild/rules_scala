@@ -362,11 +362,6 @@ def _try_to_compile_java_jar(
         java_compilation_provider = provider,
     )
 
-def _add_resources_cmd(ctx):
-    paths = _resource_paths(ctx.files.resources, ctx.attr.resource_strip_prefix)
-    lines = ["{target}={source}\n".format(target = p[0], source = p[1]) for p in paths]
-    return "".join(lines)
-
 def _collect_java_providers_of(deps):
     providers = []
     for dep in deps:
