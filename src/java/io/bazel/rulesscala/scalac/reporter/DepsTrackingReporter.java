@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -95,7 +96,8 @@ public class DepsTrackingReporter extends ConsoleReporter {
   }
 
   public void prepareReport() throws IOException {
-    Map<String, Dep> usedTargets = new HashMap<>();
+    Set<String> usedTargets = new HashSet<>();
+    Set<Dep> usedDeps = new HashSet<>();
 
     for (String jar : usedJars) {
       String target = jarToTarget.get(jar);
@@ -122,14 +124,14 @@ public class DepsTrackingReporter extends ConsoleReporter {
           ignoredTargets.contains(target)
       );
 
-      usedTargets.put(target, dep);
+      usedTargets.add(target);
+      usedDeps.add(dep);
     }
 
     Set<Dep> unusedDeps = new HashSet<>();
-
     for (int i = 0; i < ops.directTargets.length; i++) {
       String directTarget = ops.directTargets[i];
-      if (usedTargets.containsKey(directTarget)) {
+      if (usedTargets.contains(directTarget)) {
         continue;
       }
 
@@ -144,14 +146,23 @@ public class DepsTrackingReporter extends ConsoleReporter {
       );
     }
 
+    writeSdepsFile(usedDeps, unusedDeps);
+
+    Reporter reporter = this.delegateReporter != null ? this.delegateReporter : this;
+    reportDeps(usedDeps, unusedDeps, reporter);
+  }
+
+  private void writeSdepsFile(Collection<Dep> usedDeps, Collection<Dep> unusedDeps)
+      throws IOException {
+
     ScalaDeps.Dependencies.Builder builder = ScalaDeps.Dependencies.newBuilder();
     builder.setRuleLabel(ops.currentTarget);
     builder.setDependencyTrackingMethod(ops.dependencyTrackingMethod);
 
-    for (Dep dep : usedTargets.values()) {
+    for (Dep dep : usedDeps) {
       ScalaDeps.Dependency.Builder dependecyBuilder = ScalaDeps.Dependency.newBuilder();
 
-      ScalaDeps.Dependency.Kind kind = dep.usedInAst ? Kind.EXPLICIT : Kind.IMPLICIT;
+      Kind kind = dep.usedInAst ? Kind.EXPLICIT : Kind.IMPLICIT;
 
       dependecyBuilder.setKind(kind);
       dependecyBuilder.setLabel(dep.target);
@@ -165,7 +176,7 @@ public class DepsTrackingReporter extends ConsoleReporter {
     for (Dep dep : unusedDeps) {
       ScalaDeps.Dependency.Builder dependecyBuilder = ScalaDeps.Dependency.newBuilder();
 
-      ScalaDeps.Dependency.Kind kind = Kind.UNUSED;
+      Kind kind = Kind.UNUSED;
 
       dependecyBuilder.setKind(kind);
       dependecyBuilder.setLabel(dep.target);
@@ -180,9 +191,9 @@ public class DepsTrackingReporter extends ConsoleReporter {
         Files.newOutputStream(Paths.get(ops.scalaDepsFile)))) {
       outputStream.write(builder.build().toByteArray());
     }
+  }
 
-    Reporter reporter = this.delegateReporter != null ? this.delegateReporter : this;
-
+  private void reportDeps(Collection<Dep> usedDeps, Collection<Dep> unusedDeps, Reporter reporter) {
     if (ops.dependencyTrackingMethod.equals("ast-plus")) {
 
       if (!ops.strictDepsMode.equals("off")) {
@@ -190,7 +201,7 @@ public class DepsTrackingReporter extends ConsoleReporter {
         StringBuilder compilerDepsReport = new StringBuilder("Missing compiler dependencies:\n");
         int strictDepsCount = 0;
         int compilerDepsCount = 0;
-        for (Dep dep : usedTargets.values()) {
+        for (Dep dep : usedDeps) {
           String depReport = reportDep(dep, true);
           if (dep.ignored) {
             continue;
@@ -245,7 +256,6 @@ public class DepsTrackingReporter extends ConsoleReporter {
         }
       }
     }
-
   }
 
   private String reportDep(Dep dep, boolean add) {
