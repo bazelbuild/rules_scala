@@ -92,12 +92,6 @@ implicit_deps = {
         default = Label("@bazel_tools//tools/jdk:singlejar"),
         allow_files = True,
     ),
-    "_zipper": attr.label(
-        executable = True,
-        cfg = "exec",
-        default = Label("@bazel_tools//tools/zip:zipper"),
-        allow_files = True,
-    ),
     "_java_runtime": attr.label(
         default = Label("@bazel_tools//tools/jdk:current_java_runtime"),
     ),
