@@ -28,10 +28,3 @@ java_proto_library(
     visibility = ["//visibility:public"],
     deps = [":scala_deps_proto"],
 )
-
-java_binary(
-    name = "sdeps_reader",
-    srcs = ["ScalaDepsReader.java"],
-    main_class = "io.bazel.rulesscala.scalac.reporter.ScalaDepsReader",
-    deps = [":scala_deps_java_proto"],
-)
