@@ -15,6 +15,7 @@ def setup_scala_toolchain(
     scala_compile_classpath_provider = "%s_scala_compile_classpath_provider" % name
     scala_library_classpath_provider = "%s_scala_library_classpath_provider" % name
     scala_macro_classpath_provider = "%s_scala_macro_classpath_provider" % name
+    semanticdb_scalac_provider = "%s_scala_semanticdb_scalac_provider" % name
 
     declare_deps_provider(
         name = scala_compile_classpath_provider,
@@ -57,9 +58,18 @@ def setup_scala_toolchain(
     else:
         parser_combinators_provider = "@io_bazel_rules_scala//scala:parser_combinators_provider"
 
+
+    declare_deps_provider(
+        name = semanticdb_scalac_provider,
+        deps_id = "semanticdb_scalac",
+        visibility = visibility,
+        deps = ["@org_scalameta_semanticdb_scalac"],
+    )
+
     scala_toolchain(
         name = "%s_impl" % name,
         dep_providers = [
+            semanticdb_scalac_provider,
             scala_xml_provider,
             parser_combinators_provider,
             scala_compile_classpath_provider,

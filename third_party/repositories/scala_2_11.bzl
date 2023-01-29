@@ -78,8 +78,8 @@ artifacts = {
         ],
     },
     "org_scalameta_semanticdb_scalac": {
-        "artifact": "org.scalameta:semanticdb-scalac_2.11.12:4.4.31",
-        "sha256": "d61eb07ff182173c8b30b7caa4bba2bd04fd2c921552ad1c550073f1f0262ed7",
+        "artifact": "org.scalameta:semanticdb-scalac_2.11.12:4.7.3",
+        "sha256": "0db52fc6639f73b15c3fb9fc1cb441704399f0d8dee8352ca1cf359630e7ca0f",
     },
     "org_scalameta_fastparse": {
         "artifact": "org.scalameta:fastparse_2.11:1.0.1",

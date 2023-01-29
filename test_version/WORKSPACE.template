@@ -68,3 +68,7 @@ register_toolchains("@io_bazel_rules_scala//testing:testing_toolchain")
 load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_unused_deps_toolchains")
 
 scala_register_unused_deps_toolchains()
+
+load("@io_bazel_rules_scala//scala/semanticdb:semanticdb_repositories.bzl", "semanticdb_repositories")
+
+semanticdb_repositories()
