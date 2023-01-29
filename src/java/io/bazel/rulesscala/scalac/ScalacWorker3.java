@@ -239,6 +239,11 @@ class ScalacWorker3 implements Worker.Interface {
       }
     }
 
+    if (ops.enableSemanticDb) {
+      pluginParams.add("-Xsemanticdb")
+      pluginParams.add("-semanticdb-target:" + ops.semanticDbTarget.get())
+    }
+
     return pluginParams.toArray(new String[pluginParams.size()]);
   }
 
