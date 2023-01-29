@@ -64,7 +64,7 @@ def collect_plugin_paths(plugins):
         if hasattr(p, "path"):
             paths.append(p)
         elif JavaInfo in p:
-            paths.extend([j.class_jar.path for j in p[JavaInfo].outputs.jars])
+            paths.extend([j.class_jar for j in p[JavaInfo].outputs.jars])
             # support http_file pointed at a jar. http_jar uses ijar,
             # which breaks scala macros
 
