@@ -3,6 +3,7 @@ package io.bazel.rulesscala.scalac;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class CompileOptions {
   public final String outputName;
@@ -33,6 +34,10 @@ public class CompileOptions {
   public final String dependencyTrackingMethod;
   public final String diagnosticsFile;
   public final boolean enableDiagnosticsReport;
+
+  public final boolean enableSemanticDb;
+  public final Optional<String> semanticDbTarget;
+  public final Optional<String> semanticDbJar;
 
   public CompileOptions(String[] lines) {
     Args args = new Args(lines);
@@ -68,9 +73,13 @@ public class CompileOptions {
 
     statsfile = args.getSingleOrError("StatsfileOutput");
     enableStatsFile = Boolean.parseBoolean(args.getSingleOrError("EnableStatsFile"));
-    enableDiagnosticsReport =
-        Boolean.parseBoolean(args.getSingleOrError("EnableDiagnosticsReport"));
+    enableDiagnosticsReport = Boolean.parseBoolean(args.getSingleOrError("EnableDiagnosticsReport"));
     diagnosticsFile = args.getSingleOrError("DiagnosticsFile");
+  
+    enableSemanticDb = Boolean.parseBoolean(args.getSingleOrError("EnableSemanticDb"));
+    semanticDbTarget = args.getSingleOptional("SemanticDbTarget");
+    semanticDbJar = args.getSingleOptional("SemanticDbJar");
+
   }
 
   static final class Args {
@@ -93,17 +102,27 @@ public class CompileOptions {
     }
 
     String getSingleOrError(String k) {
+      Optional<String> opt = getSingleOptional(k);
+      if (opt.isPresent()) {
+        return opt.get();
+      } else {
+        throw new RuntimeException("Missing required arg " + k);
+      }
+    }
+  
+    Optional<String> getSingleOptional(String k) {
       if (index.containsKey(k)) {
         String[] v = index.get(k);
         if (v.length == 1) {
-          return v[0];
+          return Optional.of(v[0]);
         } else {
           throw new RuntimeException(
               k + " expected to contain single value but got " + Arrays.toString(v));
         }
       } else {
-        throw new RuntimeException("Missing required arg " + k);
+        return Optional.empty();
       }
     }
+
   }
 }

@@ -61,8 +61,6 @@ def compile_scala(
 
     # look for any plugins:
     input_plugins = plugins
-    if hasattr(ctx.attr, "_semanticdb_scalac_plugin"):
-        plugins = plugins + [ctx.attr._semanticdb_scalac_plugin]
     plugins = _collect_plugin_paths(plugins)
     if dependency_info.use_analyzer:
         plugins = depset(transitive = [plugins, ctx.attr._dependency_analyzer_plugin.files])
@@ -75,15 +73,12 @@ def compile_scala(
     enable_stats_file = toolchain.enable_stats_file
     enable_diagnostics_report = toolchain.enable_diagnostics_report
 
-    if hasattr(ctx.attr, "_semanticdb_scalac_plugin"):
-        semanticdb_dir = ctx.actions.declare_directory("{}.semanticdb".format(ctx.label.name))
-        outs.append(semanticdb_dir)
-        scalacopts_expanded = scalacopts_expanded + [
-            "-Yrangepos",
-            "-P:semanticdb:failures:error",
-            "-P:semanticdb:targetroot:{}/{}/{}.semanticdb".format(ctx.bin_dir.path, ctx.label.package, ctx.label.name),
-            "-Xplugin-require:semanticdb",
-        ]
+    enable_semanticdb = toolchain.enable_semanticdb
+    semanticdb_dir =  "{}.semanticdb".format(ctx.label.name)
+
+    if enable_semanticdb and hasattr(ctx.attr, "_semanticdb_scalac_plugin"):
+        semanticdb_out = ctx.actions.declare_directory(semanticdb_dir)
+        outs.append(semanticdb_out)
 
     args = ctx.actions.args()
     args.set_param_file_format("multiline")
@@ -110,6 +105,17 @@ def compile_scala(
     args.add_all("--ResourceJars", resource_jars)
     args.add_all("--ScalacOpts", scalacopts_expanded)
     args.add_all("--SourceJars", all_srcjars)
+
+    args.add("--EnableSemanticDb", enable_semanticdb)
+    
+    if enable_semanticdb and hasattr(ctx.attr, "_semanticdb_scalac_plugin"):
+        target = "{}/{}/{}".format(ctx.bin_dir.path, ctx.label.package, semanticdb_dir)
+        # jar = ",".join(ctx.attr._semanticdb_scalac_plugin.files.to_list())
+        
+        jar = [jo.class_jar.path for jo in ctx.attr._semanticdb_scalac_plugin[JavaInfo].outputs.jars][0]
+
+        args.add("--SemanticDbTarget", target)
+        args.add("--SemanticDbJar", jar)
 
     if dependency_info.need_direct_info:
         if dependency_info.need_direct_jars:

@@ -61,6 +61,7 @@ def _scala_toolchain_impl(ctx):
 
     enable_stats_file = ctx.attr.enable_stats_file
     enable_diagnostics_report = ctx.attr.enable_diagnostics_report
+    enable_semanticdb = ctx.attr.enable_semanticdb
 
     all_strict_deps_patterns = ctx.attr.dependency_tracking_strict_deps_patterns
     strict_deps_includes, strict_deps_excludes = _partition_patterns(all_strict_deps_patterns)
@@ -84,6 +85,7 @@ def _scala_toolchain_impl(ctx):
         enable_diagnostics_report = enable_diagnostics_report,
         jacocorunner = ctx.attr.jacocorunner,
         enable_stats_file = enable_stats_file,
+        enable_semanticdb = enable_semanticdb,
         use_argument_file_in_runner = ctx.attr.use_argument_file_in_runner,
     )
     return [toolchain]
@@ -138,6 +140,10 @@ scala_toolchain = rule(
         "enable_stats_file": attr.bool(
             default = True,
             doc = "Enable writing of statsfile",
+        ),
+        "enable_semanticdb": attr.bool(
+            default = False,
+            doc = "Enable SemanticDb",
         ),
         "use_argument_file_in_runner": attr.bool(
             default = False,
