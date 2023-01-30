@@ -1,5 +1,6 @@
 load("//scala:scala_toolchain.bzl", "scala_toolchain")
 load("//scala:providers.bzl", "declare_deps_provider")
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_MAJOR_VERSION")
 
 def setup_scala_toolchain(
         name,
@@ -66,16 +67,19 @@ def setup_scala_toolchain(
         deps = ["@org_scalameta_semanticdb_scalac"],
     )
 
+    dep_providers = [
+        scala_xml_provider,
+        parser_combinators_provider,
+        scala_compile_classpath_provider,
+        scala_library_classpath_provider,
+        scala_macro_classpath_provider
+    ] 
+    if SCALA_MAJOR_VERSION.startswith("2"):
+        dep_providers.append(semanticdb_scalac_provider)
+
     scala_toolchain(
         name = "%s_impl" % name,
-        dep_providers = [
-            semanticdb_scalac_provider,
-            scala_xml_provider,
-            parser_combinators_provider,
-            scala_compile_classpath_provider,
-            scala_library_classpath_provider,
-            scala_macro_classpath_provider,
-        ],
+        dep_providers = dep_providers,
         visibility = visibility,
         **kwargs
     )

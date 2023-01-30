@@ -8,6 +8,7 @@ load(
     "@io_bazel_rules_scala//scala:plusone.bzl",
     _collect_plus_one_deps_aspect = "collect_plus_one_deps_aspect",
 )
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_MAJOR_VERSION")
 
 common_attrs_for_plugin_bootstrapping = {
     "srcs": attr.label_list(allow_files = [
@@ -54,18 +55,23 @@ common_attrs = {}
 
 common_attrs.update(common_attrs_for_plugin_bootstrapping)
 
-common_attrs.update({
-    "_dependency_analyzer_plugin": attr.label(
-        default = Label(
-            "@io_bazel_rules_scala//third_party/dependency_analyzer/src/main:dependency_analyzer",
-        ), allow_files = [".jar"], mandatory = False,
-    ),
+semanticdb_attrs = {
     "_semanticdb_scalac_plugin": attr.label(
         default = Label(
             "@io_bazel_rules_scala//scala/private/toolchain_deps:semanticdb_scalac",
         ),
         providers = [[JavaInfo]],
         mandatory = False,
+    ),
+} if SCALA_MAJOR_VERSION.startswith("2") else {}
+
+common_attrs.update(semanticdb_attrs)
+
+common_attrs.update({
+    "_dependency_analyzer_plugin": attr.label(
+        default = Label(
+            "@io_bazel_rules_scala//third_party/dependency_analyzer/src/main:dependency_analyzer",
+        ), allow_files = [".jar"], mandatory = False,
     ),
     "unused_dependency_checker_mode": attr.string(
         values = [
