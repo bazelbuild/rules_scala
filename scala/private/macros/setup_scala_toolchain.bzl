@@ -59,7 +59,6 @@ def setup_scala_toolchain(
     else:
         parser_combinators_provider = "@io_bazel_rules_scala//scala:parser_combinators_provider"
 
-
     declare_deps_provider(
         name = semanticdb_scalac_provider,
         deps_id = "semanticdb_scalac",
@@ -72,8 +71,8 @@ def setup_scala_toolchain(
         parser_combinators_provider,
         scala_compile_classpath_provider,
         scala_library_classpath_provider,
-        scala_macro_classpath_provider
-    ] 
+        scala_macro_classpath_provider,
+    ]
     if SCALA_MAJOR_VERSION.startswith("2"):
         dep_providers.append(semanticdb_scalac_provider)
 

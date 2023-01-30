@@ -71,7 +71,9 @@ common_attrs.update({
     "_dependency_analyzer_plugin": attr.label(
         default = Label(
             "@io_bazel_rules_scala//third_party/dependency_analyzer/src/main:dependency_analyzer",
-        ), allow_files = [".jar"], mandatory = False,
+        ),
+        allow_files = [".jar"],
+        mandatory = False,
     ),
     "unused_dependency_checker_mode": attr.string(
         values = [

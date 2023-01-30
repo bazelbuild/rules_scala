@@ -4,7 +4,6 @@ load(
 )
 load("//third_party/repositories:repositories.bzl", "repositories")
 
-
 def semanticdb_repositories(
         maven_servers = _default_maven_server_urls(),
         overriden_artifacts = {}):

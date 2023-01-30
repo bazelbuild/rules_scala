@@ -16,5 +16,5 @@ toolchain(
 
 scala_library(
     name = "all",
-    srcs = glob(["**/*.scala"]) 
+    srcs = glob(["**/*.scala"]),
 )

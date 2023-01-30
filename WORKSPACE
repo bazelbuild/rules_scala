@@ -25,6 +25,7 @@ load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
 scala_config()
 
 load("//scala/semanticdb:semanticdb_repositories.bzl", "semanticdb_repositories")
+
 semanticdb_repositories()
 
 load("//scala:scala.bzl", "rules_scala_setup", "rules_scala_toolchain_deps_repositories")
@@ -70,7 +71,6 @@ load("//scala/scalafmt:scalafmt_repositories.bzl", "scalafmt_default_config", "s
 scalafmt_default_config()
 
 scalafmt_repositories()
-
 
 MAVEN_SERVER_URLS = default_maven_server_urls()
 
