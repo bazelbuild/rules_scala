@@ -20,7 +20,28 @@ function scala3_example() {
   (cd examples/scala3; bazel build //...)
 }
 
+function test_produces_semanticdb_scala3() {
+  # NB: In subshell, so CD doesn't change local CWD 
+  (
+    cd examples/testing/semanticdb_scala3
+    bazel run --extra_toolchains=//:semanticdb_toolchain //:run
+
+    local OUT_DIR="$(bazel info bazel-bin)/all.semanticdb" 
+    if [ ! -d "$OUT_DIR" ]; then
+      echo "No SemanticDB out directory"
+      exit 1
+    fi
+
+    local SIZE=$(du -s $OUT_DIR | cut -f1)
+    if (( SIZE < 8 )); then
+      echo "No SemanticDb files produced"
+      exit 1
+    fi
+  )
+}
+
 $runner scalatest_repositories_example
 $runner specs2_junit_repositories_example
 $runner multi_framework_toolchain_example
 $runner scala3_example
+$runner test_produces_semanticdb_scala3

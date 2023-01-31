@@ -2,6 +2,7 @@ load(
     "@io_bazel_rules_scala//scala:providers.bzl",
     _DepsInfo = "DepsInfo",
 )
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_MAJOR_VERSION")
 
 def _compute_strict_deps_mode(input_strict_deps_mode, dependency_mode):
     if dependency_mode == "direct":
@@ -90,19 +91,24 @@ def _scala_toolchain_impl(ctx):
     )
     return [toolchain]
 
+def _default_dep_providers():
+    dep_providers = [
+        "@io_bazel_rules_scala//scala:scala_xml_provider",
+        "@io_bazel_rules_scala//scala:parser_combinators_provider",
+        "@io_bazel_rules_scala//scala:scala_compile_classpath_provider",
+        "@io_bazel_rules_scala//scala:scala_library_classpath_provider",
+        "@io_bazel_rules_scala//scala:scala_macro_classpath_provider",
+    ]
+    if SCALA_MAJOR_VERSION.startswith("2"):
+        dep_providers.append("@io_bazel_rules_scala//scala:semanticdb_scalac_provider")
+    return dep_providers
+
 scala_toolchain = rule(
     _scala_toolchain_impl,
     attrs = {
         "scalacopts": attr.string_list(),
         "dep_providers": attr.label_list(
-            default = [
-                "@io_bazel_rules_scala//scala:semanticdb_scalac_provider",
-                "@io_bazel_rules_scala//scala:scala_xml_provider",
-                "@io_bazel_rules_scala//scala:parser_combinators_provider",
-                "@io_bazel_rules_scala//scala:scala_compile_classpath_provider",
-                "@io_bazel_rules_scala//scala:scala_library_classpath_provider",
-                "@io_bazel_rules_scala//scala:scala_macro_classpath_provider",
-            ],
+            default = _default_dep_providers(),
             providers = [_DepsInfo],
         ),
         "dependency_mode": attr.string(

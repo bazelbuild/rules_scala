@@ -75,7 +75,7 @@ def compile_scala(
     enable_semanticdb = toolchain.enable_semanticdb
     semanticdb_dir = "{}.semanticdb".format(ctx.label.name)
 
-    if enable_semanticdb and hasattr(ctx.attr, "_semanticdb_scalac_plugin"):
+    if enable_semanticdb:
         semanticdb_out = ctx.actions.declare_directory(semanticdb_dir)
         outs.append(semanticdb_out)
 
@@ -107,14 +107,13 @@ def compile_scala(
 
     args.add("--EnableSemanticDb", enable_semanticdb)
 
-    if enable_semanticdb and hasattr(ctx.attr, "_semanticdb_scalac_plugin"):
+    if enable_semanticdb:
         target = "{}/{}/{}".format(ctx.bin_dir.path, ctx.label.package, semanticdb_dir)
-        # jar = ",".join(ctx.attr._semanticdb_scalac_plugin.files.to_list())
-
-        jar = [jo.class_jar.path for jo in ctx.attr._semanticdb_scalac_plugin[JavaInfo].outputs.jars][0]
-
         args.add("--SemanticDbTarget", target)
-        args.add("--SemanticDbJar", jar)
+
+        if hasattr(ctx.attr, "_semanticdb_scalac_plugin"):
+            jar = [jo.class_jar.path for jo in ctx.attr._semanticdb_scalac_plugin[JavaInfo].outputs.jars][0]
+            args.add("--SemanticDbJar", jar)
 
     if dependency_info.need_direct_info:
         if dependency_info.need_direct_jars:
