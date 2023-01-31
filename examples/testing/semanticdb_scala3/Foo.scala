@@ -1,3 +1,3 @@
 class Foo:
-  def sayHello: String = "Hello Scala 3 !!"
+  def sayHello: String = "Hello from Scala 3!!"
 
