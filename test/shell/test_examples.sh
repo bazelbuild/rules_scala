@@ -21,7 +21,7 @@ function scala3_example() {
 }
 
 function test_produces_semanticdb_scala3() {
-  # NB: In subshell, so CD doesn't change local CWD 
+  # NB: In subshell, so "cd" doesn't change local CWD 
   (
     cd examples/testing/semanticdb_scala3
     bazel run --extra_toolchains=//:semanticdb_toolchain //:run
