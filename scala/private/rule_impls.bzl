@@ -100,10 +100,8 @@ def compile_scala(
     args.add_all("--SourceJars", all_srcjars)
 
     if dependency_info.need_direct_info:
-        if dependency_info.need_direct_jars:
-            args.add_all("--DirectJars", cjars)
-        if dependency_info.need_direct_targets:
-            args.add_all("--DirectTargets", [labels[j.path] for j in cjars.to_list()])
+        args.add_all("--DirectJars", cjars)
+        args.add_all("--DirectTargets", [labels[j.path] for j in cjars.to_list()])
 
     if dependency_info.need_indirect_info:
         args.add_all("--IndirectJars", transitive_compile_jars)

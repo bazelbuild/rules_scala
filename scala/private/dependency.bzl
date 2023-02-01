@@ -11,15 +11,10 @@ def new_dependency_info(
     is_strict_deps_on = strict_deps_mode != "off"
     is_unused_deps_on = unused_deps_mode != "off"
 
-    need_direct_jars = is_strict_deps_on or is_unused_deps_on
-    need_direct_targets = is_unused_deps_on or is_strict_deps_on
-
     return struct(
         dependency_mode = dependency_mode,
         need_indirect_info = is_strict_deps_on,
-        need_direct_jars = need_direct_jars,
-        need_direct_targets = need_direct_targets,
-        need_direct_info = need_direct_jars or need_direct_targets,
+        need_direct_info = is_strict_deps_on or is_unused_deps_on,
         dependency_tracking_method = dependency_tracking_method,
         unused_deps_mode = unused_deps_mode,
         strict_deps_mode = strict_deps_mode,
