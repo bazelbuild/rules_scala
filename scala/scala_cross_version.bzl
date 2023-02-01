@@ -28,7 +28,7 @@ def extract_major_version(scala_version):
     return scala_version[:scala_version.find(".", 2)]
 
 def extract_minor_version(scala_version):
-    return scala_version[scala_version.find(".", 2) + 1:]
+    return scala_version.split(".")[2]
 
 def extract_major_version_underscore(scala_version):
     """Return major Scala version with underscore given a full version,

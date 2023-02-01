@@ -23,13 +23,14 @@ def _store_config(repository_ctx):
 
     scala_major_version = extract_major_version(scala_version)
 
+    scala_minor_version = extract_minor_version(scala_version)
     if enable_compiler_dependency_tracking == "True":
-        scala_minor_version = extract_minor_version(scala_version)
         _validate_supported_scala_version(scala_major_version, scala_minor_version)
 
     config_file_content = "\n".join([
         "SCALA_VERSION='" + scala_version + "'",
         "SCALA_MAJOR_VERSION='" + scala_major_version + "'",
+        "SCALA_MINOR_VERSION='" + scala_minor_version + "'",
         "ENABLE_COMPILER_DEPENDENCY_TRACKING=" + enable_compiler_dependency_tracking,
     ])
 

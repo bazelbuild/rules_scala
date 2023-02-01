@@ -4,13 +4,19 @@ load(
     _default_maven_server_urls = "default_maven_server_urls",
 )
 load("//third_party/repositories:repositories.bzl", "repositories")
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_MAJOR_VERSION", "SCALA_VERSION")
+load(
+    "@io_bazel_rules_scala_config//:config.bzl",
+    "SCALA_MAJOR_VERSION",
+    "SCALA_MINOR_VERSION",
+    "SCALA_VERSION",
+)
 
 def dt_patched_compiler_setup():
     patch = "@io_bazel_rules_scala//dt_patches:dt_compiler_%s.patch" % SCALA_MAJOR_VERSION
 
+    minor_version = int(SCALA_MINOR_VERSION)
+
     if SCALA_MAJOR_VERSION == "2.12":
-        minor_version = int(SCALA_VERSION[SCALA_VERSION.find(".", 2) + 1:])
         if minor_version >= 1 and minor_version <= 7:
             patch = "@io_bazel_rules_scala//dt_patches:dt_compiler_%s.1.patch" % SCALA_MAJOR_VERSION
         elif minor_version <= 11:
