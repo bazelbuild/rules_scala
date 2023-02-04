@@ -240,24 +240,24 @@ artifacts = {
         ],
     },
     "io_bazel_rules_scala_org_openjdk_jmh_jmh_core": {
-        "artifact": "org.openjdk.jmh:jmh-core:1.36",
-        "sha256": "f90974e37d0da8886b5c05e6e3e7e20556900d747c5a41c1023b47c3301ea73c",
+        "artifact": "org.openjdk.jmh:jmh-core:1.20",
+        "sha256": "1688db5110ea6413bf63662113ed38084106ab1149e020c58c5ac22b91b842ca",
     },
     "io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_asm": {
-        "artifact": "org.openjdk.jmh:jmh-generator-asm:1.36",
-        "sha256": "7460b11b823dee74b3e19617d35d5911b01245303d6e31c30f83417cfc2f54b5",
+        "artifact": "org.openjdk.jmh:jmh-generator-asm:1.20",
+        "sha256": "2dd4798b0c9120326310cda3864cc2e0035b8476346713d54a28d1adab1414a5",
     },
     "io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_reflection": {
-        "artifact": "org.openjdk.jmh:jmh-generator-reflection:1.36",
-        "sha256": "a9c72760e12c199e2a2c28f1a126ebf0cc5b51c0b58d46472596fc32f7f92534",
+        "artifact": "org.openjdk.jmh:jmh-generator-reflection:1.20",
+        "sha256": "57706f7c8278272594a9afc42753aaf9ba0ba05980bae0673b8195908d21204e",
     },
     "io_bazel_rules_scala_org_ows2_asm_asm": {
-        "artifact": "org.ow2.asm:asm:9.0",
-        "sha256": "0df97574914aee92fd349d0cb4e00f3345d45b2c239e0bb50f0a90ead47888e0",
+        "artifact": "org.ow2.asm:asm:6.1.1",
+        "sha256": "dd3b546415dd4bade2ebe3b47c7828ab0623ee2336604068e2d81023f9f8d833",
     },
     "io_bazel_rules_scala_net_sf_jopt_simple_jopt_simple": {
-        "artifact": "net.sf.jopt-simple:jopt-simple:5.0.4",
-        "sha256": "df26cc58f235f477db07f753ba5a3ab243ebe5789d9f89ecf68dd62ea9a66c28",
+        "artifact": "net.sf.jopt-simple:jopt-simple:4.6",
+        "sha256": "3fcfbe3203c2ea521bf7640484fd35d6303186ea2e08e72f032d640ca067ffda",
     },
     "io_bazel_rules_scala_org_apache_commons_commons_math3": {
         "artifact": "org.apache.commons:commons-math3:3.6.1",
