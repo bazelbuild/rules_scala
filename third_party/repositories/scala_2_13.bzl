@@ -1,5 +1,5 @@
 scala_version = "2.13.6"
-scalameta_version = "4.7.3"
+scalameta_version = "4.3.22"
 
 artifacts = {
     "io_bazel_rules_scala_scala_library": {
@@ -99,8 +99,8 @@ artifacts = {
         ],
     },
     "org_scalameta_scalafmt_core": {
-        "artifact": "org.scalameta:scalafmt-core_2.13:2.7.4",
-        "sha256": "873d98275f75b67c1e01094a24bafb29a588b7d05fdc508d3b1ba02f08d0c0d8",
+        "artifact": "org.scalameta:scalafmt-core_2.13:3.7.1",
+        "sha256": "d9cd90c7186c62a1e960d8ba9228a2e7c894b05cdbda7d1b102e595bc31f0cbe",
         "deps": [
             "@com_geirsson_metaconfig_core",
             "@com_geirsson_metaconfig_typesafe_config",
