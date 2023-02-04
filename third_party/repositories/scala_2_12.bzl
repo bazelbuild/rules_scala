@@ -95,8 +95,8 @@ artifacts = {
         ],
     },
     "org_scalameta_scalafmt_core": {
-        "artifact": "org.scalameta:scalafmt-core_2.12:3.7.1",
-        "sha256": "ddb2150d935dee20746a2578ccf9bdfea7857d2d5be2e7153ccd6f1ee731ab32",
+        "artifact": "org.scalameta:scalafmt-core_2.12:2.3.2",
+        "sha256": "4788e2045e99f4624162d3182016a05032a7ab1324c4a28af433aa070f916773",
         "deps": [
             "@com_geirsson_metaconfig_core",
             "@com_geirsson_metaconfig_typesafe_config",
