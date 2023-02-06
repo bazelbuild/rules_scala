@@ -53,12 +53,9 @@ def _phase_dependency(
 
     if strict_deps_always_off or not included_in_strict_deps_analysis:
         strict_deps_mode = "off"
-    else:
-        strict_deps_mode = get_strict_deps_mode(ctx)
-
-    if strict_deps_always_off or not included_in_strict_deps_analysis:
         compiler_deps_mode = "off"
     else:
+        strict_deps_mode = get_strict_deps_mode(ctx)
         compiler_deps_mode = get_compiler_deps_mode(ctx)
 
     if unused_deps_always_off or not included_in_unused_deps_analysis:
