@@ -13,7 +13,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
@@ -35,7 +34,7 @@ public class DepsTrackingReporter extends ConsoleReporter {
   private final Set<String> ignoredTargets;
   private final Set<String> directTargets;
 
-  private CompileOptions ops;
+  private final CompileOptions ops;
   public final Reporter delegateReporter;
   private Set<String> astUsedJars = new HashSet<>();
 
@@ -65,15 +64,15 @@ public class DepsTrackingReporter extends ConsoleReporter {
     directTargets = Arrays.stream(ops.directTargets).collect(Collectors.toSet());
   }
 
-  private boolean isDependecyTrackingOn() {
-    return Objects.equals(ops.dependencyTrackingMethod, "ast-plus")
+  private boolean isDependencyTrackingOn() {
+    return "ast-plus".equals(ops.dependencyTrackingMethod)
         && (!"off".equals(ops.strictDepsMode) || !"off".equals(ops.unusedDependencyCheckerMode));
   }
 
   @Override
   public void info0(Position pos, String msg, Severity severity, boolean force) {
     if (msg.startsWith("DT:")) {
-      if (isDependecyTrackingOn()) {
+      if (isDependencyTrackingOn()) {
         parseOpenedJar(msg);
       }
     } else {
