@@ -107,6 +107,8 @@ def compile_scala(
         args.add_all("--IndirectJars", transitive_compile_jars)
         args.add_all("--IndirectTargets", [labels[j.path] for j in transitive_compile_jars.to_list()])
 
+    # ignored targets are used to calculate compiler deps too, the name of the public attribute and
+    # associated fields might be misleading, but renaming is a breaking change
     if dependency_info.unused_deps_mode != "off" or dependency_info.strict_deps_mode != "off":
         args.add_all("--UnusedDepsIgnoredTargets", unused_dependency_checker_ignored_targets)
 
