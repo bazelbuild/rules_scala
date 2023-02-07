@@ -43,21 +43,22 @@ public class DepsTrackingReporter extends ConsoleReporter {
     this.ops = ops;
     this.delegateReporter = delegate;
 
-    if (ops.directTargets.length == ops.directJars.length) {
+    if (ops.directJars.length == ops.directTargets.length) {
       for (int i = 0; i < ops.directJars.length; i++) {
-        try {
-          jarToTarget.put(ops.directJars[i], ops.directTargets[i]);
-        } catch (ArrayIndexOutOfBoundsException e) {
-          throw new RuntimeException(
-              "mismatched size: " + ops.directJars.length + " vs " + ops.directTargets.length);
-        }
+        jarToTarget.put(ops.directJars[i], ops.directTargets[i]);
       }
+    } else {
+      throw new IllegalArgumentException(
+          "mismatched size: directJars " + ops.directJars.length + " vs directTargets" + ops.directTargets.length);
     }
 
-    if (ops.indirectTargets.length == ops.indirectJars.length) {
+    if (ops.indirectJars.length == ops.indirectTargets.length) {
       for (int i = 0; i < ops.indirectJars.length; i++) {
         indirectJarToTarget.put(ops.indirectJars[i], ops.indirectTargets[i]);
       }
+    } else {
+      throw new IllegalArgumentException(
+          "mismatched size: indirectJars " + ops.directJars.length + " vs indirectTargets " + ops.directTargets.length);
     }
 
     ignoredTargets = Arrays.stream(ops.unusedDepsIgnoredTargets).collect(Collectors.toSet());
