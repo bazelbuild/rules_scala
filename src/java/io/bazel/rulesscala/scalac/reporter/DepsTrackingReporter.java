@@ -190,7 +190,7 @@ public class DepsTrackingReporter extends ConsoleReporter {
         int strictDepsCount = 0;
         int compilerDepsCount = 0;
         for (Dependency dep : usedDeps) {
-          String depReport = reportDep(dep, true, isWarning);
+          String depReport = addDepMessage(dep);
           if (dep.getIgnored()) {
             continue;
           }
@@ -201,10 +201,14 @@ public class DepsTrackingReporter extends ConsoleReporter {
 
           if (dep.getKind() == Kind.EXPLICIT) {
             strictDepsCount++;
-            strictDepsReport.append(depReport);
+            strictDepsReport
+                .append(isWarning ? "warning: " : "error: ")
+                .append(depReport);
           } else {
             compilerDepsCount++;
-            compilerDepsReport.append(depReport);
+            compilerDepsReport
+                .append(isWarning ? "warning: " : "error: ")
+                .append(depReport);
           }
         }
 
@@ -234,7 +238,9 @@ public class DepsTrackingReporter extends ConsoleReporter {
             continue;
           }
           count++;
-          unusedDepsReport.append(reportDep(dep, false, isWarning));
+          unusedDepsReport
+              .append(isWarning ? "warning: " : "error: ")
+              .append(removeDepMessage(dep));
         }
         if (count > 0) {
           if (isWarning) {
@@ -247,28 +253,29 @@ public class DepsTrackingReporter extends ConsoleReporter {
     }
   }
 
-  private String reportDep(Dependency dep, boolean add, boolean isWarning) {
+  private String addDepMessage(Dependency dep) {
     String target = dep.getLabel();
     String jar = dep.getPath();
-    String reportType = isWarning ? "warning" : "error";
 
-    if (add) {
-      String message =
-          reportType + ": Target '" + target + "' (via jar: ' " + jar + " ') "
-              + "is being used by " + ops.currentTarget
-              + " but is is not specified as a dependency, please add it to the deps.\n"
-              + "You can use the following buildozer command:\n";
-      String command = "buildozer 'add deps " + target + "' " + ops.currentTarget + "\n";
-      return message + command;
-    } else {
-      String message =
-          reportType + ": Target '" + target + "' (via jar: ' " + jar + " ')  "
-              + "is specified as a dependency to " + ops.currentTarget
-              + " but isn't used, please remove it from the deps.\n"
-              + "You can use the following buildozer command:\n";
-      String command = "buildozer 'remove deps " + target + "' " + ops.currentTarget + "\n";
-      return message + command;
-    }
+    String message = "Target '" + target + "' (via jar: ' " + jar + " ') "
+        + "is being used by " + ops.currentTarget
+        + " but is is not specified as a dependency, please add it to the deps.\n"
+        + "You can use the following buildozer command:\n";
+    String command = "buildozer 'add deps " + target + "' " + ops.currentTarget + "\n";
+    return message + command;
+  }
+
+  private String removeDepMessage(Dependency dep) {
+    String target = dep.getLabel();
+    String jar = dep.getPath();
+
+    String message = "Target '" + target + "' (via jar: ' " + jar + " ')  "
+        + "is specified as a dependency to " + ops.currentTarget
+        + " but isn't used, please remove it from the deps.\n"
+        + "You can use the following buildozer command:\n";
+    String command = "buildozer 'remove deps " + target + "' " + ops.currentTarget + "\n";
+
+    return message + command;
   }
 
   private String guessFullJarPath(String jar) {
