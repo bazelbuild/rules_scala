@@ -292,11 +292,9 @@ public class DepsTrackingReporter extends ConsoleReporter {
     return jar.substring(0, jar.length() - suffix.length()) + ".jar";
   }
 
-  private String jarLabel(String path) {
+  private String jarLabel(String path) throws IOException {
     try (JarFile jar = new JarFile(path)) {
       return jar.getManifest().getMainAttributes().getValue("Target-Label");
-    } catch (IOException e) {
-      throw new RuntimeException(e);
     }
   }
 
