@@ -126,12 +126,12 @@ xmllint_test() {
   find -L ./bazel-testlogs -iname "*.xml" | xargs -n1 xmllint > /dev/null
 }
 
-#$runner test_disappearing_class
-#$runner test_transitive_deps
-#$runner test_repl
-#$runner test_benchmark_jmh
-#$runner test_benchmark_jmh_failure
-#$runner scala_test_test_filters
-#$runner test_multi_service_manifest
-#$runner test_override_javabin
+$runner test_disappearing_class
+$runner test_transitive_deps
+$runner test_repl
+$runner test_benchmark_jmh
+$runner test_benchmark_jmh_failure
+$runner scala_test_test_filters
+$runner test_multi_service_manifest
+$runner test_override_javabin
 $runner xmllint_test
