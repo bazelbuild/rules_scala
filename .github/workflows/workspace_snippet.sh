@@ -17,7 +17,7 @@ Paste this snippet into your \`WORKSPACE\` file:
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
-    name = "rules_scala",
+    name = "io_bazel_rules_scala",
     sha256 = "${SHA}",
     strip_prefix = "${PREFIX}",
     url = "https://github.com/bazelbuild/rules_scala/archive/refs/tags/${TAG}.tar.gz",
