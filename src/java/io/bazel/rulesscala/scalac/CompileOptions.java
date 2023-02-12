@@ -36,7 +36,6 @@ public class CompileOptions {
   public final boolean enableDiagnosticsReport;
 
   public final boolean enableSemanticDb;
-  public final Optional<String> semanticDbTarget;
   public final Optional<String> semanticDbJar;
 
   public CompileOptions(String[] lines) {
@@ -77,7 +76,6 @@ public class CompileOptions {
     diagnosticsFile = args.getSingleOrError("DiagnosticsFile");
   
     enableSemanticDb = Boolean.parseBoolean(args.getSingleOrError("EnableSemanticDb"));
-    semanticDbTarget = args.getSingleOptional("SemanticDbTarget");
     semanticDbJar = args.getSingleOptional("SemanticDbJar");
 
   }

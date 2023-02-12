@@ -73,11 +73,6 @@ def compile_scala(
     enable_diagnostics_report = toolchain.enable_diagnostics_report
 
     enable_semanticdb = toolchain.enable_semanticdb
-    semanticdb_dir = "{}.semanticdb".format(ctx.label.name)
-
-    if enable_semanticdb:
-        semanticdb_out = ctx.actions.declare_directory(semanticdb_dir)
-        outs.append(semanticdb_out)
 
     args = ctx.actions.args()
     args.set_param_file_format("multiline")
@@ -104,13 +99,9 @@ def compile_scala(
     args.add_all("--ResourceJars", resource_jars)
     args.add_all("--ScalacOpts", scalacopts_expanded)
     args.add_all("--SourceJars", all_srcjars)
-
     args.add("--EnableSemanticDb", enable_semanticdb)
 
     if enable_semanticdb:
-        target = "{}/{}/{}".format(ctx.bin_dir.path, ctx.label.package, semanticdb_dir)
-        args.add("--SemanticDbTarget", target)
-
         if hasattr(ctx.attr, "_semanticdb_scalac_plugin"):
             jar = [jo.class_jar.path for jo in ctx.attr._semanticdb_scalac_plugin[JavaInfo].outputs.jars][0]
             args.add("--SemanticDbJar", jar)

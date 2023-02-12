@@ -26,15 +26,10 @@ function test_produces_semanticdb_scala3() {
     cd examples/testing/semanticdb_scala3
     bazel run --extra_toolchains=//:semanticdb_toolchain //:run
 
-    local OUT_DIR="$(bazel info bazel-bin)/all.semanticdb" 
-    if [ ! -d "$OUT_DIR" ]; then
-      echo "No SemanticDB out directory"
-      exit 1
-    fi
+    local JAR="$(bazel info bazel-bin)/all.jar" 
 
-    local SIZE=$(du -s $OUT_DIR | cut -f1)
-    if (( SIZE < 8 )); then
-      echo "No SemanticDb files produced"
+    if ! jar_contains_files $JAR "Foo.scala.semanticdb" "Main.scala.semanticdb"; then
+      echo "SemanticDB output not included in jar $JAR"
       exit 1
     fi
   )

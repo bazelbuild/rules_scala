@@ -111,3 +111,12 @@ test_scala_library_expect_failure_on_missing_direct_deps() {
 
   test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" $test_target "--extra_toolchains=//test/toolchains:high_level_transitive_deps_strict_deps_error"
 }
+
+jar_contains_files() {
+  for arg in "${@:2}"
+  do
+    if ! jar tf $1 | grep $arg; then
+      return 1
+    fi
+  done
+}

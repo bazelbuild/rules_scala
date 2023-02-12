@@ -239,7 +239,6 @@ class ScalacWorker implements Worker.Interface {
       String[] params = {
         "-Yrangepos",
         "-P:semanticdb:failures:error",
-        "-P:semanticdb:targetroot:" + ops.semanticDbTarget.get(),
         "-Xplugin-require:semanticdb"
        };
  
