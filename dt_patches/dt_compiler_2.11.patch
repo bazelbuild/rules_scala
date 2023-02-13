@@ -1,0 +1,20 @@
+Subject: [PATCH] for patch
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git scala/tools/nsc/symtab/SymbolLoaders.scala scala/tools/nsc/symtab/SymbolLoaders.scala
+--- scala/tools/nsc/symtab/SymbolLoaders.scala	(revision 2e2f65a201b0b06e01a39fec4ae232c5b94efcca)
++++ scala/tools/nsc/symtab/SymbolLoaders.scala	(revision 21ecced66f88cff2a81a7f69340be63dd0bc9b88)
+@@ -210,6 +210,11 @@
+         val currentphase = phase
+         doComplete(root)
+         phase = currentphase
++        val assocFile = root.associatedFile
++        if (assocFile.underlyingSource.exists(_.isInstanceOf[scala.reflect.io.FileZipArchive])) {
++          val archivePath = assocFile.underlyingSource.map(_.path).headOption.getOrElse("N/A")
++          inform(s"DT:$archivePath")
++        }
+         informTime("loaded " + description, start)
+         ok = true
+         setSource(root)

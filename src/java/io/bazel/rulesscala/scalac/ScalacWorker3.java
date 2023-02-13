@@ -1,6 +1,8 @@
 package io.bazel.rulesscala.scalac;
 
 import static java.io.File.pathSeparator;
+
+import io.bazel.rulesscala.scalac.compileoptions.CompileOptions;
 import scala.Tuple2;
 import io.bazel.rulesscala.io_utils.StreamCopy;
 import io.bazel.rulesscala.jar.JarCreator;
@@ -291,6 +293,8 @@ class ScalacWorker3 implements Worker.Interface {
               Paths.get(ops.statsfile), Arrays.asList("build_time=" + buildTime));
       Files.createFile(
               Paths.get(ops.diagnosticsFile));
+      Files.createFile(
+              Paths.get(ops.scalaDepsFile));
     } catch (IOException ex) {
       throw new RuntimeException("Unable to write statsfile to " + ops.statsfile, ex);
     }

@@ -1,4 +1,4 @@
-package io.bazel.rulesscala.scalac;
+package io.bazel.rulesscala.scalac.compileoptions;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -25,6 +25,8 @@ public class CompileOptions {
   public final String[] indirectJars;
   public final String[] indirectTargets;
   public final String strictDepsMode;
+
+  public final String compilerDepsMode;
   public final String unusedDependencyCheckerMode;
   public final String currentTarget;
   public final String stampLabel;
@@ -33,7 +35,7 @@ public class CompileOptions {
   public final String dependencyTrackingMethod;
   public final String diagnosticsFile;
   public final boolean enableDiagnosticsReport;
-
+  public final String scalaDepsFile;
   public CompileOptions(String[] lines) {
     Args args = new Args(lines);
 
@@ -61,6 +63,7 @@ public class CompileOptions {
     indirectTargets = args.getOrEmpty("IndirectTargets");
 
     strictDepsMode = args.getSingleOrError("StrictDepsMode");
+    compilerDepsMode = args.getSingleOrError("CompilerDepsMode");
     unusedDependencyCheckerMode = args.getSingleOrError("UnusedDependencyCheckerMode");
     currentTarget = args.getSingleOrError("CurrentTarget");
     stampLabel = args.getSingleOrError("StampLabel");
@@ -71,6 +74,7 @@ public class CompileOptions {
     enableDiagnosticsReport =
         Boolean.parseBoolean(args.getSingleOrError("EnableDiagnosticsReport"));
     diagnosticsFile = args.getSingleOrError("DiagnosticsFile");
+    scalaDepsFile = args.getSingleOrError("ScalaDepsFile");
   }
 
   static final class Args {

@@ -1,4 +1,4 @@
-package io.bazel.rulesscala.scalac;
+package io.bazel.rulesscala.scalac.compileoptions;
 
 import static org.junit.Assert.*;
 

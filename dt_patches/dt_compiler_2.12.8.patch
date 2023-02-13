@@ -1,0 +1,19 @@
+Subject: [PATCH] for patch
+---
+Index: scala/tools/nsc/symtab/SymbolLoaders.scala
+<+>UTF-8
+===================================================================
+diff --git scala/tools/nsc/symtab/SymbolLoaders.scala scala/tools/nsc/symtab/SymbolLoaders.scala
+--- scala/tools/nsc/symtab/SymbolLoaders.scala	(revision 38cd84d976880eab16af17a44d186bbddcd554f2)
++++ scala/tools/nsc/symtab/SymbolLoaders.scala	(revision 58793f164e13a93ab9114cc30c61a24c12a2277f)
+@@ -230,6 +230,10 @@
+           val currentphase = phase
+           doComplete(root)
+           phase = currentphase
++          if (assocFile.underlyingSource.exists(_.isInstanceOf[scala.reflect.io.FileZipArchive])) {
++            val archivePath = assocFile.underlyingSource.map(_.path).headOption.getOrElse("N/A")
++            inform(s"DT:$archivePath")
++          }
+           informTime("loaded " + description, start)
+           ok = true
+           setSource(root)

@@ -1,0 +1,21 @@
+Subject: [PATCH] for patch
+---
+Index: src/compiler/scala/tools/nsc/symtab/SymbolLoaders.scala
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git scala/tools/nsc/symtab/SymbolLoaders.scala scala/tools/nsc/symtab/SymbolLoaders.scala
+--- scala/tools/nsc/symtab/SymbolLoaders.scala	(revision d578a02ea6b41b662072759c82c19f9309a15176)
++++ scala/tools/nsc/symtab/SymbolLoaders.scala	(revision 03634634be5aed4ec5053196bfdef102ad349f14)
+@@ -244,6 +244,10 @@
+       currentRunProfilerBeforeCompletion(root, assocFile)
+       try {
+         try {
++          if (assocFile.underlyingSource.exists(_.isInstanceOf[scala.reflect.io.FileZipArchive])) {
++            val archivePath = assocFile.underlyingSource.map(_.path).headOption.getOrElse("N/A")
++            inform(s"DT:$archivePath")
++          }
+           informingProgress("loaded " + description) {
+             val currentphase = phase
+             try doComplete(root)

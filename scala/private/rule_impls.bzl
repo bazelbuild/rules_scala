@@ -39,6 +39,7 @@ def compile_scala(
         manifest,
         statsfile,
         diagnosticsfile,
+        scaladepsfile,
         sources,
         cjars,
         all_srcjars,
@@ -80,12 +81,14 @@ def compile_scala(
     args.add("--PrintCompileTime", print_compile_time)
     args.add("--ExpectJavaOutput", expect_java_output)
     args.add("--StrictDepsMode", dependency_info.strict_deps_mode)
+    args.add("--CompilerDepsMode", dependency_info.compiler_deps_mode)
     args.add("--UnusedDependencyCheckerMode", dependency_info.unused_deps_mode)
     args.add("--DependencyTrackingMethod", dependency_info.dependency_tracking_method)
     args.add("--StatsfileOutput", statsfile)
     args.add("--EnableDiagnosticsReport", enable_diagnostics_report)
     args.add("--EnableStatsFile", enable_stats_file)
     args.add("--DiagnosticsFile", diagnosticsfile)
+    args.add("--ScalaDepsFile", scaladepsfile)
     args.add_all("--Classpath", compiler_classpath_jars)
     args.add_all("--ClasspathResourceSrcs", classpath_resources)
     args.add_all("--Files", sources)
@@ -97,19 +100,19 @@ def compile_scala(
     args.add_all("--SourceJars", all_srcjars)
 
     if dependency_info.need_direct_info:
-        if dependency_info.need_direct_jars:
-            args.add_all("--DirectJars", cjars)
-        if dependency_info.need_direct_targets:
-            args.add_all("--DirectTargets", [labels[j.path] for j in cjars.to_list()])
+        args.add_all("--DirectJars", cjars)
+        args.add_all("--DirectTargets", [labels[j.path] for j in cjars.to_list()])
 
     if dependency_info.need_indirect_info:
         args.add_all("--IndirectJars", transitive_compile_jars)
         args.add_all("--IndirectTargets", [labels[j.path] for j in transitive_compile_jars.to_list()])
 
-    if dependency_info.unused_deps_mode != "off":
+    # ignored targets are used to calculate compiler deps too, the name of the public attribute and
+    # associated fields might be misleading, but renaming is a breaking change
+    if dependency_info.unused_deps_mode != "off" or dependency_info.strict_deps_mode != "off":
         args.add_all("--UnusedDepsIgnoredTargets", unused_dependency_checker_ignored_targets)
 
-    outs = [output, statsfile, diagnosticsfile]
+    outs = [output, statsfile, diagnosticsfile, scaladepsfile]
 
     ins = depset(
         direct = [manifest] + sources + classpath_resources + resources + resource_jars,
