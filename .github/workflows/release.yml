@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Prepare workspace snippet
-        run: .github/workflows/workspace_snippet.sh > release_notes.txt
+        run: .github/workflows/workspace_snippet.sh ${{ env.GITHUB_REF_NAME }} > release_notes.txt
 
       - name: Release
         uses: softprops/action-gh-release@v1
