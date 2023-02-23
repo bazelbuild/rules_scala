@@ -10,6 +10,11 @@ ARCHIVE="rules_scala-$TAG.tar.gz"
 git archive --format=tar --prefix=${PREFIX}/ ${TAG} | gzip > $ARCHIVE
 SHA=$(shasum -a 256 $ARCHIVE | awk '{print $1}')
 
+echo $SHA
+echo $ARCHIVE
+ls 
+
+
 cat << EOF
 ## Using WORKSPACE
 
