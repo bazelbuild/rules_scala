@@ -23,3 +23,5 @@ jobs:
           # Use GH feature to populate the changelog automatically
           generate_release_notes: true
           body_path: release_notes.txt
+          fail_on_unmatched_files: true
+          files: rules_scala-*.tar.gz

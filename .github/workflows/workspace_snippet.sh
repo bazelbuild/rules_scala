@@ -6,6 +6,7 @@ set -o errexit -o nounset -o pipefail
 # https://docs.github.com/en/actions/learn-github-actions/environment-variables#default-environment-variables
 TAG=${GITHUB_REF_NAME}
 PREFIX="rules_scala-${TAG:1}"
+ARCHIVE="rules_scala-$TAG.tar.gz"
 SHA=$(git archive --format=tar --prefix="${PREFIX}/" "${TAG}" | gzip | shasum -a 256 | awk '{print $1}')
 
 cat << EOF
@@ -20,7 +21,7 @@ http_archive(
     name = "io_bazel_rules_scala",
     sha256 = "${SHA}",
     strip_prefix = "${PREFIX}",
-    url = "https://github.com/bazelbuild/rules_scala/archive/refs/tags/${TAG}.tar.gz",
+    url = "https://github.com/bazelbuild/rules_scala/releases/download/${TAG}/${ARCHIVE}",
 )
 \`\`\`
 
