@@ -36,6 +36,7 @@ tasks:
     shell_commands:
     # Install xmllint
     - sudo apt update && sudo apt install -y libxml2-utils
+    - set +e # don't exit to continue for an optional message without failed task
     - "./test_rules_scala.sh || buildkite-agent annotate --style 'warning' \"Optional build with latest Bazel version failed, [see here](${BUILDKITE_BUILD_URL}#${BUILDKITE_JOB_ID}) (It is not mandatory but worth checking)\""
   test_rules_scala_macos:
     name: "./test_rules_scala"
