@@ -57,7 +57,6 @@ def compile_scala(
         dependency_info,
         unused_dependency_checker_ignored_targets,
         stamp_target_label = None):
-
     # look for any plugins:
     input_plugins = plugins
     plugins = _collect_plugin_paths(plugins)
