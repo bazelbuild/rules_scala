@@ -16,8 +16,12 @@ function multi_framework_toolchain_example() {
   (cd examples/testing/multi_frameworks_toolchain; bazel test //...)
 }
 
-function scala3_example() {
-  (cd examples/scala3; bazel build //...)
+function scala3_1_example() {
+  (cd examples/scala3; bazel build --repo_env=SCALA_VERSION=3.1.0 //...)
+}
+
+function scala3_2_example() {
+  (cd examples/scala3; bazel build --repo_env=SCALA_VERSION=3.2.1 //...)
 }
 
 function test_produces_semanticdb_scala3() {
@@ -38,5 +42,6 @@ function test_produces_semanticdb_scala3() {
 $runner scalatest_repositories_example
 $runner specs2_junit_repositories_example
 $runner multi_framework_toolchain_example
-$runner scala3_example
+$runner scala3_1_example
+$runner scala3_2_example
 $runner test_produces_semanticdb_scala3

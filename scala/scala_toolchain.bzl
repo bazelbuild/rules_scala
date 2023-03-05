@@ -2,7 +2,10 @@ load(
     "@io_bazel_rules_scala//scala:providers.bzl",
     _DepsInfo = "DepsInfo",
 )
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_MAJOR_VERSION")
+load(
+    "@io_bazel_rules_scala_config//:config.bzl",
+    "ENABLE_COMPILER_DEPENDENCY_TRACKING",
+)
 
 def _compute_strict_deps_mode(input_strict_deps_mode, dependency_mode):
     if dependency_mode == "direct":
@@ -44,6 +47,8 @@ def _scala_toolchain_impl(ctx):
         dependency_mode,
     )
 
+    compiler_deps_mode = ctx.attr.compiler_deps_mode
+
     unused_dependency_checker_mode = ctx.attr.unused_dependency_checker_mode
     dependency_tracking_method = _compute_dependency_tracking_method(
         dependency_mode,
@@ -57,8 +62,14 @@ def _scala_toolchain_impl(ctx):
     if strict_deps_mode not in ("off", "warn", "error"):
         fail("Internal error: invalid strict_deps_mode " + strict_deps_mode)
 
-    if dependency_tracking_method not in ("ast", "high-level"):
+    if compiler_deps_mode not in ("off", "warn", "error"):
+        fail("Internal error: invalid compiler_deps_mode " + compiler_deps_mode)
+
+    if dependency_tracking_method not in ("ast-plus", "ast", "high-level"):
         fail("Internal error: invalid dependency_tracking_method " + dependency_tracking_method)
+
+    if "ast-plus" == dependency_tracking_method and not ENABLE_COMPILER_DEPENDENCY_TRACKING:
+        fail("To use 'ast-plus' dependency tracking, you must set 'enable_compiler_dependency_tracking' to True in scala_config")
 
     enable_stats_file = ctx.attr.enable_stats_file
     enable_diagnostics_report = ctx.attr.enable_diagnostics_report
@@ -76,6 +87,7 @@ def _scala_toolchain_impl(ctx):
         dependency_mode = dependency_mode,
         strict_deps_mode = strict_deps_mode,
         unused_dependency_checker_mode = unused_dependency_checker_mode,
+        compiler_deps_mode = compiler_deps_mode,
         dependency_tracking_method = dependency_tracking_method,
         strict_deps_include_patterns = strict_deps_includes,
         strict_deps_exclude_patterns = strict_deps_excludes,
@@ -123,9 +135,13 @@ scala_toolchain = rule(
             default = "off",
             values = ["off", "warn", "error"],
         ),
+        "compiler_deps_mode": attr.string(
+            default = "off",
+            values = ["off", "warn", "error"],
+        ),
         "dependency_tracking_method": attr.string(
             default = "default",
-            values = ["ast", "high-level", "default"],
+            values = ["ast-plus", "ast", "high-level", "default"],
         ),
         "dependency_tracking_strict_deps_patterns": attr.string_list(
             doc = "List of target prefixes included for strict deps analysis. Exclude patetrns with '-'",

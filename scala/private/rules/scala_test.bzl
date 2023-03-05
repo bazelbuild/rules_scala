@@ -78,6 +78,7 @@ _scala_test_attrs = {
     ),
     "_lcov_merger": attr.label(
         default = Label("@bazel_tools//tools/test/CoverageOutputGenerator/java/com/google/devtools/coverageoutputgenerator:Main"),
+        cfg = "exec",
     ),
     "env": attr.string_dict(default = {}),
     "env_inherit": attr.string_list(),

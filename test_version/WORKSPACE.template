@@ -33,7 +33,7 @@ local_repository(
 )
 
 load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
-scala_config()
+scala_config(enable_compiler_dependency_tracking = True)
 
 load("@io_bazel_rules_scala//scala:scala_cross_version.bzl", "extract_major_version")
 

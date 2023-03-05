@@ -154,14 +154,22 @@ def _scala_library_for_plugin_bootstrapping_impl(ctx):
         ],
     )
 
+_scala_library_for_plugin_bootstrapping_attrs = {}
+
+_scala_library_for_plugin_bootstrapping_attrs.update(implicit_deps)
+
 # the scala compiler plugin used for dependency analysis is compiled using `scala_library`.
 # in order to avoid cyclic dependencies `scala_library_for_plugin_bootstrapping` was created for this purpose,
 # which does not contain plugin related attributes, and thus avoids the cyclic dependency issue
-_scala_library_for_plugin_bootstrapping_attrs = {
+_scala_library_for_plugin_bootstrapping_attrs.update({
     "build_ijar": attr.bool(default = True),
-}
-
-_scala_library_for_plugin_bootstrapping_attrs.update(implicit_deps)
+    "_scalac": attr.label(
+        executable = True,
+        cfg = "exec",
+        default = Label("@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac:scalac_bootstrap"),
+        allow_files = True,
+    ),
+})
 
 _scala_library_for_plugin_bootstrapping_attrs.update(_library_attrs)
 

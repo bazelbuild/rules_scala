@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package scala_deps;
+
+option java_package = "io.bazel.rulesscala.deps.proto";
+
+message Dependency {
+
+  enum Kind {
+    // Dependency used explicitly in the source.
+    EXPLICIT = 0;
+    // Dependency that is implicitly loaded and used by the compiler.
+    IMPLICIT = 1;
+    // Unused dependency.
+    UNUSED = 2;
+  }
+
+  // Path to the artifact representing this dependency.
+  string ijar_path = 1;
+
+  // Dependency kind
+  Kind kind = 2;
+
+  // Target label for this dependency
+  string label = 3;
+
+  // Path to the full
+  string path = 4;
+
+  // Ignored in dep tracking
+  bool ignored = 5;
+}
+
+// Top-level message found in .deps artifacts
+message Dependencies {
+  repeated Dependency dependency = 1;
+
+  // Name of the rule being analyzed.
+  string rule_label = 2;
+
+  // Dependency tracking method used to calculate dependency information
+  string dependency_tracking_method = 3;
+}

@@ -22,7 +22,7 @@ http_archive(
 
 load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
 
-scala_config()
+scala_config(enable_compiler_dependency_tracking = True)
 
 load("//scala/semanticdb:semanticdb_repositories.bzl", "semanticdb_repositories")
 

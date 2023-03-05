@@ -5,6 +5,17 @@ scala_library(
     name = "test_reporter",
     srcs = ["JUnitXmlReporter.scala"],
     scalacopts = {
+        "3.2": [
+            "-deprecation:true",
+            "-encoding",
+            "UTF-8",
+            "-feature",
+            "-language:existentials",
+            "-language:higherKinds",
+            "-language:implicitConversions",
+            "-unchecked",
+            "-Xfatal-warnings",
+        ],
         "3.1": [
             "-deprecation:true",
             "-encoding",

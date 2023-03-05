@@ -1,5 +1,8 @@
 package io.bazel.rulesscala.scalac;
 
+import io.bazel.rulesscala.scalac.compileoptions.CompileOptions;
+import io.bazel.rulesscala.scalac.reporter.DepsTrackingReporter;
+import io.bazel.rulesscala.scalac.reporter.ProtoReporter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,7 +13,6 @@ import scala.tools.nsc.Settings;
 import scala.tools.nsc.reporters.Reporter;
 
 public class ReportableMainClass extends MainClass {
-  private Global compiler;
   private Reporter reporter;
   private final CompileOptions ops;
 
@@ -20,22 +22,16 @@ public class ReportableMainClass extends MainClass {
 
   @Override
   public Global newCompiler() {
-    if (!ops.enableDiagnosticsReport) {
-      createDiagnosticsFile();
-      Global global = super.newCompiler();
-      reporter = global.reporter();
-      return global;
-    }
-
-    if (compiler == null) {
-      createDiagnosticsFile();
-
-      Settings settings = super.settings();
+    createDiagnosticsFile();
+    createScalaDepsFile();
+    Settings settings = super.settings();
+    if (ops.enableDiagnosticsReport) {
       reporter = new ProtoReporter(settings);
-
-      compiler = new Global(settings, reporter);
     }
-    return compiler;
+
+    reporter = new DepsTrackingReporter(settings, ops, reporter);
+
+    return new Global(settings, reporter);
   }
 
   private void createDiagnosticsFile() {
@@ -45,6 +41,16 @@ public class ReportableMainClass extends MainClass {
       Files.createFile(path);
     } catch (IOException e) {
       throw new RuntimeException("Could not delete/make diagnostics proto file", e);
+    }
+  }
+
+  private void createScalaDepsFile() {
+    Path path = Paths.get(ops.scalaDepsFile);
+    try {
+      Files.deleteIfExists(path);
+      Files.createFile(path);
+    } catch (IOException e) {
+      throw new RuntimeException("Could not delete/make sdeps proto file", e);
     }
   }
 

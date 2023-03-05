@@ -25,8 +25,10 @@ object DependencyTrackingMethod {
    */
   case object Ast extends DependencyTrackingMethod("ast")
 
+  case object AstPlus extends DependencyTrackingMethod(name = "ast-plus")
+
   def parse(mode: String): Option[DependencyTrackingMethod] = {
-    Seq(HighLevel, Ast).find(_.name == mode)
+    Seq(HighLevel, Ast, AstPlus).find(_.name == mode)
   }
 }
 
