@@ -104,9 +104,8 @@ def compile_scala(
     args.add("--EnableSemanticDb", enable_semanticdb)
 
     if enable_semanticdb:
-        if hasattr(ctx.attr, "_semanticdb_scalac_plugin"):
-            jar = [jo.class_jar.path for jo in ctx.attr._semanticdb_scalac_plugin[JavaInfo].outputs.jars][0]
-            args.add("--SemanticDbJar", jar)
+        jar = [jo.class_jar.path for jo in ctx.attr._semanticdb_scalac_plugin[JavaInfo].outputs.jars][0]
+        args.add("--SemanticDbJar", jar)
 
     if dependency_info.need_direct_info:
         args.add_all("--DirectJars", cjars)

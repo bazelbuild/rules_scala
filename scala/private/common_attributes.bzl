@@ -66,6 +66,7 @@ semanticdb_attrs = {
 } if SCALA_MAJOR_VERSION.startswith("2") else {}
 
 common_attrs.update(semanticdb_attrs)
+common_attrs_for_plugin_bootstrapping.update(semanticdb_attrs)
 
 common_attrs.update({
     "_dependency_analyzer_plugin": attr.label(
