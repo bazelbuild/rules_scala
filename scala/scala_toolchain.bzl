@@ -6,6 +6,7 @@ load(
     "@io_bazel_rules_scala_config//:config.bzl",
     "ENABLE_COMPILER_DEPENDENCY_TRACKING",
 )
+load( "@io_bazel_rules_scala_config//:config.bzl", "SCALA_MAJOR_VERSION")
 
 def _compute_strict_deps_mode(input_strict_deps_mode, dependency_mode):
     if dependency_mode == "direct":
