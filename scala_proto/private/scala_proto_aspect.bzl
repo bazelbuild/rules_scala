@@ -121,6 +121,7 @@ def _compile_sources(ctx, toolchain, proto, src_jars, deps, scalacopts, stamp_la
         scalac = toolchain.scalac,
         dependency_info = legacy_unclear_dependency_info_for_protobuf_scrooge(ctx),
         unused_dependency_checker_ignored_targets = [],
+        semanticdb_enabled = False,
         stamp_target_label = stamp_label,
     )
 

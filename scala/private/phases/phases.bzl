@@ -67,6 +67,8 @@ load("@io_bazel_rules_scala//scala/private:phases/phase_coverage_runfiles.bzl", 
 load("@io_bazel_rules_scala//scala/private:phases/phase_scalafmt.bzl", _phase_scalafmt = "phase_scalafmt")
 load("@io_bazel_rules_scala//scala/private:phases/phase_test_environment.bzl", _phase_test_environment = "phase_test_environment")
 
+load("@io_bazel_rules_scala//scala/private:phases/phase_semanticdb.bzl", _phase_semanticdb = "phase_semanticdb")
+
 # API
 run_phases = _run_phases
 extras_phases = _extras_phases
@@ -146,3 +148,6 @@ phase_test_environment = _phase_test_environment
 
 # scalafmt
 phase_scalafmt = _phase_scalafmt
+
+# semanticdb
+phase_semanticdb = _phase_semanticdb

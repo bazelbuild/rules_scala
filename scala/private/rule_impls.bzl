@@ -17,6 +17,7 @@ load("@bazel_skylib//lib:paths.bzl", "paths")
 load("@bazel_tools//tools/jdk:toolchain_utils.bzl", "find_java_toolchain")
 load(":common.bzl", _collect_plugin_paths = "collect_plugin_paths")
 load(":resources.bzl", _resource_paths = "paths")
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_MAJOR_VERSION")
 
 def expand_location(ctx, flags):
     if hasattr(ctx.attr, "data"):
@@ -56,6 +57,7 @@ def compile_scala(
         scalac,
         dependency_info,
         unused_dependency_checker_ignored_targets,
+        semanticdb_enabled,
         stamp_target_label = None):
     # look for any plugins:
     input_plugins = plugins
@@ -70,8 +72,6 @@ def compile_scala(
     resource_paths = _resource_paths(resources, resource_strip_prefix)
     enable_stats_file = toolchain.enable_stats_file
     enable_diagnostics_report = toolchain.enable_diagnostics_report
-
-    enable_semanticdb = toolchain.enable_semanticdb
 
     args = ctx.actions.args()
     args.set_param_file_format("multiline")
@@ -100,9 +100,9 @@ def compile_scala(
     args.add_all("--ResourceJars", resource_jars)
     args.add_all("--ScalacOpts", scalacopts_expanded)
     args.add_all("--SourceJars", all_srcjars)
-    args.add("--EnableSemanticDb", enable_semanticdb)
+    args.add("--EnableSemanticDb", semanticdb_enabled)
 
-    if enable_semanticdb:
+    if semanticdb_enabled and SCALA_MAJOR_VERSION.startswith(2):
         jar = [jo.class_jar.path for jo in ctx.attr._semanticdb_scalac_plugin[JavaInfo].outputs.jars][0]
         args.add("--SemanticDbJar", jar)
 

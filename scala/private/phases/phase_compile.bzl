@@ -144,6 +144,7 @@ def _phase_compile(
         deps_providers,
         default_classpath,
         unused_dependency_checker_ignored_targets,
+        p.semanticdb.enabled
     )
 
     # TODO: simplify the return values and use provider
@@ -169,7 +170,8 @@ def _compile_or_empty(
         dependency_info,
         deps_providers,
         default_classpath,
-        unused_dependency_checker_ignored_targets):
+        unused_dependency_checker_ignored_targets,
+        semanticdb_enabled):
     # We assume that if a srcjar is present, it is not empty
     if len(ctx.files.srcs) + len(srcjars.to_list()) == 0:
         _build_nosrc_jar(ctx)
@@ -212,6 +214,7 @@ def _compile_or_empty(
             ctx.executable._scalac,
             dependency_info,
             unused_dependency_checker_ignored_targets,
+            semanticdb_enabled
         )
 
         # build ijar if needed

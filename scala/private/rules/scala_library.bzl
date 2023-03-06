@@ -35,6 +35,7 @@ load(
     "phase_scalac_provider",
     "phase_scalacopts",
     "phase_write_manifest",
+    "phase_semanticdb",
     "run_phases",
 )
 
@@ -66,6 +67,7 @@ def _scala_library_impl(ctx):
             ("dependency", phase_dependency_common),
             ("collect_jars", phase_collect_jars_common),
             ("scalacopts", phase_scalacopts),
+            ("semanticdb", phase_semanticdb),
             ("compile", phase_compile_library),
             ("coverage", phase_coverage_library),
             ("merge_jars", phase_merge_jars),
@@ -146,6 +148,7 @@ def _scala_library_for_plugin_bootstrapping_impl(ctx):
             ("dependency", phase_dependency_library_for_plugin_bootstrapping),
             ("collect_jars", phase_collect_jars_common),
             ("scalacopts", phase_scalacopts),
+            ("semanticdb", phase_semanticdb),
             ("compile", phase_compile_library_for_plugin_bootstrapping),
             ("merge_jars", phase_merge_jars),
             ("runfiles", phase_runfiles_library),
@@ -213,6 +216,7 @@ def _scala_macro_library_impl(ctx):
             ("dependency", phase_dependency_common),
             ("collect_jars", phase_collect_jars_macro_library),
             ("scalacopts", phase_scalacopts),
+            ("semanticdb", phase_semanticdb),
             ("compile", phase_compile_macro_library),
             ("coverage", phase_coverage_common),
             ("merge_jars", phase_merge_jars),
