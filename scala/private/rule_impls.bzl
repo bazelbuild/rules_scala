@@ -102,7 +102,7 @@ def compile_scala(
     args.add_all("--SourceJars", all_srcjars)
     args.add("--EnableSemanticDb", semanticdb_enabled)
 
-    if semanticdb_enabled and SCALA_MAJOR_VERSION.startswith(2):
+    if semanticdb_enabled and SCALA_MAJOR_VERSION.startswith("2"):
         jar = [jo.class_jar.path for jo in ctx.attr._semanticdb_scalac_plugin[JavaInfo].outputs.jars][0]
         args.add("--SemanticDbJar", jar)
 
