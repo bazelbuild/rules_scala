@@ -78,4 +78,5 @@ def repositories(
             runtime_deps = artifacts[id].get("runtime_deps", []),
             testonly_ = artifacts[id].get("testonly", False),
             fetch_sources = fetch_sources,
+            use_ijar = artifacts[id].get("use_ijar", False),
         )

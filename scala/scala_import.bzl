@@ -9,12 +9,20 @@ def _stamp_jar(ctx, jar):
     stamped_jar_filename = "%s.stamp/%s" % (ctx.label.name, jar.basename)
     symlink_file = ctx.actions.declare_file(stamped_jar_filename)
     ctx.actions.symlink(output = symlink_file, target_file = jar)
-    return java_common.stamp_jar(
-        actions = ctx.actions,
-        jar = symlink_file,
-        target_label = ctx.label,
-        java_toolchain = specified_java_compile_toolchain(ctx),
-    )
+    if ctx.attr.use_ijar:
+        return java_common.run_ijar(
+            actions = ctx.actions,
+            jar = symlink_file,
+            target_label = ctx.label,
+            java_toolchain = specified_java_compile_toolchain(ctx),
+        )
+    else:
+        return java_common.stamp_jar(
+            actions = ctx.actions,
+            jar = symlink_file,
+            target_label = ctx.label,
+            java_toolchain = specified_java_compile_toolchain(ctx),
+        )
 
 # intellij part is tested manually, tread lightly when changing there
 # if you change make sure to manually re-import an intellij project and see imports
@@ -136,6 +144,7 @@ scala_import = rule(
         "runtime_deps": attr.label_list(),
         "exports": attr.label_list(),
         "neverlink": attr.bool(),
+        "use_ijar": attr.bool(default = False),
         "srcjar": attr.label(allow_single_file = True),
         "_placeholder_jar": attr.label(
             allow_single_file = True,

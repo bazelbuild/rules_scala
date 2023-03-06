@@ -44,6 +44,7 @@ _PASS_PROPS = (
     "runtime_deps",
     "deps",
     "tags",
+    "use_ijar"
 )
 
 _FETCH_SOURCES_ENV_VAR_NAME = "BAZEL_JVM_FETCH_SOURCES"
@@ -55,6 +56,7 @@ def _jvm_import_external(repository_ctx):
         fail("Only use generated_linkable_rule_name if neverlink is set")
     name = repository_ctx.attr.generated_rule_name or repository_ctx.name
     urls = repository_ctx.attr.jar_urls
+    use_ijar = repository_ctx.attr.use_ijar
     if repository_ctx.attr.jar_sha256:
         print("'jar_sha256' is deprecated. Please use 'artifact_sha256'")
     sha = repository_ctx.attr.jar_sha256 or repository_ctx.attr.artifact_sha256
@@ -227,6 +229,7 @@ jvm_import_external = repository_rule(
             default = ["//visibility:public"],
         ),
         "extra_build_file_content": attr.string(),
+        "use_ijar": attr.bool(),
     },
     environ = [_FETCH_SOURCES_ENV_VAR_NAME],
 )
