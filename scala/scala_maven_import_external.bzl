@@ -44,7 +44,7 @@ _PASS_PROPS = (
     "runtime_deps",
     "deps",
     "tags",
-    "use_ijar"
+    "use_ijar",
 )
 
 _FETCH_SOURCES_ENV_VAR_NAME = "BAZEL_JVM_FETCH_SOURCES"
