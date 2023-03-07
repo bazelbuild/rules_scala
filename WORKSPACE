@@ -19,7 +19,7 @@ _build_tools_release = "5.1.0"
 
 http_archive(
     name = "com_github_bazelbuild_buildtools",
-    sha256 = "a02ba93b96a8151b5d8d3466580f6c1f7e77212c4eb181cba53eb2cae7752a21",
+    sha256 = "e3bb0dc8b0274ea1aca75f1f8c0c835adbe589708ea89bf698069d0790701ea3",
     strip_prefix = "buildtools-%s" % _build_tools_release,
     url = "https://github.com/bazelbuild/buildtools/archive/%s.tar.gz" % _build_tools_release,
 )
@@ -162,8 +162,6 @@ load("@rules_java//java:repositories.bzl", "remote_jdk8_repos")
 # We need to select based on platform when we use these
 # https://github.com/bazelbuild/bazel/issues/11655
 remote_jdk8_repos()
-
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "bazelci_rules",
