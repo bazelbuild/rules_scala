@@ -34,8 +34,8 @@ load(
     "phase_runfiles_library",
     "phase_scalac_provider",
     "phase_scalacopts",
-    "phase_write_manifest",
     "phase_semanticdb",
+    "phase_write_manifest",
     "run_phases",
 )
 

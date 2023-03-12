@@ -1,7 +1,7 @@
 #
 # PHASE: phase semanticdb
 #
-# Outputs for semanticdb when enabled in toolchain 
+# Outputs for semanticdb when enabled in toolchain
 #
 def phase_semanticdb(ctx, p):
     toolchain = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"]

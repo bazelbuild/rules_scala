@@ -144,7 +144,7 @@ def _phase_compile(
         deps_providers,
         default_classpath,
         unused_dependency_checker_ignored_targets,
-        p.semanticdb.enabled
+        p.semanticdb.enabled,
     )
 
     # TODO: simplify the return values and use provider
@@ -214,7 +214,7 @@ def _compile_or_empty(
             ctx.executable._scalac,
             dependency_info,
             unused_dependency_checker_ignored_targets,
-            semanticdb_enabled
+            semanticdb_enabled,
         )
 
         # build ijar if needed
