@@ -13,6 +13,7 @@ WARNINGS_CONFIG = [
     "-bzl-visibility",
     "-no-effect",
     "-provider-params",
+    "-unused-variable",
 ]
 
 buildifier(

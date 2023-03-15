@@ -2,20 +2,24 @@ workspace(name = "io_bazel_rules_scala")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-skylib_version = "1.0.3"
-
 http_archive(
     name = "bazel_skylib",
-    sha256 = "1c531376ac7e5a180e0237938a2536de0c54d93f5c278634818e0efc952dd56c",
-    type = "tar.gz",
-    url = "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/{}/bazel-skylib-{}.tar.gz".format(skylib_version, skylib_version),
+    sha256 = "b8a1527901774180afc798aeb28c4634bdccf19c4d98e7bdd1ce79d1fe9aaad7",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.4.1/bazel-skylib-1.4.1.tar.gz",
+        "https://github.com/bazelbuild/bazel-skylib/releases/download/1.4.1/bazel-skylib-1.4.1.tar.gz",
+    ],
 )
 
-_build_tools_release = "3.5.0"
+load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
+
+bazel_skylib_workspace()
+
+_build_tools_release = "5.1.0"
 
 http_archive(
     name = "com_github_bazelbuild_buildtools",
-    sha256 = "a02ba93b96a8151b5d8d3466580f6c1f7e77212c4eb181cba53eb2cae7752a23",
+    sha256 = "e3bb0dc8b0274ea1aca75f1f8c0c835adbe589708ea89bf698069d0790701ea3",
     strip_prefix = "buildtools-%s" % _build_tools_release,
     url = "https://github.com/bazelbuild/buildtools/archive/%s.tar.gz" % _build_tools_release,
 )
@@ -123,10 +127,10 @@ format_repositories()
 
 http_archive(
     name = "io_bazel_rules_go",
-    sha256 = "d1ffd055969c8f8d431e2d439813e42326961d0942bdf734d2c95dc30c369566",
+    sha256 = "dd926a88a564a9246713a9c00b35315f54cbd46b31a26d5d8fb264c07045f05d",
     urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.24.5/rules_go-v0.24.5.tar.gz",
-        "https://github.com/bazelbuild/rules_go/releases/download/v0.24.5/rules_go-v0.24.5.tar.gz",
+        "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.38.1/rules_go-v0.38.1.zip",
+        "https://github.com/bazelbuild/rules_go/releases/download/v0.38.1/rules_go-v0.38.1.zip",
     ],
 )
 
@@ -138,7 +142,7 @@ load(
 
 go_rules_dependencies()
 
-go_register_toolchains()
+go_register_toolchains(version = "1.19.5")
 
 # Explicitly pull in a different (newer) version of rules_java for remote jdks
 rules_java_extra_version = "5.1.0"
@@ -159,28 +163,18 @@ load("@rules_java//java:repositories.bzl", "remote_jdk8_repos")
 # https://github.com/bazelbuild/bazel/issues/11655
 remote_jdk8_repos()
 
-bazel_toolchains_version = "4.1.0"
-
 http_archive(
-    name = "bazel_toolchains",
-    sha256 = "179ec02f809e86abf56356d8898c8bd74069f1bd7c56044050c2cd3d79d0e024",
-    strip_prefix = "bazel-toolchains-%s" % bazel_toolchains_version,
-    urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/bazel-toolchains/releases/download/%s/bazel-toolchains-%s.tar.gz" % (bazel_toolchains_version, bazel_toolchains_version),
-        "https://github.com/bazelbuild/bazel-toolchains/releases/download/%s/bazel-toolchains-%s.tar.gz" % (bazel_toolchains_version, bazel_toolchains_version),
-    ],
+    name = "bazelci_rules",
+    sha256 = "eca21884e6f66a88c358e580fd67a6b148d30ab57b1680f62a96c00f9bc6a07e",
+    strip_prefix = "bazelci_rules-1.0.0",
+    url = "https://github.com/bazelbuild/continuous-integration/releases/download/rules-1.0.0/bazelci_rules-1.0.0.tar.gz",
 )
 
-load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
+load("@bazelci_rules//:rbe_repo.bzl", "rbe_preconfig")
 
-bazel_skylib_workspace()
-
-load("@bazel_toolchains//rules:rbe_repo.bzl", "rbe_autoconfig")
-
-# Creates toolchain configuration for remote execution with BuildKite CI
-# for rbe_ubuntu1604
-rbe_autoconfig(
-    name = "buildkite_config",
+rbe_preconfig(
+    name = "rbe_default",
+    toolchain = "ubuntu2004-bazel-java11",
 )
 
 load("//third_party/repositories:repositories.bzl", "repositories")
