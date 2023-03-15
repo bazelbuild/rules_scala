@@ -26,7 +26,7 @@ load(
 def _com_github_google_yapf_repository_impl(rctx):
     rctx.download_and_extract(
         url = "https://github.com/google/yapf/archive/v0.21.0.tar.gz",
-        stripPrefix = "yapf-0.21.0",
+        strip_prefix = "yapf-0.21.0",
     )
     rctx.file("BUILD", """
 alias(
