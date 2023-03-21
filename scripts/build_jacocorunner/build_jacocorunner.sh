@@ -66,6 +66,17 @@ else
   exit 1
 fi
 
+JAVA_VERSION=$(java -version 2>&1 | head -1 \
+                                  | cut -d'"' -f2 \
+                                  | sed 's/^1\.//' \
+                                  | cut -d'.' -f1)
+
+if [ "$JAVA_VERSION" != "8" ]; then
+  echo "Unexpected java version: $JAVA_VERSION"
+  echo "Please ensure this script is run with Java 8"
+  exit 1
+fi
+
 source_path=$($readlink_cmd -f $(dirname ${BASH_SOURCE[0]}))
 
 build_dir=/tmp/bazel_jacocorunner_build

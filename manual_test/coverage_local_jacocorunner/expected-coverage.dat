@@ -2,16 +2,15 @@ SF:test/coverage_scalatest/A1.scala
 FN:-1,coverage_scalatest/A1$::<clinit> ()V
 FN:3,coverage_scalatest/A1$::<init> ()V
 FN:5,coverage_scalatest/A1$::a1 (Z)Lcoverage_scalatest/B1$;
-FN:-1,coverage_scalatest/A1::a1 (Z)Lcoverage_scalatest/B1$;
 FNDA:1,coverage_scalatest/A1$::<clinit> ()V
 FNDA:1,coverage_scalatest/A1$::<init> ()V
 FNDA:1,coverage_scalatest/A1$::a1 (Z)Lcoverage_scalatest/B1$;
-FNDA:0,coverage_scalatest/A1::a1 (Z)Lcoverage_scalatest/B1$;
-FNF:4
+FNF:3
 FNH:3
-BRDA:5,0,0,-
-BRF:1
-BRH:0
+BRDA:5,0,0,0
+BRDA:5,0,1,1
+BRF:2
+BRH:1
 DA:3,1
 DA:5,1
 DA:6,1
@@ -23,12 +22,10 @@ SF:test/coverage_scalatest/A2.scala
 FN:-1,coverage_scalatest/A2$::<clinit> ()V
 FN:3,coverage_scalatest/A2$::<init> ()V
 FN:5,coverage_scalatest/A2$::a2 ()V
-FN:-1,coverage_scalatest/A2::a2 ()V
 FNDA:1,coverage_scalatest/A2$::<clinit> ()V
 FNDA:1,coverage_scalatest/A2$::<init> ()V
 FNDA:1,coverage_scalatest/A2$::a2 ()V
-FNDA:0,coverage_scalatest/A2::a2 ()V
-FNF:4
+FNF:3
 FNH:3
 DA:3,1
 DA:5,1
@@ -40,12 +37,10 @@ SF:test/coverage_scalatest/B1.scala
 FN:-1,coverage_scalatest/B1$::<clinit> ()V
 FN:3,coverage_scalatest/B1$::<init> ()V
 FN:6,coverage_scalatest/B1$::not_called ()V
-FN:-1,coverage_scalatest/B1::not_called ()V
 FNDA:1,coverage_scalatest/B1$::<clinit> ()V
 FNDA:1,coverage_scalatest/B1$::<init> ()V
 FNDA:0,coverage_scalatest/B1$::not_called ()V
-FNDA:0,coverage_scalatest/B1::not_called ()V
-FNF:4
+FNF:3
 FNH:2
 DA:3,1
 DA:6,0
@@ -54,18 +49,18 @@ LH:2
 LF:3
 end_of_record
 SF:test/coverage_scalatest/B2.java
-FN:3,coverage_scalatest/B2::<init> ()V
-FN:5,coverage_scalatest/B2::b2_a ()Ljava/lang/String;
-FN:9,coverage_scalatest/B2::b2_b ()V
+FN:4,coverage_scalatest/B2::<init> ()V
+FN:6,coverage_scalatest/B2::b2_a ()Ljava/lang/String;
+FN:10,coverage_scalatest/B2::b2_b ()V
 FNDA:0,coverage_scalatest/B2::<init> ()V
 FNDA:1,coverage_scalatest/B2::b2_a ()Ljava/lang/String;
 FNDA:0,coverage_scalatest/B2::b2_b ()V
 FNF:3
 FNH:1
-DA:3,0
-DA:5,1
-DA:9,0
+DA:4,0
+DA:6,1
 DA:10,0
+DA:11,0
 LH:1
 LF:4
 end_of_record
@@ -73,13 +68,11 @@ SF:test/coverage_scalatest/C2.scala
 FN:-1,coverage_scalatest/C2$::<clinit> ()V
 FN:3,coverage_scalatest/C2$::<init> ()V
 FN:5,coverage_scalatest/C2$::c2 (Ljava/lang/String;)Ljava/lang/String;
-FN:-1,coverage_scalatest/C2::c2 (Ljava/lang/String;)Ljava/lang/String;
 FNDA:1,coverage_scalatest/C2$::<clinit> ()V
 FNDA:1,coverage_scalatest/C2$::<init> ()V
 FNDA:1,coverage_scalatest/C2$::c2 (Ljava/lang/String;)Ljava/lang/String;
-FNDA:1,coverage_scalatest/C2::c2 (Ljava/lang/String;)Ljava/lang/String;
-FNF:4
-FNH:4
+FNF:3
+FNH:3
 DA:3,1
 DA:5,1
 DA:7,1
@@ -119,7 +112,6 @@ FN:18,coverage_scalatest/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$9 (Ls
 FN:-1,coverage_scalatest/D1$::<clinit> ()V
 FN:3,coverage_scalatest/D1$::<init> ()V
 FN:5,coverage_scalatest/D1$::veryLongFunctionNameIsHereAaaaaaaaa ()V
-FN:-1,coverage_scalatest/D1::veryLongFunctionNameIsHereAaaaaaaaa ()V
 FNDA:1,coverage_scalatest/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$1 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
 FNDA:1,coverage_scalatest/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$10 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
 FNDA:1,coverage_scalatest/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$11 (Lscala/collection/immutable/List;Ljava/lang/String;)Lscala/collection/immutable/List;
@@ -152,8 +144,7 @@ FNDA:1,coverage_scalatest/D1$::$anonfun$veryLongFunctionNameIsHereAaaaaaaaa$9 (L
 FNDA:1,coverage_scalatest/D1$::<clinit> ()V
 FNDA:1,coverage_scalatest/D1$::<init> ()V
 FNDA:1,coverage_scalatest/D1$::veryLongFunctionNameIsHereAaaaaaaaa ()V
-FNDA:0,coverage_scalatest/D1::veryLongFunctionNameIsHereAaaaaaaaa ()V
-FNF:33
+FNF:32
 FNH:32
 DA:3,1
 DA:5,1
