@@ -4,20 +4,26 @@
 #
 # The default `JacocoCoverage_jarjar_deploy.jar` has some issues:
 #
-# 1. Scala support on newer Jacoco versions (including 0.8.6) is still lacking some functionality
+# 1. Scala support on newer Jacoco versions (including 0.8.7) is still lacking some functionality
 #
 #    E.g. a lot of generated methods for case classes, lazy vals or other Scala features are causing falsely missed branches in branch coverage.
 #
 #    Proposed changes in:
 #    https://github.com/gergelyfabian/jacoco/tree/scala
 #
-#    Backported to 0.8.6 (to be usable with current Bazel):
-#    https://github.com/gergelyfabian/jacoco/tree/0.8.6-scala
+#    Backported to 0.8.7 (to be usable with current Bazel):
+#    https://github.com/gergelyfabian/jacoco/tree/0.8.7-scala
+#
+# 2. Bazel's code for generating `JacocoCoverage_jarjar_deploy.jar` needs changes after our Jacoco changes
+#
+#    It implements an interface that we have extended, so that implementation also needs to be extended.
+#
+#    This has been added on https://github.com/gergelyfabian/bazel/tree/jacoco_0.8.7_scala.
 #
 # You can use this script to build a custom version of `JacocoCoverage_jarjar_deploy.jar`, including any fixes from the above list you wish
 # and then provide the built jar as a parameter of `java_toolchain` and/or `scala_toolchain` to use the changed behavior for coverage.
 #
-# Choose the fixes from the above list by configuring the used branch for Jacoco repo below.
+# Choose the fixes from the above list by configuring the used branch for Jacoco/Bazel repos below.
 #
 # Patches:
 #
@@ -36,7 +42,23 @@
 
 set -e
 
+# Note!!
+# Ensure Java 8 is used for building Jacoco (experienced issue when using e.g. Java 17).
+# You may need to change this on your system.
+# If this matches your system, you could uncomment these lines:
+#export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+#export PATH=$JAVA_HOME/bin:$PATH
 
+JAVA_VERSION=$(java -version 2>&1 | head -1 \
+                                  | cut -d'"' -f2 \
+                                  | sed 's/^1\.//' \
+                                  | cut -d'.' -f1)
+
+if [ "$JAVA_VERSION" != "8" ]; then
+  echo "Unexpected java version: $JAVA_VERSION"
+  echo "Please ensure this script is run with Java 8"
+  exit 1
+fi
 
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
   readlink_cmd="readlink"
@@ -57,7 +79,7 @@ jacoco_repo=$build_dir/jacoco
 # Take a fork for Jacoco that contains Scala fixes.
 jacoco_remote=https://github.com/gergelyfabian/jacoco
 # Take further fixes for Scala (2.11, 2.12 and 2.13) - branch in development:
-jacoco_branch=0.8.6-scala
+jacoco_branch=0.8.7-scala
 
 # Choose the patches that you'd like to use:
 jacoco_patches=""
@@ -67,12 +89,14 @@ jacoco_patches="$jacoco_patches 0001-Build-Jacoco-for-Bazel-5.0+.patch"
 #jacoco_patches="$jacoco_patches 0002-Build-Jacoco-behind-proxy.patch"
 
 
-# Jacoco version should be 0.8.6 in any case as Bazel is only compatible with that at this moment.
-jacoco_version=0.8.6
+# Jacoco version should be 0.8.7 in any case as Bazel is only compatible with that at this moment.
+jacoco_version=0.8.7
 
 bazel_repo=$build_dir/bazel
-bazel_remote=https://github.com/bazelbuild/bazel
-bazel_tag=6.0.0-pre.20220520.1
+bazel_remote=https://github.com/gergelyfabian/bazel
+bazel_version=6.0.0-pre.20220520.1
+# Version of Bazel with extending Bazel's Jacoco interface implementation for our 0.8.7-scala jacoco branch.
+bazel_branch=jacoco_0.8.7_scala
 
 bazel_build_target=JacocoCoverage_jarjar_deploy.jar
 
@@ -108,7 +132,9 @@ mvn clean install
 (
 cd $bazel_repo
 git remote update
-git checkout tags/$bazel_tag
+git checkout $bazel_branch
+
+echo "$bazel_version" > .bazelversion
 
 # Prepare Jacoco version.
 cd third_party/java/jacoco
