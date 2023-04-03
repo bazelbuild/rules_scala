@@ -1,0 +1,3 @@
+object BadMacroInvocation {
+  BadMacro.badMacro()
+}
