@@ -78,5 +78,5 @@ scala_register_toolchains()
 http_jar(
     name = "scala_compiler_srcjar",
     sha256 = "95c217cc87ee846b39990e0a9c273824a384dffbac57df84d466f866df4a91ea",
-    url = "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.12.16/scala-compiler-2.12.16-sources.jar"
+    url = "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.12.16/scala-compiler-2.12.16-sources.jar",
 )
