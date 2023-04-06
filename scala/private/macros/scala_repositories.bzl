@@ -13,7 +13,9 @@ load(
 )
 
 def _dt_patched_compiler_impl(rctx):
-    rctx.extract(archive = rctx.attr.srcjar)
+    # Need to give the file a .zip extension so rctx.extract knows what type of archive it is
+    rctx.symlink(rctx.attr.srcjar, "file.zip")
+    rctx.extract(archive = "file.zip")
     rctx.patch(rctx.attr.patch)
     rctx.file("BUILD", content = rctx.attr.build_file_content)
 
