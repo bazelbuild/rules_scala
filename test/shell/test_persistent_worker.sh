@@ -39,7 +39,7 @@ test_persistent_worker_handles_stack_overflow_exception() {
 
   RESPONSE_CODE=$?
   if [ $RESPONSE_CODE -ne 0 ]; then
-    echo -e "${RED} Scalac persistent worker does not handle uncaught error in macro expansion. $NC"
+    echo -e "${RED} Scalac persistent worker does not handle StackOverflowError in macro expansion. $NC"
     exit 1
   fi
 }
