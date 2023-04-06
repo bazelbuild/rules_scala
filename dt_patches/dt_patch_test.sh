@@ -39,6 +39,13 @@ test_compiler_patch() {
   run_in_test_repo "bazel build //... --repo_env=SCALA_VERSION=${SCALA_VERSION} //..."
 }
 
+test_compiler_srcjar() {
+  local SCALA_VERSION="$1"
+  local SRCJAR="$2"
+
+  run_in_test_repo "bazel build //... --repo_env=SCALA_VERSION=${SCALA_VERSION} --repo_env=SCALA_COMPILER_SRCJAR=${SRCJAR} //..."
+}
+
 #run_test_local test_compiler_patch 2.11.0
 #run_test_local test_compiler_patch 2.11.1
 #run_test_local test_compiler_patch 2.11.2
@@ -80,3 +87,5 @@ run_test_local test_compiler_patch 2.13.5
 run_test_local test_compiler_patch 2.13.6
 run_test_local test_compiler_patch 2.13.7
 run_test_local test_compiler_patch 2.13.8
+
+run_test_local test_compiler_srcjar 2.12.16 @scala_compiler_srcjar//jar:downloaded.jar

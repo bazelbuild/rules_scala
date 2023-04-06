@@ -6,9 +6,24 @@ load(
 load("//third_party/repositories:repositories.bzl", "repositories")
 load(
     "@io_bazel_rules_scala_config//:config.bzl",
+    "SCALA_COMPILER_SRCJAR",
     "SCALA_MAJOR_VERSION",
     "SCALA_MINOR_VERSION",
     "SCALA_VERSION",
+)
+
+def _dt_patched_compiler_impl(rctx):
+    rctx.extract(archive = rctx.attr.srcjar)
+    rctx.patch(rctx.attr.patch)
+    rctx.file("BUILD", content = rctx.attr.build_file_content)
+
+dt_patched_compiler = repository_rule(
+    attrs = {
+        "patch": attr.label(),
+        "srcjar": attr.label(),
+        "build_file_content": attr.string(),
+    },
+    implementation = _dt_patched_compiler_impl,
 )
 
 def dt_patched_compiler_setup():
@@ -22,18 +37,27 @@ def dt_patched_compiler_setup():
         elif minor_version <= 11:
             patch = "@io_bazel_rules_scala//dt_patches:dt_compiler_%s.8.patch" % SCALA_MAJOR_VERSION
 
-    http_archive(
-        name = "scala_compiler_source",
-        build_file_content = "\n".join([
-            "package(default_visibility = [\"//visibility:public\"])",
-            "filegroup(",
-            "    name = \"src\",",
-            "    srcs=[\"scala/tools/nsc/symtab/SymbolLoaders.scala\"],",
-            ")",
-        ]),
-        patches = [patch],
-        url = "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/%s/scala-compiler-%s-sources.jar" % (SCALA_VERSION, SCALA_VERSION),
-    )
+    build_file_content = "\n".join([
+        "package(default_visibility = [\"//visibility:public\"])",
+        "filegroup(",
+        "    name = \"src\",",
+        "    srcs=[\"scala/tools/nsc/symtab/SymbolLoaders.scala\"],",
+        ")",
+    ])
+    if SCALA_COMPILER_SRCJAR:
+        dt_patched_compiler(
+            name = "scala_compiler_source",
+            build_file_content = build_file_content,
+            patch = patch,
+            srcjar = SCALA_COMPILER_SRCJAR,
+        )
+    else:
+        http_archive(
+            name = "scala_compiler_source",
+            build_file_content = build_file_content,
+            patches = [patch],
+            url = "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/%s/scala-compiler-%s-sources.jar" % (SCALA_VERSION, SCALA_VERSION),
+        )
 
 def rules_scala_setup():
     if not native.existing_rule("bazel_skylib"):
