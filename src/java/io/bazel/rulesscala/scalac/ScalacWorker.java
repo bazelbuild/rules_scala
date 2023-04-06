@@ -278,6 +278,8 @@ class ScalacWorker implements Worker.Interface {
     } catch (Throwable ex) {
       if (ex.toString().contains("scala.reflect.internal.Types$TypeError")) {
         throw new RuntimeException("Build failure with type error", ex);
+      } else if (ex.toString().contains("java.lang.StackOverflowError")) {
+        throw new RuntimeException("Build failure with StackOverflowError", ex);
       } else if (isMacroException(ex)) {
         throw new RuntimeException("Build failure during macro expansion", ex);
       } else {
