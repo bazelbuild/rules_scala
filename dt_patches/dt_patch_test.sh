@@ -26,7 +26,7 @@ run_in_test_repo() {
   local test_command=$1
   local test_repo=$2
 
-  cd "${dir}/${test_repo}" || exit
+  cd "${dir}/${test_repo}" || exit 1
   ${test_command}
   RESPONSE_CODE=$?
   cd ../..
