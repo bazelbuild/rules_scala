@@ -62,10 +62,10 @@ def dt_patched_compiler_setup(scala_compiler_srcjars):
         user_srcjar = scala_compiler_srcjars.get(SCALA_VERSION)
         if user_srcjar == None:
             fail("You have specified a value for scala_compiler_srcjars in rules_scala_setup, but it did not contain " +
-            "an entry for \"{}\"".format(SCALA_VERSION))
+                 "an entry for \"{}\"".format(SCALA_VERSION))
         _validate_user_srcjar(user_srcjar) or fail(
             ("Scala compiler srcjar config for \"{}\" invalid, must be a dict with exactly one of \"label\", \"url\"" +
-            " or \"urls\" keys, got: ").format(SCALA_VERSION) + repr(user_srcjar)
+             " or \"urls\" keys, got: ").format(SCALA_VERSION) + repr(user_srcjar),
         )
         srcjar = user_srcjar
     if "label" in srcjar:
@@ -73,7 +73,7 @@ def dt_patched_compiler_setup(scala_compiler_srcjars):
             name = "scala_compiler_source",
             build_file_content = build_file_content,
             patch = patch,
-            srcjar = user_srcjar["label"],
+            srcjar = srcjar["label"],
         )
     else:
         http_archive(
@@ -83,10 +83,10 @@ def dt_patched_compiler_setup(scala_compiler_srcjars):
             url = srcjar.get("url"),
             urls = srcjar.get("urls"),
             sha256 = srcjar.get("sha256"),
-            integrity = srcjar.get("integrity")
+            integrity = srcjar.get("integrity"),
         )
 
-def rules_scala_setup(scala_compiler_srcjars=None):
+def rules_scala_setup(scala_compiler_srcjars = None):
     if not native.existing_rule("bazel_skylib"):
         http_archive(
             name = "bazel_skylib",

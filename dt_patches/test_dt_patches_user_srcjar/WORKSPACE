@@ -62,7 +62,7 @@ scala_maven_import_external(
     server_urls = default_maven_server_urls(),
 )
 
-rules_scala_setup(scala_compiler_srcjars={
+rules_scala_setup(scala_compiler_srcjars = {
     # Invalid
     "2.12.11": [],
     # Invalid
@@ -76,14 +76,14 @@ rules_scala_setup(scala_compiler_srcjars={
     },
     "2.12.14": {
         "urls": ["https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.12.14/scala-compiler-2.12.14-sources.jar"],
-        "integrity" :"sha384-yKJTudaHM2dA+VM//elLxhEfOmyCYRHzbLlQcf5jlrR+G5FEW+fBW/b794mQLMOX",
+        "integrity": "sha384-yKJTudaHM2dA+VM//elLxhEfOmyCYRHzbLlQcf5jlrR+G5FEW+fBW/b794mQLMOX",
     },
     "2.12.15": {
         "url": "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.12.15/scala-compiler-2.12.15-sources.jar",
-        "sha256" :"65f783f1fbef7de661224f607ac07ca03c5d19acfdb7f2234ff8def1e79b5cd8",
+        "sha256": "65f783f1fbef7de661224f607ac07ca03c5d19acfdb7f2234ff8def1e79b5cd8",
     },
     "2.12.16": {
-        "label": "@scala_compiler_srcjar//jar:downloaded.jar"
+        "label": "@scala_compiler_srcjar//jar:downloaded.jar",
     },
 })
 
