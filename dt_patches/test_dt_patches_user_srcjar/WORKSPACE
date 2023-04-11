@@ -1,6 +1,6 @@
 workspace(name = "test_dt_patches")
 
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_jar")
 
 http_archive(
     name = "bazel_skylib",
@@ -35,6 +35,12 @@ load(
 )
 load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
 
+http_jar(
+    name = "scala_compiler_srcjar",
+    sha256 = "95c217cc87ee846b39990e0a9c273824a384dffbac57df84d466f866df4a91ea",
+    url = "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.12.16/scala-compiler-2.12.16-sources.jar",
+)
+
 scala_maven_import_external(
     name = "scala_library",
     artifact = "org.scala-lang:scala-library:%s" % SCALA_VERSION,
@@ -56,7 +62,9 @@ scala_maven_import_external(
     server_urls = default_maven_server_urls(),
 )
 
-rules_scala_setup()
+rules_scala_setup(scala_compiler_srcjars={
+    "2.12.16": "@scala_compiler_srcjar//jar:downloaded.jar",
+})
 
 rules_scala_toolchain_deps_repositories(
     fetch_sources = True,
@@ -74,4 +82,3 @@ rules_proto_toolchains()
 load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_toolchains")
 
 scala_register_toolchains()
-

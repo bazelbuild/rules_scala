@@ -6,7 +6,6 @@ load(
 load("//third_party/repositories:repositories.bzl", "repositories")
 load(
     "@io_bazel_rules_scala_config//:config.bzl",
-    "SCALA_COMPILER_SRCJAR",
     "SCALA_MAJOR_VERSION",
     "SCALA_MINOR_VERSION",
     "SCALA_VERSION",
@@ -28,7 +27,7 @@ dt_patched_compiler = repository_rule(
     implementation = _dt_patched_compiler_impl,
 )
 
-def dt_patched_compiler_setup():
+def dt_patched_compiler_setup(scala_compiler_srcjars):
     patch = "@io_bazel_rules_scala//dt_patches:dt_compiler_%s.patch" % SCALA_MAJOR_VERSION
 
     minor_version = int(SCALA_MINOR_VERSION)
@@ -46,12 +45,16 @@ def dt_patched_compiler_setup():
         "    srcs=[\"scala/tools/nsc/symtab/SymbolLoaders.scala\"],",
         ")",
     ])
-    if SCALA_COMPILER_SRCJAR:
+    if scala_compiler_srcjars:
+        user_srcjar = scala_compiler_srcjars.get(SCALA_VERSION)
+        if not user_srcjar:
+            fail("You have specified a value for scala_compiler_srcjars in rules_scala_setup, but it did not contain " +
+            "an entry for \"{}\"".format(SCALA_VERSION))
         dt_patched_compiler(
             name = "scala_compiler_source",
             build_file_content = build_file_content,
             patch = patch,
-            srcjar = SCALA_COMPILER_SRCJAR,
+            srcjar = user_srcjar,
         )
     else:
         http_archive(
@@ -61,7 +64,7 @@ def dt_patched_compiler_setup():
             url = "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/%s/scala-compiler-%s-sources.jar" % (SCALA_VERSION, SCALA_VERSION),
         )
 
-def rules_scala_setup():
+def rules_scala_setup(scala_compiler_srcjars=None):
     if not native.existing_rule("bazel_skylib"):
         http_archive(
             name = "bazel_skylib",
@@ -100,7 +103,7 @@ def rules_scala_setup():
             ],
         )
 
-    dt_patched_compiler_setup()
+    dt_patched_compiler_setup(scala_compiler_srcjars)
 
 ARTIFACT_IDS = [
     "io_bazel_rules_scala_scala_library",
