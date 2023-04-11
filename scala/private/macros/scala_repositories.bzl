@@ -27,6 +27,16 @@ dt_patched_compiler = repository_rule(
     implementation = _dt_patched_compiler_impl,
 )
 
+def _validate_user_srcjar(user_srcjar):
+    if type(user_srcjar) != "dict":
+        return False
+    oneof = ["url", "urls", "label"]
+    count = 0
+    for key in oneof:
+        if key in user_srcjar:
+            count += 1
+    return count == 1
+
 def dt_patched_compiler_setup(scala_compiler_srcjars):
     patch = "@io_bazel_rules_scala//dt_patches:dt_compiler_%s.patch" % SCALA_MAJOR_VERSION
 
@@ -45,23 +55,35 @@ def dt_patched_compiler_setup(scala_compiler_srcjars):
         "    srcs=[\"scala/tools/nsc/symtab/SymbolLoaders.scala\"],",
         ")",
     ])
+    srcjar = {
+        "url": "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/%s/scala-compiler-%s-sources.jar" % (SCALA_VERSION, SCALA_VERSION),
+    }
     if scala_compiler_srcjars:
         user_srcjar = scala_compiler_srcjars.get(SCALA_VERSION)
-        if not user_srcjar:
+        if user_srcjar == None:
             fail("You have specified a value for scala_compiler_srcjars in rules_scala_setup, but it did not contain " +
             "an entry for \"{}\"".format(SCALA_VERSION))
+        _validate_user_srcjar(user_srcjar) or fail(
+            ("Scala compiler srcjar config for \"{}\" invalid, must be a dict with exactly one of \"label\", \"url\"" +
+            " or \"urls\" keys, got: ").format(SCALA_VERSION) + repr(user_srcjar)
+        )
+        srcjar = user_srcjar
+    if "label" in srcjar:
         dt_patched_compiler(
             name = "scala_compiler_source",
             build_file_content = build_file_content,
             patch = patch,
-            srcjar = user_srcjar,
+            srcjar = user_srcjar["label"],
         )
     else:
         http_archive(
             name = "scala_compiler_source",
             build_file_content = build_file_content,
             patches = [patch],
-            url = "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/%s/scala-compiler-%s-sources.jar" % (SCALA_VERSION, SCALA_VERSION),
+            url = srcjar.get("url"),
+            urls = srcjar.get("urls"),
+            sha256 = srcjar.get("sha256"),
+            integrity = srcjar.get("integrity")
         )
 
 def rules_scala_setup(scala_compiler_srcjars=None):

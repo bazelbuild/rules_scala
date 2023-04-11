@@ -88,4 +88,6 @@ run_test_local test_compiler_patch 2.13.6
 run_test_local test_compiler_patch 2.13.7
 run_test_local test_compiler_patch 2.13.8
 
+run_test_local test_compiler_srcjar 2.12.14
+run_test_local test_compiler_srcjar 2.12.15
 run_test_local test_compiler_srcjar 2.12.16
