@@ -62,7 +62,7 @@ scala_maven_import_external(
     server_urls = default_maven_server_urls(),
 )
 
-rules_scala_setup(scala_compiler_srcjars = {
+srcjars_by_version = {
     # Invalid
     "2.12.11": [],
     # Invalid
@@ -85,7 +85,9 @@ rules_scala_setup(scala_compiler_srcjars = {
     "2.12.16": {
         "label": "@scala_compiler_srcjar//jar:downloaded.jar",
     },
-})
+}
+
+rules_scala_setup(scala_compiler_srcjar = srcjars_by_version[SCALA_VERSION])
 
 rules_scala_toolchain_deps_repositories(
     fetch_sources = True,

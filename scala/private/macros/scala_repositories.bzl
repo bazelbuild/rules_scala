@@ -27,17 +27,17 @@ dt_patched_compiler = repository_rule(
     implementation = _dt_patched_compiler_impl,
 )
 
-def _validate_user_srcjar(user_srcjar):
-    if type(user_srcjar) != "dict":
+def _validate_scalac_srcjar(srcjar):
+    if type(srcjar) != "dict":
         return False
     oneof = ["url", "urls", "label"]
     count = 0
     for key in oneof:
-        if key in user_srcjar:
+        if key in srcjar:
             count += 1
     return count == 1
 
-def dt_patched_compiler_setup(scala_compiler_srcjars):
+def dt_patched_compiler_setup(scala_compiler_srcjar = None):
     patch = "@io_bazel_rules_scala//dt_patches:dt_compiler_%s.patch" % SCALA_MAJOR_VERSION
 
     minor_version = int(SCALA_MINOR_VERSION)
@@ -55,19 +55,14 @@ def dt_patched_compiler_setup(scala_compiler_srcjars):
         "    srcs=[\"scala/tools/nsc/symtab/SymbolLoaders.scala\"],",
         ")",
     ])
-    srcjar = {
+    default_scalac_srcjar = {
         "url": "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/%s/scala-compiler-%s-sources.jar" % (SCALA_VERSION, SCALA_VERSION),
     }
-    if scala_compiler_srcjars:
-        user_srcjar = scala_compiler_srcjars.get(SCALA_VERSION)
-        if user_srcjar == None:
-            fail("You have specified a value for scala_compiler_srcjars in rules_scala_setup, but it did not contain " +
-                 "an entry for \"{}\"".format(SCALA_VERSION))
-        _validate_user_srcjar(user_srcjar) or fail(
-            ("Scala compiler srcjar config for \"{}\" invalid, must be a dict with exactly one of \"label\", \"url\"" +
-             " or \"urls\" keys, got: ").format(SCALA_VERSION) + repr(user_srcjar),
-        )
-        srcjar = user_srcjar
+    srcjar = scala_compiler_srcjar if scala_compiler_srcjar != None else default_scalac_srcjar
+    _validate_scalac_srcjar(srcjar) or fail(
+        ("scala_compiler_srcjar invalid, must be a dict with exactly one of \"label\", \"url\"" +
+         " or \"urls\" keys, got: ") + repr(srcjar),
+    )
     if "label" in srcjar:
         dt_patched_compiler(
             name = "scala_compiler_source",
@@ -86,7 +81,7 @@ def dt_patched_compiler_setup(scala_compiler_srcjars):
             integrity = srcjar.get("integrity"),
         )
 
-def rules_scala_setup(scala_compiler_srcjars = None):
+def rules_scala_setup(scala_compiler_srcjar = None):
     if not native.existing_rule("bazel_skylib"):
         http_archive(
             name = "bazel_skylib",
@@ -125,7 +120,7 @@ def rules_scala_setup(scala_compiler_srcjars = None):
             ],
         )
 
-    dt_patched_compiler_setup(scala_compiler_srcjars)
+    dt_patched_compiler_setup(scala_compiler_srcjar)
 
 ARTIFACT_IDS = [
     "io_bazel_rules_scala_scala_library",
