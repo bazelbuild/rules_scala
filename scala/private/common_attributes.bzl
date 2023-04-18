@@ -81,12 +81,6 @@ common_attrs.update({
 })
 
 implicit_deps = {
-    "_singlejar": attr.label(
-        executable = True,
-        cfg = "exec",
-        default = Label("@bazel_tools//tools/jdk:singlejar"),
-        allow_files = True,
-    ),
     "_java_runtime": attr.label(
         default = Label("@bazel_tools//tools/jdk:current_java_runtime"),
     ),

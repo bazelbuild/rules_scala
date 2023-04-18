@@ -3,6 +3,10 @@
 #
 # DOCUMENT THIS
 #
+load(
+    "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
+    "specified_java_compile_toolchain",
+)
 
 def merge_jars_to_output(ctx, output, jars):
     """Calls Bazel's singlejar utility.
@@ -26,7 +30,7 @@ def merge_jars_to_output(ctx, output, jars):
     ctx.actions.run(
         inputs = jars,
         outputs = [output],
-        executable = ctx.executable._singlejar,
+        executable = specified_java_compile_toolchain(ctx).single_jar,
         mnemonic = "ScalaDeployJar",
         progress_message = progress_message,
         arguments = [args],
