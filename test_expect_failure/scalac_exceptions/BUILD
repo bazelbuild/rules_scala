@@ -10,3 +10,9 @@ scala_library(
     srcs = ["BadMacroInvocation.scala"],
     deps = [":bad_macro"],
 )
+
+scala_library(
+    name = "stack_overflow_macro_invocation",
+    srcs = ["StackOverflowMacroInvocation.scala"],
+    deps = [":bad_macro"],
+)

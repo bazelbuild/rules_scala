@@ -1,0 +1,3 @@
+object StackOverflowMacroInvocation {
+  BadMacro.stackOverflowMacro()
+}
