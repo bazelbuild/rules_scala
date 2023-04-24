@@ -11,7 +11,33 @@ load(
     "SCALA_VERSION",
 )
 
-def dt_patched_compiler_setup():
+def _dt_patched_compiler_impl(rctx):
+    # Need to give the file a .zip extension so rctx.extract knows what type of archive it is
+    rctx.symlink(rctx.attr.srcjar, "file.zip")
+    rctx.extract(archive = "file.zip")
+    rctx.patch(rctx.attr.patch)
+    rctx.file("BUILD", content = rctx.attr.build_file_content)
+
+dt_patched_compiler = repository_rule(
+    attrs = {
+        "patch": attr.label(),
+        "srcjar": attr.label(),
+        "build_file_content": attr.string(),
+    },
+    implementation = _dt_patched_compiler_impl,
+)
+
+def _validate_scalac_srcjar(srcjar):
+    if type(srcjar) != "dict":
+        return False
+    oneof = ["url", "urls", "label"]
+    count = 0
+    for key in oneof:
+        if key in srcjar:
+            count += 1
+    return count == 1
+
+def dt_patched_compiler_setup(scala_compiler_srcjar = None):
     patch = "@io_bazel_rules_scala//dt_patches:dt_compiler_%s.patch" % SCALA_MAJOR_VERSION
 
     minor_version = int(SCALA_MINOR_VERSION)
@@ -22,20 +48,40 @@ def dt_patched_compiler_setup():
         elif minor_version <= 11:
             patch = "@io_bazel_rules_scala//dt_patches:dt_compiler_%s.8.patch" % SCALA_MAJOR_VERSION
 
-    http_archive(
-        name = "scala_compiler_source",
-        build_file_content = "\n".join([
-            "package(default_visibility = [\"//visibility:public\"])",
-            "filegroup(",
-            "    name = \"src\",",
-            "    srcs=[\"scala/tools/nsc/symtab/SymbolLoaders.scala\"],",
-            ")",
-        ]),
-        patches = [patch],
-        url = "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/%s/scala-compiler-%s-sources.jar" % (SCALA_VERSION, SCALA_VERSION),
+    build_file_content = "\n".join([
+        "package(default_visibility = [\"//visibility:public\"])",
+        "filegroup(",
+        "    name = \"src\",",
+        "    srcs=[\"scala/tools/nsc/symtab/SymbolLoaders.scala\"],",
+        ")",
+    ])
+    default_scalac_srcjar = {
+        "url": "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/%s/scala-compiler-%s-sources.jar" % (SCALA_VERSION, SCALA_VERSION),
+    }
+    srcjar = scala_compiler_srcjar if scala_compiler_srcjar != None else default_scalac_srcjar
+    _validate_scalac_srcjar(srcjar) or fail(
+        ("scala_compiler_srcjar invalid, must be a dict with exactly one of \"label\", \"url\"" +
+         " or \"urls\" keys, got: ") + repr(srcjar),
     )
+    if "label" in srcjar:
+        dt_patched_compiler(
+            name = "scala_compiler_source",
+            build_file_content = build_file_content,
+            patch = patch,
+            srcjar = srcjar["label"],
+        )
+    else:
+        http_archive(
+            name = "scala_compiler_source",
+            build_file_content = build_file_content,
+            patches = [patch],
+            url = srcjar.get("url"),
+            urls = srcjar.get("urls"),
+            sha256 = srcjar.get("sha256"),
+            integrity = srcjar.get("integrity"),
+        )
 
-def rules_scala_setup():
+def rules_scala_setup(scala_compiler_srcjar = None):
     if not native.existing_rule("bazel_skylib"):
         http_archive(
             name = "bazel_skylib",
@@ -74,7 +120,7 @@ def rules_scala_setup():
             ],
         )
 
-    dt_patched_compiler_setup()
+    dt_patched_compiler_setup(scala_compiler_srcjar)
 
 ARTIFACT_IDS = [
     "io_bazel_rules_scala_scala_library",
