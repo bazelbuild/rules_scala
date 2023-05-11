@@ -24,7 +24,7 @@ message Dependency {
   // Target label for this dependency
   string label = 3;
 
-  // Path to the full
+  // Path to the full jar
   string path = 4;
 
   // Ignored in dep tracking
