@@ -8,7 +8,6 @@ scala_library(
     unused_dependency_checker_ignored_targets = [
         ":scala_ignored_unused_dep",
     ],
-    unused_dependency_checker_mode = "warn",  # override toolchain error mode for the test to pass
     deps = [
         ":scala_dep",
         ":scala_ignored_unused_dep",
