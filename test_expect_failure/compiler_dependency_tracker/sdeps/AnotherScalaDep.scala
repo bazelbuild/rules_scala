@@ -1,0 +1,3 @@
+package sdeps
+
+class AnotherScalaDep

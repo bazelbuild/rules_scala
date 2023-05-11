@@ -141,7 +141,7 @@ public class DepsTrackingReporter extends ConsoleReporter {
               ops.directJars[i],
               directTarget,
               Kind.UNUSED,
-              ignoredTargets.contains(directTarget)
+              ignoredTargets.contains(directTarget) || "off".equals(ops.unusedDependencyCheckerMode)
           )
       );
     }
