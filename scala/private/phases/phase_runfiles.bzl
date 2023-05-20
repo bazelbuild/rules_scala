@@ -13,7 +13,7 @@ def phase_runfiles_library(ctx, p):
 def phase_runfiles_scalatest(ctx, p):
     args = "\n".join([
         "-R",
-        ctx.outputs.jar.short_path,
+        ctx.outputs.jar.short_path.replace("../", "external/"),
         _scala_test_flags(ctx),
         "-C",
         ctx.attr.reporter_class,
