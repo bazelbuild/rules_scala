@@ -25,5 +25,5 @@ test_suite(
     name = "external_scala_test",
     tests = [
         "@example_external_workspace//test:empty_test",
-    ]
+    ],
 )
