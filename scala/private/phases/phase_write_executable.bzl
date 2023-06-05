@@ -23,7 +23,7 @@ def phase_write_executable_scalatest(ctx, p):
         rjars = p.coverage_runfiles.rjars,
         jvm_flags = [
             "-DRULES_SCALA_MAIN_WS_NAME=%s" % ctx.workspace_name,
-            "-DRULES_SCALA_ARGS_FILE=%s" % p.runfiles.args_file.short_path,
+            "-DRULES_SCALA_ARGS_FILE=%s" % p.runfiles.args_file.short_path.replace("../", "external/"),
         ] + expand_location(ctx, final_jvm_flags),
         use_jacoco = ctx.configuration.coverage_enabled,
     )

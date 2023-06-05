@@ -93,8 +93,8 @@ filegroup(
 )
 
 local_repository(
-    name = "strip_resource_external_workspace",
-    path = "third_party/test/strip_resource_external_workspace",
+    name = "example_external_workspace",
+    path = "third_party/test/example_external_workspace",
 )
 
 load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_unused_deps_toolchains")
