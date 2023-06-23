@@ -9,8 +9,8 @@ load(
     "first_non_empty",
     "is_windows",
     "java_bin",
-    "runfiles_root",
     "java_bin_windows",
+    "runfiles_root",
 )
 
 def phase_write_executable_scalatest(ctx, p):
@@ -79,7 +79,7 @@ def _write_executable_windows(ctx, executable, rjars, main_class, jvm_flags, wra
     # TODO: tests coverage support for Windows
     #launcher expects classpaths to be in rootpath form (ie. relative to runfiles_dir, short_path does the trick)
     classpath = ";".join([j.short_path for j in rjars.to_list()])
-    
+
     jvm_flags_str = ";".join(jvm_flags)
     java_for_exe = java_bin_windows(ctx)
 

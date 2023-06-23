@@ -15,7 +15,7 @@
 
 load("@bazel_skylib//lib:paths.bzl", "paths")
 load("@bazel_tools//tools/jdk:toolchain_utils.bzl", "find_java_toolchain")
-load(":common.bzl", _collect_plugin_paths = "collect_plugin_paths", "rpathlocation_from_rootpath")
+load(":common.bzl", "rpathlocation_from_rootpath", _collect_plugin_paths = "collect_plugin_paths")
 load(":resources.bzl", _resource_paths = "paths")
 
 def expand_location(ctx, flags):
@@ -209,7 +209,6 @@ def java_bin_windows(ctx):
         default_runtime = ctx.attr._java_runtime[java_common.JavaRuntimeInfo],
     )
 
-    
     if paths.is_absolute(java_runtime.java_executable_runfiles_path):
         java_bin = java_runtime.java_executable_runfiles_path
     else:
