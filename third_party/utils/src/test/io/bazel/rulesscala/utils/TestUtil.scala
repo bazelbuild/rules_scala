@@ -17,9 +17,17 @@ import io.bazel.rulesscala.dependencyanalyzer.DependencyTrackingMethod
 object TestUtil {
   final val defaultTarget = "//..."
 
+  val isWindows: Boolean = System.getProperty("os.name").toLowerCase.contains("windows")
+
+  //Backslashes used as escape, so paths should use forward slashes to simulate the scalacworker.
+  private def normalizePath(s:String): String  = {
+     if (isWindows) s.replace('\\', '/') else s 
+  }
+
   private def constructPluginParam(pluginName: String)(name: String, values: Iterable[String]): String = {
+    //Using ';' as a param value delimiter, and then need to escape any ';' thats in a param's value
     if (values.isEmpty) ""
-    else s"-P:$pluginName:$name:${values.mkString(":")}"
+    else s"-P:$pluginName:$name:${values.map(s=>s.replace(";", "\\;")).mkString(";")}" 
   }
 
   private lazy val toolboxPluginOptions: String = {
@@ -48,9 +56,9 @@ object TestUtil {
         "current-target" -> Seq(TestUtil.defaultTarget),
         "unused-deps-mode" -> (if (params.unusedDeps) { Seq("error") } else { Seq() }),
         "strict-deps-mode" -> (if (params.strictDeps) { Seq("error") } else { Seq() }),
-        "direct-jars" -> params.directJars,
+        "direct-jars" -> params.directJars.map(normalizePath),
         "direct-targets" -> params.directTargets,
-        "indirect-jars" -> params.indirectJars,
+        "indirect-jars" -> params.indirectJars.map(normalizePath),
         "indirect-targets" -> params.indirectTargets
       )
     val constructParam = TestUtil.constructPluginParam("dependency-analyzer") _
@@ -71,7 +79,7 @@ object TestUtil {
     if (classpathEntries.isEmpty) {
       ""
     } else {
-      s"-classpath ${classpathEntries.mkString(":")}"
+      s"-classpath ${classpathEntries.map(normalizePath).mkString(java.io.File.pathSeparator)}"
     }
   }
 
@@ -148,8 +156,4 @@ object TestUtil {
     val libPath = Paths.get(baseDir, jar).toAbsolutePath
     libPath.toString
   }
-
-  def decodeLabel(targetLabel: String): String = targetLabel.replace(";", ":")
-
-  def encodeLabel(targetLabel: String): String = targetLabel.replace(":", ";")
 }

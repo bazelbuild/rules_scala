@@ -98,8 +98,14 @@ test_scala_library_expect_failure_on_missing_direct_deps_warn_mode_java() {
 }
 
 test_scala_library_expect_failure_on_missing_direct_deps_off_mode() {
-  expected_message="test_expect_failure/missing_direct_deps/internal_deps/A.scala:[0-9+]: error: not found: value C"
-  test_target='test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency_user'
+  #scalac outputs backslashes on windows (triple slash needed for the grep)
+  if is_windows; then
+    local expected_message="test_expect_failure\\\missing_direct_deps\\\internal_deps\\\A.scala:[0-9+]: error: not found: value C"
+  
+  else
+    local expected_message="test_expect_failure/missing_direct_deps/internal_deps/A.scala:[0-9+]: error: not found: value C"
+  fi
+  local test_target='test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency_user'
 
   test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "${expected_message}" ${test_target} "--extra_toolchains=//test/toolchains:high_level_direct_deps"
 }

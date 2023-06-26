@@ -6,11 +6,14 @@ class ScalaLibResourcesFromExternalDepTest extends SpecWithJUnit {
 
   "Scala library depending on resources from external resource-only jar" >> {
     "allow to load resources" >> {
-      get("/external/test_new_local_repo/resource.txt") must beEqualTo("A resource\n")
+
+      val expectedString = String.format("A resource%n"); //Using platform dependent newline (%n)
+      get("/external/test_new_local_repo/resource.txt") must beEqualTo(expectedString)
+  
     }
   }
 
-  private def get(s: String): String =
+  private def get(s: String): String ={
     scala.io.Source.fromInputStream(getClass.getResourceAsStream(s)).mkString
-
+  }
 }

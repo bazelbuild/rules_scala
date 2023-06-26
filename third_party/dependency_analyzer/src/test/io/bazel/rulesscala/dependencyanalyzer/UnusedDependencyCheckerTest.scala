@@ -32,7 +32,7 @@ class UnusedDependencyCheckerTest extends AnyFunSuite {
 
     val commonsTarget = "//commons:Target"
 
-    val direct = List(apacheCommonsClasspath -> encodeLabel(commonsTarget))
+    val direct = List(apacheCommonsClasspath -> commonsTarget)
     val errorMesssages = compileWithUnusedDependencyChecker(testCode, withDirect = direct)
 
     assert(errorMesssages.exists { msg =>

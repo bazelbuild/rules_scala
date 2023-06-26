@@ -62,15 +62,11 @@ object DependencyAnalyzerSettings {
 
     val optionsParser = OptionsParser.create(options, error)
 
-    def decodeTarget(target: String): String = {
-      target.replace(";", ":")
-    }
-
     def parseTargetSet(prefix: String): TargetSet = {
       new TargetSet(
         prefix = prefix,
         jarsSeq = optionsParser.takeStringSeqOpt(s"$prefix-jars").getOrElse(Seq.empty),
-        targetsSeq = optionsParser.takeStringSeqOpt(s"$prefix-targets").map(_.map(decodeTarget)).getOrElse(Seq.empty)
+         targetsSeq = optionsParser.takeStringSeqOpt(s"$prefix-targets").getOrElse(Seq.empty)
       )
     }
 
@@ -88,7 +84,7 @@ object DependencyAnalyzerSettings {
 
     val settings =
       DependencyAnalyzerSettings(
-        currentTarget = decodeTarget(optionsParser.takeString("current-target")),
+        currentTarget = optionsParser.takeString("current-target"),
         dependencyTrackingMethod =
           DependencyTrackingMethod
             .parse(optionsParser.takeString("dependency-tracking-method"))
@@ -104,7 +100,6 @@ object DependencyAnalyzerSettings {
           optionsParser
             .takeStringSeqOpt(s"unused-deps-ignored-targets")
             .getOrElse(Seq.empty)
-            .map(decodeTarget)
             .toSet
       )
     optionsParser.failOnUnparsedOptions()

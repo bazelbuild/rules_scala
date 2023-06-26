@@ -1,0 +1,5 @@
+build --enable_platform_specific_config
+
+#Windows needs --worker_quit_after_build due to workers not being shut down when the compiler tools need to be rebuilt (resulting in 'file in use' errors). See Bazel Issue#10498.
+
+build:windows --worker_quit_after_build --enable_runfiles 

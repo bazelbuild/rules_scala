@@ -24,13 +24,20 @@ run_formatting() {
   RULE_TYPE=$1
   FILENAME=$2
 
-  bazel run //test/scalafmt:formatted-$RULE_TYPE.format-test
+  #on windows scalafmt targets need to be run using bash. 
+  #TODO: improve the scalafmt funcitonality so we don't need to use the run_under mechanism
+  local run_under = "" 
+  if is_windows; then
+    run_under="--run_under=bash"
+  fi
+
+  bazel run //test/scalafmt:formatted-$RULE_TYPE.format-test $run_under
   if [ $? -ne 0 ]; then
     echo -e "${RED} formatted-$RULE_TYPE.format-test should be a formatted target. $NC"
     exit 1
   fi
 
-  bazel run //test/scalafmt:unformatted-$RULE_TYPE.format-test
+  bazel run //test/scalafmt:unformatted-$RULE_TYPE.format-test $run_under
   if [ $? -eq 0 ]; then
     echo -e "${RED} unformatted-$RULE_TYPE.format-test should be an unformatted target. $NC"
     exit 1
@@ -38,7 +45,8 @@ run_formatting() {
 
   backup_unformatted $FILE_PATH $FILENAME
   # format unformatted*.scala
-  bazel run //test/scalafmt:unformatted-$RULE_TYPE.format
+
+  bazel run //test/scalafmt:unformatted-$RULE_TYPE.format $run_under
   if [ $? -ne 0 ]; then
     echo -e "${RED} unformatted-$RULE_TYPE.format should run formatting. $NC"
     restore_unformatted_before_exit $FILE_PATH $FILENAME

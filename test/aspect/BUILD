@@ -1,4 +1,4 @@
-load(":aspect.bzl", "aspect_test")
+load(":aspect.bzl", "aspect_testscript")
 load(
     "//scala:scala.bzl",
     "scala_junit_test",
@@ -7,14 +7,21 @@ load(
     "scala_test",
 )
 
-aspect_test(
-    name = "aspect_test",
+aspect_testscript(
+    name = "aspect_testscript",
+    testonly = True,
     targets = [
         ":scala_library",
         ":scala_test",
         ":scala_junit_test",
         ":scala_specs2_junit_test",
     ],
+)
+
+sh_test(
+    name = "aspect_test",
+    testonly = True,
+    srcs = ["aspect_testscript"],
 )
 
 scala_library(name = "scala_library")

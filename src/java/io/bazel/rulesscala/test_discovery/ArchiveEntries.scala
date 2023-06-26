@@ -5,8 +5,9 @@ import java.util.jar.{JarEntry, JarInputStream}
 
 object ArchiveEntries {
   def listClassFiles(file: File): Stream[String] = {
+    
     val allEntries = if (file.isDirectory)
-      directoryEntries(file).map(_.stripPrefix(file.toString).stripPrefix("/"))
+      directoryEntries(file).map(_.stripPrefix(file.toString).stripPrefix("/").stripPrefix("\\"))
     else
       jarEntries(new JarInputStream(new FileInputStream(file)))
 

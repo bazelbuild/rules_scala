@@ -136,7 +136,11 @@ def sanitize_string_for_usage(s):
             res_array.append("_")
     return "".join(res_array)
 
-#generates rpathlocation that should be used with the rlocation() at runtime. (rpathlocations start with repo name)
+#generates an rlocationpath that can be used with the rlocation() at runtime. (rlocationpath starts with repo name)
+def rlocationpath_from_file(ctx, file):
+    return paths.normalize(ctx.workspace_name + "/" + file.short_path)
+
+#generates an rlocationpath that can be used with the rlocation() at runtime. (rlocationpath start with repo name)
 #rootpath arg expects "rootpath" format (i.e. relative to runfilesDir/workspacename). Rootpath can be obtained by $rootpath macro or File.short_path
-def rpathlocation_from_rootpath(ctx, rootpath):
+def rlocationpath_from_rootpath(ctx, rootpath):
     return paths.normalize(ctx.workspace_name + "/" + rootpath)
