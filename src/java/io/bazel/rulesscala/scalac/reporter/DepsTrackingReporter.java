@@ -17,6 +17,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
+
+import javax.print.attribute.standard.Severity;
+
 import scala.reflect.internal.util.NoPosition$;
 import scala.reflect.internal.util.Position;
 import scala.tools.nsc.Settings;
@@ -90,6 +93,9 @@ public class DepsTrackingReporter extends ConsoleReporter {
 
   private void parseOpenedJar(String msg) {
     String jar = msg.split(":")[1];
+
+    //normalize path separators (scalac passes os-specific path separators.)
+    jar = jar.replace("\\", "/");
 
     // track only jars from dependency targets
     // this should exclude things like rt.jar which come from JDK
