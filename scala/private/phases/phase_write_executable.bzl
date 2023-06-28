@@ -86,9 +86,8 @@ def _write_executable_windows(ctx, executable, rjars, main_class, jvm_flags, wra
     cpfile = ctx.actions.declare_file("%s.classpath" % ctx.label.name)
     ctx.actions.write(cpfile, classpath)
 
-    specifiedEnv = {}
-    if hasattr(ctx.attr, "env"):
-        specifiedEnv = ctx.attr.env
+    #Handle fact that some scala rules add env as an attr and some don't.
+    specifiedEnv = getattr(ctx.attr, "env", {})
 
     ctx.actions.run(
         outputs = [executable],
