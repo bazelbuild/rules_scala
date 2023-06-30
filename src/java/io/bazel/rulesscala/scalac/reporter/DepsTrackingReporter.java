@@ -17,9 +17,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
-
-import javax.print.attribute.standard.Severity;
-
 import scala.reflect.internal.util.NoPosition$;
 import scala.reflect.internal.util.Position;
 import scala.tools.nsc.Settings;
