@@ -11,6 +11,7 @@ import java.nio.ByteOrder;
 import java.nio.file.*;
 import java.util.Arrays;
 import java.util.List;
+import java.nio.file.Paths;
 
 public class LauncherFileWriter {
   public static void main(String[] args) throws IOException {
@@ -30,10 +31,10 @@ public class LauncherFileWriter {
             .addKeyValuePair("binary_type", "Java")
             .addKeyValuePair("workspace_name", workspaceName)
             .addKeyValuePair("symlink_runfiles_enabled", "0")
-            .addKeyValuePair("java_bin_path", fullJavaBinPath(workspaceName, Paths.get(javaBinPath)).toString())
-            .addKeyValuePair("jar_bin_path", jarBinPath)
+            .addKeyValuePair("java_bin_path", javaBinPath.replace("\\", "/")) //Expects rpathlocation (i.e. with prepended repo name)
+            .addKeyValuePair("jar_bin_path", rpathlocation_to_rootpath( workspaceName, jarBinPath)) //Expects rootpath location 
             .addKeyValuePair("java_start_class", javaStartClass)
-            .addKeyValuePair("classpath", classpath)
+            .addKeyValuePair("classpath", classpath) //Expects rootpath location
             .addJoinedValues("jvm_flags", "\t", jvmFlags)
             .build();
 
@@ -55,14 +56,17 @@ public class LauncherFileWriter {
     }
   }
 
-  private static Path fullJavaBinPath(String workspaceName, Path javaBinPath) {
-    if (javaBinPath.isAbsolute()) {
-      return javaBinPath;
-    } else if (javaBinPath.startsWith(Paths.get("external"))) {
-      // Paths under `external/` already have a workspace name.
-      return javaBinPath;
-    } else {
-      return Paths.get(workspaceName).resolve(javaBinPath);
+  //Bazel's java_launcher expects some fields(i.e. jar_bin_path and classpaths) to be rootpath. rpathlocation is relative to runfiledir (always prefix with repo). Rootpath is relative to runfiledir/workspacename. 
+  static String rpathlocation_to_rootpath(String workspaceName, String rpathlocation){
+    Path path = Paths.get(rpathlocation);
+
+    Path result;
+    if(!path.startsWith(workspaceName)){
+      //Assume that if its not in the main workspace, that it is an external repo (and should be one level down)
+      result = Paths.get("../").resolve(path);
+    }else{
+      result = Paths.get(workspaceName).resolve(path);
     }
+    return result.toString().replace("\\", "/");
   }
 }

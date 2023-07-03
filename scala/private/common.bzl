@@ -1,5 +1,6 @@
 load("@io_bazel_rules_scala//scala:jars_to_labels.bzl", "JarsToLabelsInfo")
 load("@io_bazel_rules_scala//scala:plusone.bzl", "PlusOneDeps")
+load("@bazel_skylib//lib:paths.bzl", "paths")
 
 def write_manifest_file(actions, output_file, main_class):
     # TODO(bazel-team): I don't think this classpath is what you want
@@ -134,3 +135,8 @@ def sanitize_string_for_usage(s):
         else:
             res_array.append("_")
     return "".join(res_array)
+
+#generates rpathlocation that should be used with the rlocation() at runtime. (rpathlocations start with repo name)
+#rootpath arg expects "rootpath" format (i.e. relative to runfilesDir/workspacename). Rootpath can be obtained by $rootpath macro or File.short_path
+def rpathlocation_from_rootpath(ctx, rootpath):
+    return paths.normalize(ctx.workspace_name + "/" + rootpath)

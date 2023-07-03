@@ -9,6 +9,7 @@ load(
     "first_non_empty",
     "is_windows",
     "java_bin",
+    "java_bin_windows",
     "runfiles_root",
 )
 
@@ -76,21 +77,24 @@ def _phase_write_executable(
 def _write_executable_windows(ctx, executable, rjars, main_class, jvm_flags, wrapper, use_jacoco):
     # NOTE: `use_jacoco` is currently ignored on Windows.
     # TODO: tests coverage support for Windows
-    classpath = ";".join(
-        [("external/%s" % (j.short_path[3:]) if j.short_path.startswith("../") else j.short_path) for j in rjars.to_list()],
-    )
+    #launcher expects classpaths to be in rootpath form (ie. relative to runfiles_dir, short_path does the trick)
+    classpath = ";".join([j.short_path for j in rjars.to_list()])
+
     jvm_flags_str = ";".join(jvm_flags)
-    java_for_exe = str(ctx.attr._java_runtime[java_common.JavaRuntimeInfo].java_executable_exec_path)
+    java_for_exe = java_bin_windows(ctx)
 
     cpfile = ctx.actions.declare_file("%s.classpath" % ctx.label.name)
     ctx.actions.write(cpfile, classpath)
+
+    #Handle fact that some scala rules add env as an attr and some don't.
+    specifiedEnv = getattr(ctx.attr, "env", {})
 
     ctx.actions.run(
         outputs = [executable],
         inputs = [cpfile],
         executable = ctx.attr._exe.files_to_run.executable,
         arguments = [executable.path, ctx.workspace_name, java_for_exe, main_class, cpfile.path, jvm_flags_str],
-        env = ctx.attr.env,
+        env = specifiedEnv,
         mnemonic = "ExeLauncher",
         progress_message = "Creating exe launcher",
     )
