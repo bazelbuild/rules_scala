@@ -16,20 +16,20 @@ import java.lang.AutoCloseable;
 public class ReportableMainClass extends MainClass {
   private Reporter reporter;
   private final CompileOptions ops;
-  private Global _compiler = null;
+  private Global compiler = null;
 
   public ReportableMainClass(CompileOptions ops) {
     this.ops = ops;
   }
 
-  public void Close() throws Exception{
-    if(_compiler != null){
+  public void close() throws Exception{
+    if(compiler != null){
 
       //nsc.Global didn't inherit from Closeable until 2.12.9.
-      if(_compiler instanceof AutoCloseable){
-        ((AutoCloseable)_compiler).close();
+      if(compiler instanceof AutoCloseable){
+        ((AutoCloseable)compiler).close();
       }
-      _compiler = null;
+      compiler = null;
     }
   }
 
@@ -44,8 +44,8 @@ public class ReportableMainClass extends MainClass {
 
     reporter = new DepsTrackingReporter(settings, ops, reporter);
 
-    _compiler = new Global(settings, reporter);
-    return _compiler;
+    compiler = new Global(settings, reporter);
+    return compiler;
   }
 
   private void createDiagnosticsFile() {

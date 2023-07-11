@@ -286,7 +286,7 @@ class ScalacWorker implements Worker.Interface {
         throw ex;
       }
     }finally {
-      comp.Close();
+      comp.close();
     }
 
 
