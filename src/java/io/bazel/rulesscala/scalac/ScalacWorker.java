@@ -258,7 +258,7 @@ class ScalacWorker implements Worker.Interface {
   }
 
   private static void compileScalaSources(CompileOptions ops, String[] scalaSources, Path classes)
-      throws IOException {
+      throws IOException, Exception {
 
     String[] pluginArgs = buildPluginArgs(ops.plugins);
     String[] pluginParams = getPluginParamsFrom(ops);
@@ -285,7 +285,11 @@ class ScalacWorker implements Worker.Interface {
       } else {
         throw ex;
       }
+    }finally {
+      comp.Close();
     }
+
+
     long stop = System.currentTimeMillis();
     if (ops.printCompileTime) {
       System.err.println("Compiler runtime: " + (stop - start) + "ms.");
