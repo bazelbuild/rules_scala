@@ -149,4 +149,5 @@ scala_import = rule(
             default = Label("@bazel_tools//tools/jdk:current_java_toolchain"),
         ),
     },
+    toolchains = ["@bazel_tools//tools/jdk:toolchain_type"],
 )
