@@ -11,13 +11,26 @@ import scala.tools.nsc.Global;
 import scala.tools.nsc.MainClass;
 import scala.tools.nsc.Settings;
 import scala.tools.nsc.reporters.Reporter;
+import java.lang.AutoCloseable;
 
 public class ReportableMainClass extends MainClass {
   private Reporter reporter;
   private final CompileOptions ops;
+  private Global compiler = null;
 
   public ReportableMainClass(CompileOptions ops) {
     this.ops = ops;
+  }
+
+  public void close() throws Exception{
+    if(compiler != null){
+
+      //nsc.Global didn't inherit from Closeable until 2.12.9.
+      if(compiler instanceof AutoCloseable){
+        ((AutoCloseable)compiler).close();
+      }
+      compiler = null;
+    }
   }
 
   @Override
@@ -31,7 +44,8 @@ public class ReportableMainClass extends MainClass {
 
     reporter = new DepsTrackingReporter(settings, ops, reporter);
 
-    return new Global(settings, reporter);
+    compiler = new Global(settings, reporter);
+    return compiler;
   }
 
   private void createDiagnosticsFile() {
