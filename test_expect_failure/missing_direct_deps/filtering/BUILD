@@ -13,8 +13,8 @@ scala_toolchain(
     dependency_mode = "plus-one",
     dependency_tracking_method = "ast",
     dependency_tracking_strict_deps_patterns = [
-        "//test_expect_failure/missing_direct_deps/filtering",
-        "-//test_expect_failure/missing_direct_deps/filtering:a",
+        "@//test_expect_failure/missing_direct_deps/filtering",
+        "-@//test_expect_failure/missing_direct_deps/filtering:a",
     ],
     strict_deps_mode = "error",
     visibility = ["//visibility:public"],

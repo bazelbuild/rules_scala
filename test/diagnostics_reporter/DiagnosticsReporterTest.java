@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 public class DiagnosticsReporterTest {
+  @SuppressWarnings("DoubleBraceInitialization")
   private static final Map<String, diagnostics_reporter.VerifyDiagnosticsOutput[]> tests =
       new HashMap<String, diagnostics_reporter.VerifyDiagnosticsOutput[]>() {
         {

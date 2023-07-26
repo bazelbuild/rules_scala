@@ -155,11 +155,11 @@ Patterns prefixed with "-" will exclude targets.
 
 Example patterns: 
 - `""` includes everything - default setting
-- `"//"` includes all local targets
-- `"//foo/"` includes everything under package `//foo`, if trailing slash is omitted, it will match 
-other packages, which start with "some", eg. `//foo_bar`
-- `"//foo:bar"` includes target under label `//foo:bar`
+- `"@//"` includes all local targets
+- `"@//foo/"` includes everything under package `@//foo`, if trailing slash is omitted, it will match 
+other packages, which start with "some", eg. `@//foo_bar`
+- `"@//foo:bar"` includes target under label `@//foo:bar`
 - `@junit_junit` includes external targets, which start with `"@junit_junit"`
-- `"-//foo:baz"` excludes target `//foo:baz`
+- `"-@//foo:baz"` excludes target `@//foo:baz`
 
 Exclusions take higher precedence over inclusions. Empty list will not match any targets.
