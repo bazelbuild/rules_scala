@@ -38,12 +38,13 @@ see the [compatibility table](#bazel-compatible-versions).
 # WORKSPACE
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-skylib_version = "1.0.3"
 http_archive(
     name = "bazel_skylib",
-    sha256 = "1c531376ac7e5a180e0237938a2536de0c54d93f5c278634818e0efc952dd56c",
-    type = "tar.gz",
-    url = "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/{}/bazel-skylib-{}.tar.gz".format(skylib_version, skylib_version),
+    sha256 = "b8a1527901774180afc798aeb28c4634bdccf19c4d98e7bdd1ce79d1fe9aaad7",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.4.1/bazel-skylib-1.4.1.tar.gz",
+        "https://github.com/bazelbuild/bazel-skylib/releases/download/1.4.1/bazel-skylib-1.4.1.tar.gz",
+    ],
 )
 
 # See https://github.com/bazelbuild/rules_scala/releases for up to date version information.
@@ -56,10 +57,14 @@ http_archive(
     url = "https://github.com/bazelbuild/rules_scala/archive/%s.zip" % rules_scala_version,
 )
 
+load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
 # Stores Scala version and other configuration
 # 2.12 is a default version, other versions can be use by passing them explicitly:
 # scala_config(scala_version = "2.11.12")
-load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
+# Scala 3 requires extras...
+#   3.2 should be supported on master. Please note that Scala artifacts for version (3.2.2) are not defined in
+#   Rules Scala, they need to be provided by your WORKSPACE. You can use external loader like
+#   https://github.com/bazelbuild/rules_jvm_external
 scala_config()
 
 load("@io_bazel_rules_scala//scala:scala.bzl", "rules_scala_setup", "rules_scala_toolchain_deps_repositories")

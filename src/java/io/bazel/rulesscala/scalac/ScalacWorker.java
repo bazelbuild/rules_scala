@@ -259,8 +259,17 @@ class ScalacWorker implements Worker.Interface {
     return pluginParams.toArray(new String[pluginParams.size()]);
   }
 
+  private static boolean isMacroException(Throwable ex) {
+    for (StackTraceElement elem : ex.getStackTrace()) {
+      if (elem.getMethodName().equals("macroExpand")) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   private static void compileScalaSources(CompileOptions ops, String[] scalaSources, Path classes)
-      throws IOException {
+      throws IOException, Exception {
 
     List<String> plugins = new ArrayList<String>(Arrays.asList(ops.plugins));
     if (ops.enableSemanticDb) {
@@ -285,10 +294,18 @@ class ScalacWorker implements Worker.Interface {
     } catch (Throwable ex) {
       if (ex.toString().contains("scala.reflect.internal.Types$TypeError")) {
         throw new RuntimeException("Build failure with type error", ex);
+      } else if (ex.toString().contains("java.lang.StackOverflowError")) {
+        throw new RuntimeException("Build failure with StackOverflowError", ex);
+      } else if (isMacroException(ex)) {
+        throw new RuntimeException("Build failure during macro expansion", ex);
       } else {
         throw ex;
       }
+    }finally {
+      comp.close();
     }
+
+
     long stop = System.currentTimeMillis();
     if (ops.printCompileTime) {
       System.err.println("Compiler runtime: " + (stop - start) + "ms.");

@@ -11,7 +11,33 @@ load(
     "SCALA_VERSION",
 )
 
-def dt_patched_compiler_setup():
+def _dt_patched_compiler_impl(rctx):
+    # Need to give the file a .zip extension so rctx.extract knows what type of archive it is
+    rctx.symlink(rctx.attr.srcjar, "file.zip")
+    rctx.extract(archive = "file.zip")
+    rctx.patch(rctx.attr.patch)
+    rctx.file("BUILD", content = rctx.attr.build_file_content)
+
+dt_patched_compiler = repository_rule(
+    attrs = {
+        "patch": attr.label(),
+        "srcjar": attr.label(),
+        "build_file_content": attr.string(),
+    },
+    implementation = _dt_patched_compiler_impl,
+)
+
+def _validate_scalac_srcjar(srcjar):
+    if type(srcjar) != "dict":
+        return False
+    oneof = ["url", "urls", "label"]
+    count = 0
+    for key in oneof:
+        if key in srcjar:
+            count += 1
+    return count == 1
+
+def dt_patched_compiler_setup(scala_compiler_srcjar = None):
     patch = "@io_bazel_rules_scala//dt_patches:dt_compiler_%s.patch" % SCALA_MAJOR_VERSION
 
     minor_version = int(SCALA_MINOR_VERSION)
@@ -22,56 +48,79 @@ def dt_patched_compiler_setup():
         elif minor_version <= 11:
             patch = "@io_bazel_rules_scala//dt_patches:dt_compiler_%s.8.patch" % SCALA_MAJOR_VERSION
 
-    http_archive(
-        name = "scala_compiler_source",
-        build_file_content = "\n".join([
-            "package(default_visibility = [\"//visibility:public\"])",
-            "filegroup(",
-            "    name = \"src\",",
-            "    srcs=[\"scala/tools/nsc/symtab/SymbolLoaders.scala\"],",
-            ")",
-        ]),
-        patches = [patch],
-        url = "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/%s/scala-compiler-%s-sources.jar" % (SCALA_VERSION, SCALA_VERSION),
+    build_file_content = "\n".join([
+        "package(default_visibility = [\"//visibility:public\"])",
+        "filegroup(",
+        "    name = \"src\",",
+        "    srcs=[\"scala/tools/nsc/symtab/SymbolLoaders.scala\"],",
+        ")",
+    ])
+    default_scalac_srcjar = {
+        "url": "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/%s/scala-compiler-%s-sources.jar" % (SCALA_VERSION, SCALA_VERSION),
+    }
+    srcjar = scala_compiler_srcjar if scala_compiler_srcjar != None else default_scalac_srcjar
+    _validate_scalac_srcjar(srcjar) or fail(
+        ("scala_compiler_srcjar invalid, must be a dict with exactly one of \"label\", \"url\"" +
+         " or \"urls\" keys, got: ") + repr(srcjar),
     )
+    if "label" in srcjar:
+        dt_patched_compiler(
+            name = "scala_compiler_source",
+            build_file_content = build_file_content,
+            patch = patch,
+            srcjar = srcjar["label"],
+        )
+    else:
+        http_archive(
+            name = "scala_compiler_source",
+            build_file_content = build_file_content,
+            patches = [patch],
+            url = srcjar.get("url"),
+            urls = srcjar.get("urls"),
+            sha256 = srcjar.get("sha256"),
+            integrity = srcjar.get("integrity"),
+        )
 
-def rules_scala_setup():
+def rules_scala_setup(scala_compiler_srcjar = None):
     if not native.existing_rule("bazel_skylib"):
-        skylib_version = "1.0.3"
         http_archive(
             name = "bazel_skylib",
-            sha256 = "1c531376ac7e5a180e0237938a2536de0c54d93f5c278634818e0efc952dd56c",
-            type = "tar.gz",
-            url = "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/{}/bazel-skylib-{}.tar.gz".format(skylib_version, skylib_version),
+            sha256 = "b8a1527901774180afc798aeb28c4634bdccf19c4d98e7bdd1ce79d1fe9aaad7",
+            urls = [
+                "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.4.1/bazel-skylib-1.4.1.tar.gz",
+                "https://github.com/bazelbuild/bazel-skylib/releases/download/1.4.1/bazel-skylib-1.4.1.tar.gz",
+            ],
         )
 
     if not native.existing_rule("rules_cc"):
         http_archive(
             name = "rules_cc",
-            sha256 = "29daf0159f0cf552fcff60b49d8bcd4f08f08506d2da6e41b07058ec50cfeaec",
-            strip_prefix = "rules_cc-b7fe9697c0c76ab2fd431a891dbb9a6a32ed7c3e",
-            urls = ["https://github.com/bazelbuild/rules_cc/archive/b7fe9697c0c76ab2fd431a891dbb9a6a32ed7c3e.tar.gz"],
+            urls = ["https://github.com/bazelbuild/rules_cc/releases/download/0.0.6/rules_cc-0.0.6.tar.gz"],
+            sha256 = "3d9e271e2876ba42e114c9b9bc51454e379cbf0ec9ef9d40e2ae4cec61a31b40",
+            strip_prefix = "rules_cc-0.0.6",
         )
 
     if not native.existing_rule("rules_java"):
         http_archive(
             name = "rules_java",
-            url = "https://github.com/bazelbuild/rules_java/releases/download/3.7.2/rules_java-3.7.2.tar.gz",
-            sha256 = "b2fd0bb9327287edd388f80d842d5c1e90abfed2e17ed4fe8cb0e83650e8d918",
+            urls = [
+                "https://github.com/bazelbuild/rules_java/releases/download/5.4.1/rules_java-5.4.1.tar.gz",
+            ],
+            sha256 = "a1f82b730b9c6395d3653032bd7e3a660f9d5ddb1099f427c1e1fe768f92e395",
         )
 
     if not native.existing_rule("rules_proto"):
         http_archive(
             name = "rules_proto",
-            sha256 = "8e7d59a5b12b233be5652e3d29f42fba01c7cbab09f6b3a8d0a57ed6d1e9a0da",
-            strip_prefix = "rules_proto-7e4afce6fe62dbff0a4a03450143146f9f2d7488",
+            sha256 = "dc3fb206a2cb3441b485eb1e423165b231235a1ea9b031b4433cf7bc1fa460dd",
+            strip_prefix = "rules_proto-5.3.0-21.7",
             urls = [
-                "https://mirror.bazel.build/github.com/bazelbuild/rules_proto/archive/7e4afce6fe62dbff0a4a03450143146f9f2d7488.tar.gz",
-                "https://github.com/bazelbuild/rules_proto/archive/7e4afce6fe62dbff0a4a03450143146f9f2d7488.tar.gz",
+                "https://mirror.bazel.build/github.com/bazelbuild/rules_proto/archive/refs/tags/5.3.0-21.7.tar.gz",
+                "https://github.com/bazelbuild/rules_proto/archive/refs/tags/5.3.0-21.7.tar.gz",
             ],
         )
 
-    dt_patched_compiler_setup()
+    dt_patched_compiler_setup(scala_compiler_srcjar)
 
 ARTIFACT_IDS = [
     "io_bazel_rules_scala_scala_library",

@@ -24,6 +24,11 @@ test_fails_for_strict_dep() {
     build --extra_toolchains="//test_expect_failure/compiler_dependency_tracker:ast_plus_error" //test_expect_failure/compiler_dependency_tracker:missing_source_dep
 }
 
+test_sdeps() {
+  bazel test --extra_toolchains=//test_expect_failure/compiler_dependency_tracker:ast_plus_warn //test_expect_failure/compiler_dependency_tracker/sdeps/...
+}
+
 $runner test_fails_for_unused_dep
 $runner test_fails_for_missing_compile_dep
 $runner test_fails_for_strict_dep
+$runner test_sdeps
