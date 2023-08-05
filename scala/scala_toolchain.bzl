@@ -74,7 +74,6 @@ def _scala_toolchain_impl(ctx):
 
     enable_stats_file = ctx.attr.enable_stats_file
     enable_diagnostics_report = ctx.attr.enable_diagnostics_report
-    enable_semanticdb = ctx.attr.enable_semanticdb
 
     all_strict_deps_patterns = ctx.attr.dependency_tracking_strict_deps_patterns
     strict_deps_includes, strict_deps_excludes = _partition_patterns(all_strict_deps_patterns)
@@ -99,7 +98,8 @@ def _scala_toolchain_impl(ctx):
         enable_diagnostics_report = enable_diagnostics_report,
         jacocorunner = ctx.attr.jacocorunner,
         enable_stats_file = enable_stats_file,
-        enable_semanticdb = enable_semanticdb,
+        enable_semanticdb = ctx.attr.enable_semanticdb,
+        semanticdb_bundle_in_jar = ctx.attr.semanticdb_bundle_in_jar,
         use_argument_file_in_runner = ctx.attr.use_argument_file_in_runner,
     )
     return [toolchain]
@@ -113,7 +113,7 @@ def _default_dep_providers():
         "@io_bazel_rules_scala//scala:scala_macro_classpath_provider",
     ]
     if SCALA_MAJOR_VERSION.startswith("2"):
-        dep_providers.append("@io_bazel_rules_scala//scala:semanticdb_scalac_provider")
+        dep_providers.append("@io_bazel_rules_scala//scala:scala_semanticdb_provider")
     return dep_providers
 
 scala_toolchain = rule(
@@ -168,6 +168,7 @@ scala_toolchain = rule(
             default = False,
             doc = "Enable SemanticDb",
         ),
+        "semanticdb_bundle_in_jar": attr.bool(default = False, doc = "Option to bundle the semanticdb files inside the output jar file"),
         "use_argument_file_in_runner": attr.bool(
             default = False,
             doc = "Changes java binaries scripts (including tests) to use argument files and not classpath jars to improve performance, requires java > 8",

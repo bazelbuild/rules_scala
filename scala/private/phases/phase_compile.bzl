@@ -129,10 +129,18 @@ def _phase_compile(
     jars2labels = p.collect_jars.jars2labels.jars_to_labels
     deps_providers = p.collect_jars.deps_providers
     default_classpath = p.scalac_provider.default_classpath
+    plugins = ctx.attr.plugins
+    additional_outputs = []
+    scalacopts = p.scalacopts
+
+    if (hasattr(p, "semanticdb")):
+        scalacopts += p.semanticdb.scalacopts
+        plugins = plugins + p.semanticdb.plugin
+        additional_outputs += p.semanticdb.outputs
 
     out = _compile_or_empty(
         ctx,
-        p.scalacopts,
+        scalacopts,
         manifest,
         jars,
         srcjars,
@@ -144,7 +152,8 @@ def _phase_compile(
         deps_providers,
         default_classpath,
         unused_dependency_checker_ignored_targets,
-        p.semanticdb.enabled,
+        plugins,
+        additional_outputs,
     )
 
     # TODO: simplify the return values and use provider
@@ -171,7 +180,8 @@ def _compile_or_empty(
         deps_providers,
         default_classpath,
         unused_dependency_checker_ignored_targets,
-        semanticdb_enabled):
+        plugins,
+        additional_outputs):
     # We assume that if a srcjar is present, it is not empty
     if len(ctx.files.srcs) + len(srcjars.to_list()) == 0:
         _build_nosrc_jar(ctx)
@@ -202,7 +212,7 @@ def _compile_or_empty(
             jars,
             all_srcjars,
             transitive_compile_jars,
-            ctx.attr.plugins,
+            plugins,
             ctx.attr.resource_strip_prefix,
             ctx.files.resources,
             ctx.files.resource_jars,
@@ -214,7 +224,7 @@ def _compile_or_empty(
             ctx.executable._scalac,
             dependency_info,
             unused_dependency_checker_ignored_targets,
-            semanticdb_enabled,
+            additional_outputs,
         )
 
         # build ijar if needed

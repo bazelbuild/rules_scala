@@ -148,7 +148,7 @@ def _scala_library_for_plugin_bootstrapping_impl(ctx):
             ("dependency", phase_dependency_library_for_plugin_bootstrapping),
             ("collect_jars", phase_collect_jars_common),
             ("scalacopts", phase_scalacopts),
-            ("semanticdb", phase_semanticdb),
+            #("semanticdb", phase_semanticdb), noneed for semanticdb in bootstrap
             ("compile", phase_compile_library_for_plugin_bootstrapping),
             ("merge_jars", phase_merge_jars),
             ("runfiles", phase_runfiles_library),

@@ -25,7 +25,7 @@ common_toolchain_deps(
 )
 
 common_toolchain_deps(
-    name = "semanticdb_scalac",
-    deps_id = "semanticdb_scalac",
+    name = "scala_semanticdb",
+    deps_id = "scala_semanticdb",
     visibility = ["//visibility:public"],
 )

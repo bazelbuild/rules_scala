@@ -1,20 +1,51 @@
 load("//scala:scala_toolchain.bzl", "scala_toolchain")
 load("//scala:scala.bzl", "scala_library")
+load("//test/semanticdb:rules.bzl", "semanticdb_vars_script")
 
 scala_toolchain(
-    name = "semanticdb_toolchain_impl",
+    name = "semanticdb_bundle_toolchain_impl",
     enable_semanticdb = True,
+    semanticdb_bundle_in_jar = True,
     visibility = ["//visibility:public"],
 )
 
 toolchain(
-    name = "semanticdb_toolchain",
-    toolchain = "semanticdb_toolchain_impl",
+    name = "semanticdb_bundle_toolchain",
+    toolchain = "semanticdb_bundle_toolchain_impl",
+    toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
+    visibility = ["//visibility:public"],
+)
+
+scala_toolchain(
+    name = "semanticdb_nobundle_toolchain_impl",
+    enable_semanticdb = True,
+    semanticdb_bundle_in_jar = False,
+    visibility = ["//visibility:public"],
+)
+
+toolchain(
+    name = "semanticdb_nobundle_toolchain",
+    toolchain = "semanticdb_nobundle_toolchain_impl",
     toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
     visibility = ["//visibility:public"],
 )
 
 scala_library(
-    name = "all",
+    name = "all_lib",
     srcs = glob(["**/*.scala"]),
+)
+
+semanticdb_vars_script(
+    name = "semantic_provider_vars_all",
+    dep = "all_lib",
+)
+
+scala_library(
+    name = "empty_lib",
+    srcs = [],
+)
+
+semanticdb_vars_script(
+    name = "semantic_provider_vars_empty",
+    dep = "empty_lib",
 )

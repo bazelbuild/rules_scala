@@ -285,7 +285,7 @@ def _compile_generated_scala(
         scalac = ctx.executable._scalac,
         dependency_info = legacy_unclear_dependency_info_for_protobuf_scrooge(ctx),
         unused_dependency_checker_ignored_targets = [],
-        semanticdb_enabled = False,
+        additional_outputs = [],
     )
 
     return _create_java_info_provider(scrooge_jar, all_deps, output)

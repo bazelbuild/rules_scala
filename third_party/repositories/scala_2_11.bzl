@@ -78,8 +78,11 @@ artifacts = {
         ],
     },
     "org_scalameta_semanticdb_scalac": {
-        "artifact": "org.scalameta:semanticdb-scalac_2.11.12:4.7.3",
-        "sha256": "0db52fc6639f73b15c3fb9fc1cb441704399f0d8dee8352ca1cf359630e7ca0f",
+        "artifact": "org.scalameta:semanticdb-scalac_%s:4.8.6" % scala_version,
+        "sha256": "1253abd1e8c8b3ec0720995d378846bbc439d168e7ea815fe91da6bef8b1de9d",
+        "deps": [
+            "@io_bazel_rules_scala_scala_library",
+        ],
     },
     "org_scalameta_fastparse": {
         "artifact": "org.scalameta:fastparse_2.11:1.0.1",

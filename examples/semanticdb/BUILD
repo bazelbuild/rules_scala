@@ -4,6 +4,7 @@ load("@io_bazel_rules_scala//scala:scala.bzl", "scala_binary", "scala_library")
 scala_toolchain(
     name = "semanticdb_toolchain_impl",
     enable_semanticdb = True,
+    semanticdb_bundle_in_jar = False,
     visibility = ["//visibility:public"],
 )
 
@@ -15,12 +16,13 @@ toolchain(
 )
 
 scala_library(
-    name = "all",
-    srcs = glob(["**/*.scala"]),
+    name = "hello_lib",
+    srcs = ["Foo.scala"],
 )
 
 scala_binary(
-    name = "run",
+    name = "hello",
+    srcs = ["Main.scala"],
     main_class = "main",
-    deps = [":all"],
+    deps = [":hello_lib"],
 )

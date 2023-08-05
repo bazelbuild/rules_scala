@@ -14,13 +14,6 @@ toolchain(
 )
 
 declare_deps_provider(
-    name = "semanticdb_scalac_provider",
-    deps_id = "semanticdb_scalac",
-    visibility = ["//visibility:public"],
-    deps = ["@org_scalameta_semanticdb_scalac"],
-)
-
-declare_deps_provider(
     name = "aspect_compile_classpath_provider",
     deps_id = "aspect_compile_classpath",
     visibility = ["//visibility:public"],

@@ -243,17 +243,6 @@ class ScalacWorker implements Worker.Interface {
             "-P:dependency-analyzer:unused-deps-ignored-targets:"
                 + String.join(":", ignoredTargets));
       }
-    } 
-    
-    if (ops.enableSemanticDb) {
-
-      String[] params = {
-        "-Yrangepos",
-        "-P:semanticdb:failures:error",
-        "-Xplugin-require:semanticdb"
-       };
- 
-      pluginParams.addAll(Arrays.asList(params));
     }
 
     return pluginParams.toArray(new String[pluginParams.size()]);
@@ -271,12 +260,7 @@ class ScalacWorker implements Worker.Interface {
   private static void compileScalaSources(CompileOptions ops, String[] scalaSources, Path classes)
       throws IOException, Exception {
 
-    List<String> plugins = new ArrayList<String>(Arrays.asList(ops.plugins));
-    if (ops.enableSemanticDb) {
-      plugins.add(ops.semanticDbJar.get());
-    }
-
-    String[] pluginArgs = buildPluginArgs(plugins.toArray(new String[0]));
+    String[] pluginArgs = buildPluginArgs(ops.plugins);
     String[] pluginParams = getPluginParamsFrom(ops);
 
     String[] constParams = {

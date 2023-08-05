@@ -34,6 +34,8 @@ _PARSER_COMBINATORS_DEPS = ["@io_bazel_rules_scala_scala_parser_combinators"]
 
 _SCALA_XML_DEPS = ["@io_bazel_rules_scala_scala_xml"]
 
+_SCALA_SEMANTICDB_DEPS = ["@org_scalameta_semanticdb_scalac"] if SCALA_MAJOR_VERSION.startswith("2") else []
+
 setup_scala_toolchain(
     name = "default_toolchain",
     scala_compile_classpath = _SCALA_COMPILE_CLASSPATH_DEPS,
@@ -110,8 +112,8 @@ declare_deps_provider(
 )
 
 declare_deps_provider(
-    name = "semanticdb_scalac_provider",
-    deps_id = "semanticdb_scalac",
+    name = "scala_semanticdb_provider",
+    deps_id = "scala_semanticdb",
     visibility = ["//visibility:public"],
-    deps = ["@org_scalameta_semanticdb_scalac"],
+    deps = _SCALA_SEMANTICDB_DEPS,
 )

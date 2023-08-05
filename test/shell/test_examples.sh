@@ -28,25 +28,18 @@ function scala3_3_example() {
   (cd examples/scala3; bazel build --repo_env=SCALA_VERSION=3.3.0 //...)
 }
 
-function test_produces_semanticdb_scala3() {
-  # NB: In subshell, so "cd" doesn't change local CWD 
-  (
-    cd examples/testing/semanticdb_scala3
-    bazel run --extra_toolchains=//:semanticdb_toolchain //:run
-
-    local JAR="$(bazel info bazel-bin)/all.jar" 
-
-    if ! jar_contains_files $JAR "Foo.scala.semanticdb" "Main.scala.semanticdb"; then
-      echo "SemanticDB output not included in jar $JAR"
-      exit 1
-    fi
+function semanticdb_example() {
+  ( cd examples/semanticdb; 
+    bazel build //... --aspects aspect.bzl%semanticdb_info_aspect --output_groups=json_output_file;
+    bazel build //...
   )
 }
+
 
 $runner scalatest_repositories_example
 $runner specs2_junit_repositories_example
 $runner multi_framework_toolchain_example
+$runner semanticdb_example
 $runner scala3_1_example
 $runner scala3_2_example
 $runner scala3_3_example
-$runner test_produces_semanticdb_scala3
