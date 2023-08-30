@@ -120,7 +120,10 @@ def make_scala_test(*extras):
             *[extra["outputs"] for extra in extras if "outputs" in extra]
         ),
         test = True,
-        toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
+        toolchains = [
+            "@io_bazel_rules_scala//scala:toolchain_type",
+            "@bazel_tools//tools/jdk:toolchain_type",
+        ],
         incompatible_use_toolchain_transition = True,
         implementation = _scala_test_impl,
     )
