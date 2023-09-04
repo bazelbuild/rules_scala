@@ -270,7 +270,7 @@ def _build_nosrc_jar(ctx):
     ctx.actions.run(
         inputs = ctx.files.resources,
         outputs = [ctx.outputs.jar],
-        executable = ctx.executable._singlejar,
+        executable = specified_java_compile_toolchain(ctx).single_jar,
         progress_message = "scalac %s" % ctx.label,
         arguments = [args],
     )
