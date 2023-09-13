@@ -4,7 +4,7 @@
 load("@io_bazel_rules_scala//scala:semanticdb_provider.bzl", "SemanticdbInfo")
 
 def semanticdb_info_aspect_impl(target, ctx):
-    if SemanticdbInfo in ctx.attr.dep:
+    if SemanticdbInfo in target:
         output_struct = struct(
             target_label = str(target.label),
             semanticdb_target_root = target[SemanticdbInfo].target_root,
@@ -15,7 +15,7 @@ def semanticdb_info_aspect_impl(target, ctx):
         ctx.actions.write(json_output_file, json.encode_indent(output_struct))
 
         return [OutputGroupInfo(json_output_file = depset([json_output_file]))]
-    return None
+    return []
 
 semanticdb_info_aspect = aspect(
     implementation = semanticdb_info_aspect_impl,

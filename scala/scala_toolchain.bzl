@@ -113,7 +113,7 @@ def _default_dep_providers():
         "@io_bazel_rules_scala//scala:scala_macro_classpath_provider",
     ]
     if SCALA_MAJOR_VERSION.startswith("2"):
-        dep_providers.append("@io_bazel_rules_scala//scala:scala_semanticdb_provider")
+        dep_providers.append("@io_bazel_rules_scala//scala:semanticdb_provider")
     return dep_providers
 
 scala_toolchain = rule(

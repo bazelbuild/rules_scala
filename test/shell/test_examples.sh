@@ -29,12 +29,12 @@ function scala3_3_example() {
 }
 
 function semanticdb_example() {
+  set -e
   ( cd examples/semanticdb; 
     bazel build //... --aspects aspect.bzl%semanticdb_info_aspect --output_groups=json_output_file;
     bazel build //...
   )
 }
-
 
 $runner scalatest_repositories_example
 $runner specs2_junit_repositories_example

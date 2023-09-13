@@ -24,7 +24,7 @@ def phase_semanticdb(ctx, p):
 
         target_output_path = paths.dirname(ctx.outputs.jar.path)
 
-        semanticdb_intpath = "_scalac/" + ctx.label.name + "/classes" if toolchain.semanticdb_bundle_in_jar == True else "semanticdb/" + ctx.label.name
+        semanticdb_intpath = "_scalac/" + ctx.label.name + "/classes" if toolchain.semanticdb_bundle_in_jar == True else "_semanticdb/" + ctx.label.name
 
         semanticdb_target_root = "%s/%s" % (target_output_path, semanticdb_intpath)
 
@@ -38,7 +38,7 @@ def phase_semanticdb(ctx, p):
                     output_files.append(ctx.actions.declare_file(outputfilename))
 
         if SCALA_MAJOR_VERSION.startswith("2"):
-            semanticdb_deps = find_deps_info_on(ctx, toolchain_type_label, "scala_semanticdb").deps
+            semanticdb_deps = find_deps_info_on(ctx, toolchain_type_label, "semanticdb").deps
 
             if len(semanticdb_deps) == 0:
                 fail("semanticdb enabled, but semanticdb plugin jar not specified in scala_toolchain")

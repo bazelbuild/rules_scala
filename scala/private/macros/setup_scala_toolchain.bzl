@@ -8,7 +8,7 @@ def setup_scala_toolchain(
         scala_macro_classpath,
         scala_xml_deps = None,
         parser_combinators_deps = None,
-        scala_semanticdb_dep = None,
+        semanticdb_deps = None,
         enable_semanticdb = False,
         visibility = ["//visibility:public"],
         **kwargs):
@@ -17,7 +17,7 @@ def setup_scala_toolchain(
     scala_compile_classpath_provider = "%s_scala_compile_classpath_provider" % name
     scala_library_classpath_provider = "%s_scala_library_classpath_provider" % name
     scala_macro_classpath_provider = "%s_scala_macro_classpath_provider" % name
-    scala_semanticdb_dep_provider = "%s_scala_semanticdb_dep_provider" % name
+    semanticdb_deps_provider = "%s_semanticdb_deps_provider" % name
 
     declare_deps_provider(
         name = scala_compile_classpath_provider,
@@ -69,17 +69,17 @@ def setup_scala_toolchain(
     ]
 
     if enable_semanticdb == True:
-        if scala_semanticdb_dep != None:
+        if semanticdb_deps != None:
             declare_deps_provider(
-                name = scala_semanticdb_dep_provider,
-                deps_id = "scala_semanticdb",
-                deps = [scala_semanticdb_dep],
+                name = semanticdb_deps_provider,
+                deps_id = "semanticdb",
+                deps = [semanticdb_deps],
                 visibility = visibility,
             )
 
-            dep_providers.append(scala_semanticdb_dep_provider)
+            dep_providers.append(semanticdb_deps_provider)
         else:
-            dep_providers.append("@io_bazel_rules_scala//scala:scala_semanticdb_provider")
+            dep_providers.append("@io_bazel_rules_scala//scala:semanticdb_provider")
 
     scala_toolchain(
         name = "%s_impl" % name,

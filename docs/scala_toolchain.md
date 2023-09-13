@@ -79,8 +79,8 @@ scala_register_toolchains()
           Allows to configure dependencies lists by configuring <code>DepInfo</code> provider targets. 
           Currently supported dep ids: <code>scala_compile_classpath</code>, 
           <code>scala_library_classpath</code>, <code>scala_macro_classpath</code>, <code>scala_xml</code>, 
-          <code>parser_combinators</code>     
-          <code>scala_semanticdb</code>
+          <code>parser_combinators</code>,     
+          <code>semanticdb</code>
         </p>
       </td>
     </tr>
