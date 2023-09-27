@@ -504,9 +504,9 @@ artifacts = {
             "@org_springframework_spring_core",
         ],
     },
-    "org_spire_math_kind_projector": {
+    "org_typelevel_kind_projector": {
         "testonly": True,
-        "artifact": "org.spire-math:kind-projector_2.11:0.9.10",
-        "sha256": "897460d4488b7dd6ac9198937d6417b36cc6ec8ab3693fdf2c532652f26c4373",
+        "artifact": "org.typelevel:kind-projector_%s:0.13.2" % scala_version,
+        "sha256": "8f7287973f7f8fc9372b59d36120e3fac5839344f65c8f640351794e8907145c",
     },
 }

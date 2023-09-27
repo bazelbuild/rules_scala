@@ -523,10 +523,9 @@ artifacts = {
             "@org_springframework_spring_core",
         ],
     },
-    # TODO: fix misleading artifact group in id
-    "org_spire_math_kind_projector": {
+    "org_typelevel_kind_projector": {
         "testonly": True,
-        "artifact": "org.typelevel:kind-projector_2.13:0.10.3",
-        "sha256": "b5d60c8bc8f1333e2deac17d72d41bb59c53283a67ff3a613189746ce97ac8ad",
+        "artifact": "org.typelevel:kind-projector_2.13.11:0.13.2",
+        "sha256": "c5c49245a962206d708b7c9368d9f1dd77c773250c0f7bdde9c78e994889cb19",
     },
 }
