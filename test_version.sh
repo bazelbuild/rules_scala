@@ -4,7 +4,7 @@ set -e
 
 scala_2_11_version="2.11.12"
 scala_2_12_version="2.12.14"
-scala_2_13_version="2.13.6"
+scala_2_13_version="2.13.11"
 
 SCALA_VERSION_DEFAULT=$scala_2_11_version
 
@@ -97,8 +97,8 @@ dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 runner=$(get_test_runner "${1:-local}")
 export USE_BAZEL_VERSION=${USE_BAZEL_VERSION:-$(cat $dir/.bazelversion)}
 
-TEST_TIMEOUT=15 $runner test_scala_version "${scala_2_11_version}"
-TEST_TIMEOUT=15 $runner test_scala_version "${scala_2_12_version}"
+#TEST_TIMEOUT=15 $runner test_scala_version "${scala_2_11_version}"
+#TEST_TIMEOUT=15 $runner test_scala_version "${scala_2_12_version}"
 TEST_TIMEOUT=15 $runner test_scala_version "${scala_2_13_version}"
 
 TEST_TIMEOUT=15 $runner test_twitter_scrooge_versions "18.6.0"

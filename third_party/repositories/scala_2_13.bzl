@@ -1,17 +1,17 @@
-scala_version = "2.13.6"
+scala_version = "2.13.11"
 
 artifacts = {
     "io_bazel_rules_scala_scala_library": {
         "artifact": "org.scala-lang:scala-library:%s" % scala_version,
-        "sha256": "f19ed732e150d3537794fd3fe42ee18470a3f707efd499ecd05a99e727ff6c8a",
+        "sha256": "71853291f61bda32786a866533361cae474344f5b2772a379179b02112444ed3",
     },
     "io_bazel_rules_scala_scala_compiler": {
         "artifact": "org.scala-lang:scala-compiler:%s" % scala_version,
-        "sha256": "310d263d622a3d016913e94ee00b119d270573a5ceaa6b21312d69637fd9eec1",
+        "sha256": "c5a14770370e73a69367b131da1533890200b1e2aa70643b73f9ff31ef2e69ec",
     },
     "io_bazel_rules_scala_scala_reflect": {
         "artifact": "org.scala-lang:scala-reflect:%s" % scala_version,
-        "sha256": "f713593809b387c60935bb9a940dfcea53bd0dbf8fdc8d10739a2896f8ac56fa",
+        "sha256": "6a46ed9b333857e8b5ea668bb254ed8e47dacd1116bf53ade9467aa4ae8f1818",
     },
     "io_bazel_rules_scala_scala_parallel_collections": {
         "artifact": "org.scala-lang.modules:scala-parallel-collections_2.13:0.2.0",
@@ -157,8 +157,8 @@ artifacts = {
         "sha256": "b5f1d6071f1548d05be82f59f9039c7d37a1787bd8e3c677e31ee275af4a4621",
     },
     "org_scala_lang_scalap": {
-        "artifact": "org.scala-lang:scalap:2.13.6",
-        "sha256": "bbfa4ab0603f510b16114371a35b9c34d20946edfc1aa8f3fd31014b9f06b5b1",
+        "artifact": "org.scala-lang:scalap:2.13.11",
+        "sha256": "ac358699f40002fb4f32ad77531765fce23425d0e83c51854d1635118ab285ea",
         "deps": [
             "@io_bazel_rules_scala_scala_compiler",
         ],
