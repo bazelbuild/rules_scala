@@ -1,17 +1,17 @@
-scala_version = "2.12.14"
+scala_version = "2.12.18"
 
 artifacts = {
     "io_bazel_rules_scala_scala_library": {
         "artifact": "org.scala-lang:scala-library:%s" % scala_version,
-        "sha256": "0451dce8322903a6c2aa7d31232b54daa72a61ced8ade0b4c5022442a3f6cb57",
+        "sha256": "e51e6636c003359e106bea4ad99def70e613c290190c8c84f10f9560dd5b00ae",
     },
     "io_bazel_rules_scala_scala_compiler": {
         "artifact": "org.scala-lang:scala-compiler:%s" % scala_version,
-        "sha256": "2a1b3fbf9c956073c8c5374098a6f987e3b8d76e34756ab985fc7d2ca37ee113",
+        "sha256": "5680cee34200e8d8ed7965c71d8b1428d3eeb889eb14fec38d40ffbc3761a0d0",
     },
     "io_bazel_rules_scala_scala_reflect": {
         "artifact": "org.scala-lang:scala-reflect:%s" % scala_version,
-        "sha256": "497f4603e9d19dc4fa591cd467de5e32238d240bbd955d3dac6390b270889522",
+        "sha256": "d6a24e175246541ffcbc965a231aa1d3bb01d61def196f91495690fabf9783bc",
     },
     "io_bazel_rules_scala_scalatest": {
         "artifact": "org.scalatest:scalatest_2.12:3.2.9",
@@ -152,8 +152,8 @@ artifacts = {
         "sha256": "b5f1d6071f1548d05be82f59f9039c7d37a1787bd8e3c677e31ee275af4a4621",
     },
     "org_scala_lang_scalap": {
-        "artifact": "org.scala-lang:scalap:2.12.14",
-        "sha256": "52c37b4e5a37146a9ce5e48b8fb2c39aa0ec7eb867c65708a5cdac786ac79f2a",
+        "artifact": "org.scala-lang:scalap:2.12.18",
+        "sha256": "9070f22699b961ace3dc8daef1b40aab6a586e10ab2bb4febeb3886654fe0a69",
         "deps": [
             "@io_bazel_rules_scala_scala_compiler",
         ],

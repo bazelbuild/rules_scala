@@ -95,6 +95,8 @@ run_test_local test_compiler_patch 2.12.13
 run_test_local test_compiler_patch 2.12.14
 run_test_local test_compiler_patch 2.12.15
 run_test_local test_compiler_patch 2.12.16
+run_test_local test_compiler_patch 2.12.17
+run_test_local test_compiler_patch 2.12.18
 
 run_test_local test_compiler_patch 2.13.0
 run_test_local test_compiler_patch 2.13.1
@@ -118,3 +120,4 @@ run_test_local test_compiler_srcjar 2.12.14
 run_test_local test_compiler_srcjar 2.12.15
 run_test_local test_compiler_srcjar 2.12.16
 run_test_local test_compiler_srcjar_nonhermetic 2.12.17
+run_test_local test_compiler_srcjar_nonhermetic 2.12.18
