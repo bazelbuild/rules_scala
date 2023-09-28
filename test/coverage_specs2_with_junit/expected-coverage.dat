@@ -9,15 +9,15 @@ FNDA:1,coverage_specs2_with_junit/A1$::a1 (Z)Lcoverage_specs2_with_junit/B1$;
 FNDA:0,coverage_specs2_with_junit/A1::a1 (Z)Lcoverage_specs2_with_junit/B1$;
 FNF:4
 FNH:3
-BRDA:5,0,0,0
-BRDA:5,0,1,1
+BRDA:5,0,0,1
+BRDA:5,0,1,0
 BRF:2
 BRH:1
 DA:3,1
 DA:5,1
-DA:6,1
+DA:6,0
 DA:7,1
-LH:4
+LH:3
 LF:4
 end_of_record
 SF:test/coverage_specs2_with_junit/A2.scala
