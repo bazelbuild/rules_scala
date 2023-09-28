@@ -70,7 +70,7 @@ build to use that one instead of the default `jacocorunner`.
 
 You can build jacocorunner with a script in `scripts/build_jacocorunner/build_jacocorunner.sh` (see comments there for more explanation and options).
 
-A new version of this script (for Bazel 5.0+) can be found in `scripts/build_jacocorunner/build_jacocorunner_bazel_5.0+.sh`.
+An older version of this script (for Bazel 4) can be found in `scripts/build_jacocorunner/build_jacocorunner_bazel_4.0.sh`.
 
 Then, you can use the `jacocorunner` property of `scala_toolchain` to provide the jacocorunner you have built:
 
