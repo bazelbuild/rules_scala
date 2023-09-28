@@ -24,7 +24,8 @@ test_coverage_with_local_jacocorunner() {
 }
 
 build_local_jacocorunner() {
-    $root_dir/scripts/build_jacocorunner/build_jacocorunner_bazel_5.0+.sh
+    # Build for Bazel 6 (as this is the default Bazel version in the repo).
+    $root_dir/scripts/build_jacocorunner/build_jacocorunner_bazel_5.0+.sh 6
     cp /tmp/bazel_jacocorunner_build/JacocoCoverage_jarjar_deploy.jar $root_dir/manual_test/coverage_local_jacocorunner
 }
 

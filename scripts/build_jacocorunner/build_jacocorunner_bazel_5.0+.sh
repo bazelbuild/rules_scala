@@ -75,6 +75,17 @@ build_dir=/tmp/bazel_jacocorunner_build
 
 mkdir -p $build_dir
 
+# Read the Bazel major version.
+bazel_major_version=$1
+if [ -z "$bazel_major_version" ]; then
+  echo "Please provide Bazel major version"
+  exit 1
+elif [ "$bazel_major_version" != "5" ] && [ "$bazel_major_version" != "6" ]; then
+  echo "Unsupported Bazel major version: $bazel_major_version"
+  exit 1
+fi
+echo "Selected Bazel major version: $bazel_major_version"
+
 jacoco_repo=$build_dir/jacoco
 # Take a fork for Jacoco that contains Scala fixes.
 jacoco_remote=https://github.com/gergelyfabian/jacoco
@@ -83,8 +94,8 @@ jacoco_branch=0.8.7-scala
 
 # Choose the patches that you'd like to use:
 jacoco_patches=""
-# Bazel needs to have a certain Jacoco package version:
-jacoco_patches="$jacoco_patches 0001-Build-Jacoco-for-Bazel-5.0+.patch"
+# Bazel needs to have a certain Jacoco package version (dependent on Bazel major version):
+jacoco_patches="$jacoco_patches 0001-Build-Jacoco-for-Bazel-$bazel_major_version.0.patch"
 # Uncomment this if you are behind a proxy:
 #jacoco_patches="$jacoco_patches 0002-Build-Jacoco-behind-proxy.patch"
 
@@ -94,9 +105,15 @@ jacoco_version=0.8.7
 
 bazel_repo=$build_dir/bazel
 bazel_remote=https://github.com/gergelyfabian/bazel
-bazel_version=6.0.0-pre.20220520.1
-# Version of Bazel with extending Bazel's Jacoco interface implementation for our 0.8.7-scala jacoco branch.
-bazel_branch=jacoco_0.8.7_scala
+if [ "$bazel_major_version" = "5" ]; then
+  bazel_version=6.0.0-pre.20220520.1
+  # Version of Bazel with extending Bazel's Jacoco interface implementation for our 0.8.7-scala jacoco branch.
+  bazel_branch=jacoco_0.8.7_scala
+else
+  bazel_version=6.3.2
+  # Version of Bazel with extending Bazel's Jacoco interface implementation for our 0.8.7-scala jacoco branch.
+  bazel_branch=6.3.2_jacoco_0.8.7_scala
+fi
 
 bazel_build_target=JacocoCoverage_jarjar_deploy.jar
 
@@ -132,6 +149,7 @@ mvn clean install
 (
 cd $bazel_repo
 git remote update
+git reset --hard HEAD
 git checkout $bazel_branch
 
 echo "$bazel_version" > .bazelversion
