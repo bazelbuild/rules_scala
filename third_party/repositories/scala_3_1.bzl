@@ -173,8 +173,8 @@ artifacts = {
         "sha256": "b5f1d6071f1548d05be82f59f9039c7d37a1787bd8e3c677e31ee275af4a4621",
     },
     "org_scala_lang_scalap": {
-        "artifact": "org.scala-lang:scalap:2.13.11",
-        "sha256": "ac358699f40002fb4f32ad77531765fce23425d0e83c51854d1635118ab285ea",
+        "artifact": "org.scala-lang:scalap:2.13.12",
+        "sha256": "ba4152ca85f42f04d76d903e006f9848f4e7d0629791d016953f05a5a04954c8",
         "deps": [
             "@io_bazel_rules_scala_scala_compiler",
         ],
@@ -527,7 +527,7 @@ artifacts = {
     },
     "org_typelevel_kind_projector": {
         "testonly": True,
-        "artifact": "org.typelevel:kind-projector_2.13.11:0.13.2",
-        "sha256": "c5c49245a962206d708b7c9368d9f1dd77c773250c0f7bdde9c78e994889cb19",
+        "artifact": "org.typelevel:kind-projector_2.13.12:0.13.2",
+        "sha256": "4bd985e53ac950a1f130981f7ec9a2c5dffe4c2f588fc695180c6105f4a9557f",
     },
 }
