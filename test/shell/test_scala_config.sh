@@ -6,13 +6,13 @@ runner=$(get_test_runner "${1:-local}")
 
 test_classpath_contains_2_12() {
   bazel aquery 'mnemonic("Javac", //src/java/io/bazel/rulesscala/scalac:scalac)' \
-   --repo_env=SCALA_VERSION=2.12.14 \
+   --repo_env=SCALA_VERSION=2.12.18 \
    | grep scala-library-2.12
 }
 
 test_classpath_contains_2_13() {
   bazel aquery 'mnemonic("Javac", //src/java/io/bazel/rulesscala/scalac:scalac)' \
-   --repo_env=SCALA_VERSION=2.13.6 \
+   --repo_env=SCALA_VERSION=2.13.11 \
    | grep scala-library-2.13
 }
 

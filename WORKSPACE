@@ -197,7 +197,7 @@ repositories(
         # validated against it
         "org_springframework_spring_core",
         "org_springframework_spring_tx",
-        "org_spire_math_kind_projector",
+        "org_typelevel_kind_projector",
         # For testing that we don't include sources jars to the classpath
         "org_typelevel__cats_core",
     ],

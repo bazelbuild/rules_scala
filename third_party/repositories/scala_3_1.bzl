@@ -173,8 +173,8 @@ artifacts = {
         "sha256": "b5f1d6071f1548d05be82f59f9039c7d37a1787bd8e3c677e31ee275af4a4621",
     },
     "org_scala_lang_scalap": {
-        "artifact": "org.scala-lang:scalap:2.13.6",
-        "sha256": "bbfa4ab0603f510b16114371a35b9c34d20946edfc1aa8f3fd31014b9f06b5b1",
+        "artifact": "org.scala-lang:scalap:2.13.11",
+        "sha256": "ac358699f40002fb4f32ad77531765fce23425d0e83c51854d1635118ab285ea",
         "deps": [
             "@io_bazel_rules_scala_scala_compiler",
         ],
@@ -525,10 +525,9 @@ artifacts = {
             "@org_springframework_spring_core",
         ],
     },
-    # TODO: fix misleading artifact group in id
-    "org_spire_math_kind_projector": {
+    "org_typelevel_kind_projector": {
         "testonly": True,
-        "artifact": "org.typelevel:kind-projector_2.13:0.10.3",
-        "sha256": "b5d60c8bc8f1333e2deac17d72d41bb59c53283a67ff3a613189746ce97ac8ad",
+        "artifact": "org.typelevel:kind-projector_2.13.11:0.13.2",
+        "sha256": "c5c49245a962206d708b7c9368d9f1dd77c773250c0f7bdde9c78e994889cb19",
     },
 }
