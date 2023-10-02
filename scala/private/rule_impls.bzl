@@ -56,6 +56,7 @@ def compile_scala(
         scalac,
         dependency_info,
         unused_dependency_checker_ignored_targets,
+        additional_outputs,
         stamp_target_label = None):
     # look for any plugins:
     input_plugins = plugins
@@ -112,7 +113,7 @@ def compile_scala(
     if dependency_info.unused_deps_mode != "off" or dependency_info.strict_deps_mode != "off":
         args.add_all("--UnusedDepsIgnoredTargets", unused_dependency_checker_ignored_targets)
 
-    outs = [output, statsfile, diagnosticsfile, scaladepsfile]
+    outs = [output, statsfile, diagnosticsfile, scaladepsfile] + additional_outputs
 
     ins = depset(
         direct = [manifest] + sources + classpath_resources + resources + resource_jars,

@@ -5,6 +5,7 @@ load(
 load(
     "@io_bazel_rules_scala_config//:config.bzl",
     "ENABLE_COMPILER_DEPENDENCY_TRACKING",
+    "SCALA_MAJOR_VERSION",
 )
 
 def _compute_strict_deps_mode(input_strict_deps_mode, dependency_mode):
@@ -97,22 +98,30 @@ def _scala_toolchain_impl(ctx):
         enable_diagnostics_report = enable_diagnostics_report,
         jacocorunner = ctx.attr.jacocorunner,
         enable_stats_file = enable_stats_file,
+        enable_semanticdb = ctx.attr.enable_semanticdb,
+        semanticdb_bundle_in_jar = ctx.attr.semanticdb_bundle_in_jar,
         use_argument_file_in_runner = ctx.attr.use_argument_file_in_runner,
     )
     return [toolchain]
+
+def _default_dep_providers():
+    dep_providers = [
+        "@io_bazel_rules_scala//scala:scala_xml_provider",
+        "@io_bazel_rules_scala//scala:parser_combinators_provider",
+        "@io_bazel_rules_scala//scala:scala_compile_classpath_provider",
+        "@io_bazel_rules_scala//scala:scala_library_classpath_provider",
+        "@io_bazel_rules_scala//scala:scala_macro_classpath_provider",
+    ]
+    if SCALA_MAJOR_VERSION.startswith("2"):
+        dep_providers.append("@io_bazel_rules_scala//scala:semanticdb_provider")
+    return dep_providers
 
 scala_toolchain = rule(
     _scala_toolchain_impl,
     attrs = {
         "scalacopts": attr.string_list(),
         "dep_providers": attr.label_list(
-            default = [
-                "@io_bazel_rules_scala//scala:scala_xml_provider",
-                "@io_bazel_rules_scala//scala:parser_combinators_provider",
-                "@io_bazel_rules_scala//scala:scala_compile_classpath_provider",
-                "@io_bazel_rules_scala//scala:scala_library_classpath_provider",
-                "@io_bazel_rules_scala//scala:scala_macro_classpath_provider",
-            ],
+            default = _default_dep_providers(),
             providers = [_DepsInfo],
         ),
         "dependency_mode": attr.string(
@@ -155,6 +164,11 @@ scala_toolchain = rule(
             default = True,
             doc = "Enable writing of statsfile",
         ),
+        "enable_semanticdb": attr.bool(
+            default = False,
+            doc = "Enable SemanticDb",
+        ),
+        "semanticdb_bundle_in_jar": attr.bool(default = False, doc = "Option to bundle the semanticdb files inside the output jar file"),
         "use_argument_file_in_runner": attr.bool(
             default = False,
             doc = "Changes java binaries scripts (including tests) to use argument files and not classpath jars to improve performance, requires java > 8",

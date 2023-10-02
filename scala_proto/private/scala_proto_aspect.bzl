@@ -122,6 +122,7 @@ def _compile_sources(ctx, toolchain, proto, src_jars, deps, scalacopts, stamp_la
         dependency_info = legacy_unclear_dependency_info_for_protobuf_scrooge(ctx),
         unused_dependency_checker_ignored_targets = [],
         stamp_target_label = stamp_label,
+        additional_outputs = [],
     )
 
     return JavaInfo(

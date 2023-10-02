@@ -24,6 +24,7 @@ load(
     "phase_runfiles_scalatest",
     "phase_scalac_provider",
     "phase_scalacopts",
+    "phase_semanticdb",
     "phase_test_environment",
     "phase_write_executable_scalatest",
     "phase_write_manifest",
@@ -43,6 +44,7 @@ def _scala_test_impl(ctx):
             ("declare_executable", phase_declare_executable),
             ("scalacopts", phase_scalacopts),
             # no need to build an ijar for an executable
+            ("semanticdb", phase_semanticdb),
             ("compile", phase_compile_scalatest),
             ("coverage", phase_coverage_common),
             ("merge_jars", phase_merge_jars),

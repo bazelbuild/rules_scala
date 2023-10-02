@@ -1,0 +1,45 @@
+workspace(name = "specs2_junit_repositories")
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+skylib_version = "1.4.1"
+
+http_archive(
+    name = "bazel_skylib",
+    sha256 = "b8a1527901774180afc798aeb28c4634bdccf19c4d98e7bdd1ce79d1fe9aaad7",
+    type = "tar.gz",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/{}/bazel-skylib-{}.tar.gz".format(skylib_version, skylib_version),
+        "https://github.com/bazelbuild/bazel-skylib/releases/download/{}/bazel-skylib-{}.tar.gz".format(skylib_version, skylib_version),
+    ],
+)
+
+local_repository(
+    name = "io_bazel_rules_scala",
+    path = "../..",
+)
+
+load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
+
+scala_config(scala_version = "2.13.6")
+
+load(
+    "@io_bazel_rules_scala//scala:scala.bzl",
+    "rules_scala_setup",
+    "rules_scala_toolchain_deps_repositories",
+)
+
+rules_scala_setup()
+
+rules_scala_toolchain_deps_repositories(fetch_sources = True)
+
+load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
+
+rules_proto_dependencies()
+
+rules_proto_toolchains()
+
+#Register and use the custom toolchain that has semanticdb enabled
+register_toolchains(
+    "//:semanticdb_toolchain",
+)

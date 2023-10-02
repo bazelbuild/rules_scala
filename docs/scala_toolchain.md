@@ -79,7 +79,8 @@ scala_register_toolchains()
           Allows to configure dependencies lists by configuring <code>DepInfo</code> provider targets. 
           Currently supported dep ids: <code>scala_compile_classpath</code>, 
           <code>scala_library_classpath</code>, <code>scala_macro_classpath</code>, <code>scala_xml</code>, 
-          <code>parser_combinators</code>.     
+          <code>parser_combinators</code>,     
+          <code>semanticdb</code>
         </p>
       </td>
     </tr>
@@ -141,6 +142,27 @@ scala_register_toolchains()
         <p><code>List of Strings; optional</code></p>
         <p>
           List of target prefixes included for unused deps analysis. Exclude patetrns with '-'
+        </p>
+      </td>
+    </tr>
+        <tr>
+      <td><code>enable_semanticdb</code></td>
+      <td>
+        <p><code>Boolean; optional (default False)</code></p>
+        <p>
+          Enables semanticdb output. 
+        </p>
+      </td>
+    </tr>
+            <tr>
+      <td><code>semanticdb_bundle_in_jar</code></td>
+      <td>
+        <p><code>Boolean; optional (default False)</code></p>
+        <p>
+          When False, *.semanticdb files are added to the filesystem in a directory.
+        </p>
+        <p>
+          When True, *.semanticdb files will be bundled inside the jar file.
         </p>
       </td>
     </tr>

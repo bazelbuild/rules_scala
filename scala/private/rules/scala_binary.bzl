@@ -23,6 +23,7 @@ load(
     "phase_runfiles_common",
     "phase_scalac_provider",
     "phase_scalacopts",
+    "phase_semanticdb",
     "phase_write_executable_common",
     "phase_write_manifest",
     "run_phases",
@@ -40,6 +41,7 @@ def _scala_binary_impl(ctx):
             ("java_wrapper", phase_java_wrapper_common),
             ("declare_executable", phase_declare_executable),
             ("scalacopts", phase_scalacopts),
+            ("semanticdb", phase_semanticdb),
             # no need to build an ijar for an executable
             ("compile", phase_compile_binary),
             ("coverage", phase_coverage_common),

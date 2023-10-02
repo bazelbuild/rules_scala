@@ -56,3 +56,4 @@ $runner bazel build //test_statsfile:SimpleNoStatsFile_statsfile --extra_toolcha
 . "${test_dir}"/test_twitter_scrooge.sh
 . "${test_dir}"/test_inherited_environment.sh
 . "${test_dir}"/test_persistent_worker.sh
+. "${test_dir}"/test_semanticdb.sh
