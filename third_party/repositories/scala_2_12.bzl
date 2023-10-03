@@ -79,7 +79,7 @@ artifacts = {
     },
     "org_scalameta_semanticdb_scalac": {
         "artifact": "org.scalameta:semanticdb-scalac_%s:4.8.4" % scala_version,
-        "sha256": "f31614cd13b6dc5c97804aa814b6f7ad4d67124290c08d0c9296b53e46d744e0",
+        "sha256": "11d28a73d182453454451aef4768462730f8c3e369df47b224a4ff2e943f1db7",
         "deps": [
             "@io_bazel_rules_scala_scala_library",
         ],
