@@ -5,7 +5,7 @@ load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_MAJOR_VERSION")
 java_library(
     name = "reporter",
     srcs = [
-        "DepsTrackingReporter.java",
+        "//src/java/io/bazel/rulesscala/scalac/deps_tracking_reporter",
         "ProtoReporter.java",
     ] if SCALA_MAJOR_VERSION.startswith("2") else ["PlaceholderForEmptyScala3Lib.java"],
     visibility = ["//visibility:public"],
