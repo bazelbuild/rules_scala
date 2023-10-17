@@ -1,5 +1,6 @@
 package io.bazel.rulesscala.dependencyanalyzer
 
+import scala.collection.mutable
 import scala.reflect.io.AbstractFile
 import scala.tools.nsc.Global
 
@@ -10,6 +11,7 @@ class AstUsedJarFinder(
 
   def findUsedJars: Map[AbstractFile, Global#Position] = {
     val jars = collection.mutable.Map[AbstractFile, global.Position]()
+    val visitedTrees = mutable.Set.empty[Tree]
 
     def recordUse(source: AbstractFile, pos: Position): Unit = {
       // We prefer to report locations which have information (e.g.
@@ -94,12 +96,7 @@ class AstUsedJarFinder(
         tree.attachments
           .get[global.treeChecker.MacroExpansionAttachment]
           .foreach { attach =>
-            // When we explore the original, the original also has
-            // this attachment. So we should not examine the original
-            // again if so.
-            if (attach.expandee != tree) {
-              fullyExploreTree(attach.expandee)
-            }
+            fullyExploreTree(attach.expandee)
           }
 
         val shouldExamine =
@@ -133,7 +130,11 @@ class AstUsedJarFinder(
         }
       }
 
-      tree.foreach(visitNode)
+      // handle possible cycles in macro expandees
+      if (!visitedTrees.contains(tree)) {
+        visitedTrees += tree
+        tree.foreach(visitNode)
+      }
     }
 
     currentRun.units.foreach { unit =>
