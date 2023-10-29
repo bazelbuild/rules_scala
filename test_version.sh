@@ -68,6 +68,15 @@ test_reporter() {
   run_in_test_repo "compilation_should_fail build //... --repo_env=SCALA_VERSION=${SCALA_VERSION} --extra_toolchains=${SCALA_TOOLCHAIN}" "reporter" "test_reporter/"
 }
 
+test_diagnostic_proto_files() {
+  local SCALA_VERSION="$1"
+  local SCALA_TOOLCHAIN="$2"
+
+  compilation_should_fail build --build_event_publish_all_actions -k --repo_env=SCALA_VERSION=${SCALA_VERSION} --extra_toolchains=${SCALA_TOOLCHAIN} //test_expect_failure/diagnostics_reporter:all
+  diagnostics_output="$(bazel info bazel-bin)/test_expect_failure/diagnostics_reporter"
+  bazel run --repo_env=SCALA_VERSION=${SCALA_VERSION} //test/diagnostics_reporter:diagnostics_reporter_test "$diagnostics_output"
+}
+
 test_twitter_scrooge_versions() {
   local version_under_test=$1
 
@@ -111,3 +120,6 @@ TEST_TIMEOUT=15 $runner test_reporter "${scala_2_13_version}" "${no_diagnostics_
 TEST_TIMEOUT=15 $runner test_reporter "${scala_2_11_version}" "${diagnostics_reporter_toolchain}"
 TEST_TIMEOUT=15 $runner test_reporter "${scala_2_12_version}" "${diagnostics_reporter_toolchain}"
 TEST_TIMEOUT=15 $runner test_reporter "${scala_2_13_version}" "${diagnostics_reporter_toolchain}"
+
+TEST_TIMEOUT=15 $runner test_diagnostic_proto_files "${scala_2_12_version}" "//test_expect_failure/diagnostics_reporter:diagnostics_reporter_toolchain"
+TEST_TIMEOUT=15 $runner test_diagnostic_proto_files "${scala_2_13_version}" "//test_expect_failure/diagnostics_reporter:diagnostics_reporter_toolchain"
