@@ -280,6 +280,7 @@ Here's a (non-exhaustive) list of companies that use `rules_scala` in production
 * [Meetup](https://meetup.com/)
 * [Spotify](https://www.spotify.com/)
 * [Stripe](https://stripe.com/)
+* [Tally](https://www.meettally.com/)
 * [Twitter](https://twitter.com/)
 * [VSCO](https://vsco.co)
 * [Wix](https://www.wix.com/)
