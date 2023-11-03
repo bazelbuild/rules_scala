@@ -39,7 +39,7 @@ def _scala_generate_benchmark(ctx):
 
     # just try to take the first one and see if that works
     class_jar = outs[0].class_jar
-    classpath = info.transitive_runtime_deps
+    classpath = info.transitive_runtime_jars
     ctx.actions.run(
         outputs = [ctx.outputs.src_jar, ctx.outputs.resource_jar],
         inputs = classpath,
