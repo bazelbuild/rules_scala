@@ -43,7 +43,12 @@ public class ProtoReporter extends ConsoleReporter {
 
   @Override
   public void info0(Position pos, String msg, Severity severity, boolean force) {
-    super.info0(pos, msg, severity, force);
+    doReport(pos, msg, severity);
+  }
+
+  @Override
+  public void doReport(Position pos, String msg, Severity severity) {
+    super.doReport(pos, msg, severity);
 
     Diagnostics.Diagnostic diagnostic =
         Diagnostics.Diagnostic.newBuilder()

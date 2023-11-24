@@ -6,8 +6,11 @@ java_library(
     name = "reporter",
     srcs = [
         "//src/java/io/bazel/rulesscala/scalac/deps_tracking_reporter",
-        "before_2_13_12/ProtoReporter.java",
-    ] if (SCALA_MAJOR_VERSION.startswith("2.11") or SCALA_MAJOR_VERSION.startswith("2.12") or (SCALA_MAJOR_VERSION.startswith("2.13") and int(SCALA_MINOR_VERSION) < 12)) else [
+        "before_2_12_13/ProtoReporter.java",
+    ] if SCALA_MAJOR_VERSION.startswith("2.11") or (SCALA_MAJOR_VERSION.startswith("2.12") and int(SCALA_MINOR_VERSION) < 13) else [
+        "//src/java/io/bazel/rulesscala/scalac/deps_tracking_reporter",
+        "after_2_12_13_and_before_2_13_12/ProtoReporter.java",
+    ] if ((SCALA_MAJOR_VERSION.startswith("2.12") and int(SCALA_MINOR_VERSION) >= 13) or (SCALA_MAJOR_VERSION.startswith("2.13") and int(SCALA_MINOR_VERSION) < 12)) else [
         "//src/java/io/bazel/rulesscala/scalac/deps_tracking_reporter",
         "after_2_13_12/ProtoReporter.java",
     ] if (SCALA_MAJOR_VERSION.startswith("2.13") and int(SCALA_MINOR_VERSION) >= 12) else ["PlaceholderForEmptyScala3Lib.java"],
