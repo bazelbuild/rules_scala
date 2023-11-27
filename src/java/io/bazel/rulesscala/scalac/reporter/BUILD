@@ -1,13 +1,19 @@
 load("@rules_proto//proto:defs.bzl", "proto_library")
 load("@rules_java//java:defs.bzl", "java_library", "java_proto_library")
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_MAJOR_VERSION")
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_MAJOR_VERSION", "SCALA_MINOR_VERSION")
 
 java_library(
     name = "reporter",
     srcs = [
         "//src/java/io/bazel/rulesscala/scalac/deps_tracking_reporter",
-        "ProtoReporter.java",
-    ] if SCALA_MAJOR_VERSION.startswith("2") else ["PlaceholderForEmptyScala3Lib.java"],
+        "before_2_12_13/ProtoReporter.java",
+    ] if SCALA_MAJOR_VERSION.startswith("2.11") or (SCALA_MAJOR_VERSION.startswith("2.12") and int(SCALA_MINOR_VERSION) < 13) else [
+        "//src/java/io/bazel/rulesscala/scalac/deps_tracking_reporter",
+        "after_2_12_13_and_before_2_13_12/ProtoReporter.java",
+    ] if ((SCALA_MAJOR_VERSION.startswith("2.12") and int(SCALA_MINOR_VERSION) >= 13) or (SCALA_MAJOR_VERSION.startswith("2.13") and int(SCALA_MINOR_VERSION) < 12)) else [
+        "//src/java/io/bazel/rulesscala/scalac/deps_tracking_reporter",
+        "after_2_13_12/ProtoReporter.java",
+    ] if (SCALA_MAJOR_VERSION.startswith("2.13") and int(SCALA_MINOR_VERSION) >= 12) else ["PlaceholderForEmptyScala3Lib.java"],
     visibility = ["//visibility:public"],
     deps = [
         ":scala_deps_java_proto",
