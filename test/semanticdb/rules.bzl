@@ -12,7 +12,7 @@ def semanticdb_vars_script_impl(ctx):
                 "%TARGETROOT%": "" if semanticdb_info.target_root == None else semanticdb_info.target_root,
                 "%ENABLED%": "1" if semanticdb_info.semanticdb_enabled else "0",
                 "%ISBUNDLED%": "1" if semanticdb_info.is_bundled_in_jar else "0",
-                "%PLUGINPATH%": semanticdb_info.plugin_jar,
+                "%PLUGINPATH%": "" if semanticdb_info.plugin_jar == None else semanticdb_info.plugin_jar.path,
             },
         )
         return [

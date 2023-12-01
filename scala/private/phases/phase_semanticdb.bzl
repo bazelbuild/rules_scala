@@ -20,7 +20,7 @@ def phase_semanticdb(ctx, p):
         scalacopts = []
         semanticdb_deps = []
         output_files = []
-        plugin_jar_path = ""
+        plugin_jar = None
 
         target_output_path = paths.dirname(ctx.outputs.jar.path)
 
@@ -45,7 +45,7 @@ def phase_semanticdb(ctx, p):
             if len(semanticdb_deps) != 1:
                 fail("more than one semanticdb plugin jar was specified in scala_toolchain. Expect a single semanticdb plugin jar")
 
-            plugin_jar_path = semanticdb_deps[0][JavaInfo].java_outputs[0].class_jar.path
+            plugin_jar = semanticdb_deps[0][JavaInfo].java_outputs[0].class_jar
 
             scalacopts += [
                 #note: Xplugin parameter handled in scalacworker,
@@ -65,7 +65,7 @@ def phase_semanticdb(ctx, p):
             semanticdb_enabled = True,
             target_root = None if toolchain.semanticdb_bundle_in_jar else semanticdb_target_root,
             is_bundled_in_jar = toolchain.semanticdb_bundle_in_jar,
-            plugin_jar = plugin_jar_path,
+            plugin_jar = plugin_jar,
         )
 
         return struct(
