@@ -5,7 +5,10 @@ which adds a few dependencies needed for ScalaPB:
 
 ```starlark
 load("@io_bazel_rules_scala//scala_proto:scala_proto.bzl", "scala_proto_repositories")
-scala_proto_repositories() 
+scala_proto_repositories()
+
+load("@io_bazel_rules_scala//scala_proto:toolchains.bzl", "scala_proto_register_toolchains")
+scala_proto_register_toolchains()
 ```
 
 Then you can import `scala_proto_library` in any `BUILD` file like this:
