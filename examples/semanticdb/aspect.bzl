@@ -8,7 +8,7 @@ def semanticdb_info_aspect_impl(target, ctx):
         output_struct = struct(
             target_label = str(target.label),
             semanticdb_target_root = target[SemanticdbInfo].target_root,
-            semanticdb_pluginjar = target[SemanticdbInfo].plugin_jar,
+            semanticdb_pluginjar = "" if target[SemanticdbInfo].plugin_jar.path == None else target[SemanticdbInfo].plugin_jar.path,
         )
 
         json_output_file = ctx.actions.declare_file("%s_semanticdb_info.json" % target.label.name)
