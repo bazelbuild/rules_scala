@@ -48,13 +48,11 @@ http_archive(
 )
 
 # See https://github.com/bazelbuild/rules_scala/releases for up to date version information.
-rules_scala_version = "c711b4d1f0d1cc386c63ef748c9df14d2f3a187e"
 http_archive(
     name = "io_bazel_rules_scala",
-    sha256 = "556677f505634da64efc41912d280895e61f5da109d82bdee41cde4120a190a1",
-    strip_prefix = "rules_scala-%s" % rules_scala_version,
-    type = "zip",
-    url = "https://github.com/bazelbuild/rules_scala/archive/%s.zip" % rules_scala_version,
+    sha256 = "71324bef9bc5a885097e2960d5b8effed63399b55572219919d25f43f468c716",
+    strip_prefix = "rules_scala-6.2.1",
+    url = "https://github.com/bazelbuild/rules_scala/releases/download/v6.2.1/rules_scala-v6.2.1.tar.gz",
 )
 
 load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
