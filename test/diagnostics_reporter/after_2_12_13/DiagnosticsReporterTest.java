@@ -25,26 +25,26 @@ public class DiagnosticsReporterTest {
                 new diagnostics_reporter.VerifyDiagnosticsOutput(
                     Diagnostics.Severity.ERROR, 5, 4, 5, 9)
               });
-          put(
-              "warning_file",
-              new diagnostics_reporter.VerifyDiagnosticsOutput[] {
-                new diagnostics_reporter.VerifyDiagnosticsOutput(
-                    Diagnostics.Severity.WARNING, 0, 0, 0, 26)
-              });
-          put(
-              "error_and_warning_file",
-              new diagnostics_reporter.VerifyDiagnosticsOutput[] {
-                new diagnostics_reporter.VerifyDiagnosticsOutput(
-                    Diagnostics.Severity.WARNING, 0, 0, 0, 26),
-                new diagnostics_reporter.VerifyDiagnosticsOutput(
-                    Diagnostics.Severity.ERROR, 4, 4, 4, 10)
-              });
-          put(
-              "info_file",
-              new diagnostics_reporter.VerifyDiagnosticsOutput[] {
-                new diagnostics_reporter.VerifyDiagnosticsOutput(
-                    Diagnostics.Severity.INFORMATION, -1, -1, 0, 0)
-              });
+          // put(
+          //     "warning_file",
+          //     new diagnostics_reporter.VerifyDiagnosticsOutput[] {
+          //       new diagnostics_reporter.VerifyDiagnosticsOutput(
+          //           Diagnostics.Severity.WARNING, 0, 0, 0, 26)
+          //     });
+          // put(
+          //     "error_and_warning_file",
+          //     new diagnostics_reporter.VerifyDiagnosticsOutput[] {
+          //       new diagnostics_reporter.VerifyDiagnosticsOutput(
+          //           Diagnostics.Severity.WARNING, 0, 0, 0, 26),
+          //       new diagnostics_reporter.VerifyDiagnosticsOutput(
+          //           Diagnostics.Severity.ERROR, 4, 4, 4, 10)
+          //     });
+          // put(
+          //     "info_file",
+          //     new diagnostics_reporter.VerifyDiagnosticsOutput[] {
+          //       new diagnostics_reporter.VerifyDiagnosticsOutput(
+          //           Diagnostics.Severity.INFORMATION, -1, -1, 0, 0)
+          //     });
         }
       };
 

@@ -9,6 +9,7 @@ scala_2_13_version="2.13.12"
 SCALA_VERSION_DEFAULT=$scala_2_11_version
 
 diagnostics_reporter_toolchain="//:diagnostics_reporter_toolchain"
+diagnostics_reporter_and_semanticdb_toolchain="//:diagnostics_reporter_and_semanticdb_toolchain"
 no_diagnostics_reporter_toolchain="//:no_diagnostics_reporter_toolchain"
 
 compilation_should_fail() {
@@ -121,5 +122,12 @@ TEST_TIMEOUT=15 $runner test_reporter "${scala_2_11_version}" "${diagnostics_rep
 TEST_TIMEOUT=15 $runner test_reporter "${scala_2_12_version}" "${diagnostics_reporter_toolchain}"
 TEST_TIMEOUT=15 $runner test_reporter "${scala_2_13_version}" "${diagnostics_reporter_toolchain}"
 
-TEST_TIMEOUT=15 $runner test_diagnostic_proto_files "${scala_2_12_version}" "//test_expect_failure/diagnostics_reporter:diagnostics_reporter_toolchain"
-TEST_TIMEOUT=15 $runner test_diagnostic_proto_files "${scala_2_13_version}" "//test_expect_failure/diagnostics_reporter:diagnostics_reporter_toolchain"
+TEST_TIMEOUT=15 $runner test_reporter "${scala_2_11_version}" "${diagnostics_reporter_and_semanticdb_toolchain}"
+TEST_TIMEOUT=15 $runner test_reporter "${scala_2_12_version}" "${diagnostics_reporter_and_semanticdb_toolchain}"
+TEST_TIMEOUT=15 $runner test_reporter "${scala_2_13_version}" "${diagnostics_reporter_and_semanticdb_toolchain}"
+
+TEST_TIMEOUT=15 $runner test_diagnostic_proto_files "${scala_2_12_version}" //test_expect_failure/diagnostics_reporter:diagnostics_reporter_toolchain 
+TEST_TIMEOUT=15 $runner test_diagnostic_proto_files "${scala_2_13_version}" //test_expect_failure/diagnostics_reporter:diagnostics_reporter_toolchain 
+
+TEST_TIMEOUT=15 $runner test_diagnostic_proto_files "${scala_2_12_version}" //test_expect_failure/diagnostics_reporter:diagnostics_reporter_and_semanticdb_toolchain 
+TEST_TIMEOUT=15 $runner test_diagnostic_proto_files "${scala_2_13_version}" //test_expect_failure/diagnostics_reporter:diagnostics_reporter_and_semanticdb_toolchain 
