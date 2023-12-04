@@ -15,35 +15,35 @@ public class DiagnosticsReporterTest {
               "error_file",
               new diagnostics_reporter.VerifyDiagnosticsOutput[] {
                 new diagnostics_reporter.VerifyDiagnosticsOutput(
-                    Diagnostics.Severity.ERROR, 5, 2, 6, 0)
+                    Diagnostics.Severity.ERROR, "\')\' expected but \'}\' found.")
               });
           put(
               "two_errors_file",
               new diagnostics_reporter.VerifyDiagnosticsOutput[] {
                 new diagnostics_reporter.VerifyDiagnosticsOutput(
-                    Diagnostics.Severity.ERROR, 4, 4, 5, 0),
+                    Diagnostics.Severity.ERROR, "not found: value printn"),
                 new diagnostics_reporter.VerifyDiagnosticsOutput(
-                    Diagnostics.Severity.ERROR, 5, 4, 6, 0)
+                    Diagnostics.Severity.ERROR, "not found: value prinf")
               });
           put(
               "warning_file",
               new diagnostics_reporter.VerifyDiagnosticsOutput[] {
                 new diagnostics_reporter.VerifyDiagnosticsOutput(
-                    Diagnostics.Severity.WARNING, 0, 0, 0, 7)
+                    Diagnostics.Severity.WARNING, "Unused import")
               });
           put(
               "error_and_warning_file",
               new diagnostics_reporter.VerifyDiagnosticsOutput[] {
                 new diagnostics_reporter.VerifyDiagnosticsOutput(
-                    Diagnostics.Severity.WARNING, 0, 0, 0, 7),
+                    Diagnostics.Severity.WARNING, "Unused import"),
                 new diagnostics_reporter.VerifyDiagnosticsOutput(
-                    Diagnostics.Severity.ERROR, 4, 4, 5, 0)
+                    Diagnostics.Severity.ERROR, "not found: value printn")
               });
           put(
               "info_file",
               new diagnostics_reporter.VerifyDiagnosticsOutput[] {
                 new diagnostics_reporter.VerifyDiagnosticsOutput(
-                    Diagnostics.Severity.INFORMATION, -1, -1, 0, 0)
+                    Diagnostics.Severity.INFORMATION, "[running phase parser on InfoFile.scala]")
               });
         }
       };
