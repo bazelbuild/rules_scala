@@ -46,7 +46,6 @@ function semanticdb_example() {
   function build_semanticdb_example(){
     bazel build //... --aspects aspect.bzl%semanticdb_info_aspect --output_groups=json_output_file
     bazel build //...
-    echo dude
   }
   
   test_example examples/semanticdb build_semanticdb_example

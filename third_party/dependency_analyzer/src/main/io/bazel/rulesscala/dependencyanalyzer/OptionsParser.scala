@@ -35,7 +35,7 @@ object OptionsParser {
     }
 
     @annotation.tailrec
-    def tokenize(tokens:List[String], targetsStr:String, currTokenStartIdx:Int, currIdx:Int, isEscaped:Boolean) : List[String] = {
+    def tokenize(tokens:List[String], targetsStr:String, currTokenStartIdx:Int, currIdx:Int, isEscaped:Boolean) : Seq[String] = {
 
       if(currIdx >= targetsStr.size)
         return tokens;
