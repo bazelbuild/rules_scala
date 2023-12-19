@@ -17,6 +17,7 @@ run_test_local() {
   if [ $RESPONSE_CODE -eq 0 ]; then
     echo -e "${GREEN} Test \"$TEST_ARG\" successful ($DURATION sec) $NC"
   else
+    echo $RES
     echo -e "${RED} Test \"$TEST_ARG\" failed $NC ($DURATION sec) $NC"
     return $RESPONSE_CODE
   fi
@@ -26,9 +27,12 @@ run_in_test_repo() {
   local test_command=$1
   local test_repo=$2
 
-  cd "${dir}/${test_repo}" || exit 1
+  cd "${dir}/${test_repo}" || exit 1 
   ${test_command}
   RESPONSE_CODE=$?
+
+  bazel shutdown
+  
   cd ../..
 
   return $RESPONSE_CODE

@@ -2,6 +2,14 @@
 #
 # Test helper functions for rules_scala integration tests.
 
+function is_windows() {
+  [[ "${OSTYPE}" =~ msys* ]] || [[ "${OSTYPE}" =~ cygwin* ]]
+}
+
+function is_macos() {
+  [[ "${OSTYPE}" =~ darwin* ]]
+}
+
 action_should_fail() {
   # runs the tests locally
   set +e
@@ -28,12 +36,14 @@ test_expect_failure_with_message() {
 
   echo ${output} | grep "$expected_message"
   if [ $? -ne 0 ]; then
+    echo ${output}
     echo "'bazel test ${test_command}' should have logged \"${expected_message}\"."
         exit 1
   fi
   if [ "${additional_expected_message}" != "" ]; then
     echo ${output} | grep "$additional_expected_message"
     if [ $? -ne 0 ]; then
+      echo ${output}
       echo "'bazel test ${test_command}' should have logged \"${additional_expected_message}\"."
           exit 1
     fi
@@ -51,9 +61,11 @@ action_should_fail_with_message() {
   echo $RES | grep -- "$MSG"
   GREP_RES=$?
   if [ $RESPONSE_CODE -eq 0 ]; then
+    echo $RES 
     echo -e "${RED} \"bazel $TEST_ARG\" should have failed but passed. $NC"
     exit 1
   elif [ $GREP_RES -ne 0 ]; then
+    echo $RES
     echo -e "${RED} \"bazel $TEST_ARG\" should have failed with message \"$MSG\" but did not. $NC"
     exit 1
   else
@@ -89,12 +101,14 @@ test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message() {
 
   echo ${output} | grep "$expected_message"
   if [ $? -ne 0 ]; then
+    echo ${output}
     echo "'bazel build ${test_target}' should have logged \"${expected_message}\"."
         exit 1
   fi
   if [ "${additional_expected_message}" != "" ]; then
     echo ${output} | grep "$additional_expected_message"
     if [ $? -ne 0 ]; then
+      echo ${output}
       echo "'bazel build ${test_target}' should have logged \"${additional_expected_message}\"."
           exit 1
     fi

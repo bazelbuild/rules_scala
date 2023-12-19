@@ -31,8 +31,8 @@ public class LauncherFileWriter {
             .addKeyValuePair("binary_type", "Java")
             .addKeyValuePair("workspace_name", workspaceName)
             .addKeyValuePair("symlink_runfiles_enabled", "0")
-            .addKeyValuePair("java_bin_path", javaBinPath.replace("\\", "/")) //Expects rpathlocation (i.e. with prepended repo name)
-            .addKeyValuePair("jar_bin_path", rpathlocation_to_rootpath( workspaceName, jarBinPath)) //Expects rootpath location 
+            .addKeyValuePair("java_bin_path", javaBinPath.replace("\\", "/")) //Expects rlocationpath (i.e. with prepended repo name)
+            .addKeyValuePair("jar_bin_path", rlocationpath_to_rootpath( workspaceName, jarBinPath)) //Expects rootpath location 
             .addKeyValuePair("java_start_class", javaStartClass)
             .addKeyValuePair("classpath", classpath) //Expects rootpath location
             .addJoinedValues("jvm_flags", "\t", jvmFlags)
@@ -56,9 +56,9 @@ public class LauncherFileWriter {
     }
   }
 
-  //Bazel's java_launcher expects some fields(i.e. jar_bin_path and classpaths) to be rootpath. rpathlocation is relative to runfiledir (always prefix with repo). Rootpath is relative to runfiledir/workspacename. 
-  static String rpathlocation_to_rootpath(String workspaceName, String rpathlocation){
-    Path path = Paths.get(rpathlocation);
+  //Bazel's java_launcher expects some fields(i.e. jar_bin_path and classpaths) to be rootpath. rlocationpath is relative to runfiledir (always prefix with repo). Rootpath is relative to runfiledir/workspacename. 
+  static String rlocationpath_to_rootpath(String workspaceName, String rlocationpath){
+    Path path = Paths.get(rlocationpath);
 
     Path result;
     if(!path.startsWith(workspaceName)){

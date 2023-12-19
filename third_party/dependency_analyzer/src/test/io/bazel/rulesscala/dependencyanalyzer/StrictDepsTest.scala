@@ -36,7 +36,7 @@ class StrictDepsTest extends AnyFunSuite {
 
     val commonsTarget = "//commons:Target"
 
-    val indirect = List(apacheCommonsClasspath -> encodeLabel(commonsTarget))
+    val indirect = List(apacheCommonsClasspath -> commonsTarget)
     compileWithDependencyAnalyzer(testCode, withIndirect = indirect).expectErrorOn(commonsTarget)
   }
 

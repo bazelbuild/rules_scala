@@ -44,11 +44,15 @@ run_in_test_repo() {
   sed \
       -e "s%\${twitter_scrooge_repositories}%$TWITTER_SCROOGE_REPOSITORIES%" \
       WORKSPACE.template >> $NEW_TEST_DIR/WORKSPACE
+  cp ../.bazelrc $NEW_TEST_DIR/.bazelrc
 
   cd $NEW_TEST_DIR
 
   ${test_command}
   RESPONSE_CODE=$?
+
+  #make sure bazel still not running for this workspace
+  bazel shutdown
 
   cd ..
   rm -rf $NEW_TEST_DIR

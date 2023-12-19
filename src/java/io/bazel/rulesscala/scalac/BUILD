@@ -27,7 +27,7 @@ java_binary(
         "-source 1.8",
         "-target 1.8",
     ],
-    main_class = "io.bazel.rulesscala.scalac.ScalacWorker" if SCALA_MAJOR_VERSION.startswith("2") else "io.bazel.rulesscala.scalac.ScalacWorker3",
+    main_class = "io.bazel.rulesscala.scalac.ScalacWorker",
     visibility = ["//visibility:public"],
     deps = DEP_REPORTING_DEPS + SCALAC_DEPS,
 )
@@ -41,16 +41,21 @@ java_binary(
         "-source 1.8",
         "-target 1.8",
     ],
-    main_class = "io.bazel.rulesscala.scalac.ScalacWorker" if SCALA_MAJOR_VERSION.startswith("2") else "io.bazel.rulesscala.scalac.ScalacWorker3",
+    main_class = "io.bazel.rulesscala.scalac.ScalacWorker",
     visibility = ["//visibility:public"],
     deps = SCALAC_DEPS,
 )
 
 filegroup(
     name = "scalac_files",
-    srcs = ([
+    srcs = [
         "ScalacWorker.java",
-        "ReportableMainClass.java",
-    ] if SCALA_MAJOR_VERSION.startswith("2") else ["ScalacWorker3.java"]),
+        "ScalacInvokerResults.java",
+    ] + (
+        [
+            "ScalacInvoker.java",
+            "ReportableMainClass.java",
+        ] if SCALA_MAJOR_VERSION.startswith("2") else ["ScalacInvoker3.java"]
+    ),
     visibility = ["//visibility:public"],
 )

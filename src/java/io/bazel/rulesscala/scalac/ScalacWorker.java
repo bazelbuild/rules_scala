@@ -1,12 +1,9 @@
 package io.bazel.rulesscala.scalac;
 
 import static java.io.File.pathSeparator;
-
 import io.bazel.rulesscala.io_utils.StreamCopy;
 import io.bazel.rulesscala.jar.JarCreator;
 import io.bazel.rulesscala.scalac.compileoptions.CompileOptions;
-import io.bazel.rulesscala.scalac.reporter.DepsTrackingReporter;
-import io.bazel.rulesscala.scalac.reporter.ProtoReporter;
 import io.bazel.rulesscala.worker.Worker;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -19,13 +16,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import scala.tools.nsc.reporters.ConsoleReporter;
+import java.util.stream.Collectors;
 
 class ScalacWorker implements Worker.Interface {
 
@@ -174,12 +171,10 @@ class ScalacWorker implements Worker.Interface {
     return false;
   }
 
-  private static String[] encodeBazelTargets(String[] targets) {
-    return Arrays.stream(targets).map(ScalacWorker::encodeBazelTarget).toArray(String[]::new);
-  }
-
-  private static String encodeBazelTarget(String target) {
-    return target.replace(":", ";");
+  private static String encodeStringSeqPluginParam(String[] targets) {
+    //Encode with ';' delimiter. also support escape for ';' because ';' is a valid (albeit uncommon) label character.
+    return String.join(";"
+                , Arrays.stream(targets).map(s->s.replace(";", "\\;")).collect(Collectors.toList()));
   }
 
   private static boolean isModeEnabled(String mode) {
@@ -209,52 +204,37 @@ class ScalacWorker implements Worker.Interface {
     List<String> pluginParams = new ArrayList<>(0);
 
     if ((isModeEnabled(ops.strictDepsMode) || isModeEnabled(ops.unusedDependencyCheckerMode))) {
-      String currentTarget = encodeBazelTarget(ops.currentTarget);
-
       String[] dependencyAnalyzerParams = {
           "-P:dependency-analyzer:strict-deps-mode:" + ops.strictDepsMode,
           "-P:dependency-analyzer:unused-deps-mode:" + ops.unusedDependencyCheckerMode,
-          "-P:dependency-analyzer:current-target:" + currentTarget,
+          "-P:dependency-analyzer:current-target:" + ops.currentTarget,
           "-P:dependency-analyzer:dependency-tracking-method:" + ops.dependencyTrackingMethod,
       };
 
       pluginParams.addAll(Arrays.asList(dependencyAnalyzerParams));
 
       if (ops.directJars.length > 0) {
-        pluginParams.add("-P:dependency-analyzer:direct-jars:" + String.join(":", ops.directJars));
+        pluginParams.add("-P:dependency-analyzer:direct-jars:" + encodeStringSeqPluginParam(ops.directJars));
       }
       if (ops.directTargets.length > 0) {
-        String[] directTargets = encodeBazelTargets(ops.directTargets);
         pluginParams.add(
-            "-P:dependency-analyzer:direct-targets:" + String.join(":", directTargets));
+          "-P:dependency-analyzer:direct-targets:" + encodeStringSeqPluginParam(ops.directTargets));   
       }
       if (ops.indirectJars.length > 0) {
         pluginParams.add(
-            "-P:dependency-analyzer:indirect-jars:" + String.join(":", ops.indirectJars));
+            "-P:dependency-analyzer:indirect-jars:" + encodeStringSeqPluginParam(ops.indirectJars));
       }
       if (ops.indirectTargets.length > 0) {
-        String[] indirectTargets = encodeBazelTargets(ops.indirectTargets);
         pluginParams.add(
-            "-P:dependency-analyzer:indirect-targets:" + String.join(":", indirectTargets));
+            "-P:dependency-analyzer:indirect-targets:" +  encodeStringSeqPluginParam(ops.indirectTargets));
       }
       if (ops.unusedDepsIgnoredTargets.length > 0) {
-        String[] ignoredTargets = encodeBazelTargets(ops.unusedDepsIgnoredTargets);
         pluginParams.add(
-            "-P:dependency-analyzer:unused-deps-ignored-targets:"
-                + String.join(":", ignoredTargets));
+          "-P:dependency-analyzer:unused-deps-ignored-targets:" + encodeStringSeqPluginParam(ops.unusedDepsIgnoredTargets));
       }
     }
 
     return pluginParams.toArray(new String[pluginParams.size()]);
-  }
-
-  private static boolean isMacroException(Throwable ex) {
-    for (StackTraceElement elem : ex.getStackTrace()) {
-      if (elem.getMethodName().equals("macroExpand")) {
-        return true;
-      }
-    }
-    return false;
   }
 
   private static void compileScalaSources(CompileOptions ops, String[] scalaSources, Path classes)
@@ -270,29 +250,10 @@ class ScalacWorker implements Worker.Interface {
     String[] compilerArgs =
         merge(ops.scalaOpts, pluginArgs, constParams, pluginParams, scalaSources);
 
-    ReportableMainClass comp = new ReportableMainClass(ops);
+    ScalacInvokerResults compilerResults = ScalacInvoker.invokeCompiler(ops, compilerArgs);
 
-    long start = System.currentTimeMillis();
-    try {
-      comp.process(compilerArgs);
-    } catch (Throwable ex) {
-      if (ex.toString().contains("scala.reflect.internal.Types$TypeError")) {
-        throw new RuntimeException("Build failure with type error", ex);
-      } else if (ex.toString().contains("java.lang.StackOverflowError")) {
-        throw new RuntimeException("Build failure with StackOverflowError", ex);
-      } else if (isMacroException(ex)) {
-        throw new RuntimeException("Build failure during macro expansion", ex);
-      } else {
-        throw ex;
-      }
-    }finally {
-      comp.close();
-    }
-
-
-    long stop = System.currentTimeMillis();
     if (ops.printCompileTime) {
-      System.err.println("Compiler runtime: " + (stop - start) + "ms.");
+      System.err.println("Compiler runtime: " + (compilerResults.stopTime - compilerResults.startTime) + "ms.");
     }
 
     try {
@@ -300,28 +261,11 @@ class ScalacWorker implements Worker.Interface {
       // If enable stats file we write the volatile string component
       // otherwise empty string for better remote cache performance.
       if (ops.enableStatsFile) {
-        buildTime = Long.toString(stop - start);
+        buildTime = Long.toString(compilerResults.stopTime - compilerResults.startTime);
       }
       Files.write(Paths.get(ops.statsfile), Arrays.asList("build_time=" + buildTime));
     } catch (IOException ex) {
       throw new RuntimeException("Unable to write statsfile to " + ops.statsfile, ex);
-    }
-
-    ConsoleReporter reporter = (ConsoleReporter) comp.getReporter();
-    if (reporter instanceof ProtoReporter) {
-      ProtoReporter protoReporter = (ProtoReporter) reporter;
-      protoReporter.writeTo(Paths.get(ops.diagnosticsFile));
-    }
-
-    if (reporter instanceof DepsTrackingReporter) {
-      DepsTrackingReporter depTrackingReporter = (DepsTrackingReporter) reporter;
-      depTrackingReporter.prepareReport();
-      depTrackingReporter.writeDiagnostics(ops.diagnosticsFile);
-    }
-
-    if (reporter.hasErrors()) {
-      reporter.flush();
-      throw new RuntimeException("Build failed");
     }
   }
 

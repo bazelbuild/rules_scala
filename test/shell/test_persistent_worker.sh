@@ -5,7 +5,12 @@ dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 . "${dir}"/test_helper.sh
 runner=$(get_test_runner "${1:-local}")
 
-PERSISTENT_WORKER_FLAGS="--strategy=Scalac=worker --worker_sandboxing"
+if is_windows; then
+  #Bazel sandboxing is not currently implemented in windows 
+  PERSISTENT_WORKER_FLAGS="--strategy=Scalac=worker" 
+else
+  PERSISTENT_WORKER_FLAGS="--strategy=Scalac=worker --worker_sandboxing"
+fi
 
 check_persistent_worker_failure() {
   command=$1

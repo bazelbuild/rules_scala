@@ -40,4 +40,8 @@ test_scala_binary_allows_opt_in_to_use_of_argument_file_in_runner_for_improved_p
 
 $runner test_scala_binary_expect_failure_on_missing_direct_deps
 $runner test_scala_binary_expect_failure_on_missing_direct_deps_located_in_dependency_which_is_scala_binary
-$runner test_scala_binary_allows_opt_in_to_use_of_argument_file_in_runner_for_improved_performance
+
+if !  is_windows; then 
+  #rules_scala doesn't support argfiles on windows yet
+  $runner test_scala_binary_allows_opt_in_to_use_of_argument_file_in_runner_for_improved_performance
+fi

@@ -5,7 +5,8 @@ import org.scalatest.funsuite._
 class ScalaLibResourcesFromExternalScalaTest extends AnyFunSuite {
 
   test("Scala library depending on resources from external resource-only jar should allow to load resources") {
-    assert(get("/external/test_new_local_repo/resource.txt") === "A resource\n")
+    val expectedString = String.format("A resource%n"); //Using platform dependent newline (%n)
+    assert(get("/external/test_new_local_repo/resource.txt") === expectedString)
   }
 
   private def get(s: String): String =

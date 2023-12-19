@@ -27,7 +27,7 @@ test_aspect = aspect(
     implementation = _aspect_impl,
 )
 
-def _rule_impl(ctx):
+def _aspect_testscript_impl(ctx):
     expected_deps = {
         "scala_library": [
             "//test/aspect:scala_library",
@@ -70,17 +70,18 @@ def _rule_impl(ctx):
                 expected = ", ".join(expected),
                 visited = ", ".join(visited),
             )
+
+    scriptFile = ctx.actions.declare_file("aspect_test.sh")
     ctx.actions.write(
-        output = ctx.outputs.executable,
+        output = scriptFile,
         content = content,
     )
-    return []
+    return [DefaultInfo(files = depset([scriptFile]))]
 
-aspect_test = rule(
-    implementation = _rule_impl,
+aspect_testscript = rule(
+    implementation = _aspect_testscript_impl,
     attrs = {
         # The targets whose dependencies we want to verify.
         "targets": attr.label_list(aspects = [test_aspect]),
     },
-    test = True,
 )

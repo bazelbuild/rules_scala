@@ -22,6 +22,42 @@ object OptionsParser {
 
     new OptionsParser(error = error, options = optionsMap)
   }
+
+  def decodeStringSeqOpt(targetsStr: String): Seq[String] = {
+    //Lists of items are demlimited by ';' allowing for escaped ';' (since ; is valid in a bazel label)
+   
+    def extractAndAppendToken(tokens:List[String], str:String, startIdx:Int, endIdx:Int) : List[String] = {
+      val token = str.substring(startIdx, endIdx).replace("\\", "")
+      if(!token.isEmpty()){
+        return tokens :+ token;
+      }
+      return tokens;
+    }
+
+    @annotation.tailrec
+    def tokenize(tokens:List[String], targetsStr:String, currTokenStartIdx:Int, currIdx:Int, isEscaped:Boolean) : Seq[String] = {
+
+      if(currIdx >= targetsStr.size)
+        return tokens;
+
+      val currChar = targetsStr.charAt(currIdx) 
+            
+      val isNextEscaped = if (!isEscaped)  (currChar == '\\') else  false;
+
+      if(!isEscaped && currChar == ';'){
+        val updatedTokens = extractAndAppendToken(tokens, targetsStr, currTokenStartIdx, currIdx);
+
+        return tokenize(updatedTokens, targetsStr, currIdx + 1, currIdx + 1, isNextEscaped)
+        
+      }else if(currIdx == targetsStr.size-1){
+        return extractAndAppendToken(tokens, targetsStr, currTokenStartIdx, targetsStr.size);
+      }else{
+        return tokenize(tokens, targetsStr, currTokenStartIdx, currIdx+1, isNextEscaped)
+      }
+    }
+
+    tokenize(List[String](), targetsStr, 0, 0, false);    
+  }
 }
 
 class OptionsParser private(
@@ -46,6 +82,6 @@ class OptionsParser private(
   }
 
   def takeStringSeqOpt(key: String): Option[Seq[String]] = {
-    takeStringOpt(key).map(_.split(":").toSeq)
+        takeStringOpt(key).map(OptionsParser.decodeStringSeqOpt)
   }
 }

@@ -21,13 +21,21 @@ non_deploy_jar_md5_sum() {
 }
 
 test_build_is_identical() {
+    bazel clean #ensure we are starting from square one
     bazel build test/...
     # Also build instrumented jars.
     bazel build --collect_code_coverage -- //test/coverage/...
     non_deploy_jar_md5_sum > hash1
     bazel clean
     sleep 10 # to make sure that if timestamps slip in we get different ones
-    random_dir=/tmp/$RANDOM
+
+    local random_dir=$(mktemp -d -t test_repro-XXXXXXXXXX)
+ 
+    if is_windows; then
+        #need true os path to pass to Bazel's cmdline option
+        random_dir=$(cygpath -w $random_dir)    
+    fi
+
     bazel build --disk_cache $random_dir test/...
     bazel build --disk_cache $random_dir --collect_code_coverage -- //test/coverage/...
     non_deploy_jar_md5_sum > hash2
@@ -37,6 +45,7 @@ test_build_is_identical() {
 test_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/test/shell
 # shellcheck source=./test_runner.sh
 . "${test_dir}"/test_runner.sh
+. "${test_dir}"/test_helper.sh
 runner=$(get_test_runner "${1:-local}")
 
 

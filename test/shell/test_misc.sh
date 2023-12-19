@@ -50,7 +50,10 @@ test_transitive_deps() {
 }
 
 test_repl() {
-  bazel build $(bazel query 'kind(scala_repl, //test/...)')
+  local query_results=$(bazel query 'kind(scala_repl, //test/...)')
+  #local query_results="${query_results//$'\r'}" #make sure \r is removed so bash can parse args correctly on windows
+
+  bazel build "${query_results//$'\r'}"  #make sure \r is removed so bash can parse args correctly on windows
   echo "import scalarules.test._; HelloLib.printMessage(\"foo\")" | bazel-bin/test/HelloLibRepl -Xnojline | grep "foo java" &&
   echo "import scalarules.test._; TestUtil.foo" | bazel-bin/test/HelloLibTestRepl -Xnojline | grep "bar" &&
   echo "import scalarules.test._; ScalaLibBinary.main(Array())" | bazel-bin/test/ScalaLibBinaryRepl -Xnojline | grep "A hui hou" &&
@@ -111,7 +114,7 @@ test_multi_service_manifest() {
   meta_file='META-INF/services/org.apache.beam.sdk.io.FileSystemRegistrar'
   bazel build test:$deploy_jar
   unzip -p bazel-bin/test/$deploy_jar $meta_file > service_manifest.txt
-  diff service_manifest.txt test/example_jars/expected_service_manifest.txt
+  diff --strip-trailing-cr service_manifest.txt test/example_jars/expected_service_manifest.txt
   RESPONSE_CODE=$?
   rm service_manifest.txt
   exit $RESPONSE_CODE
@@ -133,5 +136,9 @@ $runner test_benchmark_jmh
 $runner test_benchmark_jmh_failure
 $runner scala_test_test_filters
 $runner test_multi_service_manifest
-$runner test_override_javabin
+
+if  ! is_windows; then
+  #javabin only affects wrapper scripts for linux
+  $runner test_override_javabin
+fi
 $runner xmllint_test
