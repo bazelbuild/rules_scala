@@ -9,3 +9,4 @@ hash2
 .metals
 .vscode
 unformatted-*.backup.scala
+.scala-build
