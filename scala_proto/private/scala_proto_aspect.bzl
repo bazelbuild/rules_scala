@@ -217,6 +217,7 @@ def make_scala_proto_aspect(*extras):
             "@io_bazel_rules_scala//scala:toolchain_type",
             "@io_bazel_rules_scala//scala_proto:toolchain_type",
             "@io_bazel_rules_scala//scala_proto:deps_toolchain_type",
+            "@bazel_tools//tools/jdk:toolchain_type",
         ],
     )
 
