@@ -1,17 +1,17 @@
-load("@rules_java//java:defs.bzl", "java_import")
+load("@rules_java//java:defs.bzl", "java_library")
 
-java_import(
+java_library(
     name = "example_jar1",
-    jars = [
-        "example_jar1.jar",
+    resources = [
+        "//test/src/main/resources/META-INF/services:org.apache.beam.sdk.io.FileSystemRegistrar"
     ],
-    visibility = ["//visibility:public"],
+    visibility = ["//visibility:public"]
 )
 
-java_import(
+java_library(
     name = "example_jar2",
-    jars = [
-        "example_jar2.jar",
+    resources = [
+        "//test/src/main/resources/META-INF/services:org.apache.beam.sdk.io.FileSystemRegistrar"
     ],
     visibility = ["//visibility:public"],
 )
