@@ -1,10 +1,16 @@
 load("//scala:scala.bzl", "scala_specs2_junit_test")
 load("//scala:scala_import.bzl", "scala_import")
 
+java_library(
+    name = "ScalaImportNeverLink",
+    srcs = ["ScalaImportNeverLink.java"],
+    visibility = ["//visibility:public"],
+)
+
 scala_import(
     name = "scala_import_never_link",
     jars = [
-        "scala_import_never_link.jar",
+        ":ScalaImportNeverLink",
     ],
     neverlink = 1,
 )
