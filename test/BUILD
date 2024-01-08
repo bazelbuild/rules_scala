@@ -616,9 +616,13 @@ scala_library(
 )
 
 # make sure making a fat jar strips signatures
-java_import(
+java_library(
     name = "fakejar",
-    jars = ["fake_sig.jar"],
+    resources = [
+            "//test/src/main/resources/META-INF:FAKE.DSA",
+            "//test/src/main/resources/META-INF:FAKE.RSA",
+    ],
+    visibility = ["//visibility:public"],
 )
 
 scala_binary(
