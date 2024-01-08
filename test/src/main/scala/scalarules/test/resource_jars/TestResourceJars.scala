@@ -15,7 +15,7 @@ class TestResourceJars extends AnyFlatSpec {
     )
     expectedSubstrings.foreach {
       case (resource_name, substring) => {
-        val stream = getClass.getResourceAsStream("/" + resource_name)
+        val stream = getClass.getResourceAsStream("/scalarules/test/" + resource_name)
         assert(stream != null, s"failed to find resource $resource_name")
         val content = Source.fromInputStream(stream).getLines().mkString("\n")
         assert(content.contains(substring), s"resource $resource_name did not contain substring $substring")
