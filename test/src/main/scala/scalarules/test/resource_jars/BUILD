@@ -1,4 +1,3 @@
-load("@rules_java//java:defs.bzl", "java_library")
 load("//scala:scala.bzl", "scala_test")
 
 java_library(
