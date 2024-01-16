@@ -20,28 +20,12 @@ scala_import(
     ],
 )
 
-# Jars as files
-scala_import(
-    name = "relate",
-    jars = [
-        "relate_2.11-2.1.1.jar",
-    ],
-)
-
 scala_specs2_junit_test(
     name = "scala_import_exposes_jars",
     size = "small",
     srcs = ["ScalaImportExposesJarsTest.scala"],
     suffixes = ["Test"],
     deps = [":guava_and_commons_lang"],
-)
-
-scala_specs2_junit_test(
-    name = "scala_import_exposes_file_jars",
-    size = "small",
-    srcs = ["ScalaImportExposesFileJarsTest.scala"],
-    suffixes = ["Test"],
-    deps = [":relate"],
 )
 
 scala_library(
@@ -123,15 +107,15 @@ scala_specs2_junit_test(
 # https://github.com/bazelbuild/rules_scala/issues/1188
 scala_import(
     name = "stamping_first_time",
-    jars = ["relate_2.11-2.1.1.jar"],
+    jars = ["//test/src/main/scala/scalarules/test/scala_import/nl:ScalaImportNeverLink"],
 )
 
 scala_import(
     name = "stamping_second_time",
-    jars = ["relate_2.11-2.1.1.jar"],
+    jars = ["//test/src/main/scala/scalarules/test/scala_import/nl:ScalaImportNeverLink"],
 )
 
 scala_import_stamping_test_suite(
     name = "stamping_tests",
-    jar = "relate_2.11-2.1.1.jar",
+    jar = "//test/src/main/scala/scalarules/test/scala_import/nl:ScalaImportNeverLink",
 )
