@@ -4,6 +4,9 @@ exports_files([
     "hellos-and-byes.jar",
     "more-byes",
     "more-hellos",
+    "Foo.thrift",
+    "Bar.thrift",
+    "Baz.thrift",
 ])
 
 genrule(
