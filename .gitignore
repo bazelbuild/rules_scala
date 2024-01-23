@@ -10,3 +10,4 @@ hash2
 .vscode
 unformatted-*.backup.scala
 .scala-build
+MODULE.bazel.lock
