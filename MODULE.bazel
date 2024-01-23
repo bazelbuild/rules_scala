@@ -12,3 +12,12 @@ use_repo(
 
 non_module_deps = use_extension("//:extensions/non_module_deps.bzl", "non_module_deps")
 use_repo(non_module_deps, "scala_compiler_source")
+use_repo(non_module_deps, "io_bazel_rules_scala_scala_library")
+use_repo(non_module_deps, "io_bazel_rules_scala_scala_compiler")
+use_repo(non_module_deps, "io_bazel_rules_scala_scala_xml")
+use_repo(non_module_deps, "io_bazel_rules_scala_scala_parser_combinators")
+use_repo(non_module_deps, "io_bazel_rules_scala_scala_interfaces")
+use_repo(non_module_deps, "io_bazel_rules_scala_scala_reflect")
+use_repo(non_module_deps, "org_scalameta_semanticdb_scalac")
+use_repo(non_module_deps, "io_bazel_rules_scala_scala_tasty_core")
+use_repo(non_module_deps, "io_bazel_rules_scala_scala_asm")

@@ -11,10 +11,6 @@ http_archive(
     url = "https://github.com/bazelbuild/buildtools/archive/%s.tar.gz" % _build_tools_release,
 )
 
-load("//scala:scala.bzl", "rules_scala_toolchain_deps_repositories")
-
-rules_scala_toolchain_deps_repositories(fetch_sources = True)
-
 load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
 
 # Declares @com_google_protobuf//:protoc pointing to released binary

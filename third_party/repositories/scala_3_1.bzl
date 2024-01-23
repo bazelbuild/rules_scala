@@ -530,4 +530,10 @@ artifacts = {
         "artifact": "org.typelevel:kind-projector_2.13.12:0.13.2",
         "sha256": "4bd985e53ac950a1f130981f7ec9a2c5dffe4c2f588fc695180c6105f4a9557f",
     },
+    "io_bazel_rules_scala_scala_reflect": {
+        "dummy": True,
+    },
+    "org_scalameta_semanticdb_scalac": {
+        "dummy": True,
+    },
 }

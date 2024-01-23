@@ -516,4 +516,16 @@ artifacts = {
         "artifact": "org.typelevel:kind-projector_%s:0.13.2" % scala_version,
         "sha256": "7d4e821b86647c65546c1e3667348e8168c5907e9d4b277cc2badedcd479be44",
     },
+    "io_bazel_rules_scala_scala_interfaces": {
+        "dummy": True,
+    },
+    "io_bazel_rules_scala_scala_tasty_core": {
+        "dummy": True,
+    },
+    "io_bazel_rules_scala_scala_asm": {
+        "dummy": True,
+    },
+    "io_bazel_rules_scala_scala_library_2": {
+        "dummy": True,
+    },
 }
