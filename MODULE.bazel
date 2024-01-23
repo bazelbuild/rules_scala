@@ -1,5 +1,7 @@
 module(name = "io_bazel_rules_scala")
 
+bazel_dep(name = "bazel_skylib", version = "1.4.1")
+
 use_repo(
     use_extension("//:extensions/scala_config_ext.bzl", "scala_config_dep"),
     "io_bazel_rules_scala_config"
