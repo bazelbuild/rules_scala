@@ -44,6 +44,12 @@ run_in_test_repo() {
   sed \
       -e "s%\${twitter_scrooge_repositories}%$TWITTER_SCROOGE_REPOSITORIES%" \
       WORKSPACE.template >> $NEW_TEST_DIR/WORKSPACE
+  sed \
+      -e "s%\${twitter_scrooge_repositories}%$TWITTER_SCROOGE_REPOSITORIES%" \
+      WORKSPACE.template >> $NEW_TEST_DIR/WORKSPACE.bzlmod
+  sed \
+      -e "s%\${twitter_scrooge_repositories}%$TWITTER_SCROOGE_REPOSITORIES%" \
+      MODULE.template >> $NEW_TEST_DIR/MODULE.bazel
   cp ../.bazelrc $NEW_TEST_DIR/.bazelrc
 
   cd $NEW_TEST_DIR

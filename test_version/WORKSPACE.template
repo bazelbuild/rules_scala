@@ -1,3 +1,4 @@
+# TODO(#1482) migrate to bzlmod
 workspace(name = "io_bazel_rules_scala_test")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
