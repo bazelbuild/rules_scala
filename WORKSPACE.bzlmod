@@ -25,10 +25,6 @@ load("//twitter_scrooge:twitter_scrooge.bzl", "twitter_scrooge")
 
 twitter_scrooge()
 
-load("//jmh:jmh.bzl", "jmh_repositories")
-
-jmh_repositories()
-
 load("//scala_proto:scala_proto.bzl", "scala_proto_repositories")
 
 scala_proto_repositories()
