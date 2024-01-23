@@ -86,3 +86,26 @@ def repositories(
             testonly_ = artifacts[id].get("testonly", False),
             fetch_sources = fetch_sources,
         )
+
+def repository(
+        id,
+        maven_servers = default_maven_server_urls(),
+        fetch_sources = True,
+        validate_scala_version = False):
+    if validate_scala_version:
+        repository_scala_version = scala_version_by_major_scala_version[SCALA_MAJOR_VERSION]
+        if not SCALA_VERSION == repository_scala_version:
+            fail("Scala config (%s) version does not match repository version (%s)" % (SCALA_VERSION, repository_scala_version))
+    artifacts = artifacts_by_major_scala_version[SCALA_MAJOR_VERSION]
+    _scala_maven_import_external(
+        name = id,
+        repo_name = id,
+        artifact = artifacts[id]["artifact"],
+        artifact_sha256 = artifacts[id]["sha256"],
+        licenses = ["notice"],
+        server_urls = maven_servers,
+        deps = artifacts[id].get("deps", []),
+        runtime_deps = artifacts[id].get("runtime_deps", []),
+        testonly_ = artifacts[id].get("testonly", False),
+        fetch_sources = fetch_sources,
+    )
