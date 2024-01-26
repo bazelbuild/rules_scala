@@ -43,6 +43,8 @@ The extension provides default configuration, but there are 2 ways to use custom
  - Put `.scalafmt.conf` at root of your workspace
  - Pass `.scalafmt.conf` in via `config` attribute
 
+If using scala 3 you must append `runner.dialect = scala3` to .scalafmt.conf
+
 ## IntelliJ plugin support
 
 If you use IntelliJ Bazel plugin, then you should check the [Customizable Phase](/docs/customizable_phase.md#cooperation-with-intellij-plugin) page.
