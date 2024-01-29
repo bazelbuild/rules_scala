@@ -42,6 +42,11 @@ tasks:
     platform: macos
     shell_commands:
     - "./test_rules_scala.sh"
+  test_rules_scala_win:
+    name: "./test_rules_scala"
+    platform: windows
+    shell_commands:
+    - "bash test_rules_scala.sh"
   test_coverage_linux_6_3_0:
     name: "./test_coverage"
     platform: ubuntu2004
