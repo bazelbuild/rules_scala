@@ -9,7 +9,7 @@ thrift_library(
 
 scrooge_scala_import(
     name = "thrift3_import",
-    scala_jars = ["thrift3_scrooge.jar"],
+    scala_jars = ["//test/src/main/scala/scalarules/test/twitter_scrooge:scrooge3"],
     thrift_jars = ["libthrift3.jar"],
     visibility = ["//visibility:public"],
 )
