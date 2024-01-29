@@ -20,12 +20,34 @@ scala_import(
     ],
 )
 
+scala_library(
+    name = "generic_scalalib",
+    testonly = True,
+    srcs = ["generic/Generic.scala"],
+    visibility = ["//visibility:private"],
+)
+
+scala_import(
+    name = "imported_genericlib_jar",
+    jars = [
+        ":generic_scalalib.jar",
+    ],
+)
+
 scala_specs2_junit_test(
     name = "scala_import_exposes_jars",
     size = "small",
     srcs = ["ScalaImportExposesJarsTest.scala"],
     suffixes = ["Test"],
     deps = [":guava_and_commons_lang"],
+)
+
+scala_specs2_junit_test(
+    name = "scala_import_exposes_file_jars",
+    size = "small",
+    srcs = ["ScalaImportExposesFileJarsTest.scala"],
+    suffixes = ["Test"],
+    deps = [":imported_genericlib_jar"],
 )
 
 scala_library(
