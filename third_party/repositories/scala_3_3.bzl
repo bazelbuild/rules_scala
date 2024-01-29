@@ -39,7 +39,7 @@ artifacts = {
     },
     "io_bazel_rules_scala_scalatest_compatible": {
         "artifact": "org.scalatest:scalatest-compatible:jar:3.2.16",
-        "sha256": "7e5f1193af2fd88c432c4b80ce3641e4b1d062f421d8a0fcc43af9a19bb7c2eb",
+        "sha256": "9283e684d401d821a4cbb2646f9611cbbcd7828d2499483d13a4b507775a4cd7",
     },
     "io_bazel_rules_scala_scalatest_core": {
         "artifact": "org.scalatest:scalatest-core_3:3.2.16",
