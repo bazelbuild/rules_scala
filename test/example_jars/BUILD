@@ -1,6 +1,6 @@
-load("@rules_java//java:defs.bzl", "java_library")
+load("//scala:scala.bzl", "scala_library")
 
-java_library(
+scala_library(
     name = "example_jar1",
     resources = [
         "//test/src/main/resources/META-INF/services:org.apache.beam.sdk.io.FileSystemRegistrar",
@@ -8,10 +8,12 @@ java_library(
     visibility = ["//visibility:public"],
 )
 
-java_library(
+scala_library(
     name = "example_jar2",
-    resources = [
-        "//test/src/main/resources/META-INF/services:org.apache.beam.sdk.io.FileSystemRegistrar",
-    ],
+    resource_strip_prefix = "{}/{}".format(
+        package_name(),
+        "src/main/resources",
+    ),
+    resources = ["src/main/resources/META-INF/services/org.apache.beam.sdk.io.FileSystemRegistrar"],
     visibility = ["//visibility:public"],
 )

@@ -129,15 +129,15 @@ scala_specs2_junit_test(
 # https://github.com/bazelbuild/rules_scala/issues/1188
 scala_import(
     name = "stamping_first_time",
-    jars = ["//test/src/main/scala/scalarules/test/scala_import/nl:ScalaImportNeverLink"],
+    jars = ["//test/src/main/scala/scalarules/test/scala_import/nl:libscala_import_never_link.jar"],
 )
 
 scala_import(
     name = "stamping_second_time",
-    jars = ["//test/src/main/scala/scalarules/test/scala_import/nl:ScalaImportNeverLink"],
+    jars = ["//test/src/main/scala/scalarules/test/scala_import/nl:libscala_import_never_link.jar"],
 )
 
 scala_import_stamping_test_suite(
     name = "stamping_tests",
-    jar = "//test/src/main/scala/scalarules/test/scala_import/nl:ScalaImportNeverLink",
+    jar = "//test/src/main/scala/scalarules/test/scala_import/nl:libscala_import_never_link.jar",
 )

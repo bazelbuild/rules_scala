@@ -3,15 +3,15 @@ load("//scala:scala_import.bzl", "scala_import")
 load("@rules_java//java:defs.bzl", "java_library")
 
 java_library(
-    name = "ScalaImportNeverLink",
+    name = "scala_import_never_link",
     srcs = ["ScalaImportNeverLink.java"],
     visibility = ["//visibility:public"],
 )
 
 scala_import(
-    name = "scala_import_never_link",
+    name = "imported_scala_import_never_link",
     jars = [
-        ":ScalaImportNeverLink",
+        ":libscala_import_never_link.jar",
     ],
     neverlink = 1,
 )
@@ -21,5 +21,5 @@ scala_specs2_junit_test(
     size = "small",
     srcs = ["ScalaImportNeverLinkTest.scala"],
     suffixes = ["Test"],
-    deps = [":scala_import_never_link"],
+    deps = [":imported_scala_import_never_link"],
 )
