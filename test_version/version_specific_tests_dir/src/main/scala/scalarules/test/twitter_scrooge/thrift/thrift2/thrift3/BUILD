@@ -7,6 +7,9 @@ thrift_library(
     visibility = ["//visibility:public"],
 )
 
+# "thrift3_import" is a dependency of another scala library which checks whether "Struct3" from above "Thrift3" thrift
+# is imported properly via: "import scalarules.test.twitter_scrooge.thrift.thrift2.thrift3.Struct3"
+
 scrooge_scala_import(
     name = "thrift3_import",
     scala_jars = ["//src/main/scala/scalarules/test/twitter_scrooge:scrooge3"],
