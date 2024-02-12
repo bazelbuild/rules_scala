@@ -178,42 +178,42 @@ scala_binary(
 
 scala_binary(
     name = "hello211",
-    scala_version = "2.11.12",
-    main_class = "scalarules.test.versions.Hello211",
     srcs = ["versions/Hello211.scala"],
+    main_class = "scalarules.test.versions.Hello211",
+    scala_version = "2.11.12",
 )
 
 scala_binary(
     name = "hello212",
-    scala_version = "2.12.18",
-    main_class = "scalarules.test.versions.Hello212",
     srcs = ["versions/Hello212.scala"],
+    main_class = "scalarules.test.versions.Hello212",
+    scala_version = "2.12.18",
 )
 
 scala_binary(
     name = "hello213",
-    scala_version = "2.13.12",
-    main_class = "scalarules.test.versions.Hello213",
     srcs = ["versions/Hello213.scala"],
+    main_class = "scalarules.test.versions.Hello213",
+    scala_version = "2.13.12",
 )
 
 scala_binary(
     name = "hello31",
-    scala_version = "3.1.0",
-    main_class = "scalarules.test.versions.hello31",
     srcs = ["versions/Hello31.scala"],
+    main_class = "scalarules.test.versions.hello31",
+    scala_version = "3.1.0",
 )
 
 scala_binary(
     name = "hello32",
-    scala_version = "3.2.1",
-    main_class = "scalarules.test.versions.hello32",
     srcs = ["versions/Hello32.scala"],
+    main_class = "scalarules.test.versions.hello32",
+    scala_version = "3.2.1",
 )
 
 scala_binary(
     name = "hello33",
-    scala_version = "3.3.1",
-    main_class = "scalarules.test.versions.hello33",
     srcs = ["versions/Hello33.scala"],
+    main_class = "scalarules.test.versions.hello33",
+    scala_version = "3.3.1",
 )
