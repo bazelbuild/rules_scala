@@ -32,6 +32,8 @@ class ScalacInvoker{
       } else {
         throw ex;
       }
+    }finally{
+      comp.close();
     }
 
     results.stopTime = System.currentTimeMillis();
