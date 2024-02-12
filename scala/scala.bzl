@@ -10,7 +10,9 @@ load(
 )
 load(
     "@io_bazel_rules_scala//scala/private:macros/setup_scala_toolchain.bzl",
+    _declare_dep_providers = "declare_dep_providers",
     _setup_scala_toolchain = "setup_scala_toolchain",
+    _setup_scala_toolchains = "setup_scala_toolchains",
 )
 load(
     "@io_bazel_rules_scala//scala/private:rules/scala_binary.bzl",
@@ -81,3 +83,5 @@ scala_test = _scala_test
 scala_test_suite = _scala_test_suite
 setup_scala_testing_toolchain = _setup_scala_testing_toolchain
 setup_scala_toolchain = _setup_scala_toolchain
+setup_scala_toolchains = _setup_scala_toolchains
+declare_dep_providers = _declare_dep_providers

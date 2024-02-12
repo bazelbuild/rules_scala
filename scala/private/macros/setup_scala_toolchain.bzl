@@ -1,11 +1,88 @@
 load("//scala:scala_toolchain.bzl", "scala_toolchain")
 load("//scala:providers.bzl", "declare_deps_provider")
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION", "SCALA_VERSIONS")
+load("//scala/versions:versions.bzl", "sanitize_version")
+
+_SCALA_COMPILE_CLASSPATH_DEPS = {
+    "2": [
+        "@io_bazel_rules_scala_scala_compiler",
+        "@io_bazel_rules_scala_scala_library",
+        "@io_bazel_rules_scala_scala_reflect",
+    ],
+    "3": [
+        "@io_bazel_rules_scala_scala_compiler",
+        "@io_bazel_rules_scala_scala_library",
+        "@io_bazel_rules_scala_scala_interfaces",
+        "@io_bazel_rules_scala_scala_tasty_core",
+        "@io_bazel_rules_scala_scala_asm",
+        "@io_bazel_rules_scala_scala_library_2",
+    ],
+}
+
+_SCALA_LIBRARY_CLASSPATH_DEPS = {
+    "2": [
+        "@io_bazel_rules_scala_scala_library",
+        "@io_bazel_rules_scala_scala_reflect",
+    ],
+    "3": [
+        "@io_bazel_rules_scala_scala_library",
+        "@io_bazel_rules_scala_scala_library_2",
+    ],
+}
+
+_SCALA_MACRO_CLASSPATH_DEPS = {
+    "2": [
+        "@io_bazel_rules_scala_scala_library",
+        "@io_bazel_rules_scala_scala_reflect",
+    ],
+    "3": [
+        "@io_bazel_rules_scala_scala_library",
+        "@io_bazel_rules_scala_scala_library_2",
+    ],
+}
+
+_PARSER_COMBINATORS_DEPS = {
+    "2": ["@io_bazel_rules_scala_scala_parser_combinators"],
+    "3": ["@io_bazel_rules_scala_scala_parser_combinators"],
+}
+
+_SCALA_XML_DEPS = {
+    "2": ["@io_bazel_rules_scala_scala_xml"],
+    "3": ["@io_bazel_rules_scala_scala_xml"],
+}
+
+_SCALA_SEMANTICDB_DEPS = {
+    "2": ["@org_scalameta_semanticdb_scalac"],
+    "3": [],
+}
+
+def _dependencies_by_version(version, deps):
+    return deps[version[0:1]]
+
+def _parser_combinators_deps(version = SCALA_VERSION):
+    return _dependencies_by_version(version, _PARSER_COMBINATORS_DEPS)
+
+def _scala_compile_classpath_deps(version = SCALA_VERSION):
+    return _dependencies_by_version(version, _SCALA_COMPILE_CLASSPATH_DEPS)
+
+def _scala_library_classpath_deps(version = SCALA_VERSION):
+    return _dependencies_by_version(version, _SCALA_LIBRARY_CLASSPATH_DEPS)
+
+def _scala_macro_classpath_deps(version = SCALA_VERSION):
+    return _dependencies_by_version(version, _SCALA_MACRO_CLASSPATH_DEPS)
+
+def _scala_xml_deps(version = SCALA_VERSION):
+    return _dependencies_by_version(version, _SCALA_XML_DEPS)
+
+def _scala_semanticdb_deps(version = SCALA_VERSION):
+    return _dependencies_by_version(version, _SCALA_SEMANTICDB_DEPS)
 
 def setup_scala_toolchain(
         name,
         scala_compile_classpath,
         scala_library_classpath,
         scala_macro_classpath,
+        scala_version = None,
         scala_xml_deps = None,
         parser_combinators_deps = None,
         semanticdb_deps = None,
@@ -83,6 +160,7 @@ def setup_scala_toolchain(
 
     scala_toolchain(
         name = "%s_impl" % name,
+        scala_version = scala_version,
         dep_providers = dep_providers,
         enable_semanticdb = enable_semanticdb,
         visibility = visibility,
@@ -93,5 +171,92 @@ def setup_scala_toolchain(
         name = name,
         toolchain = ":%s_impl" % name,
         toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
+        target_settings = ["//scala/versions:" + sanitize_version(scala_version)] if scala_version else [],
         visibility = visibility,
+    )
+
+def setup_scala_toolchains():
+    setup_scala_toolchain(
+        name = "default_toolchain",
+        scala_compile_classpath = _scala_compile_classpath_deps(),
+        scala_library_classpath = _scala_library_classpath_deps(),
+        scala_macro_classpath = _scala_macro_classpath_deps(),
+        use_argument_file_in_runner = True,
+    )
+    setup_scala_toolchain(
+        name = "unused_dependency_checker_error_toolchain",
+        dependency_tracking_method = "ast-plus",
+        scala_compile_classpath = _scala_compile_classpath_deps(),
+        scala_library_classpath = _scala_library_classpath_deps(),
+        scala_macro_classpath = _scala_macro_classpath_deps(),
+        unused_dependency_checker_mode = "error",
+    )
+    setup_scala_toolchain(
+        name = "minimal_direct_source_deps",
+        dependency_mode = "plus-one",
+        dependency_tracking_method = "ast",
+        scala_compile_classpath = _scala_compile_classpath_deps(),
+        scala_library_classpath = _scala_library_classpath_deps(),
+        scala_macro_classpath = _scala_macro_classpath_deps(),
+        strict_deps_mode = "error",
+        unused_dependency_checker_mode = "error",
+    )
+    for scala_version in SCALA_VERSIONS:
+        sanitized_scala_version = sanitize_version(scala_version)
+        setup_scala_toolchain(
+            name = sanitized_scala_version + "_toolchain",
+            scala_version = scala_version,
+            parser_combinators_deps = _deps_with_version_suffix(sanitized_scala_version, _PARSER_COMBINATORS_DEPS),
+            scala_compile_classpath = _deps_with_version_suffix(sanitized_scala_version, _SCALA_COMPILE_CLASSPATH_DEPS),
+            scala_library_classpath = _deps_with_version_suffix(sanitized_scala_version, _SCALA_LIBRARY_CLASSPATH_DEPS),
+            scala_macro_classpath = _deps_with_version_suffix(sanitized_scala_version, _SCALA_MACRO_CLASSPATH_DEPS),
+            scala_xml_deps = _deps_with_version_suffix(sanitized_scala_version, _SCALA_XML_DEPS),
+            semanticdb_deps = _deps_with_version_suffix(sanitized_scala_version, _SCALA_SEMANTICDB_DEPS),
+            use_argument_file_in_runner = True,
+        )
+
+def _deps_with_version_suffix(version, deps):
+    return [dep + "_" + version for dep in deps[version[0:1]]]
+
+def declare_dep_providers():
+    declare_deps_provider(
+        name = "scala_compile_classpath_provider",
+        deps_id = "scala_compile_classpath",
+        visibility = ["//visibility:public"],
+        deps = _scala_compile_classpath_deps(),
+    )
+
+    declare_deps_provider(
+        name = "scala_library_classpath_provider",
+        deps_id = "scala_library_classpath",
+        visibility = ["//visibility:public"],
+        deps = _scala_library_classpath_deps(),
+    )
+
+    declare_deps_provider(
+        name = "scala_macro_classpath_provider",
+        deps_id = "scala_macro_classpath",
+        visibility = ["//visibility:public"],
+        deps = _scala_macro_classpath_deps(),
+    )
+
+    declare_deps_provider(
+        name = "scala_xml_provider",
+        deps_id = "scala_xml",
+        visibility = ["//visibility:public"],
+        deps = _scala_xml_deps(),
+    )
+
+    declare_deps_provider(
+        name = "parser_combinators_provider",
+        deps_id = "parser_combinators",
+        visibility = ["//visibility:public"],
+        deps = _parser_combinators_deps(),
+    )
+
+    declare_deps_provider(
+        name = "semanticdb_provider",
+        deps_id = "semanticdb",
+        visibility = ["//visibility:public"],
+        deps = _scala_semanticdb_deps(),
     )
