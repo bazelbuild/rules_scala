@@ -11,3 +11,27 @@ filegroup(
     ],
     visibility = ["//visibility:public"],
 )
+
+filegroup(
+    name = "deps_tracking_reporter_before_2_12_13",
+    srcs = [
+        "before_2_12_13/DepsTrackingReporter.java",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "deps_tracking_reporter_after_2_12_13_and_before_2_13_12",
+    srcs = [
+        "after_2_12_13_and_before_2_13_12/DepsTrackingReporter.java",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "deps_tracking_reporter_after_2_13_12",
+    srcs = [
+        "after_2_13_12/DepsTrackingReporter.java",
+    ],
+    visibility = ["//visibility:public"],
+)
