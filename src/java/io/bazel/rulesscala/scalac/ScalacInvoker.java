@@ -32,7 +32,7 @@ class ScalacInvoker{
       } else {
         throw ex;
       }
-    }finally{
+    } finally {
       comp.close();
     }
 
