@@ -28,7 +28,35 @@ test_sdeps() {
   bazel test --extra_toolchains=//test_expect_failure/compiler_dependency_tracker:ast_plus_warn //test_expect_failure/compiler_dependency_tracker/sdeps/...
 }
 
+test_fails_without_warning() {
+  cmd=$1
+  expected=$2
+
+  local output
+  output=$($cmd 2>&1)
+
+  if [ $? -eq 0 ]; then
+    echo "Expected build to fail"
+    echo "$output"
+    exit 1
+  fi
+
+  echo "$output" | grep "$expected"
+  if [ $? -eq 0 ]; then
+    echo "Expected output:[$output] to not contain [$expected]"
+    exit 1
+  fi
+}
+
+test_no_unused_warn_when_broken() {
+  action_should_fail_without_message \
+    "remove deps" \
+    build //test_expect_failure/compiler_dependency_tracker:F
+}
+
+
 $runner test_fails_for_unused_dep
 $runner test_fails_for_missing_compile_dep
 $runner test_fails_for_strict_dep
 $runner test_sdeps
+$runner test_no_unused_warn_when_broken

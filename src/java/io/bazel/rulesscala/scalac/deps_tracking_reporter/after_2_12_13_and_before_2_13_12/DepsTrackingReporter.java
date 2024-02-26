@@ -146,20 +146,22 @@ public class DepsTrackingReporter extends ConsoleReporter {
     }
 
     Set<Dependency> unusedDeps = new HashSet<>();
-    for (int i = 0; i < ops.directTargets.length; i++) {
-      String directTarget = ops.directTargets[i];
-      if (usedTargets.contains(directTarget)) {
-        continue;
-      }
+    if (!hasErrors()) {
+      for (int i = 0; i < ops.directTargets.length; i++) {
+        String directTarget = ops.directTargets[i];
+        if (usedTargets.contains(directTarget)) {
+          continue;
+        }
 
-      unusedDeps.add(
+        unusedDeps.add(
           buildDependency(
-              ops.directJars[i],
-              directTarget,
-              Kind.UNUSED,
-              ignoredTargets.contains(directTarget) || "off".equals(ops.unusedDependencyCheckerMode)
+            ops.directJars[i],
+            directTarget,
+            Kind.UNUSED,
+            ignoredTargets.contains(directTarget) || "off".equals(ops.unusedDependencyCheckerMode)
           )
-      );
+        );
+      }
     }
 
     writeSdepsFile(usedDeps, unusedDeps);
