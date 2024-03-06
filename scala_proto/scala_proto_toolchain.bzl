@@ -1,4 +1,6 @@
 load("@io_bazel_rules_scala//scala:providers.bzl", "DepsInfo")
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION", "SCALA_VERSIONS")
+load("@io_bazel_rules_scala//scala:scala_cross_version.bzl", "version_suffix")
 
 def _generators(ctx):
     return dict(
@@ -51,12 +53,19 @@ def _scala_proto_toolchain_impl(ctx):
         compile_dep_ids = _compile_dep_ids(ctx),
         blacklisted_protos = _ignored_proto_targets_by_label(ctx),
         protoc = ctx.executable.protoc,
-        scalac = ctx.attr.scalac.files_to_run,
+        scalac = _scalac(ctx),
         worker = ctx.attr.code_generator.files_to_run,
         worker_flags = _worker_flags(ctx, generators, generators_jars),
         stamp_by_convention = ctx.attr.stamp_by_convention,
     )
     return [toolchain]
+
+def _scalac(ctx):
+    suffix = version_suffix(ctx.attr.scala_version)
+    for scalac in ctx.attr.scalac:
+        if scalac.label.name.endswith(suffix):
+            return scalac.files_to_run
+    return ctx.attr.scalac[0].files_to_run
 
 # Args:
 #     with_grpc: Enables generation of grpc service bindings for services
@@ -82,11 +91,8 @@ scala_proto_toolchain = rule(
         "extra_generator_dependencies": attr.label_list(
             providers = [JavaInfo],
         ),
-        "scalac": attr.label(
-            executable = True,
-            cfg = "exec",
-            default = Label("@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac"),
-            allow_files = True,
+        "scalac": attr.label_list(
+            default = [Label("@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac:scalac" + version_suffix(version)) for version in SCALA_VERSIONS],
         ),
         "protoc": attr.label(
             executable = True,
@@ -104,6 +110,9 @@ scala_proto_toolchain = rule(
             Read about recommended code organization in
             [proto rules documentation](https://docs.bazel.build/versions/master/be/protocol-buffer.html#proto_library)
             """,
+        ),
+        "scala_version": attr.string(
+            default = SCALA_VERSION,
         ),
     },
 )
