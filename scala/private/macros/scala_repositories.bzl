@@ -1,15 +1,13 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load(
     "@io_bazel_rules_scala//scala:scala_cross_version.bzl",
+    "extract_major_version",
+    "extract_minor_version",
+    "version_suffix",
     _default_maven_server_urls = "default_maven_server_urls",
 )
-load("//third_party/repositories:repositories.bzl", "repositories")
-load(
-    "@io_bazel_rules_scala_config//:config.bzl",
-    "SCALA_MAJOR_VERSION",
-    "SCALA_MINOR_VERSION",
-    "SCALA_VERSION",
-)
+load("//third_party/repositories:repositories.bzl", "toolchain_repositories")
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSIONS")
 
 def _dt_patched_compiler_impl(rctx):
     # Need to give the file a .zip extension so rctx.extract knows what type of archive it is
@@ -37,16 +35,18 @@ def _validate_scalac_srcjar(srcjar):
             count += 1
     return count == 1
 
-def dt_patched_compiler_setup(scala_compiler_srcjar = None):
-    patch = "@io_bazel_rules_scala//dt_patches:dt_compiler_%s.patch" % SCALA_MAJOR_VERSION
+def dt_patched_compiler_setup(scala_version, scala_compiler_srcjar = None):
+    scala_major_version = extract_major_version(scala_version)
+    scala_minor_version = extract_minor_version(scala_version)
+    patch = "@io_bazel_rules_scala//dt_patches:dt_compiler_%s.patch" % scala_major_version
 
-    minor_version = int(SCALA_MINOR_VERSION)
+    minor_version = int(scala_minor_version)
 
-    if SCALA_MAJOR_VERSION == "2.12":
+    if scala_major_version == "2.12":
         if minor_version >= 1 and minor_version <= 7:
-            patch = "@io_bazel_rules_scala//dt_patches:dt_compiler_%s.1.patch" % SCALA_MAJOR_VERSION
+            patch = "@io_bazel_rules_scala//dt_patches:dt_compiler_%s.1.patch" % scala_major_version
         elif minor_version <= 11:
-            patch = "@io_bazel_rules_scala//dt_patches:dt_compiler_%s.8.patch" % SCALA_MAJOR_VERSION
+            patch = "@io_bazel_rules_scala//dt_patches:dt_compiler_%s.8.patch" % scala_major_version
 
     build_file_content = "\n".join([
         "package(default_visibility = [\"//visibility:public\"])",
@@ -56,7 +56,7 @@ def dt_patched_compiler_setup(scala_compiler_srcjar = None):
         ")",
     ])
     default_scalac_srcjar = {
-        "url": "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/%s/scala-compiler-%s-sources.jar" % (SCALA_VERSION, SCALA_VERSION),
+        "url": "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/%s/scala-compiler-%s-sources.jar" % (scala_version, scala_version),
     }
     srcjar = scala_compiler_srcjar if scala_compiler_srcjar != None else default_scalac_srcjar
     _validate_scalac_srcjar(srcjar) or fail(
@@ -65,14 +65,14 @@ def dt_patched_compiler_setup(scala_compiler_srcjar = None):
     )
     if "label" in srcjar:
         dt_patched_compiler(
-            name = "scala_compiler_source",
+            name = "scala_compiler_source" + version_suffix(scala_version),
             build_file_content = build_file_content,
             patch = patch,
             srcjar = srcjar["label"],
         )
     else:
         http_archive(
-            name = "scala_compiler_source",
+            name = "scala_compiler_source" + version_suffix(scala_version),
             build_file_content = build_file_content,
             patches = [patch],
             url = srcjar.get("url"),
@@ -120,38 +120,23 @@ def rules_scala_setup(scala_compiler_srcjar = None):
             ],
         )
 
-    dt_patched_compiler_setup(scala_compiler_srcjar)
-
-ARTIFACT_IDS = [
-    "io_bazel_rules_scala_scala_library",
-    "io_bazel_rules_scala_scala_compiler",
-    "io_bazel_rules_scala_scala_reflect",
-    "io_bazel_rules_scala_scala_xml",
-    "io_bazel_rules_scala_scala_parser_combinators",
-    "org_scalameta_semanticdb_scalac",
-] if SCALA_MAJOR_VERSION.startswith("2") else [
-    "io_bazel_rules_scala_scala_library",
-    "io_bazel_rules_scala_scala_compiler",
-    "io_bazel_rules_scala_scala_interfaces",
-    "io_bazel_rules_scala_scala_tasty_core",
-    "io_bazel_rules_scala_scala_asm",
-    "io_bazel_rules_scala_scala_xml",
-    "io_bazel_rules_scala_scala_parser_combinators",
-    "io_bazel_rules_scala_scala_library_2",
-]
+    for scala_version in SCALA_VERSIONS:
+        dt_patched_compiler_setup(scala_version, scala_compiler_srcjar)
 
 def rules_scala_toolchain_deps_repositories(
         maven_servers = _default_maven_server_urls(),
         overriden_artifacts = {},
         fetch_sources = False,
         validate_scala_version = True):
-    repositories(
-        for_artifact_ids = ARTIFACT_IDS,
-        maven_servers = maven_servers,
-        fetch_sources = fetch_sources,
-        overriden_artifacts = overriden_artifacts,
-        validate_scala_version = validate_scala_version,
-    )
+    for scala_version in SCALA_VERSIONS:
+        toolchain_repositories(
+            scala_version,
+            for_artifact_ids = _artifact_ids(scala_version),
+            maven_servers = maven_servers,
+            fetch_sources = fetch_sources,
+            overriden_artifacts = overriden_artifacts,
+            validate_scala_version = validate_scala_version,
+        )
 
 def scala_repositories(
         maven_servers = _default_maven_server_urls(),
@@ -168,3 +153,22 @@ def scala_repositories(
             overriden_artifacts,
             fetch_sources,
         )
+
+def _artifact_ids(scala_version):
+    return [
+        "io_bazel_rules_scala_scala_library",
+        "io_bazel_rules_scala_scala_compiler",
+        "io_bazel_rules_scala_scala_reflect",
+        "io_bazel_rules_scala_scala_xml",
+        "io_bazel_rules_scala_scala_parser_combinators",
+        "org_scalameta_semanticdb_scalac",
+    ] if scala_version.startswith("2") else [
+        "io_bazel_rules_scala_scala_library",
+        "io_bazel_rules_scala_scala_compiler",
+        "io_bazel_rules_scala_scala_interfaces",
+        "io_bazel_rules_scala_scala_tasty_core",
+        "io_bazel_rules_scala_scala_asm",
+        "io_bazel_rules_scala_scala_xml",
+        "io_bazel_rules_scala_scala_parser_combinators",
+        "io_bazel_rules_scala_scala_library_2",
+    ]
