@@ -92,6 +92,14 @@ def rules_scala_setup(scala_compiler_srcjar = None):
             ],
         )
 
+    if not native.existing_rule("bazel_features"):
+        http_archive(
+            name = "bazel_features",
+            sha256 = "d7787da289a7fb497352211ad200ec9f698822a9e0757a4976fd9f713ff372b3",
+            strip_prefix = "bazel_features-1.9.1",
+            url = "https://github.com/bazel-contrib/bazel_features/releases/download/v1.9.1/bazel_features-v1.9.1.tar.gz",
+        )
+
     if not native.existing_rule("rules_cc"):
         http_archive(
             name = "rules_cc",

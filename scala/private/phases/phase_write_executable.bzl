@@ -73,6 +73,15 @@ def _phase_write_executable(
     executable = p.declare_executable.executable
     wrapper = p.java_wrapper
 
+    # Add --add-exports / --add-opens flags
+    merged_java_info = p.compile.merged_provider
+    add_exports = merged_java_info.module_flags_info.add_exports
+    add_opens = merged_java_info.module_flags_info.add_opens
+    if add_exports or add_opens:
+        jvm_flags = list(jvm_flags)
+        jvm_flags += ["--add-exports=%s=ALL-UNNAMED" % x for x in add_exports.to_list()]
+        jvm_flags += ["--add-opens=%s=ALL-UNNAMED" % x for x in add_opens.to_list()]
+
     if (is_windows(ctx)):
         return _write_executable_windows(ctx, executable, rjars, main_class, jvm_flags, wrapper, use_jacoco)
     else:
