@@ -8,6 +8,8 @@ load(
     "@io_bazel_rules_scala//scala:plusone.bzl",
     _collect_plus_one_deps_aspect = "collect_plus_one_deps_aspect",
 )
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSIONS")
+load("@io_bazel_rules_scala//scala:scala_cross_version.bzl", "version_suffix")
 
 common_attrs_for_plugin_bootstrapping = {
     "srcs": attr.label_list(allow_files = [
@@ -55,12 +57,8 @@ common_attrs = {}
 common_attrs.update(common_attrs_for_plugin_bootstrapping)
 
 common_attrs.update({
-    "_dependency_analyzer_plugin": attr.label(
-        default = Label(
-            "@io_bazel_rules_scala//third_party/dependency_analyzer/src/main:dependency_analyzer",
-        ),
-        allow_files = [".jar"],
-        mandatory = False,
+    "_dependency_analyzer_plugin": attr.label_list(
+        default = [Label("@io_bazel_rules_scala//third_party/dependency_analyzer/src/main:dependency_analyzer" + version_suffix(scala_version)) for scala_version in SCALA_VERSIONS],
     ),
     "unused_dependency_checker_mode": attr.string(
         values = [
@@ -84,11 +82,8 @@ implicit_deps = {
     "_java_runtime": attr.label(
         default = Label("@bazel_tools//tools/jdk:current_java_runtime"),
     ),
-    "_scalac": attr.label(
-        executable = True,
-        cfg = "exec",
-        default = Label("@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac"),
-        allow_files = True,
+    "_scalac": attr.label_list(
+        default = [Label("@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac:scalac" + version_suffix(version)) for version in SCALA_VERSIONS],
     ),
     "_exe": attr.label(
         executable = True,

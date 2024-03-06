@@ -17,9 +17,7 @@ load(
     _compile_scala = "compile_scala",
 )
 load(":resources.bzl", _resource_paths = "paths")
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
-
-buildijar_default_value = True if SCALA_VERSION.startswith("2.") else False
+load("@io_bazel_rules_scala//scala:scala_cross_version.bzl", "sanitize_version")
 
 def phase_compile_binary(ctx, p):
     args = struct(
@@ -105,6 +103,8 @@ def phase_compile_common(ctx, p):
     return _phase_compile_default(ctx, p)
 
 def _phase_compile_default(ctx, p, _args = struct()):
+    buildijar_default_value = True if ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scala_version.startswith("2.") else False
+
     return _phase_compile(
         ctx,
         p,
@@ -221,7 +221,7 @@ def _compile_or_empty(
             ctx.attr.expect_java_output,
             ctx.attr.scalac_jvm_flags,
             scalacopts,
-            ctx.executable._scalac,
+            _select_scalac(ctx),
             dependency_info,
             unused_dependency_checker_ignored_targets,
             additional_outputs,
@@ -390,3 +390,11 @@ def _interim_java_provider_for_java_compilation(scala_output):
         compile_jar = scala_output,
         neverlink = True,
     )
+
+def _select_scalac(ctx):
+    scala_version = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scala_version
+    version_suffix = sanitize_version(scala_version)
+    for scalac in ctx.attr._scalac:
+        if scalac.label.name.endswith(version_suffix):
+            return scalac.files_to_run
+    return ctx.attr._scalac[0].files_to_run
