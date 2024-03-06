@@ -1,3 +1,5 @@
+load("@bazel_features_version//:version.bzl", _bazel_version = "version")
+load("@bazel_skylib//lib:versions.bzl", "versions")
 load("@io_bazel_rules_scala//scala:jars_to_labels.bzl", "JarsToLabelsInfo")
 load("//scala/settings:stamp_settings.bzl", "StampScalaImport")
 load(
@@ -68,7 +70,7 @@ def _scala_import_impl(ctx):
     ]
 
 def _new_java_info(ctx, jar, stamped_jar):
-    return JavaInfo(
+    kwargs = dict(
         output_jar = jar,
         compile_jar = stamped_jar,
         exports = [target[JavaInfo] for target in ctx.attr.exports],
@@ -77,6 +79,12 @@ def _new_java_info(ctx, jar, stamped_jar):
         source_jar = ctx.file.srcjar,
         neverlink = ctx.attr.neverlink,
     )
+    # The JavaInfo constructor's add_exports and add_opens flags were added in Bazel 7:
+    # https://github.com/bazelbuild/bazel/issues/20033
+    if versions.is_at_least("7.0.0", _bazel_version):
+        kwargs["add_exports"] = ctx.attr.add_exports
+        kwargs["add_opens"] = ctx.attr.add_opens
+    return JavaInfo(**kwargs)
 
 def _add_labels_of_current_code_jars(code_jars, label, jars2labels):
     for jar in code_jars.to_list():
@@ -148,6 +156,9 @@ scala_import = rule(
         "java_compile_toolchain": attr.label(
             default = Label("@bazel_tools//tools/jdk:current_java_toolchain"),
         ),
-    },
+    } | ({
+        "add_exports": attr.string_list(),
+        "add_opens": attr.string_list(),
+    } if versions.is_at_least("7.0.0", _bazel_version) else {}),
     toolchains = ["@bazel_tools//tools/jdk:toolchain_type"],
 )

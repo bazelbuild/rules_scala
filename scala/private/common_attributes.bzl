@@ -1,5 +1,7 @@
 """Shared attributes for rules"""
 
+load("@bazel_features_version//:version.bzl", _bazel_version = "version")
+load("@bazel_skylib//lib:versions.bzl", "versions")
 load(
     "@io_bazel_rules_scala//scala/private:coverage_replacements_provider.bzl",
     _coverage_replacements_provider = "coverage_replacements_provider",
@@ -48,7 +50,10 @@ common_attrs_for_plugin_bootstrapping = {
         default = False,
         mandatory = False,
     ),
-}
+} | ({
+    "add_exports": attr.string_list(),
+    "add_opens": attr.string_list(),
+} if versions.is_at_least("7.0.0", _bazel_version) else {})
 
 common_attrs = {}
 

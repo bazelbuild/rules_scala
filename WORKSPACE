@@ -15,6 +15,17 @@ load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 
 bazel_skylib_workspace()
 
+http_archive(
+    name = "bazel_features",
+    sha256 = "70d355d5e34c3fe453f5556d6c0f02ffed0eb2c7ce4c8ee016d94d654bc6a014",
+    strip_prefix = "bazel_features-1.8.0",
+    url = "https://github.com/bazel-contrib/bazel_features/releases/download/v1.8.0/bazel_features-v1.8.0.tar.gz",
+)
+
+load("@bazel_features//:deps.bzl", "bazel_features_deps")
+
+bazel_features_deps()
+
 _build_tools_release = "5.1.0"
 
 http_archive(
