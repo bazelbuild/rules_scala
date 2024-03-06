@@ -21,7 +21,7 @@ scala_library(
         ":gen-scalac-plugin.xml",
     ],
     deps = [
-        "@io_bazel_rules_scala_scala_compiler",
+        "//scala/private/toolchain_deps:scala_compile_classpath",
     ],
 )
 

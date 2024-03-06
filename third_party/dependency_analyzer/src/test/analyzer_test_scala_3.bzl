@@ -1,13 +1,13 @@
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_test")
 
-def analyzer_tests_scala_3():
+def analyzer_tests_scala_3(version_suffix):
     common_jvm_flags = [
-        "-Dplugin.jar.location=$(execpath //third_party/dependency_analyzer/src/main:dependency_analyzer)",
-        "-Dscala.library.location=$(rootpath @io_bazel_rules_scala_scala_library)",
+        "-Dplugin.jar.location=$(execpath //third_party/dependency_analyzer/src/main:dependency_analyzer%s)" % version_suffix,
+        "-Dscala.library.location=$(rootpath @io_bazel_rules_scala_scala_library%s)" % version_suffix,
         # Scala 2 standard library is required for compilation.
         # Without it compilation fails with error:
         # class dotty.tools.dotc.core.Symbols$NoSymbol$ cannot be cast to class dotty.tools.dotc.core.Symbols$ClassSymbol
-        "-Dscala.library2.location=$(rootpath @io_bazel_rules_scala_scala_library_2)",
+        "-Dscala.library2.location=$(rootpath @io_bazel_rules_scala_scala_library_2%s)" % version_suffix,
     ]
 
     scala_test(
@@ -19,9 +19,9 @@ def analyzer_tests_scala_3():
         ],
         deps = [
             "//scala/private/toolchain_deps:scala_compile_classpath",
-            "//third_party/dependency_analyzer/src/main:dependency_analyzer",
-            "//third_party/utils/src/test:test_util",
-            "@io_bazel_rules_scala_scala_library",
-            "@io_bazel_rules_scala_scala_library_2",
+            "//third_party/dependency_analyzer/src/main:dependency_analyzer" + version_suffix,
+            "//third_party/utils/src/test:test_util" + version_suffix,
+            "@io_bazel_rules_scala_scala_library" + version_suffix,
+            "@io_bazel_rules_scala_scala_library_2" + version_suffix,
         ],
     )

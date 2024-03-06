@@ -1,10 +1,10 @@
 load("//scala:scala.bzl", "scala_test")
 
-def analyzer_tests_scala_2():
+def analyzer_tests_scala_2(version_suffix):
     common_jvm_flags = [
-        "-Dplugin.jar.location=$(execpath //third_party/dependency_analyzer/src/main:dependency_analyzer)",
-        "-Dscala.library.location=$(rootpath @io_bazel_rules_scala_scala_library)",
-        "-Dscala.reflect.location=$(rootpath @io_bazel_rules_scala_scala_reflect)",
+        "-Dplugin.jar.location=$(execpath //third_party/dependency_analyzer/src/main:dependency_analyzer%s)" % version_suffix,
+        "-Dscala.library.location=$(rootpath @io_bazel_rules_scala_scala_library%s)" % version_suffix,
+        "-Dscala.reflect.location=$(rootpath @io_bazel_rules_scala_scala_reflect%s)" % version_suffix,
     ]
 
     scala_test(
@@ -16,12 +16,12 @@ def analyzer_tests_scala_2():
         jvm_flags = common_jvm_flags,
         deps = [
             "//src/java/io/bazel/rulesscala/io_utils",
-            "//third_party/dependency_analyzer/src/main:dependency_analyzer",
-            "//third_party/dependency_analyzer/src/main:scala_version",
-            "//third_party/utils/src/test:test_util",
-            "@io_bazel_rules_scala_scala_compiler",
-            "@io_bazel_rules_scala_scala_library",
-            "@io_bazel_rules_scala_scala_reflect",
+            "//third_party/dependency_analyzer/src/main:dependency_analyzer" + version_suffix,
+            "//third_party/dependency_analyzer/src/main:scala_version" + version_suffix,
+            "//third_party/utils/src/test:test_util" + version_suffix,
+            "@io_bazel_rules_scala_scala_compiler" + version_suffix,
+            "@io_bazel_rules_scala_scala_library" + version_suffix,
+            "@io_bazel_rules_scala_scala_reflect" + version_suffix,
         ],
     )
 
@@ -32,9 +32,9 @@ def analyzer_tests_scala_2():
             "io/bazel/rulesscala/dependencyanalyzer/ScalaVersionTest.scala",
         ],
         deps = [
-            "//third_party/dependency_analyzer/src/main:scala_version",
-            "@io_bazel_rules_scala_scala_library",
-            "@io_bazel_rules_scala_scala_reflect",
+            "//third_party/dependency_analyzer/src/main:scala_version" + version_suffix,
+            "@io_bazel_rules_scala_scala_library" + version_suffix,
+            "@io_bazel_rules_scala_scala_reflect" + version_suffix,
         ],
     )
 
@@ -48,11 +48,11 @@ def analyzer_tests_scala_2():
         unused_dependency_checker_mode = "off",
         deps = [
             "//src/java/io/bazel/rulesscala/io_utils",
-            "//third_party/dependency_analyzer/src/main:dependency_analyzer",
-            "//third_party/utils/src/test:test_util",
-            "@io_bazel_rules_scala_scala_compiler",
-            "@io_bazel_rules_scala_scala_library",
-            "@io_bazel_rules_scala_scala_reflect",
+            "//third_party/dependency_analyzer/src/main:dependency_analyzer" + version_suffix,
+            "//third_party/utils/src/test:test_util" + version_suffix,
+            "@io_bazel_rules_scala_scala_compiler" + version_suffix,
+            "@io_bazel_rules_scala_scala_library" + version_suffix,
+            "@io_bazel_rules_scala_scala_reflect" + version_suffix,
         ],
     )
 
@@ -68,12 +68,12 @@ def analyzer_tests_scala_2():
         ],
         unused_dependency_checker_mode = "off",
         deps = [
-            "//third_party/dependency_analyzer/src/main:dependency_analyzer",
-            "//third_party/utils/src/test:test_util",
+            "//third_party/dependency_analyzer/src/main:dependency_analyzer" + version_suffix,
+            "//third_party/utils/src/test:test_util" + version_suffix,
             "@com_google_guava_guava_21_0_with_file//jar",
-            "@io_bazel_rules_scala_scala_compiler",
-            "@io_bazel_rules_scala_scala_library",
-            "@io_bazel_rules_scala_scala_reflect",
+            "@io_bazel_rules_scala_scala_compiler" + version_suffix,
+            "@io_bazel_rules_scala_scala_library" + version_suffix,
+            "@io_bazel_rules_scala_scala_reflect" + version_suffix,
             "@org_apache_commons_commons_lang_3_5_without_file//:linkable_org_apache_commons_commons_lang_3_5_without_file",
         ],
     )
@@ -89,11 +89,11 @@ def analyzer_tests_scala_2():
         ],
         unused_dependency_checker_mode = "off",
         deps = [
-            "//third_party/dependency_analyzer/src/main:dependency_analyzer",
-            "//third_party/utils/src/test:test_util",
-            "@io_bazel_rules_scala_scala_compiler",
-            "@io_bazel_rules_scala_scala_library",
-            "@io_bazel_rules_scala_scala_reflect",
+            "//third_party/dependency_analyzer/src/main:dependency_analyzer" + version_suffix,
+            "//third_party/utils/src/test:test_util" + version_suffix,
+            "@io_bazel_rules_scala_scala_compiler" + version_suffix,
+            "@io_bazel_rules_scala_scala_library" + version_suffix,
+            "@io_bazel_rules_scala_scala_reflect" + version_suffix,
             "@org_apache_commons_commons_lang_3_5_without_file//:linkable_org_apache_commons_commons_lang_3_5_without_file",
         ],
     )

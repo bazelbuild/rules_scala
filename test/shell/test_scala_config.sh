@@ -5,13 +5,13 @@ dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 runner=$(get_test_runner "${1:-local}")
 
 test_classpath_contains_2_12() {
-  bazel aquery 'mnemonic("Javac", //src/java/io/bazel/rulesscala/scalac:scalac)' \
+  bazel aquery 'mnemonic("Javac", //src/java/io/bazel/rulesscala/scalac:scalac_2_12_18)' \
    --repo_env=SCALA_VERSION=2.12.18 \
    | grep scala-library-2.12
 }
 
 test_classpath_contains_2_13() {
-  bazel aquery 'mnemonic("Javac", //src/java/io/bazel/rulesscala/scalac:scalac)' \
+  bazel aquery 'mnemonic("Javac", //src/java/io/bazel/rulesscala/scalac:scalac_2_13_12)' \
    --repo_env=SCALA_VERSION=2.13.12 \
    | grep scala-library-2.13
 }
