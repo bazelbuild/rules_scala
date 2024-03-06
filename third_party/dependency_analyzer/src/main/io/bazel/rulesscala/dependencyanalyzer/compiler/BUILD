@@ -11,4 +11,5 @@ load("@io_bazel_rules_scala//scala:scala_cross_version.bzl", "version_suffix")
         deps = ["//scala/private/toolchain_deps:scala_compile_classpath"],
     )
     for version in SCALA_VERSIONS
+    if version.startswith("2")
 ]

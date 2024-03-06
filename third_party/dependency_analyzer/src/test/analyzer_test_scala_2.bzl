@@ -18,7 +18,7 @@ def analyzer_tests_scala_2(version_suffix):
             "//src/java/io/bazel/rulesscala/io_utils",
             "//third_party/dependency_analyzer/src/main:dependency_analyzer" + version_suffix,
             "//third_party/dependency_analyzer/src/main:scala_version" + version_suffix,
-            "//third_party/utils/src/test:test_util" + version_suffix,
+            "//third_party/utils/src/test:test_util",
             "@io_bazel_rules_scala_scala_compiler" + version_suffix,
             "@io_bazel_rules_scala_scala_library" + version_suffix,
             "@io_bazel_rules_scala_scala_reflect" + version_suffix,
@@ -49,7 +49,7 @@ def analyzer_tests_scala_2(version_suffix):
         deps = [
             "//src/java/io/bazel/rulesscala/io_utils",
             "//third_party/dependency_analyzer/src/main:dependency_analyzer" + version_suffix,
-            "//third_party/utils/src/test:test_util" + version_suffix,
+            "//third_party/utils/src/test:test_util",
             "@io_bazel_rules_scala_scala_compiler" + version_suffix,
             "@io_bazel_rules_scala_scala_library" + version_suffix,
             "@io_bazel_rules_scala_scala_reflect" + version_suffix,
@@ -69,7 +69,7 @@ def analyzer_tests_scala_2(version_suffix):
         unused_dependency_checker_mode = "off",
         deps = [
             "//third_party/dependency_analyzer/src/main:dependency_analyzer" + version_suffix,
-            "//third_party/utils/src/test:test_util" + version_suffix,
+            "//third_party/utils/src/test:test_util",
             "@com_google_guava_guava_21_0_with_file//jar",
             "@io_bazel_rules_scala_scala_compiler" + version_suffix,
             "@io_bazel_rules_scala_scala_library" + version_suffix,
@@ -90,7 +90,7 @@ def analyzer_tests_scala_2(version_suffix):
         unused_dependency_checker_mode = "off",
         deps = [
             "//third_party/dependency_analyzer/src/main:dependency_analyzer" + version_suffix,
-            "//third_party/utils/src/test:test_util" + version_suffix,
+            "//third_party/utils/src/test:test_util",
             "@io_bazel_rules_scala_scala_compiler" + version_suffix,
             "@io_bazel_rules_scala_scala_library" + version_suffix,
             "@io_bazel_rules_scala_scala_reflect" + version_suffix,

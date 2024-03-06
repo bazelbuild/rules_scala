@@ -20,7 +20,7 @@ def analyzer_tests_scala_3(version_suffix):
         deps = [
             "//scala/private/toolchain_deps:scala_compile_classpath",
             "//third_party/dependency_analyzer/src/main:dependency_analyzer" + version_suffix,
-            "//third_party/utils/src/test:test_util" + version_suffix,
+            "//third_party/utils/src/test:test_util",
             "@io_bazel_rules_scala_scala_library" + version_suffix,
             "@io_bazel_rules_scala_scala_library_2" + version_suffix,
         ],

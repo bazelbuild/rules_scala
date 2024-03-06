@@ -1,6 +1,6 @@
 load("//scala/scalafmt/toolchain:toolchain.bzl", "scalafmt_toolchain")
 load("//scala:providers.bzl", "declare_deps_provider")
-load("@io_bazel_rules_scala//scala:scala_cross_version.bzl", "sanitize_version")
+load("@io_bazel_rules_scala//scala:scala_cross_version.bzl", "sanitize_version", "version_suffix")
 load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSIONS")
 
 _SCALAFMT_DEPS = [
@@ -45,5 +45,4 @@ def setup_scalafmt_toolchains():
         )
 
 def _deps(scala_version):
-    sanitized_scala_version = sanitize_version(scala_version)
-    return [dep + "_" + sanitized_scala_version for dep in _SCALAFMT_DEPS]
+    return [dep + version_suffix(scala_version) for dep in _SCALAFMT_DEPS]
