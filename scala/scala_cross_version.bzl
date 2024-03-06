@@ -44,3 +44,9 @@ def scala_mvn_artifact(
     artifactid = gav[1]
     version = gav[2]
     return "%s:%s_%s:%s" % (groupid, artifactid, major_scala_version, version)
+
+def sanitize_version(scala_version):
+    return scala_version.replace(".", "_")
+
+def version_suffix(scala_version):
+    return "_" + sanitize_version(scala_version)
