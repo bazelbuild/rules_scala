@@ -73,6 +73,27 @@ action_should_fail_with_message() {
   fi
 }
 
+action_should_fail_without_message() {
+  set +e
+  MSG=$1
+  TEST_ARG=${@:2}
+  RES=$(bazel $TEST_ARG 2>&1)
+  RESPONSE_CODE=$?
+  echo $RES | grep -- "$MSG"
+  GREP_RES=$?
+  if [ $RESPONSE_CODE -eq 0 ]; then
+    echo $RES
+    echo -e "${RED} \"bazel $TEST_ARG\" should have failed but passed. $NC"
+    exit 1
+  elif [ $GREP_RES -eq 0 ]; then
+    echo $RES
+    echo -e "${RED} \"bazel $TEST_ARG\" should have failed with message not containing \"$MSG\" but it did. $NC"
+    exit 1
+  else
+    exit 0
+  fi
+}
+
 test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message() {
   set +e
 
