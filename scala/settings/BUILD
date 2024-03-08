@@ -9,6 +9,11 @@ stamp_scala_import(
 
 load("@bazel_skylib//rules:common_settings.bzl", "bool_flag", "string_flag", "string_list_flag")
 
+bool_flag(
+    name = "scala_toolchain_flags",
+    build_setting_default = False,
+)
+
 string_flag(
     name = "dependency_mode",
     build_setting_default = "direct",
