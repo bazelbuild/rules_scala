@@ -11,6 +11,7 @@ load(
     "java_bin",
     "java_bin_windows",
     "runfiles_root",
+    "specified_java_runtime",
 )
 
 def phase_write_executable_scalatest(ctx, p):
@@ -20,12 +21,15 @@ def phase_write_executable_scalatest(ctx, p):
         ctx.attr.jvm_flags,
         ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scala_test_jvm_flags,
     )
+
+    expandedn_jvm_flags = [
+        "-DRULES_SCALA_MAIN_WS_NAME=%s" % ctx.workspace_name,
+        "-DRULES_SCALA_ARGS_FILE=%s" % p.runfiles.args_file.short_path.replace("../", "external/"),
+    ] + expand_location(ctx, final_jvm_flags)
+
     args = struct(
         rjars = p.coverage_runfiles.rjars,
-        jvm_flags = [
-            "-DRULES_SCALA_MAIN_WS_NAME=%s" % ctx.workspace_name,
-            "-DRULES_SCALA_ARGS_FILE=%s" % p.runfiles.args_file.short_path.replace("../", "external/"),
-        ] + expand_location(ctx, final_jvm_flags),
+        jvm_flags = _allow_security_manager(ctx, expandedn_jvm_flags),
         use_jacoco = ctx.configuration.coverage_enabled,
     )
     return _phase_write_executable_default(ctx, p, args)
@@ -40,7 +44,7 @@ def phase_write_executable_repl(ctx, p):
 def phase_write_executable_junit_test(ctx, p):
     args = struct(
         rjars = p.coverage_runfiles.rjars,
-        jvm_flags = p.jvm_flags + ctx.attr.jvm_flags,
+        jvm_flags = _allow_security_manager(ctx, p.jvm_flags + ctx.attr.jvm_flags),
         main_class = "com.google.testing.junit.runner.BazelTestRunner",
         use_jacoco = ctx.configuration.coverage_enabled,
     )
@@ -182,3 +186,8 @@ def _jar_path_based_on_java_bin(ctx):
     java_bin_var = java_bin(ctx)
     jar_path = java_bin_var.rpartition("/")[0] + "/jar"
     return jar_path
+
+def _allow_security_manager(ctx, jvm_flags):
+    java_toolchain = ctx.toolchains["@bazel_tools//tools/jdk:toolchain_type"]
+    java_runtime = specified_java_runtime(ctx, java_toolchain.java.java_runtime if java_toolchain else None)
+    return jvm_flags + (["-Djava.security.manager=allow"] if java_runtime and java_runtime.version >= 17 else [])
