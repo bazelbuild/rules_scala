@@ -781,6 +781,7 @@ scala_library(
     srcs = [
         "src/main/scala/scalarules/test/junit/runtime_platform/JunitRuntimePlatformTest.java",
     ],
+    java_compile_toolchain = "@bazel_tools//tools/jdk:toolchain_java11",
     deps = ["@io_bazel_rules_scala_junit_junit"],
 )
 
