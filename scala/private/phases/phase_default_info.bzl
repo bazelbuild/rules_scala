@@ -17,8 +17,10 @@ def phase_default_info(ctx, p):
         runfiles.append(java_runtime.files)
 
     phase_names = dir(p)
-    phase_names.remove("to_json")
-    phase_names.remove("to_proto")
+    if "to_json" in phase_names:
+        phase_names.remove("to_json")
+    if "to_proto" in phase_names:
+        phase_names.remove("to_proto")
     for phase_name in phase_names:
         phase = getattr(p, phase_name)
 
