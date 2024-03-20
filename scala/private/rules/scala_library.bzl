@@ -172,7 +172,9 @@ _scala_library_for_plugin_bootstrapping_attrs.update(implicit_deps)
 _scala_library_for_plugin_bootstrapping_attrs.update({
     "build_ijar": attr.bool(default = True),
     "_scalac": attr.label_list(
+        cfg = "exec",
         default = [Label("@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac:scalac_bootstrap" + version_suffix(version)) for version in SCALA_VERSIONS],
+        allow_files = True,
     ),
 })
 
