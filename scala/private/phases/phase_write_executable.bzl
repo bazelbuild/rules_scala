@@ -22,14 +22,14 @@ def phase_write_executable_scalatest(ctx, p):
         ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scala_test_jvm_flags,
     )
 
-    expandedn_jvm_flags = [
+    expanded_jvm_flags = [
         "-DRULES_SCALA_MAIN_WS_NAME=%s" % ctx.workspace_name,
         "-DRULES_SCALA_ARGS_FILE=%s" % p.runfiles.args_file.short_path.replace("../", "external/"),
     ] + expand_location(ctx, final_jvm_flags)
 
     args = struct(
         rjars = p.coverage_runfiles.rjars,
-        jvm_flags = _allow_security_manager(ctx, expandedn_jvm_flags),
+        jvm_flags = _allow_security_manager(ctx, expanded_jvm_flags),
         use_jacoco = ctx.configuration.coverage_enabled,
     )
     return _phase_write_executable_default(ctx, p, args)
