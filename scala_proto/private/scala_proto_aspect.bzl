@@ -5,6 +5,7 @@ load(
     "//scala/private:rule_impls.bzl",
     "compile_scala",
     "specified_java_compile_toolchain",
+    _allow_security_manager = "allow_security_manager",
 )
 load("//scala/private/toolchain_deps:toolchain_deps.bzl", "find_deps_info_on")
 load(
@@ -73,7 +74,7 @@ def _generate_sources(ctx, toolchain, proto):
 
     ctx.actions.run(
         executable = toolchain.worker,
-        arguments = [toolchain.worker_flags, args],
+        arguments = ["--jvm_flag=%s" % f for f in _allow_security_manager(ctx)] + [toolchain.worker_flags, args],
         inputs = depset(transitive = [descriptors, toolchain.generators_jars]),
         outputs = outputs.values(),
         tools = [toolchain.protoc],
@@ -202,6 +203,9 @@ def make_scala_proto_aspect(*extras):
     attrs = {
         "_java_toolchain": attr.label(
             default = Label("@bazel_tools//tools/jdk:current_java_toolchain"),
+        ),
+        "_java_host_runtime": attr.label(
+            default = Label("@bazel_tools//tools/jdk:current_host_java_runtime"),
         ),
     }
     return aspect(
