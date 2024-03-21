@@ -84,6 +84,9 @@ implicit_deps = {
     "_java_runtime": attr.label(
         default = Label("@bazel_tools//tools/jdk:current_java_runtime"),
     ),
+    "_java_host_runtime": attr.label(
+        default = Label("@bazel_tools//tools/jdk:current_host_java_runtime"),
+    ),
     "_scalac": attr.label(
         executable = True,
         cfg = "exec",

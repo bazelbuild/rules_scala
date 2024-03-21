@@ -7,6 +7,10 @@ load(
     "@io_bazel_rules_scala//scala/private:paths.bzl",
     _scala_extension = "scala_extension",
 )
+load(
+    "//scala/private:rule_impls.bzl",
+    _allow_security_manager = "allow_security_manager",
+)
 
 def phase_scalafmt(ctx, p):
     if ctx.attr.format:
@@ -25,6 +29,7 @@ def _build_format(ctx):
     files = []
     srcs = []
     manifest_content = []
+    jvm_flags = ["-Dfile.encoding=UTF-8"] + _allow_security_manager(ctx)
     for src in ctx.files.srcs:
         # only format scala source files, not generated files
         if src.path.endswith(_scala_extension) and src.is_source:
@@ -32,7 +37,7 @@ def _build_format(ctx):
             file = ctx.actions.declare_file("{}.fmt.output".format(src.short_path))
             files.append(file)
             ctx.actions.run(
-                arguments = ["--jvm_flag=-Dfile.encoding=UTF-8", _format_args(ctx, src, file)],
+                arguments = ["--jvm_flag=%s" % f for f in jvm_flags] + [_format_args(ctx, src, file)],
                 executable = ctx.executable._fmt,
                 outputs = [file],
                 inputs = [ctx.file.config, src],
