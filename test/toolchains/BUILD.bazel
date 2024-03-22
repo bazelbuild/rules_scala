@@ -130,3 +130,26 @@ toolchain(
     toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
     visibility = ["//visibility:public"],
 )
+
+load(
+    "@bazel_tools//tools/jdk:default_java_toolchain.bzl",
+    "BASE_JDK9_JVM_OPTS",
+    "DEFAULT_JAVACOPTS",
+    "DEFAULT_TOOLCHAIN_CONFIGURATION",
+    "default_java_toolchain",
+)
+
+default_java_toolchain(
+    name = "java21_toolchain",
+    configuration = DEFAULT_TOOLCHAIN_CONFIGURATION,
+    java_runtime = select({
+        "@platforms//os:linux": "@remotejdk21_linux//:jdk",
+        "@platforms//os:macos": "@remotejdk21_macos//:jdk",
+        "@platforms//os:windows": "@remotejdk21_win//:jdk",
+    }),
+    javacopts = DEFAULT_JAVACOPTS,
+    jvm_opts = BASE_JDK9_JVM_OPTS,
+    source_version = "21",
+    target_version = "21",
+    visibility = ["//visibility:public"],
+)
