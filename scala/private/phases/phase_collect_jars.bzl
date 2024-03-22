@@ -7,16 +7,26 @@ load(
     "@io_bazel_rules_scala//scala/private:common.bzl",
     "collect_jars",
 )
+load("@io_bazel_rules_scala//scala:scala_cross_version.bzl", "sanitize_version")
 
 def phase_collect_jars_scalatest(ctx, p):
     args = struct(
         base_classpath = p.scalac_provider.default_classpath + [ctx.attr._scalatest],
         extra_runtime_deps = [
-            ctx.attr._scalatest_reporter,
+            _reporter(ctx),
             ctx.attr._scalatest_runner,
         ],
     )
     return _phase_collect_jars_default(ctx, p, args)
+
+def _reporter(ctx):
+    scala_version = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scala_version
+    version_suffix = sanitize_version(scala_version)
+
+    for target in ctx.attr._scalatest_reporter:
+        if target.label.name.endswith(version_suffix):
+            return target
+    return ctx.attr._scalatest_reporter[0]
 
 def phase_collect_jars_repl(ctx, p):
     args = struct(

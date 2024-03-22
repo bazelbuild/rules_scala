@@ -15,6 +15,8 @@ load(
     "@io_bazel_rules_scala//scala/private:coverage_replacements_provider.bzl",
     _coverage_replacements_provider = "coverage_replacements_provider",
 )
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSIONS")
+load("@io_bazel_rules_scala//scala:scala_cross_version.bzl", "version_suffix")
 load(
     "@io_bazel_rules_scala//scala/private:phases/phases.bzl",
     "extras_phases",
@@ -169,10 +171,9 @@ _scala_library_for_plugin_bootstrapping_attrs.update(implicit_deps)
 # which does not contain plugin related attributes, and thus avoids the cyclic dependency issue
 _scala_library_for_plugin_bootstrapping_attrs.update({
     "build_ijar": attr.bool(default = True),
-    "_scalac": attr.label(
-        executable = True,
+    "_scalac": attr.label_list(
         cfg = "exec",
-        default = Label("@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac:scalac_bootstrap"),
+        default = [Label("@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac:scalac_bootstrap" + version_suffix(version)) for version in SCALA_VERSIONS],
         allow_files = True,
     ),
 })

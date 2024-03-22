@@ -8,6 +8,8 @@ load(
     "launcher_template",
 )
 load("@io_bazel_rules_scala//scala/private:common.bzl", "sanitize_string_for_usage")
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSIONS")
+load("@io_bazel_rules_scala//scala:scala_cross_version.bzl", "version_suffix")
 load("@io_bazel_rules_scala//scala/private:common_outputs.bzl", "common_outputs")
 load(
     "@io_bazel_rules_scala//scala/private:phases/phases.bzl",
@@ -75,8 +77,8 @@ _scala_test_attrs = {
         cfg = "exec",
         default = Label("//src/java/io/bazel/rulesscala/scala_test:runner"),
     ),
-    "_scalatest_reporter": attr.label(
-        default = Label("//scala/support:test_reporter"),
+    "_scalatest_reporter": attr.label_list(
+        default = [Label("//scala/support:test_reporter" + version_suffix(version)) for version in SCALA_VERSIONS],
     ),
     "_lcov_merger": attr.label(
         default = Label("@bazel_tools//tools/test/CoverageOutputGenerator/java/com/google/devtools/coverageoutputgenerator:Main"),

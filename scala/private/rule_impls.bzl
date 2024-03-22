@@ -17,6 +17,7 @@ load("@bazel_skylib//lib:paths.bzl", "paths")
 load("@bazel_tools//tools/jdk:toolchain_utils.bzl", "find_java_toolchain")
 load(":common.bzl", "rlocationpath_from_rootpath", _collect_plugin_paths = "collect_plugin_paths")
 load(":resources.bzl", _resource_paths = "paths")
+load("@io_bazel_rules_scala//scala:scala_cross_version.bzl", "version_suffix")
 
 def expand_location(ctx, flags):
     if hasattr(ctx.attr, "data"):
@@ -62,7 +63,7 @@ def compile_scala(
     input_plugins = plugins
     plugins = _collect_plugin_paths(plugins)
     if dependency_info.use_analyzer:
-        plugins = depset(transitive = [plugins, ctx.attr._dependency_analyzer_plugin.files])
+        plugins = depset(transitive = [plugins, _dependency_analyzer_plugin(ctx).files])
 
     toolchain = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"]
     compiler_classpath_jars = cjars if dependency_info.dependency_mode == "direct" else transitive_compile_jars
@@ -143,6 +144,13 @@ def compile_scala(
             for f in expand_location(ctx, final_scalac_jvm_flags)
         ] + [args],
     )
+
+def _dependency_analyzer_plugin(ctx):
+    suffix = version_suffix(ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scala_version)
+    for plugin in ctx.attr._dependency_analyzer_plugin:
+        if plugin.label.name.endswith(suffix):
+            return plugin
+    return ctx.attr._dependency_analyzer_plugin[0]
 
 def compile_java(ctx, source_jars, source_files, output, extra_javac_opts, providers_of_dependencies):
     java_toolchain = specified_java_compile_toolchain(ctx)
