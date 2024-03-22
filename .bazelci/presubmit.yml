@@ -90,3 +90,24 @@ tasks:
     platform: ubuntu2004
     run_targets:
     -  "//tools:lint_check"
+  jdk_21:
+    name: "bazel test //test/... with jdk21"
+    platform: ubuntu2004
+    shell_commands:
+      - mv tools/bazel.rc.buildkite tools/bazel.rc
+      - echo "import %workspace%/tools/bazel.rc" > .bazelrc
+    build_flags:
+      - "--java_language_version=21"
+      - "--java_runtime_version=21"
+      - "--tool_java_language_version=21"
+      - "--tool_java_runtime_version=21"
+    build_targets:
+      - "//test/..."
+    test_flags:
+      - "--java_language_version=21"
+      - "--java_runtime_version=21"
+      - "--tool_java_language_version=21"
+      - "--tool_java_runtime_version=21"
+    test_targets:
+      - "//test/..."
+
