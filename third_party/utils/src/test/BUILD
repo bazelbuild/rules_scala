@@ -1,16 +1,19 @@
 load("//scala:scala.bzl", "scala_library")
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_MAJOR_VERSION")
+load("//scala:scala_cross_version_select.bzl", "select_for_scala_version")
 
 licenses(["notice"])  # 3-clause BSD
 
 scala_library(
     name = "test_util",
-    srcs = ([
-        "io/bazel/rulesscala/utils/JavaCompileUtil.scala",
-        "io/bazel/rulesscala/utils/TestUtil.scala",
-    ] if SCALA_MAJOR_VERSION.startswith("2") else [
-        "io/bazel/rulesscala/utils/Scala3CompilerUtils.scala",
-    ]),
+    srcs = select_for_scala_version(
+        any_2 = [
+            "io/bazel/rulesscala/utils/JavaCompileUtil.scala",
+            "io/bazel/rulesscala/utils/TestUtil.scala",
+        ],
+        any_3 = [
+            "io/bazel/rulesscala/utils/Scala3CompilerUtils.scala",
+        ],
+    ),
     visibility = ["//visibility:public"],
     deps = [
         "//scala/private/toolchain_deps:scala_compile_classpath",
