@@ -9,6 +9,7 @@ load(
     "resolve_deps",
 )
 load("@io_bazel_rules_scala//scala/private:common_outputs.bzl", "common_outputs")
+load("@io_bazel_rules_scala//scala:scala_cross_version.bzl", "scala_version_transition", "toolchain_transition_attr")
 load(
     "@io_bazel_rules_scala//scala/private:phases/phases.bzl",
     "extras_phases",
@@ -70,6 +71,8 @@ _scala_binary_attrs.update(common_attrs)
 
 _scala_binary_attrs.update(resolve_deps)
 
+_scala_binary_attrs.update(toolchain_transition_attr)
+
 def make_scala_binary(*extras):
     return rule(
         attrs = _dicts.add(
@@ -87,6 +90,7 @@ def make_scala_binary(*extras):
             "@io_bazel_rules_scala//scala:toolchain_type",
             "@bazel_tools//tools/jdk:toolchain_type",
         ],
+        cfg = scala_version_transition,
         incompatible_use_toolchain_transition = True,
         implementation = _scala_binary_impl,
     )

@@ -15,6 +15,7 @@ load(
     "@io_bazel_rules_scala//scala/private:coverage_replacements_provider.bzl",
     _coverage_replacements_provider = "coverage_replacements_provider",
 )
+load("@io_bazel_rules_scala//scala:scala_cross_version.bzl", "scala_version_transition", "toolchain_transition_attr")
 load(
     "@io_bazel_rules_scala//scala/private:phases/phases.bzl",
     "extras_phases",
@@ -87,6 +88,8 @@ _scala_library_attrs.update(_library_attrs)
 
 _scala_library_attrs.update(resolve_deps)
 
+_scala_library_attrs.update(toolchain_transition_attr)
+
 def make_scala_library(*extras):
     return rule(
         attrs = _dicts.add(
@@ -103,6 +106,7 @@ def make_scala_library(*extras):
             "@io_bazel_rules_scala//scala:toolchain_type",
             "@bazel_tools//tools/jdk:toolchain_type",
         ],
+        cfg = scala_version_transition,
         incompatible_use_toolchain_transition = True,
         implementation = _scala_library_impl,
     )
@@ -185,6 +189,8 @@ _scala_library_for_plugin_bootstrapping_attrs.update(
     common_attrs_for_plugin_bootstrapping,
 )
 
+_scala_library_for_plugin_bootstrapping_attrs.update(toolchain_transition_attr)
+
 def make_scala_library_for_plugin_bootstrapping(*extras):
     return rule(
         attrs = _dicts.add(
@@ -201,6 +207,7 @@ def make_scala_library_for_plugin_bootstrapping(*extras):
             "@io_bazel_rules_scala//scala:toolchain_type",
             "@bazel_tools//tools/jdk:toolchain_type",
         ],
+        cfg = scala_version_transition,
         incompatible_use_toolchain_transition = True,
         implementation = _scala_library_for_plugin_bootstrapping_impl,
     )
@@ -245,6 +252,8 @@ _scala_macro_library_attrs.update(_library_attrs)
 
 _scala_macro_library_attrs.update(resolve_deps)
 
+_scala_macro_library_attrs.update(toolchain_transition_attr)
+
 # Set unused_dependency_checker_mode default to off for scala_macro_library
 _scala_macro_library_attrs["unused_dependency_checker_mode"] = attr.string(
     default = "off",
@@ -273,6 +282,7 @@ def make_scala_macro_library(*extras):
             "@io_bazel_rules_scala//scala:toolchain_type",
             "@bazel_tools//tools/jdk:toolchain_type",
         ],
+        cfg = scala_version_transition,
         incompatible_use_toolchain_transition = True,
         implementation = _scala_macro_library_impl,
     )
