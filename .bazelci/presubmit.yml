@@ -94,6 +94,7 @@ tasks:
     name: "./test_rules_scala with jdk21"
     platform: ubuntu2004
     shell_commands:
+      - sudo apt update && sudo apt install -y libxml2-utils
       - mv tools/bazel.rc.buildkite tools/bazel.rc
       - echo "import %workspace%/tools/bazel.rc" > .bazelrc
       - echo "build --java_language_version=21" >> .bazelrc
