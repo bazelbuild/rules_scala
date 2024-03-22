@@ -11,6 +11,7 @@ load(
     "resolve_deps",
 )
 load("@io_bazel_rules_scala//scala/private:common_outputs.bzl", "common_outputs")
+load("@io_bazel_rules_scala//scala/versions:versions.bzl", "scala_version_transition", "toolchain_transition_attr")
 load(
     "@io_bazel_rules_scala//scala/private:coverage_replacements_provider.bzl",
     _coverage_replacements_provider = "coverage_replacements_provider",
@@ -87,6 +88,8 @@ _scala_library_attrs.update(_library_attrs)
 
 _scala_library_attrs.update(resolve_deps)
 
+_scala_library_attrs.update(toolchain_transition_attr)
+
 def make_scala_library(*extras):
     return rule(
         attrs = _dicts.add(
@@ -103,6 +106,7 @@ def make_scala_library(*extras):
             "@io_bazel_rules_scala//scala:toolchain_type",
             "@bazel_tools//tools/jdk:toolchain_type",
         ],
+        cfg = scala_version_transition,
         incompatible_use_toolchain_transition = True,
         implementation = _scala_library_impl,
     )

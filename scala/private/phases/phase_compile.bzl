@@ -18,8 +18,7 @@ load(
 )
 load(":resources.bzl", _resource_paths = "paths")
 load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
-
-buildijar_default_value = True if SCALA_VERSION.startswith("2.") else False
+load("@io_bazel_rules_scala//scala:scala_cross_version.bzl", "extract_major_version", "extract_minor_version")
 
 def phase_compile_binary(ctx, p):
     args = struct(
@@ -105,6 +104,9 @@ def phase_compile_common(ctx, p):
     return _phase_compile_default(ctx, p)
 
 def _phase_compile_default(ctx, p, _args = struct()):
+    scala_version = ctx.attr.scala_version if hasattr(ctx.attr, "scala_version") and ctx.attr.scala_version != "" else SCALA_VERSION
+    buildijar_default_value = True if scala_version.startswith("2.") else False
+
     return _phase_compile(
         ctx,
         p,
@@ -198,7 +200,6 @@ def _compile_or_empty(
         scala_srcs = _get_files_with_extension(ctx, _scala_extension)
         in_srcjars = _get_files_with_extension(ctx, _srcjar_extension)
         all_srcjars = depset(in_srcjars, transitive = [srcjars])
-
         sources = scala_srcs + java_srcs
         _compile_scala(
             ctx,
@@ -221,7 +222,7 @@ def _compile_or_empty(
             ctx.attr.expect_java_output,
             ctx.attr.scalac_jvm_flags,
             scalacopts,
-            ctx.executable._scalac,
+            _select_scalac(ctx),
             dependency_info,
             unused_dependency_checker_ignored_targets,
             additional_outputs,
@@ -390,3 +391,18 @@ def _interim_java_provider_for_java_compilation(scala_output):
         compile_jar = scala_output,
         neverlink = True,
     )
+
+def _select_scalac(ctx):
+    scala_version = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scala_version
+    if scala_version:
+        major_version = extract_major_version(scala_version)
+        minor_version = extract_minor_version(scala_version)
+        if major_version.startswith("2.11") or (major_version.startswith("2.12") and int(minor_version) < 13):
+            return ctx.executable._scalac_before_2_12_13
+        if ((major_version.startswith("2.12") and int(minor_version) >= 13) or (major_version.startswith("2.13") and int(minor_version) < 12)):
+            return ctx.executable._scalac_after_2_12_13_and_before_2_13_12
+        if (major_version.startswith("2.13") and int(minor_version) >= 12):
+            return ctx.executable._scalac_after_2_13_12
+        if (major_version.startswith("3")):
+            return ctx.executable._scalac_3
+    return ctx.executable._scalac
