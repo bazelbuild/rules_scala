@@ -1,0 +1,1 @@
+type Choice[A] = A match { case Int => Long ; case Long => Int }
