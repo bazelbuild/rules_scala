@@ -43,7 +43,13 @@ Don't rely on `SCALA_VERSION` as it represents the default Scala version, not ne
 If you need to customize the behavior for specific Scala version, there are two scenarios.
 
 ### From toolchain
-TODO
+If you have an access to the Scala toolchain (`@io_bazel_rules_scala//scala:toolchain_type`), there is `scala_version` field provided in there:
+```starlark
+def _rule_impl(ctx):
+    ...
+    ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scala_version
+    ...
+```
 
 ### From config setting
 TODO
