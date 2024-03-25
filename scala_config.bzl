@@ -11,10 +11,14 @@ def _validate_supported_scala_version(scala_major_version, scala_minor_version):
         fail("Scala version must be newer or equal to 2.12.1 to use compiler dependency tracking.")
 
 def _store_config(repository_ctx):
+    # Default version
     scala_version = repository_ctx.os.environ.get(
         "SCALA_VERSION",
         repository_ctx.attr.scala_version,
     )
+
+    # All versions supported
+    scala_versions = [scala_version]
 
     enable_compiler_dependency_tracking = repository_ctx.os.environ.get(
         "ENABLE_COMPILER_DEPENDENCY_TRACKING",
@@ -29,6 +33,7 @@ def _store_config(repository_ctx):
 
     config_file_content = "\n".join([
         "SCALA_VERSION='" + scala_version + "'",
+        "SCALA_VERSIONS=" + str(scala_versions),
         "SCALA_MAJOR_VERSION='" + scala_major_version + "'",
         "SCALA_MINOR_VERSION='" + scala_minor_version + "'",
         "ENABLE_COMPILER_DEPENDENCY_TRACKING=" + enable_compiler_dependency_tracking,
