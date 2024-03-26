@@ -48,3 +48,6 @@ def scala_mvn_artifact(
 def sanitize_version(scala_version):
     """ Makes Scala version usable in target names. """
     return scala_version.replace(".", "_")
+
+def version_suffix(scala_version):
+    return "_" + sanitize_version(scala_version)
