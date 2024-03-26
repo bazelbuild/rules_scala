@@ -44,3 +44,7 @@ def scala_mvn_artifact(
     artifactid = gav[1]
     version = gav[2]
     return "%s:%s_%s:%s" % (groupid, artifactid, major_scala_version, version)
+
+def sanitize_version(scala_version):
+    """ Makes Scala version usable in target names. """
+    return scala_version.replace(".", "_")
