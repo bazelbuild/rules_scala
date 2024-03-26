@@ -99,3 +99,69 @@ def setup_scala_toolchain(
         target_settings = ["@io_bazel_rules_scala_config//:scala_version" + version_suffix(scala_version)],
         visibility = visibility,
     )
+
+_DEFAULT_DEPS = {
+    "scala_compile_classpath": {
+        "any": [
+            "@io_bazel_rules_scala_scala_compiler",
+            "@io_bazel_rules_scala_scala_library",
+        ],
+        "2": [
+            "@io_bazel_rules_scala_scala_reflect",
+        ],
+        "3": [
+            "@io_bazel_rules_scala_scala_interfaces",
+            "@io_bazel_rules_scala_scala_tasty_core",
+            "@io_bazel_rules_scala_scala_asm",
+            "@io_bazel_rules_scala_scala_library_2",
+        ],
+    },
+    "scala_library_classpath": {
+        "any": [
+            "@io_bazel_rules_scala_scala_library",
+        ],
+        "2": [
+            "@io_bazel_rules_scala_scala_reflect",
+        ],
+        "3": [
+            "@io_bazel_rules_scala_scala_library_2",
+        ],
+    },
+    "scala_macro_classpath": {
+        "any": [
+            "@io_bazel_rules_scala_scala_library",
+        ],
+        "2": [
+            "@io_bazel_rules_scala_scala_reflect",
+        ],
+        "3": [
+            "@io_bazel_rules_scala_scala_library_2",
+        ],
+    },
+    "scala_xml": {
+        "any": ["@io_bazel_rules_scala_scala_xml"],
+    },
+    "parser_combinators": {
+        "any": ["@io_bazel_rules_scala_scala_parser_combinators"],
+    },
+    "semanticdb": {
+        "2": ["@org_scalameta_semanticdb_scalac"],
+    },
+}
+
+def default_deps(deps_id, scala_version):
+    versions = _DEFAULT_DEPS[deps_id]
+    return versions.get("any", []) + versions.get(scala_version[0], [])
+
+def setup_scala_toolchain_with_default_classpaths(
+        name,
+        scala_version,
+        **kwargs):
+    for dep_id in (
+        "scala_compile_classpath",
+        "scala_library_classpath",
+        "scala_macro_classpath",
+    ):
+        if dep_id not in kwargs:
+            kwargs[dep_id] = default_deps(dep_id, scala_version)
+    setup_scala_toolchain(name = name, **kwargs)
