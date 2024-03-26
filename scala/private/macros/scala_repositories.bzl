@@ -10,6 +10,7 @@ load("//third_party/repositories:repositories.bzl", "repositories")
 load(
     "@io_bazel_rules_scala_config//:config.bzl",
     "SCALA_MAJOR_VERSION",
+    "SCALA_VERSION",
     "SCALA_VERSIONS",
 )
 
@@ -151,6 +152,7 @@ def rules_scala_toolchain_deps_repositories(
         fetch_sources = False,
         validate_scala_version = True):
     repositories(
+        scala_version = SCALA_VERSION,
         for_artifact_ids = ARTIFACT_IDS,
         maven_servers = maven_servers,
         fetch_sources = fetch_sources,

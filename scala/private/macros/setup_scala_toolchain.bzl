@@ -157,4 +157,5 @@ _DEFAULT_DEPS = {
 
 def default_deps(deps_id, scala_version):
     versions = _DEFAULT_DEPS[deps_id]
-    return versions.get("any", []) + versions.get(scala_version[0], [])
+    deps = versions.get("any", []) + versions.get(scala_version[0], [])
+    return [dep + version_suffix(scala_version) for dep in deps]

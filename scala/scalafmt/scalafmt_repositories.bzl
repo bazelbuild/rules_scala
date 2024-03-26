@@ -3,7 +3,7 @@ load(
     _default_maven_server_urls = "default_maven_server_urls",
 )
 load("//third_party/repositories:repositories.bzl", "repositories")
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_MAJOR_VERSION")
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_MAJOR_VERSION", "SCALA_VERSION")
 
 def scalafmt_default_config(path = ".scalafmt.conf"):
     build = []
@@ -46,6 +46,7 @@ def scalafmt_repositories(
         artifact_ids.append("io_bazel_rules_scala_scala_parallel_collections")
 
     repositories(
+        scala_version = SCALA_VERSION,
         for_artifact_ids = artifact_ids,
         maven_servers = maven_servers,
         fetch_sources = True,
