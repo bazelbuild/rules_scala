@@ -52,7 +52,36 @@ def _rule_impl(ctx):
 ```
 
 ### From config setting
-TODO
+In BUILD files, you need to use the config settings with `select()`, e.g.:
+```starlark
+deps = select({
+    "@io_bazel_rules_scala_config//:scala_version_3_3_1": [...],
+    ...
+})
+```
+
+For more complex logic, you can extract it to a `.bzl` file:
+```starlark
+def srcs(scala_version):
+    if scala_version.startswith("2"):
+        ...
+    ...
+```
+and then in the `BUILD` file:
+```starlark
+load("@io_bazel_rules_scala//:scala_cross_version.bzl", "version_suffix")
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSIONS")
+load("....bzl", "srcs")
+
+scala_library(
+    ...
+    srcs = select({
+        "@io_bazel_rules_scala_config//:scala_version" + version_suffix(v): srcs(v)
+        for v in SCALA_VERSIONS
+    }), 
+    ...
+)
+```
 
 
 ## Toolchains
