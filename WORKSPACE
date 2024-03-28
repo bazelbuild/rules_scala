@@ -203,3 +203,9 @@ repositories(
     ],
     maven_servers = MAVEN_SERVER_URLS,
 )
+
+load("//test/toolchains:jdk.bzl", "remote_jdk21_repositories", "remote_jdk21_toolchains")
+
+remote_jdk21_repositories()
+
+remote_jdk21_toolchains()

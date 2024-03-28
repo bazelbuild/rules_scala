@@ -121,7 +121,10 @@ def compile_scala(
     )
 
     # scalac_jvm_flags passed in on the target override scalac_jvm_flags passed in on the toolchain
-    final_scalac_jvm_flags = first_non_empty(scalac_jvm_flags, toolchain.scalac_jvm_flags)
+    # TODO: scalac worker is run with @bazel_tools//tools/jdk:runtime_toolchain_type
+    # which is different from rules_java where compilation runtime is used from
+    # @bazel_tools//tools/jdk:toolchain_type
+    final_scalac_jvm_flags = first_non_empty(scalac_jvm_flags, toolchain.scalac_jvm_flags) + allow_security_manager(ctx)
 
     ctx.actions.run(
         inputs = ins,
@@ -219,3 +222,10 @@ def java_bin_windows(ctx):
 
 def is_windows(ctx):
     return ctx.configuration.host_path_separator == ";"
+
+# Return a jvm flag allowing security manager for jdk runtime >= 17
+# If no runtime is supplied then runtime is taken from ctx.attr._java_host_runtime
+# This must be a runtime used in generated java_binary script (usually workers using SecurityManager)
+def allow_security_manager(ctx, runtime = None):
+    java_runtime = runtime if runtime else ctx.attr._java_host_runtime[java_common.JavaRuntimeInfo]
+    return ["-Djava.security.manager=allow"] if java_runtime.version >= 17 else []
