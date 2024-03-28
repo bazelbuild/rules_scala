@@ -35,3 +35,21 @@ config_setting(
 ```
 The `name` of `config_setting` corresponds to `"scala_version" + version_suffix(scala_version)`.
 One may use this config setting in `select()` e.g. to provide dependencies relevant to a currently used Scala version.
+
+
+## Version-dependent behavior
+Don't rely on `SCALA_VERSION` as it represents the default Scala version, not necessarily the one that is currently requested.
+
+If you need to customize the behavior for specific Scala version, there are two scenarios.
+
+### From toolchain
+If you have an access to the Scala toolchain (`@io_bazel_rules_scala//scala:toolchain_type`), there is `scala_version` field provided in there:
+```starlark
+def _rule_impl(ctx):
+    ...
+    ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scala_version
+    ...
+```
+
+### From config setting
+TODO

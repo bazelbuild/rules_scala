@@ -17,9 +17,6 @@ load(
     _compile_scala = "compile_scala",
 )
 load(":resources.bzl", _resource_paths = "paths")
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
-
-buildijar_default_value = True if SCALA_VERSION.startswith("2.") else False
 
 def phase_compile_binary(ctx, p):
     args = struct(
@@ -105,6 +102,8 @@ def phase_compile_common(ctx, p):
     return _phase_compile_default(ctx, p)
 
 def _phase_compile_default(ctx, p, _args = struct()):
+    buildijar_default_value = True if ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scala_version.startswith("2.") else False
+
     return _phase_compile(
         ctx,
         p,
