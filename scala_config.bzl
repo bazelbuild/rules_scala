@@ -1,4 +1,4 @@
-load("//scala:scala_cross_version.bzl", "extract_major_version", "extract_minor_version")
+load("//scala:scala_cross_version.bzl", "extract_major_version", "extract_minor_version", "version_suffix")
 
 def _default_scala_version():
     """return the scala version for use in maven coordinates"""
@@ -9,6 +9,16 @@ def _validate_supported_scala_version(scala_major_version, scala_minor_version):
         fail("Scala version must be 2.11.12 to use compiler dependency tracking with 2.11.")
     if scala_major_version == "2.12" and int(scala_minor_version) < 1:
         fail("Scala version must be newer or equal to 2.12.1 to use compiler dependency tracking.")
+
+def _config_setting(scala_version):
+    return """config_setting(
+    name = "scala_version{version_suffix}",
+    flag_values = {{":scala_version": "{version}"}},
+)
+""".format(version_suffix = version_suffix(scala_version), version = scala_version)
+
+def _config_settings(scala_versions):
+    return "".join([_config_setting(v) for v in scala_versions])
 
 def _store_config(repository_ctx):
     # Default version
@@ -39,8 +49,18 @@ def _store_config(repository_ctx):
         "ENABLE_COMPILER_DEPENDENCY_TRACKING=" + enable_compiler_dependency_tracking,
     ])
 
+    build_file_content = """load("@bazel_skylib//rules:common_settings.bzl", "string_setting")
+string_setting(
+    name = "scala_version",
+    build_setting_default = "{scala_version}",
+    values = {scala_versions},
+    visibility = ["//visibility:public"],
+)
+""".format(scala_versions = scala_versions, scala_version = scala_version)
+    build_file_content += _config_settings(scala_versions)
+
     repository_ctx.file("config.bzl", config_file_content)
-    repository_ctx.file("BUILD")
+    repository_ctx.file("BUILD", build_file_content)
 
 _config_repository = repository_rule(
     implementation = _store_config,
