@@ -455,6 +455,7 @@ scrooge_scala_aspect = aspect(
             ),
         },
     ),
+    provides = [ScroogeAspectInfo],
     required_aspect_providers = common_aspect_providers,
     toolchains = [
         "@io_bazel_rules_scala//scala:toolchain_type",
@@ -472,6 +473,7 @@ scrooge_java_aspect = aspect(
             "_java_toolchain": attr.label(default = Label("@bazel_tools//tools/jdk:current_java_toolchain")),
         },
     ),
+    provides = [ScroogeAspectInfo],
     required_aspect_providers = common_aspect_providers,
     toolchains = [
         "@io_bazel_rules_scala//scala:toolchain_type",
