@@ -776,22 +776,24 @@ scala_junit_test(
     runtime_deps = [":JunitMixedSeparateTarget"],
 )
 
-#scala_library(
-#    name = "JunitRuntimePlatform",
-#    srcs = [
-#        "src/main/scala/scalarules/test/junit/runtime_platform/JunitRuntimePlatformTest.java",
-#    ],
-#    deps = ["@io_bazel_rules_scala_junit_junit"],
-#)
-#
-#scala_junit_test(
-#    name = "JunitRuntimePlatform_test_runner",
-#    size = "small",
-#    runtime_jdk = "@bazel_tools//tools/jdk:remote_jdk11",
-#    suffixes = ["Test"],
-#    tests_from = [":JunitRuntimePlatform"],
-#    runtime_deps = [":JunitRuntimePlatform"],
-#)
+scala_library(
+    name = "JunitRuntimePlatform",
+    srcs = [
+        "src/main/scala/scalarules/test/junit/runtime_platform/JunitRuntimePlatformTest.java",
+    ],
+    # make sure java compilation toolchain matches runtime toolchain ie --target
+    java_compile_toolchain = "@bazel_tools//tools/jdk:toolchain_java11",
+    deps = ["@io_bazel_rules_scala_junit_junit"],
+)
+
+scala_junit_test(
+    name = "JunitRuntimePlatform_test_runner",
+    size = "small",
+    runtime_jdk = "@bazel_tools//tools/jdk:remote_jdk11",
+    suffixes = ["Test"],
+    tests_from = [":JunitRuntimePlatform"],
+    runtime_deps = [":JunitRuntimePlatform"],
+)
 
 scala_junit_test(
     name = "JunitNoTestEnvironmentTest",
