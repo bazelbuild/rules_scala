@@ -1,11 +1,14 @@
 load("//scala:scala_toolchain.bzl", "scala_toolchain")
 load("//scala:providers.bzl", "declare_deps_provider")
+load("//scala:scala_cross_version.bzl", "version_suffix")
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
 
 def setup_scala_toolchain(
         name,
         scala_compile_classpath,
         scala_library_classpath,
         scala_macro_classpath,
+        scala_version = SCALA_VERSION,
         scala_xml_deps = None,
         parser_combinators_deps = None,
         semanticdb_deps = None,
@@ -93,5 +96,6 @@ def setup_scala_toolchain(
         name = name,
         toolchain = ":%s_impl" % name,
         toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
+        target_settings = ["@io_bazel_rules_scala_config//:scala_version" + version_suffix(scala_version)],
         visibility = visibility,
     )

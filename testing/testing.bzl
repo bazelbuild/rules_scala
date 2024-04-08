@@ -1,5 +1,7 @@
 load("@io_bazel_rules_scala//scala:providers.bzl", "declare_deps_provider")
 load("@io_bazel_rules_scala//testing/toolchain:toolchain.bzl", "scala_testing_toolchain")
+load("//scala:scala_cross_version.bzl", "version_suffix")
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
 
 def _declare_deps_provider(macro_name, deps_id, deps, visibility):
     label = "%s_%s_provider" % (macro_name, deps_id)
@@ -13,6 +15,7 @@ def _declare_deps_provider(macro_name, deps_id, deps, visibility):
 
 def setup_scala_testing_toolchain(
         name,
+        scala_version = SCALA_VERSION,
         junit_classpath = None,
         specs2_classpath = None,
         specs2_junit_classpath = None,
@@ -70,5 +73,6 @@ def setup_scala_testing_toolchain(
         name = name,
         toolchain = ":" + name + "_impl",
         toolchain_type = "@io_bazel_rules_scala//testing/toolchain:testing_toolchain_type",
+        target_settings = ["@io_bazel_rules_scala_config//:scala_version" + version_suffix(scala_version)],
         visibility = visibility,
     )

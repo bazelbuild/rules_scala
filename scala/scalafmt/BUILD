@@ -1,6 +1,8 @@
 load("//scala:scala.bzl", "scala_binary")
+load("//scala:scala_cross_version.bzl", "version_suffix")
 load("//scala/scalafmt/toolchain:toolchain.bzl", "export_scalafmt_deps", "scalafmt_toolchain")
 load("@io_bazel_rules_scala//scala:providers.bzl", "declare_deps_provider")
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
 load(
     "//scala/scalafmt:phase_scalafmt_ext.bzl",
     "scalafmt_singleton",
@@ -58,6 +60,7 @@ scalafmt_toolchain(
 
 toolchain(
     name = "scalafmt_toolchain",
+    target_settings = ["@io_bazel_rules_scala_config//:scala_version" + version_suffix(SCALA_VERSION)],
     toolchain = ":scalafmt_toolchain_impl",
     toolchain_type = "//scala/scalafmt/toolchain:scalafmt_toolchain_type",
     visibility = ["//visibility:public"],

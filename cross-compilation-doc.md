@@ -53,3 +53,31 @@ def _rule_impl(ctx):
 
 ### From config setting
 TODO
+
+
+## Toolchains
+Standard [toolchain resolution](https://bazel.build/extending/toolchains#toolchain-resolution) procedure determines which toolchain to use for Scala targets.
+
+Toolchain should declare its compatibility with Scala version by using `target_settings` attribute of the `toolchain` rule:
+
+```starlark
+toolchain(
+    ...
+    target_settings = ["@io_bazel_rules_scala_config//:scala_version_3_3_1"],
+    ...
+)
+```
+
+### Cross-build support tiers
+`rules_scala` consists of many toolchains implementing various toolchain types.
+Their support level for cross-build setup varies.
+
+We can distinguish following tiers:
+
+* No `target_settings` set – not migrated, will work on the default `SCALA_VERSION`; undefined behavior on other versions.
+  * (all toolchains not mentioned elsewhere)
+* `target_settings` set to the `SCALA_VERSION` – not fully migrated; will work only on the default `SCALA_VERSION` and will fail the toolchain resolution on other versions.
+  * [the main Scala toolchain](scala/BUILD)
+  * [Scalafmt](scala/scalafmt/BUILD)
+  * [Scalatest](testing/testing.bzl)
+* Multiple toolchain instances with `target_settings` corresponding to each of `SCALA_VERSIONS` – fully migrated; will work in cross-build setup.
