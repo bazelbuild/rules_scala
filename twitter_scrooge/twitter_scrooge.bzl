@@ -13,6 +13,7 @@ load(
 )
 load(
     "//scala/private:rule_impls.bzl",
+    "allow_security_manager",
     "compile_java",
     "compile_scala",
 )
@@ -205,7 +206,7 @@ def _generate_jvm_code(ctx, label, compile_thrifts, include_thrifts, jar_output,
         # be correctly handled since the executable is a jvm app that will
         # consume the flags on startup.
         #arguments = ["--jvm_flag=%s" % flag for flag in ctx.attr.jvm_flags] +
-        arguments = ["@" + argfile.path],
+        arguments = ["--jvm_flag=%s" % f for f in allow_security_manager(ctx)] + ["@" + argfile.path],
     )
 
 def _compiled_jar_file(actions, scrooge_jar):
@@ -434,6 +435,7 @@ common_attrs = {
             ),
         ],
     ),
+    "_java_host_runtime": attr.label(default = Label("@bazel_tools//tools/jdk:current_host_java_runtime")),
 }
 
 common_aspect_providers = [
