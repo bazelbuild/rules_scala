@@ -49,7 +49,7 @@ set -e
 # Java 17+ is needed for Jacoco 0.8.11+.
 #
 # If it's necessary and this matches your system, you could uncomment these lines:
-#export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+#export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 #export PATH=$JAVA_HOME/bin:$PATH
 
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
@@ -114,12 +114,18 @@ else
   bazel_branch=7.0.2_jacoco_0.8.11_scala
 fi
 
-if [ "$bazel_major_version" != "7" ]; then
-  JAVA_VERSION=$(java -version 2>&1 | head -1 \
-                                    | cut -d'"' -f2 \
-                                    | sed 's/^1\.//' \
-                                    | cut -d'.' -f1)
+JAVA_VERSION=$(java -version 2>&1 | head -1 \
+                                  | cut -d'"' -f2 \
+                                  | sed 's/^1\.//' \
+                                  | cut -d'.' -f1)
 
+if [ "$bazel_major_version" == "7" ]; then
+  if [ "$JAVA_VERSION" != "17" ]; then
+    echo "Unexpected java version: $JAVA_VERSION"
+    echo "Please ensure this script is run with Java 17"
+    exit 1
+  fi
+else
   if [ "$JAVA_VERSION" != "8" ]; then
     echo "Unexpected java version: $JAVA_VERSION"
     echo "Please ensure this script is run with Java 8"
