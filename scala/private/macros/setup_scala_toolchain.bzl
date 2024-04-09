@@ -5,9 +5,9 @@ load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
 
 def setup_scala_toolchain(
         name,
-        scala_compile_classpath,
-        scala_library_classpath,
-        scala_macro_classpath,
+        scala_compile_classpath = None,
+        scala_library_classpath = None,
+        scala_macro_classpath = None,
         scala_version = SCALA_VERSION,
         scala_xml_deps = None,
         parser_combinators_deps = None,
@@ -22,6 +22,8 @@ def setup_scala_toolchain(
     scala_macro_classpath_provider = "%s_scala_macro_classpath_provider" % name
     semanticdb_deps_provider = "%s_semanticdb_deps_provider" % name
 
+    if scala_compile_classpath == None:
+        scala_compile_classpath = default_deps("scala_compile_classpath", scala_version)
     declare_deps_provider(
         name = scala_compile_classpath_provider,
         deps_id = "scala_compile_classpath",
@@ -29,6 +31,8 @@ def setup_scala_toolchain(
         deps = scala_compile_classpath,
     )
 
+    if scala_library_classpath == None:
+        scala_library_classpath = default_deps("scala_library_classpath", scala_version)
     declare_deps_provider(
         name = scala_library_classpath_provider,
         deps_id = "scala_library_classpath",
@@ -36,6 +40,8 @@ def setup_scala_toolchain(
         deps = scala_library_classpath,
     )
 
+    if scala_macro_classpath == None:
+        scala_macro_classpath = default_deps("scala_macro_classpath", scala_version)
     declare_deps_provider(
         name = scala_macro_classpath_provider,
         deps_id = "scala_macro_classpath",
@@ -152,16 +158,3 @@ _DEFAULT_DEPS = {
 def default_deps(deps_id, scala_version):
     versions = _DEFAULT_DEPS[deps_id]
     return versions.get("any", []) + versions.get(scala_version[0], [])
-
-def setup_scala_toolchain_with_default_classpaths(
-        name,
-        scala_version,
-        **kwargs):
-    for dep_id in (
-        "scala_compile_classpath",
-        "scala_library_classpath",
-        "scala_macro_classpath",
-    ):
-        if dep_id not in kwargs:
-            kwargs[dep_id] = default_deps(dep_id, scala_version)
-    setup_scala_toolchain(name = name, **kwargs)

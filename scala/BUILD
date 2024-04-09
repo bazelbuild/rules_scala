@@ -1,6 +1,6 @@
 load("@rules_java//java:defs.bzl", "java_import", "java_library")
 load("//scala:providers.bzl", "declare_deps_provider")
-load("//scala/private:macros/setup_scala_toolchain.bzl", "default_deps", "setup_scala_toolchain_with_default_classpaths")
+load("//scala/private:macros/setup_scala_toolchain.bzl", "default_deps", "setup_scala_toolchain")
 load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
 
 toolchain_type(
@@ -8,24 +8,21 @@ toolchain_type(
     visibility = ["//visibility:public"],
 )
 
-setup_scala_toolchain_with_default_classpaths(
+setup_scala_toolchain(
     name = "default_toolchain",
-    scala_version = SCALA_VERSION,
     use_argument_file_in_runner = True,
 )
 
-setup_scala_toolchain_with_default_classpaths(
+setup_scala_toolchain(
     name = "unused_dependency_checker_error_toolchain",
     dependency_tracking_method = "ast-plus",
-    scala_version = SCALA_VERSION,
     unused_dependency_checker_mode = "error",
 )
 
-setup_scala_toolchain_with_default_classpaths(
+setup_scala_toolchain(
     name = "minimal_direct_source_deps",
     dependency_mode = "plus-one",
     dependency_tracking_method = "ast",
-    scala_version = SCALA_VERSION,
     strict_deps_mode = "error",
     unused_dependency_checker_mode = "error",
 )
