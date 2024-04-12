@@ -1,0 +1,29 @@
+From 712d62a8238f3a7fe51e1cf4cc2520b5f249e1d3 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Gergely=20F=C3=A1bi=C3=A1n?= <gergo.fb@gmail.com>
+Date: Tue, 09 Apr 2024 12:28:00 +0200
+Subject: [PATCH] Build Jacoco for Bazel
+
+---
+ org.jacoco.build/pom.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/org.jacoco.build/pom.xml b/org.jacoco.build/pom.xml
+index 8aae1543..067cc6a7 100644
+--- a/org.jacoco.build/pom.xml
++++ b/org.jacoco.build/pom.xml
+@@ -691,11 +691,11 @@
+
+                 buildDate = qualifier.substring(0, 4) + "/" + qualifier.substring(4, 6) + "/" + qualifier.substring(6, 8);
+                 project.getProperties().setProperty("build.date", buildDate);
+
+                 commitId = project.getProperties().get("build.commitId");
+-                pkgName = commitId.substring(commitId.length() - 7, commitId.length());
++                pkgName = "4742761";
+                 project.getProperties().setProperty("jacoco.runtime.package.name", "org.jacoco.agent.rt.internal_" + pkgName);
+
+                 void loadLicense(String libraryId) {
+                     version = project.getProperties().get(libraryId + ".version");
+                     path = project.getBasedir().toPath().resolve("../org.jacoco.build/licenses/" + libraryId + "-" + version + ".html");
+-- 
+2.25.1
+
