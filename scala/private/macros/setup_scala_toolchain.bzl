@@ -5,9 +5,9 @@ load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
 
 def setup_scala_toolchain(
         name,
-        scala_compile_classpath,
-        scala_library_classpath,
-        scala_macro_classpath,
+        scala_compile_classpath = None,
+        scala_library_classpath = None,
+        scala_macro_classpath = None,
         scala_version = SCALA_VERSION,
         scala_xml_deps = None,
         parser_combinators_deps = None,
@@ -22,6 +22,8 @@ def setup_scala_toolchain(
     scala_macro_classpath_provider = "%s_scala_macro_classpath_provider" % name
     semanticdb_deps_provider = "%s_semanticdb_deps_provider" % name
 
+    if scala_compile_classpath == None:
+        scala_compile_classpath = default_deps("scala_compile_classpath", scala_version)
     declare_deps_provider(
         name = scala_compile_classpath_provider,
         deps_id = "scala_compile_classpath",
@@ -29,6 +31,8 @@ def setup_scala_toolchain(
         deps = scala_compile_classpath,
     )
 
+    if scala_library_classpath == None:
+        scala_library_classpath = default_deps("scala_library_classpath", scala_version)
     declare_deps_provider(
         name = scala_library_classpath_provider,
         deps_id = "scala_library_classpath",
@@ -36,6 +40,8 @@ def setup_scala_toolchain(
         deps = scala_library_classpath,
     )
 
+    if scala_macro_classpath == None:
+        scala_macro_classpath = default_deps("scala_macro_classpath", scala_version)
     declare_deps_provider(
         name = scala_macro_classpath_provider,
         deps_id = "scala_macro_classpath",
@@ -99,3 +105,56 @@ def setup_scala_toolchain(
         target_settings = ["@io_bazel_rules_scala_config//:scala_version" + version_suffix(scala_version)],
         visibility = visibility,
     )
+
+_DEFAULT_DEPS = {
+    "scala_compile_classpath": {
+        "any": [
+            "@io_bazel_rules_scala_scala_compiler",
+            "@io_bazel_rules_scala_scala_library",
+        ],
+        "2": [
+            "@io_bazel_rules_scala_scala_reflect",
+        ],
+        "3": [
+            "@io_bazel_rules_scala_scala_interfaces",
+            "@io_bazel_rules_scala_scala_tasty_core",
+            "@io_bazel_rules_scala_scala_asm",
+            "@io_bazel_rules_scala_scala_library_2",
+        ],
+    },
+    "scala_library_classpath": {
+        "any": [
+            "@io_bazel_rules_scala_scala_library",
+        ],
+        "2": [
+            "@io_bazel_rules_scala_scala_reflect",
+        ],
+        "3": [
+            "@io_bazel_rules_scala_scala_library_2",
+        ],
+    },
+    "scala_macro_classpath": {
+        "any": [
+            "@io_bazel_rules_scala_scala_library",
+        ],
+        "2": [
+            "@io_bazel_rules_scala_scala_reflect",
+        ],
+        "3": [
+            "@io_bazel_rules_scala_scala_library_2",
+        ],
+    },
+    "scala_xml": {
+        "any": ["@io_bazel_rules_scala_scala_xml"],
+    },
+    "parser_combinators": {
+        "any": ["@io_bazel_rules_scala_scala_parser_combinators"],
+    },
+    "semanticdb": {
+        "2": ["@org_scalameta_semanticdb_scalac"],
+    },
+}
+
+def default_deps(deps_id, scala_version):
+    versions = _DEFAULT_DEPS[deps_id]
+    return versions.get("any", []) + versions.get(scala_version[0], [])
