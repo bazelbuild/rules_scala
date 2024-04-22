@@ -117,6 +117,45 @@ scala_library(
 ```
 
 
+## Requesting specific version
+To use other than default version of Scala, you need to change the current `@io_bazel_rules_scala_config//:scala_version` build setting.
+
+Simple transition, setting the Scala version to one found in `scala_version` attribute:
+```starlark
+def _scala_version_transition_impl(settings, attr):
+    if attr.scala_version:
+        return {"@io_bazel_rules_scala_config//:scala_version": attr.scala_version}
+    else:
+        return {}
+
+scala_version_transition = transition(
+    implementation = _scala_version_transition_impl,
+    inputs = [],
+    outputs = ["@io_bazel_rules_scala_config//:scala_version"],
+)
+```
+
+To use it in a rule, use the `scala_version_transition` as `cfg` and use `toolchain_transition_attr` in `attrs`:
+```starlark
+load("@io_bazel_rules_scala//scala:scala_cross_version.bzl", "scala_version_transition", "toolchain_transition_attr")
+
+_scala_library_attrs.update(toolchain_transition_attr)
+
+def make_scala_library(*extras):
+    return rule(
+        attrs = _dicts.add(
+            ...
+            toolchain_transition_attr,
+            ...
+        ),
+        ...
+        cfg = scala_version_transition,
+        incompatible_use_toolchain_transition = True,
+        ...
+    )
+```
+
+
 ## Toolchains
 Standard [toolchain resolution](https://bazel.build/extending/toolchains#toolchain-resolution) procedure determines which toolchain to use for Scala targets.
 
