@@ -204,8 +204,10 @@ def _serialize_given_rule_import(
         "%s(" % rule_name,
         "    name = %s," % repr(name),
         "    jars = [%s]," % repr(path),
-        "    tags = [\"maven_coordinates=%s\"]," % coordinates,
     ]
+
+    if coordinates:
+        lines.append("    tags = [\"maven_coordinates=%s\"]," % coordinates)
     if srcpath:
         lines.append("    srcjar = %s," % repr(srcpath))
     for prop in props:
@@ -292,7 +294,7 @@ def jvm_maven_import_external(
 
         srcjar_urls = _convert_coordinates_to_urls(src_coordinates, server_urls)
 
-    jvm_import_external(coordinates = artifact, jar_urls = jar_urls, srcjar_urls = srcjar_urls, **kwargs)
+    jvm_import_external(jar_urls = jar_urls, srcjar_urls = srcjar_urls, coordinates = artifact, **kwargs)
 
 def scala_import_external(
         rule_load = "load(\"@io_bazel_rules_scala//scala:scala_import.bzl\", \"scala_import\")",
