@@ -52,7 +52,69 @@ def _rule_impl(ctx):
 ```
 
 ### From config setting
-TODO
+In BUILD files, you need to use the config settings with `select()`.
+Majority of use cases is covered by the `select_for_scala_version` utility macro.
+If more flexibility is needed, you can always write the select manually.
+
+#### With select macro
+See example usage of the `select_for_scala_version`:
+
+```starlark
+load("@io_bazel_rules_scala//:scala_cross_version_select.bzl", "select_for_scala_version")
+
+scala_library(
+    ...
+    srcs = select_for_scala_version(
+        before_3_1 = [
+            # for Scala version < 3.1
+        ],
+        between_3_1_and_3_2 = [
+            # for 3.1 ≤ Scala version < 3.2
+        ],
+        between_3_2_and_3_3_1 = [
+            # for 3.2 ≤ Scala version < 3.3.1
+        ],
+        since_3_3_1 = [
+            # for 3.3.1 ≤ Scala version
+        ],
+    )
+    ...
+)
+```
+
+See complete documentation in the [scala_cross_version_select.bzl](scala/scala_cross_version_select.bzl) file
+
+#### Manually
+An example usage of `select()` to provide custom dependency for specific Scala version:
+```starlark
+deps = select({
+    "@io_bazel_rules_scala_config//:scala_version_3_3_1": [...],
+    ...
+})
+```
+
+For more complex logic, you can extract it to a `.bzl` file:
+```starlark
+def srcs(scala_version):
+    if scala_version.startswith("2"):
+        ...
+    ...
+```
+and then in the `BUILD` file:
+```starlark
+load("@io_bazel_rules_scala//:scala_cross_version.bzl", "version_suffix")
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSIONS")
+load("....bzl", "srcs")
+
+scala_library(
+    ...
+    srcs = select({
+        "@io_bazel_rules_scala_config//:scala_version" + version_suffix(v): srcs(v)
+        for v in SCALA_VERSIONS
+    }), 
+    ...
+)
+```
 
 
 ## Toolchains
