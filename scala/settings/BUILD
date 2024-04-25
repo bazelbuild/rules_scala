@@ -100,3 +100,13 @@ bool_flag(
     name = "use_argument_file_in_runner",
     build_setting_default = False,
 )
+
+string_list_flag(
+    name = "scalac_jvm_flags",
+    build_setting_default = [],
+)
+
+string_list_flag(
+    name = "scala_test_jvm_flags",
+    build_setting_default = [],
+)
