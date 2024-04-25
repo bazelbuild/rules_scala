@@ -77,6 +77,7 @@ def _jvm_import_external(repository_ctx):
     srcurls = repository_ctx.attr.srcjar_urls
     srcsha = repository_ctx.attr.srcjar_sha256
     srcpath = repository_ctx.name + "-src.jar" if srcurls else ""
+    coordinates = repository_ctx.attr.coordinates
     for url in srcurls:
         if url.endswith(".jar"):
             srcpath = url[url.rindex("/") + 1:].replace("-sources.jar", "-src.jar")
@@ -97,6 +98,7 @@ def _jvm_import_external(repository_ctx):
             name,
             path,
             srcpath,
+            coordinates,
             repository_ctx.attr,
             _PASS_PROPS,
             repository_ctx.attr.additional_rule_attrs,
@@ -110,6 +112,7 @@ def _jvm_import_external(repository_ctx):
                 repository_ctx.attr.generated_linkable_rule_name,
                 path,
                 srcpath,
+                coordinates,
                 repository_ctx.attr,
                 [p for p in _PASS_PROPS if p != "neverlink"],
                 repository_ctx.attr.additional_rule_attrs,
@@ -193,6 +196,7 @@ def _serialize_given_rule_import(
         name,
         path,
         srcpath,
+        coordinates,
         attrs,
         props,
         additional_rule_attrs):
@@ -201,6 +205,9 @@ def _serialize_given_rule_import(
         "    name = %s," % repr(name),
         "    jars = [%s]," % repr(path),
     ]
+
+    if coordinates:
+        lines.append("    tags = [\"maven_coordinates=%s\"]," % coordinates)
     if srcpath:
         lines.append("    srcjar = %s," % repr(srcpath))
     for prop in props:
@@ -240,6 +247,7 @@ jvm_import_external = repository_rule(
         "extra_build_file_content": attr.string(),
         "auth_patterns": attr.string_dict(),
         "netrc": attr.string(),
+        "coordinates": attr.string(),
     },
     environ = [_FETCH_SOURCES_ENV_VAR_NAME],
 )
@@ -286,7 +294,7 @@ def jvm_maven_import_external(
 
         srcjar_urls = _convert_coordinates_to_urls(src_coordinates, server_urls)
 
-    jvm_import_external(jar_urls = jar_urls, srcjar_urls = srcjar_urls, **kwargs)
+    jvm_import_external(jar_urls = jar_urls, srcjar_urls = srcjar_urls, coordinates = artifact, **kwargs)
 
 def scala_import_external(
         rule_load = "load(\"@io_bazel_rules_scala//scala:scala_import.bzl\", \"scala_import\")",
