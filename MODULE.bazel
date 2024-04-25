@@ -1,0 +1,32 @@
+module(name = "io_bazel_rules_scala")
+
+bazel_dep(name = "bazel_skylib", version = "1.4.1")
+bazel_dep(name = "rules_cc", version = "0.0.6")
+bazel_dep(name = "rules_java", version = "5.5.0")
+bazel_dep(name = "rules_proto", version = "5.3.0-21.7")
+
+use_repo(
+    use_extension("//:extensions/scala_config_ext.bzl", "scala_config_dep"),
+    "io_bazel_rules_scala_config"
+)
+
+non_module_deps = use_extension("//:extensions/non_module_deps.bzl", "non_module_deps")
+use_repo(non_module_deps, "scala_compiler_source")
+use_repo(non_module_deps, "io_bazel_rules_scala_scala_library")
+use_repo(non_module_deps, "io_bazel_rules_scala_scala_compiler")
+use_repo(non_module_deps, "io_bazel_rules_scala_scala_xml")
+use_repo(non_module_deps, "io_bazel_rules_scala_scala_parser_combinators")
+use_repo(non_module_deps, "io_bazel_rules_scala_scala_interfaces")
+use_repo(non_module_deps, "io_bazel_rules_scala_scala_reflect")
+use_repo(non_module_deps, "org_scalameta_semanticdb_scalac")
+use_repo(non_module_deps, "io_bazel_rules_scala_scala_tasty_core")
+use_repo(non_module_deps, "io_bazel_rules_scala_scala_asm")
+use_repo(non_module_deps, "io_bazel_rules_scala_scala_library_2")
+use_repo(non_module_deps, "io_bazel_rules_scala_org_openjdk_jmh_jmh_core")
+use_repo(non_module_deps, "io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_asm")
+use_repo(non_module_deps, "io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_reflection")
+use_repo(non_module_deps, "io_bazel_rules_scala_org_ows2_asm_asm")
+use_repo(non_module_deps, "io_bazel_rules_scala_net_sf_jopt_simple_jopt_simple")
+use_repo(non_module_deps, "io_bazel_rules_scala_org_apache_commons_commons_math3")
+
+register_toolchains("@io_bazel_rules_scala//jmh:jmh_toolchain")
