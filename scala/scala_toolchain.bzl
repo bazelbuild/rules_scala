@@ -85,6 +85,8 @@ _config_attrs = {
         default = False,
         doc = "Changes java binaries scripts (including tests) to use argument files and not classpath jars to improve performance, requires java > 8",
     ),
+    "scalac_jvm_flags": attr.string_list(),
+    "scala_test_jvm_flags": attr.string_list(),
 }
 
 _config_flags = {
@@ -189,8 +191,6 @@ _scala_toolchain = rule(
             ),
             "jacocorunner": attr.label(default = Label("@bazel_tools//tools/jdk:JacocoCoverage")),
             "scalacopts": attr.string_list(),
-            "scalac_jvm_flags": attr.string_list(),
-            "scala_test_jvm_flags": attr.string_list(),
             "_scala_version": attr.label(default = "@io_bazel_rules_scala_config//:scala_version"),
             "_scala_toolchain_flags": attr.label(default = "//scala/settings:scala_toolchain_flags"),
         },
