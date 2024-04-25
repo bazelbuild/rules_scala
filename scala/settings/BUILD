@@ -1,13 +1,12 @@
-package(default_visibility = ["//visibility:public"])
-
 load("//scala/settings:stamp_settings.bzl", "stamp_scala_import")
+load("@bazel_skylib//rules:common_settings.bzl", "bool_flag", "string_flag", "string_list_flag")
+
+package(default_visibility = ["//visibility:public"])
 
 stamp_scala_import(
     name = "stamp_scala_import",
     build_setting_default = True,
 )
-
-load("@bazel_skylib//rules:common_settings.bzl", "bool_flag", "string_flag", "string_list_flag")
 
 bool_flag(
     name = "scala_toolchain_flags",
