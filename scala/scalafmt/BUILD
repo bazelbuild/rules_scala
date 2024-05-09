@@ -40,14 +40,14 @@ declare_deps_provider(
     name = "scalafmt_classpath_provider",
     deps_id = "scalafmt_classpath",
     visibility = ["//visibility:public"],
-    deps = [
+    deps = [dep + version_suffix(SCALA_VERSION) for dep in [
         "@com_geirsson_metaconfig_core",
         "@org_scalameta_common",
         "@org_scalameta_parsers",
         "@org_scalameta_scalafmt_core",
         "@org_scalameta_scalameta",
         "@org_scalameta_trees",
-    ],
+    ]],
 )
 
 scalafmt_toolchain(
