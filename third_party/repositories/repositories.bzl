@@ -99,3 +99,36 @@ def repositories(
             testonly_ = artifacts[id].get("testonly", False),
             fetch_sources = fetch_sources,
         )
+
+        # For backward compatibility: non-suffixed repo pointing to the suffixed one,
+        # See: https://github.com/bazelbuild/rules_scala/pull/1573
+        # Hopefully we can deprecate and remove it one day.
+        if suffix and scala_version == SCALA_VERSION:
+            _alias_repository(name = id, target = id + suffix)
+
+def _alias_repository_impl(rctx):
+    """ Builds a repository containing just two aliases to the Scala Maven artifacts in the `target` repository. """
+
+    format_kwargs = {
+        "name": rctx.name,
+        "target": rctx.attr.target,
+    }
+    rctx.file("BUILD", """alias(
+    name = "{name}",
+    actual = "@{target}",
+    visibility = ["//visibility:public"],
+)
+""".format(**format_kwargs))
+    rctx.file("jar/BUILD", """alias(
+    name = "jar",
+    actual = "@{target}//jar",
+    visibility = ["//visibility:public"],
+)
+""".format(**format_kwargs))
+
+_alias_repository = repository_rule(
+    implementation = _alias_repository_impl,
+    attrs = {
+        "target": attr.string(mandatory = True),
+    },
+)
