@@ -7,12 +7,7 @@ load(
     _default_maven_server_urls = "default_maven_server_urls",
 )
 load("//third_party/repositories:repositories.bzl", "repositories")
-load(
-    "@io_bazel_rules_scala_config//:config.bzl",
-    "SCALA_MAJOR_VERSION",
-    "SCALA_VERSION",
-    "SCALA_VERSIONS",
-)
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSIONS")
 
 def _dt_patched_compiler_impl(rctx):
     # Need to give the file a .zip extension so rctx.extract knows what type of archive it is
@@ -128,37 +123,39 @@ def rules_scala_setup(scala_compiler_srcjar = None):
     for scala_version in SCALA_VERSIONS:
         dt_patched_compiler_setup(scala_version, scala_compiler_srcjar)
 
-ARTIFACT_IDS = [
-    "io_bazel_rules_scala_scala_library",
-    "io_bazel_rules_scala_scala_compiler",
-    "io_bazel_rules_scala_scala_reflect",
-    "io_bazel_rules_scala_scala_xml",
-    "io_bazel_rules_scala_scala_parser_combinators",
-    "org_scalameta_semanticdb_scalac",
-] if SCALA_MAJOR_VERSION.startswith("2") else [
-    "io_bazel_rules_scala_scala_library",
-    "io_bazel_rules_scala_scala_compiler",
-    "io_bazel_rules_scala_scala_interfaces",
-    "io_bazel_rules_scala_scala_tasty_core",
-    "io_bazel_rules_scala_scala_asm",
-    "io_bazel_rules_scala_scala_xml",
-    "io_bazel_rules_scala_scala_parser_combinators",
-    "io_bazel_rules_scala_scala_library_2",
-]
+def _artifact_ids(scala_version):
+    return [
+        "io_bazel_rules_scala_scala_library",
+        "io_bazel_rules_scala_scala_compiler",
+        "io_bazel_rules_scala_scala_reflect",
+        "io_bazel_rules_scala_scala_xml",
+        "io_bazel_rules_scala_scala_parser_combinators",
+        "org_scalameta_semanticdb_scalac",
+    ] if scala_version.startswith("2") else [
+        "io_bazel_rules_scala_scala_library",
+        "io_bazel_rules_scala_scala_compiler",
+        "io_bazel_rules_scala_scala_interfaces",
+        "io_bazel_rules_scala_scala_tasty_core",
+        "io_bazel_rules_scala_scala_asm",
+        "io_bazel_rules_scala_scala_xml",
+        "io_bazel_rules_scala_scala_parser_combinators",
+        "io_bazel_rules_scala_scala_library_2",
+    ]
 
 def rules_scala_toolchain_deps_repositories(
         maven_servers = _default_maven_server_urls(),
         overriden_artifacts = {},
         fetch_sources = False,
         validate_scala_version = True):
-    repositories(
-        scala_version = SCALA_VERSION,
-        for_artifact_ids = ARTIFACT_IDS,
-        maven_servers = maven_servers,
-        fetch_sources = fetch_sources,
-        overriden_artifacts = overriden_artifacts,
-        validate_scala_version = validate_scala_version,
-    )
+    for scala_version in SCALA_VERSIONS:
+        repositories(
+            scala_version = scala_version,
+            for_artifact_ids = _artifact_ids(scala_version),
+            maven_servers = maven_servers,
+            fetch_sources = fetch_sources,
+            overriden_artifacts = overriden_artifacts,
+            validate_scala_version = validate_scala_version,
+        )
 
 def scala_repositories(
         maven_servers = _default_maven_server_urls(),
