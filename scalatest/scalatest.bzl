@@ -3,11 +3,13 @@ load(
     _default_maven_server_urls = "default_maven_server_urls",
 )
 load("//third_party/repositories:repositories.bzl", "repositories")
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
 
 def scalatest_repositories(
         maven_servers = _default_maven_server_urls(),
         fetch_sources = True):
     repositories(
+        scala_version = SCALA_VERSION,
         for_artifact_ids = [
             "io_bazel_rules_scala_scalatest",
             "io_bazel_rules_scala_scalatest_compatible",
