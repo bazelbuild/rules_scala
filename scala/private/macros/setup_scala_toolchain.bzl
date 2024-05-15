@@ -49,25 +49,23 @@ def setup_scala_toolchain(
         deps = scala_macro_classpath,
     )
 
-    if scala_xml_deps != None:
-        declare_deps_provider(
-            name = scala_xml_provider,
-            deps_id = "scala_xml",
-            visibility = visibility,
-            deps = scala_xml_deps,
-        )
-    else:
-        scala_xml_provider = "@io_bazel_rules_scala//scala:scala_xml_provider"
+    if scala_xml_deps == None:
+        scala_xml_deps = default_deps("scala_xml", scala_version)
+    declare_deps_provider(
+        name = scala_xml_provider,
+        deps_id = "scala_xml",
+        visibility = visibility,
+        deps = scala_xml_deps,
+    )
 
-    if parser_combinators_deps != None:
-        declare_deps_provider(
-            name = parser_combinators_provider,
-            deps_id = "parser_combinators",
-            visibility = visibility,
-            deps = parser_combinators_deps,
-        )
-    else:
-        parser_combinators_provider = "@io_bazel_rules_scala//scala:parser_combinators_provider"
+    if parser_combinators_deps == None:
+        parser_combinators_deps = default_deps("parser_combinators", scala_version)
+    declare_deps_provider(
+        name = parser_combinators_provider,
+        deps_id = "parser_combinators",
+        visibility = visibility,
+        deps = parser_combinators_deps,
+    )
 
     dep_providers = [
         scala_xml_provider,
@@ -78,17 +76,15 @@ def setup_scala_toolchain(
     ]
 
     if enable_semanticdb == True:
-        if semanticdb_deps != None:
-            declare_deps_provider(
-                name = semanticdb_deps_provider,
-                deps_id = "semanticdb",
-                deps = [semanticdb_deps],
-                visibility = visibility,
-            )
-
-            dep_providers.append(semanticdb_deps_provider)
-        else:
-            dep_providers.append("@io_bazel_rules_scala//scala:semanticdb_provider")
+        if semanticdb_deps == None:
+            semanticdb_deps = default_deps("semanticdb", scala_version)
+        declare_deps_provider(
+            name = semanticdb_deps_provider,
+            deps_id = "semanticdb",
+            deps = semanticdb_deps,
+            visibility = visibility,
+        )
+        dep_providers.append(semanticdb_deps_provider)
 
     scala_toolchain(
         name = "%s_impl" % name,
