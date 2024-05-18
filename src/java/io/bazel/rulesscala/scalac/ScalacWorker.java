@@ -38,7 +38,10 @@ class ScalacWorker implements Worker.Interface {
     CompileOptions ops = new CompileOptions(args);
 
     Path outputJar = Paths.get(ops.outputName);
+
     Path workdir = ensureEmptyWorkDirectory(outputJar, ops.currentTarget);
+    ensureEmptySemanticDBDirectory(outputJar, ops.currentTarget);
+
     Path classes = Files.createDirectories(workdir.resolve("classes"));
     Path sources = Files.createDirectories(workdir.resolve("sources"));
 
@@ -94,6 +97,15 @@ class ScalacWorker implements Worker.Interface {
     }
 
     return Files.createDirectories(dir);
+  }
+  
+  private static void ensureEmptySemanticDBDirectory(Path output, String label) throws IOException {
+    String base = label.substring(label.lastIndexOf(':') + 1);
+    Path dir = output.resolveSibling("_semanticdb").resolve(base);
+
+    if (Files.exists(dir)) {
+      deleteRecursively(dir);
+    }   
   }
 
   private static String[] collectSrcJarSources(

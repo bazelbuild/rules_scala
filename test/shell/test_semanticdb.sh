@@ -134,10 +134,51 @@ test_no_semanticdb() {
   fi
 }
 
+
+test_semanticdb_handles_removed_sourcefiles() {
+  #Ensure absense of bug where bazel failed with 'access denied' on Windows when a source file was removed.
+  
+  #First add the new scala file, build it, then remove the new scala file, and ensure it builds.
+  set -e
+
+  local toolchainArg=--extra_toolchains=//test/semanticdb:semanticdb_nobundle_toolchain
+  local newfile_dir=test/semanticdb/tempsrc
+  local newfilename=D.scala
+  local newfilepath=$newfile_dir/$newfilename
+  local rule_label=//test/semanticdb:lib_with_tempsrc
+
+  #add new source file and build it
+  mkdir -p $newfile_dir && echo "class D{ val a = 1; }" > $newfilepath
+
+
+  #make sure D.scala was added to the target (sanity check)      
+  local query_result1=$(bazel query "labels(srcs, $rule_label)")
+  if [[ $query_result1 != *"$newfilename"* ]] ; then
+    echo "$newfilename was not properly added as src for target $rule_label"
+    exit 1
+  fi
+
+  bazel build $rule_label $toolchainArg
+
+  #remove the new source file and build it
+  rm $newfilepath
+  
+  #make sure D.scala was properly removed from the target(sanity check)
+  local query_result2=$(bazel query "labels(srcs, $rule_label)")
+  if  [[ $query_result2 == *"$newfilename"* ]] ; then    
+    echo "$newfilename was not properly removed as src for target $rule_label"
+    exit 1
+  fi
+  
+  bazel build $rule_label $toolchainArg
+
+  
+}
+
 run_semanticdb_tests() {
   local bundle=1;   local nobundle=0
   local scala3=3;    local scala2=2
-
+  
   $runner test_produces_semanticdb $scala2 $bundle 
   $runner test_produces_semanticdb $scala2 $nobundle 
   
@@ -147,7 +188,7 @@ run_semanticdb_tests() {
   $runner test_produces_semanticdb $scala3 $nobundle 
 
   $runner test_no_semanticdb
-
+  $runner test_semanticdb_handles_removed_sourcefiles
 }
 
 run_semanticdb_tests
