@@ -3,9 +3,9 @@
 load("@io_bazel_rules_scala//scala/private:common.bzl", "collect_plugin_paths")
 
 ScaladocAspectInfo = provider(fields = [
-    "src_files",    #depset[File]
-    "compile_jars", #depset[File]
-    "plugins",      #depset[Target]
+    "src_files",  #depset[File]
+    "compile_jars",  #depset[File]
+    "plugins",  #depset[Target]
 ])
 
 def _scaladoc_intransitive_aspect_impl(target, ctx):
@@ -15,7 +15,7 @@ def _scaladoc_intransitive_aspect_impl(target, ctx):
 def _scaladoc_aspect_impl(target, ctx, transitive = True):
     """Collect source files and compile_jars from JavaInfo-returning deps."""
 
-    src_files = depset()   
+    src_files = depset()
     plugins = depset()
     compile_jars = depset()
 
@@ -23,7 +23,7 @@ def _scaladoc_aspect_impl(target, ctx, transitive = True):
     if hasattr(ctx.rule.attr, "srcs"):
         # Collect only Java and Scala sources enumerated in visited targets, including src_files in deps.
         src_files = depset([file for file in ctx.rule.files.srcs if file.extension.lower() in ["java", "scala"]])
-        
+
         compile_jars = target[JavaInfo].transitive_compile_time_jars
 
         if hasattr(ctx.rule.attr, "plugins"):
@@ -36,19 +36,18 @@ def _scaladoc_aspect_impl(target, ctx, transitive = True):
     transitive_plugins = depset()
 
     if transitive:
-        for dep in ctx.rule.attr.deps :
+        for dep in ctx.rule.attr.deps:
             if ScaladocAspectInfo in dep:
                 aspec_info = dep[ScaladocAspectInfo]
                 transitive_srcs = aspec_info.src_files
                 transitive_compile_jars = aspec_info.compile_jars
                 transitive_plugins = aspec_info.plugins
-    
+
     return [ScaladocAspectInfo(
         src_files = depset(transitive = [src_files, transitive_srcs]),
         compile_jars = depset(transitive = [compile_jars, transitive_compile_jars]),
         plugins = depset(transitive = [plugins, transitive_plugins]),
     )]
-
 
 _scaladoc_transitive_aspect = aspect(
     implementation = _scaladoc_aspect_impl,
