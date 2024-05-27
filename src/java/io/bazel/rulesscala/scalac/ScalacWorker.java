@@ -37,10 +37,14 @@ class ScalacWorker implements Worker.Interface {
   public void work(String[] args) throws Exception {
     CompileOptions ops = new CompileOptions(args);
 
-    Path outputJar = Paths.get(ops.outputName);
-    Path workdir = ensureEmptyWorkDirectory(outputJar, ops.currentTarget);
-    Path classes = Files.createDirectories(workdir.resolve("classes"));
-    Path sources = Files.createDirectories(workdir.resolve("sources"));
+    Path outputJarPath = Paths.get(ops.outputName);
+
+    Path scalacOutPath = clearWorkDirectory(outputJarPath, ops.currentTarget, "_scalac");
+    clearWorkDirectory(outputJarPath, ops.currentTarget, "_semanticdb");
+
+    Files.createDirectories(scalacOutPath);
+    Path classes = Files.createDirectories(scalacOutPath.resolve("classes"));
+    Path sources = Files.createDirectories(scalacOutPath.resolve("sources"));
 
     List<File> jarFiles = extractSourceJars(ops, sources);
     List<File> scalaJarFiles = filterFilesByExtension(jarFiles, ".scala");
@@ -80,20 +84,20 @@ class ScalacWorker implements Worker.Interface {
 
     /** Now build the output jar */
     String[] jarCreatorArgs = {
-        "-m", ops.manifestPath, "-t", ops.stampLabel, outputJar.toString(), classes.toString()
+        "-m", ops.manifestPath, "-t", ops.stampLabel, outputJarPath.toString(), classes.toString()
     };
     JarCreator.main(jarCreatorArgs);
   }
 
-  private static Path ensureEmptyWorkDirectory(Path output, String label) throws IOException {
+  private static Path clearWorkDirectory(Path output, String label, String folderName) throws IOException {
     String base = label.substring(label.lastIndexOf(':') + 1);
-    Path dir = output.resolveSibling("_scalac").resolve(base);
+    Path dir = output.resolveSibling(folderName).resolve(base);
 
     if (Files.exists(dir)) {
       deleteRecursively(dir);
     }
 
-    return Files.createDirectories(dir);
+    return dir;
   }
 
   private static String[] collectSrcJarSources(
