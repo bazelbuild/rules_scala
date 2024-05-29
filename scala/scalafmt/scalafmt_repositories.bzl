@@ -1,6 +1,7 @@
 load(
     "//scala:scala_cross_version.bzl",
     "extract_major_version",
+    "version_suffix",
     _default_maven_server_urls = "default_maven_server_urls",
 )
 load("//third_party/repositories:repositories.bzl", "repositories")
@@ -55,4 +56,10 @@ def scalafmt_repositories(
             maven_servers = maven_servers,
             overriden_artifacts = overriden_artifacts,
         )
-    native.register_toolchains("@io_bazel_rules_scala//scala/scalafmt:scalafmt_toolchain")
+    _register_scalafmt_toolchains()
+
+def _register_scalafmt_toolchains():
+    for scala_version in SCALA_VERSIONS:
+        native.register_toolchains(
+            "@io_bazel_rules_scala//scala/scalafmt:scalafmt_toolchain" + version_suffix(scala_version),
+        )
