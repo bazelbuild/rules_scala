@@ -18,7 +18,7 @@ package io.bazel.rules.scala
 import org.scalatest._
 import org.scalatest.events._
 
-import java.io.PrintWriter
+import java.io.{ PrintWriter, StringWriter }
 import java.net.InetAddress
 import java.net.UnknownHostException
 import java.text.SimpleDateFormat
@@ -397,16 +397,11 @@ class JUnitXmlReporter extends Reporter {
   // including any nested exceptions.
   //
   def getStackTrace(throwable: Throwable): String = {
-    "" + throwable +
-    Array.concat(throwable.getStackTrace).mkString("\n      at ",
-                                                   "\n      at ", "\n") +
-    {
-      if (throwable.getCause != null) {
-        "      Cause: " +
-        getStackTrace(throwable.getCause)
-      }
-      else ""
-    }
+    val stringWriter = new StringWriter
+    val printWriter = new PrintWriter(stringWriter)
+    throwable.printStackTrace(printWriter)
+    printWriter.flush()
+    stringWriter.toString
   }
 
   //
