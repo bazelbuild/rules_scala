@@ -3,9 +3,9 @@
 load("@io_bazel_rules_scala//scala/private:common.bzl", "collect_plugin_paths")
 
 ScaladocAspectInfo = provider(fields = [
-    "src_files",
-    "compile_jars",
-    "plugins",
+    "src_files",  #depset[File]
+    "compile_jars",  #depset[File]
+    "plugins",  #depset[Target]
 ])
 
 def _scaladoc_intransitive_aspect_impl(target, ctx):
@@ -15,40 +15,39 @@ def _scaladoc_intransitive_aspect_impl(target, ctx):
 def _scaladoc_aspect_impl(target, ctx, transitive = True):
     """Collect source files and compile_jars from JavaInfo-returning deps."""
 
+    src_files = depset()
+    plugins = depset()
+    compile_jars = depset()
+
     # We really only care about visited targets with srcs, so only look at those.
     if hasattr(ctx.rule.attr, "srcs"):
         # Collect only Java and Scala sources enumerated in visited targets, including src_files in deps.
-        direct_deps = [file for file in ctx.rule.files.srcs if file.extension.lower() in ["java", "scala"]]
+        src_files = depset([file for file in ctx.rule.files.srcs if file.extension.lower() in ["java", "scala"]])
 
-        # Sometimes we only want to generate scaladocs for a single target and not all of its
-        # dependencies
-        if transitive:
-            transitive_deps = [dep[ScaladocAspectInfo].src_files for dep in ctx.rule.attr.deps if ScaladocAspectInfo in dep]
-        else:
-            transitive_deps = []
+        compile_jars = target[JavaInfo].transitive_compile_time_jars
 
-        src_files = depset(direct = direct_deps, transitive = transitive_deps)
-
-        # Collect compile_jars from visited targets' deps.
-        compile_jars = depset(
-            direct = [file for file in ctx.rule.files.deps],
-            transitive = (
-                [dep[JavaInfo].compile_jars for dep in ctx.rule.attr.deps if JavaInfo in dep] +
-                [dep[ScaladocAspectInfo].compile_jars for dep in ctx.rule.attr.deps if ScaladocAspectInfo in dep]
-            ),
-        )
-
-        plugins = depset()
         if hasattr(ctx.rule.attr, "plugins"):
-            plugins = depset(direct = ctx.rule.attr.plugins)
+            plugins = depset(ctx.rule.attr.plugins)
 
-        return [ScaladocAspectInfo(
-            src_files = src_files,
-            compile_jars = compile_jars,
-            plugins = plugins,
-        )]
-    else:
-        return []
+    # Sometimes we only want to generate scaladocs for a single target and not all of its
+    # dependencies
+    transitive_srcs = depset()
+    transitive_compile_jars = depset()
+    transitive_plugins = depset()
+
+    if transitive:
+        for dep in ctx.rule.attr.deps:
+            if ScaladocAspectInfo in dep:
+                aspec_info = dep[ScaladocAspectInfo]
+                transitive_srcs = aspec_info.src_files
+                transitive_compile_jars = aspec_info.compile_jars
+                transitive_plugins = aspec_info.plugins
+
+    return [ScaladocAspectInfo(
+        src_files = depset(transitive = [src_files, transitive_srcs]),
+        compile_jars = depset(transitive = [compile_jars, transitive_compile_jars]),
+        plugins = depset(transitive = [plugins, transitive_plugins]),
+    )]
 
 _scaladoc_transitive_aspect = aspect(
     implementation = _scaladoc_aspect_impl,
