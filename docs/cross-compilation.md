@@ -84,7 +84,7 @@ scala_library(
 )
 ```
 
-See complete documentation in the [scala_cross_version_select.bzl](scala/scala_cross_version_select.bzl) file
+See complete documentation in the [scala_cross_version_select.bzl](/scala/scala_cross_version_select.bzl) file
 
 #### Manually
 An example usage of `select()` to provide custom dependency for specific Scala version:
@@ -180,7 +180,7 @@ We can distinguish following tiers:
 * No `target_settings` set – not migrated, will work on the default `SCALA_VERSION`; undefined behavior on other versions.
   * (all toolchains not mentioned elsewhere)
 * `target_settings` set to the `SCALA_VERSION` – not fully migrated; will work only on the default `SCALA_VERSION` and will fail the toolchain resolution on other versions.
-  * [the main Scala toolchain](scala/BUILD)
-  * [Scalafmt](scala/scalafmt/BUILD)
-  * [Scalatest](testing/testing.bzl)
+  * [the main Scala toolchain](/scala/BUILD)
+  * [Scalafmt](/scala/scalafmt/BUILD)
+  * [Scalatest](/testing/testing.bzl)
 * Multiple toolchain instances with `target_settings` corresponding to each of `SCALA_VERSIONS` – fully migrated; will work in cross-build setup.
