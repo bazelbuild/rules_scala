@@ -1,6 +1,32 @@
 # Cross compilation support
 
-The support for cross-compilation is currently under development.
+Read *Quick start* for an information on how to use cross compilation.
+The remaining sections contain more detailed information, useful especially for toolchain & rule developers.
+
+## Quick start
+`scala_config` repository rule accepts two parameters related to Scala version:
+* `scala_version` – a single, default version;
+* `scala_versions` – a list of versions to make available for use.
+
+The first one, `scala_version`, will be used as a default, but it can be overridden for specific targets for any version from the `scala_versions`.
+
+Multiple rules, such as:
+- [scala_library](/scala/private/rules/scala_library.bzl)
+- [scala_binary](/scala/private/rules/scala_binary.bzl)
+- [scala_repl](/scala/private/rules/scala_repl.bzl)
+- [scala_test](/scala/private/rules/scala_test.bzl)
+
+support such override via the `scala_version` attribute, e.g.:
+```starlark
+scala_library(
+    name = ...
+    ...
+    scala_version = "2.12.18",
+    ...
+)
+```
+
+For this library and all its dependencies 2.12.18 compiler will be used, unless explicitly overridden again in another target.
 
 ## Version configuration
 
@@ -84,7 +110,7 @@ scala_library(
 )
 ```
 
-See complete documentation in the [scala_cross_version_select.bzl](scala/scala_cross_version_select.bzl) file
+See complete documentation in the [scala_cross_version_select.bzl](/scala/scala_cross_version_select.bzl) file
 
 #### Manually
 An example usage of `select()` to provide custom dependency for specific Scala version:
@@ -180,7 +206,8 @@ We can distinguish following tiers:
 * No `target_settings` set – not migrated, will work on the default `SCALA_VERSION`; undefined behavior on other versions.
   * (all toolchains not mentioned elsewhere)
 * `target_settings` set to the `SCALA_VERSION` – not fully migrated; will work only on the default `SCALA_VERSION` and will fail the toolchain resolution on other versions.
-  * [the main Scala toolchain](scala/BUILD)
-  * [Scalafmt](scala/scalafmt/BUILD)
-  * [Scalatest](testing/testing.bzl)
+  * (no development in progress)
 * Multiple toolchain instances with `target_settings` corresponding to each of `SCALA_VERSIONS` – fully migrated; will work in cross-build setup.
+  * [the main Scala toolchain](/scala/BUILD)
+  * [Scalafmt](/scala/scalafmt/BUILD)
+  * [Scalatest](/testing/testing.bzl)
