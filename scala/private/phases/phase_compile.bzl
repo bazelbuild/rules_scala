@@ -3,6 +3,7 @@
 #
 # DOCUMENT THIS
 #
+load("@bazel_features//:features.bzl", "bazel_features")
 load(
     "@io_bazel_rules_scala//scala/private:paths.bzl",
     _get_files_with_extension = "get_files_with_extension",
@@ -298,7 +299,7 @@ def _create_scala_compilation_provider(ctx, ijar, source_jar, deps_providers):
     runtime_deps = []
     if hasattr(ctx.attr, "runtime_deps"):
         runtime_deps = [dep[JavaInfo] for dep in ctx.attr.runtime_deps]
-    return JavaInfo(
+    kwargs = dict(
         output_jar = ctx.outputs.jar,
         compile_jar = ijar,
         source_jar = source_jar,
@@ -307,6 +308,13 @@ def _create_scala_compilation_provider(ctx, ijar, source_jar, deps_providers):
         runtime_deps = runtime_deps,
         neverlink = ctx.attr.neverlink,
     )
+
+    # The JavaInfo constructor's add_exports and add_opens flags were added in Bazel 7:
+    # https://github.com/bazelbuild/bazel/issues/20033
+    if bazel_features.java.java_info_constructor_module_flags:
+        kwargs["add_exports"] = getattr(ctx.attr, "add_exports", [])
+        kwargs["add_opens"] = getattr(ctx.attr, "add_opens", [])
+    return JavaInfo(**kwargs)
 
 def _pack_source_jar(ctx, scala_srcs, input_srcjars):
     # https://github.com/bazelbuild/bazel/blob/ff6c0333e4f957bb9f7ab5401b01dbf3e9b515b1/src/main/java/com/google/devtools/build/lib/rules/java/JavaInfoBuildHelper.java#L180-L183

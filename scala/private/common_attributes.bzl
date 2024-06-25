@@ -1,5 +1,6 @@
 """Shared attributes for rules"""
 
+load("@bazel_features//:features.bzl", "bazel_features")
 load(
     "@io_bazel_rules_scala//scala/private:coverage_replacements_provider.bzl",
     _coverage_replacements_provider = "coverage_replacements_provider",
@@ -48,7 +49,10 @@ common_attrs_for_plugin_bootstrapping = {
         default = False,
         mandatory = False,
     ),
-}
+} | ({
+    "add_exports": attr.string_list(),
+    "add_opens": attr.string_list(),
+} if bazel_features.java.java_info_constructor_module_flags else {})
 
 common_attrs = {}
 
