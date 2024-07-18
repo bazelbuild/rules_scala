@@ -14,6 +14,7 @@ def _config_setting(scala_version):
     return """config_setting(
     name = "scala_version{version_suffix}",
     flag_values = {{":scala_version": "{version}"}},
+    visibility = ["//visibility:public"],
 )
 """.format(version_suffix = version_suffix(scala_version), version = scala_version)
 
