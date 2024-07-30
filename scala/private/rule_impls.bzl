@@ -228,4 +228,6 @@ def is_windows(ctx):
 # This must be a runtime used in generated java_binary script (usually workers using SecurityManager)
 def allow_security_manager(ctx, runtime = None):
     java_runtime = runtime if runtime else ctx.attr._java_host_runtime[java_common.JavaRuntimeInfo]
-    return ["-Djava.security.manager=allow"] if java_runtime.version >= 17 else []
+
+    # Bazel 5.x doesn't have java_runtime.version defined
+    return ["-Djava.security.manager=allow"] if hasattr(java_runtime, "version") and java_runtime.version >= 17 else []
