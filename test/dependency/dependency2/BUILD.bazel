@@ -1,0 +1,16 @@
+load("//scala:scala.bzl", "scala_library")
+load("//test:dependency/sources.bzl", "sources")
+package(default_visibility = ["//visibility:public"])
+
+sources()
+
+scala_library(
+    name = "dependency2",
+    srcs = [
+        ":sources",
+    ],
+    deps = [
+        "//test/dependency/dependency3",
+        "//test/dependency/dependency4",
+        ],
+)
