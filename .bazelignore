@@ -1,0 +1,5 @@
+dt_patches/test_dt_patches
+dt_patches/test_dt_patches_user_srcjar
+test_version
+test_cross_build
+examples
