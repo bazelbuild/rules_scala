@@ -65,6 +65,8 @@ def _jvm_import_external(repository_ctx):
         not repository_ctx.attr.neverlink):
         fail("Only use generated_linkable_rule_name if neverlink is set")
     name = repository_ctx.attr.repo_name or repository_ctx.attr.generated_rule_name or repository_ctx.name
+    # HACK: remove the prefix up to the last ~
+    name = name[name.rfind("~") + 1:]
     urls = repository_ctx.attr.jar_urls
     if repository_ctx.attr.jar_sha256:
         print("'jar_sha256' is deprecated. Please use 'artifact_sha256'")

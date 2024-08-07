@@ -2,24 +2,6 @@ workspace(name = "io_bazel_rules_scala")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-_build_tools_release = "5.1.0"
-
-http_archive(
-    name = "com_github_bazelbuild_buildtools",
-    sha256 = "e3bb0dc8b0274ea1aca75f1f8c0c835adbe589708ea89bf698069d0790701ea3",
-    strip_prefix = "buildtools-%s" % _build_tools_release,
-    url = "https://github.com/bazelbuild/buildtools/archive/%s.tar.gz" % _build_tools_release,
-)
-
-load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
-
-# Declares @com_google_protobuf//:protoc pointing to released binary
-# This should stop building protoc during bazel build
-# See https://github.com/bazelbuild/rules_proto/pull/36
-rules_proto_dependencies()
-
-rules_proto_toolchains()
-
 load("//scala:scala_cross_version.bzl", "default_maven_server_urls")
 load("//twitter_scrooge:twitter_scrooge.bzl", "twitter_scrooge")
 
@@ -94,41 +76,9 @@ java_import_external(
 
 ## Linting
 
-load("//private:format.bzl", "format_repositories")
-
-format_repositories()
-
-http_archive(
-    name = "io_bazel_rules_go",
-    sha256 = "dd926a88a564a9246713a9c00b35315f54cbd46b31a26d5d8fb264c07045f05d",
-    urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.38.1/rules_go-v0.38.1.zip",
-        "https://github.com/bazelbuild/rules_go/releases/download/v0.38.1/rules_go-v0.38.1.zip",
-    ],
-)
-
-load(
-    "@io_bazel_rules_go//go:deps.bzl",
-    "go_register_toolchains",
-    "go_rules_dependencies",
-)
-
-go_rules_dependencies()
-
-go_register_toolchains(version = "1.19.5")
-
-# Explicitly pull in a different (newer) version of rules_java for remote jdks
-rules_java_extra_version = "5.1.0"
-
-rules_java_extra_sha = "d974a2d6e1a534856d1b60ad6a15e57f3970d8596fbb0bb17b9ee26ca209332a"
-
-rules_java_extra_url = "https://github.com/bazelbuild/rules_java/releases/download/{}/rules_java-{}.tar.gz".format(rules_java_extra_version, rules_java_extra_version)
-
-http_archive(
-    name = "rules_java_extra",
-    sha256 = rules_java_extra_sha,
-    url = rules_java_extra_url,
-)
+# load("//private:format.bzl", "format_repositories")
+#
+# format_repositories()
 
 load("@rules_java//java:repositories.bzl", "remote_jdk8_repos")
 
@@ -176,3 +126,9 @@ repositories(
     ],
     maven_servers = MAVEN_SERVER_URLS,
 )
+
+load("//test/toolchains:jdk.bzl", "remote_jdk21_repositories", "remote_jdk21_toolchains")
+
+remote_jdk21_repositories()
+
+remote_jdk21_toolchains()

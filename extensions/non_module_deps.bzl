@@ -3,9 +3,10 @@ load(
     "@io_bazel_rules_scala//scala/private:macros/scala_repositories.bzl",
     _dt_patched_compiler_setup = "dt_patched_compiler_setup",
 )
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
 
 def _non_module_deps_impl(ctx):
-    _dt_patched_compiler_setup()
+    _dt_patched_compiler_setup(SCALA_VERSION)
     repository(
         id = "io_bazel_rules_scala_scala_library",
         validate_scala_version = True,

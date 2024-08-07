@@ -1,9 +1,31 @@
 module(name = "io_bazel_rules_scala")
 
-bazel_dep(name = "bazel_skylib", version = "1.4.1")
+bazel_dep(name = "bazel_skylib", version = "1.7.1")
 bazel_dep(name = "rules_cc", version = "0.0.6")
-bazel_dep(name = "rules_java", version = "5.5.0")
-bazel_dep(name = "rules_proto", version = "5.3.0-21.7")
+bazel_dep(name = "rules_java", version = "7.8.0")
+bazel_dep(name = "rules_proto", version = "6.0.2")
+bazel_dep(name = "bazel_features", version = "1.14.0")
+bazel_dep(name = "protobuf", version = "27.3", repo_name = "com_google_protobuf")
+bazel_dep(name = "platforms", version = "0.0.10")
+bazel_dep(name = "rules_python", version = "0.34.0", dev_dependency = True)
+
+single_version_override(
+    module_name = "bazel_features",
+    version = "1.14.0",
+)
+
+version = use_extension("@bazel_features//private:extensions.bzl", "version_extension")
+use_repo(version, "bazel_features_globals", "bazel_features_version")
+
+bazel_dep(name = "rules_go", version = "0.39.1")
+
+bazel_dep(name = "buildtools", repo_name = "com_github_bazelbuild_buildtools")
+
+git_override(
+    module_name = "buildtools",
+    remote = "https://github.com/bazelbuild/buildtools.git",
+    commit = "37932ddd72301f8ca6075ee6b24e9e5d333c96a5"
+)
 
 use_repo(
     use_extension("//:extensions/scala_config_ext.bzl", "scala_config_dep"),
@@ -11,17 +33,17 @@ use_repo(
 )
 
 non_module_deps = use_extension("//:extensions/non_module_deps.bzl", "non_module_deps")
-use_repo(non_module_deps, "scala_compiler_source")
-use_repo(non_module_deps, "io_bazel_rules_scala_scala_library")
-use_repo(non_module_deps, "io_bazel_rules_scala_scala_compiler")
-use_repo(non_module_deps, "io_bazel_rules_scala_scala_xml")
-use_repo(non_module_deps, "io_bazel_rules_scala_scala_parser_combinators")
+use_repo(non_module_deps, "scala_compiler_source_2_12_18")
+use_repo(non_module_deps, "io_bazel_rules_scala_scala_library_2_12_18")
+use_repo(non_module_deps, "io_bazel_rules_scala_scala_compiler_2_12_18")
+use_repo(non_module_deps, "io_bazel_rules_scala_scala_xml_2_12_18")
+use_repo(non_module_deps, "io_bazel_rules_scala_scala_parser_combinators_2_12_18")
 use_repo(non_module_deps, "io_bazel_rules_scala_scala_interfaces")
-use_repo(non_module_deps, "io_bazel_rules_scala_scala_reflect")
-use_repo(non_module_deps, "org_scalameta_semanticdb_scalac")
-use_repo(non_module_deps, "io_bazel_rules_scala_scala_tasty_core")
-use_repo(non_module_deps, "io_bazel_rules_scala_scala_asm")
-use_repo(non_module_deps, "io_bazel_rules_scala_scala_library_2")
+use_repo(non_module_deps, "io_bazel_rules_scala_scala_reflect_2_12_18")
+use_repo(non_module_deps, "org_scalameta_semanticdb_scalac_2_12_18")
+# use_repo(non_module_deps, "io_bazel_rules_scala_scala_tasty_core")
+# use_repo(non_module_deps, "io_bazel_rules_scala_scala_asm")
+# use_repo(non_module_deps, "io_bazel_rules_scala_scala_library_2")
 use_repo(non_module_deps, "io_bazel_rules_scala_org_openjdk_jmh_jmh_core")
 use_repo(non_module_deps, "io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_asm")
 use_repo(non_module_deps, "io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_reflection")
