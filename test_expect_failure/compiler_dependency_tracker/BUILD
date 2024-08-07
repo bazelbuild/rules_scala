@@ -69,3 +69,9 @@ scala_library(
     name = "E",
     srcs = ["E.scala"],
 )
+
+scala_library(
+    name = "F",
+    srcs = ["F.scala"],
+    deps = [":E"],
+)

@@ -1,5 +1,5 @@
 load("@rules_python//python:defs.bzl", "py_binary")
-load("@rules_java//java:defs.bzl", "java_binary", "java_import", "java_library")
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
 load(
     "//scala:scala.bzl",
     "scala_binary",
@@ -540,8 +540,8 @@ scala_specs2_junit_test(
     name = "data_location_expansion",
     size = "small",
     srcs = ["src/main/scala/scalarules/test/location_expansion/LocationExpansionTest.scala"],
-    data = ["//third_party/bazel/src/main/protobuf:worker_protocol_java_proto"],
-    jvm_flags = ["-Dlocation.expanded='$(locations //third_party/bazel/src/main/protobuf:worker_protocol_java_proto)'"],
+    data = ["@bazel_tools//src/main/protobuf:worker_protocol_java_proto"],
+    jvm_flags = ["-Dlocation.expanded='$(locations @bazel_tools//src/main/protobuf:worker_protocol_java_proto)'"],
     suffixes = ["Test"],
 )
 
@@ -616,9 +616,13 @@ scala_library(
 )
 
 # make sure making a fat jar strips signatures
-java_import(
+java_library(
     name = "fakejar",
-    jars = ["fake_sig.jar"],
+    resources = [
+        "//test/src/main/resources/META-INF:FAKE.DSA",
+        "//test/src/main/resources/META-INF:FAKE.RSA",
+    ],
+    visibility = ["//visibility:public"],
 )
 
 scala_binary(
@@ -777,6 +781,8 @@ scala_library(
     srcs = [
         "src/main/scala/scalarules/test/junit/runtime_platform/JunitRuntimePlatformTest.java",
     ],
+    # make sure java compilation toolchain matches runtime toolchain ie --target
+    java_compile_toolchain = "@bazel_tools//tools/jdk:toolchain_java11",
     deps = ["@io_bazel_rules_scala_junit_junit"],
 )
 

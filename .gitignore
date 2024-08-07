@@ -10,4 +10,5 @@ hash2
 .vscode
 unformatted-*.backup.scala
 .scala-build
+test/semanticdb/tempsrc
 MODULE.bazel.lock

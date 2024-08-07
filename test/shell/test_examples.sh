@@ -38,7 +38,7 @@ function scala3_2_example() {
 }
 
 function scala3_3_example() {
-  test_example examples/scala3 "bazel build --repo_env=SCALA_VERSION=3.3.0 //..."
+  test_example examples/scala3 "bazel build --repo_env=SCALA_VERSION=3.3.1 //..."
 }
 
 function semanticdb_example() {
@@ -51,6 +51,10 @@ function semanticdb_example() {
   test_example examples/semanticdb build_semanticdb_example
 }
 
+function cross_build_example() {
+  test_example examples/crossbuild "bazel build //..."
+}
+
 $runner scalatest_repositories_example
 $runner specs2_junit_repositories_example
 $runner multi_framework_toolchain_example
@@ -58,3 +62,4 @@ $runner semanticdb_example
 $runner scala3_1_example
 $runner scala3_2_example
 $runner scala3_3_example
+$runner cross_build_example

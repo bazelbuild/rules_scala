@@ -3,7 +3,6 @@ load(
     "find_deps_info_on",
 )
 load("@io_bazel_rules_scala//scala:semanticdb_provider.bzl", "SemanticdbInfo")
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_MAJOR_VERSION")
 load("@bazel_skylib//lib:paths.bzl", "paths")
 
 def phase_semanticdb(ctx, p):
@@ -37,7 +36,7 @@ def phase_semanticdb(ctx, p):
                     outputfilename = "%s/%s/%s.semanticdb" % (semanticdb_intpath, semanticdb_outpath, currSrc.path)
                     output_files.append(ctx.actions.declare_file(outputfilename))
 
-        if SCALA_MAJOR_VERSION.startswith("2"):
+        if toolchain.scala_version.startswith("2"):
             semanticdb_deps = find_deps_info_on(ctx, toolchain_type_label, "semanticdb").deps
 
             if len(semanticdb_deps) == 0:

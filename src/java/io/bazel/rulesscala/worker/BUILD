@@ -5,7 +5,7 @@ java_library(
     srcs = ["Worker.java"],
     visibility = ["//visibility:public"],
     deps = [
-        "//third_party/bazel/src/main/protobuf:worker_protocol_java_proto",
+        "@bazel_tools//src/main/protobuf:worker_protocol_java_proto",
     ],
 )
 
@@ -20,6 +20,6 @@ java_test(
     test_class = "io.bazel.rulesscala.worker.WorkerTest",
     deps = [
         ":worker",
-        "//third_party/bazel/src/main/protobuf:worker_protocol_java_proto",
+        "@bazel_tools//src/main/protobuf:worker_protocol_java_proto",
     ],
 )

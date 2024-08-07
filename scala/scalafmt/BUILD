@@ -1,6 +1,8 @@
 load("//scala:scala.bzl", "scala_binary")
-load("//scala/scalafmt/toolchain:toolchain.bzl", "export_scalafmt_deps", "scalafmt_toolchain")
-load("@io_bazel_rules_scala//scala:providers.bzl", "declare_deps_provider")
+load("//scala:scala_cross_version.bzl", "version_suffix")
+load("//scala/scalafmt/toolchain:toolchain.bzl", "export_scalafmt_deps")
+load("//scala/scalafmt/toolchain:setup_scalafmt_toolchain.bzl", "setup_scalafmt_toolchains")
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
 load(
     "//scala/scalafmt:phase_scalafmt_ext.bzl",
     "scalafmt_singleton",
@@ -34,33 +36,12 @@ scalafmt_singleton(
     visibility = ["//visibility:public"],
 )
 
-declare_deps_provider(
-    name = "scalafmt_classpath_provider",
-    deps_id = "scalafmt_classpath",
-    visibility = ["//visibility:public"],
-    deps = [
-        "@com_geirsson_metaconfig_core",
-        "@org_scalameta_common",
-        "@org_scalameta_parsers",
-        "@org_scalameta_scalafmt_core",
-        "@org_scalameta_scalameta",
-        "@org_scalameta_trees",
-    ],
-)
+setup_scalafmt_toolchains()
 
-scalafmt_toolchain(
-    name = "scalafmt_toolchain_impl",
-    dep_providers = [
-        ":scalafmt_classpath_provider",
-    ],
-    visibility = ["//visibility:public"],
-)
-
-toolchain(
+# Alias for backward compatibility:
+alias(
     name = "scalafmt_toolchain",
-    toolchain = ":scalafmt_toolchain_impl",
-    toolchain_type = "//scala/scalafmt/toolchain:scalafmt_toolchain_type",
-    visibility = ["//visibility:public"],
+    actual = "scalafmt_toolchain" + version_suffix(SCALA_VERSION),
 )
 
 export_scalafmt_deps(

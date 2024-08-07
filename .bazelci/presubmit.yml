@@ -42,6 +42,11 @@ tasks:
     platform: macos
     shell_commands:
     - "./test_rules_scala.sh"
+  test_rules_scala_win:
+    name: "./test_rules_scala"
+    platform: windows
+    shell_commands:
+    - "bash test_rules_scala.sh"
   test_coverage_linux_6_3_0:
     name: "./test_coverage"
     platform: ubuntu2004
@@ -80,8 +85,26 @@ tasks:
     bazel: 6.3.0
     shell_commands:
       - "./test_examples.sh"
+  cross_build_linux:
+    name: "./test_cross_build"
+    platform: ubuntu2004
+    bazel: 6.3.0
+    shell_commands:
+      - "./test_cross_build.sh"
   lint_linux:
     name: "bazel //tools:lint_check"
     platform: ubuntu2004
     run_targets:
     -  "//tools:lint_check"
+  test_rules_scala_jdk21:
+    name: "./test_rules_scala with jdk21"
+    platform: ubuntu2004
+    shell_commands:
+      - sudo apt update && sudo apt install -y libxml2-utils
+      - mv tools/bazel.rc.buildkite tools/bazel.rc
+      - echo "import %workspace%/tools/bazel.rc" > .bazelrc
+      - echo "build --java_language_version=21" >> .bazelrc
+      - echo "build --java_runtime_version=21" >> .bazelrc
+      - echo "build --tool_java_language_version=21" >> .bazelrc
+      - echo "build --tool_java_runtime_version=21" >> .bazelrc
+      - "./test_rules_scala.sh"

@@ -162,6 +162,12 @@ scala_register_toolchains()
 Note: Toolchains are a more flexible way to configure dependencies, so you should prefer that way.
 Please also note, that the `overriden_artifacts` parameter is likely to be removed in the future.
 
+### Multiple versions (cross-compilation)
+
+Rules scala supports configuring multiple Scala versions and offers target-level control of which one to use.
+
+Please check [cross-compilation.md](docs/cross-compilation.md) for more details on cross-compilation support.
+
 ## Bazel compatible versions
 
 | minimal bazel version | rules_scala gitsha |
@@ -280,6 +286,7 @@ Here's a (non-exhaustive) list of companies that use `rules_scala` in production
 * [Stripe](https://stripe.com/)
 * [Tally](https://www.meettally.com/)
 * [Twitter](https://twitter.com/)
+* [VirtusLab](https://virtuslab.com/)
 * [VSCO](https://vsco.co)
 * [Wix](https://www.wix.com/)
 
