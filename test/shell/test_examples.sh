@@ -30,15 +30,19 @@ function multi_framework_toolchain_example() {
 }
 
 function scala3_1_example() {
-  test_example examples/scala3 "bazel build --repo_env=SCALA_VERSION=3.1.0 //..."
+  test_example examples/scala3 "bazel build --repo_env=SCALA_VERSION=3.1.3 //..."
 }
 
 function scala3_2_example() {
-  test_example examples/scala3 "bazel build --repo_env=SCALA_VERSION=3.2.1 //..."
+  test_example examples/scala3 "bazel build --repo_env=SCALA_VERSION=3.2.2 //..."
 }
 
 function scala3_3_example() {
-  test_example examples/scala3 "bazel build --repo_env=SCALA_VERSION=3.3.1 //..."
+  test_example examples/scala3 "bazel build --repo_env=SCALA_VERSION=3.3.3 //..."
+}
+
+function scala3_4_example() {
+  test_example examples/scala3 "bazel build --repo_env=SCALA_VERSION=3.4.2 //..."
 }
 
 function semanticdb_example() {
@@ -62,4 +66,5 @@ $runner semanticdb_example
 $runner scala3_1_example
 $runner scala3_2_example
 $runner scala3_3_example
+$runner scala3_4_example
 $runner cross_build_example

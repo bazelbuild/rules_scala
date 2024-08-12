@@ -18,7 +18,7 @@ local_repository(
 
 load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
 
-scala_config(scala_version = "3.3.1")
+scala_config(scala_version = "3.3.3")
 
 load(
     "@io_bazel_rules_scala//scala:scala.bzl",
