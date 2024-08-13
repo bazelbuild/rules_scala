@@ -32,8 +32,8 @@ For this library and all its dependencies 2.12.19 compiler will be used, unless 
 
 `scala_config` creates the repository `@io_bazel_rules_scala_config`.
 File created there, `config.bzl`, consists of many variables. In particular:
-* `SCALA_VERSION` – representing the default Scala version, e.g. `"3.3.3"`;
-* `SCALA_VERSIONS` – representing all configured Scala versions, e.g. `["2.12.19", "3.3.3"]`.
+* `SCALA_VERSION` – representing the default Scala version, e.g. `"3.4.2"`;
+* `SCALA_VERSIONS` – representing all configured Scala versions, e.g. `["2.12.19", "3.4.2"]`.
 
 
 ## Build settings
@@ -44,8 +44,8 @@ Configured `SCALA_VERSIONS` correspond to allowed values of [build setting](http
 ```starlark
 string_setting(
     name = "scala_version",
-    build_setting_default = "3.3.3",
-    values = ["3.3.3"],
+    build_setting_default = "3.4.2",
+    values = ["3.4.2"],
     visibility = ["//visibility:public"],
 )
 ...
@@ -56,8 +56,8 @@ This build setting can be subject of change by [transitions](https://bazel.build
 Then for each Scala version we have a [config setting](https://bazel.build/extending/config#build-settings-and-select):
 ```starlark
 config_setting(
-    name = "scala_version_3_3_1",
-    flag_values = {":scala_version": "3.3.3"},
+    name = "scala_version_3_4_2",
+    flag_values = {":scala_version": "3.4.2"},
 )
 ...
 ```
@@ -116,7 +116,7 @@ See complete documentation in the [scala_cross_version_select.bzl](/scala/scala_
 An example usage of `select()` to provide custom dependency for specific Scala version:
 ```starlark
 deps = select({
-    "@io_bazel_rules_scala_config//:scala_version_3_3_1": [...],
+    "@io_bazel_rules_scala_config//:scala_version_3_4_2": [...],
     ...
 })
 ```
@@ -192,7 +192,7 @@ Toolchain should declare its compatibility with Scala version by using `target_s
 ```starlark
 toolchain(
     ...
-    target_settings = ["@io_bazel_rules_scala_config//:scala_version_3_3_1"],
+    target_settings = ["@io_bazel_rules_scala_config//:scala_version_3_4_2"],
     ...
 )
 ```
