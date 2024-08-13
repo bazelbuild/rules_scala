@@ -83,7 +83,7 @@ artifacts = {
     },
     "org_scalameta_semanticdb_scalac": {
         "artifact": "org.scalameta:semanticdb-scalac_%s:4.9.9" % scala_version,
-        "sha256": "1adfd051c4b4e1c69a49492cbcf558011beba78e79aaeef1319d29e8408e341d",
+        "sha256": "c5269b5b7264fc5082357acdb4d9cf6790f49b4195f127878bd4f46659e3c52b",
         "deps": [
             "@io_bazel_rules_scala_scala_library",
         ],
@@ -514,6 +514,6 @@ artifacts = {
     "org_typelevel_kind_projector": {
         "testonly": True,
         "artifact": "org.typelevel:kind-projector_%s:0.13.3" % scala_version,
-        "sha256": "fc40476381233d532ed26b64a3643c1bda792d2900a7df697d676dde82e4408d",
+        "sha256": "569fec54deba82cd143f05a6a0456c9e3bf56bff310b0968f0adb5fb3b352d92",
     },
 }
