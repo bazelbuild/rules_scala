@@ -100,10 +100,10 @@ scala_library(
             # for 3.1 ≤ Scala version < 3.2
         ],
         between_3_2_and_3_3_1 = [
-            # for 3.2 ≤ Scala version < 3.3.3
+            # for 3.2 ≤ Scala version < 3.3.1
         ],
         since_3_3_1 = [
-            # for 3.3.3 ≤ Scala version
+            # for 3.3.1 ≤ Scala version
         ],
     )
     ...
