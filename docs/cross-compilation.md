@@ -21,19 +21,19 @@ support such override via the `scala_version` attribute, e.g.:
 scala_library(
     name = ...
     ...
-    scala_version = "2.12.19",
+    scala_version = "2.12.18",
     ...
 )
 ```
 
-For this library and all its dependencies 2.12.19 compiler will be used, unless explicitly overridden again in another target.
+For this library and all its dependencies 2.12.18 compiler will be used, unless explicitly overridden again in another target.
 
 ## Version configuration
 
 `scala_config` creates the repository `@io_bazel_rules_scala_config`.
 File created there, `config.bzl`, consists of many variables. In particular:
-* `SCALA_VERSION` – representing the default Scala version, e.g. `"3.3.3"`;
-* `SCALA_VERSIONS` – representing all configured Scala versions, e.g. `["2.12.19", "3.3.3"]`.
+* `SCALA_VERSION` – representing the default Scala version, e.g. `"3.3.1"`;
+* `SCALA_VERSIONS` – representing all configured Scala versions, e.g. `["2.12.18", "3.3.1"]`.
 
 
 ## Build settings
@@ -44,8 +44,8 @@ Configured `SCALA_VERSIONS` correspond to allowed values of [build setting](http
 ```starlark
 string_setting(
     name = "scala_version",
-    build_setting_default = "3.3.3",
-    values = ["3.3.3"],
+    build_setting_default = "3.3.1",
+    values = ["3.3.1"],
     visibility = ["//visibility:public"],
 )
 ...
@@ -57,7 +57,7 @@ Then for each Scala version we have a [config setting](https://bazel.build/exten
 ```starlark
 config_setting(
     name = "scala_version_3_3_1",
-    flag_values = {":scala_version": "3.3.3"},
+    flag_values = {":scala_version": "3.3.1"},
 )
 ...
 ```
