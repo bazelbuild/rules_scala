@@ -83,24 +83,6 @@ scalafmt_scala_library(
     scala_version = "3.2.2",
 )
 
-scalafmt_scala_binary(
-    name = "unformatted-binary3",
-    srcs = ["unformatted/unformatted-binary3.scala"],
-    config = ":scala3-conf",
-    format = True,
-    main_class = "UnformattedBinary",
-    scala_version = "3.4.2",
-)
-
-scalafmt_scala_library(
-    name = "formatted-binary3",
-    srcs = ["formatted/formatted-binary3.scala"],
-    config = ":scala3-conf",
-    format = True,
-    main_class = "UnformattedBinary",
-    scala_version = "3.4.2",
-)
-
 scalafmt_scala_test(
     name = "unformatted-test2",
     srcs = ["unformatted/unformatted-test2.scala"],
