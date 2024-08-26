@@ -1,4 +1,4 @@
-scala_version = "3.2.1"
+scala_version = "3.4.2"
 
 artifacts = {
     "io_bazel_rules_scala_scala_library_2": {
@@ -7,81 +7,79 @@ artifacts = {
     },
     "io_bazel_rules_scala_scala_library": {
         "artifact": "org.scala-lang:scala3-library_3:%s" % scala_version,
-        "sha256": "509669b30249e2b34a8488c9d1de7b978c9524c71712f1e2c8db2a516bc71266",
+        "sha256": "5d8a8535e11d9dc52400cca0bc1d0edfe9385f15af5710c454ce8ab0e62783a0",
         "deps": [
             "@io_bazel_rules_scala_scala_library_2",
         ],
     },
     "io_bazel_rules_scala_scala_compiler": {
         "artifact": "org.scala-lang:scala3-compiler_3:%s" % scala_version,
-        "sha256": "bde05ca98bd7b681806eeda39524638d5cf0403254ca089d96a6d666eec5e66d",
+        "sha256": "c50f6089b1d55b0b7f9fbb2ef9d69f966b07c734d9b96e2b45b5b41b2d1bdd45",
     },
     "io_bazel_rules_scala_scala_interfaces": {
         "artifact": "org.scala-lang:scala3-interfaces:%s" % scala_version,
-        "sha256": "5ceb45f9e2a2c56e4759cd96c9f4d097c3f07c1f9f6409990731f85733bbbef3",
+        "sha256": "3907de290b0e38070f5b5e5598d08d5f302ad0ef9014f7a690ca8e90946ddda3",
     },
     "io_bazel_rules_scala_scala_tasty_core": {
         "artifact": "org.scala-lang:tasty-core_3:%s" % scala_version,
-        "sha256": "2a7745396ba0ad90344f2dc9645123c6e2d568666668be7af9de0bee9898b933",
+        "sha256": "3697f3a858c594c5022f2f7751504c069a384b92b4e093e9742bbaa627e0c10f",
     },
     "io_bazel_rules_scala_scala_asm": {
         "artifact": "org.scala-lang.modules:scala-asm:9.1.0-scala-1",
         "sha256": "b85af6cbbd6075c4960177c2c3aa03d53b5221fa58b0bc74a31b72f25595e39f",
     },
-
-    # todo: update to Scala 3.1 versions
     "io_bazel_rules_scala_scala_parallel_collections": {
-        "artifact": "org.scala-lang.modules:scala-parallel-collections_2.13:jar:1.0.4",
-        "sha256": "68f266c4fa37cb20a76e905ad940e241190ce288b7e4a9877f1dd1261cd1a9a7",
+        "artifact": "org.scala-lang.modules:scala-parallel-collections_3:jar:1.0.4",
+        "sha256": "c3bf0d4d057942a78389fa9675823db5e3179f1b503f2df212b74e784da57050",
     },
     #
     "io_bazel_rules_scala_scalatest": {
-        "artifact": "org.scalatest:scalatest_3:3.2.9",
-        "sha256": "6a528ed38912f9c69bf2a1be157871fe801bbff590eecb1a56fa25c62570e147",
+        "artifact": "org.scalatest:scalatest_3:3.2.16",
+        "sha256": "594c3c68d5fccf9bf57f3eef012652c2d66d58d42e6335517ec71fdbeb427352",
     },
     "io_bazel_rules_scala_scalatest_compatible": {
-        "artifact": "org.scalatest:scalatest-compatible:jar:3.2.9",
-        "sha256": "7e5f1193af2fd88c432c4b80ce3641e4b1d062f421d8a0fcc43af9a19bb7c2eb",
+        "artifact": "org.scalatest:scalatest-compatible:jar:3.2.16",
+        "sha256": "9283e684d401d821a4cbb2646f9611cbbcd7828d2499483d13a4b507775a4cd7",
     },
     "io_bazel_rules_scala_scalatest_core": {
-        "artifact": "org.scalatest:scalatest-core_3:3.2.9",
-        "sha256": "248674b6269578bc2f57d595f1e484fc02837ef567ba461eafb81294bce611a8",
+        "artifact": "org.scalatest:scalatest-core_3:3.2.16",
+        "sha256": "e3da0ba2f449a7f8fbd79213f05930d53cbfa3a50bafeafb5a13f0230c8e6240",
     },
     "io_bazel_rules_scala_scalatest_featurespec": {
-        "artifact": "org.scalatest:scalatest-featurespec_3:3.2.9",
-        "sha256": "db51db398582b656cc0b90fbd1c6e5c2495125706b1f860b4cdfc5aba1832d0d",
+        "artifact": "org.scalatest:scalatest-featurespec_3:3.2.16",
+        "sha256": "05f94cbad5d0f16036957392f6f0e78076dbb1e0579da8786e1700131b667d26",
     },
     "io_bazel_rules_scala_scalatest_flatspec": {
-        "artifact": "org.scalatest:scalatest-flatspec_3:3.2.9",
-        "sha256": "b558319f8b4835d25424381dc9b7dcc3b27353cf36dc2c28270dac59e8c8b827",
+        "artifact": "org.scalatest:scalatest-flatspec_3:3.2.16",
+        "sha256": "ae2a8156bec0986f4a5d248dad513a13e8d614f4d030a16bd83bcd038c9bd70b",
     },
     "io_bazel_rules_scala_scalatest_freespec": {
-        "artifact": "org.scalatest:scalatest-freespec_3:3.2.9",
-        "sha256": "dfcbce7d8315dca731b2829ad233893f2dec8895543267c086f7c88a618bda97",
+        "artifact": "org.scalatest:scalatest-freespec_3:3.2.16",
+        "sha256": "bd7620fa0a11c44a164f839ed3b1339c6e71211e05294729ecee095ef4387aa9",
     },
     "io_bazel_rules_scala_scalatest_funsuite": {
-        "artifact": "org.scalatest:scalatest-funsuite_3:3.2.9",
-        "sha256": "f3aa7a6414a6f0217ab386be38da537738239f073512a00e93967ac34ff3c9d3",
+        "artifact": "org.scalatest:scalatest-funsuite_3:3.2.16",
+        "sha256": "8a337a47c586e9cab89568a07e65bc18d8941ce381881f7db9e8d70e8c48ec42",
     },
     "io_bazel_rules_scala_scalatest_funspec": {
-        "artifact": "org.scalatest:scalatest-funspec_3:3.2.9",
-        "sha256": "a4d0b15fea0f73cc7af7f1e35ae291966f8652fbf811d6525294691fa6fb54d2",
+        "artifact": "org.scalatest:scalatest-funspec_3:3.2.16",
+        "sha256": "d5ee0906d4b538e2eef7a399b2f9d412d9afa3f8c9cc55175c2766592f8d6743",
     },
     "io_bazel_rules_scala_scalatest_matchers_core": {
-        "artifact": "org.scalatest:scalatest-matchers-core_3:3.2.9",
-        "sha256": "4aee69baf7cbbd2f8c28e02fab7aead12093bf905b322a4aca9c987de58dffab",
+        "artifact": "org.scalatest:scalatest-matchers-core_3:3.2.16",
+        "sha256": "0dac281e63f87d84cb4b1d121e338be7239465ebe05b56781de1091c8aff3f57",
     },
     "io_bazel_rules_scala_scalatest_shouldmatchers": {
-        "artifact": "org.scalatest:scalatest-shouldmatchers_3:3.2.9",
-        "sha256": "5866c9f28faf5389a82d0a66f3539933325eed3a03425c9bf2f495c34f4bb370",
+        "artifact": "org.scalatest:scalatest-shouldmatchers_3:3.2.16",
+        "sha256": "88dff5cfd61c670d7f11703e92b2a339e6283f911c9b6a6e3b5d098fd5ee2f01",
     },
     "io_bazel_rules_scala_scalatest_mustmatchers": {
-        "artifact": "org.scalatest:scalatest-mustmatchers_3:3.2.9",
-        "sha256": "2755b8558acf71603b70d10a02f9df43a216f305318dbcb442d5451f0da32c46",
+        "artifact": "org.scalatest:scalatest-mustmatchers_3:3.2.16",
+        "sha256": "51212b97f93744c095e56311fcc22576386f490084fed486cf49b9acf68a06c4",
     },
     "io_bazel_rules_scala_scalactic": {
-        "artifact": "org.scalactic:scalactic_3:3.2.9",
-        "sha256": "dde6c79aeb8ca632ac9aede0a00462b6b75d0db857bf0e9f264a2ed36efcb800",
+        "artifact": "org.scalactic:scalactic_3:3.2.16",
+        "sha256": "d6071fe5f4e6f97b25c473c3787098fc3e7cdebf224eeb12f3a48ad1b5816885",
     },
     "io_bazel_rules_scala_scala_xml": {
         "artifact": "org.scala-lang.modules:scala-xml_2.13:1.3.0",

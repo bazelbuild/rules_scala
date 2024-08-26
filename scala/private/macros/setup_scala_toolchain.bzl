@@ -116,6 +116,7 @@ _DEFAULT_DEPS = {
             "@io_bazel_rules_scala_scala_tasty_core",
             "@io_bazel_rules_scala_scala_asm",
             "@io_bazel_rules_scala_scala_library_2",
+            "@org_scala_sbt_compiler_interface",
         ],
     },
     "scala_library_classpath": {

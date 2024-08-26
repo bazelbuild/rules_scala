@@ -140,6 +140,7 @@ def _artifact_ids(scala_version):
         "io_bazel_rules_scala_scala_xml",
         "io_bazel_rules_scala_scala_parser_combinators",
         "io_bazel_rules_scala_scala_library_2",
+        "org_scala_sbt_compiler_interface",
     ]
 
 def rules_scala_toolchain_deps_repositories(
