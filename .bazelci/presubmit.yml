@@ -27,7 +27,7 @@ tasks:
     platform: ubuntu2004
     shell_commands:
     # Install xmllint
-    - sudo apt update && sudo apt install -y libxml2-utils
+    - sudo apt update && sudo apt install --reinstall libxml2-utils -y
     - "./test_rules_scala.sh"
   test_rules_scala_linux_last_green:
     name: "./test_rules_scala (Bazel green head)"
@@ -35,7 +35,7 @@ tasks:
     bazel: last_green
     shell_commands:
     # Install xmllint
-    - sudo apt update && sudo apt install -y libxml2-utils
+    - sudo apt update && sudo apt install --reinstall libxml2-utils -y
     - "./test_rules_scala.sh || buildkite-agent annotate --style 'warning' \"Optional build with latest Bazel version failed, [see here](${BUILDKITE_BUILD_URL}#${BUILDKITE_JOB_ID}) (It is not mandatory but worth checking)\""
   test_rules_scala_macos:
     name: "./test_rules_scala"

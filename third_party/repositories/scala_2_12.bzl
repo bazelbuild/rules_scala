@@ -1,17 +1,17 @@
-scala_version = "2.12.18"
+scala_version = "2.12.19"
 
 artifacts = {
     "io_bazel_rules_scala_scala_library": {
         "artifact": "org.scala-lang:scala-library:%s" % scala_version,
-        "sha256": "e51e6636c003359e106bea4ad99def70e613c290190c8c84f10f9560dd5b00ae",
+        "sha256": "81e32f8e31236ef84c21287f1fbaa916fc6525b2e63220d4a0f2396e91871d50",
     },
     "io_bazel_rules_scala_scala_compiler": {
         "artifact": "org.scala-lang:scala-compiler:%s" % scala_version,
-        "sha256": "5680cee34200e8d8ed7965c71d8b1428d3eeb889eb14fec38d40ffbc3761a0d0",
+        "sha256": "d12975f4cf9a450ea12870243648a851f92165448fdda5a292747cb3bdaecc4f",
     },
     "io_bazel_rules_scala_scala_reflect": {
         "artifact": "org.scala-lang:scala-reflect:%s" % scala_version,
-        "sha256": "d6a24e175246541ffcbc965a231aa1d3bb01d61def196f91495690fabf9783bc",
+        "sha256": "ff6eaa5548779d61d35b98cb25e931951c5a9f1abc48741e9df95324ee2ae66c",
     },
     "io_bazel_rules_scala_scalatest": {
         "artifact": "org.scalatest:scalatest_2.12:3.2.9",
@@ -78,8 +78,8 @@ artifacts = {
         ],
     },
     "org_scalameta_semanticdb_scalac": {
-        "artifact": "org.scalameta:semanticdb-scalac_%s:4.8.4" % scala_version,
-        "sha256": "11d28a73d182453454451aef4768462730f8c3e369df47b224a4ff2e943f1db7",
+        "artifact": "org.scalameta:semanticdb-scalac_%s:4.9.9" % scala_version,
+        "sha256": "566a6b2c38100df99e7f3cf911a965556f3055e28ebb3caea04cef23eb7307d0",
         "deps": [
             "@io_bazel_rules_scala_scala_library",
         ],
@@ -508,7 +508,7 @@ artifacts = {
     },
     "org_typelevel_kind_projector": {
         "testonly": True,
-        "artifact": "org.typelevel:kind-projector_%s:0.13.2" % scala_version,
-        "sha256": "7d4e821b86647c65546c1e3667348e8168c5907e9d4b277cc2badedcd479be44",
+        "artifact": "org.typelevel:kind-projector_%s:0.13.3" % scala_version,
+        "sha256": "98a53122dedd51f79f23ae03eae3258a2e5dbd51c647eaea4942f98c55b052d1",
     },
 }
