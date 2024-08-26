@@ -19,7 +19,7 @@ scala_binary(
     name = "bin213",
     srcs = ["bin.scala"],  # compiled with 2.13 (as per `scala_version`)
     main_class = "C",
-    scala_version = "2.13.12",
+    scala_version = "2.13.14",
     deps = [
         ":lib",  # compiled 2.13 (as per `scala_version`)
         ":lib211",  # compiled with 2.11 (that target overrides version)
