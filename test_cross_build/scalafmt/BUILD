@@ -20,7 +20,7 @@ scalafmt_scala_library(
     srcs = ["unformatted/unformatted-library2.scala"],
     config = ":scala2-conf",
     format = True,
-    scala_version = "2.13.12",
+    scala_version = "2.13.14",
 )
 
 scalafmt_scala_library(
@@ -28,7 +28,7 @@ scalafmt_scala_library(
     srcs = ["formatted/formatted-library2.scala"],
     config = ":scala2-conf",
     format = True,
-    scala_version = "2.13.12",
+    scala_version = "2.13.14",
 )
 
 scalafmt_scala_library(
@@ -36,7 +36,7 @@ scalafmt_scala_library(
     srcs = ["unformatted/unformatted-library3.scala"],
     config = ":scala3-conf",
     format = True,
-    scala_version = "3.3.1",
+    scala_version = "3.3.3",
 )
 
 scalafmt_scala_library(
@@ -44,7 +44,7 @@ scalafmt_scala_library(
     srcs = ["formatted/formatted-library3.scala"],
     config = ":scala3-conf",
     format = True,
-    scala_version = "3.3.1",
+    scala_version = "3.3.3",
 )
 
 scalafmt_scala_binary(
@@ -53,7 +53,7 @@ scalafmt_scala_binary(
     config = ":scala2-conf",
     format = True,
     main_class = "UnformattedBinary",
-    scala_version = "2.12.18",
+    scala_version = "2.12.19",
 )
 
 scalafmt_scala_library(
@@ -62,7 +62,7 @@ scalafmt_scala_library(
     config = ":scala2-conf",
     format = True,
     main_class = "UnformattedBinary",
-    scala_version = "2.12.18",
+    scala_version = "2.12.19",
 )
 
 scalafmt_scala_binary(
@@ -71,7 +71,7 @@ scalafmt_scala_binary(
     config = ":scala3-conf",
     format = True,
     main_class = "UnformattedBinary",
-    scala_version = "3.2.1",
+    scala_version = "3.2.2",
 )
 
 scalafmt_scala_library(
@@ -80,7 +80,7 @@ scalafmt_scala_library(
     config = ":scala3-conf",
     format = True,
     main_class = "UnformattedBinary",
-    scala_version = "3.2.1",
+    scala_version = "3.2.2",
 )
 
 scalafmt_scala_test(
@@ -88,7 +88,7 @@ scalafmt_scala_test(
     srcs = ["unformatted/unformatted-test2.scala"],
     config = ":scala2-conf",
     format = True,
-    scala_version = "2.12.18",
+    scala_version = "2.12.19",
 )
 
 scalafmt_scala_test(
@@ -96,10 +96,10 @@ scalafmt_scala_test(
     srcs = ["formatted/formatted-test2.scala"],
     config = ":scala2-conf",
     format = True,
-    scala_version = "2.12.18",
+    scala_version = "2.12.19",
 )
 
-#default scala version is 3.1.0
+#default scala version is 3.1.3
 scalafmt_scala_test(
     name = "unformatted-test3",
     srcs = ["unformatted/unformatted-test3.scala"],

@@ -2,7 +2,7 @@ load("//scala:scala_cross_version.bzl", "extract_major_version", "extract_minor_
 
 def _default_scala_version():
     """return the scala version for use in maven coordinates"""
-    return "2.12.18"
+    return "2.12.19"
 
 def _validate_supported_scala_version(scala_major_version, scala_minor_version):
     if scala_major_version == "2.11" and int(scala_minor_version) != 12:

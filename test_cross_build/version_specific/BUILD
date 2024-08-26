@@ -7,33 +7,33 @@ load("@io_bazel_rules_scala//scala:scala.bzl", "scala_library")
 scala_library(
     name = "since_3_3",
     srcs = ["since_3_3.scala"],
-    scala_version = "3.3.1",
+    scala_version = "3.3.3",
 )
 
 scala_library(
     name = "before_3_3",
     srcs = ["before_3_3.scala"],
-    scala_version = "3.2.1",
+    scala_version = "3.2.2",
 )
 
 # What's new in 3.2
 scala_library(
     name = "since_3_2",
     srcs = ["since_3_2.scala"],
-    scala_version = "3.2.1",
+    scala_version = "3.2.2",
 )
 
 scala_library(
     name = "before_3_2",
     srcs = ["before_3_2.scala"],
-    scala_version = "3.1.0",
+    scala_version = "3.1.3",
 )
 
 # What's new in 3.1
 scala_library(
     name = "since_3_1",
     srcs = ["since_3_1.scala"],
-    scala_version = "3.1.0",
+    scala_version = "3.1.3",
 )
 
 scala_library(
@@ -43,7 +43,7 @@ scala_library(
         "since_3_2.scala",
         "since_3_3.scala",
     ],
-    scala_version = "3.3.1",
+    scala_version = "3.3.3",
 )
 
 scala_library(
@@ -53,7 +53,7 @@ scala_library(
         "since_3_1.scala",
         "since_3_2.scala",
     ],
-    scala_version = "3.2.1",
+    scala_version = "3.2.2",
 )
 
 scala_library(
@@ -63,5 +63,5 @@ scala_library(
         "before_3_3.scala",
         "since_3_1.scala",
     ],
-    scala_version = "3.1.0",
+    scala_version = "3.1.3",
 )

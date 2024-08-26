@@ -91,11 +91,17 @@ srcjars_by_version = {
     "2.12.18": {
         "url": "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.12.18/scala-compiler-2.12.18-sources.jar?foo",
     },
+    "2.12.19": {
+        "url": "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.12.19/scala-compiler-2.12.19-sources.jar?foo",
+    },
     "2.13.11": {
         "url": "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.13.11/scala-compiler-2.13.11-sources.jar?foo",
     },
     "2.13.12": {
         "url": "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.13.12/scala-compiler-2.13.12-sources.jar?foo",
+    },
+    "2.13.14": {
+        "url": "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.13.14/scala-compiler-2.13.14-sources.jar?foo",
     },
 }
 
