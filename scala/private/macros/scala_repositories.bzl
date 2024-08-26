@@ -124,15 +124,14 @@ def rules_scala_setup(scala_compiler_srcjar = None):
         dt_patched_compiler_setup(scala_version, scala_compiler_srcjar)
 
 def _artifact_ids(scala_version):
-    scala_2_artifact_ids = [
+    return [
         "io_bazel_rules_scala_scala_library",
         "io_bazel_rules_scala_scala_compiler",
         "io_bazel_rules_scala_scala_reflect",
         "io_bazel_rules_scala_scala_xml",
         "io_bazel_rules_scala_scala_parser_combinators",
-        "org_scalameta_semanticdb_scalac"]
-
-    scala_3_artifact_ids = [
+        "org_scalameta_semanticdb_scalac",
+    ] if scala_version.startswith("2") else [
         "io_bazel_rules_scala_scala_library",
         "io_bazel_rules_scala_scala_compiler",
         "io_bazel_rules_scala_scala_interfaces",
@@ -140,14 +139,9 @@ def _artifact_ids(scala_version):
         "io_bazel_rules_scala_scala_asm",
         "io_bazel_rules_scala_scala_xml",
         "io_bazel_rules_scala_scala_parser_combinators",
-        "io_bazel_rules_scala_scala_library_2"]
-
-    scala_3_4_artifact_ids = scala_3_artifact_ids + ["org_scala_sbt_compiler_interface"]
-
-    # Need to add additional artifact for scala versions >= 3.4.0
-    scala_3_x_artifact_ids = scala_3_4_artifact_ids if scala_version.split('.')[1] >= '4' else scala_3_artifact_ids
-
-    return scala_2_artifact_ids if scala_version.startswith("2") else scala_3_x_artifact_ids
+        "io_bazel_rules_scala_scala_library_2",
+        "org_scala_sbt_compiler_interface",
+    ]
 
 def rules_scala_toolchain_deps_repositories(
         maven_servers = _default_maven_server_urls(),
