@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +49,9 @@ public class Runner {
     if (workspace == null || workspace.trim().isEmpty())
       throw new IllegalArgumentException(RULES_SCALA_MAIN_WS_NAME + " is null or empty.");
 
-    String runnerArgsFilePath = Runfiles.create().rlocation(workspace + "/" + runnerArgsFileKey);
+
+    Path runnerArgsUnresolvedFileLocation = Paths.get(workspace + "/" + runnerArgsFileKey).normalize();
+    String runnerArgsFilePath = Runfiles.create().rlocation(runnerArgsUnresolvedFileLocation.toString());
     if (runnerArgsFilePath == null)
       throw new IllegalArgumentException("rlocation value is null for key: " + runnerArgsFileKey);
 
@@ -90,7 +93,8 @@ public class Runner {
       String[] runpathElements = runnerArgs.get(runpathFlag + 1).split(File.pathSeparator);
       Runfiles runfiles = Runfiles.create();
       for (int i = 0; i < runpathElements.length; i++) {
-        runpathElements[i] = runfiles.rlocation(rulesWorkspace + "/" + runpathElements[i]);
+        Path runPathElementPath = Paths.get(rulesWorkspace + "/" + runpathElements[i]).normalize();
+        runpathElements[i] = runfiles.rlocation(runPathElementPath.toString());
       }
       String runpath = String.join(File.separator, runpathElements);
       runnerArgs.set(runpathFlag + 1, runpath);
