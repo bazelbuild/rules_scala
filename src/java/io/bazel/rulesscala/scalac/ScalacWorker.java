@@ -34,7 +34,7 @@ class ScalacWorker implements Worker.Interface {
 
   public static class CompilationFailed extends WorkerException {
     public CompilationFailed(String reason, Throwable cause) {
-      super("Compilation failed " + reason, cause);
+      super("Build failure " + reason, cause);
     }
     public CompilationFailed(String reason) {
       this(reason, null);
