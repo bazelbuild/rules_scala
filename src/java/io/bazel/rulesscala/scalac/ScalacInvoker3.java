@@ -43,7 +43,7 @@ class ScalacInvoker{
 
 
     if (reporter.hasErrors()) {
-//      reporter.flush();
+      reporter.flush(ctx);
       throw new ScalacWorker.CompilationFailed("with errors.");
     }
 
