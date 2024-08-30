@@ -32,6 +32,15 @@ class ScalacWorker implements Worker.Interface {
     }
   }
 
+  public static class CompilationFailed extends WorkerException {
+    public CompilationFailed(String reason, Throwable cause) {
+      super("Compilation failed " + reason, cause);
+    }
+    public CompilationFailed(String reason) {
+      this(reason, null);
+    }
+  }
+
   private static final boolean isWindows =
       System.getProperty("os.name").toLowerCase().contains("windows");
 

@@ -33,6 +33,9 @@ public final class Worker {
 			public WorkerException(String message) {
 				super(message);
 			}
+      public WorkerException(String message, Throwable cause) {
+				super(message, cause);
+			}
 		}
   }
 

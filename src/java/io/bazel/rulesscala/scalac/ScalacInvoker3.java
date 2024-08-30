@@ -44,7 +44,7 @@ class ScalacInvoker{
 
     if (reporter.hasErrors()) {
 //      reporter.flush();
-      throw new RuntimeException("Build failed");
+      throw new ScalacWorker.CompilationFailed("with errors.");
     }
 
     return results;
