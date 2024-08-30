@@ -26,6 +26,12 @@ import java.util.stream.Collectors;
 
 class ScalacWorker implements Worker.Interface {
 
+  public static class InvalidSettings extends WorkerException {
+    public InvalidSettings() {
+      super("Failed to invoke Scala compiler, ensure passed options are valid");
+    }
+  }
+
   private static final boolean isWindows =
       System.getProperty("os.name").toLowerCase().contains("windows");
 
