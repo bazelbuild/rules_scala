@@ -97,8 +97,7 @@ public final class Worker {
           } catch (ExitTrapped e) {
             code = e.code;
           } catch (Exception e) {
-            System.err.println(e.getMessage());
-            if (e instanceof Interface.WorkerException) {}
+            if (e instanceof Interface.WorkerException) System.err.println(e.getMessage());
             else e.printStackTrace();
             code = 1;
           }
