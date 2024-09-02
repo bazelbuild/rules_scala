@@ -40,10 +40,10 @@ class ScalacInvoker{
     
     ConsoleReporter reporter = (ConsoleReporter) comp.getReporter();
     if (reporter == null) {
-			// Can happen only when `ReportableMainClass::newCompiler` was not invoked,
-			// typically due to invalid settings
-			throw new ScalacWorker.InvalidSettings();
-		}
+      // Can happen only when `ReportableMainClass::newCompiler` was not invoked,
+      // typically due to invalid settings
+      throw new ScalacWorker.InvalidSettings();
+    }
 
     if (reporter instanceof ProtoReporter) {
       ProtoReporter protoReporter = (ProtoReporter) reporter;

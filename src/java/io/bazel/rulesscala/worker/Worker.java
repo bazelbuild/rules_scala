@@ -30,13 +30,13 @@ public final class Worker {
 
 
     public abstract class WorkerException extends RuntimeException {
-			public WorkerException(String message) {
-				super(message);
-			}
+      public WorkerException(String message) {
+        super(message);
+      }
       public WorkerException(String message, Throwable cause) {
-				super(message, cause);
-			}
-		}
+        super(message, cause);
+      }
+    }
   }
 
   /**
