@@ -6,7 +6,7 @@ load(
 load(
     "//third_party/repositories:scala_2_12.bzl",
     _artifacts_2_12 = "artifacts",
-    _scala_version_2_12 = "scala_version",
+    _scala_version_2_12 = "2.12.19",
 )
 load(
     "//third_party/repositories:scala_2_13.bzl",
