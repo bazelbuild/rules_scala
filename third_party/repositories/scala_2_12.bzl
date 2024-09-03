@@ -1,3 +1,5 @@
+scala_version = "2.12.19"
+
 artifacts = {
     "io_bazel_rules_scala_scala_library": {
         "artifact": "org.scala-lang:scala-library:2.12.19",
