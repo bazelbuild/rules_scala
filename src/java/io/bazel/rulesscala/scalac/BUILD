@@ -51,13 +51,8 @@ filegroup(
         "ScalacWorker.java",
         "ScalacInvokerResults.java",
     ] + select_for_scala_version(
-        any_2 = [
-            "ScalacInvoker.java",
-            "ReportableMainClass.java",
-        ],
-        any_3 = [
-            "ScalacInvoker3.java",
-        ],
+        any_2 = glob(["scala_2/*.java"]),
+        any_3 = glob(["scala_3/*.java"]),
     ),
     visibility = ["//visibility:public"],
 )
