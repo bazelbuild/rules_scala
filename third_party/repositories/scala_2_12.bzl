@@ -149,7 +149,6 @@ artifacts = {
         "sha256": "71c9d13df52d0f2169befbb078af37175c18f50456ebdf0410b99ebae0df3a9f",
         "deps": [
             "@com_lihaoyi_sourcecode",
-            "@scala_proto_rules_scalapb_runtime",
             "@io_bazel_rules_scala_scala_library",
         ],
     },
