@@ -46,7 +46,7 @@ scala_library(
     srcs = ["WarningFile.scala"],
     scalacopts = select_for_scala_version(
         any_2 = ["-Ywarn-unused:imports"],
-        any_3 = ["-Wunused:imports"]
+        any_3 = ["-Wunused:imports"],
     ),
     visibility = ["//visibility:public"],
 )
@@ -57,7 +57,7 @@ scala_library(
     # Warning: Scala 3 supports -Wunused:imports since Scala 3.3
     scalacopts = select_for_scala_version(
         any_2 = ["-Ywarn-unused:imports"],
-        any_3 = ["-Wunused:imports"]
+        any_3 = ["-Wunused:imports"],
     ),
     visibility = ["//visibility:public"],
 )
@@ -69,7 +69,10 @@ scala_library(
     # We're using a stable output from genBCode phase instead
     scalacopts = select_for_scala_version(
         any_2 = ["-Ydebug"],
-        any_3 = ["-Ylog:genBCode", "--verbose"]
+        any_3 = [
+            "-Ylog:genBCode",
+            "--verbose",
+        ],
     ),
     visibility = ["//visibility:public"],
 )
