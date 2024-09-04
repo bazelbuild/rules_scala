@@ -2,13 +2,11 @@ package io.bazel.rulesscala.scalac.reporter;
 
 import dotty.tools.dotc.core.*;
 import dotty.tools.dotc.reporting.*;
-import dotty.tools.dotc.reporting.ErrorMessageID;
 import dotty.tools.dotc.util.NoSourcePosition$;
 import io.bazel.rulesscala.deps.proto.ScalaDeps;
 import io.bazel.rulesscala.deps.proto.ScalaDeps.Dependency;
 import io.bazel.rulesscala.deps.proto.ScalaDeps.Dependency.Kind;
 import io.bazel.rulesscala.scalac.compileoptions.CompileOptions;
-import io.bazel.rulesscala.scalac.reporter.CompilerCompat;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -19,7 +17,7 @@ import java.util.*;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
-public class DepsTrackingReporter extends ConsoleReporter {
+public class DepsTrackingReporter extends BazelConsoleReporter {
 
   private static final String HJAR_JAR_SUFFIX = "-hjar.jar";
   private static final String IJAR_JAR_SUFFIX = "-ijar.jar";
@@ -308,7 +306,7 @@ public class DepsTrackingReporter extends ConsoleReporter {
   }
 
   public void writeDiagnostics(String diagnosticsFile) throws IOException {
-    if (delegateReporter == null) {
+    if (! (delegateReporter instanceof ProtoReporter)) {
       return;
     }
 

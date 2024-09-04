@@ -11,18 +11,18 @@ import java.io.PrintWriter;
 
 // Redefinitions of https://github.com/scala/scala3/blob/46683d0fae74c5d46ed8b63331c1dda6efc03179/compiler/src/dotty/tools/dotc/reporting/ConsoleReporter.scala
 // required due to https://github.com/scala/scala3/issues/21533
-abstract class ConsoleReporter extends AbstractReporter {
+abstract class BazelConsoleReporter extends AbstractReporter {
   protected final BufferedReader reader;
   protected final PrintWriter writer;
   protected final PrintWriter echoer;
 
-  protected ConsoleReporter(BufferedReader reader, PrintWriter writer, PrintWriter echoer){
+  protected BazelConsoleReporter(BufferedReader reader, PrintWriter writer, PrintWriter echoer){
     super();
     this.reader = reader;
     this.writer = writer;
     this.echoer = echoer;
   }
-  protected ConsoleReporter(){
+  protected BazelConsoleReporter(){
     this(
       Console.in(),
       new PrintWriter(Console.err(), true),
