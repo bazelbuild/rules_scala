@@ -28,7 +28,6 @@ artifacts = {
             "@io_bazel_rules_scala_scala_library",
             "@io_bazel_rules_scala_scala_reflect",
             "@io_bazel_rules_scala_scalatest_core",
-            "@io_bazel_rules_scala_scalatest_diagrams",
             "@io_bazel_rules_scala_scalatest_featurespec",
             "@io_bazel_rules_scala_scalatest_flatspec",
             "@io_bazel_rules_scala_scalatest_freespec",
@@ -36,10 +35,7 @@ artifacts = {
             "@io_bazel_rules_scala_scalatest_funsuite",
             "@io_bazel_rules_scala_scalatest_matchers_core",
             "@io_bazel_rules_scala_scalatest_mustmatchers",
-            "@io_bazel_rules_scala_scalatest_propspec",
-            "@io_bazel_rules_scala_scalatest_refspec",
             "@io_bazel_rules_scala_scalatest_shouldmatchers",
-            "@io_bazel_rules_scala_scalatest_wordspec",
         ],
     },
     "io_bazel_rules_scala_scalatest_compatible": {
@@ -225,7 +221,6 @@ artifacts = {
         "deps": [
             "@io_bazel_rules_scala_scala_library",
             "@org_scalameta_common",
-            "@org_scalameta_fastparse_v2",
         ],
     },
     "org_typelevel_paiges_core": {
