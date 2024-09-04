@@ -15,9 +15,12 @@ java_library(
         ],
         between_2_13_12_and_3 = [
             "//src/java/io/bazel/rulesscala/scalac/deps_tracking_reporter",
-            "after_2_13_12/ProtoReporter.java",
+            "after_2_13_12_and_before_3/ProtoReporter.java",
         ],
-        default = ["PlaceholderForEmptyScala3Lib.java"],
+        since_3 = [
+            "//src/java/io/bazel/rulesscala/scalac/deps_tracking_reporter",
+            "since_3/ProtoReporter.java",
+        ],
     ),
     visibility = ["//visibility:public"],
     deps = [
