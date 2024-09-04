@@ -125,7 +125,7 @@ def _jvm_import_external(repository_ctx):
             lines.append("")
     repository_ctx.download(urls, path, sha, auth = _get_auth(repository_ctx, urls))
     if srcurls and _should_fetch_sources_in_current_env(repository_ctx):
-        repository_ctx.download(srcurls, srcpath, srcsha)
+        repository_ctx.download(srcurls, srcpath, srcsha, auth = _get_auth(repository_ctx, srcurls))
     repository_ctx.file("BUILD", "\n".join(lines))
     repository_ctx.file("jar/BUILD", "\n".join([
         _HEADER,
