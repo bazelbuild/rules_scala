@@ -163,8 +163,8 @@ artifacts = {
         "artifact": "org.scalameta:fastparse-v2_2.12:2.3.1",
         "sha256": "c8ddc110da4b2e3d204e44b2629f4663edeb61094fa7ab4749f2f82b1b0cb026",
         "deps": [
-            "@com_lihaoyi_sourcecode",
             "@com_lihaoyi_geny",
+            "@com_lihaoyi_sourcecode",
         ],
     },
     "org_scalameta_fastparse_utils": {
@@ -220,6 +220,7 @@ artifacts = {
         "deps": [
             "@io_bazel_rules_scala_scala_library",
             "@org_scalameta_common",
+            "@org_scalameta_fastparse",
         ],
     },
     "org_typelevel_paiges_core": {
