@@ -117,25 +117,25 @@ dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 runner=$(get_test_runner "${1:-local}")
 export USE_BAZEL_VERSION=${USE_BAZEL_VERSION:-$(cat $dir/.bazelversion)}
 
-# TEST_TIMEOUT=15 $runner test_scala_version "${scala_2_11_version}"
-# TEST_TIMEOUT=15 $runner test_scala_version "${scala_2_12_version}"
-# TEST_TIMEOUT=15 $runner test_scala_version "${scala_2_13_version}"
+TEST_TIMEOUT=15 $runner test_scala_version "${scala_2_11_version}"
+TEST_TIMEOUT=15 $runner test_scala_version "${scala_2_12_version}"
+TEST_TIMEOUT=15 $runner test_scala_version "${scala_2_13_version}"
 
-# TEST_TIMEOUT=15 $runner test_twitter_scrooge_versions "18.6.0"
-# TEST_TIMEOUT=15 $runner test_twitter_scrooge_versions "21.2.0"
+TEST_TIMEOUT=15 $runner test_twitter_scrooge_versions "18.6.0"
+TEST_TIMEOUT=15 $runner test_twitter_scrooge_versions "21.2.0"
 
-# TEST_TIMEOUT=15 $runner test_reporter "${scala_2_11_version}" "${no_diagnostics_reporter_toolchain}"
-# TEST_TIMEOUT=15 $runner test_reporter "${scala_2_12_version}" "${no_diagnostics_reporter_toolchain}"
+TEST_TIMEOUT=15 $runner test_reporter "${scala_2_11_version}" "${no_diagnostics_reporter_toolchain}"
+TEST_TIMEOUT=15 $runner test_reporter "${scala_2_12_version}" "${no_diagnostics_reporter_toolchain}"
 TEST_TIMEOUT=15 $runner test_reporter "${scala_2_13_version}" "${no_diagnostics_reporter_toolchain}"
 TEST_TIMEOUT=15 $runner test_reporter "${scala_3_version}"    "${no_diagnostics_reporter_toolchain}"
 
-# TEST_TIMEOUT=15 $runner test_reporter "${scala_2_11_version}" "${diagnostics_reporter_toolchain}"
-# TEST_TIMEOUT=15 $runner test_reporter "${scala_2_12_version}" "${diagnostics_reporter_toolchain}"
+TEST_TIMEOUT=15 $runner test_reporter "${scala_2_11_version}" "${diagnostics_reporter_toolchain}"
+TEST_TIMEOUT=15 $runner test_reporter "${scala_2_12_version}" "${diagnostics_reporter_toolchain}"
 TEST_TIMEOUT=15 $runner test_reporter "${scala_2_13_version}" "${diagnostics_reporter_toolchain}"
 TEST_TIMEOUT=15 $runner test_reporter "${scala_3_version}"    "${diagnostics_reporter_toolchain}"
 
-# TEST_TIMEOUT=15 $runner test_reporter "${scala_2_11_version}" "${diagnostics_reporter_and_semanticdb_toolchain}"
-# TEST_TIMEOUT=15 $runner test_reporter "${scala_2_12_version}" "${diagnostics_reporter_and_semanticdb_toolchain}"
+TEST_TIMEOUT=15 $runner test_reporter "${scala_2_11_version}" "${diagnostics_reporter_and_semanticdb_toolchain}"
+TEST_TIMEOUT=15 $runner test_reporter "${scala_2_12_version}" "${diagnostics_reporter_and_semanticdb_toolchain}"
 TEST_TIMEOUT=15 $runner test_reporter "${scala_2_13_version}" "${diagnostics_reporter_and_semanticdb_toolchain}"
 TEST_TIMEOUT=15 $runner test_reporter "${scala_3_version}"    "${diagnostics_reporter_and_semanticdb_toolchain}"
 
