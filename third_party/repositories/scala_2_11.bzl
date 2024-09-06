@@ -389,11 +389,6 @@ artifacts = {
     "scala_proto_rules_scalapb_runtime": {
         "artifact": "com.thesamet.scalapb:scalapb-runtime_2.11:0.9.7",
         "sha256": "5131033e9536727891a38004ec707a93af1166cb8283c7db711c2c105fbf289e",
-        "deps": [
-            "@com_google_protobuf_protobuf_java",
-            "@com_lihaoyi_fastparse",
-            "@io_bazel_rules_scala_scala_library",
-        ],
     },
     "scala_proto_rules_scalapb_runtime_grpc": {
         "artifact": "com.thesamet.scalapb:scalapb-runtime-grpc_2.11:0.9.7",
