@@ -219,6 +219,7 @@ artifacts = {
         "artifact": "org.scalameta:trees_2.11:4.3.22",
         "sha256": "59c3c27a579d893118e4e6b29db7b17fec010b3bb63cafe995be50fe907d4026",
         "deps": [
+            "@com_thesamet_scalapb_scalapb_runtime",
             "@io_bazel_rules_scala_scala_library",
             "@org_scalameta_common",
             "@org_scalameta_fastparse",
