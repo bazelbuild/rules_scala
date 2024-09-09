@@ -24,11 +24,11 @@ class ScalacInvoker{
       comp.process(compilerArgs);
     } catch (Throwable ex) {
       if (ex.toString().contains("scala.reflect.internal.Types$TypeError")) {
-        throw new RuntimeException("Build failure with type error", ex);
+        throw new ScalacWorker.CompilationFailed("with type error", ex);
       } else if (ex.toString().contains("java.lang.StackOverflowError")) {
-        throw new RuntimeException("Build failure with StackOverflowError", ex);
+        throw new ScalacWorker.CompilationFailed("with StackOverflowError", ex);
       } else if (isMacroException(ex)) {
-        throw new RuntimeException("Build failure during macro expansion", ex);
+        throw new ScalacWorker.CompilationFailed("during macro expansion", ex);
       } else {
         throw ex;
       }
@@ -39,6 +39,12 @@ class ScalacInvoker{
     results.stopTime = System.currentTimeMillis();
     
     ConsoleReporter reporter = (ConsoleReporter) comp.getReporter();
+    if (reporter == null) {
+      // Can happen only when `ReportableMainClass::newCompiler` was not invoked,
+      // typically due to invalid settings
+      throw new ScalacWorker.InvalidSettings();
+    }
+
     if (reporter instanceof ProtoReporter) {
       ProtoReporter protoReporter = (ProtoReporter) reporter;
       protoReporter.writeTo(Paths.get(ops.diagnosticsFile));
@@ -52,7 +58,7 @@ class ScalacInvoker{
 
     if (reporter.hasErrors()) {
       reporter.flush();
-      throw new RuntimeException("Build failed");
+      throw new ScalacWorker.CompilationFailed("with errors.");
     }
 
     return results;
