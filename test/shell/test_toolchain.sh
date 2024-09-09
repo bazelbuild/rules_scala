@@ -15,5 +15,13 @@ java_toolchain_javacopts_are_used(){
       --verbose_failures //test_expect_failure/compilers_javac_opts:can_configure_jvm_flags_for_javac_via_javacopts
 }
 
+java_toolchain_javacopts_can_be_overridden(){
+  action_should_fail_with_message \
+    "invalid target release: InvalidTarget" \
+    build \
+      --verbose_failures //test_expect_failure/compilers_javac_opts:can_override_default_toolchain_flags_for_javac_via_javacopts
+}
+
 $runner test_scalaopts_from_scala_toolchain
 $runner java_toolchain_javacopts_are_used
+$runner java_toolchain_javacopts_can_be_overridden
