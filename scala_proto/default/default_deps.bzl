@@ -11,6 +11,7 @@ DEFAULT_SCALAPB_COMPILE_DEPS = [
     "@com_google_protobuf//:protobuf_java",
     "@scala_proto_rules_scalapb_lenses",
     "@scala_proto_rules_scalapb_fastparse",
+    "@com_lihaoyi_fastparse",
     "//scala/private/toolchain_deps:scala_library_classpath",
 ]
 
