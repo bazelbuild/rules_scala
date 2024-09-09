@@ -16,7 +16,7 @@ artifacts = {
         "artifact": "org.scala-lang:scala3-compiler_3:3.1.3",
         "sha256": "140c7bc825b9df3cb69a093adc4f11f7f0992f1fa87bae10d16e89020fe03e82",
         "deps": [
-            "@io_bazel_rules_scala_scala_library",
+            "@io_bazel_rules_scala_scala_asm",
         ],
     },
     "io_bazel_rules_scala_scala_interfaces": {
