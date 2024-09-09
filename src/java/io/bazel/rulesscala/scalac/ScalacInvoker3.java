@@ -22,7 +22,11 @@ class ScalacInvoker{
     Driver driver = new dotty.tools.dotc.Driver();
     Contexts.Context ctx = driver.initCtx().fresh();
 
-    Tuple2<scala.collection.immutable.List<AbstractFile>, Contexts.Context> r = driver.setup(compilerArgs, ctx).get();
+    Tuple2<scala.collection.immutable.List<AbstractFile>, Contexts.Context> r = 
+      driver.setup(compilerArgs, ctx)
+        .getOrElse(() -> {
+          throw new ScalacWorker.InvalidSettings();
+        });
 
     Compiler compiler = driver.newCompiler(r._2);
 
@@ -39,8 +43,8 @@ class ScalacInvoker{
 
 
     if (reporter.hasErrors()) {
-//      reporter.flush();
-      throw new RuntimeException("Build failed");
+      reporter.flush(ctx);
+      throw new ScalacWorker.CompilationFailed("with errors.");
     }
 
     return results;

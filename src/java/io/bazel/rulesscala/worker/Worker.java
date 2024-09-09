@@ -27,6 +27,16 @@ public final class Worker {
 
   public static interface Interface {
     public void work(String[] args) throws Exception;
+
+
+    public abstract class WorkerException extends RuntimeException {
+      public WorkerException(String message) {
+        super(message);
+      }
+      public WorkerException(String message, Throwable cause) {
+        super(message, cause);
+      }
+    }
   }
 
   /**
@@ -87,8 +97,8 @@ public final class Worker {
           } catch (ExitTrapped e) {
             code = e.code;
           } catch (Exception e) {
-            System.err.println(e.getMessage());
-            e.printStackTrace();
+            if (e instanceof Interface.WorkerException) System.err.println(e.getMessage());
+            else e.printStackTrace();
             code = 1;
           }
 
