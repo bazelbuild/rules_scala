@@ -1,16 +1,14 @@
-scala_version = "2.11.12"
-
 artifacts = {
     "io_bazel_rules_scala_scala_library": {
-        "artifact": "org.scala-lang:scala-library:%s" % scala_version,
+        "artifact": "org.scala-lang:scala-library:2.11.12",
         "sha256": "0b3d6fd42958ee98715ba2ec5fe221f4ca1e694d7c981b0ae0cd68e97baf6dce",
     },
     "io_bazel_rules_scala_scala_compiler": {
-        "artifact": "org.scala-lang:scala-compiler:%s" % scala_version,
+        "artifact": "org.scala-lang:scala-compiler:2.11.12",
         "sha256": "3e892546b72ab547cb77de4d840bcfd05c853e73390fed7370a8f19acb0735a0",
     },
     "io_bazel_rules_scala_scala_reflect": {
-        "artifact": "org.scala-lang:scala-reflect:%s" % scala_version,
+        "artifact": "org.scala-lang:scala-reflect:2.11.12",
         "sha256": "6ba385b450a6311a15c918cf8688b9af9327c6104f0ecbd35933cfcd3095fe04",
     },
     "io_bazel_rules_scala_scalatest": {
@@ -78,7 +76,7 @@ artifacts = {
         ],
     },
     "org_scalameta_semanticdb_scalac": {
-        "artifact": "org.scalameta:semanticdb-scalac_%s:4.8.6" % scala_version,
+        "artifact": "org.scalameta:semanticdb-scalac_2.11.12:4.8.6",
         "sha256": "5700b0b425eac8e1d0c27660ae96879ef688731cc0d2f2e8cdc7e20496f87670",
         "deps": [
             "@io_bazel_rules_scala_scala_library",
@@ -511,7 +509,7 @@ artifacts = {
     },
     "org_typelevel_kind_projector": {
         "testonly": True,
-        "artifact": "org.typelevel:kind-projector_%s:0.13.2" % scala_version,
+        "artifact": "org.typelevel:kind-projector_2.11.12:0.13.2",
         "sha256": "8f7287973f7f8fc9372b59d36120e3fac5839344f65c8f640351794e8907145c",
     },
 }
