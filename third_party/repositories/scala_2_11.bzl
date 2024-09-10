@@ -1,3 +1,5 @@
+scala_version = "2.11.12"
+
 artifacts = {
     "io_bazel_rules_scala_scala_library": {
         "artifact": "org.scala-lang:scala-library:2.11.12",
@@ -16,7 +18,7 @@ artifacts = {
         "sha256": "45affb34dd5b567fa943a7e155118ae6ab6c4db2fd34ca6a6c62ea129a1675be",
     },
     "io_bazel_rules_scala_scalatest_compatible": {
-        "artifact": "org.scalatest:scalatest-compatible:jar:3.2.9",
+        "artifact": "org.scalatest:scalatest-compatible:3.2.9",
         "sha256": "7e5f1193af2fd88c432c4b80ce3641e4b1d062f421d8a0fcc43af9a19bb7c2eb",
     },
     "io_bazel_rules_scala_scalatest_core": {
@@ -60,12 +62,12 @@ artifacts = {
         "sha256": "97b439fe61d1c655a8b29cdab8182b15b41b2308923786a348fc7b9f8f72b660",
     },
     "io_bazel_rules_scala_scala_xml": {
-        "artifact": "org.scala-lang.modules:scala-xml_2.11:1.2.0",
-        "sha256": "eaddac168ef1e28978af768706490fa4358323a08964c25fa1027c52238e3702",
+        "artifact": "org.scala-lang.modules:scala-xml_2.11:1.3.0",
+        "sha256": "0f6dc9b10f2ed3b1cc461330c17e76a2cb7c9874289454407551d4bace712d66",
     },
     "io_bazel_rules_scala_scala_parser_combinators": {
-        "artifact": "org.scala-lang.modules:scala-parser-combinators_2.11:1.1.2",
-        "sha256": "3e0889e95f5324da6420461f7147cb508241ed957ac5cfedc25eef19c5448f26",
+        "artifact": "org.scala-lang.modules:scala-parser-combinators_2.11:1.0.4",
+        "sha256": "0dfaafce29a9a245b0a9180ec2c1073d2bd8f0330f03a9f1f6a74d1bc83f62d6",
     },
     "org_scalameta_common": {
         "artifact": "org.scalameta:common_2.11:4.3.22",
@@ -76,8 +78,8 @@ artifacts = {
         ],
     },
     "org_scalameta_semanticdb_scalac": {
-        "artifact": "org.scalameta:semanticdb-scalac_2.11.12:4.8.6",
-        "sha256": "5700b0b425eac8e1d0c27660ae96879ef688731cc0d2f2e8cdc7e20496f87670",
+        "artifact": "org.scalameta:semanticdb-scalac_2.11.12:4.9.9",
+        "sha256": "1adfd051c4b4e1c69a49492cbcf558011beba78e79aaeef1319d29e8408e341d",
         "deps": [
             "@io_bazel_rules_scala_scala_library",
         ],
@@ -152,8 +154,8 @@ artifacts = {
         ],
     },
     "com_typesafe_config": {
-        "artifact": "com.typesafe:config:1.3.3",
-        "sha256": "b5f1d6071f1548d05be82f59f9039c7d37a1787bd8e3c677e31ee275af4a4621",
+        "artifact": "com.typesafe:config:1.2.1",
+        "sha256": "c160fbd78f51a0c2375a794e435ce2112524a6871f64d0331895e9e26ee8b9ee",
     },
     "org_scala_lang_scalap": {
         "artifact": "org.scala-lang:scalap:2.11.12",
@@ -204,15 +206,15 @@ artifacts = {
         ],
     },
     "com_lihaoyi_sourcecode": {
-        "artifact": "com.lihaoyi:sourcecode_2.11:0.1.7",
-        "sha256": "33516d7fd9411f74f05acfd5274e1b1889b7841d1993736118803fc727b2d5fc",
+        "artifact": "com.lihaoyi:sourcecode_2.11:0.2.1",
+        "sha256": "4b45e8b4efee81457b97439e250cd80a67f1ddbe896735cca0f05c88ebead58c",
         "deps": [
             "@io_bazel_rules_scala_scala_library",
         ],
     },
     "com_google_protobuf_protobuf_java": {
-        "artifact": "com.google.protobuf:protobuf-java:3.10.0",
-        "sha256": "161d7d61a8cb3970891c299578702fd079646e032329d6c2cabf998d191437c9",
+        "artifact": "com.google.protobuf:protobuf-java:3.8.0",
+        "sha256": "94ba90a869ddad07eb49afaa8f39e676c2554b5b1c417ad9e1188257e79be60f",
     },
     "com_geirsson_metaconfig_core": {
         "artifact": "com.geirsson:metaconfig-core_2.11:0.9.10",
@@ -459,8 +461,6 @@ artifacts = {
         "artifact": "com.github.scopt:scopt_2.11:4.0.0-RC2",
         "sha256": "956dfc89d3208e4a6d8bbfe0205410c082cee90c4ce08be30f97c044dffc3435",
     },
-
-    # test only
     "com_twitter__scalding_date": {
         "testonly": True,
         "artifact": "com.twitter:scalding-date_2.11:0.17.0",
