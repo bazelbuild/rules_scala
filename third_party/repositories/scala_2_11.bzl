@@ -66,8 +66,8 @@ artifacts = {
         "sha256": "0f6dc9b10f2ed3b1cc461330c17e76a2cb7c9874289454407551d4bace712d66",
     },
     "io_bazel_rules_scala_scala_parser_combinators": {
-        "artifact": "org.scala-lang.modules:scala-parser-combinators_2.11:1.0.4",
-        "sha256": "0dfaafce29a9a245b0a9180ec2c1073d2bd8f0330f03a9f1f6a74d1bc83f62d6",
+        "artifact": "org.scala-lang.modules:scala-parser-combinators_2.11:1.1.2",
+        "sha256": "3e0889e95f5324da6420461f7147cb508241ed957ac5cfedc25eef19c5448f26",
     },
     "org_scalameta_common": {
         "artifact": "org.scalameta:common_2.11:4.3.22",
