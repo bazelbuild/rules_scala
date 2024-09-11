@@ -157,10 +157,9 @@ def compile_java(ctx, source_jars, source_files, output, extra_javac_opts, provi
         output = output,
         javac_opts = expand_location(
             ctx,
-            extra_javac_opts +
             java_common.default_javac_opts(
                 java_toolchain = java_toolchain,
-            ),
+            ) + extra_javac_opts,
         ),
         deps = providers_of_dependencies,
         #exports can be empty since the manually created provider exposes exports
