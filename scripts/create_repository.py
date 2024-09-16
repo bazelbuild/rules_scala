@@ -118,6 +118,7 @@ def to_rules_scala_compatible_dict(artifacts, version) -> Dict[str, Dict]:
   for a in artifacts:
     label = get_label(a.coordinates).replace('scala3_', 'scala_').replace('scala_tasty_core', 'scala_scala_tasty_core')
     deps = ['@' + get_label(dep) for dep in a.direct_dependencies]
+    deps = list(map(lambda dep: dep.replace('scala_library', 'scala_library_2'), deps)) if "scala3-library_3" in a.coordinates.artifact else deps
 
     temp[label] = {
         "artifact": f"{a.coordinates.coordinate}",
