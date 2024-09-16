@@ -9,7 +9,7 @@ artifacts = {
         "artifact": "org.scala-lang:scala3-library_3:3.5.0",
         "sha256": "242c9a005b356c9554c6e5f33c2b40eb015f62755e1ea5c5613d80c488d40860",
         "deps": [
-            "@io_bazel_rules_scala_scala_library",
+            "@io_bazel_rules_scala_scala_library_2",
         ],
     },
     "io_bazel_rules_scala_scala_compiler": {
