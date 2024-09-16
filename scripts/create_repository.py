@@ -12,7 +12,7 @@ import copy
 import glob
 import os
 
-root_scala_versions = ["3.5.0"]
+root_scala_versions = ["2.11.12", "2.12.19", "2.13.14", "3.1.3", "3.2.2", "3.3.3", "3.4.3", "3.5.0"]
 scala_test_version = "3.2.9"
 scala_fmt_version = "3.0.0"
 
@@ -31,10 +31,13 @@ class ResolvedArtifact:
 
 def select_root_artifacts(scala_version) -> List[str]:
   scala_major = ".".join(scala_version.split(".")[:2])
+  scala_test_major = "3" if scala_major >= "3.0" else scala_major
+  scala_fmt_major = "2.13" if scala_major >= "3.0" else scala_major
+  kind_projector_version = "0.13.2" if scala_major < "2.13" else "0.13.3"
 
   common_root_artifacts = [
-    f"org.scalatest:scalatest_{"3" if scala_major >= "3.0" else scala_major}:{scala_test_version}",
-    f"org.scalameta:scalafmt-core_{"2.13" if scala_major >= "3.0" else scala_major}:{"2.7.5" if scala_major == "2.11" else scala_fmt_version}"
+    f"org.scalatest:scalatest_{scala_test_major}:{scala_test_version}",
+    f"org.scalameta:scalafmt-core_{scala_fmt_major}:{"2.7.5" if scala_major == "2.11" else scala_fmt_version}"
   ]
 
   scala_artifacts = [
@@ -47,7 +50,7 @@ def select_root_artifacts(scala_version) -> List[str]:
         f'org.scala-lang:scala-compiler:{scala_version}',
         f'org.scala-lang:scala-reflect:{scala_version}',
         f'org.scalameta:semanticdb-scalac_{scala_version}:4.9.9',
-        f'org.typelevel:kind-projector_{scala_version}:{"0.13.2" if scala_major < "2.13" else "0.13.3"}'
+        f'org.typelevel:kind-projector_{scala_version}:{kind_projector_version}'
   ]
 
   return common_root_artifacts + scala_artifacts
@@ -58,11 +61,7 @@ def get_maven_coordinates(artifact) -> MavenCoordinates:
   return MavenCoordinates(splitted[0], splitted[1], version, artifact)
 
 def get_mavens_coordinates_from_json(artifacts) -> List[MavenCoordinates]:
-  coordinates: List[MavenCoordinates] = []
-  for artifact in artifacts:
-    splitted = artifact.split(':')
-    coordinates.append(MavenCoordinates(splitted[0], splitted[1], splitted[2], artifact))
-  return coordinates
+  return list(map(lambda artifact: get_maven_coordinates(artifact), artifacts))
 
 def get_artifact_checksum(artifact) -> str:
     output = subprocess.run(f'cs fetch {artifact}', capture_output=True, text=True, shell=True).stdout.splitlines()
