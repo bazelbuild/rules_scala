@@ -70,7 +70,6 @@ def get_artifact_checksum(artifact) -> str:
     try:
         with urllib.request.urlopen(possible_url) as value:
             body = value.read()
-            time.sleep(1)
             return hashlib.sha256(body).hexdigest()
     except urllib.error.HTTPError as e:
       print(f'RESOURCES NOT FOUND: {possible_url}')
@@ -78,10 +77,7 @@ def get_artifact_checksum(artifact) -> str:
 def get_json_dependencies(artifact) -> List[MavenCoordinates]:
   with open('out.json') as file:
     data = json.load(file)
-    for d in data["dependencies"]:
-      if(d["coord"] == artifact):
-        return get_mavens_coordinates_from_json(d["directDependencies"])
-  return []
+    return get_mavens_coordinates_from_json(dependency["directDependencies"]) if any((dependency := d)["coord"] == artifact for d in data["dependencies"]) else []
 
 def get_label(coordinate) -> str:
   if ("org.scala-lang" in coordinate.group or "org.scalatest" in coordinate.group or "org.scalactic" in coordinate.group or "com.twitter" in coordinate.group or "javax.annotation" in coordinate.group) and "scala-collection" not in coordinate.artifact and "scalap" not in coordinate.artifact:
@@ -109,16 +105,14 @@ def map_to_resolved_artifacts(output) -> List[ResolvedArtifact]:
 def resolve_artifacts_with_checksums_and_direct_dependencies(root_artifacts) -> List[ResolvedArtifact]:
   command = f'cs resolve {' '.join(root_artifacts)}'
   output = subprocess.run(command, capture_output=True, text=True, shell=True).stdout.splitlines()
-  artifacts = map_to_resolved_artifacts(output)
-  return artifacts
+  return map_to_resolved_artifacts(output)
 
 def to_rules_scala_compatible_dict(artifacts, version) -> Dict[str, Dict]:
   temp = {}
 
   for a in artifacts:
     label = get_label(a.coordinates).replace('scala3_', 'scala_').replace('scala_tasty_core', 'scala_scala_tasty_core')
-    deps = ['@' + get_label(dep) for dep in a.direct_dependencies]
-    deps = list(map(lambda dep: dep.replace('scala_library', 'scala_library_2'), deps)) if "scala3-library_3" in a.coordinates.artifact else deps
+    deps = [f'@{get_label(dep)}_2' if "scala3-library_3" in a.coordinates.artifact else f'@{get_label(dep)}' for dep in a.direct_dependencies]
 
     temp[label] = {
         "artifact": f"{a.coordinates.coordinate}",
@@ -161,9 +155,7 @@ def write_to_file(artifact_dict, version, file):
   with file.open('w') as data:
     data.write(f'scala_version = "{version}"\n')
     data.write('\nartifacts = ')
-    written = get_with_trailing_commas(json.dumps(artifact_dict, indent=4).replace('true', 'True').replace('false', 'False'))
-    data.write(written)
-    data.write('\n')
+    data.write(f'{get_with_trailing_commas(json.dumps(artifact_dict, indent=4).replace('true', 'True').replace('false', 'False'))}\n')
 
 def create_file(version):
   path = os.getcwd().replace('/scripts', '/third_party/repositories')
@@ -172,11 +164,11 @@ def create_file(version):
   if not file.exists():
     file_to_copy = Path(sorted(glob.glob(f'{path}/*.bzl'))[-1])
     with file.open('w+') as data, file_to_copy.open('r') as data_to_copy:
-      for line_number, line in enumerate(data_to_copy):
-        if line_number > 1:
-          data.write(line)
+      for line in data_to_copy:
+        data.write(line)
 
   with file.open('r+') as data:
+    excluded_artifacts = ["org.scala-lang.modules:scala-parser-combinators_2.11:1.0.4"]
     root_artifacts = select_root_artifacts(version)
     read_data = data.read()
     replaced_data = read_data[read_data.find('{'):]
@@ -189,14 +181,12 @@ def create_file(version):
     generated_labels = generated_artifact_dict.keys()
 
     for label in labels:
-      if label in generated_labels and generated_artifact_dict[label]["artifact"] != "org.scala-lang.modules:scala-parser-combinators_2.11:1.0.4":
+      if label in generated_labels and generated_artifact_dict[label]["artifact"] not in excluded_artifacts:
         artifact = generated_artifact_dict[label]["artifact"]
         sha = generated_artifact_dict[label]["sha256"]
         deps = generated_artifact_dict[label]["deps:"] if "deps:" in generated_artifact_dict[label] else []
-
         original_artifact_dict[label]["artifact"] = artifact
         original_artifact_dict[label]["sha256"] = sha
-
         if deps:
           dependencies = [d for d in deps if d[1:] in labels and "runtime" not in d and "runtime" not in artifact]
           if dependencies:
