@@ -85,11 +85,11 @@ def _get_unused_deps_mode(ctx):
 
 def _is_target_included(target, includes, excludes):
     for exclude in excludes:
-        if target.startswith(exclude):
+        if target.startswith(exclude) or target.startswith("@" + exclude):
             return False
 
     for include in includes:
-        if target.startswith(include):
+        if target.startswith(include) or target.startswith("@" + include):
             return True
 
     return False

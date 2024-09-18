@@ -116,8 +116,12 @@ def repositories(
 def _alias_repository_impl(rctx):
     """ Builds a repository containing just two aliases to the Scala Maven artifacts in the `target` repository. """
 
+    # HACK: remove the prefix up to the last ~
+    name = str(rctx.name)
+    name = name[name.rfind("~") + 1:]
+
     format_kwargs = {
-        "name": rctx.name,
+        "name": name,
         "target": rctx.attr.target,
     }
     rctx.file("BUILD", """alias(
@@ -139,3 +143,46 @@ _alias_repository = repository_rule(
         "target": attr.string(mandatory = True),
     },
 )
+
+def repository(
+        id,
+        maven_servers = default_maven_server_urls(),
+        fetch_sources = True,
+        validate_scala_version = False):
+    suffix = version_suffix(SCALA_VERSION)
+    major_scala_version = extract_major_version(SCALA_VERSION)
+    default_artifacts = artifacts_by_major_scala_version[major_scala_version]
+    artifacts = dict(default_artifacts.items())
+
+    # workaround to satisfy bzlmod builds
+    # in a MODULE.bazel file we don't know which scala version is set,
+    # so we register every possible repo, even if the given version does not require it
+    if artifacts[id].get("dummy", False) == True:
+        dummy_repo(repo_name = id)
+    else:
+        _scala_maven_import_external(
+            name = id + suffix,
+            artifact = artifacts[id]["artifact"],
+            artifact_sha256 = artifacts[id]["sha256"],
+            licenses = ["notice"],
+            server_urls = maven_servers,
+            deps = [dep + suffix for dep in artifacts[id].get("deps", [])],
+            runtime_deps = artifacts[id].get("runtime_deps", []),
+            testonly_ = artifacts[id].get("testonly", False),
+            fetch_sources = fetch_sources,
+        )
+
+        # For backward compatibility: non-suffixed repo pointing to the suffixed one,
+        # See: https://github.com/bazelbuild/rules_scala/pull/1573
+        # Hopefully we can deprecate and remove it one day.
+        _alias_repository(name = id, target = id + suffix)
+
+def _dummy_repo_impl(repository_ctx):
+    repository_ctx.file("BUILD")
+
+_dummy_repo = repository_rule(
+    implementation = _dummy_repo_impl,
+)
+
+def dummy_repo(repo_name):
+    _dummy_repo(name = repo_name)
