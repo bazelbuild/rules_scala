@@ -1,0 +1,8 @@
+"""Bazel module definition for rules_scala"""
+
+# Bzlmod compatibility work is currently underway. See:
+# - https://github.com/bazelbuild/rules_scala/issues/1482
+
+module(
+    name = "rules_scala", version = "6.6.1", repo_name = "io_bazel_rules_scala"
+)

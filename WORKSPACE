@@ -34,13 +34,13 @@ rules_scala_setup()
 
 rules_scala_toolchain_deps_repositories(fetch_sources = True)
 
-load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
-
-# Declares @com_google_protobuf//:protoc pointing to released binary
-# This should stop building protoc during bazel build
-# See https://github.com/bazelbuild/rules_proto/pull/36
+load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies")
 rules_proto_dependencies()
 
+load("@rules_proto//proto:setup.bzl", "rules_proto_setup")
+rules_proto_setup()
+
+load("@rules_proto//proto:toolchains.bzl", "rules_proto_toolchains")
 rules_proto_toolchains()
 
 load("//scala:scala_cross_version.bzl", "default_maven_server_urls")
@@ -144,19 +144,6 @@ go_rules_dependencies()
 
 go_register_toolchains(version = "1.19.5")
 
-# Explicitly pull in a different (newer) version of rules_java for remote jdks
-rules_java_extra_version = "5.1.0"
-
-rules_java_extra_sha = "d974a2d6e1a534856d1b60ad6a15e57f3970d8596fbb0bb17b9ee26ca209332a"
-
-rules_java_extra_url = "https://github.com/bazelbuild/rules_java/releases/download/{}/rules_java-{}.tar.gz".format(rules_java_extra_version, rules_java_extra_version)
-
-http_archive(
-    name = "rules_java_extra",
-    sha256 = rules_java_extra_sha,
-    url = rules_java_extra_url,
-)
-
 load("@rules_java//java:repositories.bzl", "remote_jdk8_repos")
 
 # We need to select based on platform when we use these
@@ -209,3 +196,53 @@ load("//test/toolchains:jdk.bzl", "remote_jdk21_repositories", "remote_jdk21_too
 remote_jdk21_repositories()
 
 remote_jdk21_toolchains()
+
+http_archive(
+    name = "com_google_protobuf",
+    sha256 = "b2340aa47faf7ef10a0328190319d3f3bee1b24f426d4ce8f4253b6f27ce16db",
+    strip_prefix = "protobuf-28.2",
+    url = "https://github.com/protocolbuffers/protobuf/releases/download/v28.2/protobuf-28.2.tar.gz",
+)
+
+http_archive(
+    name = "rules_pkg",
+    sha256 = "d20c951960ed77cb7b341c2a59488534e494d5ad1d30c4818c736d57772a9fef",
+    url = "https://github.com/bazelbuild/rules_pkg/releases/download/1.0.1/rules_pkg-1.0.1.tar.gz",
+)
+
+load("@rules_pkg//:deps.bzl", "rules_pkg_dependencies")
+
+rules_pkg_dependencies()
+
+RULES_JVM_EXTERNAL_TAG = "6.4"
+RULES_JVM_EXTERNAL_SHA = "85776be6d8fe64abf26f463a8e12cd4c15be927348397180a01693610da7ec90"
+
+http_archive(
+    name = "rules_jvm_external",
+    strip_prefix = "rules_jvm_external-%s" % RULES_JVM_EXTERNAL_TAG,
+    sha256 = RULES_JVM_EXTERNAL_SHA,
+    url = "https://github.com/bazel-contrib/rules_jvm_external/releases/download/%s/rules_jvm_external-%s.tar.gz" % (RULES_JVM_EXTERNAL_TAG, RULES_JVM_EXTERNAL_TAG)
+)
+
+load("@rules_jvm_external//:repositories.bzl", "rules_jvm_external_deps")
+
+rules_jvm_external_deps()
+
+load("@rules_jvm_external//:setup.bzl", "rules_jvm_external_setup")
+
+rules_jvm_external_setup()
+
+http_archive(
+    name = "com_google_absl",
+    strip_prefix = "abseil-cpp-20240722.0",
+    sha256 = "f50e5ac311a81382da7fa75b97310e4b9006474f9560ac46f54a9967f07d4ae3",
+    url = "https://github.com/abseil/abseil-cpp/releases/download/20240722.0/abseil-cpp-20240722.0.tar.gz",
+)
+
+http_archive(
+    name = "zlib",
+    strip_prefix = "zlib-1.3.1",
+    sha256 = "9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23",
+    url = "https://github.com/madler/zlib/releases/download/v1.3.1/zlib-1.3.1.tar.gz",
+    build_file = "@com_google_protobuf//third_party:zlib.BUILD",
+)

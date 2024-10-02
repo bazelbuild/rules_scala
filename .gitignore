@@ -11,3 +11,7 @@ hash2
 unformatted-*.backup.scala
 .scala-build
 test/semanticdb/tempsrc
+
+# Consider removing after Bzlmod conversion is complete.
+# - https://github.com/bazelbuild/rules_scala/issues/1482
+MODULE.bazel.lock
