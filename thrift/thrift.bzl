@@ -178,4 +178,5 @@ thrift_library = rule(
     },
     outputs = {"libarchive": "lib%{name}.jar"},
     provides = [ThriftInfo],
+    toolchains = ["@bazel_tools//tools/jdk:toolchain_type"],
 )
