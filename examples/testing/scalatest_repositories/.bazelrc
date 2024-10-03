@@ -1,6 +1,3 @@
-build --enable_platform_specific_config
-windows:build --enable_runfiles
-
 # Remove these upon completing Bzlmod compatibility work.
 # - https://github.com/bazelbuild/rules_scala/issues/1482
 build --noenable_bzlmod --enable_workspace
