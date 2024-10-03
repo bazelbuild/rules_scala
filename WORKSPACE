@@ -35,12 +35,15 @@ rules_scala_setup()
 rules_scala_toolchain_deps_repositories(fetch_sources = True)
 
 load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies")
+
 rules_proto_dependencies()
 
 load("@rules_proto//proto:setup.bzl", "rules_proto_setup")
+
 rules_proto_setup()
 
 load("@rules_proto//proto:toolchains.bzl", "rules_proto_toolchains")
+
 rules_proto_toolchains()
 
 load("//scala:scala_cross_version.bzl", "default_maven_server_urls")
@@ -127,10 +130,10 @@ format_repositories()
 
 http_archive(
     name = "io_bazel_rules_go",
-    sha256 = "dd926a88a564a9246713a9c00b35315f54cbd46b31a26d5d8fb264c07045f05d",
+    sha256 = "f4a9314518ca6acfa16cc4ab43b0b8ce1e4ea64b81c38d8a3772883f153346b8",
     urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.38.1/rules_go-v0.38.1.zip",
-        "https://github.com/bazelbuild/rules_go/releases/download/v0.38.1/rules_go-v0.38.1.zip",
+        "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.50.1/rules_go-v0.50.1.zip",
+        "https://github.com/bazelbuild/rules_go/releases/download/v0.50.1/rules_go-v0.50.1.zip",
     ],
 )
 
@@ -215,13 +218,14 @@ load("@rules_pkg//:deps.bzl", "rules_pkg_dependencies")
 rules_pkg_dependencies()
 
 RULES_JVM_EXTERNAL_TAG = "6.4"
+
 RULES_JVM_EXTERNAL_SHA = "85776be6d8fe64abf26f463a8e12cd4c15be927348397180a01693610da7ec90"
 
 http_archive(
     name = "rules_jvm_external",
-    strip_prefix = "rules_jvm_external-%s" % RULES_JVM_EXTERNAL_TAG,
     sha256 = RULES_JVM_EXTERNAL_SHA,
-    url = "https://github.com/bazel-contrib/rules_jvm_external/releases/download/%s/rules_jvm_external-%s.tar.gz" % (RULES_JVM_EXTERNAL_TAG, RULES_JVM_EXTERNAL_TAG)
+    strip_prefix = "rules_jvm_external-%s" % RULES_JVM_EXTERNAL_TAG,
+    url = "https://github.com/bazel-contrib/rules_jvm_external/releases/download/%s/rules_jvm_external-%s.tar.gz" % (RULES_JVM_EXTERNAL_TAG, RULES_JVM_EXTERNAL_TAG),
 )
 
 load("@rules_jvm_external//:repositories.bzl", "rules_jvm_external_deps")
@@ -234,15 +238,15 @@ rules_jvm_external_setup()
 
 http_archive(
     name = "com_google_absl",
-    strip_prefix = "abseil-cpp-20240722.0",
     sha256 = "f50e5ac311a81382da7fa75b97310e4b9006474f9560ac46f54a9967f07d4ae3",
+    strip_prefix = "abseil-cpp-20240722.0",
     url = "https://github.com/abseil/abseil-cpp/releases/download/20240722.0/abseil-cpp-20240722.0.tar.gz",
 )
 
 http_archive(
     name = "zlib",
-    strip_prefix = "zlib-1.3.1",
-    sha256 = "9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23",
-    url = "https://github.com/madler/zlib/releases/download/v1.3.1/zlib-1.3.1.tar.gz",
     build_file = "@com_google_protobuf//third_party:zlib.BUILD",
+    sha256 = "9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23",
+    strip_prefix = "zlib-1.3.1",
+    url = "https://github.com/madler/zlib/releases/download/v1.3.1/zlib-1.3.1.tar.gz",
 )
