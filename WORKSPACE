@@ -200,6 +200,8 @@ remote_jdk21_repositories()
 
 remote_jdk21_toolchains()
 
+# //test_version:WORKSPACE.template dependencies
+
 http_archive(
     name = "com_google_protobuf",
     sha256 = "b2340aa47faf7ef10a0328190319d3f3bee1b24f426d4ce8f4253b6f27ce16db",

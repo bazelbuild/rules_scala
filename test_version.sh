@@ -26,6 +26,21 @@ compilation_should_fail() {
   fi
 }
 
+append_additional_dev_dependencies() {
+  local source="$1"
+  local dest="$2"
+  local marker='# //test_version:WORKSPACE.template dependencies'
+  local emit_deps=""
+
+  while IFS="" read line; do
+    if [[ -n "$emit_deps" ]]; then
+      echo "$line" >>"$dest"
+    elif [[ "$line" == "$marker" ]]; then
+      emit_deps='true'
+    fi
+  done <"$source"
+}
+
 run_in_test_repo() {
   local SCALA_VERSION=${SCALA_VERSION:-$SCALA_VERSION_DEFAULT}
 
@@ -44,6 +59,7 @@ run_in_test_repo() {
   sed \
       -e "s%\${twitter_scrooge_repositories}%$TWITTER_SCROOGE_REPOSITORIES%" \
       WORKSPACE.template >> $NEW_TEST_DIR/WORKSPACE
+  append_additional_dev_dependencies '../WORKSPACE' "$NEW_TEST_DIR/WORKSPACE"
   cp ../.bazelrc $NEW_TEST_DIR/.bazelrc
 
   cd $NEW_TEST_DIR
