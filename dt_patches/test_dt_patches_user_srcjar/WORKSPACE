@@ -20,6 +20,8 @@ http_archive(
 
 load("@rules_python//python:repositories.bzl", "py_repositories")
 
+py_repositories()
+
 local_repository(
     name = "io_bazel_rules_scala",
     path = "../..",
