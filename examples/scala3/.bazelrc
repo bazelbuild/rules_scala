@@ -1,0 +1,3 @@
+# Remove these upon completing Bzlmod compatibility work.
+# - https://github.com/bazelbuild/rules_scala/issues/1482
+build --noenable_bzlmod --enable_workspace
