@@ -19,13 +19,20 @@ load(
 )
 load("@bazel_skylib//lib:dicts.bzl", "dicts")
 
-def _import_paths(proto):
+def _import_paths(proto, ctx):
+    # Under Bazel 7.x, direct_sources from generated protos may still contain
+    # ctx.bin_dir.path, even when proto_source_root does not. proto_source_root
+    # may also be relative to ctx.bin_dir.path, or it may contain it. So we try
+    # removing ctx.bin_dir.path from everything.
+    bin_dir = ctx.bin_dir.path + "/"
     source_root = proto.proto_source_root
-    if "." == source_root:
-        return [src.path for src in proto.direct_sources]
-    else:
-        offset = len(source_root) + 1  # + '/'
-        return [src.path[offset:] for src in proto.direct_sources]
+    source_root += "/" if source_root != "." else ""
+    source_root = source_root.removeprefix(bin_dir)
+
+    return [
+        ds.path.removeprefix(bin_dir).removeprefix(source_root)
+        for ds in proto.direct_sources
+    ]
 
 def _code_should_be_generated(ctx, toolchain):
     # This feels rather hacky and odd, but we can't compare the labels to ignore a target easily
@@ -56,7 +63,7 @@ def _pack_sources(ctx, src_jars):
     )
 
 def _generate_sources(ctx, toolchain, proto):
-    sources = _import_paths(proto)
+    sources = _import_paths(proto, ctx)
     descriptors = proto.transitive_descriptor_sets
     outputs = {
         k: ctx.actions.declare_file("%s_%s_scalapb.srcjar" % (ctx.label.name, k))
