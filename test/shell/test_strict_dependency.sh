@@ -21,6 +21,9 @@ test_scala_import_expect_failure_on_missing_direct_deps_warn_mode() {
   dependency_target2='//test_expect_failure/scala_import:guava'
   test_target='test_expect_failure/scala_import:scala_import_propagates_compile_deps'
 
+  # Bazel 7 won't emit warnings if the output already exists.
+  rm -f "$(bazel info bazel-bin)/${test_target/://}"*
+
   local expected_message1="buildozer 'add deps $dependency_target1' //$test_target"
   local expected_message2="buildozer 'add deps $dependency_target2' //$test_target"
 
