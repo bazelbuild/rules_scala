@@ -13,6 +13,9 @@ scala_library(
         any_3 = [
             "io/bazel/rulesscala/utils/Scala3CompilerUtils.scala",
         ],
+        between_2_13_9_and_3 = [
+            "scala/tools/cmd/Scala_2_13_9_CommandLineParser.scala",
+        ],
     ),
     visibility = ["//visibility:public"],
     deps = [
