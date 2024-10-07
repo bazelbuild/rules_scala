@@ -1,13 +1,14 @@
 # Gathers information about dependency mode and analysis
 
 load(
-    "@io_bazel_rules_scala//scala/private:dependency.bzl",
+    "//scala/private:dependency.bzl",
     "get_compiler_deps_mode",
     "get_strict_deps_mode",
     "new_dependency_info",
 )
+load("//scala/private:macros/bzlmod.bzl", "apparent_repo_label_string")
 load(
-    "@io_bazel_rules_scala//scala/private:paths.bzl",
+    "//scala/private:paths.bzl",
     _get_files_with_extension = "get_files_with_extension",
     _java_extension = "java_extension",
 )
@@ -35,9 +36,9 @@ def _phase_dependency(
         p,
         unused_deps_always_off,
         strict_deps_always_off):
-    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"]
+    toolchain = ctx.toolchains[Label("//scala:toolchain_type")]
 
-    target_label = str(ctx.label)
+    target_label = apparent_repo_label_string(ctx.label)
 
     included_in_strict_deps_analysis = _is_target_included(
         target_label,

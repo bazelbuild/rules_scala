@@ -1,7 +1,5 @@
-load(
-    "@io_bazel_rules_scala//scala:providers.bzl",
-    _DepsInfo = "DepsInfo",
-)
+load("//scala/private:macros/bzlmod.bzl", "adjust_main_repo_prefix")
+load("//scala:providers.bzl", _DepsInfo = "DepsInfo")
 load(
     "@io_bazel_rules_scala_config//:config.bzl",
     "ENABLE_COMPILER_DEPENDENCY_TRACKING",
@@ -31,12 +29,12 @@ def _compute_dependency_tracking_method(
 
 def _partition_patterns(patterns):
     includes = [
-        pattern
+        adjust_main_repo_prefix(pattern)
         for pattern in patterns
         if not pattern.startswith("-")
     ]
     excludes = [
-        pattern.lstrip("-")
+        adjust_main_repo_prefix(pattern.lstrip("-"))
         for pattern in patterns
         if pattern.startswith("-")
     ]
@@ -108,15 +106,15 @@ def _scala_toolchain_impl(ctx):
 
 def _default_dep_providers():
     dep_providers = [
-        "@io_bazel_rules_scala//scala:scala_xml_provider",
-        "@io_bazel_rules_scala//scala:parser_combinators_provider",
-        "@io_bazel_rules_scala//scala:scala_compile_classpath_provider",
-        "@io_bazel_rules_scala//scala:scala_library_classpath_provider",
-        "@io_bazel_rules_scala//scala:scala_macro_classpath_provider",
+        "scala_xml",
+        "parser_combinators",
+        "scala_compile_classpath",
+        "scala_library_classpath",
+        "scala_macro_classpath",
     ]
-    if SCALA_MAJOR_VERSION.startswith("2"):
-        dep_providers.append("@io_bazel_rules_scala//scala:semanticdb_provider")
-    return dep_providers
+    if SCALA_MAJOR_VERSION.startswith("2."):
+        dep_providers.append("semanticdb")
+    return [Label("//scala:%s_provider" % p) for p in dep_providers]
 
 scala_toolchain = rule(
     _scala_toolchain_impl,

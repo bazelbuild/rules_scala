@@ -1,3 +1,4 @@
+load("//scala/private:macros/bzlmod.bzl", "apparent_repo_name")
 load(
     "//third_party/repositories:scala_2_11.bzl",
     _artifacts_2_11 = "artifacts",
@@ -102,14 +103,25 @@ def repositories(
     default_artifacts = artifacts_by_major_scala_version[major_scala_version]
     artifacts = dict(default_artifacts.items() + overriden_artifacts.items())
     for id in for_artifact_ids:
+        if id not in artifacts:
+            fail("artifact %s not in third_party/repositories/scala_%s.bzl" % (
+                id,
+                major_scala_version.replace(".", "_"),
+            ))
+
+        generated_rule_name = apparent_repo_name(id) + suffix
         _scala_maven_import_external(
             name = id + suffix,
+            generated_rule_name = generated_rule_name,
             artifact = artifacts[id]["artifact"],
             artifact_sha256 = artifacts[id]["sha256"],
             licenses = ["notice"],
             server_urls = maven_servers,
             deps = [dep + suffix for dep in artifacts[id].get("deps", [])],
-            runtime_deps = artifacts[id].get("runtime_deps", []),
+            runtime_deps = [
+                dep + suffix
+                for dep in artifacts[id].get("runtime_deps", [])
+            ],
             testonly_ = artifacts[id].get("testonly", False),
             fetch_sources = fetch_sources,
         )
@@ -118,13 +130,13 @@ def repositories(
         # See: https://github.com/bazelbuild/rules_scala/pull/1573
         # Hopefully we can deprecate and remove it one day.
         if suffix and scala_version == SCALA_VERSION:
-            _alias_repository(name = id, target = id + suffix)
+            _alias_repository(name = id, target = generated_rule_name)
 
 def _alias_repository_impl(rctx):
     """ Builds a repository containing just two aliases to the Scala Maven artifacts in the `target` repository. """
 
     format_kwargs = {
-        "name": rctx.name,
+        "name": apparent_repo_name(rctx.name),
         "target": rctx.attr.target,
     }
     rctx.file("BUILD", """alias(

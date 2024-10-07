@@ -35,6 +35,7 @@ the following macros are defined below that utilize jvm_import_external:
 - java_import_external - to demonstrate that the original functionality of `java_import_external` stayed intact.
 """
 
+load("//scala/private:macros/bzlmod.bzl", "apparent_repo_name")
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "read_netrc", "read_user_netrc", "use_netrc")
 
 # https://github.com/bazelbuild/bazel/issues/13709#issuecomment-1336699672
@@ -64,7 +65,10 @@ def _jvm_import_external(repository_ctx):
     if (repository_ctx.attr.generated_linkable_rule_name and
         not repository_ctx.attr.neverlink):
         fail("Only use generated_linkable_rule_name if neverlink is set")
-    name = repository_ctx.attr.generated_rule_name or repository_ctx.name
+    name = (
+        repository_ctx.attr.generated_rule_name or
+        apparent_repo_name(repository_ctx.name)
+    )
     urls = repository_ctx.attr.jar_urls
     if repository_ctx.attr.jar_sha256:
         print("'jar_sha256' is deprecated. Please use 'artifact_sha256'")
@@ -136,7 +140,7 @@ def _jvm_import_external(repository_ctx):
         "",
         "alias(",
         "    name = \"jar\",",
-        "    actual = \"@%s\"," % repository_ctx.name,
+        "    actual = \"@%s\"," % apparent_repo_name(repository_ctx.name),
         ")",
         "",
     ]))

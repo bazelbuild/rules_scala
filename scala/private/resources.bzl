@@ -1,3 +1,5 @@
+load(":macros/bzlmod.bzl", "apparent_repo_name")
+
 def paths(resources, resource_strip_prefix):
     """Return a list of path tuples (target, source) where:
         target - is a path in the archive (with given prefix stripped off)
@@ -13,7 +15,13 @@ def paths(resources, resource_strip_prefix):
 
 def _target_path(resource, resource_strip_prefix):
     path = _target_path_by_strip_prefix(resource, resource_strip_prefix) if resource_strip_prefix else _target_path_by_default_prefixes(resource)
-    return _strip_prefix(path, "/")
+    return _update_external_target_path(_strip_prefix(path, "/"))
+
+def _update_external_target_path(target_path):
+    if not target_path.startswith("external/"):
+        return target_path
+    prefix, repo_name, rest = target_path.split("/")
+    return "/".join([prefix, apparent_repo_name(repo_name), rest])
 
 def _target_path_by_strip_prefix(resource, resource_strip_prefix):
     # Start from absolute resource path and then strip roots so we get to correct short path
