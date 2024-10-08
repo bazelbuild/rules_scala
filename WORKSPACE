@@ -15,6 +15,17 @@ load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 
 bazel_skylib_workspace()
 
+http_archive(
+    name = "rules_python",
+    sha256 = "ca77768989a7f311186a29747e3e95c936a41dffac779aff6b443db22290d913",
+    strip_prefix = "rules_python-0.36.0",
+    url = "https://github.com/bazelbuild/rules_python/releases/download/0.36.0/rules_python-0.36.0.tar.gz",
+)
+
+load("@rules_python//python:repositories.bzl", "py_repositories")
+
+py_repositories()
+
 _build_tools_release = "5.1.0"
 
 http_archive(
@@ -127,10 +138,10 @@ format_repositories()
 
 http_archive(
     name = "io_bazel_rules_go",
-    sha256 = "dd926a88a564a9246713a9c00b35315f54cbd46b31a26d5d8fb264c07045f05d",
+    sha256 = "6dc2da7ab4cf5d7bfc7c949776b1b7c733f05e56edc4bcd9022bb249d2e2a996",
     urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.38.1/rules_go-v0.38.1.zip",
-        "https://github.com/bazelbuild/rules_go/releases/download/v0.38.1/rules_go-v0.38.1.zip",
+        "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.39.1/rules_go-v0.39.1.zip",
+        "https://github.com/bazelbuild/rules_go/releases/download/v0.39.1/rules_go-v0.39.1.zip",
     ],
 )
 
@@ -143,19 +154,6 @@ load(
 go_rules_dependencies()
 
 go_register_toolchains(version = "1.19.5")
-
-# Explicitly pull in a different (newer) version of rules_java for remote jdks
-rules_java_extra_version = "5.1.0"
-
-rules_java_extra_sha = "d974a2d6e1a534856d1b60ad6a15e57f3970d8596fbb0bb17b9ee26ca209332a"
-
-rules_java_extra_url = "https://github.com/bazelbuild/rules_java/releases/download/{}/rules_java-{}.tar.gz".format(rules_java_extra_version, rules_java_extra_version)
-
-http_archive(
-    name = "rules_java_extra",
-    sha256 = rules_java_extra_sha,
-    url = rules_java_extra_url,
-)
 
 load("@rules_java//java:repositories.bzl", "remote_jdk8_repos")
 

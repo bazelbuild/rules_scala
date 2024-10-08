@@ -443,6 +443,12 @@ common_aspect_providers = [
     [ScroogeImport],
 ]
 
+common_toolchains = [
+    "@io_bazel_rules_scala//scala:toolchain_type",
+    "@io_bazel_rules_scala//twitter_scrooge/toolchain:scrooge_toolchain_type",
+    "@bazel_tools//tools/jdk:toolchain_type",
+]
+
 scrooge_scala_aspect = aspect(
     implementation = _scrooge_scala_aspect_impl,
     attr_aspects = ["deps"],
@@ -459,10 +465,7 @@ scrooge_scala_aspect = aspect(
     ),
     provides = [ScroogeAspectInfo],
     required_aspect_providers = common_aspect_providers,
-    toolchains = [
-        "@io_bazel_rules_scala//scala:toolchain_type",
-        "@io_bazel_rules_scala//twitter_scrooge/toolchain:scrooge_toolchain_type",
-    ],
+    toolchains = common_toolchains,
     incompatible_use_toolchain_transition = True,
 )
 
@@ -477,10 +480,7 @@ scrooge_java_aspect = aspect(
     ),
     provides = [ScroogeAspectInfo],
     required_aspect_providers = common_aspect_providers,
-    toolchains = [
-        "@io_bazel_rules_scala//scala:toolchain_type",
-        "@io_bazel_rules_scala//twitter_scrooge/toolchain:scrooge_toolchain_type",
-    ],
+    toolchains = common_toolchains,
     incompatible_use_toolchain_transition = True,
     fragments = ["java"],
 )
@@ -557,6 +557,9 @@ scrooge_scala_import = rule(
         ),
     },
     provides = [ThriftInfo, JavaInfo, ScroogeImport],
-    toolchains = ["@io_bazel_rules_scala//twitter_scrooge/toolchain:scrooge_toolchain_type"],
+    toolchains = [
+        "@io_bazel_rules_scala//twitter_scrooge/toolchain:scrooge_toolchain_type",
+        "@bazel_tools//tools/jdk:toolchain_type",
+    ],
     incompatible_use_toolchain_transition = True,
 )

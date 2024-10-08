@@ -36,6 +36,7 @@ tasks:
     shell_commands:
     # Install xmllint
     - sudo apt update && sudo apt install --reinstall libxml2-utils -y
+    - echo "build --enable_workspace" >> .bazelrc
     - "./test_rules_scala.sh || buildkite-agent annotate --style 'warning' \"Optional build with latest Bazel version failed, [see here](${BUILDKITE_BUILD_URL}#${BUILDKITE_JOB_ID}) (It is not mandatory but worth checking)\""
   test_rules_scala_macos:
     name: "./test_rules_scala"
@@ -47,16 +48,16 @@ tasks:
     platform: windows
     shell_commands:
     - "bash test_rules_scala.sh"
-  test_coverage_linux_6_3_0:
+  test_coverage_linux_6_5_0:
     name: "./test_coverage"
     platform: ubuntu2004
-    bazel: 6.3.0
+    bazel: 6.5.0
     shell_commands:
       - "./test_coverage.sh"
-  test_coverage_macos_6.3.0:
+  test_coverage_macos_6.5.0:
     name: "./test_coverage"
     platform: macos
-    bazel: 6.3.0
+    bazel: 6.5.0
     shell_commands:
       - "./test_coverage.sh"
   test_reproducibility_linux:
@@ -82,13 +83,13 @@ tasks:
   examples_linux:
     name: "./test_examples"
     platform: ubuntu2004
-    bazel: 6.3.0
+    bazel: 6.5.0
     shell_commands:
       - "./test_examples.sh"
   cross_build_linux:
     name: "./test_cross_build"
     platform: ubuntu2004
-    bazel: 6.3.0
+    bazel: 6.5.0
     shell_commands:
       - "./test_cross_build.sh"
   lint_linux:
