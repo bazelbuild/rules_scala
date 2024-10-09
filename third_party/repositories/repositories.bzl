@@ -34,6 +34,11 @@ load(
     _scala_version_3_4 = "scala_version",
 )
 load(
+    "//third_party/repositories:scala_3_5.bzl",
+    _artifacts_3_5 = "artifacts",
+    _scala_version_3_5 = "scala_version",
+)
+load(
     "@io_bazel_rules_scala//scala:scala_cross_version.bzl",
     "default_maven_server_urls",
     "extract_major_version",
@@ -53,6 +58,7 @@ artifacts_by_major_scala_version = {
     "3.2": _artifacts_3_2,
     "3.3": _artifacts_3_3,
     "3.4": _artifacts_3_4,
+    "3.5": _artifacts_3_5,
 }
 
 scala_version_by_major_scala_version = {
@@ -63,6 +69,7 @@ scala_version_by_major_scala_version = {
     "3.2": _scala_version_3_2,
     "3.3": _scala_version_3_3,
     "3.4": _scala_version_3_4,
+    "3.5": _scala_version_3_5,
 }
 
 def repositories(
