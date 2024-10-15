@@ -24,6 +24,23 @@ action_should_fail() {
   fi
 }
 
+_expect_failure_with_messages() {
+  local bazel_cmd="$1"
+  shift
+  local expected_message=""
+
+  while [[ "$#" -ne 0 ]]; do
+    expected_message="$1"
+    shift
+
+    if [[ -n "$expected_message" && ! "$output" =~ $expected_message ]]; then
+      echo ${output}
+      echo "'${bazel_cmd}' should have logged \"${expected_message}\"."
+      exit 1
+    fi
+  done
+}
+
 test_expect_failure_with_message() {
   set +e
 
@@ -34,21 +51,8 @@ test_expect_failure_with_message() {
   command="bazel test --nocache_test_results --test_output=streamed ${test_filter} ${test_command}"
   output=$(${command} 2>&1)
 
-  echo ${output} | grep "$expected_message"
-  if [ $? -ne 0 ]; then
-    echo ${output}
-    echo "'bazel test ${test_command}' should have logged \"${expected_message}\"."
-        exit 1
-  fi
-  if [ "${additional_expected_message}" != "" ]; then
-    echo ${output} | grep "$additional_expected_message"
-    if [ $? -ne 0 ]; then
-      echo ${output}
-      echo "'bazel test ${test_command}' should have logged \"${additional_expected_message}\"."
-          exit 1
-    fi
-  fi
-
+  _expect_failure_with_messages "bazel test ${test_command}" \
+    "$expected_message" "$additional_expected_message"
   set -e
 }
 
@@ -58,13 +62,11 @@ action_should_fail_with_message() {
   TEST_ARG=${@:2}
   RES=$(bazel $TEST_ARG 2>&1)
   RESPONSE_CODE=$?
-  echo $RES | grep -- "$MSG"
-  GREP_RES=$?
   if [ $RESPONSE_CODE -eq 0 ]; then
     echo $RES 
     echo -e "${RED} \"bazel $TEST_ARG\" should have failed but passed. $NC"
     exit 1
-  elif [ $GREP_RES -ne 0 ]; then
+  elif [[ ! "$RES" =~ $MSG ]]; then
     echo $RES
     echo -e "${RED} \"bazel $TEST_ARG\" should have failed with message \"$MSG\" but did not. $NC"
     exit 1
@@ -79,13 +81,11 @@ action_should_fail_without_message() {
   TEST_ARG=${@:2}
   RES=$(bazel $TEST_ARG 2>&1)
   RESPONSE_CODE=$?
-  echo $RES | grep -- "$MSG"
-  GREP_RES=$?
   if [ $RESPONSE_CODE -eq 0 ]; then
     echo $RES
     echo -e "${RED} \"bazel $TEST_ARG\" should have failed but passed. $NC"
     exit 1
-  elif [ $GREP_RES -eq 0 ]; then
+  elif [[ "$RES" =~ $MSG ]]; then
     echo $RES
     echo -e "${RED} \"bazel $TEST_ARG\" should have failed with message not containing \"$MSG\" but it did. $NC"
     exit 1
@@ -120,21 +120,8 @@ test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message() {
     exit 1
   fi
 
-  echo ${output} | grep "$expected_message"
-  if [ $? -ne 0 ]; then
-    echo ${output}
-    echo "'bazel build ${test_target}' should have logged \"${expected_message}\"."
-        exit 1
-  fi
-  if [ "${additional_expected_message}" != "" ]; then
-    echo ${output} | grep "$additional_expected_message"
-    if [ $? -ne 0 ]; then
-      echo ${output}
-      echo "'bazel build ${test_target}' should have logged \"${additional_expected_message}\"."
-          exit 1
-    fi
-  fi
-
+  _expect_failure_with_messages "bazel build ${test_target}" \
+    "$expected_message" "$additional_expected_message"
   set -e
 }
 

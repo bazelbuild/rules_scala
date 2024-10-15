@@ -24,7 +24,7 @@ test_produces_semanticdb(){
 
 
   if [ $is_bundle -eq 1 ]; then
-    local toolchain="--extra_toolchains=//test/semanticdb:semanticdb_bundle_toolchain"  
+    local toolchain="--extra_toolchains=//test/semanticdb:semanticdb_bundle_toolchain"
   else
     local toolchain="--extra_toolchains=//test/semanticdb:semanticdb_nobundle_toolchain"
   fi
@@ -36,7 +36,7 @@ test_produces_semanticdb(){
 
   bazel build //test/semanticdb:semantic_provider_vars_all  ${toolchain}  ${version_opt}
 
-  #semantic_provider_vars.sh contains the SemanticdbInfo data  
+  #semantic_provider_vars.sh contains the SemanticdbInfo data
   . $(bazel info bazel-bin)/test/semanticdb/semantic_provider_vars_all.sh
 
   #Check the Provider variables
@@ -61,7 +61,7 @@ test_produces_semanticdb(){
       echo "Error: SemanticdbInfo.target_root expected to be empty string"
       exit 1
     fi
-  fi 
+  fi
 
   if [[ $scala_majver == 3 ]] && [[ $semanticdb_pluginjarpath != "" ]]; then
     echo "Error: SemanticdbInfo.pluginjarpath expected to be empty for scala 3"
@@ -73,7 +73,7 @@ test_produces_semanticdb(){
   fi
 
   if [ $is_bundle -eq 0 ]; then
-    
+
     semanticdb_path="$(bazel info execution_root)/${semanticdb_target_root}/META-INF/semanticdb/test/semanticdb/"
 
     for arg in $FILES
@@ -85,8 +85,8 @@ test_produces_semanticdb(){
         fi
       done
   fi
-  
-  local JAR="$(bazel info bazel-bin)/test/semanticdb/all_lib.jar" 
+
+  local JAR="$(bazel info bazel-bin)/test/semanticdb/all_lib.jar"
 
   if [ $is_bundle -eq 0 ]; then
     if jar_contains_files $JAR $FILES; then
@@ -110,11 +110,11 @@ test_empty_semanticdb(){
 }
 
 test_no_semanticdb() {
-  #verify no semanticdb files have been generated in the bin dir or bundled in the jar 
+  #verify no semanticdb files have been generated in the bin dir or bundled in the jar
 
   set -e
 
-  local jar="$(bazel info bazel-bin)/test/semanticdb/all_lib.jar" 
+  local jar="$(bazel info bazel-bin)/test/semanticdb/all_lib.jar"
   local targetout_path="$(bazel info bazel-bin)/test/semanticdb"
 
   rm -rf $targetout_path #clean out the output dir for clean slate
@@ -137,7 +137,7 @@ test_no_semanticdb() {
 
 test_semanticdb_handles_removed_sourcefiles() {
   #Ensure absense of bug where bazel failed with 'access denied' on Windows when a source file was removed.
-  
+
   #First add the new scala file, build it, then remove the new scala file, and ensure it builds.
   set -e
 
@@ -151,7 +151,7 @@ test_semanticdb_handles_removed_sourcefiles() {
   mkdir -p $newfile_dir && echo "class D{ val a = 1; }" > $newfilepath
 
 
-  #make sure D.scala was added to the target (sanity check)      
+  #make sure D.scala was added to the target (sanity check)
   local query_result1=$(bazel query "labels(srcs, $rule_label)")
   if [[ $query_result1 != *"$newfilename"* ]] ; then
     echo "$newfilename was not properly added as src for target $rule_label"
@@ -162,30 +162,30 @@ test_semanticdb_handles_removed_sourcefiles() {
 
   #remove the new source file and build it
   rm $newfilepath
-  
+
   #make sure D.scala was properly removed from the target(sanity check)
   local query_result2=$(bazel query "labels(srcs, $rule_label)")
-  if  [[ $query_result2 == *"$newfilename"* ]] ; then    
+  if  [[ $query_result2 == *"$newfilename"* ]] ; then
     echo "$newfilename was not properly removed as src for target $rule_label"
     exit 1
   fi
-  
+
   bazel build $rule_label $toolchainArg
 
-  
+
 }
 
 run_semanticdb_tests() {
   local bundle=1;   local nobundle=0
   local scala3=3;    local scala2=2
-  
-  $runner test_produces_semanticdb $scala2 $bundle 
-  $runner test_produces_semanticdb $scala2 $nobundle 
-  
+
+  $runner test_produces_semanticdb $scala2 $bundle
+  $runner test_produces_semanticdb $scala2 $nobundle
+
   $runner test_empty_semanticdb
 
-  $runner test_produces_semanticdb $scala3 $bundle 
-  $runner test_produces_semanticdb $scala3 $nobundle 
+  $runner test_produces_semanticdb $scala3 $bundle
+  $runner test_produces_semanticdb $scala3 $nobundle
 
   $runner test_no_semanticdb
   $runner test_semanticdb_handles_removed_sourcefiles

@@ -54,7 +54,6 @@ scala_repositories(fetch_sources = True)
 
 load(":scrooge_repositories.bzl", "scrooge_repositories")
 ${twitter_scrooge_repositories}
-
 load("@io_bazel_rules_scala//twitter_scrooge:twitter_scrooge.bzl", "twitter_scrooge")
 twitter_scrooge()
 

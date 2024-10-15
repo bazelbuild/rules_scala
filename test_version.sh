@@ -41,10 +41,16 @@ run_in_test_repo() {
 
   cp -r $test_target $NEW_TEST_DIR
 
-  sed \
-      -e "s%\${twitter_scrooge_repositories}%$TWITTER_SCROOGE_REPOSITORIES%" \
+  local scrooge_ws=""
+
+  if [[ -n "$TWITTER_SCROOGE_VERSION" ]]; then
+    local version_param="version = \"$TWITTER_SCROOGE_VERSION\""
+    scrooge_ws="scrooge_repositories($version_param)"
+  fi
+
+  sed -e "s%\${twitter_scrooge_repositories}%${scrooge_ws}\n%" \
       WORKSPACE.template >> $NEW_TEST_DIR/WORKSPACE
-  cp ../.bazelrc $NEW_TEST_DIR/.bazelrc
+  cp ../.bazel{rc,version} $NEW_TEST_DIR/
 
   cd $NEW_TEST_DIR
 
@@ -56,7 +62,7 @@ run_in_test_repo() {
 
   cd ..
   rm -rf $NEW_TEST_DIR
-  
+
   exit $RESPONSE_CODE
 }
 
@@ -83,21 +89,20 @@ test_diagnostic_proto_files() {
 }
 
 test_twitter_scrooge_versions() {
-  local version_under_test=$1
+  local TWITTER_SCROOGE_VERSION="$1"
 
-  local TWITTER_SCROOGE_REPOSITORIES_18_6_0='scrooge_repositories(version = "18.6.0")'
+  case "$TWITTER_SCROOGE_VERSION" in
+  18.6.0|20.9.0)
+    ;;
+  *)
+    echo "Unknown Twitter Scrooge version given $TWITTER_SCROOGE_VERSION"
+    ;;
+  esac
 
-  local TWITTER_SCROOGE_REPOSITORIES_21_2_0='scrooge_repositories(version = "21.2.0")'
-
-  if [ "18.6.0" = $version_under_test ]; then
-    TWITTER_SCROOGE_REPOSITORIES=$TWITTER_SCROOGE_REPOSITORIES_18_6_0
-  elif [ "20.9.0" = $version_under_test ]; then
-    TWITTER_SCROOGE_REPOSITORIES=$TWITTER_SCROOGE_REPOSITORIES_20_9_0
-  else
-    echo "Unknown Twitter Scrooge version given $version_under_test"
-  fi
-
-  run_in_test_repo "bazel test //twitter_scrooge/... --test_arg=${version_under_test}" "scrooge_version" "version_specific_tests_dir/"
+  run_in_test_repo \
+    "bazel test //twitter_scrooge/... --test_arg=${TWITTER_SCROOGE_VERSION}" \
+    "scrooge_version" \
+    "version_specific_tests_dir/"
 }
 
 if ! bazel_loc="$(type -p 'bazel')" || [[ -z "$bazel_loc" ]]; then
@@ -130,8 +135,8 @@ TEST_TIMEOUT=15 $runner test_reporter "${scala_2_11_version}" "${diagnostics_rep
 TEST_TIMEOUT=15 $runner test_reporter "${scala_2_12_version}" "${diagnostics_reporter_and_semanticdb_toolchain}"
 TEST_TIMEOUT=15 $runner test_reporter "${scala_2_13_version}" "${diagnostics_reporter_and_semanticdb_toolchain}"
 
-TEST_TIMEOUT=15 $runner test_diagnostic_proto_files "${scala_2_12_version}" //test_expect_failure/diagnostics_reporter:diagnostics_reporter_toolchain 
-TEST_TIMEOUT=15 $runner test_diagnostic_proto_files "${scala_2_13_version}" //test_expect_failure/diagnostics_reporter:diagnostics_reporter_toolchain 
+TEST_TIMEOUT=15 $runner test_diagnostic_proto_files "${scala_2_12_version}" //test_expect_failure/diagnostics_reporter:diagnostics_reporter_toolchain
+TEST_TIMEOUT=15 $runner test_diagnostic_proto_files "${scala_2_13_version}" //test_expect_failure/diagnostics_reporter:diagnostics_reporter_toolchain
 
-TEST_TIMEOUT=15 $runner test_diagnostic_proto_files "${scala_2_12_version}" //test_expect_failure/diagnostics_reporter:diagnostics_reporter_and_semanticdb_toolchain 
-TEST_TIMEOUT=15 $runner test_diagnostic_proto_files "${scala_2_13_version}" //test_expect_failure/diagnostics_reporter:diagnostics_reporter_and_semanticdb_toolchain 
+TEST_TIMEOUT=15 $runner test_diagnostic_proto_files "${scala_2_12_version}" //test_expect_failure/diagnostics_reporter:diagnostics_reporter_and_semanticdb_toolchain
+TEST_TIMEOUT=15 $runner test_diagnostic_proto_files "${scala_2_13_version}" //test_expect_failure/diagnostics_reporter:diagnostics_reporter_and_semanticdb_toolchain
