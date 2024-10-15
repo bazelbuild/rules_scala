@@ -1,37 +1,21 @@
 """Utilities for working with Bazel modules"""
 
-_repo_attr = (
-    "repo_name" if hasattr(Label("//:all"), "repo_name") else "workspace_name"
-)
-
-def apparent_repo_name(label_or_name):
-    """Return a repository's apparent repository name.
-
-    Can be replaced with a future bazel-skylib implementation, if accepted into
-    that repo.
+def apparent_repo_name(repository_ctx):
+    """Generates a repository's apparent name from a repository_ctx object.
 
     Args:
-        label_or_name: a Label or repository name string
+        repository_ctx: a repository_ctx object
 
     Returns:
-        The apparent repository name
+        An apparent repo name derived from repository_ctx.name
     """
-    repo_name = getattr(label_or_name, _repo_attr, label_or_name).lstrip("@")
-    delimiter_indices = []
+    repo_name = repository_ctx.name
 
     # Bazed on this pattern from the Bazel source:
     # com.google.devtools.build.lib.cmdline.RepositoryName.VALID_REPO_NAME
-    for i in range(len(repo_name)):
+    for i in range(len(repo_name) - 1, -1, -1):
         c = repo_name[i]
         if not (c.isalnum() or c in "_-."):
-            delimiter_indices.append(i)
+            return repo_name[i + 1:]
 
-    if len(delimiter_indices) == 0:
-        # Already an apparent repo name, apparently.
-        return repo_name
-
-    if len(delimiter_indices) == 1:
-        # The name is for a top level module, possibly containing a version ID.
-        return repo_name[:delimiter_indices[0]]
-
-    return repo_name[delimiter_indices[-1] + 1:]
+    return repo_name

@@ -65,22 +65,20 @@ def _jvm_import_external(repository_ctx):
     if (repository_ctx.attr.generated_linkable_rule_name and
         not repository_ctx.attr.neverlink):
         fail("Only use generated_linkable_rule_name if neverlink is set")
-    name = (
-        repository_ctx.attr.generated_rule_name or
-        apparent_repo_name(repository_ctx.name)
-    )
+    repo_name = apparent_repo_name(repository_ctx)
+    name = repository_ctx.attr.generated_rule_name or repo_name
     urls = repository_ctx.attr.jar_urls
     if repository_ctx.attr.jar_sha256:
         print("'jar_sha256' is deprecated. Please use 'artifact_sha256'")
     sha = repository_ctx.attr.jar_sha256 or repository_ctx.attr.artifact_sha256
-    path = repository_ctx.name + ".jar"
+    path = repo_name + ".jar"
     for url in urls:
         if url.endswith(".jar"):
             path = url[url.rindex("/") + 1:]
             break
     srcurls = repository_ctx.attr.srcjar_urls
     srcsha = repository_ctx.attr.srcjar_sha256
-    srcpath = repository_ctx.name + "-src.jar" if srcurls else ""
+    srcpath = repo_name + "-src.jar" if srcurls else ""
     coordinates = repository_ctx.attr.coordinates
     for url in srcurls:
         if url.endswith(".jar"):
@@ -140,7 +138,7 @@ def _jvm_import_external(repository_ctx):
         "",
         "alias(",
         "    name = \"jar\",",
-        "    actual = \"@%s\"," % apparent_repo_name(repository_ctx.name),
+        "    actual = \"@%s\"," % repo_name,
         ")",
         "",
     ]))
