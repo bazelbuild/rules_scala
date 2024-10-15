@@ -6,7 +6,6 @@ load(
     "get_strict_deps_mode",
     "new_dependency_info",
 )
-load("//scala/private:macros/bzlmod.bzl", "apparent_repo_label_string")
 load(
     "//scala/private:paths.bzl",
     _get_files_with_extension = "get_files_with_extension",
@@ -38,7 +37,7 @@ def _phase_dependency(
         strict_deps_always_off):
     toolchain = ctx.toolchains[Label("//scala:toolchain_type")]
 
-    target_label = apparent_repo_label_string(ctx.label)
+    target_label = str(ctx.label)
 
     included_in_strict_deps_analysis = _is_target_included(
         target_label,

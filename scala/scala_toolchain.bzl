@@ -1,4 +1,3 @@
-load("//scala/private:macros/bzlmod.bzl", "adjust_main_repo_prefix")
 load("//scala:providers.bzl", _DepsInfo = "DepsInfo")
 load(
     "@io_bazel_rules_scala_config//:config.bzl",
@@ -29,12 +28,12 @@ def _compute_dependency_tracking_method(
 
 def _partition_patterns(patterns):
     includes = [
-        adjust_main_repo_prefix(pattern)
+        pattern
         for pattern in patterns
         if not pattern.startswith("-")
     ]
     excludes = [
-        adjust_main_repo_prefix(pattern.lstrip("-"))
+        pattern.lstrip("-")
         for pattern in patterns
         if pattern.startswith("-")
     ]
@@ -116,7 +115,7 @@ def _default_dep_providers():
         dep_providers.append("semanticdb")
     return [Label("//scala:%s_provider" % p) for p in dep_providers]
 
-scala_toolchain = rule(
+_scala_toolchain = rule(
     _scala_toolchain_impl,
     attrs = {
         "scalacopts": attr.string_list(),
@@ -177,3 +176,31 @@ scala_toolchain = rule(
     },
     fragments = ["java"],
 )
+
+def _expand_patterns(patterns):
+    """Expands string patterns to match actual Label values."""
+    result = []
+
+    for p in patterns:
+        exclude = p.startswith("-")
+        p = p.lstrip("-")
+        expanded = str(native.package_relative_label(p)) if p else ""
+
+        # If the original pattern doesn't contain ":", match any target
+        # beginning with the pattern prefix.
+        if expanded and ":" not in p:
+            expanded = expanded[:expanded.rindex(":")]
+
+        result.append(("-" if exclude else "") + expanded)
+
+    return result
+
+def scala_toolchain(**kwargs):
+    """Creates a Scala toolchain target."""
+    strict = kwargs.pop("dependency_tracking_strict_deps_patterns", [""])
+    unused = kwargs.pop("dependency_tracking_unused_deps_patterns", [""])
+    _scala_toolchain(
+        dependency_tracking_strict_deps_patterns = _expand_patterns(strict),
+        dependency_tracking_unused_deps_patterns = _expand_patterns(unused),
+        **kwargs,
+    )
