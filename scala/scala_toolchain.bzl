@@ -202,5 +202,5 @@ def scala_toolchain(**kwargs):
     _scala_toolchain(
         dependency_tracking_strict_deps_patterns = _expand_patterns(strict),
         dependency_tracking_unused_deps_patterns = _expand_patterns(unused),
-        **kwargs,
+        **kwargs
     )
