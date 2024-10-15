@@ -67,7 +67,9 @@ def apparent_repo_label_string(label):
     label_str = "@" + str(label).lstrip("@")
     return label_str.replace(label.repo_name, apparent_repo_name(label))
 
-_MAIN_REPO_PREFIX = str(Label("//:all")).split(":")[0]
+_IS_BZLMOD_ENABLED = str(Label("//:all")).startswith("@@")
+
+_MAIN_REPO_PREFIX = "@@//" if _IS_BZLMOD_ENABLED else "@//"
 
 def adjust_main_repo_prefix(target_pattern):
     """Updates the main repo prefix to match the current Bazel version.
