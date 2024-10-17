@@ -101,7 +101,7 @@ def rules_scala_setup(scala_compiler_srcjar = None):
             url = "https://github.com/abseil/abseil-cpp/archive/refs/tags/20220623.1.tar.gz",
         )
 
-    if not native.existing_rule("protobuf"):
+    if not native.existing_rule("com_google_protobuf"):
         http_archive(
             name = "com_google_protobuf",
             sha256 = "75be42bd736f4df6d702a0e4e4d30de9ee40eac024c4b845d17ae4cc831fe4ae",
