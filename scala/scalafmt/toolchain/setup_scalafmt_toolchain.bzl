@@ -10,7 +10,6 @@ _SCALAFMT_DEPS = [
     "@org_scalameta_scalafmt_core",
     "@org_scalameta_scalameta",
     "@org_scalameta_trees",
-    "@org_scala_lang_modules_scala_collection_compat",
 ]
 
 def setup_scalafmt_toolchain(
