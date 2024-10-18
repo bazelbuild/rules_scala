@@ -1,17 +1,8 @@
 load("//scala/scalafmt/toolchain:toolchain.bzl", "scalafmt_toolchain")
+load("//scala/scalafmt:scalafmt_repositories.bzl", "scalafmt_artifact_ids")
 load("//scala:providers.bzl", "declare_deps_provider")
 load("//scala:scala_cross_version.bzl", "version_suffix")
 load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSIONS")
-
-_SCALAFMT_DEPS = [
-    "@com_geirsson_metaconfig_core",
-    "@org_scalameta_common",
-    "@org_scalameta_parsers",
-    "@org_scalameta_scalafmt_core",
-    "@org_scalameta_scalameta",
-    "@org_scalameta_trees",
-    "@org_scala_lang_modules_scala_collection_compat",
-]
 
 def setup_scalafmt_toolchain(
         name,
@@ -32,9 +23,14 @@ def setup_scalafmt_toolchain(
     )
     native.toolchain(
         name = name,
-        target_settings = ["@io_bazel_rules_scala_config//:scala_version" + version_suffix(scala_version)],
+        target_settings = [
+            "@io_bazel_rules_scala_config//:scala_version" +
+            version_suffix(scala_version),
+        ],
         toolchain = ":%s_impl" % name,
-        toolchain_type = "//scala/scalafmt/toolchain:scalafmt_toolchain_type",
+        toolchain_type = Label(
+            "//scala/scalafmt/toolchain:scalafmt_toolchain_type",
+        ),
         visibility = visibility,
     )
 
@@ -47,4 +43,7 @@ def setup_scalafmt_toolchains():
         )
 
 def _deps(scala_version):
-    return [dep + version_suffix(scala_version) for dep in _SCALAFMT_DEPS]
+    return [
+        "@" + artifact_id + version_suffix(scala_version)
+        for artifact_id in scalafmt_artifact_ids(scala_version)
+    ]
