@@ -4,6 +4,7 @@ dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 . "${dir}"/test_helper.sh
 runner=$(get_test_runner "${1:-local}")
 
+# Default to 2.12.19 for `diff` tests because other versions change the output.
 SCALA_VERSION="${SCALA_VERSION:-2.12.19}"
 
 test_coverage_on() {
@@ -15,7 +16,6 @@ test_coverage_on() {
 
 test_coverage_includes_test_targets() {
     bazel coverage \
-        --repo_env="SCALA_VERSION=${SCALA_VERSION}" \
         --instrument_test_targets=True \
         //test/coverage_specs2_with_junit:test-specs2-with-junit
     grep -q "SF:test/coverage_specs2_with_junit/TestWithSpecs2WithJUnit.scala" $(bazel info bazel-testlogs)/test/coverage_specs2_with_junit/test-specs2-with-junit/coverage.dat
