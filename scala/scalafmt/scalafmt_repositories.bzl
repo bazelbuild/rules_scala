@@ -16,14 +16,14 @@ def _scalafmt_config_impl(repository_ctx):
     build.append("    visibility = [\"//visibility:public\"],")
     build.append(")\n")
 
-    repository_ctx.file('BUILD', "\n".join(build), executable = False)
+    repository_ctx.file("BUILD", "\n".join(build), executable = False)
     repository_ctx.symlink(repository_ctx.path(config_path), config_path.name)
 
 scalafmt_config = repository_rule(
     implementation = _scalafmt_config_impl,
     attrs = {
         "path": attr.label(mandatory = True, allow_single_file = True),
-    }
+    },
 )
 
 def scalafmt_default_config(path = ".scalafmt.conf", **kwargs):
