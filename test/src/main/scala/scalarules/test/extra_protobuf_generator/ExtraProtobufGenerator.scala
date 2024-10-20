@@ -47,7 +47,7 @@ object ExtraProtobufGenerator extends ProtocCodeGenerator {
     handleCodeGeneratorRequest(request).toByteArray
   }
 
-    def handleCodeGeneratorRequest(request: CodeGeneratorRequest): CodeGeneratorResponse = {
+  def handleCodeGeneratorRequest(request: CodeGeneratorRequest): CodeGeneratorResponse = {
     val b = CodeGeneratorResponse.newBuilder
     ProtobufGenerator.parseParameters(request.getParameter) match {
       case Right(params) =>
@@ -73,6 +73,13 @@ object ExtraProtobufGenerator extends ProtocCodeGenerator {
         } catch {
           case e: GeneratorException =>
             b.setError(e.message)
+          case e: Throwable =>
+            // Yes, we want to catch _all_ errors and send them back to the
+            // requestor. Otherwise uncaught errors will cause the generator to
+            // die and the worker invoking it to hang.
+            val stackStream = new java.io.ByteArrayOutputStream
+            e.printStackTrace(new java.io.PrintStream(stackStream))
+            b.setError(stackStream.toString())
         }
       case Left(error) =>
         b.setError(error)
