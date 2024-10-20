@@ -15,9 +15,11 @@ class CustomProtobufGenerator(
   import implicits._
   import ProtobufGenerator._
 
+  val protobufAdapter = new ProtobufAdapter(implicits)
+
   def printCustomMessage(printer: FunctionalPrinter, message: Descriptor): FunctionalPrinter = {
     printer
-      .add(s"final case object Custom${message.nameSymbol}{}")
+      .add(s"final case object Custom${protobufAdapter.nameSymbol(message)}{}")
   }
 
   override def generateSingleScalaFileForFileDescriptor(
@@ -31,7 +33,10 @@ class CustomProtobufGenerator(
         .result()
 
     val b = CodeGeneratorResponse.File.newBuilder()
-    b.setName(file.scalaDirectory + "/Custom" + file.fileDescriptorObjectName + ".scala")
+    b.setName(
+      file.scalaDirectory + "/Custom" +
+      protobufAdapter.fileDescriptorObjectName(file) + ".scala"
+    )
     b.setContent(code)
     List(b.build)
   }
@@ -79,7 +84,6 @@ object ExtraProtobufGenerator extends ProtocCodeGenerator {
           val generator = new CustomProtobufGenerator(params, implicits)
           val validator = new ProtoValidation(implicits)
           validator.validateFiles(filesByName.values.toSeq)
-          import implicits.FileDescriptorPimp
           request.getFileToGenerateList.asScala.foreach { name =>
             val file = filesByName(name)
             val responseFiles =
