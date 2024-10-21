@@ -18,7 +18,7 @@ class DependencyAnalyzer extends StandardPlugin:
     "dependencies which are directly included in the code, or " +
     "including unused dependencies."
 
-  def init(options: List[String]): List[PluginPhase] =
+  override def init(options: List[String]): List[PluginPhase] =
     (new DependencyAnalyzerPhase) :: Nil
 
 class DependencyAnalyzerPhase extends PluginPhase:
