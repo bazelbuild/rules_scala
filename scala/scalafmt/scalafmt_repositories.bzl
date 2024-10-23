@@ -7,14 +7,27 @@ load(
 load("//third_party/repositories:repositories.bzl", "repositories")
 load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSIONS")
 
-def scalafmt_default_config(path = ".scalafmt.conf"):
+def _scalafmt_config_impl(repository_ctx):
+    config_path = repository_ctx.attr.path
     build = []
     build.append("filegroup(")
     build.append("    name = \"config\",")
-    build.append("    srcs = [\"{}\"],".format(path))
+    build.append("    srcs = [\"{}\"],".format(config_path.name))
     build.append("    visibility = [\"//visibility:public\"],")
-    build.append(")")
-    native.new_local_repository(name = "scalafmt_default", build_file_content = "\n".join(build), path = "")
+    build.append(")\n")
+
+    repository_ctx.file("BUILD", "\n".join(build), executable = False)
+    repository_ctx.symlink(repository_ctx.path(config_path), config_path.name)
+
+scalafmt_config = repository_rule(
+    implementation = _scalafmt_config_impl,
+    attrs = {
+        "path": attr.label(mandatory = True, allow_single_file = True),
+    },
+)
+
+def scalafmt_default_config(path = ".scalafmt.conf", **kwargs):
+    scalafmt_config(name = "scalafmt_default", path = "//:" + path, **kwargs)
 
 _SCALAFMT_DEPS = [
     "org_scalameta_common",
@@ -60,6 +73,7 @@ def scalafmt_repositories(
 
 def _register_scalafmt_toolchains():
     for scala_version in SCALA_VERSIONS:
-        native.register_toolchains(
-            "@io_bazel_rules_scala//scala/scalafmt:scalafmt_toolchain" + version_suffix(scala_version),
-        )
+        native.register_toolchains(str(Label(
+            "//scala/scalafmt:scalafmt_toolchain" +
+            version_suffix(scala_version),
+        )))
