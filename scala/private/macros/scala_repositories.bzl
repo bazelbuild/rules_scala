@@ -92,6 +92,23 @@ def rules_scala_setup(scala_compiler_srcjar = None):
             ],
         )
 
+    # Needed by protobuf-21.7 and Bazel 6.5.0, as later versions require C++14.
+    if not native.existing_rule("com_google_absl"):
+        http_archive(
+            name = "com_google_absl",
+            sha256 = "91ac87d30cc6d79f9ab974c51874a704de9c2647c40f6932597329a282217ba8",
+            strip_prefix = "abseil-cpp-20220623.1",
+            url = "https://github.com/abseil/abseil-cpp/archive/refs/tags/20220623.1.tar.gz",
+        )
+
+    if not native.existing_rule("com_google_protobuf"):
+        http_archive(
+            name = "com_google_protobuf",
+            sha256 = "75be42bd736f4df6d702a0e4e4d30de9ee40eac024c4b845d17ae4cc831fe4ae",
+            strip_prefix = "protobuf-21.7",
+            url = "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v21.7.tar.gz",
+        )
+
     if not native.existing_rule("rules_cc"):
         http_archive(
             name = "rules_cc",
@@ -112,12 +129,9 @@ def rules_scala_setup(scala_compiler_srcjar = None):
     if not native.existing_rule("rules_proto"):
         http_archive(
             name = "rules_proto",
-            sha256 = "dc3fb206a2cb3441b485eb1e423165b231235a1ea9b031b4433cf7bc1fa460dd",
-            strip_prefix = "rules_proto-5.3.0-21.7",
-            urls = [
-                "https://mirror.bazel.build/github.com/bazelbuild/rules_proto/archive/refs/tags/5.3.0-21.7.tar.gz",
-                "https://github.com/bazelbuild/rules_proto/archive/refs/tags/5.3.0-21.7.tar.gz",
-            ],
+            sha256 = "6fb6767d1bef535310547e03247f7518b03487740c11b6c6adb7952033fe1295",
+            strip_prefix = "rules_proto-6.0.2",
+            url = "https://github.com/bazelbuild/rules_proto/releases/download/6.0.2/rules_proto-6.0.2.tar.gz",
         )
 
     for scala_version in SCALA_VERSIONS:
