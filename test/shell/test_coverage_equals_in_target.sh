@@ -4,8 +4,13 @@ dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 . "${dir}"/test_helper.sh
 runner=$(get_test_runner "${1:-local}")
 
+# Default to 2.12.19 for `diff` tests because other versions change the output.
+SCALA_VERSION="${SCALA_VERSION:-2.12.19}"
+
 test_coverage_target_name_contains_equals_sign() {
-    bazel coverage //test/coverage_filename_encoding:name-with-equals
+    bazel coverage \
+      --repo_env="SCALA_VERSION=${SCALA_VERSION}" \
+      //test/coverage_filename_encoding:name-with-equals
     diff test/coverage_filename_encoding/expected-coverage.dat $(bazel info bazel-testlogs)/test/coverage_filename_encoding/name-with-equals/coverage.dat
 }
 

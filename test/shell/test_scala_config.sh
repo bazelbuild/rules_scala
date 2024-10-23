@@ -18,7 +18,8 @@ test_classpath_contains_2_13() {
 
 test_scala_config_content() {
   bazel build --repo_env=SCALA_VERSION=0.0.0 @io_bazel_rules_scala_config//:all 2> /dev/null
-  grep "SCALA_MAJOR_VERSION='0.0'" $(bazel info output_base)/external/io_bazel_rules_scala_config/config.bzl
+  grep "SCALA_MAJOR_VERSION='0.0'" \
+    "$(bazel info output_base)"/external/*io_bazel_rules_scala_config/config.bzl
 }
 
 $runner test_classpath_contains_2_12
