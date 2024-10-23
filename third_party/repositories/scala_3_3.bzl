@@ -1,4 +1,4 @@
-scala_version = "3.3.3"
+scala_version = "3.3.4"
 
 artifacts = {
     "io_bazel_rules_scala_scala_library_2": {
@@ -6,30 +6,31 @@ artifacts = {
         "sha256": "c6a879e4973a60f6162668542a33eaccc2bb565d1c934fb061c5844259131dd1",
     },
     "io_bazel_rules_scala_scala_library": {
-        "artifact": "org.scala-lang:scala3-library_3:3.3.3",
-        "sha256": "16fe064f1373ed6f098d3d9f812a398ed5075db4bf2721c04e630502cb352816",
+        "artifact": "org.scala-lang:scala3-library_3:3.3.4",
+        "sha256": "d95184acfcd814da2e051378e4962c653f4b468f4086452ab427af030482bd3c",
         "deps": [
             "@io_bazel_rules_scala_scala_library_2",
         ],
     },
     "io_bazel_rules_scala_scala_compiler": {
-        "artifact": "org.scala-lang:scala3-compiler_3:3.3.3",
-        "sha256": "f22bd99272f7634919b926f778be19a447e7d0c1e96e5b8ab460f287cffe1f5c",
+        "artifact": "org.scala-lang:scala3-compiler_3:3.3.4",
+        "sha256": "2cca65fdb92e2cc393786cae61b4f7bcb9032ad4be61f9cebae1dca72997e52f",
         "deps": [
             "@io_bazel_rules_scala_scala_asm",
+            "@org_scala_sbt_compiler_interface",
         ],
     },
     "io_bazel_rules_scala_scala_interfaces": {
-        "artifact": "org.scala-lang:scala3-interfaces:3.3.3",
-        "sha256": "9d85768663a1894eb9c7cfb73befe16eca760d536eed441f6660a5b8e8dc0c6a",
+        "artifact": "org.scala-lang:scala3-interfaces:3.3.4",
+        "sha256": "fe056c10a217353e14aa62076d2bbd957ebd82e02fb445ca5546ae8ea9d40caa",
     },
     "io_bazel_rules_scala_scala_tasty_core": {
-        "artifact": "org.scala-lang:tasty-core_3:3.3.3",
-        "sha256": "a126a3a76022beeb9133e7a7400b81a5ce6910f7866cc5e84fa8133ca90784a5",
+        "artifact": "org.scala-lang:tasty-core_3:3.3.4",
+        "sha256": "13d44693d6f2d38e0595954d11234c0373d6d0e689a8151b06878c5b631d57d5",
     },
     "io_bazel_rules_scala_scala_asm": {
-        "artifact": "org.scala-lang.modules:scala-asm:9.5.0-scala-1",
-        "sha256": "fa582f7352f5ee5c244d7fe93c2a1d95dada2d281e1af9a535f0b5153c75088c",
+        "artifact": "org.scala-lang.modules:scala-asm:9.6.0-scala-1",
+        "sha256": "bf16f8b69e89cadab550bce266a052780af7f1eb29dd1c04c3bd014113752c12",
     },
     "io_bazel_rules_scala_scala_parallel_collections": {
         "artifact": "org.scala-lang.modules:scala-parallel-collections_2.13:1.0.3",
@@ -143,8 +144,8 @@ artifacts = {
         ],
     },
     "org_scala_sbt_compiler_interface": {
-        "artifact": "org.scala-sbt:compiler-interface:1.10.1",
-        "sha256": "6f9982aea22fa17fef0315abd6925940dbf57fa7033535ad2176aba240aeaa1d",
+        "artifact": "org.scala-sbt:compiler-interface:1.9.6",
+        "sha256": "b986ad1cfcef14c8abeaa3e788df28be9150acfbf587b5f7aa92c1b043c4fa8d",
     },
     "org_scalameta_fastparse": {
         "artifact": "org.scalameta:fastparse-v2_2.13:2.3.1",

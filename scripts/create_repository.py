@@ -12,7 +12,7 @@ import copy
 import glob
 import os
 
-root_scala_versions = ["2.11.12", "2.12.19", "2.13.14", "3.1.3", "3.2.2", "3.3.3", "3.4.3", "3.5.0"]
+root_scala_versions = ["2.11.12", "2.12.20", "2.13.15", "3.1.3", "3.2.2", "3.3.4", "3.4.3", "3.5.2"]
 scala_test_version = "3.2.9"
 scala_fmt_version = "3.0.0"
 
@@ -33,7 +33,7 @@ def select_root_artifacts(scala_version) -> List[str]:
   scala_major = ".".join(scala_version.split(".")[:2])
   scala_test_major = "3" if scala_major >= "3.0" else scala_major
   scala_fmt_major = "2.13" if scala_major >= "3.0" else scala_major
-  kind_projector_version = "0.13.2" if scala_major < "2.13" else "0.13.3"
+  kind_projector_version = "0.13.2" if scala_major < "2.12" else "0.13.3"
 
   common_root_artifacts = [
     f"org.scalatest:scalatest_{scala_test_major}:{scala_test_version}",
@@ -104,7 +104,9 @@ def map_to_resolved_artifacts(output) -> List[ResolvedArtifact]:
 
 def resolve_artifacts_with_checksums_and_direct_dependencies(root_artifacts) -> List[ResolvedArtifact]:
   command = f'cs resolve {' '.join(root_artifacts)}'
-  output = subprocess.run(command, capture_output=True, text=True, shell=True).stdout.splitlines()
+  proc = subprocess.run(command, capture_output=True, text=True, shell=True)
+  print(proc.stderr)
+  output = proc.stdout.splitlines()
   return map_to_resolved_artifacts(output)
 
 def to_rules_scala_compatible_dict(artifacts, version) -> Dict[str, Dict]:
