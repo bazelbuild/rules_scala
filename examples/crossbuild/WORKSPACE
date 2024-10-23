@@ -30,11 +30,11 @@ local_repository(
 load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
 
 scala_config(
-    scala_version = "3.3.3",
+    scala_version = "3.3.4",
     scala_versions = [
         "2.11.12",
-        "2.13.14",
-        "3.3.3",
+        "2.13.15",
+        "3.3.4",
     ],
 )
 

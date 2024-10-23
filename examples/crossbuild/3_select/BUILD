@@ -22,7 +22,7 @@ scala_binary(
     name = "bin2",
     srcs = ["bin.scala"],
     main_class = "B",
-    scala_version = "2.13.14",
+    scala_version = "2.13.15",
     deps = [":lib"],
 )
 
@@ -30,6 +30,6 @@ scala_binary(
     name = "bin3",
     srcs = ["bin.scala"],
     main_class = "B",
-    scala_version = "3.3.3",
+    scala_version = "3.3.4",
     deps = [":lib"],
 )
