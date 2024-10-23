@@ -59,9 +59,15 @@ scala_config(enable_compiler_dependency_tracking = True)
 
 load("@io_bazel_rules_scala//scala:scala_cross_version.bzl", "extract_major_version")
 
-load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
+load(
+    "@io_bazel_rules_scala//scala:scala.bzl",
+    "scala_repositories",
+    "scala_toolchains_repo",
+)
 
 scala_repositories(fetch_sources = True)
+
+scala_toolchains_repo()
 
 load(":scrooge_repositories.bzl", "scrooge_repositories")
 ${twitter_scrooge_repositories}
