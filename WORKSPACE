@@ -39,11 +39,18 @@ load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
 
 scala_config(enable_compiler_dependency_tracking = True)
 
-load("//scala:scala.bzl", "rules_scala_setup", "rules_scala_toolchain_deps_repositories")
+load(
+    "//scala:scala.bzl",
+    "rules_scala_setup",
+    "rules_scala_toolchain_deps_repositories",
+    "scala_toolchains_repo",
+)
 
 rules_scala_setup()
 
 rules_scala_toolchain_deps_repositories(fetch_sources = True)
+
+scala_toolchains_repo()
 
 load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies")
 

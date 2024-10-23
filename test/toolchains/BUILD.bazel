@@ -33,7 +33,7 @@ scala_toolchain(
 toolchain(
     name = "ast_plus_one_deps_unused_deps_warn",
     toolchain = "ast_plus_one_deps_unused_deps_warn_impl",
-    toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
+    toolchain_type = "//scala:toolchain_type",
     visibility = ["//visibility:public"],
 )
 
@@ -48,7 +48,7 @@ scala_toolchain(
 toolchain(
     name = "ast_plus_one_deps_unused_deps_error",
     toolchain = "ast_plus_one_deps_unused_deps_error_impl",
-    toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
+    toolchain_type = "//scala:toolchain_type",
     visibility = ["//visibility:public"],
 )
 
@@ -63,7 +63,7 @@ scala_toolchain(
 toolchain(
     name = "ast_plus_one_deps_strict_deps_warn",
     toolchain = "ast_plus_one_deps_strict_deps_warn_impl",
-    toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
+    toolchain_type = "//scala:toolchain_type",
     visibility = ["//visibility:public"],
 )
 
@@ -78,7 +78,7 @@ scala_toolchain(
 toolchain(
     name = "ast_plus_one_deps_strict_deps_error",
     toolchain = "ast_plus_one_deps_strict_deps_error_impl",
-    toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
+    toolchain_type = "//scala:toolchain_type",
     visibility = ["//visibility:public"],
 )
 
@@ -93,7 +93,7 @@ scala_toolchain(
 toolchain(
     name = "high_level_transitive_deps_strict_deps_warn",
     toolchain = "high_level_transitive_deps_strict_deps_warn_impl",
-    toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
+    toolchain_type = "//scala:toolchain_type",
     visibility = ["//visibility:public"],
 )
 
@@ -108,7 +108,7 @@ scala_toolchain(
 toolchain(
     name = "high_level_transitive_deps_strict_deps_error",
     toolchain = "high_level_transitive_deps_strict_deps_error_impl",
-    toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
+    toolchain_type = "//scala:toolchain_type",
     visibility = ["//visibility:public"],
 )
 
@@ -123,7 +123,7 @@ scala_toolchain(
 toolchain(
     name = "high_level_direct_deps",
     toolchain = "high_level_direct_deps_impl",
-    toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
+    toolchain_type = "//scala:toolchain_type",
     visibility = ["//visibility:public"],
 )
 
@@ -136,7 +136,7 @@ scala_toolchain(
 toolchain(
     name = "enable_stats_file_disabled_toolchain",
     toolchain = "enable_stats_file_disabled_toolchain_impl",
-    toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
+    toolchain_type = "//scala:toolchain_type",
     visibility = ["//visibility:public"],
 )
 
@@ -149,6 +149,6 @@ scala_toolchain(
 toolchain(
     name = "use_argument_file_in_runner",
     toolchain = "use_argument_file_in_runner_impl",
-    toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
+    toolchain_type = "//scala:toolchain_type",
     visibility = ["//visibility:public"],
 )
