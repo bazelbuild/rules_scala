@@ -7,14 +7,13 @@ import scala.reflect.io.AbstractFile
 import scala.reflect.io.Directory
 import scala.reflect.io.PlainDirectory
 import scala.reflect.io.VirtualDirectory
-import scala.tools.cmd.CommandLineParser
 import scala.tools.nsc.CompilerCommand
 import scala.tools.nsc.Global
 import scala.tools.nsc.Settings
 import scala.tools.nsc.reporters.StoreReporter
 import io.bazel.rulesscala.dependencyanalyzer.DependencyTrackingMethod
 
-object TestUtil {
+object TestUtil extends CompilerAPICompat {
   final val defaultTarget = "//..."
 
   val isWindows: Boolean = System.getProperty("os.name").toLowerCase.contains("windows")
@@ -116,7 +115,7 @@ object TestUtil {
     output: AbstractFile
   ): List[StoreReporter#Info] = {
     // TODO: Optimize and cache global.
-    val options = CommandLineParser.tokenize(compileOptions)
+    val options = tokenize(compileOptions)
     val reporter = new StoreReporter()
     val settings = new Settings(println)
     val _ = new CompilerCommand(options, settings)
