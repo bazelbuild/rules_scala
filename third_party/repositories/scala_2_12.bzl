@@ -258,8 +258,8 @@ artifacts = {
         "sha256": "4c0aa7e223c75c8840c41fc183d4cd3118140a1ee503e3e08ce66ed2794c948f",
     },
     "org_scala_lang_scalap": {
-        "artifact": "org.scala-lang:scalap:2.12.19",
-        "sha256": "84d4bd5c027cde8151b31de743205ed9c45ff3ec8c3e388982233820682499e9",
+        "artifact": "org.scala-lang:scalap:2.12.20",
+        "sha256": "0b1fa8a5f222fdcace7e12378241bfc3ceabfaebd000a31e865a1111428eb283",
         "deps": [
             "@io_bazel_rules_scala_scala_compiler",
         ],

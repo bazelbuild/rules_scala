@@ -2,8 +2,8 @@ scala_version = "3.5.2"
 
 artifacts = {
     "io_bazel_rules_scala_scala_library_2": {
-        "artifact": "org.scala-lang:scala-library:2.13.14",
-        "sha256": "43e0ca1583df1966eaf02f0fbddcfb3784b995dd06bfc907209347758ce4b7e3",
+        "artifact": "org.scala-lang:scala-library:2.13.15",
+        "sha256": "8e4dbc3becf70d59c787118f6ad06fab6790136a0699cd6412bc9da3d336944e",
     },
     "io_bazel_rules_scala_scala_library": {
         "artifact": "org.scala-lang:scala3-library_3:3.5.2",
@@ -21,8 +21,8 @@ artifacts = {
         ],
     },
     "io_bazel_rules_scala_scala_compiler_2": {
-        "artifact": "org.scala-lang:scala-compiler:2.13.14",
-        "sha256": "17b7e1dd95900420816a3bc2788c8c7358c2a3c42899765a5c463a46bfa569a6",
+        "artifact": "org.scala-lang:scala-compiler:2.13.15",
+        "sha256": "4c200cd193c082bec14a2a2dffe6a1ba5f8130b1b27c79ee54c936dfcafc8ed9",
     },
     "io_bazel_rules_scala_scala_interfaces": {
         "artifact": "org.scala-lang:scala3-interfaces:3.5.2",
@@ -37,8 +37,8 @@ artifacts = {
         "sha256": "823cd3a46e289c69e37994e03aee3864e1e059aacb3e0bf34f536b3669b61772",
     },
     "io_bazel_rules_scala_scala_reflect_2": {
-        "artifact": "org.scala-lang:scala-reflect:2.13.14",
-        "sha256": "8846baaa8cf43b1b19725ab737abff145ca58d14a4d02e75d71ca8f7ca5f2926",
+        "artifact": "org.scala-lang:scala-reflect:2.13.15",
+        "sha256": "78d0cc350e1ee42d87c6e11cf5b0dc7bf0b70829c00aa38f27bfb019d439dc11",
         "deps": [
             "@io_bazel_rules_scala_scala_library_2",
         ],
@@ -258,8 +258,8 @@ artifacts = {
         "sha256": "4c0aa7e223c75c8840c41fc183d4cd3118140a1ee503e3e08ce66ed2794c948f",
     },
     "org_scala_lang_scalap": {
-        "artifact": "org.scala-lang:scalap:2.13.14",
-        "sha256": "b92a0f32ae645064f828005f883ce4aeec110fe6971f1b030643ff005a77e7c0",
+        "artifact": "org.scala-lang:scalap:2.13.15",
+        "sha256": "78991282d73e9d20cbf187bab8549ce2ef940269409d47df2a71faaf9afc4616",
         "deps": [
             "@io_bazel_rules_scala_scala_compiler_2",
         ],
