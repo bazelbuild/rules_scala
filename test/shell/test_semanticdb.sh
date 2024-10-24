@@ -30,7 +30,7 @@ test_produces_semanticdb(){
   fi
 
   if [ $scala_majver -eq 3 ]; then
-    local version_opt="--repo_env=SCALA_VERSION=3.3.3"
+    local version_opt="--repo_env=SCALA_VERSION=3.3.4"
   fi
 
 

@@ -1,21 +1,21 @@
-scala_version = "2.13.14"
+scala_version = "2.13.15"
 
 artifacts = {
     "io_bazel_rules_scala_scala_library": {
-        "artifact": "org.scala-lang:scala-library:2.13.14",
-        "sha256": "43e0ca1583df1966eaf02f0fbddcfb3784b995dd06bfc907209347758ce4b7e3",
+        "artifact": "org.scala-lang:scala-library:2.13.15",
+        "sha256": "8e4dbc3becf70d59c787118f6ad06fab6790136a0699cd6412bc9da3d336944e",
     },
     "io_bazel_rules_scala_scala_compiler": {
-        "artifact": "org.scala-lang:scala-compiler:2.13.14",
-        "sha256": "17b7e1dd95900420816a3bc2788c8c7358c2a3c42899765a5c463a46bfa569a6",
+        "artifact": "org.scala-lang:scala-compiler:2.13.15",
+        "sha256": "4c200cd193c082bec14a2a2dffe6a1ba5f8130b1b27c79ee54c936dfcafc8ed9",
         "deps": [
             "@io_bazel_rules_scala_scala_library",
             "@io_bazel_rules_scala_scala_reflect",
         ],
     },
     "io_bazel_rules_scala_scala_reflect": {
-        "artifact": "org.scala-lang:scala-reflect:2.13.14",
-        "sha256": "8846baaa8cf43b1b19725ab737abff145ca58d14a4d02e75d71ca8f7ca5f2926",
+        "artifact": "org.scala-lang:scala-reflect:2.13.15",
+        "sha256": "78d0cc350e1ee42d87c6e11cf5b0dc7bf0b70829c00aa38f27bfb019d439dc11",
         "deps": [
             "@io_bazel_rules_scala_scala_library",
         ],
@@ -159,8 +159,8 @@ artifacts = {
         ],
     },
     "org_scalameta_semanticdb_scalac": {
-        "artifact": "org.scalameta:semanticdb-scalac_2.13.14:4.9.9",
-        "sha256": "c5269b5b7264fc5082357acdb4d9cf6790f49b4195f127878bd4f46659e3c52b",
+        "artifact": "org.scalameta:semanticdb-scalac_2.13.15:4.9.9",
+        "sha256": "409194fee7eeb3da25733f6fc0c2d62b9ef53ddecdc50b6c922fdc695b250fe7",
         "deps": [
             "@io_bazel_rules_scala_scala_library",
         ],
@@ -588,7 +588,7 @@ artifacts = {
     },
     "org_typelevel_kind_projector": {
         "testonly": True,
-        "artifact": "org.typelevel:kind-projector_2.13.14:0.13.3",
+        "artifact": "org.typelevel:kind-projector_2.13.15:0.13.3",
         "sha256": "569fec54deba82cd143f05a6a0456c9e3bf56bff310b0968f0adb5fb3b352d92",
         "deps": [
             "@io_bazel_rules_scala_scala_compiler",
