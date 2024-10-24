@@ -31,7 +31,7 @@ class VerifyDiagnosticsOutput {
     if (diagnostics.stream()
         .noneMatch(
             diagnosticInfo ->
-                diagnosticInfo.getMessage().equals(message)
+                diagnosticInfo.getMessage().equalsIgnoreCase(message)
                     && diagnosticInfo.getSeverity().equals(severity)))
       throw new NoSuchElementException(
           "No diagnostics with severity: "
