@@ -1,12 +1,10 @@
+load("//scala/scalafmt/toolchain:setup_scalafmt_toolchain.bzl", "setup_scalafmt_toolchains")
+load("//scala/scalafmt/toolchain:toolchain.bzl", "export_scalafmt_deps")
+load("//scala/scalafmt:phase_scalafmt_ext.bzl", "scalafmt_singleton")
 load("//scala:scala.bzl", "scala_binary")
 load("//scala:scala_cross_version.bzl", "version_suffix")
-load("//scala/scalafmt/toolchain:toolchain.bzl", "export_scalafmt_deps")
-load("//scala/scalafmt/toolchain:setup_scalafmt_toolchain.bzl", "setup_scalafmt_toolchains")
+load("//scala:scala_cross_version_select.bzl", "select_for_scala_version")
 load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
-load(
-    "//scala/scalafmt:phase_scalafmt_ext.bzl",
-    "scalafmt_singleton",
-)
 
 filegroup(
     name = "runner",
@@ -22,7 +20,10 @@ filegroup(
 
 scala_binary(
     name = "scalafmt",
-    srcs = ["scalafmt/ScalafmtWorker.scala"],
+    srcs = ["scalafmt/ScalafmtWorker.scala"] + select_for_scala_version(
+        before_2_12_0 = ["scalafmt/ScalafmtAdapter-2_11.scala"],
+        since_2_12_0 = ["scalafmt/ScalafmtAdapter.scala"],
+    ),
     main_class = "io.bazel.rules_scala.scalafmt.ScalafmtWorker",
     visibility = ["//visibility:public"],
     deps = [
