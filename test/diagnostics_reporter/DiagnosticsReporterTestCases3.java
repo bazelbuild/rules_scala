@@ -21,10 +21,12 @@ class DiagnosticsReporterTestCases {
           put(
               "two_errors_file",
               new diagnostics_reporter.VerifyDiagnosticsOutput[] {
+                // 'did you mean' part was introduced in to Scala 3 LTS in 3.3.4
+                // It was introduced in Scala Next releases somewhere beetween 3.4 and 3.5 
                 new diagnostics_reporter.VerifyDiagnosticsOutput(
-                    Diagnostics.Severity.ERROR, "Not found: printn"),
+                    Diagnostics.Severity.ERROR, "Not found: printn - did you mean print? or perhaps printf or println?"),
                 new diagnostics_reporter.VerifyDiagnosticsOutput(
-                    Diagnostics.Severity.ERROR, "Not found: prinf")
+                    Diagnostics.Severity.ERROR, "Not found: prinf - did you mean print? or perhaps printf?")
               });
           put(
               "warning_file",
@@ -37,7 +39,7 @@ class DiagnosticsReporterTestCases {
               new diagnostics_reporter.VerifyDiagnosticsOutput[] {
                 // Scala 3 does not report unused import when errors are present
                 new diagnostics_reporter.VerifyDiagnosticsOutput(
-                  Diagnostics.Severity.ERROR, "Not found: printn")
+                  Diagnostics.Severity.ERROR, "Not found: printn - did you mean print? or perhaps printf or println?")
               });
           put(
               "info_file",
