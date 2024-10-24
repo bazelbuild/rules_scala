@@ -31,9 +31,15 @@ load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
 
 scala_config()
 
-load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
+load(
+    "@io_bazel_rules_scala//scala:scala.bzl",
+    "scala_repositories",
+    "scala_toolchains_repo",
+)
 
 scala_repositories()
+
+scala_toolchains_repo()
 
 load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies")
 
