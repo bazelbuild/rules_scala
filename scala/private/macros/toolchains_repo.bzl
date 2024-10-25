@@ -1,4 +1,4 @@
-"""Creates a repo containing Scala toolchain packages"""
+"""Repository rule to instantiate @io_bazel_rules_scala_toolchains"""
 
 def _scala_toolchains_repo_impl(repository_ctx):
     repo_attr = repository_ctx.attr

@@ -1,4 +1,5 @@
-load("//scala:scala.bzl", "scala_binary", "scala_library")
+load("//scala/private:rules/scala_binary.bzl", "scala_binary")
+load("//scala/private:rules/scala_library.bzl", "scala_library")
 load(
     "//scala:scala_cross_version.bzl",
     "default_maven_server_urls",
