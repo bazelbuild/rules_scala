@@ -25,6 +25,37 @@ dt_patched_compiler = repository_rule(
     implementation = _dt_patched_compiler_impl,
 )
 
+_COMPILER_SOURCE_ALIAS_TEMPLATE = """alias(
+    name = "src",
+    visibility = ["//visibility:public"],
+    actual = select({{{compiler_sources}
+    }}),
+)
+"""
+
+_COMPILER_SOURCES_ENTRY_TEMPLATE = """
+        "@io_bazel_rules_scala_config//:scala_version{scala_version_suffix}":
+            "@scala_compiler_source{scala_version_suffix}//:src","""
+
+def _compiler_sources_repo_impl(rctx):
+    sources = [
+        _COMPILER_SOURCES_ENTRY_TEMPLATE.format(
+            scala_version_suffix = version_suffix(scala_version),
+        )
+        for scala_version in SCALA_VERSIONS
+    ]
+    build_content = _COMPILER_SOURCE_ALIAS_TEMPLATE.format(
+        compiler_sources = "".join(sources),
+    )
+    rctx.file("BUILD", content = build_content, executable = False)
+
+compiler_sources_repo = repository_rule(
+    implementation = _compiler_sources_repo_impl,
+    attrs = {
+        "scala_versions": attr.string_list(mandatory = True),
+    },
+)
+
 def _validate_scalac_srcjar(srcjar):
     if type(srcjar) != "dict":
         return False
@@ -136,6 +167,11 @@ def rules_scala_setup(scala_compiler_srcjar = None):
 
     for scala_version in SCALA_VERSIONS:
         dt_patched_compiler_setup(scala_version, scala_compiler_srcjar)
+
+    compiler_sources_repo(
+        name = "scala_compiler_sources",
+        scala_versions = SCALA_VERSIONS,
+    )
 
 def _artifact_ids(scala_version):
     return [
