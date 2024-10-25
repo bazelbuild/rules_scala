@@ -34,18 +34,15 @@ load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
 
 scala_config(scala_version = "2.13.15")
 
-load(
-    "@io_bazel_rules_scala//scala:scala.bzl",
-    "rules_scala_setup",
-    "rules_scala_toolchain_deps_repositories",
-    "scala_toolchains_repo",
+load("@io_bazel_rules_scala//scala:scala.bzl", "scala_toolchains")
+
+scala_toolchains(fetch_sources = True)
+
+register_toolchains(
+    #Register and use the custom toolchain that has semanticdb enabled
+    "//:semanticdb_toolchain",
+    "@io_bazel_rules_scala_toolchains//...:all",
 )
-
-rules_scala_setup()
-
-rules_scala_toolchain_deps_repositories(fetch_sources = True)
-
-scala_toolchains_repo()
 
 load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies")
 
@@ -62,8 +59,3 @@ rules_proto_toolchains()
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 
 protobuf_deps()
-
-#Register and use the custom toolchain that has semanticdb enabled
-register_toolchains(
-    "//:semanticdb_toolchain",
-)

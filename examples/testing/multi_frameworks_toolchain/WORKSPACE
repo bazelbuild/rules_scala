@@ -31,18 +31,14 @@ load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
 
 scala_config()
 
-load(
-    "@io_bazel_rules_scala//scala:scala.bzl",
-    "rules_scala_setup",
-    "rules_scala_toolchain_deps_repositories",
-    "scala_toolchains_repo",
+load("@io_bazel_rules_scala//scala:scala.bzl", "scala_toolchains")
+
+scala_toolchains(fetch_sources = True)
+
+register_toolchains(
+    ":testing_toolchain",
+    "@io_bazel_rules_scala_toolchains//...:all",
 )
-
-rules_scala_setup()
-
-rules_scala_toolchain_deps_repositories(fetch_sources = True)
-
-scala_toolchains_repo()
 
 load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies")
 
@@ -73,5 +69,3 @@ scalatest_repositories()
 junit_repositories()
 
 specs2_junit_repositories()
-
-register_toolchains(":testing_toolchain")

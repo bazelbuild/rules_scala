@@ -31,18 +31,11 @@ load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
 
 scala_config()
 
-load(
-    "@io_bazel_rules_scala//scala:scala.bzl",
-    "rules_scala_setup",
-    "rules_scala_toolchain_deps_repositories",
-    "scala_toolchains_repo",
-)
+load("@io_bazel_rules_scala//scala:scala.bzl", "scala_toolchains")
 
-rules_scala_setup()
+scala_toolchains(fetch_sources = True)
 
-rules_scala_toolchain_deps_repositories(fetch_sources = True)
-
-scala_toolchains_repo()
+register_toolchains("@io_bazel_rules_scala_toolchains//...:all")
 
 load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies")
 

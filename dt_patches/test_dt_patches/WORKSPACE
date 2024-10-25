@@ -31,12 +31,7 @@ load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
 
 scala_config(enable_compiler_dependency_tracking = True)
 
-load(
-    "@io_bazel_rules_scala//scala:scala.bzl",
-    "rules_scala_setup",
-    "rules_scala_toolchain_deps_repositories",
-    "scala_toolchains_repo",
-)
+load("@io_bazel_rules_scala//scala:scala.bzl", "scala_toolchains")
 load(
     "@io_bazel_rules_scala//scala:scala_cross_version.bzl",
     "default_maven_server_urls",
@@ -105,16 +100,15 @@ scala_maven_import_external(
     server_urls = default_maven_server_urls(),
 )
 
-rules_scala_setup()
-
-rules_scala_toolchain_deps_repositories(
+scala_toolchains(
     fetch_sources = True,
     validate_scala_version = False,
 )
 
-scala_toolchains_repo()
-
-register_toolchains(":dt_scala_toolchain")
+register_toolchains(
+    ":dt_scala_toolchain",
+    "@io_bazel_rules_scala_toolchains//...:all",
+)
 
 load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies")
 
