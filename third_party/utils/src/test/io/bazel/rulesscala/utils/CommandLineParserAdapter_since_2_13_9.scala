@@ -8,7 +8,8 @@ package scala {
 }
 
 package io.bazel.rulesscala.utils {
-  trait CompilerAPICompat {
-    def tokenize(cmd: String): List[String] = scala.rulesscala.Proxy.tokenize(cmd)
+  object CommandLineParserAdapter {
+    def tokenize(cmd: String): List[String] =
+      scala.rulesscala.Proxy.tokenize(cmd)
   }
 }

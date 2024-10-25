@@ -14,10 +14,10 @@ scala_library(
             "io/bazel/rulesscala/utils/Scala3CompilerUtils.scala",
         ],
         before_2_13_9 = [
-            "io/bazel/rulesscala/utils/CompilerAPICompat_before_2_13_9.scala",
+            "io/bazel/rulesscala/utils/CommandLineParserAdapter_before_2_13_9.scala",
         ],
         between_2_13_9_and_3 = [
-            "io/bazel/rulesscala/utils/CompilerAPICompat_since_2_13_9.scala",
+            "io/bazel/rulesscala/utils/CommandLineParserAdapter_since_2_13_9.scala",
         ],
     ),
     visibility = ["//visibility:public"],

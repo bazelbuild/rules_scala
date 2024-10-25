@@ -2,6 +2,6 @@ package io.bazel.rulesscala.utils
 
 import scala.tools.cmd.CommandLineParser
 
-trait CompilerAPICompat {
+object CommandLineParserAdapter {
   def tokenize(cmd: String): List[String] = CommandLineParser.tokenize(cmd)
 }

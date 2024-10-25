@@ -13,7 +13,7 @@ import scala.tools.nsc.Settings
 import scala.tools.nsc.reporters.StoreReporter
 import io.bazel.rulesscala.dependencyanalyzer.DependencyTrackingMethod
 
-object TestUtil extends CompilerAPICompat {
+object TestUtil {
   final val defaultTarget = "//..."
 
   val isWindows: Boolean = System.getProperty("os.name").toLowerCase.contains("windows")
@@ -115,7 +115,7 @@ object TestUtil extends CompilerAPICompat {
     output: AbstractFile
   ): List[StoreReporter#Info] = {
     // TODO: Optimize and cache global.
-    val options = tokenize(compileOptions)
+    val options = CommandLineParserAdapter.tokenize(compileOptions)
     val reporter = new StoreReporter()
     val settings = new Settings(println)
     val _ = new CompilerCommand(options, settings)
