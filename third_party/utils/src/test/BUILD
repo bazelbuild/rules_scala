@@ -13,6 +13,12 @@ scala_library(
         any_3 = [
             "io/bazel/rulesscala/utils/Scala3CompilerUtils.scala",
         ],
+        before_2_13_9 = [
+            "io/bazel/rulesscala/utils/CommandLineParserAdapter_before_2_13_9.scala",
+        ],
+        between_2_13_9_and_3 = [
+            "io/bazel/rulesscala/utils/CommandLineParserAdapter_since_2_13_9.scala",
+        ],
     ),
     visibility = ["//visibility:public"],
     deps = [
