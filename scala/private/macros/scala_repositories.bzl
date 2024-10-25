@@ -25,28 +25,29 @@ dt_patched_compiler = repository_rule(
     implementation = _dt_patched_compiler_impl,
 )
 
-_PACKAGE_VISIBILITY_PUBLIC = """package(
-    default_visibility = [\"//visibility:public\"],
+_COMPILER_SOURCE_ALIAS_TEMPLATE = """alias(
+    name = "src",
+    visibility = ["//visibility:public"],
+    actual = select({{{compiler_sources}
+    }}),
 )
 """
 
-_COMPILER_SOURCE_ALIAS_FORMAT = """alias(
-    name   = "src{scala_version_suffix}",
-    actual = "@scala_compiler_source{scala_version_suffix}//:src",
-    visibility = ["//visibility:public"],
-)
-"""
+_COMPILER_SOURCES_ENTRY_TEMPLATE = """
+        "@io_bazel_rules_scala_config//:scala_version{scala_version_suffix}":
+            "@scala_compiler_source{scala_version_suffix}//:src","""
 
 def _compiler_sources_repo_impl(rctx):
-    build_content = [_PACKAGE_VISIBILITY_PUBLIC]
-    build_content.extend([
-        _COMPILER_SOURCE_ALIAS_FORMAT.format(
+    sources = [
+        _COMPILER_SOURCES_ENTRY_TEMPLATE.format(
             scala_version_suffix = version_suffix(scala_version),
         )
         for scala_version in SCALA_VERSIONS
-    ])
-
-    rctx.file("BUILD", content = "\n".join(build_content), executable = False)
+    ]
+    build_content = _COMPILER_SOURCE_ALIAS_TEMPLATE.format(
+        compiler_sources = "".join(sources),
+    )
+    rctx.file("BUILD", content = build_content, executable = False)
 
 compiler_sources_repo = repository_rule(
     implementation = _compiler_sources_repo_impl,
@@ -79,8 +80,7 @@ def dt_patched_compiler_setup(scala_version, scala_compiler_srcjar = None):
             patch = "@io_bazel_rules_scala//dt_patches:dt_compiler_%s.8.patch" % scala_major_version
 
     build_file_content = "\n".join([
-        _PACKAGE_VISIBILITY_PUBLIC,
-        "",
+        "package(default_visibility = [\"//visibility:public\"])",
         "filegroup(",
         "    name = \"src\",",
         "    srcs=[\"scala/tools/nsc/symtab/SymbolLoaders.scala\"],",
