@@ -5,27 +5,28 @@ load("//scala:scala_cross_version_select.bzl", "select_for_scala_version")
 java_library(
     name = "reporter",
     srcs = select_for_scala_version(
-        before_2_12_13 = [
-            "//src/java/io/bazel/rulesscala/scalac/deps_tracking_reporter",
+        any_2_13_0 = [
             "before_2_12_13/ProtoReporter.java",
         ],
-        between_2_12_13_and_2_13_12 = [
-            "//src/java/io/bazel/rulesscala/scalac/deps_tracking_reporter",
+        before_2_12_13 = [
+            "before_2_12_13/ProtoReporter.java",
+        ],
+        between_2_12_13_and_2_13 = [
             "after_2_12_13_and_before_2_13_12/ProtoReporter.java",
         ],
         between_2_13_12_and_3 = [
-            "//src/java/io/bazel/rulesscala/scalac/deps_tracking_reporter",
             "after_2_13_12/ProtoReporter.java",
+        ],
+        between_2_13_1_and_2_13_12 = [
+            "after_2_12_13_and_before_2_13_12/ProtoReporter.java",
         ],
         between_3_0_and_3_3 = glob(["scala_3/*.java"]) + [
             "since_3_before_3_3/CompilerCompat.java",
-            "//src/java/io/bazel/rulesscala/scalac/deps_tracking_reporter",
         ],
         since_3_3 = glob(["scala_3/*.java"]) + [
             "since_3_3/CompilerCompat.java",
-            "//src/java/io/bazel/rulesscala/scalac/deps_tracking_reporter",
         ],
-    ),
+    ) + ["//src/java/io/bazel/rulesscala/scalac/deps_tracking_reporter"],
     visibility = ["//visibility:public"],
     deps = [
         ":scala_deps_java_proto",
