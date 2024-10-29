@@ -28,6 +28,7 @@ ROOT_SCALA_VERSIONS = [
 ]
 SCALATEST_VERSION = "3.2.9"
 SCALAFMT_VERSION = "3.0.0"
+PROTOBUF_JAVA_VERSION = "4.28.2"
 
 EXCLUDED_ARTIFACTS = set([
     "org.scala-lang.modules:scala-parser-combinators_2.11:1.0.4",
@@ -54,6 +55,7 @@ def select_root_artifacts(scala_version) -> List[str]:
     scalafmt_version = "2.7.5" if scala_major == "2.11" else SCALAFMT_VERSION
 
     common_root_artifacts = [
+        f"com.google.protobuf:protobuf-java:{PROTOBUF_JAVA_VERSION}",
         f"org.scalatest:scalatest_{scalatest_major}:{SCALATEST_VERSION}",
         f"org.scalameta:scalafmt-core_{scalafmt_major}:{scalafmt_version}"
     ]
@@ -155,9 +157,21 @@ def get_label(coordinates) -> str:
         return f'scala_proto_rules_{artifact_label}'
     return f'{group_label}_{artifact_label}'.replace('_v2', '')
 
-def map_to_resolved_artifacts(output) -> List[ResolvedArtifact]:
+def map_to_resolved_artifacts(
+    output, current_artifacts
+) -> List[ResolvedArtifact]:
+
+    artifacts_to_update = []
+    fetch_specs = []
+
+    for line in output:
+        artifact = line.replace(':default', '')
+        if artifact not in current_artifacts:
+            artifacts_to_update.append(artifact)
+            fetch_specs.append(line)
+
     subprocess.call(
-        f'cs fetch {' '.join(output)} --json-output-file ' +
+        f'cs fetch {' '.join(fetch_specs)} --json-output-file ' +
         DOWNLOADED_ARTIFACTS_FILE,
         shell=True,
     )
@@ -167,17 +181,20 @@ def map_to_resolved_artifacts(output) -> List[ResolvedArtifact]:
             get_artifact_checksum(artifact),
             get_json_dependencies(artifact),
         )
-        for artifact in [o.replace(':default', '') for o in output]
+        for artifact in artifacts_to_update
     ]
 
-def resolve_artifacts_with_checksums_and_direct_dependencies(root_artifacts) \
-    -> List[ResolvedArtifact]:
+def resolve_artifacts_with_checksums_and_direct_dependencies(
+    root_artifacts, current_artifacts
+) -> List[ResolvedArtifact]:
     command = f'cs resolve {' '.join(root_artifacts)}'
     proc = subprocess.run(
       command, capture_output=True, text=True, shell=True, check=False
     )
     print(proc.stderr)
-    return map_to_resolved_artifacts(proc.stdout.splitlines())
+    return map_to_resolved_artifacts(
+        proc.stdout.splitlines(), current_artifacts,
+    )
 
 def to_rules_scala_compatible_dict(artifacts) -> Dict[str, Dict]:
     result = {}
@@ -229,6 +246,7 @@ def create_file(version):
         file_to_copy = sorted(file.parent.glob('scala_*.bzl'))[-1]
         shutil.copyfile(file_to_copy, file)
 
+    print("\nUPDATING:", file)
     with file.open('r', encoding='utf-8') as data:
         read_data = data.read()
 
@@ -238,7 +256,10 @@ def create_file(version):
     original_artifacts = ast.literal_eval(replaced_data)
 
     transitive_artifacts: List[ResolvedArtifact] = (
-       resolve_artifacts_with_checksums_and_direct_dependencies(root_artifacts)
+       resolve_artifacts_with_checksums_and_direct_dependencies(
+            root_artifacts,
+            {a["artifact"] for a in original_artifacts.values()},
+       )
     )
     generated_artifacts = to_rules_scala_compatible_dict(transitive_artifacts)
 
