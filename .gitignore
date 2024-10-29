@@ -11,3 +11,6 @@ hash2
 unformatted-*.backup.scala
 .scala-build
 test/semanticdb/tempsrc
+
+# From scripts/create_repository.py
+repository-artifacts.json

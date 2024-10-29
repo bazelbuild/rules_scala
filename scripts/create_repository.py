@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Updates jar versions in third_party/repositories/scala_*.bzl files"""
 
 from dataclasses import dataclass
@@ -6,13 +7,14 @@ from typing import Dict
 from typing import List
 
 import ast
-import copy
-import glob
 import hashlib
 import json
-import os
+import re
+import shutil
 import subprocess
 import urllib.request
+
+DOWNLOADED_ARTIFACTS_FILE = 'repository-artifacts.json'
 
 ROOT_SCALA_VERSIONS = [
     "2.11.12",
@@ -55,7 +57,6 @@ def select_root_artifacts(scala_version) -> List[str]:
         f"org.scalatest:scalatest_{scalatest_major}:{SCALATEST_VERSION}",
         f"org.scalameta:scalafmt-core_{scalafmt_major}:{scalafmt_version}"
     ]
-
     scala_artifacts = [
         f'org.scala-lang:scala3-library_3:{scala_version}',
         f'org.scala-lang:scala3-compiler_3:{scala_version}',
@@ -68,7 +69,6 @@ def select_root_artifacts(scala_version) -> List[str]:
         f'org.scalameta:semanticdb-scalac_{scala_version}:4.9.9',
         f'org.typelevel:kind-projector_{scala_version}:{kind_projector_version}'
     ]
-
     return common_root_artifacts + scala_artifacts
 
 def get_maven_coordinates(artifact) -> MavenCoordinates:
@@ -94,14 +94,13 @@ def get_artifact_checksum(artifact) -> str:
 
     try:
         with urllib.request.urlopen(possible_url) as value:
-            body = value.read()
-            return hashlib.sha256(body).hexdigest()
+            return hashlib.sha256(value.read()).hexdigest()
 
     except urllib.error.HTTPError as e:
         print(f'RESOURCES NOT FOUND: {possible_url}: {e}')
 
 def get_json_dependencies(artifact) -> List[MavenCoordinates]:
-    with open('out.json', 'r', encoding='utf-8') as file:
+    with open(DOWNLOADED_ARTIFACTS_FILE, 'r', encoding='utf-8') as file:
         data = json.load(file)
 
     return (
@@ -141,46 +140,26 @@ COORDINATE_GROUPS = [
     ]),
 ]
 
-def get_label(coordinate) -> str:
-    if coordinate.group in COORDINATE_GROUPS[0]:
-        return (
-            "io_bazel_rules_scala_" +
-            coordinate.artifact
-                .split('_')[0]
-                .replace('-', '_')
-        )
-    if coordinate.group in COORDINATE_GROUPS[1]:
-        return (
-            "io_bazel_rules_scala_" +
-            coordinate.group
-                .replace('.', '_')
-                .replace('-', '_') +
-            '_' +
-            coordinate.artifact
-                .split('_')[0]
-                .replace('-', '_')
-        )
-    if coordinate.group in COORDINATE_GROUPS[2]:
-        return "io_bazel_rules_scala_" + coordinate.group.split('.')[-1]
-    if coordinate.group in COORDINATE_GROUPS[3]:
-        return (
-            "scala_proto_rules_" +
-            coordinate.artifact
-                .split('_')[0]
-                .replace('-', '_')
-        )
-    return (
-        coordinate.group
-            .replace('.', '_')
-            .replace('-', '_') +
-        '_' +
-        coordinate.artifact.split('_')[0]
-            .replace('-', '_')
-    ).replace('_v2', '')
+def get_label(coordinates) -> str:
+    group = coordinates.group
+    group_label = group.replace('.', '_').replace('-', '_')
+    artifact_label = coordinates.artifact.split('_')[0].replace('-', '_')
+
+    if group in COORDINATE_GROUPS[0]:
+        return f'io_bazel_rules_scala_{artifact_label}'
+    if group in COORDINATE_GROUPS[1]:
+        return f'io_bazel_rules_scala_{group_label}_{artifact_label}'
+    if group in COORDINATE_GROUPS[2]:
+        return f'io_bazel_rules_scala_{group.split('.')[-1]}'
+    if group in COORDINATE_GROUPS[3]:
+        return f'scala_proto_rules_{artifact_label}'
+    return f'{group_label}_{artifact_label}'.replace('_v2', '')
 
 def map_to_resolved_artifacts(output) -> List[ResolvedArtifact]:
     subprocess.call(
-        f'cs fetch {' '.join(output)} --json-output-file out.json', shell=True
+        f'cs fetch {' '.join(output)} --json-output-file ' +
+        DOWNLOADED_ARTIFACTS_FILE,
+        shell=True,
     )
     return [
         ResolvedArtifact(
@@ -215,72 +194,42 @@ def to_rules_scala_compatible_dict(artifacts) -> Dict[str, Dict]:
             else f'@{get_label(dep)}'
             for dep in a.direct_dependencies
         ]
-
-        result[label] = {
+        result[label] = metadata = {
             "artifact": f"{a.coordinates.coordinate}",
             "sha256": f"{a.checksum}",
         }
         if deps:
-            result[label]["deps"] = deps
+            metadata["deps"] = deps
+
     return result
 
-def is_that_trailing_comma(content, char, indice) -> bool:
-    return (
-        content[indice] == char and
-        content[indice+1] != ',' and
-        content[indice+1] != ':' and
-        content[indice+1] != '@' and
-        not content[indice+1].isalnum()
-    )
-
-def get_with_trailing_commas(content) -> str:
-    copied = copy.deepcopy(content)
-    content_length = len(copied)
-    i = 0
-
-    while i < content_length - 1:
-        if is_that_trailing_comma(copied, '"', i):
-            copied = copied[:i] + '",' + copied[i + 1:]
-            content_length = content_length + 1
-            i = i+2
-        elif is_that_trailing_comma(copied, ']', i):
-            copied = copied[:i] + '],' + copied[i + 1:]
-            content_length = content_length + 1
-            i = i+2
-        elif is_that_trailing_comma(copied, '}', i):
-            copied = copied[:i] + '},' + copied[i + 1:]
-            content_length = content_length + 1
-            i = i+2
-        else:
-            i = i+1
-
-    return copied
-
 def write_to_file(artifact_dict, version, file):
-    with file.open('w') as data:
+    artifacts = (
+        json.dumps(artifact_dict, indent=4)
+            .replace('true', 'True')
+            .replace('false', 'False')
+    )
+    # Add trailing commas.
+    artifacts = re.sub(r'([]}"])\n', r'\1,\n', artifacts) + '\n'
+
+    with file.open('w', encoding='utf-8') as data:
         data.write(f'scala_version = "{version}"\n')
         data.write('\nartifacts = ')
-        data.write(
-            f'{get_with_trailing_commas(json.dumps(artifact_dict, indent=4)
-                .replace('true', 'True').replace('false', 'False'))}\n'
-        )
+        data.write(artifacts)
 
 def create_file(version):
-    path = os.getcwd().replace('/scripts', '/third_party/repositories')
-    file = Path(
-        f'{path}/{'scala_' + "_".join(version.split(".")[:2]) + '.bzl'}'
+    file = (
+        Path(__file__).parent.parent /
+        'third_party' /
+        'repositories' /
+        f'scala_{"_".join(version.split(".")[:2])}.bzl'
     )
 
     if not file.exists():
-        file_to_copy = Path(sorted(glob.glob(f'{path}/*.bzl'))[-1])
-        with (
-            file.open('w+', encoding='utf-8') as data,
-            file_to_copy.open('r', encoding='utf-8') as data_to_copy,
-        ):
-            for line in data_to_copy:
-                data.write(line)
+        file_to_copy = sorted(file.parent.glob('scala_*.bzl'))[-1]
+        shutil.copyfile(file_to_copy, file)
 
-    with file.open('r+', encoding='utf-8') as data:
+    with file.open('r', encoding='utf-8') as data:
         read_data = data.read()
 
     root_artifacts = select_root_artifacts(version)
@@ -293,28 +242,29 @@ def create_file(version):
     )
     generated_artifacts = to_rules_scala_compatible_dict(transitive_artifacts)
 
-    for label, original_metadata in original_artifacts.items():
-        metadata = generated_artifacts.get(label, None)
-        if metadata is None:
+    for label, metadata in original_artifacts.items():
+        generated_metadata = generated_artifacts.get(label, None)
+        if generated_metadata is None:
             continue
 
-        artifact = metadata["artifact"]
+        artifact = generated_metadata["artifact"]
         if artifact in EXCLUDED_ARTIFACTS:
             continue
 
-        original_metadata["artifact"] = artifact
-        original_metadata["sha256"] = metadata["sha256"]
+        metadata["artifact"] = artifact
+        metadata["sha256"] = generated_metadata["sha256"]
         dependencies = [
-            d for d in metadata.get("deps:", []) if (
+            d for d in generated_metadata.get("deps:", []) if (
                 d[1:] in original_artifacts and
                 "runtime" not in d and
                 "runtime" not in artifact
             )
         ]
         if dependencies:
-            original_metadata["deps"] = dependencies
+            metadata["deps"] = dependencies
 
     write_to_file(original_artifacts, version, file)
 
 for root_scala_version in ROOT_SCALA_VERSIONS:
     create_file(root_scala_version)
+Path(DOWNLOADED_ARTIFACTS_FILE).unlink()
