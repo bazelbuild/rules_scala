@@ -56,7 +56,7 @@ scalafmt_scala_binary(
     scala_version = "2.12.20",
 )
 
-scalafmt_scala_library(
+scalafmt_scala_binary(
     name = "formatted-binary2",
     srcs = ["formatted/formatted-binary2.scala"],
     config = ":scala2-conf",
@@ -74,7 +74,7 @@ scalafmt_scala_binary(
     scala_version = "3.2.2",
 )
 
-scalafmt_scala_library(
+scalafmt_scala_binary(
     name = "formatted-binary3",
     srcs = ["formatted/formatted-binary3.scala"],
     config = ":scala3-conf",
