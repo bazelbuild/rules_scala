@@ -156,8 +156,39 @@ def get_label(coordinates, is_scala_3) -> str:
         return f'scala_proto_rules_{artifact_label}'
     return f'{group_label}_{artifact_label}'.replace('_v2', '')
 
+def split_artifact_and_version(artifact_id):
+    # There are Maven artifacts that contain extra components like `:jar` in
+    # their coordinates. However, the groupId and artifactId are always the
+    # first two components, and the version is the last.
+    components = artifact_id.split(':')
+    return ':'.join(components[0:2]), components[-1]
+
+def is_newer_than_current_version(version_to_check, current_version):
+    """Determines if the version_to_check is newer than the current_version.
+
+    The idea is to prevent downgrades of versions already in the artifacts file.
+    If they are later versions, presumably they were updated to that version for
+    a good reason.
+    """
+    if current_version is None:
+        return True
+    if version_to_check == current_version:
+        return False
+
+    check_parts = version_to_check.split(".")
+    current_parts = current_version.split(".")
+
+    for check_part, current_part in zip(check_parts, current_parts):
+        if check_part == current_part:
+            continue
+        if check_part.isdecimal() and current_part.isdecimal():
+            return int(current_part) < int(check_part)
+        return current_part < check_part
+
+    return len(current_parts) < len(check_parts)
+
 def map_to_resolved_artifacts(
-    output, current_artifacts
+    output, current_artifact_to_version_map
 ) -> List[ResolvedArtifact]:
 
     artifacts_to_update = []
@@ -165,7 +196,10 @@ def map_to_resolved_artifacts(
 
     for line in output:
         artifact = line.replace(':default', '')
-        if artifact not in current_artifacts:
+        name, version = split_artifact_and_version(artifact)
+        current_version = current_artifact_to_version_map.get(name, None)
+
+        if is_newer_than_current_version(version, current_version):
             artifacts_to_update.append(artifact)
             fetch_specs.append(line)
 
@@ -184,7 +218,7 @@ def map_to_resolved_artifacts(
     ]
 
 def resolve_artifacts_with_checksums_and_direct_dependencies(
-    root_artifacts, current_artifacts
+    root_artifacts, current_artifact_to_version_map
 ) -> List[ResolvedArtifact]:
     command = f'cs resolve {' '.join(root_artifacts)}'
     proc = subprocess.run(
@@ -192,7 +226,7 @@ def resolve_artifacts_with_checksums_and_direct_dependencies(
     )
     print(proc.stderr)
     return map_to_resolved_artifacts(
-        proc.stdout.splitlines(), current_artifacts,
+        proc.stdout.splitlines(), current_artifact_to_version_map,
     )
 
 def to_rules_scala_compatible_dict(artifacts, is_scala_3) -> Dict[str, Dict]:
@@ -229,6 +263,13 @@ def write_to_file(artifact_dict, version, file):
         data.write('\nartifacts = ')
         data.write(artifacts)
 
+def create_artifact_version_map(original_artifacts):
+    result = {}
+    for metadata in original_artifacts.values():
+        artifact, version = split_artifact_and_version(metadata['artifact'])
+        result[artifact] = version
+    return result
+
 def create_file(version):
     file = (
         Path(__file__).parent.parent /
@@ -255,7 +296,7 @@ def create_file(version):
     transitive_artifacts: List[ResolvedArtifact] = (
        resolve_artifacts_with_checksums_and_direct_dependencies(
             root_artifacts,
-            {a["artifact"] for a in original_artifacts.values()},
+            create_artifact_version_map(original_artifacts),
        )
     )
     generated_artifacts = to_rules_scala_compatible_dict(
