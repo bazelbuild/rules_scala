@@ -47,10 +47,9 @@ class ResolvedArtifact:
     checksum: str
     direct_dependencies: List[MavenCoordinates]
 
-def select_root_artifacts(scala_version) -> List[str]:
-    scala_major = ".".join(scala_version.split(".")[:2])
-    scalatest_major = "3" if scala_major >= "3.0" else scala_major
-    scalafmt_major = "2.13" if scala_major >= "3.0" else scala_major
+def select_root_artifacts(scala_version, scala_major, is_scala_3) -> List[str]:
+    scalatest_major = "3" if is_scala_3 else scala_major
+    scalafmt_major = "2.13" if is_scala_3 else scala_major
     kind_projector_version = "0.13.2" if scala_major < "2.12" else "0.13.3"
     scalafmt_version = "2.7.5" if scala_major == "2.11" else SCALAFMT_VERSION
 
@@ -141,13 +140,14 @@ COORDINATE_GROUPS = [
     ]),
 ]
 
-def get_label(coordinates) -> str:
+def get_label(coordinates, is_scala_3) -> str:
     group = coordinates.group
     group_label = group.replace('.', '_').replace('-', '_')
     artifact_label = coordinates.artifact.split('_')[0].replace('-', '_')
 
     if group in COORDINATE_GROUPS[0] or group.startswith("org.scala-lang."):
-        return f'io_bazel_rules_scala_{artifact_label}'
+        s = '_2' if is_scala_3 and coordinates.version.startswith("2.") else ''
+        return f'io_bazel_rules_scala_{artifact_label}' + s
     if group in COORDINATE_GROUPS[1]:
         return f'io_bazel_rules_scala_{group_label}_{artifact_label}'
     if group in COORDINATE_GROUPS[2]:
@@ -195,25 +195,22 @@ def resolve_artifacts_with_checksums_and_direct_dependencies(
         proc.stdout.splitlines(), current_artifacts,
     )
 
-def to_rules_scala_compatible_dict(artifacts) -> Dict[str, Dict]:
+def to_rules_scala_compatible_dict(artifacts, is_scala_3) -> Dict[str, Dict]:
     result = {}
 
     for a in artifacts:
+        coordinates = a.coordinates
         label = (
-            get_label(a.coordinates)
+            get_label(coordinates, is_scala_3)
                 .replace('scala3_', 'scala_')
                 .replace('scala_tasty_core', 'scala_scala_tasty_core')
         )
-        deps = sorted([
-            f'@{get_label(dep)}_2'
-            if "scala3-library_3" in a.coordinates.artifact
-            else f'@{get_label(dep)}'
-            for dep in a.direct_dependencies
-        ])
         result[label] = {
-            "artifact": f"{a.coordinates.coordinate}",
+            "artifact": f"{coordinates.coordinate}",
             "sha256": f"{a.checksum}",
-            "deps": deps,
+            "deps": sorted([
+                f'@{get_label(d, is_scala_3)}' for d in a.direct_dependencies
+            ]),
         }
 
     return result
@@ -248,7 +245,9 @@ def create_file(version):
     with file.open('r', encoding='utf-8') as data:
         read_data = data.read()
 
-    root_artifacts = select_root_artifacts(version)
+    scala_major = ".".join(version.split(".")[:2])
+    is_scala_3 = scala_major.startswith("3.")
+    root_artifacts = select_root_artifacts(version, scala_major, is_scala_3)
     replaced_data = read_data[read_data.find('{'):]
 
     original_artifacts = ast.literal_eval(replaced_data)
@@ -259,7 +258,9 @@ def create_file(version):
             {a["artifact"] for a in original_artifacts.values()},
        )
     )
-    generated_artifacts = to_rules_scala_compatible_dict(transitive_artifacts)
+    generated_artifacts = to_rules_scala_compatible_dict(
+        transitive_artifacts, is_scala_3
+    )
 
     for label, metadata in original_artifacts.items():
         generated_metadata = generated_artifacts.get(label, None)
