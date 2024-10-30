@@ -106,16 +106,15 @@ def get_json_dependencies(artifact) -> List[MavenCoordinates]:
         data = json.load(file)
 
     return (
-        get_mavens_coordinates_from_json(dependency["directDependencies"])
-        if any((dependency := d)["coord"] == artifact
-        for d in data["dependencies"])
+        get_mavens_coordinates_from_json(dep["directDependencies"])
+        if any((dep := d)["coord"] == artifact for d in data["dependencies"])
         else []
     )
 
 COORDINATE_GROUPS = [
     set([
       "com.twitter",
-      "javax.annotation"
+      "javax.annotation",
       "org.scala-lang",
       "org.scalactic",
       "org.scalatest",
@@ -147,7 +146,7 @@ def get_label(coordinates) -> str:
     group_label = group.replace('.', '_').replace('-', '_')
     artifact_label = coordinates.artifact.split('_')[0].replace('-', '_')
 
-    if group in COORDINATE_GROUPS[0]:
+    if group in COORDINATE_GROUPS[0] or group.startswith("org.scala-lang."):
         return f'io_bazel_rules_scala_{artifact_label}'
     if group in COORDINATE_GROUPS[1]:
         return f'io_bazel_rules_scala_{group_label}_{artifact_label}'
@@ -205,18 +204,17 @@ def to_rules_scala_compatible_dict(artifacts) -> Dict[str, Dict]:
                 .replace('scala3_', 'scala_')
                 .replace('scala_tasty_core', 'scala_scala_tasty_core')
         )
-        deps = [
+        deps = sorted([
             f'@{get_label(dep)}_2'
             if "scala3-library_3" in a.coordinates.artifact
             else f'@{get_label(dep)}'
             for dep in a.direct_dependencies
-        ]
-        result[label] = metadata = {
+        ])
+        result[label] = {
             "artifact": f"{a.coordinates.coordinate}",
             "sha256": f"{a.checksum}",
+            "deps": deps,
         }
-        if deps:
-            metadata["deps"] = deps
 
     return result
 
@@ -275,7 +273,7 @@ def create_file(version):
         metadata["artifact"] = artifact
         metadata["sha256"] = generated_metadata["sha256"]
         dependencies = [
-            d for d in generated_metadata.get("deps:", []) if (
+            d for d in generated_metadata["deps"] if (
                 d[1:] in original_artifacts and
                 "runtime" not in d and
                 "runtime" not in artifact
