@@ -628,4 +628,52 @@ artifacts = {
             "@io_bazel_rules_scala_scala_library",
         ],
     },
+    "io_github_java_diff_utils_java_diff_utils": {
+        "artifact": "io.github.java-diff-utils:java-diff-utils:4.12",
+        "sha256": "9990a2039778f6b4cc94790141c2868864eacee0620c6c459451121a901cd5b5",
+    },
+    "net_java_dev_jna_jna": {
+        "artifact": "net.java.dev.jna:jna:5.14.0",
+        "sha256": "34ed1e1f27fa896bca50dbc4e99cf3732967cec387a7a0d5e3486c09673fe8c6",
+    },
+    "org_jline_jline": {
+        "artifact": "org.jline:jline:3.26.3",
+        "sha256": "f23116c349314658cdebaa6caf6d0067733cc9e5b852cad2a29e643d32bd52bd",
+    },
+    "io_bazel_rules_scala_scalatest_diagrams": {
+        "artifact": "org.scalatest:scalatest-diagrams_2.13:3.2.9",
+        "sha256": "803d4f2ce03b581ed5435a097a20882809dfe48b87ed232f13a98e718ceb731d",
+        "deps": [
+            "@io_bazel_rules_scala_scala_library",
+            "@io_bazel_rules_scala_scala_reflect",
+            "@io_bazel_rules_scala_scalatest_core",
+        ],
+    },
+    "io_bazel_rules_scala_scalatest_propspec": {
+        "artifact": "org.scalatest:scalatest-propspec_2.13:3.2.9",
+        "sha256": "f08355a14c5afece8130016a9f8e5bbc4196f4b612fefefb2acf223fb9f92607",
+        "deps": [
+            "@io_bazel_rules_scala_scala_library",
+            "@io_bazel_rules_scala_scala_reflect",
+            "@io_bazel_rules_scala_scalatest_core",
+        ],
+    },
+    "io_bazel_rules_scala_scalatest_refspec": {
+        "artifact": "org.scalatest:scalatest-refspec_2.13:3.2.9",
+        "sha256": "edd37859e64c4f18ef266a28603ac7d85649f3f3cc26c14eb093d60199eaec03",
+        "deps": [
+            "@io_bazel_rules_scala_scala_library",
+            "@io_bazel_rules_scala_scala_reflect",
+            "@io_bazel_rules_scala_scalatest_core",
+        ],
+    },
+    "io_bazel_rules_scala_scalatest_wordspec": {
+        "artifact": "org.scalatest:scalatest-wordspec_2.13:3.2.9",
+        "sha256": "c5d5424bc43f02df9720bd83c57daa982af02ad7ae468875956ebe183f836277",
+        "deps": [
+            "@io_bazel_rules_scala_scala_library",
+            "@io_bazel_rules_scala_scala_reflect",
+            "@io_bazel_rules_scala_scalatest_core",
+        ],
+    },
 }

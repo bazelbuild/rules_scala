@@ -303,24 +303,16 @@ def create_file(version):
         transitive_artifacts, is_scala_3
     )
 
-    for label, metadata in original_artifacts.items():
-        generated_metadata = generated_artifacts.get(label, None)
-        if generated_metadata is None:
-            continue
-
+    for label, generated_metadata in generated_artifacts.items():
         artifact = generated_metadata["artifact"]
         if artifact in EXCLUDED_ARTIFACTS:
             continue
 
+        metadata = original_artifacts.setdefault(label, {})
         metadata["artifact"] = artifact
         metadata["sha256"] = generated_metadata["sha256"]
-        dependencies = [
-            d for d in generated_metadata["deps"] if (
-                d[1:] in original_artifacts and
-                "runtime" not in d and
-                "runtime" not in artifact
-            )
-        ]
+        dependencies = generated_metadata["deps"]
+
         if dependencies:
             metadata["deps"] = dependencies
 
