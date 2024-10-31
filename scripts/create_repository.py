@@ -110,49 +110,71 @@ def get_json_dependencies(artifact) -> List[MavenCoordinates]:
         else []
     )
 
-COORDINATE_GROUPS = [
-    set([
-      "com.twitter",
-      "javax.annotation",
-      "org.scala-lang",
-      "org.scalactic",
-      "org.scalatest",
-    ]),
-    set([
-      "junit",
-      "net.sf.jopt-simple",
-      "org.apache.commons",
-      "org.hamcrest",
-      "org.openjdk.jmh",
-      "org.ow2.asm",
-      "org.specs2",
-    ]),
-    set([
-      "com.github.spullara.mustache.java",
-      "com.github.scopt",
-    ]),
-    set([
-      "com.google.guava"
-      "com.thesamet.scalapb",
-      "io.grpc",
-      "io.netty",
-      "io.perfmark",
-    ]),
-]
+ARTIFACT_LABEL_ONLY_GROUPS = set([
+  "com.twitter",
+  "javax.annotation",
+  "org.scalactic",
+  "org.scalatest",
+])
+
+GROUP_AND_ARTIFACT_LABEL_GROUPS = set([
+  "junit",
+  "net.sf.jopt-simple",
+  "org.apache.commons",
+  "org.hamcrest",
+  "org.openjdk.jmh",
+  "org.ow2.asm",
+  "org.specs2",
+])
+
+LAST_GROUP_COMPONENT_GROUPS = set([
+    "com.google.guava"
+    "com.github.scopt",
+])
+
+NEXT_TO_LAST_GROUP_COMPONENT_GROUPS = set([
+    "com.github.spullara.mustache.java",
+])
+
+SCALA_PROTO_RULES_GROUPS = set([
+    "com.google.instrumentation",
+    "com.lmax",
+    "com.thesamet.scalapb",
+    "io.grpc",
+    "io.netty",
+    "io.opencensus",
+    "io.perfmark",
+])
+
+SCALA_LANG_GROUPS = set(['org.scala-lang', 'org.scala-lang.modules'])
+SCALA_2_ARTIFACTS = set(['scala-library', 'scala-compiler', 'scala-reflect'])
+
+def adjust_scala_lang_label(label, is_scala_3, coordinates):
+    artifact = coordinates.artifact
+
+    if is_scala_3 and artifact in SCALA_2_ARTIFACTS:
+        return label + '_2'
+    if artifact.startswith("scala3-"):
+        return label.replace('scala3_', 'scala_')
+    return label.replace('scala_tasty_core', 'scala_scala_tasty_core')
 
 def get_label(coordinates, is_scala_3) -> str:
     group = coordinates.group
     group_label = group.replace('.', '_').replace('-', '_')
     artifact_label = coordinates.artifact.split('_')[0].replace('-', '_')
 
-    if group in COORDINATE_GROUPS[0] or group.startswith("org.scala-lang."):
-        s = '_2' if is_scala_3 and coordinates.version.startswith("2.") else ''
-        return f'io_bazel_rules_scala_{artifact_label}' + s
-    if group in COORDINATE_GROUPS[1]:
+    if group in SCALA_LANG_GROUPS:
+        label = f'io_bazel_rules_scala_{artifact_label}'
+        return adjust_scala_lang_label(label, is_scala_3, coordinates)
+    if group in ARTIFACT_LABEL_ONLY_GROUPS:
+        return f'io_bazel_rules_scala_{artifact_label}'
+    if group in GROUP_AND_ARTIFACT_LABEL_GROUPS:
         return f'io_bazel_rules_scala_{group_label}_{artifact_label}'
-    if group in COORDINATE_GROUPS[2]:
+    if group in LAST_GROUP_COMPONENT_GROUPS:
         return f'io_bazel_rules_scala_{group.split('.')[-1]}'
-    if group in COORDINATE_GROUPS[3]:
+    if group in NEXT_TO_LAST_GROUP_COMPONENT_GROUPS:
+        return f'io_bazel_rules_scala_{group.split('.')[-2]}'
+    if group in SCALA_PROTO_RULES_GROUPS:
         return f'scala_proto_rules_{artifact_label}'
     return f'{group_label}_{artifact_label}'.replace('_v2', '')
 
@@ -234,12 +256,7 @@ def to_rules_scala_compatible_dict(artifacts, is_scala_3) -> Dict[str, Dict]:
 
     for a in artifacts:
         coordinates = a.coordinates
-        label = (
-            get_label(coordinates, is_scala_3)
-                .replace('scala3_', 'scala_')
-                .replace('scala_tasty_core', 'scala_scala_tasty_core')
-        )
-        result[label] = {
+        result[get_label(coordinates, is_scala_3)] = {
             "artifact": f"{coordinates.coordinate}",
             "sha256": f"{a.checksum}",
             "deps": sorted([

@@ -660,7 +660,7 @@ artifacts = {
         "artifact": "org.scalatest:scalatest-diagrams_3:3.2.9",
         "sha256": "20a310d96298a2cde22e1d990f6ef61320ff38f273902aa31592e04e02d902ed",
         "deps": [
-            "@io_bazel_rules_scala_scala3_library",
+            "@io_bazel_rules_scala_scala_library",
             "@io_bazel_rules_scala_scalatest_core",
         ],
     },
@@ -668,7 +668,7 @@ artifacts = {
         "artifact": "org.scalatest:scalatest-propspec_3:3.2.9",
         "sha256": "bae00b7ce007b8cc86ffddb44246f5aa8e47055414337ddf322a9ae7c95ea809",
         "deps": [
-            "@io_bazel_rules_scala_scala3_library",
+            "@io_bazel_rules_scala_scala_library",
             "@io_bazel_rules_scala_scalatest_core",
         ],
     },
@@ -676,7 +676,7 @@ artifacts = {
         "artifact": "org.scalatest:scalatest-refspec_3:3.2.9",
         "sha256": "3f7a1cab9d46d6f57c694e0ddc65db009f7cd0951bbf3a3c3a660c2f52a28dee",
         "deps": [
-            "@io_bazel_rules_scala_scala3_library",
+            "@io_bazel_rules_scala_scala_library",
             "@io_bazel_rules_scala_scalatest_core",
         ],
     },
@@ -684,7 +684,7 @@ artifacts = {
         "artifact": "org.scalatest:scalatest-wordspec_3:3.2.9",
         "sha256": "28a649d8f73fbd7a9d02e702a5f23577b4f6e301840d002d5574728a6ba5c473",
         "deps": [
-            "@io_bazel_rules_scala_scala3_library",
+            "@io_bazel_rules_scala_scala_library",
             "@io_bazel_rules_scala_scalatest_core",
         ],
     },
