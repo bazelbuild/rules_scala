@@ -24,11 +24,9 @@ java_binary(
     ],
     main_class = "io.bazel.rulesscala.scalac.ScalacWorker",
     visibility = ["//visibility:public"],
-    deps = (select_for_scala_version(
-        any_2 = [
-            "//third_party/dependency_analyzer/src/main/io/bazel/rulesscala/dependencyanalyzer/compiler:dep_reporting_compiler",
-        ],
-    ) if ENABLE_COMPILER_DEPENDENCY_TRACKING else []) + SCALAC_DEPS,
+    deps = ([
+        "//third_party/dependency_analyzer/src/main/io/bazel/rulesscala/dependencyanalyzer/compiler:dep_reporting_compiler",
+    ] if ENABLE_COMPILER_DEPENDENCY_TRACKING else []) + SCALAC_DEPS,
 )
 
 java_binary(
