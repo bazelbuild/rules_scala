@@ -16,8 +16,6 @@ import subprocess
 import sys
 import urllib.request
 
-DOWNLOADED_ARTIFACTS_FILE = 'repository-artifacts.json'
-
 ROOT_SCALA_VERSIONS = [
     "2.11.12",
     "2.12.20",
@@ -35,6 +33,9 @@ PROTOBUF_JAVA_VERSION = "4.28.2"
 EXCLUDED_ARTIFACTS = set([
     "org.scala-lang.modules:scala-parser-combinators_2.11:1.0.4",
 ])
+
+OUTPUT_DIR = Path(__file__).parent.parent / 'third_party' / 'repositories'
+DOWNLOADED_ARTIFACTS_FILE = 'repository-artifacts.json'
 
 @dataclass
 class MavenCoordinates:
@@ -390,12 +391,11 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    output_dir = Path(__file__).parent.parent / 'third_party' / 'repositories'
     exit_code = 0
 
     for version in [args.version] if args.version else ROOT_SCALA_VERSIONS:
         try:
-            create_or_update_repository_file(version, output_dir)
+            create_or_update_repository_file(version, OUTPUT_DIR)
         except SubprocessError as err:
             print(f'Failed to update version {version}: {err}', file=sys.stderr)
             exit_code += 1
