@@ -73,9 +73,11 @@ def select_root_artifacts(scala_version, scala_major, is_scala_3) -> List[str]:
     return common_root_artifacts + scala_artifacts
 
 def get_maven_coordinates(artifact) -> MavenCoordinates:
-    splitted = artifact.split(':')
-    version = splitted[2] if splitted[2][0].isnumeric() else splitted[3]
-    return MavenCoordinates(splitted[0], splitted[1], version, artifact)
+    # There are Maven artifacts that contain extra components like `:jar` in
+    # their coordinates. However, the groupId and artifactId are always the
+    # first two components, and the version is the last.
+    parts = artifact.split(':')
+    return MavenCoordinates(parts[0], parts[1], parts[-1], artifact)
 
 def get_mavens_coordinates_from_json(artifacts) -> List[MavenCoordinates]:
     return list(map(get_maven_coordinates, artifacts))
@@ -178,13 +180,6 @@ def get_label(coordinates, is_scala_3) -> str:
         return f'scala_proto_rules_{artifact_label}'
     return f'{group_label}_{artifact_label}'.replace('_v2', '')
 
-def split_artifact_and_version(artifact_id):
-    # There are Maven artifacts that contain extra components like `:jar` in
-    # their coordinates. However, the groupId and artifactId are always the
-    # first two components, and the version is the last.
-    components = artifact_id.split(':')
-    return ':'.join(components[0:2]), components[-1]
-
 def is_newer_than_current_version(version_to_check, current_version):
     """Determines if the version_to_check is newer than the current_version.
 
@@ -218,7 +213,8 @@ def map_to_resolved_artifacts(
 
     for line in output:
         artifact = line.replace(':default', '')
-        name, version = split_artifact_and_version(artifact)
+        coordinates = get_maven_coordinates(artifact)
+        name, version = coordinates.artifact, coordinates.version
         current_version = current_artifact_to_version_map.get(name, None)
 
         if is_newer_than_current_version(version, current_version):
@@ -283,8 +279,8 @@ def write_to_file(artifact_dict, version, file):
 def create_artifact_version_map(original_artifacts):
     result = {}
     for metadata in original_artifacts.values():
-        artifact, version = split_artifact_and_version(metadata['artifact'])
-        result[artifact] = version
+        coordinates = get_maven_coordinates(metadata['artifact'])
+        result[coordinates.artifact] = coordinates.version
     return result
 
 def create_file(version):
