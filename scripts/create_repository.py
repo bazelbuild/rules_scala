@@ -53,7 +53,7 @@ class ResolvedArtifact:
     checksum: str
     direct_dependencies: List[MavenCoordinates]
 
-class SubprocessError(Exception):
+class CreateRepositoryError(Exception):
     pass
 
 def select_root_artifacts(scala_version, scala_major, is_scala_3) -> List[str]:
@@ -102,7 +102,7 @@ def run_command(command, description):
         the CompletedProcess object on success, None on error
 
     Raises:
-        SubprocessError if the command fails
+        CreateRepositoryError if the command fails
     """
     try:
         return subprocess.run(
@@ -114,7 +114,7 @@ def run_command(command, description):
             f'{description} failed for command: {err.cmd}',
             err.stderr
         ])
-        raise SubprocessError(err_msg) from err
+        raise CreateRepositoryError(err_msg) from err
 
 def get_artifact_checksum(artifact) -> str:
     proc = run_command(
@@ -329,12 +329,24 @@ def create_current_resolved_artifacts_map(original_artifacts):
             )
     return result
 
+def copy_previous_version_if_file_does_not_exist(file_path, output_dir_path):
+    if file_path.exists():
+        return
+
+    existing_files = sorted(output_dir_path.glob('scala_*.bzl'))
+    if not existing_files:
+        existing_files = sorted(OUTPUT_DIR.glob('scala_*.bzl'))
+    if not existing_files:
+        raise CreateRepositoryError(
+            f'No previous files to copy from {output_dir_path}' +
+            f' or {OUTPUT_DIR}' if output_dir_path != OUTPUT_DIR else ''
+        )
+    shutil.copyfile(existing_files[-1], file)
+
+
 def create_or_update_repository_file(version, output_dir_path):
     file = output_dir_path / f'scala_{"_".join(version.split(".")[:2])}.bzl'
-
-    if not file.exists():
-        file_to_copy = sorted(file.parent.glob('scala_*.bzl'))[-1]
-        shutil.copyfile(file_to_copy, file)
+    copy_previous_version_if_file_does_not_exist(file, output_dir_path)
 
     print('\nUPDATING:', file)
     with file.open('r', encoding='utf-8') as data:
@@ -375,7 +387,7 @@ def create_or_update_repository_file(version, output_dir_path):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description=(
-            'Sets up third_party/repository/scala_*.bzl configuration files ' +
+            'Sets up repository configuration files ' +
             'for different Scala versions.'
         )
     )
@@ -386,17 +398,29 @@ if __name__ == "__main__":
         metavar='SCALA_VERSION',
         help=(
             'Scala version to bootstrap or update repository. ' +
-            'If not provided, updates all supported versions.'
+            'If not provided, updates all supported versions. ' +
+            f'(default: {', '.join(ROOT_SCALA_VERSIONS)})'
+        ),
+    )
+    parser.add_argument(
+        '--output_dir',
+        type=str,
+        default=str(OUTPUT_DIR),
+        help=(
+            'Directory in which to generate or update repository files ' +
+            f'(default: {OUTPUT_DIR})'
         ),
     )
 
     args = parser.parse_args()
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(mode=0o755, parents=True, exist_ok=True)
     exit_code = 0
 
     for version in [args.version] if args.version else ROOT_SCALA_VERSIONS:
         try:
-            create_or_update_repository_file(version, OUTPUT_DIR)
-        except SubprocessError as err:
+            create_or_update_repository_file(version, output_dir)
+        except CreateRepositoryError as err:
             print(f'Failed to update version {version}: {err}', file=sys.stderr)
             exit_code += 1
 
