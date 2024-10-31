@@ -6,12 +6,14 @@ from pathlib import Path
 from typing import Dict
 from typing import List
 
+import argparse
 import ast
 import hashlib
 import json
 import re
 import shutil
 import subprocess
+import sys
 import urllib.request
 
 DOWNLOADED_ARTIFACTS_FILE = 'repository-artifacts.json'
@@ -85,16 +87,35 @@ def get_maven_coordinates(artifact) -> MavenCoordinates:
 def get_mavens_coordinates_from_json(artifacts) -> List[MavenCoordinates]:
     return list(map(get_maven_coordinates, artifacts))
 
-def get_artifact_checksum(artifact) -> str:
-    output = subprocess.run(
-      f'cs fetch {artifact}',
-      capture_output=True,
-      text=True,
-      shell=True,
-      check=False,
-    ).stdout.splitlines()
+def run_command(command, description):
+    """Runs a command and emits its output only on error.
 
-    possible_url = [o for o in output if "https" in o][0]
+    Args:
+        command: the shell command to run
+        description: prefixed to the error message on failure
+
+    Returns:
+        the CompletedProcess object on success, None on error
+    """
+    proc = subprocess.run(
+        command, capture_output=True, text=True, shell=True, check=False,
+    )
+
+    if proc.returncode != 0:
+        print(f'{description} failed for command: {command}', file=sys.stderr)
+        print(proc.stderr, file=sys.stderr)
+        return None
+    return proc
+
+def get_artifact_checksum(artifact) -> str:
+    proc = run_command(
+        f'cs fetch {artifact}', 'Fetching artifact for checksumming',
+    )
+
+    if proc is None:
+        return 'CHECKSUM FETCH FAILED'
+
+    possible_url = [o for o in proc.stdout.splitlines() if "https" in o][0]
     possible_url = possible_url[possible_url.find("https"):]
     possible_url = possible_url.replace('https/', 'https://')
 
@@ -104,6 +125,7 @@ def get_artifact_checksum(artifact) -> str:
 
     except urllib.error.HTTPError as e:
         print(f'RESOURCES NOT FOUND: {possible_url}: {e}')
+        return 'NO_CHECKSUM_FOUND'
 
 def get_json_dependencies(artifact) -> List[MavenCoordinates]:
     with open(DOWNLOADED_ARTIFACTS_FILE, 'r', encoding='utf-8') as file:
@@ -229,14 +251,15 @@ def is_newer_version(coords_to_check, current_artifact):
 def map_to_resolved_artifacts(
     output, current_resolved_artifacts_map,
 ) -> List[ResolvedArtifact]:
-
-    subprocess.call(
+    command = (
         f'cs fetch {' '.join(output)} --json-output-file ' +
-        DOWNLOADED_ARTIFACTS_FILE,
-        shell=True,
+        DOWNLOADED_ARTIFACTS_FILE
     )
-
+    proc = run_command(command, 'Fetching resolved artifacts')
     resolved = []
+
+    if proc is None:
+        return resolved
 
     for line in output:
         coords = line.replace(':default', '')
@@ -254,12 +277,11 @@ def map_to_resolved_artifacts(
 def resolve_artifacts_with_checksums_and_direct_dependencies(
     root_artifacts, current_resolved_artifacts_map
 ) -> List[ResolvedArtifact]:
-    command = f'cs resolve {' '.join(root_artifacts)}'
-    proc = subprocess.run(
-      command, capture_output=True, text=True, shell=True, check=False
+    proc = run_command(
+        f'cs resolve {' '.join(root_artifacts)}', 'Resolving root artifacts'
     )
-    print(proc.stderr)
-    return map_to_resolved_artifacts(
+
+    return [] if proc is None else map_to_resolved_artifacts(
         proc.stdout.splitlines(), current_resolved_artifacts_map,
     )
 
@@ -304,7 +326,7 @@ def create_current_resolved_artifacts_map(original_artifacts):
             )
     return result
 
-def create_file(version):
+def create_or_update_repository_file(version):
     file = (
         Path(__file__).parent.parent /
         'third_party' /
@@ -316,7 +338,7 @@ def create_file(version):
         file_to_copy = sorted(file.parent.glob('scala_*.bzl'))[-1]
         shutil.copyfile(file_to_copy, file)
 
-    print("\nUPDATING:", file)
+    print('\nUPDATING:', file)
     with file.open('r', encoding='utf-8') as data:
         read_data = data.read()
 
@@ -352,6 +374,31 @@ def create_file(version):
 
     write_to_file(original_artifacts, version, file)
 
-for root_scala_version in ROOT_SCALA_VERSIONS:
-    create_file(root_scala_version)
-Path(DOWNLOADED_ARTIFACTS_FILE).unlink()
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description=(
+            'Sets up third_party/repository/scala_*.bzl configuration files ' +
+            'for different Scala versions.'
+        )
+    )
+    parser.add_argument(
+        '--version',
+        type=str,
+        choices=ROOT_SCALA_VERSIONS,
+        metavar='SCALA_VERSION',
+        help=(
+            'Scala version to bootstrap or update repository. ' +
+            'If not provided, updates all supported versions.'
+        ),
+    )
+
+    try:
+        args = parser.parse_args()
+
+        for version in [args.version] if args.version else ROOT_SCALA_VERSIONS:
+            create_or_update_repository_file(version)
+
+    finally:
+        artifacts_file = Path(DOWNLOADED_ARTIFACTS_FILE)
+        if artifacts_file.exists():
+            artifacts_file.unlink()
