@@ -328,13 +328,8 @@ def create_current_resolved_artifacts_map(original_artifacts):
             )
     return result
 
-def create_or_update_repository_file(version):
-    file = (
-        Path(__file__).parent.parent /
-        'third_party' /
-        'repositories' /
-        f'scala_{"_".join(version.split(".")[:2])}.bzl'
-    )
+def create_or_update_repository_file(version, output_dir_path):
+    file = output_dir_path / f'scala_{"_".join(version.split(".")[:2])}.bzl'
 
     if not file.exists():
         file_to_copy = sorted(file.parent.glob('scala_*.bzl'))[-1]
@@ -394,12 +389,13 @@ if __name__ == "__main__":
         ),
     )
 
-    exit_code = 0
     args = parser.parse_args()
+    output_dir = Path(__file__).parent.parent / 'third_party' / 'repositories'
+    exit_code = 0
 
     for version in [args.version] if args.version else ROOT_SCALA_VERSIONS:
         try:
-            create_or_update_repository_file(version)
+            create_or_update_repository_file(version, output_dir)
         except SubprocessError as err:
             print(f'Failed to update version {version}: {err}', file=sys.stderr)
             exit_code += 1
