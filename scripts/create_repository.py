@@ -154,14 +154,26 @@ SCALA_PROTO_RULES_GROUPS = set([
 SCALA_LANG_GROUPS = set(['org.scala-lang', 'org.scala-lang.modules'])
 SCALA_2_ARTIFACTS = set(['scala-library', 'scala-compiler', 'scala-reflect'])
 
-def adjust_scala_lang_label(label, is_scala_3, coordinates):
+def get_scala_lang_label(artifact_label, is_scala_3, coordinates):
     artifact = coordinates.artifact
+    if artifact == 'scalap':
+        return 'org_scala_lang_scalap'
+
+    label = f'io_bazel_rules_scala_{artifact_label}'
 
     if is_scala_3 and artifact in SCALA_2_ARTIFACTS:
         return label + '_2'
-    if artifact.startswith("scala3-"):
+    if artifact.startswith('scala3-'):
         return label.replace('scala3_', 'scala_')
     return label.replace('scala_tasty_core', 'scala_scala_tasty_core')
+
+def get_scala_proto_label(artifact_label, coordinates):
+    if (
+        coordinates.group == "com.thesamet.scalapb" and
+        not artifact_label.startswith("scalapb_")
+    ):
+        artifact_label = "scalapb_" + artifact_label
+    return f'scala_proto_rules_{artifact_label}'
 
 def get_label(coordinates, is_scala_3) -> str:
     group = coordinates.group
@@ -169,8 +181,7 @@ def get_label(coordinates, is_scala_3) -> str:
     artifact_label = coordinates.artifact.split('_')[0].replace('-', '_')
 
     if group in SCALA_LANG_GROUPS:
-        label = f'io_bazel_rules_scala_{artifact_label}'
-        return adjust_scala_lang_label(label, is_scala_3, coordinates)
+        return get_scala_lang_label(artifact_label, is_scala_3, coordinates)
     if group in ARTIFACT_LABEL_ONLY_GROUPS:
         return f'io_bazel_rules_scala_{artifact_label}'
     if group in GROUP_AND_ARTIFACT_LABEL_GROUPS:
@@ -180,7 +191,7 @@ def get_label(coordinates, is_scala_3) -> str:
     if group in NEXT_TO_LAST_GROUP_COMPONENT_GROUPS:
         return f'io_bazel_rules_scala_{group.split('.')[-2]}'
     if group in SCALA_PROTO_RULES_GROUPS:
-        return f'scala_proto_rules_{artifact_label}'
+        return get_scala_proto_label(artifact_label, coordinates)
     return f'{group_label}_{artifact_label}'.replace('_v2', '')
 
 def is_newer_version(coords_to_check, current_artifact):
