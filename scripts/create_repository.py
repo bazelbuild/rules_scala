@@ -52,6 +52,9 @@ class ResolvedArtifact:
     checksum: str
     direct_dependencies: List[MavenCoordinates]
 
+class SubprocessError(Exception):
+    pass
+
 def select_root_artifacts(scala_version, scala_major, is_scala_3) -> List[str]:
     scalatest_major = "3" if is_scala_3 else scala_major
     scalafmt_major = "2.13" if is_scala_3 else scala_major
@@ -96,24 +99,26 @@ def run_command(command, description):
 
     Returns:
         the CompletedProcess object on success, None on error
-    """
-    proc = subprocess.run(
-        command, capture_output=True, text=True, shell=True, check=False,
-    )
 
-    if proc.returncode != 0:
-        print(f'{description} failed for command: {command}', file=sys.stderr)
-        print(proc.stderr, file=sys.stderr)
-        return None
-    return proc
+    Raises:
+        SubprocessError if the command fails
+    """
+    try:
+        return subprocess.run(
+            command, capture_output=True, text=True, shell=True, check=True
+        )
+
+    except subprocess.CalledProcessError as err:
+        err_msg = "\n".join([
+            f'{description} failed for command: {err.cmd}',
+            err.stderr
+        ])
+        raise SubprocessError(err_msg) from err
 
 def get_artifact_checksum(artifact) -> str:
     proc = run_command(
         f'cs fetch {artifact}', 'Fetching artifact for checksumming',
     )
-
-    if proc is None:
-        return 'CHECKSUM FETCH FAILED'
 
     possible_url = [o for o in proc.stdout.splitlines() if "https" in o][0]
     possible_url = possible_url[possible_url.find("https"):]
@@ -258,9 +263,6 @@ def map_to_resolved_artifacts(
     proc = run_command(command, 'Fetching resolved artifacts')
     resolved = []
 
-    if proc is None:
-        return resolved
-
     for line in output:
         coords = line.replace(':default', '')
         mvn_coords = get_maven_coordinates(coords)
@@ -281,7 +283,7 @@ def resolve_artifacts_with_checksums_and_direct_dependencies(
         f'cs resolve {' '.join(root_artifacts)}', 'Resolving root artifacts'
     )
 
-    return [] if proc is None else map_to_resolved_artifacts(
+    return map_to_resolved_artifacts(
         proc.stdout.splitlines(), current_resolved_artifacts_map,
     )
 
@@ -392,13 +394,17 @@ if __name__ == "__main__":
         ),
     )
 
-    try:
-        args = parser.parse_args()
+    exit_code = 0
+    args = parser.parse_args()
 
-        for version in [args.version] if args.version else ROOT_SCALA_VERSIONS:
+    for version in [args.version] if args.version else ROOT_SCALA_VERSIONS:
+        try:
             create_or_update_repository_file(version)
+        except SubprocessError as err:
+            print(f'Failed to update version {version}: {err}', file=sys.stderr)
+            exit_code += 1
 
-    finally:
-        artifacts_file = Path(DOWNLOADED_ARTIFACTS_FILE)
-        if artifacts_file.exists():
-            artifacts_file.unlink()
+    artifacts_file = Path(DOWNLOADED_ARTIFACTS_FILE)
+    if artifacts_file.exists():
+        artifacts_file.unlink()
+    sys.exit(exit_code)
