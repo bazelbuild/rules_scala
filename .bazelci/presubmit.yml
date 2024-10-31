@@ -82,7 +82,7 @@ tasks:
     - "./test_version.sh"
   thirdparty_version_linux:
     name: "./test_thirdparty_version.sh"      
-    platform: ubuntu2004
+    platform: ubuntu2204_java17
     shell_commands:
     - "./test_thirdparty_version.sh"
   examples_linux:

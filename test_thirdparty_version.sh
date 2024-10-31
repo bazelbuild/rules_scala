@@ -17,7 +17,7 @@ runner=$(get_test_runner "${1:-local}")
 # Latest version of each major version
 $runner test_scala_version "3.5.2" # Latest Next version
 $runner test_scala_version "3.3.4" # Latest LTS version
-$runner test_scala_version "3.1.3" # First supported major for Scala 3
+$runner test_scala_version "3.1.3" # First supported major for Scala 3, max supported JDK=18
 $runner test_scala_version "2.13.15"
 $runner test_scala_version "2.12.20"
 $runner test_scala_version "2.11.12"
