@@ -329,24 +329,24 @@ def create_current_resolved_artifacts_map(original_artifacts):
             )
     return result
 
-def copy_previous_version_if_file_does_not_exist(file_path, output_dir_path):
+def copy_previous_version_or_create_new_empty_file(file_path, output_dir_path):
     if file_path.exists():
         return
 
     existing_files = sorted(output_dir_path.glob('scala_*.bzl'))
-    if not existing_files:
-        existing_files = sorted(OUTPUT_DIR.glob('scala_*.bzl'))
-    if not existing_files:
-        raise CreateRepositoryError(
-            f'No previous files to copy from {output_dir_path}' +
-            f' or {OUTPUT_DIR}' if output_dir_path != OUTPUT_DIR else ''
-        )
-    shutil.copyfile(existing_files[-1], file)
+    if existing_files:
+        shutil.copyfile(existing_files[-1], file_path)
+        return
 
+    # Create an empty dictionary and start from scratch.
+    with open(file_path, 'w', encoding='utf-8') as f:
+        f.write('{}\n')
 
 def create_or_update_repository_file(version, output_dir_path):
     file = output_dir_path / f'scala_{"_".join(version.split(".")[:2])}.bzl'
-    copy_previous_version_if_file_does_not_exist(file, output_dir_path)
+
+    if not file.exists():
+        copy_previous_version_or_create_new_empty_file(file, output_dir_path)
 
     print('\nUPDATING:', file)
     with file.open('r', encoding='utf-8') as data:
@@ -415,16 +415,16 @@ if __name__ == "__main__":
     args = parser.parse_args()
     output_dir = Path(args.output_dir)
     output_dir.mkdir(mode=0o755, parents=True, exist_ok=True)
-    exit_code = 0
 
-    for version in [args.version] if args.version else ROOT_SCALA_VERSIONS:
-        try:
+    try:
+        for version in [args.version] if args.version else ROOT_SCALA_VERSIONS:
             create_or_update_repository_file(version, output_dir)
-        except CreateRepositoryError as err:
-            print(f'Failed to update version {version}: {err}', file=sys.stderr)
-            exit_code += 1
 
-    artifacts_file = Path(DOWNLOADED_ARTIFACTS_FILE)
-    if artifacts_file.exists():
-        artifacts_file.unlink()
-    sys.exit(exit_code)
+    except CreateRepositoryError as err:
+        print(f'Failed to update version {version}: {err}', file=sys.stderr)
+        sys.exit(1)
+
+    finally:
+        artifacts_file = Path(DOWNLOADED_ARTIFACTS_FILE)
+        if artifacts_file.exists():
+            artifacts_file.unlink()
