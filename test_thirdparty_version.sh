@@ -4,7 +4,7 @@ set -e
 
 test_scala_version() {
   SCALA_VERSION=$1
-  bazel test //third_party/... --repo_env=SCALA_VERSION=${SCALA_VERSION}
+  bazel test --test_output=errors //third_party/... --repo_env=SCALA_VERSION=${SCALA_VERSION}
 }
 
 dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
