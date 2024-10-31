@@ -1,7 +1,9 @@
-load(":analyzer_test.bzl", "tests")
 load("//scala:scala.bzl", "scala_test")
+load(":analyzer_test.bzl", "tests", "version_specific_tests")
 
 tests()
+
+version_specific_tests()
 
 scala_test(
     name = "test_optionsparser",
