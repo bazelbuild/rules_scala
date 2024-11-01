@@ -144,40 +144,39 @@ def get_json_dependencies(artifact) -> List[MavenCoordinates]:
     )
 
 ARTIFACT_LABEL_ONLY_GROUPS = set([
-  "com.twitter",
-  "javax.annotation",
-  "org.scalactic",
-  "org.scalatest",
+    "com.google.guava",
+    "com.twitter",
+    "javax.annotation",
+    "org.scalactic",
+    "org.scalatest",
 ])
 
 GROUP_AND_ARTIFACT_LABEL_GROUPS = set([
-  "junit",
-  "net.sf.jopt-simple",
-  "org.apache.commons",
-  "org.hamcrest",
-  "org.openjdk.jmh",
-  "org.ow2.asm",
-  "org.specs2",
-])
-
-LAST_GROUP_COMPONENT_GROUPS = set([
-    "com.google.guava"
-    "com.github.scopt",
-])
-
-NEXT_TO_LAST_GROUP_COMPONENT_GROUPS = set([
-    "com.github.spullara.mustache.java",
+    "junit",
+    "net.sf.jopt-simple",
+    "org.apache.commons",
+    "org.hamcrest",
+    "org.openjdk.jmh",
+    "org.ow2.asm",
+    "org.specs2",
 ])
 
 SCALA_PROTO_RULES_GROUPS = set([
+    "com.google.api.grpc",
     "com.google.instrumentation",
     "com.lmax",
     "com.thesamet.scalapb",
+    "dev.dirs.directories",
     "io.grpc",
     "io.netty",
     "io.opencensus",
     "io.perfmark",
 ])
+
+SPECIAL_CASE_GROUP_LABELS = {
+    "com.github.scopt": "io_bazel_rules_scala_scopt",
+    "com.github.spullara.mustache.java": "io_bazel_rules_scala_mustache",
+}
 
 SCALA_LANG_GROUPS = set(['org.scala-lang', 'org.scala-lang.modules'])
 SCALA_2_ARTIFACTS = set(['scala-library', 'scala-compiler', 'scala-reflect'])
@@ -214,12 +213,10 @@ def get_label(coordinates, is_scala_3) -> str:
         return f'io_bazel_rules_scala_{artifact_label}'
     if group in GROUP_AND_ARTIFACT_LABEL_GROUPS:
         return f'io_bazel_rules_scala_{group_label}_{artifact_label}'
-    if group in LAST_GROUP_COMPONENT_GROUPS:
-        return f'io_bazel_rules_scala_{group.split('.')[-1]}'
-    if group in NEXT_TO_LAST_GROUP_COMPONENT_GROUPS:
-        return f'io_bazel_rules_scala_{group.split('.')[-2]}'
     if group in SCALA_PROTO_RULES_GROUPS:
         return get_scala_proto_label(artifact_label, coordinates)
+    if group in SPECIAL_CASE_GROUP_LABELS:
+        return SPECIAL_CASE_GROUP_LABELS['group']
     return f'{group_label}_{artifact_label}'.replace('_v2', '')
 
 def is_newer_version(coords_to_check, current_artifact):
