@@ -384,7 +384,7 @@ def create_or_update_repository_file(version, output_dir):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description=(
-            'Sets up repository configuration files ' +
+            'Creates or updates repository configuration files ' +
             'for different Scala versions.'
         )
     )
@@ -394,9 +394,9 @@ if __name__ == "__main__":
         choices=ROOT_SCALA_VERSIONS,
         metavar='SCALA_VERSION',
         help=(
-            'Scala version to bootstrap or update repository. ' +
-            'If not provided, updates all supported versions. ' +
-            f'(default: {', '.join(ROOT_SCALA_VERSIONS)})'
+            'Scala version for which to update repository information; ' +
+            'if not provided, updates all supported versions: ' +
+            ', '.join(ROOT_SCALA_VERSIONS)
         ),
     )
     parser.add_argument(
