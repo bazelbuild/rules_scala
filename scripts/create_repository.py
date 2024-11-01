@@ -329,24 +329,21 @@ def create_current_resolved_artifacts_map(original_artifacts):
             )
     return result
 
-def copy_previous_version_or_create_new_empty_file(file_path, output_dir_path):
+def copy_previous_version_or_create_new_file_if_missing(file_path, output_dir):
     if file_path.exists():
         return
 
-    existing_files = sorted(output_dir_path.glob('scala_*.bzl'))
+    existing_files = sorted(output_dir.glob('scala_*.bzl'))
     if existing_files:
         shutil.copyfile(existing_files[-1], file_path)
         return
 
-    # Create an empty dictionary and start from scratch.
     with open(file_path, 'w', encoding='utf-8') as f:
         f.write('{}\n')
 
-def create_or_update_repository_file(version, output_dir_path):
-    file = output_dir_path / f'scala_{"_".join(version.split(".")[:2])}.bzl'
-
-    if not file.exists():
-        copy_previous_version_or_create_new_empty_file(file, output_dir_path)
+def create_or_update_repository_file(version, output_dir):
+    file = output_dir / f'scala_{"_".join(version.split(".")[:2])}.bzl'
+    copy_previous_version_or_create_new_file_if_missing(file, output_dir)
 
     print('\nUPDATING:', file)
     with file.open('r', encoding='utf-8') as data:
