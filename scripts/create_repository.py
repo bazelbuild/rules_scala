@@ -185,6 +185,8 @@ def get_scala_lang_label(artifact_label, is_scala_3, coordinates):
     artifact = coordinates.artifact
     if artifact == 'scalap':
         return 'org_scala_lang_scalap'
+    if artifact.startswith('scala-collection-compat'):
+        return 'org_scala_lang_modules_scala_collection_compat'
 
     label = f'io_bazel_rules_scala_{artifact_label}'
 
