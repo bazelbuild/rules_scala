@@ -3,8 +3,7 @@
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict
-from typing import List
+from typing import Dict, List, Self
 
 import argparse
 import ast
@@ -37,24 +36,75 @@ EXCLUDED_ARTIFACTS = set([
 OUTPUT_DIR = Path(__file__).parent.parent / 'third_party' / 'repositories'
 DOWNLOADED_ARTIFACTS_FILE = 'repository-artifacts.json'
 
+
+class CreateRepositoryError(Exception):
+    """Errors raised explicitly by the create_repository module."""
+
+
 @dataclass
 class MavenCoordinates:
+    """Contains the components parsed from a set of Maven coordinates."""
     group: str
     artifact: str
     version: str
     coordinate: str
 
+    @staticmethod
+    def new(artifact) -> Self:
+        """Creates a new MavenCoordinates from a Maven coordinate string."""
+        # There are Maven artifacts that contain extra components like `:jar` in
+        # their coordinates. However, the groupId and artifactId are always the
+        # first two components, and the version is the last.
+        parts = artifact.split(':')
+        return MavenCoordinates(parts[0], parts[1], parts[-1], artifact)
+
     def artifact_name(self):
+        """Returns the name to use as a hash key for existing artifacts."""
         return f'{self.group}:{self.artifact}'
+
+    def is_newer_than(self, other):
+        """Determines if this artifact is newer than the other.
+
+        The idea is to prevent downgrades of versions already in the artifacts
+        file. If they are later versions, presumably they were updated to that
+        version for a good reason.
+
+        Args:
+            other: the current artifact coodinates from the repo config file
+
+        Returns:
+            True if self.version is newer than other.version
+            False otherwise
+
+        Raises:
+            CreateRepositoryError if other doesn't match self.group and
+                self.artifact
+        """
+        if (self.group != other.group) or (self.artifact != other.artifact):
+            raise CreateRepositoryError(
+                f'Expected {self.group}:{self.artifact}, ' +
+                f'got {other.group}:{other.artifact}'
+            )
+
+        lhs_parts = self.version.split(".")
+        rhs_parts = other.version.split(".")
+
+        for lhs_part, rhs_part in zip(lhs_parts, rhs_parts):
+            if lhs_part == rhs_part:
+                continue
+            if lhs_part.isdecimal() and rhs_part.isdecimal():
+                return int(rhs_part) < int(lhs_part)
+            return rhs_part < lhs_part
+
+        return len(rhs_parts) < len(lhs_parts)
+
 
 @dataclass
 class ResolvedArtifact:
+    """Coordinates, checksum, and dependencies of a resolved Maven artifact."""
     coordinates: MavenCoordinates
     checksum: str
     direct_dependencies: List[MavenCoordinates]
-
-class CreateRepositoryError(Exception):
-    pass
 
 def select_root_artifacts(scala_version, scala_major, is_scala_3) -> List[str]:
     scalatest_major = "3" if is_scala_3 else scala_major
@@ -81,15 +131,8 @@ def select_root_artifacts(scala_version, scala_major, is_scala_3) -> List[str]:
     ]
     return common_root_artifacts + scala_artifacts
 
-def get_maven_coordinates(artifact) -> MavenCoordinates:
-    # There are Maven artifacts that contain extra components like `:jar` in
-    # their coordinates. However, the groupId and artifactId are always the
-    # first two components, and the version is the last.
-    parts = artifact.split(':')
-    return MavenCoordinates(parts[0], parts[1], parts[-1], artifact)
-
 def get_mavens_coordinates_from_json(artifacts) -> List[MavenCoordinates]:
-    return list(map(get_maven_coordinates, artifacts))
+    return list(map(MavenCoordinates.new, artifacts))
 
 def run_command(command, description):
     """Runs a command and emits its output only on error.
@@ -221,38 +264,6 @@ def get_label(coordinates, is_scala_3) -> str:
         return SPECIAL_CASE_GROUP_LABELS['group']
     return f'{group_label}_{artifact_label}'.replace('_v2', '')
 
-def is_newer_version(coords_to_check, current_artifact):
-    """Determines if the coords_to_check is newer than the current_artifact.
-
-    The idea is to prevent downgrades of versions already in the artifacts file.
-    If they are later versions, presumably they were updated to that version for
-    a good reason.
-
-    Args:
-        coords_to_check (MavenCoordinates): a potentially newer artifact
-        current_artifact (ResolvedArtifact): the current artifact information in
-            the repo config file, or None if it doesn't exist
-
-    Returns:
-        True if current_artifact is none or coords_to_check.version is newer than
-            current_artifact.coordinates.version, or if current_artifact is None
-        False otherwise
-    """
-    if current_artifact is None:
-        return True
-
-    check_parts = coords_to_check.version.split(".")
-    current_parts = current_artifact.coordinates.version.split(".")
-
-    for check_part, current_part in zip(check_parts, current_parts):
-        if check_part == current_part:
-            continue
-        if check_part.isdecimal() and current_part.isdecimal():
-            return int(current_part) < int(check_part)
-        return current_part < check_part
-
-    return len(current_parts) < len(check_parts)
-
 def map_to_resolved_artifacts(
     output, current_resolved_artifacts_map,
 ) -> List[ResolvedArtifact]:
@@ -265,11 +276,11 @@ def map_to_resolved_artifacts(
 
     for line in output:
         coords = line.replace(':default', '')
-        mvn_coords = get_maven_coordinates(coords)
+        mvn_coords = MavenCoordinates.new(coords)
         deps = get_json_dependencies(coords)
         current = current_resolved_artifacts_map.get(mvn_coords.artifact_name())
 
-        if is_newer_version(mvn_coords, current):
+        if current is None or mvn_coords.is_newer_than(current.coordinates):
             resolved.append(ResolvedArtifact(
                 mvn_coords, get_artifact_checksum(coords), deps
             ))
@@ -319,7 +330,7 @@ def write_to_file(artifact_dict, version, file):
 def create_current_resolved_artifacts_map(original_artifacts):
     result = {}
     for metadata in original_artifacts.values():
-        coordinates = get_maven_coordinates(metadata['artifact'])
+        coordinates = MavenCoordinates.new(metadata['artifact'])
         artifact_name = coordinates.artifact_name()
 
         if artifact_name not in result and metadata.get('testonly') is not True:
@@ -379,6 +390,7 @@ def create_or_update_repository_file(version, output_dir):
             metadata["deps"] = dependencies
 
     write_to_file(original_artifacts, version, file)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
