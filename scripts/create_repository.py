@@ -26,9 +26,9 @@ ROOT_SCALA_VERSIONS = [
     "3.4.3",
     "3.5.2",
 ]
-SCALATEST_VERSION = "3.2.9"
+SCALATEST_VERSION = "3.2.19"
 SCALAFMT_VERSION = "3.8.3"
-PROTOBUF_JAVA_VERSION = "4.28.2"
+PROTOBUF_JAVA_VERSION = "4.28.3"
 
 EXCLUDED_ARTIFACTS = set([
     "org.scala-lang.modules:scala-parser-combinators_2.11:1.0.4",
