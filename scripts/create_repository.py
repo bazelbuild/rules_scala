@@ -33,7 +33,10 @@ EXCLUDED_ARTIFACTS = set([
     "org.scala-lang.modules:scala-parser-combinators_2.11:1.0.4",
 ])
 
-OUTPUT_DIR = Path(__file__).parent.parent / 'third_party' / 'repositories'
+THIS_FILE = Path(__file__)
+REPO_ROOT = THIS_FILE.parent.parent
+OUTPUT_DIR = REPO_ROOT / 'third_party' / 'repositories'
+THIS_FILE_RELATIVE_TO_REPO_ROOT = THIS_FILE.relative_to(REPO_ROOT)
 DOWNLOADED_ARTIFACTS_FILE = 'repository-artifacts.json'
 
 
@@ -321,7 +324,7 @@ def to_rules_scala_compatible_dict(artifacts, is_scala_3) -> Dict[str, Dict]:
 
     return result
 
-def write_to_file(artifact_dict, version, file):
+def write_to_file(artifact_dict, scala_version, file):
     artifacts = (
         json.dumps(artifact_dict, indent=4)
             .replace('true', 'True')
@@ -331,8 +334,14 @@ def write_to_file(artifact_dict, version, file):
     artifacts = re.sub(r'([]}"])\n', r'\1,\n', artifacts) + '\n'
 
     with file.open('w', encoding='utf-8') as data:
-        data.write(f'scala_version = "{version}"\n')
-        data.write('\nartifacts = ')
+        data.write('\n'.join([
+            '"""Maven artifact repository metadata.\n',
+            'Mostly generated and updated by ' +
+            f'{THIS_FILE_RELATIVE_TO_REPO_ROOT}.',
+            '"""\n',
+            f'scala_version = "{scala_version}"\n',
+            'artifacts = ',
+        ]))
         data.write(artifacts)
 
 def create_current_resolved_artifacts_map(original_artifacts):

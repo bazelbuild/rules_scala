@@ -1,3 +1,8 @@
+"""Maven artifact repository metadata.
+
+Mostly generated and updated by scripts/create_repository.py.
+"""
+
 scala_version = "2.11.12"
 
 artifacts = {
