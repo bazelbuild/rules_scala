@@ -131,9 +131,6 @@ def select_root_artifacts(scala_version, scala_major, is_scala_3) -> List[str]:
     ]
     return common_root_artifacts + scala_artifacts
 
-def get_mavens_coordinates_from_json(artifacts) -> List[MavenCoordinates]:
-    return list(map(MavenCoordinates.new, artifacts))
-
 def run_command(command, description):
     """Runs a command and emits its output only on error.
 
@@ -181,7 +178,7 @@ def get_json_dependencies(artifact) -> List[MavenCoordinates]:
         data = json.load(file)
 
     return (
-        get_mavens_coordinates_from_json(dep["directDependencies"])
+        [MavenCoordinates.new(d) for d in dep["directDependencies"]]
         if any((dep := d)["coord"] == artifact for d in data["dependencies"])
         else []
     )
