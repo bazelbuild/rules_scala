@@ -591,4 +591,40 @@ artifacts = {
             "@io_bazel_rules_scala_scala_library",
         ],
     },
+    "io_bazel_rules_scala_scalatest_diagrams": {
+        "artifact": "org.scalatest:scalatest-diagrams_2.11:3.2.9",
+        "sha256": "85f8d906a5bbeeed9d1cfb5876b70a794be5149f6ba3f2ee00c16c73d8726211",
+        "deps": [
+            "@io_bazel_rules_scala_scala_library",
+            "@io_bazel_rules_scala_scala_reflect",
+            "@io_bazel_rules_scala_scalatest_core",
+        ],
+    },
+    "io_bazel_rules_scala_scalatest_propspec": {
+        "artifact": "org.scalatest:scalatest-propspec_2.11:3.2.9",
+        "sha256": "6bacfbe85d5928cff038be1e0d90c35ebceb9f5cec32d7271a85f7c8470dd10f",
+        "deps": [
+            "@io_bazel_rules_scala_scala_library",
+            "@io_bazel_rules_scala_scala_reflect",
+            "@io_bazel_rules_scala_scalatest_core",
+        ],
+    },
+    "io_bazel_rules_scala_scalatest_refspec": {
+        "artifact": "org.scalatest:scalatest-refspec_2.11:3.2.9",
+        "sha256": "f7c3fcbe130e8fb74231672104cae913b3d31b1c997f9bb010a61b9ee6314fb5",
+        "deps": [
+            "@io_bazel_rules_scala_scala_library",
+            "@io_bazel_rules_scala_scala_reflect",
+            "@io_bazel_rules_scala_scalatest_core",
+        ],
+    },
+    "io_bazel_rules_scala_scalatest_wordspec": {
+        "artifact": "org.scalatest:scalatest-wordspec_2.11:3.2.9",
+        "sha256": "96b382988fbcbf1c3ff45ba4eac06a069d0f3cb3247a66ea60fd7c0be90e55ed",
+        "deps": [
+            "@io_bazel_rules_scala_scala_library",
+            "@io_bazel_rules_scala_scala_reflect",
+            "@io_bazel_rules_scala_scalatest_core",
+        ],
+    },
 }
