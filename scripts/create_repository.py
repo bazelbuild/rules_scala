@@ -186,83 +186,93 @@ def get_json_dependencies(artifact) -> List[MavenCoordinates]:
         else []
     )
 
-ARTIFACT_LABEL_ONLY_GROUPS = set([
-    "com.google.guava",
-    "com.twitter",
-    "javax.annotation",
-    "org.scalactic",
-    "org.scalatest",
-])
+# pylint: disable=too-few-public-methods
+class ArtifactLabelMaker:
+    """Creates artifact repository labels."""
 
-GROUP_AND_ARTIFACT_LABEL_GROUPS = set([
-    "junit",
-    "net.sf.jopt-simple",
-    "org.apache.commons",
-    "org.hamcrest",
-    "org.openjdk.jmh",
-    "org.ow2.asm",
-    "org.specs2",
-])
+    def __init__(self, is_scala_3):
+        self._is_scala_3 = is_scala_3
 
-SCALA_PROTO_RULES_GROUPS = set([
-    "com.google.api.grpc",
-    "com.google.instrumentation",
-    "com.lmax",
-    "com.thesamet.scalapb",
-    "dev.dirs.directories",
-    "io.grpc",
-    "io.netty",
-    "io.opencensus",
-    "io.perfmark",
-])
+    def get_label(self, coordinates) -> str:
+        """Creates a repository label from an artifact's Maven coordinates."""
+        group = coordinates.group
+        group_label = group.replace('.', '_').replace('-', '_')
+        artifact_label = coordinates.artifact.split('_')[0].replace('-', '_')
 
-SPECIAL_CASE_GROUP_LABELS = {
-    "com.github.scopt": "io_bazel_rules_scala_scopt",
-    "com.github.spullara.mustache.java": "io_bazel_rules_scala_mustache",
-}
+        if group in self._SCALA_LANG_GROUPS:
+            return self._get_scala_lang_label(artifact_label, coordinates)
+        if group in self._ARTIFACT_LABEL_ONLY_GROUPS:
+            return f'io_bazel_rules_scala_{artifact_label}'
+        if group in self._GROUP_AND_ARTIFACT_LABEL_GROUPS:
+            return f'io_bazel_rules_scala_{group_label}_{artifact_label}'
+        if group in self._SCALA_PROTO_RULES_GROUPS:
+            return self._get_scala_proto_label(artifact_label, coordinates)
+        if group in self._SPECIAL_CASE_GROUP_LABELS:
+            return self._SPECIAL_CASE_GROUP_LABELS['group']
+        return f'{group_label}_{artifact_label}'.replace('_v2', '')
 
-SCALA_LANG_GROUPS = set(['org.scala-lang', 'org.scala-lang.modules'])
-SCALA_2_ARTIFACTS = set(['scala-library', 'scala-compiler', 'scala-reflect'])
+    _ARTIFACT_LABEL_ONLY_GROUPS = set([
+        "com.google.guava",
+        "com.twitter",
+        "javax.annotation",
+        "org.scalactic",
+        "org.scalatest",
+    ])
 
-def get_scala_lang_label(artifact_label, is_scala_3, coordinates):
-    artifact = coordinates.artifact
-    if artifact == 'scalap':
-        return 'org_scala_lang_scalap'
-    if artifact.startswith('scala-collection-compat'):
-        return 'org_scala_lang_modules_scala_collection_compat'
+    _GROUP_AND_ARTIFACT_LABEL_GROUPS = set([
+        "junit",
+        "net.sf.jopt-simple",
+        "org.apache.commons",
+        "org.hamcrest",
+        "org.openjdk.jmh",
+        "org.ow2.asm",
+        "org.specs2",
+    ])
 
-    label = f'io_bazel_rules_scala_{artifact_label}'
+    _SCALA_PROTO_RULES_GROUPS = set([
+        "com.google.api.grpc",
+        "com.google.instrumentation",
+        "com.lmax",
+        "com.thesamet.scalapb",
+        "dev.dirs.directories",
+        "io.grpc",
+        "io.netty",
+        "io.opencensus",
+        "io.perfmark",
+    ])
 
-    if is_scala_3 and artifact in SCALA_2_ARTIFACTS:
-        return label + '_2'
-    if artifact.startswith('scala3-'):
-        return label.replace('scala3_', 'scala_')
-    return label.replace('scala_tasty_core', 'scala_scala_tasty_core')
+    _SPECIAL_CASE_GROUP_LABELS = {
+        "com.github.scopt": "io_bazel_rules_scala_scopt",
+        "com.github.spullara.mustache.java": "io_bazel_rules_scala_mustache",
+    }
 
-def get_scala_proto_label(artifact_label, coordinates):
-    if (
-        coordinates.group == "com.thesamet.scalapb" and
-        not artifact_label.startswith("scalapb_")
-    ):
-        artifact_label = "scalapb_" + artifact_label
-    return f'scala_proto_rules_{artifact_label}'
+    _SCALA_LANG_GROUPS = set(['org.scala-lang', 'org.scala-lang.modules'])
+    _SCALA_2_ARTIFACTS = set([
+        'scala-library', 'scala-compiler', 'scala-reflect'
+    ])
 
-def get_label(coordinates, is_scala_3) -> str:
-    group = coordinates.group
-    group_label = group.replace('.', '_').replace('-', '_')
-    artifact_label = coordinates.artifact.split('_')[0].replace('-', '_')
+    def _get_scala_lang_label(self, artifact_label, coordinates):
+        artifact = coordinates.artifact
+        if artifact == 'scalap':
+            return 'org_scala_lang_scalap'
+        if artifact.startswith('scala-collection-compat'):
+            return 'org_scala_lang_modules_scala_collection_compat'
 
-    if group in SCALA_LANG_GROUPS:
-        return get_scala_lang_label(artifact_label, is_scala_3, coordinates)
-    if group in ARTIFACT_LABEL_ONLY_GROUPS:
-        return f'io_bazel_rules_scala_{artifact_label}'
-    if group in GROUP_AND_ARTIFACT_LABEL_GROUPS:
-        return f'io_bazel_rules_scala_{group_label}_{artifact_label}'
-    if group in SCALA_PROTO_RULES_GROUPS:
-        return get_scala_proto_label(artifact_label, coordinates)
-    if group in SPECIAL_CASE_GROUP_LABELS:
-        return SPECIAL_CASE_GROUP_LABELS['group']
-    return f'{group_label}_{artifact_label}'.replace('_v2', '')
+        label = f'io_bazel_rules_scala_{artifact_label}'
+
+        if self._is_scala_3 and artifact in self._SCALA_2_ARTIFACTS:
+            return label + '_2'
+        if artifact.startswith('scala3-'):
+            return label.replace('scala3_', 'scala_')
+        return label.replace('scala_tasty_core', 'scala_scala_tasty_core')
+
+    def _get_scala_proto_label(self, artifact_label, coordinates):
+        if (
+            coordinates.group == "com.thesamet.scalapb" and
+            not artifact_label.startswith("scalapb_")
+        ):
+            artifact_label = "scalapb_" + artifact_label
+        return f'scala_proto_rules_{artifact_label}'
 
 def map_to_resolved_artifacts(
     output, current_resolved_artifacts_map,
@@ -300,14 +310,15 @@ def resolve_artifacts_with_checksums_and_direct_dependencies(
 
 def to_rules_scala_compatible_dict(artifacts, is_scala_3) -> Dict[str, Dict]:
     result = {}
+    label_maker = ArtifactLabelMaker(is_scala_3)
 
     for a in artifacts:
         coordinates = a.coordinates
-        result[get_label(coordinates, is_scala_3)] = {
+        result[label_maker.get_label(coordinates)] = {
             "artifact": f"{coordinates.coordinate}",
             "sha256": f"{a.checksum}",
             "deps": sorted([
-                f'@{get_label(d, is_scala_3)}' for d in a.direct_dependencies
+                f'@{label_maker.get_label(d)}' for d in a.direct_dependencies
             ]),
         }
 
