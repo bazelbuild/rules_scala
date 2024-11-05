@@ -277,33 +277,23 @@ class ArtifactResolver:
             'Resolving root artifacts',
         )
 
-        try:
-            return self._map_to_resolved_artifacts(
-                proc.stdout.splitlines(), current_artifacts,
-            )
-        finally:
-            artifacts_file = Path(self._downloaded_artifacts_file)
-            if artifacts_file.exists():
-                artifacts_file.unlink()
-
+        return self._map_to_resolved_artifacts(
+            proc.stdout.splitlines(), current_artifacts,
+        )
 
     def _map_to_resolved_artifacts(
-        self, output, current_artifacts,
+        self, cs_resolve_output, current_artifacts,
     ) -> List[ResolvedArtifact]:
-        command = (
-            f'cs fetch {' '.join(output)} --json-output-file ' +
-            self._downloaded_artifacts_file
-        )
-        self._run_command(command, 'Fetching resolved artifacts')
-        resolved = []
+        artifacts_data = self._fetch_artifacts_data(cs_resolve_output)
         current_artifacts_map = self._create_current_artifacts_map(
             current_artifacts
         )
+        resolved = []
 
-        for line in output:
+        for line in cs_resolve_output:
             coords = line.replace(':default', '')
             mvn_coords = MavenCoordinates.new(coords)
-            deps = self._get_json_dependencies(coords)
+            deps = self._get_json_dependencies(coords, artifacts_data)
             current = current_artifacts_map.get(mvn_coords.artifact_name())
 
             if current is None or mvn_coords.is_newer_than(current.coordinates):
@@ -312,6 +302,23 @@ class ArtifactResolver:
                 ))
 
         return resolved
+
+    def _fetch_artifacts_data(self, cs_resolve_output):
+        try:
+            command = (
+                f'cs fetch {' '.join(cs_resolve_output)} --json-output-file ' +
+                self._downloaded_artifacts_file
+            )
+            self._run_command(command, 'Fetching resolved artifacts')
+            artifacts_file = Path(self._downloaded_artifacts_file)
+
+            with open(artifacts_file, 'r', encoding='utf-8') as f:
+                return json.load(f)
+
+        finally:
+            if artifacts_file.exists():
+                artifacts_file.unlink()
+
 
     @staticmethod
     def _create_current_artifacts_map(original_artifacts):
@@ -328,10 +335,8 @@ class ArtifactResolver:
 
         return result
 
-    def _get_json_dependencies(self, artifact) -> List[MavenCoordinates]:
-        with open(self._downloaded_artifacts_file, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-
+    @staticmethod
+    def _get_json_dependencies(artifact, data) -> List[MavenCoordinates]:
         return (
             [MavenCoordinates.new(d) for d in a["directDependencies"]]
             if any((a := d)["coord"] == artifact for d in data["dependencies"])
