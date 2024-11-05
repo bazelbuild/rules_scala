@@ -592,7 +592,6 @@ artifacts = {
         ],
     },
     "org_typelevel_kind_projector": {
-        "testonly": True,
         "artifact": "org.typelevel:kind-projector_2.11.12:0.13.2",
         "sha256": "8f7287973f7f8fc9372b59d36120e3fac5839344f65c8f640351794e8907145c",
         "deps": [

@@ -109,6 +109,7 @@ class ResolvedArtifact:
     checksum: str
     direct_dependencies: List[MavenCoordinates]
 
+
 def select_root_artifacts(scala_version, scala_major, is_scala_3) -> List[str]:
     scalatest_major = "3" if is_scala_3 else scala_major
     scalafmt_major = "2.13" if is_scala_3 else scala_major
@@ -406,17 +407,19 @@ def create_or_update_repository_file(version, output_dir):
     )
 
     for label, generated_metadata in generated_artifacts.items():
-        artifact = generated_metadata["artifact"]
+        artifact = generated_metadata['artifact']
         if artifact in EXCLUDED_ARTIFACTS:
             continue
 
         metadata = original_artifacts.setdefault(label, {})
-        metadata["artifact"] = artifact
-        metadata["sha256"] = generated_metadata["sha256"]
-        dependencies = generated_metadata["deps"]
+        metadata['artifact'] = artifact
+        metadata['sha256'] = generated_metadata['sha256']
+        dependencies = generated_metadata['deps']
 
         if dependencies:
-            metadata["deps"] = dependencies
+            metadata['deps'] = dependencies
+        if 'testonly' in metadata:
+            del metadata['testonly']
 
     write_to_file(original_artifacts, version, file)
 
