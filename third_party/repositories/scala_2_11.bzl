@@ -592,8 +592,8 @@ artifacts = {
         ],
     },
     "org_typelevel_kind_projector": {
-        "artifact": "org.typelevel:kind-projector_2.11.12:0.13.2",
-        "sha256": "8f7287973f7f8fc9372b59d36120e3fac5839344f65c8f640351794e8907145c",
+        "artifact": "org.typelevel:kind-projector_2.11.12:0.13.3",
+        "sha256": "fc40476381233d532ed26b64a3643c1bda792d2900a7df697d676dde82e4408d",
         "deps": [
             "@io_bazel_rules_scala_scala_compiler",
             "@io_bazel_rules_scala_scala_library",

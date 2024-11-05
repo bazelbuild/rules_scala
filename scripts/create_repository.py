@@ -27,6 +27,7 @@ ROOT_SCALA_VERSIONS = [
 ]
 SCALATEST_VERSION = "3.2.19"
 SCALAFMT_VERSION = "3.8.3"
+KIND_PROJECTOR_VERSION = "0.13.3"
 PROTOBUF_JAVA_VERSION = "4.28.3"
 
 EXCLUDED_ARTIFACTS = set([
@@ -113,7 +114,6 @@ class ResolvedArtifact:
 def select_root_artifacts(scala_version, scala_major, is_scala_3) -> List[str]:
     scalatest_major = "3" if is_scala_3 else scala_major
     scalafmt_major = "2.13" if is_scala_3 else scala_major
-    kind_projector_version = "0.13.2" if scala_major < "2.12" else "0.13.3"
     scalafmt_version = "2.7.5" if scala_major == "2.11" else SCALAFMT_VERSION
 
     common_root_artifacts = [
@@ -131,7 +131,7 @@ def select_root_artifacts(scala_version, scala_major, is_scala_3) -> List[str]:
         f'org.scala-lang:scala-compiler:{scala_version}',
         f'org.scala-lang:scala-reflect:{scala_version}',
         f'org.scalameta:semanticdb-scalac_{scala_version}:4.9.9',
-        f'org.typelevel:kind-projector_{scala_version}:{kind_projector_version}'
+        f'org.typelevel:kind-projector_{scala_version}:{KIND_PROJECTOR_VERSION}'
     ]
     return common_root_artifacts + scala_artifacts
 
