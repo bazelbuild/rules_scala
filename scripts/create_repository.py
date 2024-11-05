@@ -161,9 +161,15 @@ class ArtifactLabelMaker:
 
     def __init__(self, is_scala_3):
         self._is_scala_3 = is_scala_3
+        self._cache = {}
 
     def get_label(self, coordinates) -> str:
         """Creates a repository label from an artifact's Maven coordinates."""
+        return self._cache.setdefault(
+            coordinates.coordinate, self._get_label_impl(coordinates)
+        )
+
+    def _get_label_impl(self, coordinates) -> str:
         group = coordinates.group
         group_label = group.replace('.', '_').replace('-', '_')
         artifact_label = coordinates.artifact.split('_')[0].replace('-', '_')
