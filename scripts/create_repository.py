@@ -134,57 +134,6 @@ def select_root_artifacts(scala_version, scala_major, is_scala_3) -> List[str]:
     ]
     return common_root_artifacts + scala_artifacts
 
-def run_command(command, description):
-    """Runs a command and emits its output only on error.
-
-    Args:
-        command: the shell command to run
-        description: prefixed to the error message on failure
-
-    Returns:
-        the CompletedProcess object on success, None on error
-
-    Raises:
-        CreateRepositoryError if the command fails
-    """
-    try:
-        return subprocess.run(
-            command, capture_output=True, text=True, shell=True, check=True
-        )
-
-    except subprocess.CalledProcessError as err:
-        err_msg = "\n".join([
-            f'{description} failed for command: {err.cmd}',
-            err.stderr
-        ])
-        raise CreateRepositoryError(err_msg) from err
-
-def get_artifact_checksum(artifact) -> str:
-    proc = run_command(
-        f'cs fetch {artifact}', 'Fetching artifact for checksumming',
-    )
-
-    possible_url = [o for o in proc.stdout.splitlines() if "https" in o][0]
-    possible_url = possible_url[possible_url.find("https"):]
-    possible_url = possible_url.replace('https/', 'https://')
-
-    try:
-        with urllib.request.urlopen(possible_url) as value:
-            return hashlib.sha256(value.read()).hexdigest()
-
-    except urllib.error.HTTPError as e:
-        print(f'RESOURCES NOT FOUND: {possible_url}: {e}')
-        return 'NO_CHECKSUM_FOUND'
-
-def get_json_dependencies(artifact) -> List[MavenCoordinates]:
-    with open(DOWNLOADED_ARTIFACTS_FILE, 'r', encoding='utf-8') as file:
-        data = json.load(file)
-
-    return (
-        [MavenCoordinates.new(d) for d in dep["directDependencies"]]
-        if any((dep := d)["coord"] == artifact for d in data["dependencies"])
-        else []
-    )
 
 # pylint: disable=too-few-public-methods
 class ArtifactLabelMaker:
@@ -274,39 +223,102 @@ class ArtifactLabelMaker:
             artifact_label = "scalapb_" + artifact_label
         return f'scala_proto_rules_{artifact_label}'
 
-def map_to_resolved_artifacts(
-    output, current_resolved_artifacts_map,
-) -> List[ResolvedArtifact]:
-    command = (
-        f'cs fetch {' '.join(output)} --json-output-file ' +
-        DOWNLOADED_ARTIFACTS_FILE
-    )
-    proc = run_command(command, 'Fetching resolved artifacts')
-    resolved = []
 
-    for line in output:
-        coords = line.replace(':default', '')
-        mvn_coords = MavenCoordinates.new(coords)
-        deps = get_json_dependencies(coords)
-        current = current_resolved_artifacts_map.get(mvn_coords.artifact_name())
+class ArtifactResolver:
+    """Resolves root artifacts and their transitive dependencies."""
 
-        if current is None or mvn_coords.is_newer_than(current.coordinates):
-            resolved.append(ResolvedArtifact(
-                mvn_coords, get_artifact_checksum(coords), deps
-            ))
+    def __init__(self, label_maker, downloaded_artifacts_file):
+        self._label_maker = label_maker
+        self._downloaded_artifacts_file = downloaded_artifacts_file
 
-    return resolved
+    def resolve_artifacts(
+        self, root_artifacts, current_artifacts
+    ) -> List[ResolvedArtifact]:
+        proc = self._run_command(
+            f'cs resolve {' '.join(root_artifacts)}',
+            'Resolving root artifacts',
+        )
 
-def resolve_artifacts_with_checksums_and_direct_dependencies(
-    root_artifacts, current_resolved_artifacts_map
-) -> List[ResolvedArtifact]:
-    proc = run_command(
-        f'cs resolve {' '.join(root_artifacts)}', 'Resolving root artifacts'
-    )
+        return self._map_to_resolved_artifacts(
+            proc.stdout.splitlines(), current_artifacts,
+        )
 
-    return map_to_resolved_artifacts(
-        proc.stdout.splitlines(), current_resolved_artifacts_map,
-    )
+    def _map_to_resolved_artifacts(
+        self, output, current_artifacts,
+    ) -> List[ResolvedArtifact]:
+        command = (
+            f'cs fetch {' '.join(output)} --json-output-file ' +
+            self._downloaded_artifacts_file
+        )
+        self._run_command(command, 'Fetching resolved artifacts')
+        resolved = []
+
+        for line in output:
+            coords = line.replace(':default', '')
+            mvn_coords = MavenCoordinates.new(coords)
+            deps = self._get_json_dependencies(coords)
+            current = current_artifacts.get(mvn_coords.artifact_name())
+
+            if current is None or mvn_coords.is_newer_than(current.coordinates):
+                resolved.append(ResolvedArtifact(
+                    mvn_coords, self._get_artifact_checksum(coords), deps
+                ))
+
+        return resolved
+
+    def _get_json_dependencies(self, artifact) -> List[MavenCoordinates]:
+        with open(self._downloaded_artifacts_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+
+        return (
+            [MavenCoordinates.new(d) for d in a["directDependencies"]]
+            if any((a := d)["coord"] == artifact for d in data["dependencies"])
+            else []
+        )
+
+    @staticmethod
+    def _get_artifact_checksum(artifact) -> str:
+        proc = ArtifactResolver._run_command(
+            f'cs fetch {artifact}', 'Fetching artifact for checksumming',
+        )
+
+        possible_url = [o for o in proc.stdout.splitlines() if "https" in o][0]
+        possible_url = possible_url[possible_url.find("https"):]
+        possible_url = possible_url.replace('https/', 'https://')
+
+        try:
+            with urllib.request.urlopen(possible_url) as value:
+                return hashlib.sha256(value.read()).hexdigest()
+
+        except urllib.error.HTTPError as e:
+            print(f'RESOURCES NOT FOUND: {possible_url}: {e}')
+            return 'NO_CHECKSUM_FOUND'
+
+    @staticmethod
+    def _run_command(command, description):
+        """Runs a command and emits its output only on error.
+
+        Args:
+            command: the shell command to run
+            description: prefixed to the error message on failure
+
+        Returns:
+            the CompletedProcess object on success, None on error
+
+        Raises:
+            CreateRepositoryError if the command fails
+        """
+        try:
+            return subprocess.run(
+                command, capture_output=True, text=True, shell=True, check=True
+            )
+
+        except subprocess.CalledProcessError as err:
+            err_msg = "\n".join([
+                f'{description} failed for command: {err.cmd}',
+                err.stderr
+            ])
+            raise CreateRepositoryError(err_msg) from err
 
 def to_rules_scala_compatible_dict(artifacts, is_scala_3) -> Dict[str, Dict]:
     result = {}
@@ -382,12 +394,12 @@ def create_or_update_repository_file(version, output_dir):
     replaced_data = read_data[read_data.find('{'):]
 
     original_artifacts = ast.literal_eval(replaced_data)
+    labeler = ArtifactLabelMaker(is_scala_3)
+    resolver = ArtifactResolver(labeler, DOWNLOADED_ARTIFACTS_FILE)
 
-    transitive_artifacts: List[ResolvedArtifact] = (
-       resolve_artifacts_with_checksums_and_direct_dependencies(
-            root_artifacts,
-            create_current_resolved_artifacts_map(original_artifacts),
-       )
+    transitive_artifacts: List[ResolvedArtifact] = resolver.resolve_artifacts(
+        root_artifacts,
+        create_current_resolved_artifacts_map(original_artifacts),
     )
     generated_artifacts = to_rules_scala_compatible_dict(
         transitive_artifacts, is_scala_3
