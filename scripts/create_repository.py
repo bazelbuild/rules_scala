@@ -25,14 +25,11 @@ ROOT_SCALA_VERSIONS = [
     "3.4.3",
     "3.5.2",
 ]
+PARSER_COMBINATORS_VERSION = '1.1.2'
 SCALATEST_VERSION = "3.2.19"
 SCALAFMT_VERSION = "3.8.3"
 KIND_PROJECTOR_VERSION = "0.13.3"
 PROTOBUF_JAVA_VERSION = "4.28.3"
-
-EXCLUDED_ARTIFACTS = set([
-    "org.scala-lang.modules:scala-parser-combinators_2.11:1.0.4",
-])
 
 THIS_FILE = Path(__file__)
 REPO_ROOT = THIS_FILE.parent.parent
@@ -61,12 +58,15 @@ def select_root_artifacts(scala_version, scala_major, is_scala_3) -> List[str]:
         the list of root artifacts to resolve and potentially update in the
             repository file
     """
+    spc_major = '2.13' if is_scala_3 else scala_major
     scalatest_major = "3" if is_scala_3 else scala_major
     scalafmt_major = "2.13" if is_scala_3 else scala_major
     scalafmt_version = "2.7.5" if scala_major == "2.11" else SCALAFMT_VERSION
 
     common_root_artifacts = [
         f"com.google.protobuf:protobuf-java:{PROTOBUF_JAVA_VERSION}",
+        f"org.scala-lang.modules:scala-parser-combinators_{spc_major}:" +
+            PARSER_COMBINATORS_VERSION,
         f"org.scalatest:scalatest_{scalatest_major}:{SCALATEST_VERSION}",
         f"org.scalameta:scalafmt-core_{scalafmt_major}:{scalafmt_version}",
     ]
@@ -449,12 +449,8 @@ class ArtifactUpdater:
     @staticmethod
     def _update_artifacts(original_artifacts, resolved_artifacts):
         for label, resolved_metadata in resolved_artifacts.items():
-            artifact = resolved_metadata['artifact']
-            if artifact in EXCLUDED_ARTIFACTS:
-                continue
-
             metadata = original_artifacts.setdefault(label, {})
-            metadata['artifact'] = artifact
+            metadata['artifact'] = resolved_metadata['artifact']
             metadata['sha256'] = resolved_metadata['sha256']
             dependencies = resolved_metadata['deps']
 

@@ -152,6 +152,9 @@ artifacts = {
     "io_bazel_rules_scala_scala_parser_combinators": {
         "artifact": "org.scala-lang.modules:scala-parser-combinators_2.12:1.1.2",
         "sha256": "24985eb43e295a9dd77905ada307a850ca25acf819cdb579c093fc6987b0dbc2",
+        "deps": [
+            "@io_bazel_rules_scala_scala_library",
+        ],
     },
     "org_scalameta_common": {
         "artifact": "org.scalameta:common_2.12:4.9.9",
