@@ -41,6 +41,31 @@ THIS_FILE_RELATIVE_TO_REPO_ROOT = THIS_FILE.relative_to(REPO_ROOT)
 DOWNLOADED_ARTIFACTS_FILE = 'repository-artifacts.json'
 
 
+def select_root_artifacts(scala_version, scala_major, is_scala_3) -> List[str]:
+    scalatest_major = "3" if is_scala_3 else scala_major
+    scalafmt_major = "2.13" if is_scala_3 else scala_major
+    scalafmt_version = "2.7.5" if scala_major == "2.11" else SCALAFMT_VERSION
+
+    common_root_artifacts = [
+        f"com.google.protobuf:protobuf-java:{PROTOBUF_JAVA_VERSION}",
+        f"org.scalatest:scalatest_{scalatest_major}:{SCALATEST_VERSION}",
+        f"org.scalameta:scalafmt-core_{scalafmt_major}:{scalafmt_version}"
+    ]
+    scala_artifacts = [
+        f'org.scala-lang:scala3-library_3:{scala_version}',
+        f'org.scala-lang:scala3-compiler_3:{scala_version}',
+        f'org.scala-lang:scala3-interfaces:{scala_version}',
+        f'org.scala-lang:tasty-core_3:{scala_version}'
+    ] if scala_major[0] == "3" else [
+        f'org.scala-lang:scala-library:{scala_version}',
+        f'org.scala-lang:scala-compiler:{scala_version}',
+        f'org.scala-lang:scala-reflect:{scala_version}',
+        f'org.scalameta:semanticdb-scalac_{scala_version}:4.9.9',
+        f'org.typelevel:kind-projector_{scala_version}:{KIND_PROJECTOR_VERSION}'
+    ]
+    return common_root_artifacts + scala_artifacts
+
+
 class CreateRepositoryError(Exception):
     """Errors raised explicitly by the create_repository module."""
 
@@ -109,31 +134,6 @@ class ResolvedArtifact:
     coordinates: MavenCoordinates
     checksum: str
     direct_dependencies: List[MavenCoordinates]
-
-
-def select_root_artifacts(scala_version, scala_major, is_scala_3) -> List[str]:
-    scalatest_major = "3" if is_scala_3 else scala_major
-    scalafmt_major = "2.13" if is_scala_3 else scala_major
-    scalafmt_version = "2.7.5" if scala_major == "2.11" else SCALAFMT_VERSION
-
-    common_root_artifacts = [
-        f"com.google.protobuf:protobuf-java:{PROTOBUF_JAVA_VERSION}",
-        f"org.scalatest:scalatest_{scalatest_major}:{SCALATEST_VERSION}",
-        f"org.scalameta:scalafmt-core_{scalafmt_major}:{scalafmt_version}"
-    ]
-    scala_artifacts = [
-        f'org.scala-lang:scala3-library_3:{scala_version}',
-        f'org.scala-lang:scala3-compiler_3:{scala_version}',
-        f'org.scala-lang:scala3-interfaces:{scala_version}',
-        f'org.scala-lang:tasty-core_3:{scala_version}'
-    ] if scala_major[0] == "3" else [
-        f'org.scala-lang:scala-library:{scala_version}',
-        f'org.scala-lang:scala-compiler:{scala_version}',
-        f'org.scala-lang:scala-reflect:{scala_version}',
-        f'org.scalameta:semanticdb-scalac_{scala_version}:4.9.9',
-        f'org.typelevel:kind-projector_{scala_version}:{KIND_PROJECTOR_VERSION}'
-    ]
-    return common_root_artifacts + scala_artifacts
 
 
 # pylint: disable=too-few-public-methods
@@ -321,107 +321,120 @@ class ArtifactResolver:
             ])
             raise CreateRepositoryError(err_msg) from err
 
-def to_rules_scala_compatible_dict(artifacts, is_scala_3) -> Dict[str, Dict]:
-    result = {}
-    label_maker = ArtifactLabelMaker(is_scala_3)
 
-    for a in artifacts:
-        coordinates = a.coordinates
-        result[label_maker.get_label(coordinates)] = {
-            "artifact": f"{coordinates.coordinate}",
-            "sha256": f"{a.checksum}",
-            "deps": sorted([
-                f'@{label_maker.get_label(d)}' for d in a.direct_dependencies
-            ]),
-        }
+class ArtifactUpdater:
+    """Resolves Maven artifacts and updates repository dictionary files."""
 
-    return result
+    def __init__(self, downloaded_artifacts_file):
+        self._downloaded_artifacts_file = downloaded_artifacts_file
 
-def write_to_file(artifact_dict, scala_version, file):
-    artifacts = (
-        json.dumps(artifact_dict, indent=4)
-            .replace('true', 'True')
-            .replace('false', 'False')
-    )
-    # Add trailing commas.
-    artifacts = re.sub(r'([]}"])\n', r'\1,\n', artifacts) + '\n'
+    def create_or_update_repository_file(self, scala_version, output_dir):
+        scala_major_parts = scala_version.split('.')[:2]
+        scala_major = '.'.join(scala_major_parts)
+        file = output_dir / f'scala_{'_'.join(scala_major_parts)}.bzl'
+        is_scala_3 = scala_version.startswith('3.')
+        root_artifacts = select_root_artifacts(
+            scala_version, scala_major, is_scala_3
+        )
 
-    with file.open('w', encoding='utf-8') as data:
-        data.write('\n'.join([
-            '"""Maven artifact repository metadata.\n',
-            'Mostly generated and updated by ' +
-            f'{THIS_FILE_RELATIVE_TO_REPO_ROOT}.',
-            '"""\n',
-            f'scala_version = "{scala_version}"\n',
-            'artifacts = ',
-        ]))
-        data.write(artifacts)
+        print('\nUPDATING:', file)
+        self._copy_previous_version_or_create_new_file(file, output_dir)
 
-def create_current_resolved_artifacts_map(original_artifacts):
-    result = {}
-    for metadata in original_artifacts.values():
-        coordinates = MavenCoordinates.new(metadata['artifact'])
-        artifact_name = coordinates.artifact_name()
+        with file.open('r', encoding='utf-8') as data:
+            read_data = data.read()
 
-        if artifact_name not in result and metadata.get('testonly') is not True:
-            result[artifact_name] = ResolvedArtifact(
-                coordinates, metadata['sha256'], metadata.get('deps', [])
-            )
-    return result
+        original_artifacts = ast.literal_eval(read_data[read_data.find('{'):])
+        labeler = ArtifactLabelMaker(is_scala_3)
+        resolver = ArtifactResolver(labeler, self._downloaded_artifacts_file)
 
-def copy_previous_version_or_create_new_file_if_missing(file_path, output_dir):
-    if file_path.exists():
-        return
+        transitive_artifacts: List[ResolvedArtifact] = resolver.resolve_artifacts(
+            root_artifacts,
+            self._create_current_resolved_artifacts_map(original_artifacts),
+        )
+        generated_artifacts = self._to_rules_scala_compatible_dict(
+            transitive_artifacts,
+            labeler,
+        )
 
-    existing_files = sorted(output_dir.glob('scala_*.bzl'))
-    if existing_files:
-        shutil.copyfile(existing_files[-1], file_path)
-        return
+        for label, generated_metadata in generated_artifacts.items():
+            artifact = generated_metadata['artifact']
+            if artifact in EXCLUDED_ARTIFACTS:
+                continue
 
-    with open(file_path, 'w', encoding='utf-8') as f:
-        f.write('{}\n')
+            metadata = original_artifacts.setdefault(label, {})
+            metadata['artifact'] = artifact
+            metadata['sha256'] = generated_metadata['sha256']
+            dependencies = generated_metadata['deps']
 
-def create_or_update_repository_file(version, output_dir):
-    file = output_dir / f'scala_{"_".join(version.split(".")[:2])}.bzl'
-    copy_previous_version_or_create_new_file_if_missing(file, output_dir)
+            if dependencies:
+                metadata['deps'] = dependencies
+            if 'testonly' in metadata:
+                del metadata['testonly']
 
-    print('\nUPDATING:', file)
-    with file.open('r', encoding='utf-8') as data:
-        read_data = data.read()
+        self._write_to_file(original_artifacts, scala_version, file)
 
-    scala_major = ".".join(version.split(".")[:2])
-    is_scala_3 = scala_major.startswith("3.")
-    root_artifacts = select_root_artifacts(version, scala_major, is_scala_3)
-    replaced_data = read_data[read_data.find('{'):]
+    @staticmethod
+    def _copy_previous_version_or_create_new_file(file_path, output_dir):
+        if file_path.exists():
+            return
 
-    original_artifacts = ast.literal_eval(replaced_data)
-    labeler = ArtifactLabelMaker(is_scala_3)
-    resolver = ArtifactResolver(labeler, DOWNLOADED_ARTIFACTS_FILE)
+        existing_files = sorted(output_dir.glob('scala_*.bzl'))
+        if existing_files:
+            shutil.copyfile(existing_files[-1], file_path)
+            return
 
-    transitive_artifacts: List[ResolvedArtifact] = resolver.resolve_artifacts(
-        root_artifacts,
-        create_current_resolved_artifacts_map(original_artifacts),
-    )
-    generated_artifacts = to_rules_scala_compatible_dict(
-        transitive_artifacts, is_scala_3
-    )
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.write('{}\n')
 
-    for label, generated_metadata in generated_artifacts.items():
-        artifact = generated_metadata['artifact']
-        if artifact in EXCLUDED_ARTIFACTS:
-            continue
+    @staticmethod
+    def _create_current_resolved_artifacts_map(original_artifacts):
+        result = {}
+        for metadata in original_artifacts.values():
+            coordinates = MavenCoordinates.new(metadata['artifact'])
+            artifact_name = coordinates.artifact_name()
 
-        metadata = original_artifacts.setdefault(label, {})
-        metadata['artifact'] = artifact
-        metadata['sha256'] = generated_metadata['sha256']
-        dependencies = generated_metadata['deps']
+            if artifact_name not in result and metadata.get('testonly') is not True:
+                result[artifact_name] = ResolvedArtifact(
+                    coordinates, metadata['sha256'], metadata.get('deps', [])
+                )
+        return result
 
-        if dependencies:
-            metadata['deps'] = dependencies
-        if 'testonly' in metadata:
-            del metadata['testonly']
+    @staticmethod
+    def _to_rules_scala_compatible_dict(artifacts, labeler) -> Dict[str, Dict]:
+        result = {}
 
-    write_to_file(original_artifacts, version, file)
+        for a in artifacts:
+            coordinates = a.coordinates
+            result[labeler.get_label(coordinates)] = {
+                "artifact": f"{coordinates.coordinate}",
+                "sha256": f"{a.checksum}",
+                "deps": sorted([
+                    f'@{labeler.get_label(d)}' for d in a.direct_dependencies
+                ]),
+            }
+
+        return result
+
+    @staticmethod
+    def _write_to_file(artifact_dict, scala_version, file):
+        artifacts = (
+            json.dumps(artifact_dict, indent=4)
+                .replace('true', 'True')
+                .replace('false', 'False')
+        )
+        # Add trailing commas.
+        artifacts = re.sub(r'([]}"])\n', r'\1,\n', artifacts) + '\n'
+
+        with file.open('w', encoding='utf-8') as data:
+            data.write('\n'.join([
+                '"""Maven artifact repository metadata.\n',
+                'Mostly generated and updated by ' +
+                f'{THIS_FILE_RELATIVE_TO_REPO_ROOT}.',
+                '"""\n',
+                f'scala_version = "{scala_version}"\n',
+                'artifacts = ',
+            ]))
+            data.write(artifacts)
 
 
 if __name__ == "__main__":
@@ -455,10 +468,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
     output_dir = Path(args.output_dir)
     output_dir.mkdir(mode=0o755, parents=True, exist_ok=True)
+    updater = ArtifactUpdater(DOWNLOADED_ARTIFACTS_FILE)
 
     try:
         for version in [args.version] if args.version else ROOT_SCALA_VERSIONS:
-            create_or_update_repository_file(version, output_dir)
+            updater.create_or_update_repository_file(version, output_dir)
 
     except CreateRepositoryError as err:
         print(f'Failed to update version {version}: {err}', file=sys.stderr)
