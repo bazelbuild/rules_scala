@@ -539,7 +539,7 @@ class ArtifactUpdater:
     @staticmethod
     def _write_to_file(artifact_dict, scala_version, file):
         artifacts = (
-            json.dumps(artifact_dict, indent=4)
+            json.dumps(dict(sorted(artifact_dict.items())), indent=4)
                 .replace('true', 'True')
                 .replace('false', 'False')
         )
