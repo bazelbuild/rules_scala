@@ -178,26 +178,44 @@ def rules_scala_setup(scala_compiler_srcjar = None):
     )
 
 def _artifact_ids(scala_version):
-    return [
-        "io_bazel_rules_scala_scala_library",
+    result = [
         "io_bazel_rules_scala_scala_compiler",
-        "io_bazel_rules_scala_scala_reflect",
-        "io_bazel_rules_scala_scala_xml",
-        "io_bazel_rules_scala_scala_parser_combinators",
-        "org_scalameta_semanticdb_scalac",
-    ] if scala_version.startswith("2") else [
-        "io_bazel_rules_scala_scala_asm",
-        "io_bazel_rules_scala_scala_compiler",
-        "io_bazel_rules_scala_scala_compiler_2",
-        "io_bazel_rules_scala_scala_interfaces",
         "io_bazel_rules_scala_scala_library",
-        "io_bazel_rules_scala_scala_library_2",
         "io_bazel_rules_scala_scala_parser_combinators",
-        "io_bazel_rules_scala_scala_reflect_2",
-        "io_bazel_rules_scala_scala_tasty_core",
         "io_bazel_rules_scala_scala_xml",
-        "org_scala_sbt_compiler_interface",
     ]
+
+    if scala_version.startswith("2."):
+        result.extend([
+            "io_bazel_rules_scala_scala_reflect",
+            "org_scalameta_semanticdb_scalac",
+        ])
+
+    if scala_version.startswith("2.13.") or scala_version.startswith("3."):
+        # Since the Scala 2.13 compiler is included in Scala 3 deps.
+        result.extend([
+            "io_github_java_diff_utils_java_diff_utils",
+            "net_java_dev_jna_jna",
+            "org_jline_jline",
+        ])
+
+    if scala_version.startswith("3."):
+        result.extend([
+            "io_bazel_rules_scala_scala_asm",
+            "io_bazel_rules_scala_scala_compiler_2",
+            "io_bazel_rules_scala_scala_interfaces",
+            "io_bazel_rules_scala_scala_library_2",
+            "io_bazel_rules_scala_scala_reflect_2",
+            "io_bazel_rules_scala_scala_tasty_core",
+            "org_jline_jline_native",
+            "org_jline_jline_reader",
+            "org_jline_jline_terminal",
+            "org_jline_jline_terminal_jna",
+            "org_scala_sbt_compiler_interface",
+            "org_scala_sbt_util_interface",
+        ])
+
+    return result
 
 def rules_scala_toolchain_deps_repositories(
         maven_servers = _default_maven_server_urls(),

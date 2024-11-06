@@ -26,10 +26,14 @@ ROOT_SCALA_VERSIONS = [
     "3.5.2",
 ]
 PARSER_COMBINATORS_VERSION = '1.1.2'
+SBT_COMPILER_INTERFACE_VERSION = '1.10.4'
+SBT_UTIL_INTERFACE_VERSION = '1.10.5'
 SCALATEST_VERSION = "3.2.19"
 SCALAFMT_VERSION = "3.8.3"
 KIND_PROJECTOR_VERSION = "0.13.3"
 PROTOBUF_JAVA_VERSION = "4.28.3"
+JLINE_VERSION = '3.27.1'
+SCALAPB_RUNTIME_VERSION = '0.9.8'
 
 THIS_FILE = Path(__file__)
 REPO_ROOT = THIS_FILE.parent.parent
@@ -62,28 +66,62 @@ def select_root_artifacts(scala_version, scala_major, is_scala_3) -> List[str]:
     scalatest_major = "3" if is_scala_3 else scala_major
     scalafmt_major = "2.13" if is_scala_3 else scala_major
     scalafmt_version = "2.7.5" if scala_major == "2.11" else SCALAFMT_VERSION
+    scalapb_runtime_version = (
+        '0.9.8' if scala_major == '2.11' else SCALAPB_RUNTIME_VERSION
+    )
+    max_scala_2_version = max(
+        v for v in ROOT_SCALA_VERSIONS if v.startswith('2.')
+    )
+    max_scala_2_major = '.'.join(max_scala_2_version.split('.')[:2])
 
-    common_root_artifacts = [
+    root_artifacts = [
         f"com.google.protobuf:protobuf-java:{PROTOBUF_JAVA_VERSION}",
         f"org.scala-lang.modules:scala-parser-combinators_{spc_major}:" +
             PARSER_COMBINATORS_VERSION,
-        f"org.scalatest:scalatest_{scalatest_major}:{SCALATEST_VERSION}",
         f"org.scalameta:scalafmt-core_{scalafmt_major}:{scalafmt_version}",
+        f"org.scalatest:scalatest_{scalatest_major}:{SCALATEST_VERSION}",
     ]
-    scala_artifacts = [
-        f'org.scala-lang:scala3-library_3:{scala_version}',
-        f'org.scala-lang:scala3-compiler_3:{scala_version}',
-        f'org.scala-lang:scala3-interfaces:{scala_version}',
-        f'org.scala-lang:tasty-core_3:{scala_version}',
-    ] if scala_major[0] == "3" else [
-        f'org.scala-lang:scala-library:{scala_version}',
-        f'org.scala-lang:scala-compiler:{scala_version}',
-        f'org.scala-lang:scala-reflect:{scala_version}',
-        f'org.scalameta:semanticdb-scalac_{scala_version}:4.9.9',
-        f'org.typelevel:kind-projector_{scala_version}:' +
-            KIND_PROJECTOR_VERSION,
-    ]
-    return common_root_artifacts + scala_artifacts
+
+    if scala_version == max_scala_2_version or is_scala_3:
+        # Since the Scala 2.13 compiler is included in Scala 3 deps.
+        root_artifacts.append('org.jline:jline:' + JLINE_VERSION)
+
+    if is_scala_3:
+        root_artifacts.extend([
+            f"com.thesamet.scalapb:scalapb-runtime_{max_scala_2_major}:" +
+                scalapb_runtime_version,
+            f'org.scala-lang:scala3-library_3:{scala_version}',
+            f'org.scala-lang:scala3-compiler_3:{scala_version}',
+            f'org.scala-lang:scala3-interfaces:{scala_version}',
+            f'org.scala-lang:scala-compiler:{max_scala_2_version}',
+            f'org.scala-lang:scala-library:{max_scala_2_version}',
+            f'org.scala-lang:scala-reflect:{max_scala_2_version}',
+            f'org.scala-lang:scalap:{max_scala_2_version}',
+            f'org.scala-lang:tasty-core_3:{scala_version}',
+            'org.scala-sbt:compiler-interface:' +
+                SBT_COMPILER_INTERFACE_VERSION,
+            f'org.scala-sbt:util-interface:{SBT_UTIL_INTERFACE_VERSION}',
+            f"org.jline:jline-reader:{JLINE_VERSION}",
+            f"org.jline:jline-terminal:{JLINE_VERSION}",
+            f"org.jline:jline-terminal-jna:{JLINE_VERSION}",
+            f'org.typelevel:kind-projector_{max_scala_2_version}:' +
+                KIND_PROJECTOR_VERSION,
+        ])
+
+    else:
+        root_artifacts.extend([
+            f"com.thesamet.scalapb:scalapb-runtime_{scala_major}:" +
+                scalapb_runtime_version,
+            f'org.scala-lang:scala-compiler:{scala_version}',
+            f'org.scala-lang:scala-library:{scala_version}',
+            f'org.scala-lang:scala-reflect:{scala_version}',
+            f'org.scala-lang:scalap:{scala_version}',
+            f'org.scalameta:semanticdb-scalac_{scala_version}:4.9.9',
+            f'org.typelevel:kind-projector_{scala_version}:' +
+                KIND_PROJECTOR_VERSION,
+        ])
+
+    return root_artifacts
 
 
 class CreateRepositoryError(Exception):
@@ -171,8 +209,8 @@ class ArtifactLabelMaker:
 
     def _get_label_impl(self, coordinates) -> str:
         group = coordinates.group
-        group_label = group.replace('.', '_').replace('-', '_')
-        artifact_label = coordinates.artifact.split('_')[0].replace('-', '_')
+        group_label = self._labelize(group)
+        artifact_label = self._labelize(coordinates.artifact.split('_')[0])
 
         if group in self._SCALA_LANG_GROUPS:
             return self._get_scala_lang_label(artifact_label, coordinates)
@@ -183,8 +221,12 @@ class ArtifactLabelMaker:
         if group in self._SCALA_PROTO_RULES_GROUPS:
             return self._get_scala_proto_label(artifact_label, coordinates)
         if group in self._SPECIAL_CASE_GROUP_LABELS:
-            return self._SPECIAL_CASE_GROUP_LABELS['group']
+            return self._SPECIAL_CASE_GROUP_LABELS[group]
         return f'{group_label}_{artifact_label}'.replace('_v2', '')
+
+    @staticmethod
+    def _labelize(s):
+        return s.replace('.', '_').replace('-', '_')
 
     _ARTIFACT_LABEL_ONLY_GROUPS = set([
         "com.google.guava",
@@ -219,6 +261,7 @@ class ArtifactLabelMaker:
     _SPECIAL_CASE_GROUP_LABELS = {
         "com.github.scopt": "io_bazel_rules_scala_scopt",
         "com.github.spullara.mustache.java": "io_bazel_rules_scala_mustache",
+        "org.apache.thrift": "libthrift",
     }
 
     _SCALA_LANG_GROUPS = set(['org.scala-lang', 'org.scala-lang.modules'])
@@ -408,7 +451,8 @@ class ArtifactUpdater:
         file_path = self._output_dir / f'scala_{'_'.join(version_parts)}.bzl'
         print('\nUPDATING:', file_path)
 
-        original_artifacts = self._get_original_artifacts(file_path)
+        labeler = ArtifactLabelMaker(is_scala_3)
+        original_artifacts = self._get_original_artifacts(file_path, labeler)
         resolved_artifacts = self._to_rules_scala_compatible_dict(
             self._resolver.resolve_artifacts(
                 select_root_artifacts(
@@ -416,18 +460,19 @@ class ArtifactUpdater:
                 ),
                 original_artifacts
             ),
-            ArtifactLabelMaker(is_scala_3),
+            labeler,
         )
         self._update_artifacts(original_artifacts, resolved_artifacts)
         self._write_to_file(original_artifacts, scala_version, file_path)
 
-    def _get_original_artifacts(self, file_path):
+    def _get_original_artifacts(self, file_path, labeler):
         self._copy_previous_version_or_create_new_file(file_path)
 
         with file_path.open('r', encoding='utf-8') as data:
             read_data = data.read()
 
-        return ast.literal_eval(read_data[read_data.find('{'):])
+        artifacts = ast.literal_eval(read_data[read_data.find('{'):])
+        return self._update_artifact_labels(artifacts, labeler)
 
     def _copy_previous_version_or_create_new_file(self, file_path):
         if file_path.exists():
@@ -440,6 +485,56 @@ class ArtifactUpdater:
 
         with open(file_path, 'w', encoding='utf-8') as f:
             f.write('{}\n')
+
+    @staticmethod
+    def _update_artifact_labels(artifacts, labeler):
+        """Transforms existing artifact labels to ensure consistency.
+
+        Specifically, to ensure consistency when running the
+        `ArtifactLabelMaker` on existing artifact metadata for the first time,
+        and whenever it changes thereafter.
+
+        Args:
+            artifacts: a dictionary of repository labels to Maven artifact
+                repository metadata
+            labeler: an `ArtifactLabelMaker` instance configured for the current
+                Scala version
+
+        Returns:
+            the dictionary of repository labels to Maven artifact repository
+                metadata with any repository labels updated as needed
+        """
+        result = {}
+        updated_labels = {}
+
+        for existing_label, metadata in artifacts.items():
+            coords = MavenCoordinates.new(metadata['artifact'])
+            label = (
+                labeler.get_label(coords) if not metadata.get('testonly')
+                else existing_label
+            )
+
+            if label in result:
+                other_metadata = result[label]
+                other_coords = MavenCoordinates.new(other_metadata['artifact'])
+                metadata = (
+                    metadata if coords.is_newer_than(other_coords)
+                    else other_metadata
+                )
+
+            result[label] = metadata
+
+            # Keep track of updated labels so we can update `deps` labels in the
+            # next loop after this one finishes.
+            if label != existing_label:
+                updated_labels['@' + existing_label] = '@' + label
+
+        for metadata in result.values():
+            deps = metadata.get('deps')
+            if deps is not None:
+                metadata['deps'] = [updated_labels.get(d, d) for d in deps]
+
+        return result
 
     @staticmethod
     def _to_rules_scala_compatible_dict(artifacts, labeler) -> Dict[str, Dict]:
