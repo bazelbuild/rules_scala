@@ -13,7 +13,6 @@ import re
 import shutil
 import subprocess
 import sys
-import urllib.request
 
 ROOT_SCALA_VERSIONS = [
     "2.11.12",
@@ -298,6 +297,7 @@ class ArtifactResolver:
 
     def __init__(self, downloaded_artifacts_file):
         self._downloaded_artifacts_file = downloaded_artifacts_file
+        self._artifact_cache = {}
 
     def resolve_artifacts(
         self, root_artifacts, current_artifacts
@@ -315,45 +315,31 @@ class ArtifactResolver:
             a list of `ResolvedArtifact` objects representing the most up to
                 date versions of the `root_artifacts` and their dependencies
         """
-        proc = self._run_command(
-            f'cs resolve {' '.join(root_artifacts)}',
-            'Resolving root artifacts',
-        )
-
-        return self._map_to_resolved_artifacts(
-            proc.stdout.splitlines(), current_artifacts,
-        )
-
-    def _map_to_resolved_artifacts(
-        self, cs_resolve_output, current_artifacts,
-    ) -> List[ResolvedArtifact]:
-        artifacts_data = self._fetch_artifacts_data(cs_resolve_output)
+        artifacts_data = self._fetch_artifacts_data(root_artifacts)
         current_artifacts_map = self._create_current_artifacts_map(
             current_artifacts
         )
         resolved = []
 
-        for line in cs_resolve_output:
-            coords = line.replace(':default', '')
-            mvn_coords = MavenCoordinates.new(coords)
-            deps = self._get_json_dependencies(coords, artifacts_data)
-            current = current_artifacts_map.get(mvn_coords.artifact_name())
+        for artifact in artifacts_data['dependencies']:
+            coords = MavenCoordinates.new(artifact['coord'])
+            current = current_artifacts_map.get(coords.artifact_name())
 
-            if current is None or mvn_coords.is_newer_than(current.coordinates):
-                resolved.append(ResolvedArtifact(
-                    mvn_coords, self._get_artifact_checksum(coords), deps
-                ))
+            if current is None or coords.is_newer_than(current.coordinates):
+                print(f'  {artifact['coord']}')
+                checksum, deps = self._get_artifact_metadata(artifact)
+                resolved.append(ResolvedArtifact(coords, checksum, deps))
 
         return resolved
 
-    def _fetch_artifacts_data(self, cs_resolve_output):
+    def _fetch_artifacts_data(self, root_artifacts):
         try:
+            artifacts_file = Path(self._downloaded_artifacts_file)
             command = (
-                f'cs fetch {' '.join(cs_resolve_output)} --json-output-file ' +
+                f'cs fetch {' '.join(root_artifacts)} --json-output-file ' +
                 self._downloaded_artifacts_file
             )
             self._run_command(command, 'Fetching resolved artifacts')
-            artifacts_file = Path(self._downloaded_artifacts_file)
 
             with open(artifacts_file, 'r', encoding='utf-8') as f:
                 return json.load(f)
@@ -361,7 +347,6 @@ class ArtifactResolver:
         finally:
             if artifacts_file.exists():
                 artifacts_file.unlink()
-
 
     @staticmethod
     def _create_current_artifacts_map(original_artifacts):
@@ -378,31 +363,17 @@ class ArtifactResolver:
 
         return result
 
-    @staticmethod
-    def _get_json_dependencies(artifact, data) -> List[MavenCoordinates]:
-        return (
-            [MavenCoordinates.new(d) for d in a["directDependencies"]]
-            if any((a := d)["coord"] == artifact for d in data["dependencies"])
-            else []
-        )
+    def _get_artifact_metadata(self, artifact) -> str:
+        metadata = self._artifact_cache.setdefault(artifact['coord'], {})
 
-    @staticmethod
-    def _get_artifact_checksum(artifact) -> str:
-        proc = ArtifactResolver._run_command(
-            f'cs fetch {artifact}', 'Fetching artifact for checksumming',
-        )
+        if not metadata:
+            deps = artifact['directDependencies']
+            metadata['deps'] = [MavenCoordinates.new(d) for d in deps]
 
-        possible_url = [o for o in proc.stdout.splitlines() if "https" in o][0]
-        possible_url = possible_url[possible_url.find("https"):]
-        possible_url = possible_url.replace('https/', 'https://')
+            with open(artifact['file'], 'rb') as f:
+                metadata['checksum'] = hashlib.sha256(f.read()).hexdigest()
 
-        try:
-            with urllib.request.urlopen(possible_url) as value:
-                return hashlib.sha256(value.read()).hexdigest()
-
-        except urllib.error.HTTPError as e:
-            print(f'RESOURCES NOT FOUND: {possible_url}: {e}')
-            return 'NO_CHECKSUM_FOUND'
+        return metadata['checksum'], metadata['deps']
 
     @staticmethod
     def _run_command(command, description):
