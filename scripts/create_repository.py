@@ -32,7 +32,7 @@ SCALAFMT_VERSION = "3.8.3"
 KIND_PROJECTOR_VERSION = "0.13.3"
 PROTOBUF_JAVA_VERSION = "4.28.3"
 JLINE_VERSION = '3.27.1'
-SCALAPB_RUNTIME_VERSION = '0.9.8'
+SCALAPB_VERSION = '0.9.8'
 
 THIS_FILE = Path(__file__)
 REPO_ROOT = THIS_FILE.parent.parent
@@ -61,24 +61,41 @@ def select_root_artifacts(scala_version, scala_major, is_scala_3) -> List[str]:
         the list of root artifacts to resolve and potentially update in the
             repository file
     """
-    spc_major = '2.13' if is_scala_3 else scala_major
-    scalatest_major = "3" if is_scala_3 else scala_major
-    scalafmt_major = "2.13" if is_scala_3 else scala_major
-    scalafmt_version = "2.7.5" if scala_major == "2.11" else SCALAFMT_VERSION
-    scalapb_runtime_version = (
-        '0.9.8' if scala_major == '2.11' else SCALAPB_RUNTIME_VERSION
-    )
     max_scala_2_version = max(
         v for v in ROOT_SCALA_VERSIONS if v.startswith('2.')
     )
     max_scala_2_major = '.'.join(max_scala_2_version.split('.')[:2])
 
+    scala_2_version = scala_version
+    scala_2_major = scala_major
+    scalatest_major = scala_major
+
+    if is_scala_3:
+        scala_2_version = max_scala_2_version
+        scala_2_major = max_scala_2_major
+        scalatest_major = '3'
+
+    scalafmt_version = SCALAFMT_VERSION
+    scalapb_version = SCALAPB_VERSION
+
+    if scala_major == '2.11':
+        scalafmt_version = '2.7.5'
+        scalapb_version = '0.9.8'
+
     root_artifacts = [
-        f"com.google.protobuf:protobuf-java:{PROTOBUF_JAVA_VERSION}",
-        f"org.scala-lang.modules:scala-parser-combinators_{spc_major}:" +
+        f'com.google.protobuf:protobuf-java:{PROTOBUF_JAVA_VERSION}',
+        f'com.thesamet.scalapb:scalapb-runtime_{scala_2_major}:' +
+            scalapb_version,
+        f'org.scala-lang.modules:scala-parser-combinators_{scala_2_major}:' +
             PARSER_COMBINATORS_VERSION,
-        f"org.scalameta:scalafmt-core_{scalafmt_major}:{scalafmt_version}",
-        f"org.scalatest:scalatest_{scalatest_major}:{SCALATEST_VERSION}",
+        f'org.scalameta:scalafmt-core_{scala_2_major}:{scalafmt_version}',
+        f'org.scalatest:scalatest_{scalatest_major}:{SCALATEST_VERSION}',
+        f'org.scala-lang:scala-compiler:{scala_2_version}',
+        f'org.scala-lang:scala-library:{scala_2_version}',
+        f'org.scala-lang:scala-reflect:{scala_2_version}',
+        f'org.scala-lang:scalap:{scala_2_version}',
+        f'org.typelevel:kind-projector_{scala_2_version}:' +
+            KIND_PROJECTOR_VERSION,
     ]
 
     if scala_version == max_scala_2_version or is_scala_3:
@@ -87,37 +104,21 @@ def select_root_artifacts(scala_version, scala_major, is_scala_3) -> List[str]:
 
     if is_scala_3:
         root_artifacts.extend([
-            f"com.thesamet.scalapb:scalapb-runtime_{max_scala_2_major}:" +
-                scalapb_runtime_version,
             f'org.scala-lang:scala3-library_3:{scala_version}',
             f'org.scala-lang:scala3-compiler_3:{scala_version}',
             f'org.scala-lang:scala3-interfaces:{scala_version}',
-            f'org.scala-lang:scala-compiler:{max_scala_2_version}',
-            f'org.scala-lang:scala-library:{max_scala_2_version}',
-            f'org.scala-lang:scala-reflect:{max_scala_2_version}',
-            f'org.scala-lang:scalap:{max_scala_2_version}',
             f'org.scala-lang:tasty-core_3:{scala_version}',
             'org.scala-sbt:compiler-interface:' +
                 SBT_COMPILER_INTERFACE_VERSION,
             f'org.scala-sbt:util-interface:{SBT_UTIL_INTERFACE_VERSION}',
-            f"org.jline:jline-reader:{JLINE_VERSION}",
-            f"org.jline:jline-terminal:{JLINE_VERSION}",
-            f"org.jline:jline-terminal-jna:{JLINE_VERSION}",
-            f'org.typelevel:kind-projector_{max_scala_2_version}:' +
-                KIND_PROJECTOR_VERSION,
+            f'org.jline:jline-reader:{JLINE_VERSION}',
+            f'org.jline:jline-terminal:{JLINE_VERSION}',
+            f'org.jline:jline-terminal-jna:{JLINE_VERSION}',
         ])
 
     else:
         root_artifacts.extend([
-            f"com.thesamet.scalapb:scalapb-runtime_{scala_major}:" +
-                scalapb_runtime_version,
-            f'org.scala-lang:scala-compiler:{scala_version}',
-            f'org.scala-lang:scala-library:{scala_version}',
-            f'org.scala-lang:scala-reflect:{scala_version}',
-            f'org.scala-lang:scalap:{scala_version}',
             f'org.scalameta:semanticdb-scalac_{scala_version}:4.9.9',
-            f'org.typelevel:kind-projector_{scala_version}:' +
-                KIND_PROJECTOR_VERSION,
         ])
 
     return root_artifacts
@@ -202,9 +203,11 @@ class ArtifactLabelMaker:
 
     def get_label(self, coordinates) -> str:
         """Creates a repository label from an artifact's Maven coordinates."""
-        return self._cache.setdefault(
-            coordinates.coordinate, self._get_label_impl(coordinates)
-        )
+        coords = coordinates.coordinate
+
+        if coords not in self._cache:
+            self._cache[coords] = self._get_label_impl(coordinates)
+        return self._cache[coords]
 
     def _get_label_impl(self, coordinates) -> str:
         group = coordinates.group
