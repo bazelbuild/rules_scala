@@ -32,9 +32,14 @@ SCALAFMT_VERSION = "3.8.3"
 KIND_PROJECTOR_VERSION = "0.13.3"
 PROTOBUF_JAVA_VERSION = "4.28.3"
 JLINE_VERSION = '3.27.1'
-SCALAPB_VERSION = '0.9.8'
+SCALAPB_VERSION = '0.11.17'
+PROTOC_BRIDGE_VERSION = '0.9.7'
+GRPC_VERSION = '1.68.1'
+GRPC_COMMON_PROTOS_VERSION = '2.48.0'
+GRPC_LIBS = ['netty', 'protobuf', 'stub']
+GUAVA_VERSION = '33.3.1-jre'
 
-EXCLUDED_ARTIFACTS = set()
+EXCLUDED_ARTIFACTS = set(["com.google.guava:listenablefuture"])
 
 THIS_FILE = Path(__file__)
 REPO_ROOT = THIS_FILE.parent.parent
@@ -79,26 +84,35 @@ def select_root_artifacts(scala_version, scala_major, is_scala_3) -> List[str]:
 
     scalafmt_version = SCALAFMT_VERSION
     scalapb_version = SCALAPB_VERSION
+    protoc_bridge_version = PROTOC_BRIDGE_VERSION
 
     if scala_major == '2.11':
         scalafmt_version = '2.7.5'
         scalapb_version = '0.9.8'
+        protoc_bridge_version = '0.7.14'
 
     root_artifacts = [
+        'com.google.api.grpc:proto-google-common-protos:' +
+            GRPC_COMMON_PROTOS_VERSION,
+        f'com.google.guava:guava:{GUAVA_VERSION}',
         f'com.google.protobuf:protobuf-java:{PROTOBUF_JAVA_VERSION}',
+        f'com.thesamet.scalapb:protoc-bridge_{scala_2_major}:' +
+            protoc_bridge_version,
         f'com.thesamet.scalapb:scalapb-runtime_{scala_2_major}:' +
+            scalapb_version,
+        f'com.thesamet.scalapb:scalapb-runtime-grpc_{scala_2_major}:' +
             scalapb_version,
         f'org.scala-lang.modules:scala-parser-combinators_{scala_2_major}:' +
             PARSER_COMBINATORS_VERSION,
-        f'org.scalameta:scalafmt-core_{scala_2_major}:{scalafmt_version}',
-        f'org.scalatest:scalatest_{scalatest_major}:{SCALATEST_VERSION}',
         f'org.scala-lang:scala-compiler:{scala_2_version}',
         f'org.scala-lang:scala-library:{scala_2_version}',
         f'org.scala-lang:scala-reflect:{scala_2_version}',
         f'org.scala-lang:scalap:{scala_2_version}',
+        f'org.scalameta:scalafmt-core_{scala_2_major}:{scalafmt_version}',
+        f'org.scalatest:scalatest_{scalatest_major}:{SCALATEST_VERSION}',
         f'org.typelevel:kind-projector_{scala_2_version}:' +
             KIND_PROJECTOR_VERSION,
-    ]
+    ] + [f'io.grpc:grpc-{lib}:{GRPC_VERSION}' for lib in GRPC_LIBS]
 
     if scala_version == max_scala_2_version or is_scala_3:
         # Since the Scala 2.13 compiler is included in Scala 3 deps.

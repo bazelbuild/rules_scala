@@ -67,7 +67,7 @@ class TestServer(executionContext: ExecutionContext) { self =>
 
 object TestClient {
   def apply(host: String, port: Int): TestClient = {
-    val channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext(true).build
+    val channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build
     val blockingStub = TestServiceGrpc.blockingStub(channel)
     new TestClient(channel, blockingStub)
   }
