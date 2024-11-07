@@ -34,6 +34,8 @@ PROTOBUF_JAVA_VERSION = "4.28.3"
 JLINE_VERSION = '3.27.1'
 SCALAPB_VERSION = '0.9.8'
 
+EXCLUDED_ARTIFACTS = set()
+
 THIS_FILE = Path(__file__)
 REPO_ROOT = THIS_FILE.parent.parent
 OUTPUT_DIR = REPO_ROOT / 'third_party' / 'repositories'
@@ -328,6 +330,9 @@ class ArtifactResolver:
             coords = MavenCoordinates.new(artifact['coord'])
             current = current_artifacts_map.get(coords.artifact_name())
 
+            if coords.artifact_name() in EXCLUDED_ARTIFACTS:
+                continue
+
             if current is None or coords.is_newer_than(current.coordinates):
                 print(f'  {artifact['coord']}')
                 checksum, deps = self._get_artifact_metadata(artifact)
@@ -370,9 +375,12 @@ class ArtifactResolver:
         metadata = self._artifact_cache.setdefault(artifact['coord'], {})
 
         if not metadata:
-            deps = artifact['directDependencies']
-            metadata['deps'] = [MavenCoordinates.new(d) for d in deps]
-
+            deps = [
+                MavenCoordinates.new(d) for d in artifact['directDependencies']
+            ]
+            metadata['deps'] = [
+                d for d in deps if d.artifact_name() not in EXCLUDED_ARTIFACTS
+            ]
             with open(artifact['file'], 'rb') as f:
                 metadata['checksum'] = hashlib.sha256(f.read()).hexdigest()
 
@@ -464,9 +472,17 @@ class ArtifactUpdater:
     def _update_artifact_labels(artifacts, labeler):
         """Transforms existing artifact labels to ensure consistency.
 
-        Specifically, to ensure consistency when running the
-        `ArtifactLabelMaker` on existing artifact metadata for the first time,
-        and whenever it changes thereafter.
+        Specifically, this function ensures consistency when running
+        `ArtifactLabelMaker.get_label` on existing artifact metadata for the
+        first time, and whenever that function changes thereafter.
+
+        Artifacts appearing under different labels will be merged into a single
+        entry, keeping the metadata from the newest version.
+
+        It will also remove any entries for `EXCLUDED_ARTIFACTS` and any `deps`
+        labels for such artifacts appearing in other artifact entries.
+
+        Entries marked as `testonly` remain unchanged.
 
         Args:
             artifacts: a dictionary of repository labels to Maven artifact
@@ -483,12 +499,19 @@ class ArtifactUpdater:
 
         for existing_label, metadata in artifacts.items():
             coords = MavenCoordinates.new(metadata['artifact'])
+
+            if coords.artifact_name() in EXCLUDED_ARTIFACTS:
+                continue
+
             label = (
                 labeler.get_label(coords) if not metadata.get('testonly')
                 else existing_label
             )
 
             if label in result:
+                # If we originally have multiple versions of the same artifact
+                # keyed by different repository labels, keep the newer version's
+                # metadata entry.
                 other_metadata = result[label]
                 other_coords = MavenCoordinates.new(other_metadata['artifact'])
                 metadata = (
@@ -496,17 +519,21 @@ class ArtifactUpdater:
                     else other_metadata
                 )
 
+            # We'll use `updated_labels` to update `deps` labels and filter out
+            # stale labels belonging to `EXCLUDED_ARTIFACTS` in the next loop.
+            updated_labels['@' + existing_label] = '@' + label
             result[label] = metadata
 
-            # Keep track of updated labels so we can update `deps` labels in the
-            # next loop after this one finishes.
-            if label != existing_label:
-                updated_labels['@' + existing_label] = '@' + label
-
         for metadata in result.values():
-            deps = metadata.get('deps')
-            if deps is not None:
-                metadata['deps'] = [updated_labels.get(d, d) for d in deps]
+            deps = [
+                updated_labels[d] for d in metadata.get('deps', [])
+                if d in updated_labels
+            ]
+
+            if deps:
+                metadata['deps'] = deps
+            elif 'deps' in metadata:
+                del metadata['deps']
 
         return result
 
