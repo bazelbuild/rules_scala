@@ -1,11 +1,16 @@
 load("//scala:scala_cross_version.bzl", "default_maven_server_urls")
 load("//third_party/repositories:repositories.bzl", "repositories")
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
 
 def scala_proto_default_repositories(
         maven_servers = default_maven_server_urls(),
-        overriden_artifacts = {}):
+        scala_version = SCALA_VERSION,
+        overriden_artifacts = {},
+        register_toolchains = True):
     repositories(
-        for_artifact_ids = [
+        for_artifact_ids = ([] if SCALA_VERSION.startswith("2.11.") else [
+            "dev_dirs_directories",
+        ]) + [
             "com_google_android_annotations",
             "com_google_code_findbugs_jsr305",
             "com_google_code_gson_gson",
@@ -14,7 +19,6 @@ def scala_proto_default_repositories(
             "com_google_protobuf_protobuf_java",
             "com_lihaoyi_fastparse",
             "com_lihaoyi_sourcecode",
-            "dev_dirs_directories",
             "io_bazel_rules_scala_failureaccess",
             "io_bazel_rules_scala_guava",
             "org_codehaus_mojo_animal_sniffer_annotations",
@@ -57,4 +61,7 @@ def scala_proto_default_repositories(
         overriden_artifacts = overriden_artifacts,
     )
 
-    native.register_toolchains("@io_bazel_rules_scala//scala_proto:default_deps_toolchain")
+    if register_toolchains:
+        native.register_toolchains(
+            str(Label("//scala_proto:default_deps_toolchain")),
+        )
