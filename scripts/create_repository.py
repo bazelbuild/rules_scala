@@ -224,8 +224,12 @@ class ArtifactLabelMaker:
             return f'io_bazel_rules_scala_{group_label}_{artifact_label}'
         if group in self._SCALA_PROTO_RULES_GROUPS:
             return self._get_scala_proto_label(artifact_label, coordinates)
-        if group in self._SPECIAL_CASE_GROUP_LABELS:
-            return self._SPECIAL_CASE_GROUP_LABELS[group]
+
+        # Remove any Scala version suffix from the end, e.g., scopt_2.13.
+        artifact_name = coordinates.artifact_name().rsplit('_', 1)[0]
+
+        if artifact_name in self._SPECIAL_CASE_ARTIFACT_LABELS:
+            return self._SPECIAL_CASE_ARTIFACT_LABELS[artifact_name]
         return f'{group_label}_{artifact_label}'.replace('_v2', '')
 
     @staticmethod
@@ -262,10 +266,11 @@ class ArtifactLabelMaker:
         "io.perfmark",
     ])
 
-    _SPECIAL_CASE_GROUP_LABELS = {
-        "com.github.scopt": "io_bazel_rules_scala_scopt",
-        "com.github.spullara.mustache.java": "io_bazel_rules_scala_mustache",
-        "org.apache.thrift": "libthrift",
+    _SPECIAL_CASE_ARTIFACT_LABELS = {
+        "com.github.scopt:scopt": "io_bazel_rules_scala_scopt",
+        "com.github.spullara.mustache.java:compiler":
+            "io_bazel_rules_scala_mustache",
+        "org.apache.thrift:libthrift": "libthrift",
     }
 
     _SCALA_LANG_GROUPS = set(['org.scala-lang', 'org.scala-lang.modules'])
