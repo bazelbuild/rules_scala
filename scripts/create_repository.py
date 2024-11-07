@@ -214,7 +214,8 @@ class ArtifactLabelMaker:
     def _get_label_impl(self, coordinates) -> str:
         group = coordinates.group
         group_label = self._labelize(group)
-        artifact_label = self._labelize(coordinates.artifact.split('_')[0])
+        artifact = self._remove_scala_version_suffix(coordinates.artifact)
+        artifact_label = self._labelize(artifact)
 
         if group in self._SCALA_LANG_GROUPS:
             return self._get_scala_lang_label(artifact_label, coordinates)
@@ -225,8 +226,7 @@ class ArtifactLabelMaker:
         if group in self._SCALA_PROTO_RULES_GROUPS:
             return self._get_scala_proto_label(artifact_label, coordinates)
 
-        # Remove any Scala version suffix from the end, e.g., scopt_2.13.
-        artifact_name = coordinates.artifact_name().rsplit('_', 1)[0]
+        artifact_name = f'{group}:{artifact}'
 
         if artifact_name in self._SPECIAL_CASE_ARTIFACT_LABELS:
             return self._SPECIAL_CASE_ARTIFACT_LABELS[artifact_name]
@@ -235,6 +235,14 @@ class ArtifactLabelMaker:
     @staticmethod
     def _labelize(s):
         return s.replace('.', '_').replace('-', '_')
+
+    @staticmethod
+    def _remove_scala_version_suffix(artifact):
+        """Removes the Scala version suffix from artifact, e.g., scopt_2.13."""
+        parts = artifact.split('_')
+        if len(parts) != 1 and parts[-1][0].isdigit():
+            return '_'.join(parts[:-1])
+        return artifact
 
     _ARTIFACT_LABEL_ONLY_GROUPS = set([
         "com.google.guava",
