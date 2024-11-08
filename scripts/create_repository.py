@@ -96,6 +96,8 @@ def select_root_artifacts(scala_version, scala_major, is_scala_3) -> List[str]:
             GRPC_COMMON_PROTOS_VERSION,
         f'com.google.guava:guava:{GUAVA_VERSION}',
         f'com.google.protobuf:protobuf-java:{PROTOBUF_JAVA_VERSION}',
+        f'com.thesamet.scalapb:compilerplugin_{scala_2_major}:' +
+            scalapb_version,
         f'com.thesamet.scalapb:protoc-bridge_{scala_2_major}:' +
             protoc_bridge_version,
         f'com.thesamet.scalapb:scalapb-runtime_{scala_2_major}:' +

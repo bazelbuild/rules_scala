@@ -10,6 +10,7 @@ def scala_proto_default_repositories(
     repositories(
         for_artifact_ids = ([] if SCALA_VERSION.startswith("2.11.") else [
             "dev_dirs_directories",
+            "scala_proto_rules_scalapb_protoc_gen",
         ]) + [
             "com_google_android_annotations",
             "com_google_code_findbugs_jsr305",

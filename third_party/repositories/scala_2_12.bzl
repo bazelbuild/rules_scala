@@ -797,8 +797,14 @@ artifacts = {
         ],
     },
     "scala_proto_rules_scalapb_compilerplugin": {
-        "artifact": "com.thesamet.scalapb:compilerplugin_2.12:0.9.7",
-        "sha256": "516ed567e2c3ac28b91a2f350d3febc7a6a396978718145f536853ffe8de40c2",
+        "artifact": "com.thesamet.scalapb:compilerplugin_2.12:0.11.17",
+        "sha256": "a9dc6cc0dbe6ff53a7c914433d5a19711018217b432b385c97778cd4050210d0",
+        "deps": [
+            "@com_google_protobuf_protobuf_java",
+            "@io_bazel_rules_scala_scala_library",
+            "@org_scala_lang_modules_scala_collection_compat",
+            "@scala_proto_rules_scalapb_protoc_gen",
+        ],
     },
     "scala_proto_rules_scalapb_lenses": {
         "artifact": "com.thesamet.scalapb:lenses_2.12:0.11.17",
@@ -814,6 +820,14 @@ artifacts = {
         "deps": [
             "@dev_dirs_directories",
             "@io_bazel_rules_scala_scala_library",
+        ],
+    },
+    "scala_proto_rules_scalapb_protoc_gen": {
+        "artifact": "com.thesamet.scalapb:protoc-gen_2.12:0.9.7",
+        "sha256": "81df11e24e52887515dff20eb4d1a050fd58e078200291c3c87fd04218abe53b",
+        "deps": [
+            "@io_bazel_rules_scala_scala_library",
+            "@scala_proto_rules_scalapb_protoc_bridge",
         ],
     },
     "scala_proto_rules_scalapb_runtime": {

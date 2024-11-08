@@ -784,8 +784,13 @@ artifacts = {
         ],
     },
     "scala_proto_rules_scalapb_compilerplugin": {
-        "artifact": "com.thesamet.scalapb:compilerplugin_2.11:0.9.7",
-        "sha256": "2d6793fa2565953ef2b5094fc37fae4933f3c42e4cb4048d54e7f358ec104a87",
+        "artifact": "com.thesamet.scalapb:compilerplugin_2.11:0.9.8",
+        "sha256": "9fda69065da447cf91aa3c923a95b80c2bdb9f46f95b2c14af97f533b099b5a9",
+        "deps": [
+            "@com_google_protobuf_protobuf_java",
+            "@io_bazel_rules_scala_scala_library",
+            "@scala_proto_rules_scalapb_protoc_bridge",
+        ],
     },
     "scala_proto_rules_scalapb_lenses": {
         "artifact": "com.thesamet.scalapb:lenses_2.11:0.9.8",
