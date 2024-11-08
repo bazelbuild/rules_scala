@@ -1,15 +1,14 @@
-load("@bazel_skylib//lib:unittest.bzl", "analysistest", "asserts")
+load("@bazel_skylib//lib:unittest.bzl", "analysistest")
 
 _VisitedRulesInfo = provider()
 
 def _aspect_with_javainfo_required_imp(target, ctx):
-
     visited = dict([(target.label.name, "")])
     for dep in ctx.rule.attr.deps:
-        visited.update(dep[_VisitedRulesInfo].visited)        
-    
+        visited.update(dep[_VisitedRulesInfo].visited)
+
     return [
-        _VisitedRulesInfo(visited = visited)
+        _VisitedRulesInfo(visited = visited),
     ]
 
 #An aspect that has "required_providers = [JavaInfo]."
@@ -20,20 +19,18 @@ _aspect_with_javainfo_required = aspect(
     implementation = _aspect_with_javainfo_required_imp,
 )
 
-
 def _javainfo_from_aspect_test_imp(ctx):
     testenv = analysistest.begin(ctx)
 
     for expected in ctx.attr.expected:
-        if(expected not in ctx.attr.target[_VisitedRulesInfo].visited):
-            analysistest.fail(testenv, "Aspect did not visit expected target %s"%ctx.attr.expected)
+        if (expected not in ctx.attr.target[_VisitedRulesInfo].visited):
+            analysistest.fail(testenv, "Aspect did not visit expected target %s" % ctx.attr.expected)
     return analysistest.end(testenv)
-
 
 javainfo_from_aspect_test = analysistest.make(
     impl = _javainfo_from_aspect_test_imp,
     attrs = {
         "target": attr.label(aspects = [_aspect_with_javainfo_required]),
-        "expected": attr.string_list(), #The targets we expect to be visited by the aspect
-    }        
+        "expected": attr.string_list(),  #The targets we expect to be visited by the aspect
+    },
 )

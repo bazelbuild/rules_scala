@@ -142,7 +142,7 @@ def make_scala_junit_test(*extras):
         toolchains = [
             "@io_bazel_rules_scala//scala:toolchain_type",
             "@bazel_tools//tools/jdk:toolchain_type",
-        ],        
+        ],
         cfg = scala_version_transition,
         incompatible_use_toolchain_transition = True,
         provides = [JavaInfo],

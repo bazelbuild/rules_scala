@@ -47,7 +47,7 @@ scala_specs2_junit_test(
 
 scala_import(
     name = "com_google_guava_guava_21_0",
-    jars = ["@com_google_guava_guava_21_0_with_file//:guava-21.0.jar"]
+    jars = ["@com_google_guava_guava_21_0_with_file//:guava-21.0.jar"],
 )
 
 scala_library(
@@ -58,13 +58,18 @@ scala_library(
 #This library depends on a scala_library and a scala_import
 scala_library(
     name = "B",
-    deps = ["A",  "com_google_guava_guava_21_0"]
+    deps = [
+        "A",
+        "com_google_guava_guava_21_0",
+    ],
 )
 
 javainfo_from_aspect_test(
-    name = "javainfo_from_aspect_test",    
-    target_under_test = "B",
+    name = "javainfo_from_aspect_test",
+    expected = [
+        "A",
+        "com_google_guava_guava_21_0",
+    ],
     target = "B",
-    expected = ["A", "com_google_guava_guava_21_0"],
-    
+    target_under_test = "B",
 )
