@@ -193,11 +193,6 @@ def _setup_scala_compiler_sources(srcjars = {}):
         scala_versions = SCALA_VERSIONS,
     )
 
-    compiler_sources_repo(
-        name = "scala_compiler_sources",
-        scala_versions = SCALA_VERSIONS,
-    )
-
 def _artifact_ids(scala_version):
     result = [
         "io_bazel_rules_scala_scala_compiler",

@@ -11,8 +11,7 @@ def scala_toolchains(
         load_scala_toolchain_dependencies = True,
         fetch_sources = False,
         validate_scala_version = True,
-        scala_compiler_srcjars = {},
-        scala = True):
+        scala_compiler_srcjars = {}):
     """Instantiates @io_bazel_rules_scala_toolchains and all its dependencies.
 
     Provides a unified interface to configuring rules_scala both directly in a
@@ -52,24 +51,16 @@ def scala_toolchains(
             compiler srcjar metadata dictionaries containing:
             - exactly one "label", "url", or "urls" key
             - optional "integrity" or "sha256" keys
-        scala: whether to instantiate the core Scala toolchain
     """
-    num_toolchains = 0
+    scala_repositories(
+        maven_servers = maven_servers,
+        # Note the internal macro parameter misspells "overriden".
+        overriden_artifacts = overridden_artifacts,
+        load_dep_rules = load_rules_scala_dependencies,
+        load_jar_deps = load_scala_toolchain_dependencies,
+        fetch_sources = fetch_sources,
+        validate_scala_version = validate_scala_version,
+        scala_compiler_srcjars = scala_compiler_srcjars,
+    )
 
-    if scala:
-        num_toolchains += 1
-        scala_repositories(
-            maven_servers = maven_servers,
-            # Note the internal macro parameter misspells "overriden".
-            overriden_artifacts = overridden_artifacts,
-            load_dep_rules = load_rules_scala_dependencies,
-            load_jar_deps = load_scala_toolchain_dependencies,
-            fetch_sources = fetch_sources,
-            validate_scala_version = validate_scala_version,
-            scala_compiler_srcjars = scala_compiler_srcjars,
-        )
-
-    if num_toolchains != 0:
-        scala_toolchains_repo(
-            scala = scala,
-        )
+    scala_toolchains_repo()
