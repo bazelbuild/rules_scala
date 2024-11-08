@@ -108,6 +108,7 @@ def make_scala_library(*extras):
         ],
         cfg = scala_version_transition,
         incompatible_use_toolchain_transition = True,
+        provides = [JavaInfo],
         implementation = _scala_library_impl,
     )
 
@@ -209,6 +210,7 @@ def make_scala_library_for_plugin_bootstrapping(*extras):
         ],
         cfg = scala_version_transition,
         incompatible_use_toolchain_transition = True,
+        provides = [JavaInfo],
         implementation = _scala_library_for_plugin_bootstrapping_impl,
     )
 
@@ -284,6 +286,7 @@ def make_scala_macro_library(*extras):
         ],
         cfg = scala_version_transition,
         incompatible_use_toolchain_transition = True,
+        provides = [JavaInfo],
         implementation = _scala_macro_library_impl,
     )
 

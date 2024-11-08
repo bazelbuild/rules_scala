@@ -150,4 +150,5 @@ scala_import = rule(
         ),
     },
     toolchains = ["@bazel_tools//tools/jdk:toolchain_type"],
+    provides = [JavaInfo],
 )
