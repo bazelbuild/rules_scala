@@ -115,8 +115,6 @@ class AstUsedJarFinderTest extends AnyFunSuite {
 
       expectedUnusedDeps.foreach { dep =>
         val expectedError = s"Target '$dep' is specified as a dependency to ${TestUtil.defaultTarget} but isn't used, please remove it from the deps."
-        println(errors)
-        println(expectedError)
         assert(errors.exists(_.msg.contains(expectedError)))
       }
     }

@@ -84,6 +84,5 @@ object TestUtil extends TestUtilCommon {
 
 class TestReporter extends StoreReporter(null) {
   def storedInfos: List[CompilerDiagnostic] =
-    println("stored::" + infos)
     if (infos != null) infos.toList else List()
 }
