@@ -2,29 +2,12 @@ package io.bazel.rulesscala.dependencyanalyzer
 
 import scala.annotation.tailrec
 import scala.util.Using
+import dotty.tools.dotc
 
 object ScalaVersion {
-  val Current: ScalaVersion = {
-    def props(url: java.net.URL): java.util.Properties = {
-      val properties = new java.util.Properties()
-      Using(url.openStream())(properties.load)
-      properties
-    }
-
-    def scala2Version: String = props(getClass.getResource("/library.properties")).getProperty("version.number")
-
-    @tailrec def checkScala3(res: java.util.Enumeration[java.net.URL]): String =
-      if !res.hasMoreElements then scala2Version
-      else
-        val manifest = props(res.nextElement)
-        manifest.getProperty("Specification-Title") match
-          case "scala3-library-bootstrapped" => manifest.getProperty("Implementation-Version")
-          case _ => checkScala3(res)
-
-    val manifests = getClass.getClassLoader.getResources("META-INF/MANIFEST.MF")
-
-    ScalaVersion(checkScala3(manifests))
-  }
+  val Current: ScalaVersion = dotc.config.Properties.scalaPropOrNone("version.number")
+    .map(ScalaVersion(_))
+    .getOrElse(sys.error("Failed to resolve version of Scala"))
 
   def apply(versionString: String): ScalaVersion = {
     versionString.split('.').take(3) match {
