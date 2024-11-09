@@ -15,7 +15,7 @@ def phase_runfiles_library(ctx, p):
 def phase_runfiles_scalatest(ctx, p):
     args = "\n".join([
         "-R",
-        rlocationpath_from_file(ctx, ctx.outputs.jar),        
+        rlocationpath_from_file(ctx, ctx.outputs.jar),
         _scala_test_flags(ctx),
         "-C",
         ctx.attr.reporter_class,
