@@ -1,4 +1,4 @@
-load("@io_bazel_rules_scala//scala:providers.bzl", "DepsInfo")
+load("//scala:providers.bzl", "DepsInfo")
 
 def _generators(ctx):
     return dict(
@@ -7,9 +7,12 @@ def _generators(ctx):
     )
 
 def _generators_jars(ctx):
+    generator_deps = ctx.attr.extra_generator_dependencies + [
+        ctx.attr._main_generator_dep,
+    ]
     return depset(transitive = [
         dep[JavaInfo].transitive_runtime_jars
-        for dep in ctx.attr.extra_generator_dependencies
+        for dep in generator_deps
     ])
 
 def _generators_opts(ctx):
@@ -74,10 +77,12 @@ scala_proto_toolchain = rule(
         "code_generator": attr.label(
             executable = True,
             cfg = "exec",
-            default = Label("@io_bazel_rules_scala//src/scala/scripts:scalapb_worker"),
+            default = Label("//src/scala/scripts:scalapb_worker"),
             allow_files = True,
         ),
-        "main_generator": attr.string(default = "scalapb.ScalaPbCodeGenerator"),
+        "main_generator": attr.string(
+            default = "scripts.ScalaPbCodeGenerator",
+        ),
         "named_generators": attr.string_dict(),
         "extra_generator_dependencies": attr.label_list(
             providers = [JavaInfo],
@@ -85,7 +90,7 @@ scala_proto_toolchain = rule(
         "scalac": attr.label(
             executable = True,
             cfg = "exec",
-            default = Label("@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac"),
+            default = Label("//src/java/io/bazel/rulesscala/scalac"),
             allow_files = True,
         ),
         "protoc": attr.label(
@@ -105,6 +110,14 @@ scala_proto_toolchain = rule(
             [proto rules documentation](https://docs.bazel.build/versions/master/be/protocol-buffer.html#proto_library)
             """,
         ),
+        "_main_generator_dep": attr.label(
+            default = Label(
+                "//src/scala/scripts:scalapb_codegenerator_wrapper",
+            ),
+            allow_single_file = True,
+            executable = False,
+            cfg = "exec",
+        ),
     },
 )
 
@@ -119,9 +132,9 @@ scala_proto_deps_toolchain = rule(
     attrs = {
         "dep_providers": attr.label_list(
             default = [
-                "@io_bazel_rules_scala//scala_proto:scalapb_compile_deps_provider",
-                "@io_bazel_rules_scala//scala_proto:scalapb_grpc_deps_provider",
-                "@io_bazel_rules_scala//scala_proto:scalapb_worker_deps_provider",
+                Label("//scala_proto:scalapb_compile_deps_provider"),
+                Label("//scala_proto:scalapb_grpc_deps_provider"),
+                Label("//scala_proto:scalapb_worker_deps_provider"),
             ],
             cfg = "target",
             providers = [DepsInfo],
