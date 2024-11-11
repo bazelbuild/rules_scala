@@ -75,23 +75,21 @@ def dt_patched_compiler_setup(scala_version, scala_compiler_srcjar = None):
 
     if scala_major_version == "2.12":
         if minor_version >= 1 and minor_version <= 7:
-            patch = Label(
-                "//dt_patches:dt_compiler_%s.1.patch" % scala_major_version,
-            )
+            patch = Label("//dt_patches:dt_compiler_%s.1.patch" % scala_major_version)
         elif minor_version <= 11:
-            patch = Label(
-                "//dt_patches:dt_compiler_%s.8.patch" % scala_major_version,
-            )
+            patch = Label("//dt_patches:dt_compiler_%s.8.patch" % scala_major_version)
+    elif scala_major_version.startswith("3."):
+        patch = Label("//dt_patches:dt_compiler_3.patch")
 
     build_file_content = "\n".join([
         "package(default_visibility = [\"//visibility:public\"])",
         "filegroup(",
         "    name = \"src\",",
-        "    srcs=[\"scala/tools/nsc/symtab/SymbolLoaders.scala\"],",
+        "    srcs=[\"scala/tools/nsc/symtab/SymbolLoaders.scala\"]," if scala_major_version.startswith("2.") else "    srcs=[\"dotty/tools/dotc/core/SymbolLoaders.scala\"],",
         ")",
     ])
     default_scalac_srcjar = {
-        "url": "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/%s/scala-compiler-%s-sources.jar" % (scala_version, scala_version),
+        "url": "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/%s/scala-compiler-%s-sources.jar" % (scala_version, scala_version) if scala_major_version.startswith("2.") else "https://repo1.maven.org/maven2/org/scala-lang/scala3-compiler_3/%s/scala3-compiler_3-%s-sources.jar" % (scala_version, scala_version),
     }
     srcjar = scala_compiler_srcjar if scala_compiler_srcjar != None else default_scalac_srcjar
     _validate_scalac_srcjar(srcjar) or fail(

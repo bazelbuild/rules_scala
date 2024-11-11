@@ -1,0 +1,19 @@
+
+diff --git a/compiler/src/dotty/tools/dotc/core/SymbolLoaders.scala b/compiler/src/dotty/tools/dotc/core/SymbolLoaders.scala
+--- dotty/tools/dotc/core/SymbolLoaders.scala	(revision 91ef92159c628eaeab8311dc82bed7ed4fe03c63)
++++ dotty/tools/dotc/core/SymbolLoaders.scala	(date 1730331517451)
+@@ -353,6 +353,14 @@
+     try {
+       val start = System.currentTimeMillis
+       trace.onDebug("loading") {
++        root.symbol.associatedFile match {
++          case assocFile: AbstractFile => assocFile.underlyingSource.foreach {
++            case jar: dotty.tools.io.ZipArchive =>
++              report.echo(s"DT:${jar.path}")
++            case _ => ()
++          }
++          case null => ()
++        }
+         doComplete(root)
+       }
+       report.informTime("loaded " + description, start)

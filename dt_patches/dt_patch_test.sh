@@ -116,6 +116,13 @@ run_test_local test_compiler_patch 2.13.12
 run_test_local test_compiler_patch 2.13.14
 run_test_local test_compiler_patch 2.13.15
 
+run_test_local test_compiler_patch 3.1.0 # Minimal supported version
+run_test_local test_compiler_patch 3.1.3
+run_test_local test_compiler_patch 3.2.2
+run_test_local test_compiler_patch 3.3.4 
+run_test_local test_compiler_patch 3.4.3
+run_test_local test_compiler_patch 3.5.2
+
 run_test_local test_compiler_srcjar_error 2.12.11
 run_test_local test_compiler_srcjar_error 2.12.12
 run_test_local test_compiler_srcjar_error 2.12.13
@@ -139,3 +146,9 @@ run_test_local test_compiler_srcjar_nonhermetic 2.13.11
 run_test_local test_compiler_srcjar_nonhermetic 2.13.12
 run_test_local test_compiler_srcjar_nonhermetic 2.13.14
 run_test_local test_compiler_srcjar_nonhermetic 2.13.15
+
+run_test_local test_compiler_srcjar 3.1.3
+run_test_local test_compiler_srcjar 3.2.2
+run_test_local test_compiler_srcjar_nonhermetic 3.3.4
+run_test_local test_compiler_srcjar 3.4.3
+run_test_local test_compiler_srcjar_nonhermetic 3.5.2

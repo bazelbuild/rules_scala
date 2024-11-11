@@ -71,7 +71,7 @@ class StrictDepsTest extends AnyFunSuite {
 
   implicit class `nice errors on sequence of strings`(infos: Seq[String]) {
 
-    private def checkErrorContainsMessage(target: String) = { info: String =>
+    private def checkErrorContainsMessage(target: String) = { (info: String) =>
       info.contains(targetErrorMessage(target)) &
         info.contains(buildozerCommand(target))
     }
@@ -84,11 +84,11 @@ class StrictDepsTest extends AnyFunSuite {
 
     def expectErrorOn(targets: String*): Unit = targets.foreach(target => assert(
       infos.exists(checkErrorContainsMessage(target)),
-      s"expected an error on $target to appear in errors (with buildozer command)! Errors: $info")
+      s"expected an error on $target to appear in errors (with buildozer command)! Errors: $infos")
     )
 
     def noErrorOn(target: String) = assert(
       !infos.exists(checkErrorContainsMessage(target)),
-      s"error on $target should not appear in errors! Errors: $info")
+      s"error on $target should not appear in errors! Errors: $infos")
   }
 }

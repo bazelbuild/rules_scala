@@ -62,6 +62,10 @@ class ScalacDependencyTest extends AnyFunSuite {
         usedDeps.foreach { dep =>
           val name = s"$dep.class"
           Files.copy(tmpDir.resolve(name), subdir.resolve(name))
+          val tastyName = s"$dep.tasty"
+          val tastyFile = tmpDir.resolve(tastyName)
+          if (Files.exists(tastyFile))
+            Files.copy(tastyFile, subdir.resolve(tastyName))
         }
         val errors =
           TestUtil.runCompiler(

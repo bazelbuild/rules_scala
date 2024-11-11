@@ -4,7 +4,6 @@ import java.nio.file.Files
 import java.nio.file.Path
 import io.bazel.rulesscala.io_utils.DeleteRecursively
 import org.scalatest.funsuite._
-import scala.tools.nsc.reporters.StoreReporter
 import io.bazel.rulesscala.utils.JavaCompileUtil
 import io.bazel.rulesscala.utils.TestUtil
 import io.bazel.rulesscala.utils.TestUtil.DependencyAnalyzerTestParams
@@ -14,6 +13,8 @@ import io.bazel.rulesscala.utils.TestUtil.DependencyAnalyzerTestParams
 // Hence make sure to look at any version checks to understand
 // which versions do and don't support which cases.
 class AstUsedJarFinderTest extends AnyFunSuite {
+  private final val isScala3 = ScalaVersion.Current >= ScalaVersion("3.0.0")
+
   private def withSandbox(action: Sandbox => Unit): Unit = {
     val tmpDir = Files.createTempDirectory("dependency_analyzer_test_temp")
     try {
@@ -57,7 +58,7 @@ class AstUsedJarFinderTest extends AnyFunSuite {
     def checkStrictDepsErrorsReported(
       code: String,
       expectedStrictDeps: List[String]
-    ): List[StoreReporter#Info] = {
+    ): List[TestUtil.Diagnostic] = {
       val errors =
         TestUtil.runCompiler(
           code = code,
@@ -400,30 +401,44 @@ class AstUsedJarFinderTest extends AnyFunSuite {
   }
 
   test("macro is direct") {
+    val macroCode = if (isScala3)
+      """
+        |import scala.quoted.*
+        |
+        |object A:
+        |  inline def foo(): Unit = ${ fooImpl }
+        |  def fooImpl(using Quotes): Expr[Unit] = {
+        |    import quotes.reflect.*
+        |    '{ () }
+        |  }
+        |""".stripMargin
+    else
+      """
+        |import scala.language.experimental.macros
+        |import scala.reflect.macros.blackbox.Context
+        |
+        |object A {
+        |  def foo(): Unit = macro fooImpl
+        |  def fooImpl(
+        |    c: Context
+        |  )(): c.universe.Tree = {
+        |    import c.universe._
+        |    q""
+        |  }
+        |}
+        |""".stripMargin
+
     checkDirectDependencyRecognized(
-      aCode =
-        s"""
-           |import scala.language.experimental.macros
-           |import scala.reflect.macros.blackbox.Context
-           |
-           |object A {
-           |  def foo(): Unit = macro fooImpl
-           |  def fooImpl(
-           |    c: Context
-           |  )(): c.universe.Tree = {
-           |    import c.universe._
-           |    q""
-           |  }
-           |}
-           |""".stripMargin,
+      aCode = macroCode,
       bCode =
-        s"""
-           |object B {
-           |  A.foo()
-           |}
-           |""".stripMargin
+        """
+          |object B {
+          |  A.foo()
+          |}
+          |""".stripMargin
     )
   }
+
 
   test("imports are complicated") {
     // This test documents the behavior of imports as is currently.
@@ -476,9 +491,9 @@ class AstUsedJarFinderTest extends AnyFunSuite {
     // give us a type.
     testImport("foo.bar.A.i", isDirect = true)
 
-    // In this case expr=foo.bar and selectors=[A], so expr does not have
-    // a type which corresponds with A.
-    testImport("foo.bar.A", isDirect = false)
+    // In this case expr=foo.bar and selectors=[A], so we should check if selector contains a member that corresponds with A.
+    // The check is implemented for Scala 3, but not for Scala 2 yet expr does not have
+    testImport("foo.bar.A", isDirect = isScala3)
 
     // In this case expr=foo and selectors=[bar], so expr does not have
     // a type which corresponds with A.
@@ -602,9 +617,16 @@ class AstUsedJarFinderTest extends AnyFunSuite {
           expectedStrictDeps = List("A")
         )
       assert(errors.size == 1)
-      val pos = errors(0).pos
-      assert(pos.line == 1)
-      assert(pos.column == 12)
+      val pos = errors.head.pos
+      if (isScala3) {
+        // Positions are 0-indexed and better computed
+        assert(pos.line == 0)
+        assert(pos.column == 8)
+      } else {
+        assert(pos.line == 1)
+        assert(pos.column == 12)
+
+      }
     }
   }
 }
