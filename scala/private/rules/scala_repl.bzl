@@ -87,6 +87,7 @@ def make_scala_repl(*extras):
         ],
         cfg = scala_version_transition,
         incompatible_use_toolchain_transition = True,
+        provides = [JavaInfo],
         implementation = _scala_repl_impl,
     )
 

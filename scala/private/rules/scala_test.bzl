@@ -131,6 +131,7 @@ def make_scala_test(*extras):
         ],
         cfg = scala_version_transition,
         incompatible_use_toolchain_transition = True,
+        provides = [JavaInfo],
         implementation = _scala_test_impl,
     )
 

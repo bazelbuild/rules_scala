@@ -145,6 +145,7 @@ def make_scala_junit_test(*extras):
         ],
         cfg = scala_version_transition,
         incompatible_use_toolchain_transition = True,
+        provides = [JavaInfo],
         implementation = _scala_junit_test_impl,
     )
 
