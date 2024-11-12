@@ -29,4 +29,4 @@ while IFS="" read repo_marker_path; do
   if [[ "$repo_path" != "$repo_marker_path" ]]; then
     cp .bazelversion "$repo_path"
   fi
-done < <(find [A-Za-z0-9]* \( -name "WORKSPACE*" -or -name "MODULE.bazel" \))
+done < <(find [A-Za-z0-9]* \( -name "WORKSPACE" -or -name "MODULE.bazel" \))

@@ -28,7 +28,7 @@ test_scala_proto_show_generator_exception() {
     --extra_toolchains=//test/proto/custom_generator:failing_scala_proto_toolchain
 }
 
-export USE_BAZEL_VERSION=${USE_BAZEL_VERSION:-$(cat ../../../.bazelversion)}
+export USE_BAZEL_VERSION=${USE_BAZEL_VERSION:-$(cat $dir/../../.bazelversion)}
 $runner test_scala_proto_library_action_label
 $runner test_scala_proto_custom_generator
 $runner test_scala_proto_show_generator_exception
