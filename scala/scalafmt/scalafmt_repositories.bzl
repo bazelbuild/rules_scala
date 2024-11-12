@@ -36,8 +36,6 @@ _SCALAFMT_DEPS = [
     "com_lihaoyi_fansi",
     "com_lihaoyi_fastparse",
     "com_lihaoyi_sourcecode",
-    "com_thesamet_scalapb_lenses",
-    "com_thesamet_scalapb_scalapb_runtime",
     "com_typesafe_config",
     "org_scala_lang_modules_scala_collection_compat",
     "org_scala_lang_scalap",
@@ -47,6 +45,8 @@ _SCALAFMT_DEPS = [
     "org_scalameta_scalameta",
     "org_scalameta_trees",
     "org_typelevel_paiges_core",
+    "scala_proto_rules_scalapb_lenses",
+    "scala_proto_rules_scalapb_runtime",
 ]
 
 _SCALAFMT_DEPS_2_11 = [

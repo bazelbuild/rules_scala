@@ -31,7 +31,7 @@ scala_library(
     srcs = ["DummyGenerator.scala"],
     deps = [
         "@com_google_protobuf//:protobuf_java",
-        "@scala_proto_rules_protoc_bridge",
+        "@scala_proto_rules_scalapb_protoc_bridge",
     ],
 )
 
@@ -41,8 +41,8 @@ declare_deps_provider(
     deps = [
         ":DummyGenerator",
         "@com_google_protobuf//:protobuf_java",
-        "@scala_proto_rules_protoc_bridge",
-        "@scala_proto_rules_scalapb_plugin",
+        "@scala_proto_rules_scalapb_compilerplugin",
+        "@scala_proto_rules_scalapb_protoc_bridge",
     ],
 )
 
@@ -76,7 +76,7 @@ scala_library(
     name = "FailingGenerator",
     srcs = ["FailingGenerator.scala"],
     deps = [
-        "@scala_proto_rules_protoc_bridge",
+        "@scala_proto_rules_scalapb_protoc_bridge",
     ],
 )
 
@@ -86,8 +86,8 @@ declare_deps_provider(
     deps = [
         ":FailingGenerator",
         "@com_google_protobuf//:protobuf_java",
-        "@scala_proto_rules_protoc_bridge",
-        "@scala_proto_rules_scalapb_plugin",
+        "@scala_proto_rules_scalapb_compilerplugin",
+        "@scala_proto_rules_scalapb_protoc_bridge",
     ],
 )
 

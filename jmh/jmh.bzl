@@ -14,7 +14,7 @@ def jmh_repositories(
             "io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_asm",
             "io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_reflection",
             "io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_reflection",
-            "io_bazel_rules_scala_org_ows2_asm_asm",
+            "io_bazel_rules_scala_org_ow2_asm_asm",
             "io_bazel_rules_scala_net_sf_jopt_simple_jopt_simple",
             "io_bazel_rules_scala_org_apache_commons_commons_math3",
         ],
