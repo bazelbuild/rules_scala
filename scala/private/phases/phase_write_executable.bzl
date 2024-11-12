@@ -14,6 +14,7 @@ load(
     "runfiles_root",
     "specified_java_runtime",
 )
+load("@io_bazel_rules_scala//scala/private:common.bzl", "rlocationpath_from_file")
 
 def phase_write_executable_scalatest(ctx, p):
     # jvm_flags passed in on the target override scala_test_jvm_flags passed in on the
@@ -27,7 +28,7 @@ def phase_write_executable_scalatest(ctx, p):
         rjars = p.coverage_runfiles.rjars,
         jvm_flags = [
             "-DRULES_SCALA_MAIN_WS_NAME=%s" % ctx.workspace_name,
-            "-DRULES_SCALA_ARGS_FILE=%s" % p.runfiles.args_file.short_path.replace("../", "external/"),
+            "-DRULES_SCALA_ARGS_FILE=%s" % rlocationpath_from_file(ctx, p.runfiles.args_file),
         ] + expand_location(ctx, final_jvm_flags) + _allow_security_manager_for_specified_java_runtime(ctx),
         use_jacoco = ctx.configuration.coverage_enabled,
     )
