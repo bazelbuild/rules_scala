@@ -117,9 +117,7 @@ def dt_patched_compiler_setup(scala_version, scala_compiler_srcjar = None):
             integrity = srcjar.get("integrity"),
         )
 
-def rules_scala_setup(
-        scala_compiler_srcjar = None,
-        setup_compiler_sources = True):
+def load_rules_dependencies():
     if not native.existing_rule("bazel_skylib"):
         http_archive(
             name = "bazel_skylib",
@@ -172,11 +170,7 @@ def rules_scala_setup(
             url = "https://github.com/bazelbuild/rules_proto/releases/download/6.0.2/rules_proto-6.0.2.tar.gz",
         )
 
-    if setup_compiler_sources:
-        srcs = {version: scala_compiler_srcjar for version in SCALA_VERSIONS}
-        _setup_scala_compiler_sources(srcs)
-
-def _setup_scala_compiler_sources(srcjars = {}):
+def setup_scala_compiler_sources(srcjars = {}):
     """Generates Scala compiler source repos used internally by rules_scala.
 
     Args:
@@ -192,6 +186,13 @@ def _setup_scala_compiler_sources(srcjars = {}):
         name = "scala_compiler_sources",
         scala_versions = SCALA_VERSIONS,
     )
+
+def rules_scala_setup(scala_compiler_srcjar = None):
+    load_rules_dependencies()
+    setup_scala_compiler_sources({
+        version: scala_compiler_srcjar
+        for version in SCALA_VERSIONS
+    })
 
 def _artifact_ids(scala_version):
     result = [
@@ -258,9 +259,9 @@ def scala_repositories(
         scala_compiler_srcjars = {}):
     if load_dep_rules:
         # When `WORKSPACE` goes away, so can this case.
-        rules_scala_setup(setup_compiler_sources = False)
+        load_rules_dependencies()
 
-    _setup_scala_compiler_sources(scala_compiler_srcjars)
+    setup_scala_compiler_sources(scala_compiler_srcjars)
 
     if load_jar_deps:
         rules_scala_toolchain_deps_repositories(
