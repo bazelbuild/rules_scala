@@ -1,6 +1,6 @@
 workspace(name = "test_dt_patches")
 
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_jar")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "bazel_skylib",
@@ -31,86 +31,18 @@ load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
 
 scala_config(enable_compiler_dependency_tracking = True)
 
-load("@io_bazel_rules_scala//scala:scala.bzl", "scala_toolchains")
-load(
-    "@io_bazel_rules_scala//scala:scala_cross_version.bzl",
-    "default_maven_server_urls",
-)
-load(
-    "@io_bazel_rules_scala//scala:scala_maven_import_external.bzl",
-    "scala_maven_import_external",
-)
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
-
-http_jar(
-    name = "scala_compiler_srcjar",
-    sha256 = "95c217cc87ee846b39990e0a9c273824a384dffbac57df84d466f866df4a91ea",
-    url = "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.12.16/scala-compiler-2.12.16-sources.jar",
+local_repository(
+    name = "compiler_sources",
+    path = "../compiler_sources",
 )
 
-http_jar(
-    name = "scala3_compiler_srcjar",
-    sha256 = "3c413efa9a2921ef59da7f065c445ae1b6b97057cbbc6b16957ad052a575a3ce",
-    url = "https://repo1.maven.org/maven2/org/scala-lang/scala3-compiler_3/3.4.3/scala3-compiler_3-3.4.3-sources.jar",
-)
+load("@compiler_sources//:extensions.bzl", "import_compiler_source_repos")
 
-scala_maven_import_external(
-    name = "scala_library",
-    artifact = "org.scala-lang:scala-library:%s" % SCALA_VERSION if SCALA_VERSION.startswith("2.") else "org.scala-lang:scala3-library_3:%s" % SCALA_VERSION,
-    licenses = ["notice"],
-    server_urls = default_maven_server_urls(),
-)
+import_compiler_source_repos()
 
-scala_maven_import_external(
-    name = "scala_compiler",
-    artifact = "org.scala-lang:scala-compiler:%s" % SCALA_VERSION if SCALA_VERSION.startswith("2.") else "org.scala-lang:scala3-compiler_3:%s" % SCALA_VERSION,
-    licenses = ["notice"],
-    server_urls = default_maven_server_urls(),
-)
+load("//:extensions.bzl", "import_compiler_user_srcjar_repos")
 
-# Scala 2 only
-scala_maven_import_external(
-    name = "scala_reflect",
-    artifact = "org.scala-lang:scala-reflect:%s" % SCALA_VERSION,
-    licenses = ["notice"],
-    server_urls = default_maven_server_urls(),
-)
-
-# Scala 3 only
-scala_maven_import_external(
-    name = "scala3_interfaces",
-    artifact = "org.scala-lang:scala3-interfaces:%s" % SCALA_VERSION,
-    licenses = ["notice"],
-    server_urls = default_maven_server_urls(),
-)
-
-scala_maven_import_external(
-    name = "scala2_library",
-    artifact = "org.scala-lang:scala-library:2.13.15",
-    licenses = ["notice"],
-    server_urls = default_maven_server_urls(),
-)
-
-scala_maven_import_external(
-    name = "tasty_core",
-    artifact = "org.scala-lang:tasty-core_3:%s" % SCALA_VERSION,
-    licenses = ["notice"],
-    server_urls = default_maven_server_urls(),
-)
-
-scala_maven_import_external(
-    name = "scala_asm",
-    artifact = "org.scala-lang.modules:scala-asm:9.7.0-scala-2",
-    licenses = ["notice"],
-    server_urls = default_maven_server_urls(),
-)
-
-scala_maven_import_external(
-    name = "sbt_compiler_interface",
-    artifact = "org.scala-sbt:compiler-interface:1.9.6",
-    licenses = ["notice"],
-    server_urls = default_maven_server_urls(),
-)
+import_compiler_user_srcjar_repos()
 
 srcjars_by_version = {
     # Invalid
@@ -177,6 +109,8 @@ srcjars_by_version = {
         "url": "https://repo1.maven.org/maven2/org/scala-lang/scala3-compiler_3/3.5.2/scala3-compiler_3-3.5.2-sources.jar",
     },
 }
+
+load("@io_bazel_rules_scala//scala:scala.bzl", "scala_toolchains")
 
 scala_toolchains(
     fetch_sources = True,
