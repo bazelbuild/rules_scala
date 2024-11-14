@@ -61,7 +61,11 @@ load("@io_bazel_rules_scala//scala:scala_cross_version.bzl", "extract_major_vers
 
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_toolchains")
 
-scala_toolchains(fetch_sources = True)
+scala_toolchains(
+    fetch_sources = True,
+    scalatest = True,
+    specs2 = True,
+)
 
 register_toolchains(
     "@io_bazel_rules_scala//scala:unused_dependency_checker_error_toolchain",
@@ -81,11 +85,3 @@ scala_proto_repositories()
 load("@io_bazel_rules_scala//scala_proto:toolchains.bzl", "scala_proto_register_toolchains")
 
 scala_proto_register_toolchains()
-
-load("@io_bazel_rules_scala//specs2:specs2_junit.bzl", "specs2_junit_repositories")
-
-specs2_junit_repositories()
-
-load("@io_bazel_rules_scala//testing:scalatest.bzl", "scalatest_repositories", "scalatest_toolchain")
-
-scalatest_repositories()

@@ -1,8 +1,14 @@
 """Macro to instantiate @io_bazel_rules_scala_toolchains"""
 
 load(":macros/toolchains_repo.bzl", "scala_toolchains_repo")
+load("//junit:junit.bzl", "junit_artifact_ids")
 load("//scala/private:macros/scala_repositories.bzl", "scala_repositories")
 load("//scala:scala_cross_version.bzl", "default_maven_server_urls")
+load("//scalatest:scalatest.bzl", "scalatest_artifact_ids")
+load("//specs2:specs2.bzl", "specs2_artifact_ids")
+load("//specs2:specs2_junit.bzl", "specs2_junit_artifact_ids")
+load("//third_party/repositories:repositories.bzl", "repositories")
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSIONS")
 
 def scala_toolchains(
         maven_servers = default_maven_server_urls(),
@@ -11,7 +17,11 @@ def scala_toolchains(
         load_scala_toolchain_dependencies = True,
         fetch_sources = False,
         validate_scala_version = True,
-        scala_compiler_srcjars = {}):
+        scala_compiler_srcjars = {},
+        scalatest = False,
+        junit = False,
+        specs2 = False,
+        testing = False):
     """Instantiates @io_bazel_rules_scala_toolchains and all its dependencies.
 
     Provides a unified interface to configuring rules_scala both directly in a
@@ -51,6 +61,11 @@ def scala_toolchains(
             compiler srcjar metadata dictionaries containing:
             - exactly one "label", "url", or "urls" key
             - optional "integrity" or "sha256" keys
+        scalatest: whether to instantiate the Scalatest toolchain
+        junit: whether to instantiate the JUnit toolchain
+        specs2: whether to instantiate the Specs2 JUnit toolchain
+        testing: whether to instantiate the Scalatest, JUnit, and Specs2 JUnit
+            toolchains combined
     """
     scala_repositories(
         maven_servers = maven_servers,
@@ -63,4 +78,51 @@ def scala_toolchains(
         scala_compiler_srcjars = scala_compiler_srcjars,
     )
 
-    scala_toolchains_repo()
+    if testing:
+        scalatest = True
+        junit = True
+        specs2 = True
+    if specs2:
+        junit = True
+
+    artifact_ids_to_fetch_sources = {}
+
+    if scalatest:
+        artifact_ids_to_fetch_sources.update({
+            id: True
+            for id in scalatest_artifact_ids()
+        })
+    if junit:
+        artifact_ids_to_fetch_sources.update({
+            id: True
+            for id in junit_artifact_ids()
+        })
+    if specs2:
+        artifact_ids_to_fetch_sources.update({
+            id: True
+            for id in specs2_artifact_ids() + specs2_junit_artifact_ids()
+        })
+
+    for scala_version in SCALA_VERSIONS:
+        version_specific_artifact_ids = {}
+
+        all_artifacts = (
+            artifact_ids_to_fetch_sources | version_specific_artifact_ids
+        )
+
+        repositories(
+            scala_version = scala_version,
+            for_artifact_ids = all_artifacts.keys(),
+            maven_servers = maven_servers,
+            fetch_sources = fetch_sources,
+            fetch_sources_by_id = all_artifacts,
+            overriden_artifacts = overridden_artifacts,
+            validate_scala_version = validate_scala_version,
+        )
+
+    scala_toolchains_repo(
+        scalatest = scalatest,
+        junit = junit,
+        specs2 = specs2,
+        testing = testing,
+    )
