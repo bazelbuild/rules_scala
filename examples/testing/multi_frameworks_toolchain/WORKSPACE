@@ -33,7 +33,10 @@ scala_config()
 
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_toolchains")
 
-scala_toolchains(fetch_sources = True)
+scala_toolchains(
+    fetch_sources = True,
+    testing = True,
+)
 
 register_toolchains(
     ":testing_toolchain",
@@ -55,13 +58,3 @@ rules_proto_toolchains()
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 
 protobuf_deps()
-
-load("@io_bazel_rules_scala//testing:scalatest.bzl", "scalatest_repositories")
-load("@io_bazel_rules_scala//testing:junit.bzl", "junit_repositories")
-load("@io_bazel_rules_scala//testing:specs2_junit.bzl", "specs2_junit_repositories")
-
-scalatest_repositories()
-
-junit_repositories()
-
-specs2_junit_repositories()

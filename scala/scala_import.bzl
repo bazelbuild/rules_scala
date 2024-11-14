@@ -1,9 +1,6 @@
-load("@io_bazel_rules_scala//scala:jars_to_labels.bzl", "JarsToLabelsInfo")
+load("//scala/private:rule_impls.bzl", "specified_java_compile_toolchain")
 load("//scala/settings:stamp_settings.bzl", "StampScalaImport")
-load(
-    "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
-    "specified_java_compile_toolchain",
-)
+load("//scala:jars_to_labels.bzl", "JarsToLabelsInfo")
 
 def _stamp_jar(ctx, jar):
     stamped_jar_filename = "%s.stamp/%s" % (ctx.label.name, jar.basename)
@@ -139,11 +136,13 @@ scala_import = rule(
         "srcjar": attr.label(allow_single_file = True),
         "_placeholder_jar": attr.label(
             allow_single_file = True,
-            default = Label("@io_bazel_rules_scala//scala:libPlaceHolderClassToCreateEmptyJarForScalaImport.jar"),
+            default = Label(
+                "//scala:libPlaceHolderClassToCreateEmptyJarForScalaImport.jar",
+            ),
         ),
         "stamp": attr.label(
             doc = "Adds Target-Label attribute to MANIFEST.MF for dep tracking",
-            default = Label("@io_bazel_rules_scala//scala/settings:stamp_scala_import"),
+            default = Label("//scala/settings:stamp_scala_import"),
         ),
         "java_compile_toolchain": attr.label(
             default = Label("@bazel_tools//tools/jdk:current_java_toolchain"),

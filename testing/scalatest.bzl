@@ -7,4 +7,7 @@ def scalatest_repositories():
 
 def scalatest_toolchain():
     for scala_version in SCALA_VERSIONS:
-        native.register_toolchains("@io_bazel_rules_scala//testing:scalatest_toolchain" + version_suffix(scala_version))
+        native.register_toolchains(str(Label(
+            "//testing:scalatest_toolchain" +
+            version_suffix(scala_version),
+        )))

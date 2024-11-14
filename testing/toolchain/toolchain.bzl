@@ -10,8 +10,6 @@ scala_testing_toolchain = rule(
     _scala_toolchain_impl,
     attrs = {
         "dep_providers": attr.label_list(
-            default = [
-            ],
             providers = [_DepsInfo],
         ),
     },

@@ -85,6 +85,7 @@ def repositories(
         maven_servers = default_maven_server_urls(),
         overriden_artifacts = {},
         fetch_sources = True,
+        fetch_sources_by_id = {},
         validate_scala_version = False):
     """
     Downloads given artifacts.
@@ -128,7 +129,7 @@ def repositories(
                 for dep in artifacts[id].get("runtime_deps", [])
             ],
             testonly_ = artifacts[id].get("testonly", False),
-            fetch_sources = fetch_sources,
+            fetch_sources = fetch_sources_by_id.get(id, fetch_sources),
         )
 
         # For backward compatibility: non-suffixed repo pointing to the suffixed one,
