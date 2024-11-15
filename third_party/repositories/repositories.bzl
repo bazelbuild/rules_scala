@@ -1,4 +1,3 @@
-load("//scala/private:macros/bzlmod.bzl", "apparent_repo_name")
 load(
     "//third_party/repositories:scala_2_11.bzl",
     _artifacts_2_11 = "artifacts",
@@ -129,13 +128,13 @@ def repositories(
         # See: https://github.com/bazelbuild/rules_scala/pull/1573
         # Hopefully we can deprecate and remove it one day.
         if suffix and scala_version == SCALA_VERSION:
-            _alias_repository(name = id, target = artifact_repo_name)
+            _alias_repository_wrapper(name = id, target = artifact_repo_name)
 
 def _alias_repository_impl(rctx):
     """ Builds a repository containing just two aliases to the Scala Maven artifacts in the `target` repository. """
 
     format_kwargs = {
-        "name": apparent_repo_name(rctx),
+        "name": rctx.attr.default_target_name,
         "target": rctx.attr.target,
     }
     rctx.file("BUILD", """alias(
@@ -154,6 +153,12 @@ def _alias_repository_impl(rctx):
 _alias_repository = repository_rule(
     implementation = _alias_repository_impl,
     attrs = {
+        "default_target_name": attr.string(mandatory = True),
         "target": attr.string(mandatory = True),
     },
 )
+
+def _alias_repository_wrapper(**kwargs):
+    """Wraps `_alias_repository` to pass `name` as `default_target_name`."""
+    default_target_name = kwargs.pop("default_target_name", kwargs.get("name"))
+    _alias_repository(default_target_name = default_target_name, **kwargs)
