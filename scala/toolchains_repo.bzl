@@ -50,6 +50,9 @@ def _scala_toolchains_repo_impl(repository_ctx):
         format_args.update(testing_build_args)
         toolchains["testing"] = _TESTING_TOOLCHAIN_BUILD
 
+    if repo_attr.scalafmt:
+        toolchains["scalafmt"] = _SCALAFMT_TOOLCHAIN_BUILD
+
     if len(toolchains) == 0:
         fail("no toolchains specified")
 
@@ -69,6 +72,7 @@ _scala_toolchains_repo = repository_rule(
         "junit": attr.bool(),
         "specs2": attr.bool(),
         "testing": attr.bool(),
+        "scalafmt": attr.bool(),
     },
 )
 
@@ -142,4 +146,13 @@ load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSIONS")
     )
     for scala_version in SCALA_VERSIONS
 ]
+"""
+
+_SCALAFMT_TOOLCHAIN_BUILD = """
+load(
+    "@@{rules_scala_repo}//scala/scalafmt/toolchain:setup_scalafmt_toolchain.bzl",
+    "setup_scalafmt_toolchains",
+)
+
+setup_scalafmt_toolchains()
 """

@@ -4,6 +4,10 @@ load(
     "version_suffix",
     _default_maven_server_urls = "default_maven_server_urls",
 )
+load(
+    "//scala_proto/default:repositories.bzl",
+    "SCALAPB_COMPILE_ARTIFACT_IDS",
+)
 load("//third_party/repositories:repositories.bzl", "repositories")
 load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSIONS")
 
@@ -32,12 +36,8 @@ def scalafmt_default_config(path = ".scalafmt.conf", **kwargs):
 _SCALAFMT_DEPS = [
     "com_geirsson_metaconfig_core",
     "com_geirsson_metaconfig_typesafe_config",
-    "com_google_protobuf_protobuf_java",
     "com_lihaoyi_fansi",
-    "com_lihaoyi_fastparse",
-    "com_lihaoyi_sourcecode",
     "com_typesafe_config",
-    "org_scala_lang_modules_scala_collection_compat",
     "org_scala_lang_scalap",
     "org_scalameta_common",
     "org_scalameta_parsers",
@@ -45,9 +45,7 @@ _SCALAFMT_DEPS = [
     "org_scalameta_scalameta",
     "org_scalameta_trees",
     "org_typelevel_paiges_core",
-    "scala_proto_rules_scalapb_lenses",
-    "scala_proto_rules_scalapb_runtime",
-]
+] + SCALAPB_COMPILE_ARTIFACT_IDS
 
 _SCALAFMT_DEPS_2_11 = [
     "com_lihaoyi_pprint",
@@ -79,8 +77,7 @@ def scalafmt_artifact_ids(scala_version):
 
 def scalafmt_repositories(
         maven_servers = _default_maven_server_urls(),
-        overriden_artifacts = {},
-        bzlmod_enabled = False):
+        overriden_artifacts = {}):
     for scala_version in SCALA_VERSIONS:
         repositories(
             scala_version = scala_version,
@@ -89,11 +86,6 @@ def scalafmt_repositories(
             overriden_artifacts = overriden_artifacts,
         )
 
-    if not bzlmod_enabled:
-        _register_scalafmt_toolchains()
-
-def _register_scalafmt_toolchains():
-    for scala_version in SCALA_VERSIONS:
         native.register_toolchains(str(Label(
             "//scala/scalafmt:scalafmt_toolchain" +
             version_suffix(scala_version),
