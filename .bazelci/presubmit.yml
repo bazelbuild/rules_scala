@@ -49,6 +49,7 @@ tasks:
     environment:      
       MSYS2_ARG_CONV_EXCL: "*"
     batch_commands:
+    - "set PATH=/usr/bin;%PATH%" #Make sure bash uses msys commands over windows commands. (i.e. find).
     - "bash test_rules_scala.sh"
   test_coverage_linux_6_5_0:
     name: "./test_coverage"
