@@ -46,6 +46,8 @@ tasks:
   test_rules_scala_win:
     name: "./test_rules_scala"
     platform: windows
+    environment:      
+      MSYS2_ARG_CONV_EXCL: "*"
     batch_commands:
     - "bash test_rules_scala.sh"
   test_coverage_linux_6_5_0:
