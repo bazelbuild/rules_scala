@@ -38,7 +38,7 @@ scala_proto_toolchain(
 toolchain(
     name = "default_toolchain",
     toolchain = ":default_toolchain_impl",
-    toolchain_type = "@io_bazel_rules_scala//scala_proto:toolchain_type",
+    toolchain_type = "//scala_proto:toolchain_type",
     visibility = ["//visibility:public"],
 )
 
@@ -59,7 +59,7 @@ scala_proto_toolchain(
 toolchain(
     name = "enable_all_options_toolchain",
     toolchain = ":enable_all_options_toolchain_impl",
-    toolchain_type = "@io_bazel_rules_scala//scala_proto:toolchain_type",
+    toolchain_type = "//scala_proto:toolchain_type",
     visibility = ["//visibility:public"],
 )
 
