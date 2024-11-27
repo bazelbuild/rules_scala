@@ -39,11 +39,16 @@ load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
 
 scala_config(enable_compiler_dependency_tracking = True)
 
-load("//scala:scala.bzl", "rules_scala_setup", "rules_scala_toolchain_deps_repositories")
+load("//scala:scala.bzl", "scala_toolchains")
 
-rules_scala_setup()
+scala_toolchains(fetch_sources = True)
 
-rules_scala_toolchain_deps_repositories(fetch_sources = True)
+register_toolchains(
+    "//testing:testing_toolchain",
+    "//scala:unused_dependency_checker_error_toolchain",
+    "//test/proto:scalapb_toolchain",
+    "@io_bazel_rules_scala_toolchains//...:all",
+)
 
 load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies")
 
@@ -82,8 +87,6 @@ load("//specs2:specs2_junit.bzl", "specs2_junit_repositories")
 
 specs2_junit_repositories()
 
-register_toolchains("//testing:testing_toolchain")
-
 load("//scala/scalafmt:scalafmt_repositories.bzl", "scalafmt_default_config", "scalafmt_repositories")
 
 scalafmt_default_config()
@@ -114,12 +117,6 @@ local_repository(
     name = "example_external_workspace",
     path = "third_party/test/example_external_workspace",
 )
-
-load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_unused_deps_toolchains")
-
-scala_register_unused_deps_toolchains()
-
-register_toolchains("@io_bazel_rules_scala//test/proto:scalapb_toolchain")
 
 load("//scala:scala_maven_import_external.bzl", "java_import_external")
 

@@ -31,9 +31,14 @@ load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
 
 scala_config()
 
-load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
+load("@io_bazel_rules_scala//scala:scala.bzl", "scala_toolchains")
 
-scala_repositories()
+scala_toolchains()
+
+register_toolchains(
+    "@io_bazel_rules_scala//scala:unused_dependency_checker_error_toolchain",
+    "@io_bazel_rules_scala_toolchains//...:all",
+)
 
 load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies")
 
@@ -58,7 +63,3 @@ scala_proto_repositories()
 load("@io_bazel_rules_scala//scala_proto:toolchains.bzl", "scala_proto_register_toolchains")
 
 scala_proto_register_toolchains()
-
-load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_unused_deps_toolchains")
-
-scala_register_unused_deps_toolchains()

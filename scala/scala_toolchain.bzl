@@ -113,7 +113,10 @@ def _default_dep_providers():
     ]
     if SCALA_MAJOR_VERSION.startswith("2."):
         dep_providers.append("semanticdb")
-    return [Label("//scala:%s_provider" % p) for p in dep_providers]
+    return [
+        "@io_bazel_rules_scala_toolchains//scala:%s_provider" % p
+        for p in dep_providers
+    ]
 
 _scala_toolchain = rule(
     _scala_toolchain_impl,

@@ -72,13 +72,11 @@ scala_config(
 )
 
 # loads other rules Rules Scala depends on
-load("@io_bazel_rules_scala//scala:scala.bzl", "rules_scala_toolchain_deps_repositories")
+load("@io_bazel_rules_scala//scala:scala.bzl", "scala_toolchains")
 
-rules_scala_toolchain_deps_repositories()
+scala_toolchains()
 
-load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_toolchains")
-
-scala_register_toolchains()
+register_toolchains("@io_bazel_rules_scala_toolchains//...:all")
 
 load("@io_bazel_rules_scala//testing:scalatest.bzl", "scalatest_repositories", "scalatest_toolchain")
 

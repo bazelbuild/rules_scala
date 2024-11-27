@@ -52,6 +52,11 @@ def sanitize_version(scala_version):
 def version_suffix(scala_version):
     return "_" + sanitize_version(scala_version)
 
+def repositories(scala_version, repos):
+    """Adds the Scala version suffix to a list of repository IDs."""
+    suffix = version_suffix(scala_version)
+    return [repo + suffix for repo in repos]
+
 def _scala_version_transition_impl(settings, attr):
     if attr.scala_version:
         return {"@io_bazel_rules_scala_config//:scala_version": attr.scala_version}

@@ -59,9 +59,15 @@ scala_config(enable_compiler_dependency_tracking = True)
 
 load("@io_bazel_rules_scala//scala:scala_cross_version.bzl", "extract_major_version")
 
-load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
+load("@io_bazel_rules_scala//scala:scala.bzl", "scala_toolchains")
 
-scala_repositories(fetch_sources = True)
+scala_toolchains(fetch_sources = True)
+
+register_toolchains(
+    "@io_bazel_rules_scala//scala:unused_dependency_checker_error_toolchain",
+    "@io_bazel_rules_scala//testing:testing_toolchain",
+    "@io_bazel_rules_scala_toolchains//...:all",
+)
 
 load(":scrooge_repositories.bzl", "scrooge_repositories")
 ${twitter_scrooge_repositories}
@@ -83,9 +89,3 @@ specs2_junit_repositories()
 load("@io_bazel_rules_scala//testing:scalatest.bzl", "scalatest_repositories", "scalatest_toolchain")
 
 scalatest_repositories()
-
-register_toolchains("@io_bazel_rules_scala//testing:testing_toolchain")
-
-load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_unused_deps_toolchains")
-
-scala_register_unused_deps_toolchains()
