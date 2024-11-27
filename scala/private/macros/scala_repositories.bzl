@@ -181,6 +181,7 @@ def _artifact_ids(scala_version):
         "io_bazel_rules_scala_scala_library",
         "io_bazel_rules_scala_scala_parser_combinators",
         "io_bazel_rules_scala_scala_xml",
+        "org_scala_lang_modules_scala_collection_compat",
     ]
 
     if scala_version.startswith("2."):

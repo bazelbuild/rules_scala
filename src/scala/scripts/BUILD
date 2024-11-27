@@ -1,4 +1,5 @@
 load("//scala:scala.bzl", "scala_binary", "scala_library")
+load("//scala:scala_cross_version_select.bzl", "select_for_scala_version")
 
 scala_library(
     name = "scrooge_worker_lib",
@@ -19,6 +20,18 @@ scala_binary(
     visibility = ["//visibility:public"],
     deps = [
         ":scrooge_worker_lib",
+    ],
+)
+
+scala_library(
+    name = "scalapb_codegenerator_wrapper",
+    srcs = select_for_scala_version(
+        any_2_11 = ["ScalaPbCodeGeneratorWrapper_2_11.scala"],
+        since_2_12 = ["ScalaPbCodeGeneratorWrapper.scala"],
+    ),
+    visibility = ["//visibility:public"],
+    deps = [
+        "//scala_proto:scalapb_worker_deps",
     ],
 )
 

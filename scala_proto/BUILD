@@ -1,15 +1,16 @@
+load("//scala:providers.bzl", "declare_deps_provider")
+load(
+    "//scala_proto/default:default_deps.bzl",
+    "DEFAULT_SCALAPB_COMPILE_DEPS",
+    "DEFAULT_SCALAPB_GRPC_DEPS",
+    "DEFAULT_SCALAPB_WORKER_DEPS",
+)
+load("//scala_proto/private:toolchain_deps.bzl", "export_scalapb_toolchain_deps")
 load(
     "//scala_proto:scala_proto_toolchain.bzl",
     "scala_proto_deps_toolchain",
     "scala_proto_toolchain",
 )
-load(
-    "//scala_proto/default:default_deps.bzl",
-    "DEFAULT_SCALAPB_COMPILE_DEPS",
-    "DEFAULT_SCALAPB_GRPC_DEPS",
-)
-load("//scala:providers.bzl", "declare_deps_provider")
-load("//scala_proto/private:toolchain_deps.bzl", "export_scalapb_toolchain_deps")
 
 toolchain_type(
     name = "toolchain_type",
@@ -37,7 +38,7 @@ scala_proto_toolchain(
 toolchain(
     name = "default_toolchain",
     toolchain = ":default_toolchain_impl",
-    toolchain_type = "@io_bazel_rules_scala//scala_proto:toolchain_type",
+    toolchain_type = "//scala_proto:toolchain_type",
     visibility = ["//visibility:public"],
 )
 
@@ -58,7 +59,7 @@ scala_proto_toolchain(
 toolchain(
     name = "enable_all_options_toolchain",
     toolchain = ":enable_all_options_toolchain_impl",
-    toolchain_type = "@io_bazel_rules_scala//scala_proto:toolchain_type",
+    toolchain_type = "//scala_proto:toolchain_type",
     visibility = ["//visibility:public"],
 )
 
@@ -80,11 +81,7 @@ declare_deps_provider(
     name = "scalapb_worker_deps_provider",
     deps_id = "scalapb_worker_deps",
     visibility = ["//visibility:public"],
-    deps = [
-        "@com_google_protobuf//:protobuf_java",
-        "@scala_proto_rules_scalapb_compilerplugin",
-        "@scala_proto_rules_scalapb_protoc_bridge",
-    ],
+    deps = DEFAULT_SCALAPB_WORKER_DEPS,
 )
 
 export_scalapb_toolchain_deps(
