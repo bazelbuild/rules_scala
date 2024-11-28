@@ -1,5 +1,6 @@
 """Macros to instantiate and register @io_bazel_rules_scala_toolchains"""
 
+load("//jmh/toolchain:toolchain.bzl", "jmh_artifact_ids")
 load("//junit:junit.bzl", "junit_artifact_ids")
 load("//scala/private:macros/scala_repositories.bzl", "scala_repositories")
 load(
@@ -31,7 +32,8 @@ def scala_toolchains(
         scalafmt = False,
         scalafmt_default_config_path = ".scalafmt.conf",
         scala_proto = False,
-        scala_proto_enable_all_options = False):
+        scala_proto_enable_all_options = False,
+        jmh = False):
     """Instantiates @io_bazel_rules_scala_toolchains and all its dependencies.
 
     Provides a unified interface to configuring rules_scala both directly in a
@@ -83,6 +85,7 @@ def scala_toolchains(
         scala_proto_enable_all_options: whether to instantiate the scala_proto
             toolchain with all options enabled; `scala_proto` must also be
             `True` for this to take effect
+        jmh: whether to instantiate the jmh toolchain
     """
     scala_repositories(
         maven_servers = maven_servers,
@@ -122,6 +125,11 @@ def scala_toolchains(
             id: True
             for id in specs2_artifact_ids() + specs2_junit_artifact_ids()
         })
+    if jmh:
+        artifact_ids_to_fetch_sources.update({
+            id: False
+            for id in jmh_artifact_ids()
+        })
 
     for scala_version in SCALA_VERSIONS:
         version_specific_artifact_ids = {}
@@ -159,6 +167,7 @@ def scala_toolchains(
         scalafmt = scalafmt,
         scala_proto = scala_proto,
         scala_proto_enable_all_options = scala_proto_enable_all_options,
+        jmh = jmh,
     )
 
 def scala_register_toolchains():

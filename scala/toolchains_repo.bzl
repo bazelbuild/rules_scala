@@ -47,6 +47,8 @@ def _scala_toolchains_repo_impl(repository_ctx):
         toolchains["scala"] = _SCALA_TOOLCHAIN_BUILD
     if repo_attr.scala_proto:
         toolchains["scala_proto"] = _SCALA_PROTO_TOOLCHAIN_BUILD
+    if repo_attr.jmh:
+        toolchains["jmh"] = _JMH_TOOLCHAIN_BUILD
 
     testing_build_args = _generate_testing_toolchain_build_file_args(repo_attr)
     if testing_build_args != None:
@@ -78,6 +80,7 @@ _scala_toolchains_repo = repository_rule(
         "scalafmt": attr.bool(),
         "scala_proto": attr.bool(),
         "scala_proto_enable_all_options": attr.bool(),
+        "jmh": attr.bool(),
     },
 )
 
@@ -200,4 +203,10 @@ declare_deps_provider(
     visibility = ["//visibility:public"],
     deps = DEFAULT_SCALAPB_WORKER_DEPS,
 )
+"""
+
+_JMH_TOOLCHAIN_BUILD = """
+load("@@{rules_scala_repo}//jmh/toolchain:toolchain.bzl", "setup_jmh_toolchain")
+
+setup_jmh_toolchain(name = "jmh_toolchain")
 """

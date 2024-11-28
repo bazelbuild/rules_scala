@@ -50,6 +50,7 @@ load("//scala:toolchains.bzl", "scala_toolchains")
 
 scala_toolchains(
     fetch_sources = True,
+    jmh = True,
     scala_proto = True,
     scalafmt = True,
     testing = True,
@@ -64,10 +65,6 @@ register_toolchains(
 load("//twitter_scrooge:twitter_scrooge.bzl", "twitter_scrooge")
 
 twitter_scrooge()
-
-load("//jmh:jmh.bzl", "jmh_repositories")
-
-jmh_repositories()
 
 # needed for the cross repo proto test
 local_repository(
