@@ -83,6 +83,22 @@ scalafmt_default_config()
 
 scalafmt_repositories()
 
+# needed for the cross repo proto test
+local_repository(
+    name = "proto_cross_repo_boundary",
+    path = "test/proto_cross_repo_boundary/repo",
+)
+
+local_repository(
+    name = "test_new_local_repo",
+    path = "third_party/test/new_local_repo",
+)
+
+local_repository(
+    name = "example_external_workspace",
+    path = "third_party/test/example_external_workspace",
+)
+
 http_archive(
     name = "io_bazel_rules_go",
     sha256 = "6dc2da7ab4cf5d7bfc7c949776b1b7c733f05e56edc4bcd9022bb249d2e2a996",

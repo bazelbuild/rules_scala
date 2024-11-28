@@ -2,22 +2,9 @@
 
 load("//scala:scala_cross_version.bzl", "default_maven_server_urls")
 load("//scala:scala_maven_import_external.bzl", "java_import_external")
-load(
-    "//test/proto_cross_repo_boundary:repo.bzl",
-    "proto_cross_repo_boundary_repository",
-)
 load("//test/toolchains:jdk.bzl", "remote_jdk21_repositories")
 load("//third_party/repositories:repositories.bzl", "repositories")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-
-# Once we switch to Bazel 7, uncomment this `load` statement remove the
-# `native.` prefix from `local_repository` and `new_local_repository`.
-# Update //test/proto_cross_repo_boundary:repo.bzl in the same way.
-#load(
-#    "@bazel_tools//tools/build_defs/repo:local.bzl",
-#    "local_repository",
-#    "new_local_repository",
-#)
 load("@rules_java//java:repositories.bzl", "remote_jdk8_repos")
 
 _BUILD_TOOLS_RELEASE = "5.1.0"
@@ -27,13 +14,6 @@ def dev_deps_repositories(
         maven_servers = default_maven_server_urls(),
         fetch_sources = False):
     """Instantiates internal only repos for development and testing
-
-    Once we're using Bazel 7, uncomment the `load()` statement for `local.bzl`
-    in this file and remove `native.` from the `native.{,new_}local_repository`
-    calls.
-
-    Until then, `dev_deps_repositories()` must be called from `WORKSPACE` or
-    `WORKSPACE.bzlmod`, as module extensions won't be able to use it.
 
     Args:
         name: unused macro parameter to satisfy Buildifier lint rules
@@ -48,26 +28,6 @@ def dev_deps_repositories(
             "https://github.com/bazelbuild/buildtools/archive/%s.tar.gz" %
             _BUILD_TOOLS_RELEASE
         ),
-    )
-
-    # needed for the cross repo proto test
-    proto_cross_repo_boundary_repository()
-
-    native.local_repository(
-        name = "example_external_workspace",
-        path = "third_party/test/example_external_workspace",
-    )
-
-    native.new_local_repository(
-        name = "test_new_local_repo",
-        build_file_content = """
-filegroup(
-    name = "data",
-    srcs = glob(["**/*.txt"]),
-    visibility = ["//visibility:public"],
-)
-""",
-        path = "third_party/test/new_local_repo",
     )
 
     # bazel's java_import_external has been altered in rules_scala to be a macro
