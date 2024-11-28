@@ -15,6 +15,10 @@ load("//scalatest:scalatest.bzl", "scalatest_artifact_ids")
 load("//specs2:specs2.bzl", "specs2_artifact_ids")
 load("//specs2:specs2_junit.bzl", "specs2_junit_artifact_ids")
 load("//third_party/repositories:repositories.bzl", "repositories")
+load(
+    "//twitter_scrooge/toolchain:toolchain.bzl",
+    "twitter_scrooge_artifact_ids",
+)
 load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSIONS")
 
 def scala_toolchains(
@@ -33,7 +37,13 @@ def scala_toolchains(
         scalafmt_default_config_path = ".scalafmt.conf",
         scala_proto = False,
         scala_proto_enable_all_options = False,
-        jmh = False):
+        jmh = False,
+        twitter_scrooge = False,
+        libthrift = None,
+        scrooge_core = None,
+        scrooge_generator = None,
+        util_core = None,
+        util_logging = None):
     """Instantiates @io_bazel_rules_scala_toolchains and all its dependencies.
 
     Provides a unified interface to configuring rules_scala both directly in a
@@ -86,6 +96,13 @@ def scala_toolchains(
             toolchain with all options enabled; `scala_proto` must also be
             `True` for this to take effect
         jmh: whether to instantiate the jmh toolchain
+        twitter_scrooge: whether to instantiate the twitter_scrooge toolchain
+        libthrift: label to a libthrift artifact for twitter_scrooge
+        scrooge_core: label to a scrooge_core artifact for twitter_scrooge
+        scrooge_generator: label to a scrooge_generator artifact for
+            twitter_scrooge
+        util_core: label to a util_core artifact for twitter_scrooge
+        util_logging: label to a util_logging artifact for twitter_scrooge
     """
     scala_repositories(
         maven_servers = maven_servers,
@@ -130,6 +147,17 @@ def scala_toolchains(
             id: False
             for id in jmh_artifact_ids()
         })
+    if twitter_scrooge:
+        artifact_ids_to_fetch_sources.update({
+            id: False
+            for id in twitter_scrooge_artifact_ids(
+                libthrift = libthrift,
+                scrooge_core = scrooge_core,
+                scrooge_generator = scrooge_generator,
+                util_core = util_core,
+                util_logging = util_logging,
+            )
+        })
 
     for scala_version in SCALA_VERSIONS:
         version_specific_artifact_ids = {}
@@ -168,6 +196,7 @@ def scala_toolchains(
         scala_proto = scala_proto,
         scala_proto_enable_all_options = scala_proto_enable_all_options,
         jmh = jmh,
+        twitter_scrooge = twitter_scrooge,
     )
 
 def scala_register_toolchains():

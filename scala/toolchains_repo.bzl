@@ -49,6 +49,8 @@ def _scala_toolchains_repo_impl(repository_ctx):
         toolchains["scala_proto"] = _SCALA_PROTO_TOOLCHAIN_BUILD
     if repo_attr.jmh:
         toolchains["jmh"] = _JMH_TOOLCHAIN_BUILD
+    if repo_attr.twitter_scrooge:
+        toolchains["twitter_scrooge"] = _TWITTER_SCROOGE_TOOLCHAIN_BUILD
 
     testing_build_args = _generate_testing_toolchain_build_file_args(repo_attr)
     if testing_build_args != None:
@@ -81,6 +83,7 @@ _scala_toolchains_repo = repository_rule(
         "scala_proto": attr.bool(),
         "scala_proto_enable_all_options": attr.bool(),
         "jmh": attr.bool(),
+        "twitter_scrooge": attr.bool(),
     },
 )
 
@@ -209,4 +212,13 @@ _JMH_TOOLCHAIN_BUILD = """
 load("@@{rules_scala_repo}//jmh/toolchain:toolchain.bzl", "setup_jmh_toolchain")
 
 setup_jmh_toolchain(name = "jmh_toolchain")
+"""
+
+_TWITTER_SCROOGE_TOOLCHAIN_BUILD = """
+load(
+    "@@{rules_scala_repo}//twitter_scrooge/toolchain:toolchain.bzl",
+    "setup_scrooge_toolchain",
+)
+
+setup_scrooge_toolchain(name = "scrooge_toolchain")
 """

@@ -46,7 +46,7 @@ run_in_test_repo() {
 
   if [[ -n "$TWITTER_SCROOGE_VERSION" ]]; then
     local version_param="version = \"$TWITTER_SCROOGE_VERSION\""
-    scrooge_ws="scrooge_repositories($version_param)"
+    scrooge_ws="$version_param"
   fi
 
   sed -e "s%\${twitter_scrooge_repositories}%${scrooge_ws}\n%" \

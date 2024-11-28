@@ -1,15 +1,24 @@
 load(
+    "@io_bazel_rules_scala//scala:scala_cross_version.bzl",
+    "default_maven_server_urls",
+)
+load(
     "@io_bazel_rules_scala//scala:scala_maven_import_external.bzl",
     _scala_maven_import_external = "scala_maven_import_external",
 )
 load(
-    "@io_bazel_rules_scala//scala:scala_cross_version.bzl",
-    "default_maven_server_urls",
+    "@io_bazel_rules_scala//scala:toolchains_repo.bzl",
+    "scala_toolchains_repo",
+)
+load(
+    "@io_bazel_rules_scala//twitter_scrooge/toolchain:toolchain.bzl",
+    "twitter_scrooge",
 )
 
 def _import_external(id, artifact, sha256, deps = [], runtime_deps = []):
     _scala_maven_import_external(
         name = id,
+        generated_rule_name = id,
         artifact = artifact,
         artifact_sha256 = sha256,
         licenses = ["notice"],
@@ -20,8 +29,11 @@ def _import_external(id, artifact, sha256, deps = [], runtime_deps = []):
         fetch_sources = False,
     )
 
-def scrooge_repositories(version):
+def scrooge_repositories(version = None):
+    use_labels = False
+
     if version == "18.6.0":
+        use_labels = True
         _import_external(
             id = "io_bazel_rules_scala_scrooge_core",
             artifact = "com.twitter:scrooge-core_2.11:18.6.0",
@@ -48,7 +60,8 @@ def scrooge_repositories(version):
             sha256 = "73ddd61cedabd4dab82b30e6c52c1be6c692b063b8ba310d716ead9e3b4e9267",
         )
 
-    if version == "21.2.0":
+    elif version == "21.2.0":
+        use_labels = True
         _import_external(
             id = "io_bazel_rules_scala_scrooge_core",
             artifact = "com.twitter:scrooge-core_2.11:21.2.0",
@@ -74,3 +87,19 @@ def scrooge_repositories(version):
             artifact = "com.twitter:util-logging_2.11:21.2.0",
             sha256 = "f3b62465963fbf0fe9860036e6255337996bb48a1a3f21a29503a2750d34f319",
         )
+
+    if use_labels:
+        twitter_scrooge(
+            scrooge_core = "@io_bazel_rules_scala_scrooge_core",
+            scrooge_generator = "@io_bazel_rules_scala_scrooge_generator",
+            util_core = "@io_bazel_rules_scala_util_core",
+            util_logging = "@io_bazel_rules_scala_util_logging",
+            register_toolchains = False,
+        )
+    else:
+        twitter_scrooge(register_toolchains = False)
+
+    scala_toolchains_repo(
+        name = "twitter_scrooge_test_toolchain",
+        twitter_scrooge = True,
+    )
