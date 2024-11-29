@@ -14,7 +14,7 @@
 """Rules for supporting the Scala language."""
 
 load("@bazel_skylib//lib:paths.bzl", "paths")
-load("@bazel_tools//tools/jdk:toolchain_utils.bzl", "find_java_toolchain")
+load("@rules_java//toolchains:toolchain_utils.bzl", "find_java_toolchain")
 load(":common.bzl", "rlocationpath_from_rootpath", _collect_plugin_paths = "collect_plugin_paths")
 load(":resources.bzl", _resource_paths = "paths")
 
