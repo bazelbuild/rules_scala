@@ -1,3 +1,4 @@
+load("//scala:deps.bzl", "rules_scala_dependencies")
 load(
     "//scala:scala_cross_version.bzl",
     "extract_major_version",
@@ -117,59 +118,6 @@ def dt_patched_compiler_setup(scala_version, scala_compiler_srcjar = None):
             integrity = srcjar.get("integrity"),
         )
 
-def load_rules_dependencies():
-    if not native.existing_rule("bazel_skylib"):
-        http_archive(
-            name = "bazel_skylib",
-            sha256 = "b8a1527901774180afc798aeb28c4634bdccf19c4d98e7bdd1ce79d1fe9aaad7",
-            urls = [
-                "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.4.1/bazel-skylib-1.4.1.tar.gz",
-                "https://github.com/bazelbuild/bazel-skylib/releases/download/1.4.1/bazel-skylib-1.4.1.tar.gz",
-            ],
-        )
-
-    # Needed by protobuf-21.7 and Bazel 6.5.0, as later versions require C++14.
-    if not native.existing_rule("com_google_absl"):
-        http_archive(
-            name = "com_google_absl",
-            sha256 = "91ac87d30cc6d79f9ab974c51874a704de9c2647c40f6932597329a282217ba8",
-            strip_prefix = "abseil-cpp-20220623.1",
-            url = "https://github.com/abseil/abseil-cpp/archive/refs/tags/20220623.1.tar.gz",
-        )
-
-    if not native.existing_rule("com_google_protobuf"):
-        http_archive(
-            name = "com_google_protobuf",
-            sha256 = "75be42bd736f4df6d702a0e4e4d30de9ee40eac024c4b845d17ae4cc831fe4ae",
-            strip_prefix = "protobuf-21.7",
-            url = "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v21.7.tar.gz",
-        )
-
-    if not native.existing_rule("rules_cc"):
-        http_archive(
-            name = "rules_cc",
-            urls = ["https://github.com/bazelbuild/rules_cc/releases/download/0.0.6/rules_cc-0.0.6.tar.gz"],
-            sha256 = "3d9e271e2876ba42e114c9b9bc51454e379cbf0ec9ef9d40e2ae4cec61a31b40",
-            strip_prefix = "rules_cc-0.0.6",
-        )
-
-    if not native.existing_rule("rules_java"):
-        http_archive(
-            name = "rules_java",
-            urls = [
-                "https://github.com/bazelbuild/rules_java/releases/download/7.9.0/rules_java-7.9.0.tar.gz",
-            ],
-            sha256 = "41131de4417de70b9597e6ebd515168ed0ba843a325dc54a81b92d7af9a7b3ea",
-        )
-
-    if not native.existing_rule("rules_proto"):
-        http_archive(
-            name = "rules_proto",
-            sha256 = "6fb6767d1bef535310547e03247f7518b03487740c11b6c6adb7952033fe1295",
-            strip_prefix = "rules_proto-6.0.2",
-            url = "https://github.com/bazelbuild/rules_proto/releases/download/6.0.2/rules_proto-6.0.2.tar.gz",
-        )
-
 def setup_scala_compiler_sources(srcjars = {}):
     """Generates Scala compiler source repos used internally by rules_scala.
 
@@ -188,7 +136,7 @@ def setup_scala_compiler_sources(srcjars = {}):
     )
 
 def rules_scala_setup(scala_compiler_srcjar = None):
-    load_rules_dependencies()
+    rules_scala_dependencies()
     setup_scala_compiler_sources({
         version: scala_compiler_srcjar
         for version in SCALA_VERSIONS
@@ -260,7 +208,7 @@ def scala_repositories(
         scala_compiler_srcjars = {}):
     if load_dep_rules:
         # When `WORKSPACE` goes away, so can this case.
-        load_rules_dependencies()
+        rules_scala_dependencies()
 
     setup_scala_compiler_sources(scala_compiler_srcjars)
 

@@ -69,7 +69,7 @@ scala_generate_benchmark = rule(
             ),
         ),
         "runtime_jdk": attr.label(
-            default = Label("@bazel_tools//tools/jdk:current_java_runtime"),
+            default = Label("@rules_java//toolchains:current_java_runtime"),
             providers = [java_common.JavaRuntimeInfo],
         ),
     },
@@ -90,7 +90,10 @@ def scala_benchmark_jmh(**kw):
     testonly = kw.get("testonly", False)
     scalacopts = kw.get("scalacopts", [])
     main_class = kw.get("main_class", "org.openjdk.jmh.Main")
-    runtime_jdk = kw.get("runtime_jdk", "@bazel_tools//tools/jdk:current_java_runtime")
+    runtime_jdk = kw.get(
+        "runtime_jdk",
+        "@rules_java//toolchains:current_java_runtime",
+    )
 
     scala_library(
         name = lib,

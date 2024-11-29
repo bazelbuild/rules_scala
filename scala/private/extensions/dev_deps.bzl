@@ -2,10 +2,8 @@
 
 load("//scala:scala_cross_version.bzl", "default_maven_server_urls")
 load("//scala:scala_maven_import_external.bzl", "java_import_external")
-load("//test/toolchains:jdk.bzl", "remote_jdk21_repositories")
 load("//third_party/repositories:repositories.bzl", "repositories")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("@rules_java//java:repositories.bzl", "remote_jdk8_repos")
 
 _BUILD_TOOLS_RELEASE = "5.1.0"
 
@@ -45,10 +43,6 @@ def dev_deps_repositories(
         testonly_ = True,
     )
 
-    # We need to select based on platform when we use these
-    # https://github.com/bazelbuild/bazel/issues/11655
-    remote_jdk8_repos()
-
     repositories(
         fetch_sources = fetch_sources,
         for_artifact_ids = [
@@ -73,5 +67,3 @@ def dev_deps_repositories(
         ],
         maven_servers = maven_servers,
     )
-
-    remote_jdk21_repositories()
