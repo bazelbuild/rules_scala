@@ -2,40 +2,39 @@ workspace(name = "specs2_junit_repositories")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-http_archive(
-    name = "bazel_skylib",
-    sha256 = "b8a1527901774180afc798aeb28c4634bdccf19c4d98e7bdd1ce79d1fe9aaad7",
-    urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.4.1/bazel-skylib-1.4.1.tar.gz",
-        "https://github.com/bazelbuild/bazel-skylib/releases/download/1.4.1/bazel-skylib-1.4.1.tar.gz",
-    ],
+local_repository(
+    name = "io_bazel_rules_scala",
+    path = "../..",
 )
+
+load("@io_bazel_rules_scala//scala:deps.bzl", "rules_scala_dependencies")
+
+rules_scala_dependencies()
+
+load("@rules_java//java:repositories.bzl", "rules_java_dependencies", "rules_java_toolchains")
+
+rules_java_dependencies()
+
+load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
+
+bazel_skylib_workspace()
 
 http_archive(
     name = "rules_python",
-    sha256 = "ca77768989a7f311186a29747e3e95c936a41dffac779aff6b443db22290d913",
-    strip_prefix = "rules_python-0.36.0",
-    url = "https://github.com/bazelbuild/rules_python/releases/download/0.36.0/rules_python-0.36.0.tar.gz",
+    sha256 = "ca2671529884e3ecb5b79d6a5608c7373a82078c3553b1fa53206e6b9dddab34",
+    strip_prefix = "rules_python-0.38.0",
+    url = "https://github.com/bazelbuild/rules_python/releases/download/0.38.0/rules_python-0.38.0.tar.gz",
 )
 
 load("@rules_python//python:repositories.bzl", "py_repositories")
 
 py_repositories()
 
-local_repository(
-    name = "io_bazel_rules_scala",
-    path = "../..",
-)
+load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 
-load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
+protobuf_deps()
 
-scala_config(scala_version = "3.6.2")
-
-load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_toolchains")
-
-scala_toolchains(fetch_sources = True)
-
-register_toolchains("@io_bazel_rules_scala_toolchains//...:all")
+rules_java_toolchains()
 
 load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies")
 
@@ -49,6 +48,12 @@ load("@rules_proto//proto:toolchains.bzl", "rules_proto_toolchains")
 
 rules_proto_toolchains()
 
-load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
 
-protobuf_deps()
+scala_config(scala_version = "3.6.2")
+
+load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_toolchains")
+
+scala_toolchains(fetch_sources = True)
+
+register_toolchains("@io_bazel_rules_scala_toolchains//...:all")
