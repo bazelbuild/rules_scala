@@ -31,7 +31,10 @@ Test framework dependencies are configured via testing toolchain. For convenienc
 `setup_scala_testing_toolchain` can be used to define such toolchains.
 
 ```starlark
-load("@io_bazel_rules_scala//scala:scala.bzl", "setup_scala_testing_toolchain")
+load(
+    "@io_bazel_rules_scala//testing:testing.bzl",
+    "setup_scala_testing_toolchain",
+)
 ```
 
 Attributes
@@ -53,7 +56,10 @@ Examples (assumes maven deps are managed with rules_jvm_external):
 
 ```starlark
 # BUILD
-load("@io_bazel_rules_scala//scala:scala.bzl", "setup_scala_testing_toolchain")
+load(
+    "@io_bazel_rules_scala//testing:testing.bzl",
+    "setup_scala_testing_toolchain",
+)
 
 setup_scala_testing_toolchain(
     name = "scalatest_toolchain",
@@ -77,7 +83,10 @@ register_toolchains('//:scalatest_toolchain')
 #### JUnit 4
 ```starlark
 # BUILD
-load("@io_bazel_rules_scala//scala:scala.bzl", "setup_scala_testing_toolchain")
+load(
+    "@io_bazel_rules_scala//testing:testing.bzl",
+    "setup_scala_testing_toolchain",
+)
 
 setup_scala_testing_toolchain(
     name = "junit_toolchain",
@@ -98,7 +107,10 @@ For Specs2 rules to work, `junit_classpath`, `specs2_junit_classpath` and `specs
 be configured.
 ```starlark
 # BUILD
-load("@io_bazel_rules_scala//scala:scala.bzl", "setup_scala_testing_toolchain")
+load(
+    "@io_bazel_rules_scala//testing:testing.bzl",
+    "setup_scala_testing_toolchain",
+)
 
 setup_scala_testing_toolchain(
     name = "specs2_toolchain",

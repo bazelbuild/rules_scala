@@ -30,7 +30,7 @@ load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
 
 scala_config(enable_compiler_dependency_tracking = True)
 
-load("//scala:scala.bzl", "scala_toolchains")
+load("//scala:toolchains.bzl", "scala_toolchains")
 
 scala_toolchains(
     fetch_sources = True,

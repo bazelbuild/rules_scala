@@ -3,10 +3,6 @@ load(
     _specs2_junit_dependencies = "specs2_junit_dependencies",
 )
 load(
-    "//scala/private:macros/toolchains.bzl",
-    _scala_toolchains = "scala_toolchains",
-)
-load(
     "//scala/private:macros/toolchains_repo.bzl",
     _scala_toolchains_repo = "scala_toolchains_repo",
 )
@@ -50,10 +46,6 @@ load(
     _scala_test = "scala_test",
     _scala_test_suite = "scala_test_suite",
 )
-load(
-    "//testing:testing.bzl",
-    _setup_scala_testing_toolchain = "setup_scala_testing_toolchain",
-)
 
 def scala_specs2_junit_test(name, **kwargs):
     _scala_junit_test(
@@ -87,7 +79,5 @@ rules_scala_setup = _rules_scala_setup
 rules_scala_toolchain_deps_repositories = _rules_scala_toolchain_deps_repositories
 scala_test = _scala_test
 scala_test_suite = _scala_test_suite
-setup_scala_testing_toolchain = _setup_scala_testing_toolchain
 setup_scala_toolchain = _setup_scala_toolchain
-scala_toolchains = _scala_toolchains
 scala_toolchains_repo = _scala_toolchains_repo

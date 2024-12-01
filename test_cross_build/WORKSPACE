@@ -72,7 +72,7 @@ scala_config(
 )
 
 # loads other rules Rules Scala depends on
-load("@io_bazel_rules_scala//scala:scala.bzl", "scala_toolchains")
+load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_toolchains")
 
 scala_toolchains(
     scalatest = True,

@@ -1,4 +1,7 @@
-load("@io_bazel_rules_scala//scala:scala.bzl", "setup_scala_testing_toolchain")
+load(
+    "@io_bazel_rules_scala//testing:testing.bzl",
+    "setup_scala_testing_toolchain",
+)
 
 setup_scala_testing_toolchain(
     name = "testing_toolchain",
