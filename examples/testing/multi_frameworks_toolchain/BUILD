@@ -1,5 +1,5 @@
 load(
-    "@io_bazel_rules_scala//testing:testing.bzl",
+    "@rules_scala//testing:testing.bzl",
     "setup_scala_testing_toolchain",
 )
 

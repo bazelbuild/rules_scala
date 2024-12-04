@@ -1,4 +1,4 @@
-"""Repository rule to instantiate @io_bazel_rules_scala_toolchains"""
+"""Repository rule to instantiate @rules_scala_toolchains"""
 
 def _generate_testing_toolchain_build_file_args(repo_attr):
     framework_deps = {}
@@ -107,7 +107,7 @@ _scala_toolchains_repo = repository_rule(
     },
 )
 
-def scala_toolchains_repo(name = "io_bazel_rules_scala_toolchains", **kwargs):
+def scala_toolchains_repo(name = "rules_scala_toolchains", **kwargs):
     _scala_toolchains_repo(
         name = name,
         **kwargs

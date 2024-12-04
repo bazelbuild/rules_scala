@@ -1,4 +1,4 @@
-load("@io_bazel_rules_scala//scala:providers.bzl", "DepsInfo")
+load("//scala:providers.bzl", "DepsInfo")
 
 def _required_deps_id_message(target, toolchain_type_label, deps_id):
     return target + " requires mapping of " + deps_id + " provider id on the toolchain " + toolchain_type_label

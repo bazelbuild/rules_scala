@@ -3,10 +3,7 @@
 #
 # DOCUMENT THIS
 #
-load(
-    "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
-    _java_bin = "java_bin",
-)
+load("//scala/private:rule_impls.bzl", _java_bin = "java_bin")
 
 def phase_java_wrapper_repl(ctx, p):
     args = struct(

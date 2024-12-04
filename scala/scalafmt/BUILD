@@ -40,7 +40,7 @@ scalafmt_singleton(
 alias(
     name = "scalafmt_toolchain",
     actual = (
-        "@io_bazel_rules_scala_toolchains//scalafmt:scalafmt_toolchain" +
+        "@rules_scala_toolchains//scalafmt:scalafmt_toolchain" +
         version_suffix(SCALA_VERSION)
     ),
 )

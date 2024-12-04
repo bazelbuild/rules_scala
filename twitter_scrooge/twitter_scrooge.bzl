@@ -1,4 +1,3 @@
-load("@bazel_skylib//lib:dicts.bzl", "dicts")
 load(
     "//scala/private:common.bzl",
     "write_manifest_file",
@@ -15,6 +14,7 @@ load(
 )
 load("//thrift:thrift_info.bzl", "ThriftInfo")
 load("//thrift:thrift.bzl", "merge_thrift_infos")
+load("@bazel_skylib//lib:dicts.bzl", "dicts")
 
 def _colon_paths(data):
     return ":".join([f.path for f in sorted(data)])
@@ -162,7 +162,7 @@ def _compile_generated_scala(
         print_compile_time = False,
         expect_java_output = False,
         scalac_jvm_flags = [],
-        scalacopts = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scalacopts,
+        scalacopts = ctx.toolchains[Label("//scala:toolchain_type")].scalacopts,
         scalac = ctx.executable._scalac,
         dependency_info = legacy_unclear_dependency_info_for_protobuf_scrooge(ctx),
         unused_dependency_checker_ignored_targets = [],
@@ -309,11 +309,7 @@ common_attrs = {
     ),
     "_implicit_compile_deps": attr.label_list(
         providers = [JavaInfo],
-        default = [
-            Label(
-                "@io_bazel_rules_scala//twitter_scrooge:aspect_compile_classpath",
-            ),
-        ],
+        default = [Label("//twitter_scrooge:aspect_compile_classpath")],
     ),
     "_java_host_runtime": attr.label(
         default = Label("@rules_java//toolchains:current_host_java_runtime"),
@@ -326,8 +322,8 @@ common_aspect_providers = [
 ]
 
 common_toolchains = [
-    "//scala:toolchain_type",
-    "//twitter_scrooge/toolchain:scrooge_toolchain_type",
+    Label("//scala:toolchain_type"),
+    Label("//twitter_scrooge/toolchain:scrooge_toolchain_type"),
     "@bazel_tools//tools/jdk:toolchain_type",
 ]
 
@@ -340,7 +336,7 @@ scrooge_scala_aspect = aspect(
             "_scalac": attr.label(
                 executable = True,
                 cfg = "exec",
-                default = Label("@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac"),
+                default = Label("//src/java/io/bazel/rulesscala/scalac"),
                 allow_files = True,
             ),
         },
@@ -433,16 +429,12 @@ scrooge_scala_import = rule(
         "scala_jars": attr.label_list(allow_files = [".jar"]),
         "_implicit_compile_deps": attr.label_list(
             providers = [JavaInfo],
-            default = [
-                Label(
-                    "@io_bazel_rules_scala//twitter_scrooge:compile_classpath",
-                ),
-            ],
+            default = [Label("//twitter_scrooge:compile_classpath")],
         ),
     },
     provides = [ThriftInfo, JavaInfo, ScroogeImport],
     toolchains = [
-        "//twitter_scrooge/toolchain:scrooge_toolchain_type",
+        Label("//twitter_scrooge/toolchain:scrooge_toolchain_type"),
         "@bazel_tools//tools/jdk:toolchain_type",
     ],
     incompatible_use_toolchain_transition = True,

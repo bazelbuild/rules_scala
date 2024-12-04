@@ -1,5 +1,5 @@
-load("@io_bazel_rules_scala//scala:scala_cross_version_select.bzl", "select_for_scala_version")
 load("//scala:scala.bzl", "scala_library_for_plugin_bootstrapping")
+load("//scala:scala_cross_version_select.bzl", "select_for_scala_version")
 
 scala_library_for_plugin_bootstrapping(
     name = "dep_reporting_compiler",

@@ -1,4 +1,4 @@
-load("@io_bazel_rules_scala//scala:scala.bzl", "scala_binary", "scala_library")
+load("@rules_scala//scala:scala.bzl", "scala_binary", "scala_library")
 
 # Here we demonstrate how scala_version is propagated through deps.
 

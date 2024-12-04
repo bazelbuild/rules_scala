@@ -1,23 +1,23 @@
 load("@bazel_skylib//lib:dicts.bzl", _dicts = "dicts")
 load(
-    "@io_bazel_rules_scala//scala/private:common.bzl",
+    "//scala/private:common.bzl",
     "sanitize_string_for_usage",
 )
 load(
-    "@io_bazel_rules_scala//scala/private:common_attributes.bzl",
+    "//scala/private:common_attributes.bzl",
     "common_attrs",
     "common_attrs_for_plugin_bootstrapping",
     "implicit_deps",
     "resolve_deps",
 )
-load("@io_bazel_rules_scala//scala/private:common_outputs.bzl", "common_outputs")
+load("//scala/private:common_outputs.bzl", "common_outputs")
 load(
-    "@io_bazel_rules_scala//scala/private:coverage_replacements_provider.bzl",
+    "//scala/private:coverage_replacements_provider.bzl",
     _coverage_replacements_provider = "coverage_replacements_provider",
 )
-load("@io_bazel_rules_scala//scala:scala_cross_version.bzl", "scala_version_transition", "toolchain_transition_attr")
+load("//scala:scala_cross_version.bzl", "scala_version_transition", "toolchain_transition_attr")
 load(
-    "@io_bazel_rules_scala//scala/private:phases/phases.bzl",
+    "//scala/private:phases/phases.bzl",
     "extras_phases",
     "phase_collect_exports_jars",
     "phase_collect_jars_common",
@@ -105,7 +105,7 @@ def make_scala_library(*extras):
             *[extra["outputs"] for extra in extras if "outputs" in extra]
         ),
         toolchains = [
-            "@io_bazel_rules_scala//scala:toolchain_type",
+            Label("//scala:toolchain_type"),
             "@bazel_tools//tools/jdk:toolchain_type",
         ],
         cfg = scala_version_transition,
@@ -180,7 +180,9 @@ _scala_library_for_plugin_bootstrapping_attrs.update({
     "_scalac": attr.label(
         executable = True,
         cfg = "exec",
-        default = Label("@io_bazel_rules_scala//src/java/io/bazel/rulesscala/scalac:scalac_bootstrap"),
+        default = Label(
+            "//src/java/io/bazel/rulesscala/scalac:scalac_bootstrap",
+        ),
         allow_files = True,
     ),
 })
@@ -208,7 +210,7 @@ def make_scala_library_for_plugin_bootstrapping(*extras):
             *[extra["outputs"] for extra in extras if "outputs" in extra]
         ),
         toolchains = [
-            "@io_bazel_rules_scala//scala:toolchain_type",
+            Label("//scala:toolchain_type"),
             "@bazel_tools//tools/jdk:toolchain_type",
         ],
         cfg = scala_version_transition,
@@ -285,7 +287,7 @@ def make_scala_macro_library(*extras):
             *[extra["outputs"] for extra in extras if "outputs" in extra]
         ),
         toolchains = [
-            "@io_bazel_rules_scala//scala:toolchain_type",
+            Label("//scala:toolchain_type"),
             "@bazel_tools//tools/jdk:toolchain_type",
         ],
         cfg = scala_version_transition,

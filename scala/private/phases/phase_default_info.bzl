@@ -4,7 +4,7 @@
 # DOCUMENT THIS
 #
 
-load("@io_bazel_rules_scala//scala/private:rule_impls.bzl", "specified_java_runtime")
+load("//scala/private:rule_impls.bzl", "specified_java_runtime")
 
 def phase_default_info(ctx, p):
     executable = None

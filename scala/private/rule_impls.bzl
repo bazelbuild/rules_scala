@@ -64,7 +64,7 @@ def compile_scala(
     if dependency_info.use_analyzer:
         plugins = depset(transitive = [plugins, ctx.attr._dependency_analyzer_plugin.files])
 
-    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"]
+    toolchain = ctx.toolchains[Label("//scala:toolchain_type")]
     compiler_classpath_jars = cjars if dependency_info.dependency_mode == "direct" else transitive_compile_jars
     classpath_resources = getattr(ctx.files, "classpath_resources", [])
     scalacopts_expanded = [ctx.expand_location(v, input_plugins) for v in scalacopts]
