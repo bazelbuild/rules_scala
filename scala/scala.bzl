@@ -3,10 +3,6 @@ load(
     _specs2_junit_dependencies = "specs2_junit_dependencies",
 )
 load(
-    "//scala/private:macros/toolchains_repo.bzl",
-    _scala_toolchains_repo = "scala_toolchains_repo",
-)
-load(
     "//scala/private:macros/scala_repositories.bzl",
     _rules_scala_setup = "rules_scala_setup",
     _rules_scala_toolchain_deps_repositories = "rules_scala_toolchain_deps_repositories",
@@ -80,4 +76,3 @@ rules_scala_toolchain_deps_repositories = _rules_scala_toolchain_deps_repositori
 scala_test = _scala_test
 scala_test_suite = _scala_test_suite
 setup_scala_toolchain = _setup_scala_toolchain
-scala_toolchains_repo = _scala_toolchains_repo

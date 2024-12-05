@@ -2,7 +2,7 @@
 
 load("//junit:junit.bzl", "junit_artifact_ids")
 load("//scala/private:macros/scala_repositories.bzl", "scala_repositories")
-load("//scala/private:macros/toolchains_repo.bzl", "scala_toolchains_repo")
+load("//scala:toolchains_repo.bzl", "scala_toolchains_repo")
 load("//scala:scala_cross_version.bzl", "default_maven_server_urls")
 load("//scalatest:scalatest.bzl", "scalatest_artifact_ids")
 load("//specs2:specs2.bzl", "specs2_artifact_ids")
