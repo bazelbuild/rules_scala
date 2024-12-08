@@ -126,7 +126,8 @@ def make_scala_test(*extras):
         ),
         test = True,
         toolchains = [
-            "@io_bazel_rules_scala//scala:toolchain_type",
+            Label("//scala:toolchain_type"),
+            Label("//testing/toolchain:testing_toolchain_type"),
             "@bazel_tools//tools/jdk:toolchain_type",
         ],
         cfg = scala_version_transition,
