@@ -1,5 +1,8 @@
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
-load("@bazel_tools//tools/jdk:remote_java_repository.bzl", "remote_java_repository")
+load(
+    "@rules_java//toolchains:remote_java_repository.bzl",
+    "remote_java_repository",
+)
 
 def remote_jdk21_repositories():
     maybe(
