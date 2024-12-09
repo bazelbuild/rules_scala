@@ -32,7 +32,8 @@ tasks:
   test_rules_scala_linux_latest:
     name: "./test_rules_scala (latest Bazel)"
     platform: ubuntu2004
-    bazel: latest
+    # Restore `bazel: latest` once Bazel 8 compatibility lands (#1625, #1652).
+    bazel: 7.x
     shell_commands:
     # Install xmllint
     - sudo apt update && sudo apt install --reinstall libxml2-utils -y
