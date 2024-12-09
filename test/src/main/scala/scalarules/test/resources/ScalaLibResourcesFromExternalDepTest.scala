@@ -7,7 +7,7 @@ class ScalaLibResourcesFromExternalDepTest extends SpecWithJUnit {
   "Scala library depending on resources from external resource-only jar" >> {
     "allow to load resources" >> {
 
-      val expectedString = String.format("A resource%n"); //Using platform dependent newline (%n)
+      val expectedString = String.format("A resource\n");
       get("/resource.txt") must beEqualTo(expectedString)
   
     }
