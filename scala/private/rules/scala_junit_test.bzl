@@ -2,15 +2,15 @@
 
 load("@bazel_skylib//lib:dicts.bzl", _dicts = "dicts")
 load(
-    "@io_bazel_rules_scala//scala/private:common_attributes.bzl",
+    "//scala/private:common_attributes.bzl",
     "common_attrs",
     "implicit_deps",
     "launcher_template",
 )
-load("@io_bazel_rules_scala//scala/private:common_outputs.bzl", "common_outputs")
-load("@io_bazel_rules_scala//scala:scala_cross_version.bzl", "scala_version_transition", "toolchain_transition_attr")
+load("//scala/private:common_outputs.bzl", "common_outputs")
+load("//scala:scala_cross_version.bzl", "scala_version_transition", "toolchain_transition_attr")
 load(
-    "@io_bazel_rules_scala//scala/private:phases/phases.bzl",
+    "//scala/private:phases/phases.bzl",
     "extras_phases",
     "phase_collect_jars_junit_test",
     "phase_compile_junit_test",
@@ -85,12 +85,10 @@ _scala_junit_test_attrs = {
     "env": attr.string_dict(default = {}),
     "env_inherit": attr.string_list(),
     "_junit_classpath": attr.label(
-        default = Label("@io_bazel_rules_scala//testing/toolchain:junit_classpath"),
+        default = Label("//testing/toolchain:junit_classpath"),
     ),
     "_bazel_test_runner": attr.label(
-        default = Label(
-            "@io_bazel_rules_scala//scala:bazel_test_runner_deploy",
-        ),
+        default = Label("//scala:bazel_test_runner_deploy"),
         allow_files = True,
     ),
     "_lcov_merger": attr.label(
@@ -103,10 +101,8 @@ _scala_junit_test_attrs = {
 _junit_resolve_deps = {
     "_scala_toolchain": attr.label_list(
         default = [
-            Label(
-                "@io_bazel_rules_scala//scala/private/toolchain_deps:scala_library_classpath",
-            ),
-            Label("@io_bazel_rules_scala//testing/toolchain:junit_classpath"),
+            Label("//scala/private/toolchain_deps:scala_library_classpath"),
+            Label("//testing/toolchain:junit_classpath"),
         ],
         allow_files = False,
     ),
@@ -140,7 +136,8 @@ def make_scala_junit_test(*extras):
         ),
         test = True,
         toolchains = [
-            "@io_bazel_rules_scala//scala:toolchain_type",
+            Label("//scala:toolchain_type"),
+            Label("//testing/toolchain:testing_toolchain_type"),
             "@bazel_tools//tools/jdk:toolchain_type",
         ],
         cfg = scala_version_transition,
