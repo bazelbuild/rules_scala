@@ -29,7 +29,7 @@ local_repository(
 
 load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
 
-scala_config(scala_version = "3.5.2")
+scala_config(scala_version = "3.6.2")
 
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_toolchains")
 
