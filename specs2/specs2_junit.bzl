@@ -10,6 +10,11 @@ load(
 )
 load("//third_party/repositories:repositories.bzl", "repositories")
 
+def specs2_junit_artifact_ids():
+    return [
+        "io_bazel_rules_scala_org_specs2_specs2_junit",
+    ]
+
 def specs2_junit_repositories(
         maven_servers = _default_maven_server_urls(),
         overriden_artifacts = {}):
@@ -17,9 +22,7 @@ def specs2_junit_repositories(
     junit_repositories()
 
     repositories(
-        for_artifact_ids = [
-            "io_bazel_rules_scala_org_specs2_specs2_junit",
-        ],
+        for_artifact_ids = specs2_junit_artifact_ids(),
         maven_servers = maven_servers,
         fetch_sources = True,
         overriden_artifacts = overriden_artifacts,
@@ -27,5 +30,5 @@ def specs2_junit_repositories(
 
 def specs2_junit_dependencies():
     return specs2_dependencies() + [
-        "@io_bazel_rules_scala//testing/toolchain:specs2_junit_classpath",
+        Label("//testing/toolchain:specs2_junit_classpath"),
     ]
