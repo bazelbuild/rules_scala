@@ -63,7 +63,7 @@ scala_benchmark_jmh(
 scala_benchmark_jmh(
     name = "test_jmh_jdk11",
     srcs = ["TestJmhRuntimeJdk11.scala"],
-    runtime_jdk = "@bazel_tools//tools/jdk:remote_jdk11",
+    runtime_jdk = "@rules_java//toolchains:remote_jdk11",
 )
 
 [sh_test(

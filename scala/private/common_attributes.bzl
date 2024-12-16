@@ -29,7 +29,7 @@ common_attrs_for_plugin_bootstrapping = {
     "resource_strip_prefix": attr.string(),
     "resource_jars": attr.label_list(allow_files = True),
     "java_compile_toolchain": attr.label(
-        default = Label("@bazel_tools//tools/jdk:current_java_toolchain"),
+        default = Label("@rules_java//toolchains:current_java_toolchain"),
         providers = [java_common.JavaToolchainInfo],
     ),
     "scalacopts": attr.string_list(),
@@ -82,10 +82,10 @@ common_attrs.update({
 
 implicit_deps = {
     "_java_runtime": attr.label(
-        default = Label("@bazel_tools//tools/jdk:current_java_runtime"),
+        default = Label("@rules_java//toolchains:current_java_runtime"),
     ),
     "_java_host_runtime": attr.label(
-        default = Label("@bazel_tools//tools/jdk:current_host_java_runtime"),
+        default = Label("@rules_java//toolchains:current_host_java_runtime"),
     ),
     "_scalac": attr.label(
         executable = True,
