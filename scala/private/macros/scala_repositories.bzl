@@ -189,6 +189,7 @@ def _artifact_ids(scala_version):
             "io_bazel_rules_scala_scala_library_2",
             "io_bazel_rules_scala_scala_reflect_2",
             "io_bazel_rules_scala_scala_tasty_core",
+            "io_bazel_rules_scala_scala_tasty_inspector",
             "org_jline_jline_native",
             "org_jline_jline_reader",
             "org_jline_jline_terminal",

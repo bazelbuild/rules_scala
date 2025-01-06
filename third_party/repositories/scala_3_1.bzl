@@ -300,6 +300,13 @@ artifacts = {
         "artifact": "org.scala-lang:tasty-core_3:3.1.3",
         "sha256": "0a183e880575bcc97a2047761880241784734e7ee094dc6fafd6a8f2109ff1da",
     },
+    "io_bazel_rules_scala_scala_tasty_inspector": {
+        "artifact": "org.scala-lang:scala3-tasty-inspector_3:3.1.3",
+        "sha256": "b9c6e3c196cb0ea15cff650c8fd430a81bfb149336443921b3bcbdcb50243138",
+        "deps": [
+            "@io_bazel_rules_scala_scala_compiler",
+        ],
+    },
     "io_bazel_rules_scala_scala_xml": {
         "artifact": "org.scala-lang.modules:scala-xml_3:2.3.0",
         "sha256": "3220723238102107ab83182468e5dbe351b081a0601386710ef46c81a95d38d0",

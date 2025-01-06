@@ -137,6 +137,7 @@ def select_root_artifacts(scala_version, scala_major, is_scala_3) -> List[str]:
             f'org.scala-lang:scala3-compiler_3:{scala_version}',
             f'org.scala-lang:scala3-library_3:{scala_version}',
             f'org.scala-lang:scala3-interfaces:{scala_version}',
+            f'org.scala-lang:scala3-tasty-inspector_3:{scala_version}',
             f'org.scala-lang:tasty-core_3:{scala_version}',
             f'org.scala-sbt:compiler-interface:{SBT_COMPILER_INTERFACE_VERSION}',
             f'org.scala-sbt:util-interface:{SBT_UTIL_INTERFACE_VERSION}',

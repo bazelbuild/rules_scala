@@ -1,11 +1,14 @@
-load("//scala:scala.bzl", "scala_library_for_plugin_bootstrapping", "scala_specs2_junit_test")
+load("//scala:scala.bzl", "scala_library", "scala_library_for_plugin_bootstrapping", "scala_specs2_junit_test")
 load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 
 scala_library_for_plugin_bootstrapping(
     name = "tasty",
     srcs = glob(
         ["*.scala"],
-        exclude = ["*.spec.scala"],
+        exclude = [
+            "*.spec.scala",
+            "*.test.scala",
+        ],
     ),
     scala_version = "3.6.2",
     visibility = ["//visibility:public"],
@@ -25,18 +28,34 @@ copy_file(
     out = "scala3-compiler.jar",
 )
 
+scala_library(
+    name = "test",
+    testonly = True,
+    srcs = glob(["*.test.scala"]),
+    resource_strip_prefix = package_name(),
+    resources = [":scala3-compiler-jar"],
+    scala_version = "3.6.2",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@commons_io_commons_io_3_6_2",
+        "@io_bazel_rules_scala_junit_junit",
+        "@io_bazel_rules_scala_org_specs2_specs2_common_3_6_2",
+        "@io_bazel_rules_scala_org_specs2_specs2_core_3_6_2",
+        "@io_bazel_rules_scala_org_specs2_specs2_junit",
+        "@io_bazel_rules_scala_org_specs2_specs2_matcher_3_6_2",
+    ],
+)
+
 scala_specs2_junit_test(
     name = "specs",
     srcs = glob(["*.spec.scala"]),
     jvm_flags = ["-DDEBUG_TASTYFORMAT=true"],
-    resource_strip_prefix = package_name(),
-    resources = [":scala3-compiler-jar"],
     scala_version = "3.6.2",
     suffixes = ["Spec"],
     deps = [
         ":tasty",
+        ":test",
         "//src/scala/io/bazel/rules_scala/dottyijar/tasty/format",
-        "@commons_io_commons_io_3_6_2",
         "@io_bazel_rules_scala_org_specs2_specs2_common_3_6_2",
         "@io_bazel_rules_scala_org_specs2_specs2_core_3_6_2",
         "@io_bazel_rules_scala_org_specs2_specs2_junit",
