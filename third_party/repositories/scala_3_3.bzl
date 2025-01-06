@@ -148,8 +148,11 @@ artifacts = {
         "sha256": "e04ba5195bcd555dc95650f7cc614d151e4bcd52d29a10b8aa2197f3ab89ab9b",
     },
     "io_bazel_rules_scala_junit_junit": {
-        "artifact": "junit:junit:4.12",
-        "sha256": "59721f0805e223d84b90677887d9ff567dc534d7c502ca903c0c2b17f05c116a",
+        "artifact": "junit:junit:4.13.2",
+        "sha256": "8e495b634469d64fb8acfa3495a065cbacc8a0fff55ce1e31007be4c16dc57d3",
+        "deps": [
+            "@io_bazel_rules_scala_org_hamcrest_hamcrest_core",
+        ],
     },
     "io_bazel_rules_scala_mustache": {
         "artifact": "com.github.spullara.mustache.java:compiler:0.8.18",
@@ -273,8 +276,8 @@ artifacts = {
         "sha256": "13d44693d6f2d38e0595954d11234c0373d6d0e689a8151b06878c5b631d57d5",
     },
     "io_bazel_rules_scala_scala_xml": {
-        "artifact": "org.scala-lang.modules:scala-xml_3:2.1.0",
-        "sha256": "48f22343575f4b1d6550eecc42d4b7f0a0d30223c72f015d8d893feab4cbeecd",
+        "artifact": "org.scala-lang.modules:scala-xml_3:2.3.0",
+        "sha256": "3220723238102107ab83182468e5dbe351b081a0601386710ef46c81a95d38d0",
         "deps": [
             "@io_bazel_rules_scala_scala_library",
         ],
@@ -496,6 +499,13 @@ artifacts = {
             "@org_jline_jline_terminal",
         ],
     },
+    "org_portable_scala_portable_scala_reflect": {
+        "artifact": "org.portable-scala:portable-scala-reflect_2.13:1.1.3",
+        "sha256": "920f62979293069cf721865f931e42f9f7b0b2720ee9f6a9ddff76a19ecf8d4e",
+        "deps": [
+            "@io_bazel_rules_scala_scala_library_2",
+        ],
+    },
     "org_scala_lang_modules_scala_collection_compat": {
         "artifact": "org.scala-lang.modules:scala-collection-compat_2.13:2.12.0",
         "sha256": "befff482233cd7f9a7ca1e1f5a36ede421c018e6ce82358978c475d45532755f",
@@ -516,6 +526,10 @@ artifacts = {
         "deps": [
             "@org_scala_sbt_util_interface",
         ],
+    },
+    "org_scala_sbt_test_interface": {
+        "artifact": "org.scala-sbt:test-interface:1.0",
+        "sha256": "15f70b38bb95f3002fec9aea54030f19bb4ecfbad64c67424b5e5fea09cd749e",
     },
     "org_scala_sbt_util_interface": {
         "artifact": "org.scala-sbt:util-interface:1.10.5",

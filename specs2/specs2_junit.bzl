@@ -13,6 +13,8 @@ load("//third_party/repositories:repositories.bzl", "repositories")
 def specs2_junit_artifact_ids():
     return [
         "io_bazel_rules_scala_org_specs2_specs2_junit",
+        "org_portable_scala_portable_scala_reflect",
+        "org_scala_sbt_test_interface",
     ]
 
 def specs2_junit_repositories(

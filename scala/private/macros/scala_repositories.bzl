@@ -37,6 +37,12 @@ _COMPILER_SOURCES_ENTRY_TEMPLATE = """
         "@io_bazel_rules_scala_config//:scala_version{scala_version_suffix}":
             "@scala_compiler_source{scala_version_suffix}//:src","""
 
+_JUNIT_DEPS = ["io_bazel_rules_scala_org_hamcrest_hamcrest_core"]
+_SPECS2_DEPS = [
+    "org_portable_scala_portable_scala_reflect",
+    "org_scala_sbt_test_interface",
+]
+
 def _compiler_sources_repo_impl(rctx):
     sources = [
         _COMPILER_SOURCES_ENTRY_TEMPLATE.format(
@@ -144,12 +150,18 @@ def rules_scala_setup(scala_compiler_srcjar = None):
 
 def _artifact_ids(scala_version):
     result = [
+        "io_bazel_rules_scala_junit_junit",
+        "io_bazel_rules_scala_org_specs2_specs2_common",
+        "io_bazel_rules_scala_org_specs2_specs2_core",
+        "io_bazel_rules_scala_org_specs2_specs2_fp",
+        "io_bazel_rules_scala_org_specs2_specs2_junit",
+        "io_bazel_rules_scala_org_specs2_specs2_matcher",
         "io_bazel_rules_scala_scala_compiler",
         "io_bazel_rules_scala_scala_library",
         "io_bazel_rules_scala_scala_parser_combinators",
         "io_bazel_rules_scala_scala_xml",
         "org_scala_lang_modules_scala_collection_compat",
-    ]
+    ] + _JUNIT_DEPS + _SPECS2_DEPS
 
     if scala_version.startswith("2."):
         result.extend([

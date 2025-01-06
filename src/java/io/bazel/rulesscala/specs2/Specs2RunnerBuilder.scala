@@ -179,6 +179,6 @@ class FilteredSpecs2ClassRunner(parentRunner: org.specs2.runner.JUnitRunner, tes
   private implicit class `Collection Regex Extensions`(coll: List[String]) {
     def toRegexAlternation: Option[String] =
       if (coll.isEmpty) None
-      else Some(coll.map(_.toQuotedRegex).mkString("(", "|", ")"))
+      else Some(coll.map(_.toQuotedRegex).mkString("^(", "|", ")$"))
   }
 }
