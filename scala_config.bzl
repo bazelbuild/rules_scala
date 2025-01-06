@@ -29,11 +29,23 @@ def _store_config(repository_ctx):
     )
 
     # All versions supported
-    scala_versions = repository_ctx.attr.scala_versions
+    if "SCALA_VERSIONS" in repository_ctx.os.environ:
+        scala_versions = repository_ctx.os.environ["SCALA_VERSIONS"].split(",")
+    else:
+        scala_versions = repository_ctx.attr.scala_versions
+
     if not scala_versions:
         scala_versions = [scala_version]
     elif scala_version not in scala_versions:
         fail("You have to include the default Scala version (%s) in the `scala_versions` list." % scala_version)
+
+    # dottyijar requires Scala v3.6.2, but we don't want to force the caller to always provide 3.6.2. Therefore, we
+    # append it if it hasn't been provided.
+    #
+    # Once we move to Bzlmod, this shouldn't be a problem, since we can register a toolchain for Scala v3.6.2 without
+    # requiring users of this ruleset to do so.
+    if "3.6.2" not in scala_versions:
+        scala_versions = scala_versions + ["3.6.2"]
 
     enable_compiler_dependency_tracking = repository_ctx.os.environ.get(
         "ENABLE_COMPILER_DEPENDENCY_TRACKING",
