@@ -110,6 +110,10 @@ artifacts = {
         "artifact": "com.typesafe:config:1.2.1",
         "sha256": "c160fbd78f51a0c2375a794e435ce2112524a6871f64d0331895e9e26ee8b9ee",
     },
+    "commons_io_commons_io": {
+        "artifact": "commons-io:commons-io:2.18.0",
+        "sha256": "f3ca0f8d63c40e23a56d54101c60d5edee136b42d84bfb85bc7963093109cf8b",
+    },
     "io_bazel_rules_scala_failureaccess": {
         "artifact": "com.google.guava:failureaccess:1.0.2",
         "sha256": "8a8f81cf9b359e3f6dfa691a1e776985c061ef2f223c9b2c80753e1b458e8064",

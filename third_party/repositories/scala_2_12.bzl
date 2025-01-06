@@ -116,6 +116,10 @@ artifacts = {
         "artifact": "com.typesafe:config:1.4.1",
         "sha256": "4c0aa7e223c75c8840c41fc183d4cd3118140a1ee503e3e08ce66ed2794c948f",
     },
+    "commons_io_commons_io": {
+        "artifact": "commons-io:commons-io:2.18.0",
+        "sha256": "f3ca0f8d63c40e23a56d54101c60d5edee136b42d84bfb85bc7963093109cf8b",
+    },
     "dev_dirs_directories": {
         "artifact": "dev.dirs:directories:26",
         "sha256": "6d18fe25aa30b7e08b908cd21151d8f96e22965c640acd7751add9bbfe6137d4",

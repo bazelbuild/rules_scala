@@ -115,6 +115,13 @@ artifacts = {
             "@io_bazel_rules_scala_scala_library_2",
         ],
     },
+    "com_softwaremill_common_tagging": {
+        "artifact": "com.softwaremill.common:tagging_3:2.3.5",
+        "sha256": "06d2b7578fcd272791a20dbe8e2f279162733dcd9293b38a87060dc5080d0382",
+        "deps": [
+            "@io_bazel_rules_scala_scala_library",
+        ],
+    },
     "com_twitter__scalding_date": {
         "testonly": True,
         "artifact": "com.twitter:scalding-date_2.13:0.17.0",
@@ -124,9 +131,28 @@ artifacts = {
         "artifact": "com.typesafe:config:1.4.1",
         "sha256": "4c0aa7e223c75c8840c41fc183d4cd3118140a1ee503e3e08ce66ed2794c948f",
     },
+    "commons_io_commons_io": {
+        "artifact": "commons-io:commons-io:2.18.0",
+        "sha256": "f3ca0f8d63c40e23a56d54101c60d5edee136b42d84bfb85bc7963093109cf8b",
+    },
     "dev_dirs_directories": {
         "artifact": "dev.dirs:directories:26",
         "sha256": "6d18fe25aa30b7e08b908cd21151d8f96e22965c640acd7751add9bbfe6137d4",
+    },
+    "dev_zio_izumi_reflect": {
+        "artifact": "dev.zio:izumi-reflect_3:2.3.10",
+        "sha256": "9f4e23968f00eaea2132337b94faa9e52cc7f159cce319c2f112c36d2c29d55d",
+        "deps": [
+            "@dev_zio_izumi_reflect_thirdparty_boopickle_shaded",
+            "@io_bazel_rules_scala_scala_library",
+        ],
+    },
+    "dev_zio_izumi_reflect_thirdparty_boopickle_shaded": {
+        "artifact": "dev.zio:izumi-reflect-thirdparty-boopickle-shaded_3:2.3.10",
+        "sha256": "3c36e0e0c6bc18f5c1a0ffbf820c3783b472690afc56105e9c7c8b81357b5661",
+        "deps": [
+            "@io_bazel_rules_scala_scala_library",
+        ],
     },
     "io_bazel_rules_scala_failureaccess": {
         "artifact": "com.google.guava:failureaccess:1.0.2",
@@ -239,8 +265,8 @@ artifacts = {
         "sha256": "f07bab6250d718613f0f8250cc61cc23217c4fd84c410c3af43b8098fff31f69",
     },
     "io_bazel_rules_scala_scala_library": {
-        "artifact": "org.scala-lang:scala3-library_3:3.2.2",
-        "sha256": "f96317c57a5beae2cb16607d2b99cba7b136a96416e736966e5955e6608d868b",
+        "artifact": "org.scala-lang:scala3-library_3:3.3.3",
+        "sha256": "16fe064f1373ed6f098d3d9f812a398ed5075db4bf2721c04e630502cb352816",
         "deps": [
             "@io_bazel_rules_scala_scala_library_2",
         ],

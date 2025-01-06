@@ -107,6 +107,7 @@ def select_root_artifacts(scala_version, scala_major, is_scala_3) -> List[str]:
         f'com.thesamet.scalapb:protoc-bridge_{scala_2_major}:{protoc_bridge_version}',
         f'com.thesamet.scalapb:scalapb-runtime-grpc_{scala_2_major}:{scalapb_version}',
         f'com.thesamet.scalapb:scalapb-runtime_{scala_2_major}:{scalapb_version}',
+        'commons-io:commons-io:2.18.0',
         f'org.scala-lang.modules:scala-parser-combinators_{scala_2_major}:{PARSER_COMBINATORS_VERSION}',
         f'org.scala-lang:scala-compiler:{scala_2_version}',
         f'org.scala-lang:scala-library:{scala_2_version}',
@@ -128,6 +129,8 @@ def select_root_artifacts(scala_version, scala_major, is_scala_3) -> List[str]:
 
     if is_scala_3:
         root_artifacts.extend([
+            'com.softwaremill.common:tagging_3:2.3.5',
+            'dev.zio:izumi-reflect_3:2.3.10',
             f'org.jline:jline-reader:{JLINE_VERSION}',
             f'org.jline:jline-terminal:{JLINE_VERSION}',
             f'org.jline:jline-terminal-jna:{JLINE_VERSION}',
