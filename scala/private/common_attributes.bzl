@@ -78,6 +78,11 @@ common_attrs.update({
         executable = True,
         cfg = "exec",
     ),
+    "_dottyijar": attr.label(
+        cfg = "exec",
+        default = "//src/scala/io/bazel/rules_scala/dottyijar",
+        executable = True,
+    ),
 })
 
 implicit_deps = {
