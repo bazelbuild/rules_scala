@@ -30,12 +30,14 @@ load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
 
 scala_config(enable_compiler_dependency_tracking = True)
 
-load("//scala:scala.bzl", "scala_toolchains")
+load("//scala:toolchains.bzl", "scala_toolchains")
 
-scala_toolchains(fetch_sources = True)
+scala_toolchains(
+    fetch_sources = True,
+    testing = True,
+)
 
 register_toolchains(
-    "//testing:testing_toolchain",
     "//scala:unused_dependency_checker_error_toolchain",
     "//test/proto:scalapb_toolchain",
     "@io_bazel_rules_scala_toolchains//...:all",
@@ -68,14 +70,6 @@ jmh_repositories()
 load("//scala_proto:scala_proto.bzl", "scala_proto_repositories")
 
 scala_proto_repositories()
-
-load("//scalatest:scalatest.bzl", "scalatest_repositories")
-
-scalatest_repositories()
-
-load("//specs2:specs2_junit.bzl", "specs2_junit_repositories")
-
-specs2_junit_repositories()
 
 load("//scala/scalafmt:scalafmt_repositories.bzl", "scalafmt_default_config", "scalafmt_repositories")
 
