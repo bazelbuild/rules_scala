@@ -145,7 +145,7 @@ scala_import = rule(
             default = Label("//scala/settings:stamp_scala_import"),
         ),
         "java_compile_toolchain": attr.label(
-            default = Label("@bazel_tools//tools/jdk:current_java_toolchain"),
+            default = Label("@rules_java//toolchains:current_java_toolchain"),
         ),
     },
     toolchains = ["@bazel_tools//tools/jdk:toolchain_type"],

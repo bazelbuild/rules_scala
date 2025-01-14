@@ -1,6 +1,6 @@
 load("//scala:scala_toolchain.bzl", "scala_toolchain")
 load(
-    "@bazel_tools//tools/jdk:default_java_toolchain.bzl",
+    "@rules_java//toolchains:default_java_toolchain.bzl",
     "BASE_JDK9_JVM_OPTS",
     "DEFAULT_JAVACOPTS",
     "DEFAULT_TOOLCHAIN_CONFIGURATION",

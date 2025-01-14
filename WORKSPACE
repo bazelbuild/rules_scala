@@ -1,15 +1,13 @@
 workspace(name = "io_bazel_rules_scala")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("//scala:deps.bzl", "rules_scala_dependencies")
 
-http_archive(
-    name = "bazel_skylib",
-    sha256 = "b8a1527901774180afc798aeb28c4634bdccf19c4d98e7bdd1ce79d1fe9aaad7",
-    urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.4.1/bazel-skylib-1.4.1.tar.gz",
-        "https://github.com/bazelbuild/bazel-skylib/releases/download/1.4.1/bazel-skylib-1.4.1.tar.gz",
-    ],
-)
+rules_scala_dependencies()
+
+load("@rules_java//java:repositories.bzl", "rules_java_dependencies", "rules_java_toolchains")
+
+rules_java_dependencies()
 
 load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 
@@ -17,14 +15,32 @@ bazel_skylib_workspace()
 
 http_archive(
     name = "rules_python",
-    sha256 = "ca77768989a7f311186a29747e3e95c936a41dffac779aff6b443db22290d913",
-    strip_prefix = "rules_python-0.36.0",
-    url = "https://github.com/bazelbuild/rules_python/releases/download/0.36.0/rules_python-0.36.0.tar.gz",
+    sha256 = "ca2671529884e3ecb5b79d6a5608c7373a82078c3553b1fa53206e6b9dddab34",
+    strip_prefix = "rules_python-0.38.0",
+    url = "https://github.com/bazelbuild/rules_python/releases/download/0.38.0/rules_python-0.38.0.tar.gz",
 )
 
 load("@rules_python//python:repositories.bzl", "py_repositories")
 
 py_repositories()
+
+load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+
+protobuf_deps()
+
+rules_java_toolchains()
+
+load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies")
+
+rules_proto_dependencies()
+
+load("@rules_proto//proto:setup.bzl", "rules_proto_setup")
+
+rules_proto_setup()
+
+load("@rules_proto//proto:toolchains.bzl", "rules_proto_toolchains")
+
+rules_proto_toolchains()
 
 load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
 
@@ -42,22 +58,6 @@ register_toolchains(
     "//test/proto:scalapb_toolchain",
     "@io_bazel_rules_scala_toolchains//...:all",
 )
-
-load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies")
-
-rules_proto_dependencies()
-
-load("@rules_proto//proto:setup.bzl", "rules_proto_setup")
-
-rules_proto_setup()
-
-load("@rules_proto//proto:toolchains.bzl", "rules_proto_toolchains")
-
-rules_proto_toolchains()
-
-load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
-
-protobuf_deps()
 
 load("//twitter_scrooge:twitter_scrooge.bzl", "twitter_scrooge")
 
@@ -95,10 +95,10 @@ local_repository(
 
 http_archive(
     name = "io_bazel_rules_go",
-    sha256 = "6dc2da7ab4cf5d7bfc7c949776b1b7c733f05e56edc4bcd9022bb249d2e2a996",
+    sha256 = "90fe8fb402dee957a375f3eb8511455bd738c7ed562695f4dd117ac7d2d833b1",
     urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.39.1/rules_go-v0.39.1.zip",
-        "https://github.com/bazelbuild/rules_go/releases/download/v0.39.1/rules_go-v0.39.1.zip",
+        "https://mirror.bazel.build/github.com/bazel-contrib/rules_go/releases/download/v0.52.0/rules_go-v0.52.0.zip",
+        "https://github.com/bazel-contrib/rules_go/releases/download/v0.52.0/rules_go-v0.52.0.zip",
     ],
 )
 
@@ -110,7 +110,7 @@ load(
 
 go_rules_dependencies()
 
-go_register_toolchains(version = "1.19.5")
+go_register_toolchains(version = "1.23.4")
 
 http_archive(
     name = "bazelci_rules",
@@ -129,17 +129,5 @@ rbe_preconfig(
 load("//scala/private/extensions:dev_deps.bzl", "dev_deps_repositories")
 
 dev_deps_repositories()
-
-# Copied from bazel_tools/tools/jdk/remote_java_repository.bzl.
-[
-    register_toolchains(
-        "@remotejdk21_" + platform + "_toolchain_config_repo//:all",
-    )
-    for platform in [
-        "linux",
-        "macos",
-        "win",
-    ]
-]
 
 register_toolchains("//test/toolchains:java21_toolchain_definition")
