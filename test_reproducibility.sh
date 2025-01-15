@@ -20,11 +20,18 @@ non_deploy_jar_md5_sum() {
     find bazel-bin/test -name "*.jar" ! -name "*_deploy.jar" ! -path 'bazel-bin/test/jmh/*' | xargs -n 1 -P 5 $(md5_util) | sort
 }
 
+
 test_build_is_identical() {
+    local test_coverage_packages=()
+
+    for package_dir in test/coverage_*; do
+        test_coverage_packages+=("//${package_dir}/...")
+    done
+
     bazel clean #ensure we are starting from square one
     bazel build test/...
     # Also build instrumented jars.
-    bazel build --collect_code_coverage -- //test/coverage/...
+    bazel build --collect_code_coverage -- "${test_coverage_packages[@]}"
     non_deploy_jar_md5_sum > hash1
     bazel clean
     sleep 10 # to make sure that if timestamps slip in we get different ones
@@ -37,7 +44,8 @@ test_build_is_identical() {
     fi
 
     bazel build --disk_cache $random_dir test/...
-    bazel build --disk_cache $random_dir --collect_code_coverage -- //test/coverage/...
+    bazel build --disk_cache $random_dir --collect_code_coverage -- \
+        "${test_coverage_packages[@]}"
     non_deploy_jar_md5_sum > hash2
     diff hash1 hash2
 }
