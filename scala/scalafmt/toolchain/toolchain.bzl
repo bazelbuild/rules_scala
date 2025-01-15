@@ -14,12 +14,7 @@ def _scalafmt_toolchain_impl(ctx):
 scalafmt_toolchain = rule(
     _scalafmt_toolchain_impl,
     attrs = {
-        "dep_providers": attr.label_list(
-            default = [
-                "@io_bazel_rules_scala//scala/scalafmt:scalafmt_classpath_provider",
-            ],
-            providers = [_DepsInfo],
-        ),
+        "dep_providers": attr.label_list(providers = [_DepsInfo]),
     },
 )
 
