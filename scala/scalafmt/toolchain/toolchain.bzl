@@ -1,6 +1,10 @@
 load("@io_bazel_rules_scala//scala:providers.bzl", _DepsInfo = "DepsInfo")
 load("//scala/private/toolchain_deps:toolchain_deps.bzl", "expose_toolchain_deps")
 
+SCALAFMT_TOOLCHAIN_TYPE = Label(
+    "//scala/scalafmt/toolchain:scalafmt_toolchain_type",
+)
+
 def _scalafmt_toolchain_impl(ctx):
     toolchain = platform_common.ToolchainInfo(
         dep_providers = ctx.attr.dep_providers,
@@ -20,10 +24,7 @@ scalafmt_toolchain = rule(
 )
 
 def _export_scalafmt_deps_impl(ctx):
-    return expose_toolchain_deps(
-        ctx,
-        "@io_bazel_rules_scala//scala/scalafmt/toolchain:scalafmt_toolchain_type",
-    )
+    return expose_toolchain_deps(ctx, SCALAFMT_TOOLCHAIN_TYPE)
 
 export_scalafmt_deps = rule(
     _export_scalafmt_deps_impl,
@@ -32,6 +33,6 @@ export_scalafmt_deps = rule(
             mandatory = True,
         ),
     },
-    toolchains = ["@io_bazel_rules_scala//scala/scalafmt/toolchain:scalafmt_toolchain_type"],
+    toolchains = [SCALAFMT_TOOLCHAIN_TYPE],
     incompatible_use_toolchain_transition = True,
 )
