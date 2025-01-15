@@ -66,11 +66,8 @@ scala_config(
 load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_toolchains")
 
 scala_toolchains(
+    scalafmt = True,
     scalatest = True,
 )
 
 register_toolchains("@io_bazel_rules_scala_toolchains//...:all")
-
-load("@io_bazel_rules_scala//scala/scalafmt:scalafmt_repositories.bzl", "scalafmt_repositories")
-
-scalafmt_repositories()

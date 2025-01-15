@@ -1,4 +1,8 @@
-load("//scala/scalafmt/toolchain:toolchain.bzl", "scalafmt_toolchain")
+load(
+    "//scala/scalafmt/toolchain:toolchain.bzl",
+    "SCALAFMT_TOOLCHAIN_TYPE",
+    "scalafmt_toolchain",
+)
 load("//scala/scalafmt:scalafmt_repositories.bzl", "scalafmt_artifact_ids")
 load("//scala:providers.bzl", "declare_deps_provider")
 load("//scala:scala_cross_version.bzl", "version_suffix")
@@ -28,9 +32,7 @@ def setup_scalafmt_toolchain(
             version_suffix(scala_version),
         ],
         toolchain = ":%s_impl" % name,
-        toolchain_type = Label(
-            "//scala/scalafmt/toolchain:scalafmt_toolchain_type",
-        ),
+        toolchain_type = SCALAFMT_TOOLCHAIN_TYPE,
         visibility = visibility,
     )
 

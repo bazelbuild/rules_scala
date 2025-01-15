@@ -2,8 +2,13 @@
 
 load("//junit:junit.bzl", "junit_artifact_ids")
 load("//scala/private:macros/scala_repositories.bzl", "scala_repositories")
-load("//scala:toolchains_repo.bzl", "scala_toolchains_repo")
+load(
+    "//scala/scalafmt:scalafmt_repositories.bzl",
+    "scalafmt_artifact_ids",
+    "scalafmt_default_config",
+)
 load("//scala:scala_cross_version.bzl", "default_maven_server_urls")
+load("//scala:toolchains_repo.bzl", "scala_toolchains_repo")
 load("//scalatest:scalatest.bzl", "scalatest_artifact_ids")
 load("//specs2:specs2.bzl", "specs2_artifact_ids")
 load("//specs2:specs2_junit.bzl", "specs2_junit_artifact_ids")
@@ -21,7 +26,9 @@ def scala_toolchains(
         scalatest = False,
         junit = False,
         specs2 = False,
-        testing = False):
+        testing = False,
+        scalafmt = False,
+        scalafmt_default_config_path = ".scalafmt.conf"):
     """Instantiates @io_bazel_rules_scala_toolchains and all its dependencies.
 
     Provides a unified interface to configuring rules_scala both directly in a
@@ -66,6 +73,9 @@ def scala_toolchains(
         specs2: whether to instantiate the Specs2 JUnit toolchain
         testing: whether to instantiate the Scalatest, JUnit, and Specs2 JUnit
             toolchains combined
+        scalafmt: whether to instantiate the Scalafmt toolchain
+        scalafmt_default_config_path: the relative path to the default Scalafmt
+            config file within the repository
     """
     scala_repositories(
         maven_servers = maven_servers,
@@ -77,6 +87,9 @@ def scala_toolchains(
         validate_scala_version = validate_scala_version,
         scala_compiler_srcjars = scala_compiler_srcjars,
     )
+
+    if scalafmt:
+        scalafmt_default_config(scalafmt_default_config_path)
 
     if testing:
         scalatest = True
@@ -106,6 +119,12 @@ def scala_toolchains(
     for scala_version in SCALA_VERSIONS:
         version_specific_artifact_ids = {}
 
+        if scalafmt:
+            version_specific_artifact_ids.update({
+                id: fetch_sources
+                for id in scalafmt_artifact_ids(scala_version)
+            })
+
         all_artifacts = (
             artifact_ids_to_fetch_sources | version_specific_artifact_ids
         )
@@ -125,6 +144,7 @@ def scala_toolchains(
         junit = junit,
         specs2 = specs2,
         testing = testing,
+        scalafmt = scalafmt,
     )
 
 def scala_register_toolchains():

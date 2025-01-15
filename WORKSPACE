@@ -50,6 +50,7 @@ load("//scala:toolchains.bzl", "scala_toolchains")
 
 scala_toolchains(
     fetch_sources = True,
+    scalafmt = True,
     testing = True,
 )
 
@@ -70,12 +71,6 @@ jmh_repositories()
 load("//scala_proto:scala_proto.bzl", "scala_proto_repositories")
 
 scala_proto_repositories()
-
-load("//scala/scalafmt:scalafmt_repositories.bzl", "scalafmt_default_config", "scalafmt_repositories")
-
-scalafmt_default_config()
-
-scalafmt_repositories()
 
 # needed for the cross repo proto test
 local_repository(
