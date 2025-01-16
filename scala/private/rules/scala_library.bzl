@@ -34,6 +34,8 @@ load(
     "phase_runfiles_library",
     "phase_scalac_provider",
     "phase_scalacopts",
+    "phase_scalainfo_provider_macro",
+    "phase_scalainfo_provider_non_macro",
     "phase_semanticdb",
     "phase_write_manifest",
     "run_phases",
@@ -62,6 +64,7 @@ def _scala_library_impl(ctx):
         # customizable phases
         [
             ("scalac_provider", phase_scalac_provider),
+            ("scalainfo_provider", phase_scalainfo_provider_non_macro),
             ("collect_srcjars", phase_collect_srcjars),
             ("write_manifest", phase_write_manifest),
             ("dependency", phase_dependency_common),
@@ -150,6 +153,7 @@ def _scala_library_for_plugin_bootstrapping_impl(ctx):
         # customizable phases
         [
             ("scalac_provider", phase_scalac_provider),
+            ("scalainfo_provider", phase_scalainfo_provider_non_macro),
             ("collect_srcjars", phase_collect_srcjars),
             ("write_manifest", phase_write_manifest),
             ("dependency", phase_dependency_library_for_plugin_bootstrapping),
@@ -225,6 +229,7 @@ def _scala_macro_library_impl(ctx):
         # customizable phases
         [
             ("scalac_provider", phase_scalac_provider),
+            ("scalainfo_provider", phase_scalainfo_provider_macro),
             ("collect_srcjars", phase_collect_srcjars),
             ("write_manifest", phase_write_manifest),
             ("dependency", phase_dependency_common),
