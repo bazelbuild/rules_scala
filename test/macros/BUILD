@@ -13,6 +13,7 @@ scala_macro_library(
 scala_library(
     name = "incorrect-macro-user",
     srcs = ["MacroUser.scala"],
+    tags = ["manual"],
     deps = [":incorrect-macro"],
 )
 
