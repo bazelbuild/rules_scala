@@ -25,6 +25,7 @@ load(
     "phase_runfiles_scalatest",
     "phase_scalac_provider",
     "phase_scalacopts",
+    "phase_scalainfo_provider_non_macro",
     "phase_semanticdb",
     "phase_test_environment",
     "phase_write_executable_scalatest",
@@ -38,6 +39,7 @@ def _scala_test_impl(ctx):
         # customizable phases
         [
             ("scalac_provider", phase_scalac_provider),
+            ("scalainfo_provider", phase_scalainfo_provider_non_macro),
             ("write_manifest", phase_write_manifest),
             ("dependency", phase_dependency_common),
             ("collect_jars", phase_collect_jars_scalatest),
