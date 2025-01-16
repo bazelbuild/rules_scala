@@ -34,7 +34,6 @@ load(
     _phase_compile_junit_test = "phase_compile_junit_test",
     _phase_compile_library = "phase_compile_library",
     _phase_compile_library_for_plugin_bootstrapping = "phase_compile_library_for_plugin_bootstrapping",
-    _phase_compile_macro_library = "phase_compile_macro_library",
     _phase_compile_repl = "phase_compile_repl",
     _phase_compile_scalatest = "phase_compile_scalatest",
 )
@@ -128,7 +127,6 @@ phase_collect_jars_common = _phase_collect_jars_common
 phase_compile_binary = _phase_compile_binary
 phase_compile_library = _phase_compile_library
 phase_compile_library_for_plugin_bootstrapping = _phase_compile_library_for_plugin_bootstrapping
-phase_compile_macro_library = _phase_compile_macro_library
 phase_compile_junit_test = _phase_compile_junit_test
 phase_compile_repl = _phase_compile_repl
 phase_compile_scalatest = _phase_compile_scalatest
