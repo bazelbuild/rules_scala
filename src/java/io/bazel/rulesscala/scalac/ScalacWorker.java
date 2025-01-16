@@ -237,7 +237,7 @@ class ScalacWorker implements Worker.Interface {
       }
       if (ops.directTargets.length > 0) {
         pluginParams.add(
-          "-P:dependency-analyzer:direct-targets:" + encodeStringSeqPluginParam(ops.directTargets));   
+          "-P:dependency-analyzer:direct-targets:" + encodeStringSeqPluginParam(ops.directTargets));
       }
       if (ops.indirectJars.length > 0) {
         pluginParams.add(
@@ -269,7 +269,20 @@ class ScalacWorker implements Worker.Interface {
     String[] compilerArgs =
         merge(ops.scalaOpts, pluginArgs, constParams, pluginParams, scalaSources);
 
-    ScalacInvokerResults compilerResults = ScalacInvoker.invokeCompiler(ops, compilerArgs);
+    ScalacInvokerResults compilerResults;
+
+    try {
+      compilerResults = ScalacInvoker.invokeCompiler(ops, compilerArgs);
+    } catch (CompilationFailed exception) {
+      if (exception.getCause() instanceof ClassFormatError) {
+        throw new Exception(
+          "You may have declared a target containing a macro as a `scala_library` target instead of a `scala_macro_library` target.",
+          exception
+        );
+      }
+
+      throw exception;
+    }
 
     if (ops.printCompileTime) {
       System.err.println("Compiler runtime: " + (compilerResults.stopTime - compilerResults.startTime) + "ms.");
