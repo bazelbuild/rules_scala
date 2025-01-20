@@ -133,6 +133,7 @@ def select_root_artifacts(scala_version, scala_major, is_scala_3) -> List[str]:
             f'org.jline:jline-reader:{JLINE_VERSION}',
             f'org.jline:jline-terminal:{JLINE_VERSION}',
             f'org.jline:jline-terminal-jna:{JLINE_VERSION}',
+            f'org.jline:jline-terminal-jni:{JLINE_VERSION}',
         ])
 
     else:

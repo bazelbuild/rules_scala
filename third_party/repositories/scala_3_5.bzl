@@ -496,6 +496,14 @@ artifacts = {
             "@org_jline_jline_terminal",
         ],
     },
+    "org_jline_jline_terminal_jni": {
+        "artifact": "org.jline:jline-terminal-jni:3.27.1",
+        "sha256": "e4bc64f1e68e9fb25d80517338e76abca1e0145b82e389b5c2b2c7d71d150f82",
+        "deps": [
+            "@org_jline_jline_native",
+            "@org_jline_jline_terminal",
+        ],
+    },
     "org_scala_lang_modules_scala_collection_compat": {
         "artifact": "org.scala-lang.modules:scala-collection-compat_2.13:2.12.0",
         "sha256": "befff482233cd7f9a7ca1e1f5a36ede421c018e6ce82358978c475d45532755f",
