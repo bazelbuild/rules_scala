@@ -3,7 +3,7 @@
 Mostly generated and updated by scripts/create_repository.py.
 """
 
-scala_version = "3.6.2"
+scala_version = "3.6.3"
 
 artifacts = {
     "com_geirsson_metaconfig_core": {
@@ -221,8 +221,8 @@ artifacts = {
         "sha256": "823cd3a46e289c69e37994e03aee3864e1e059aacb3e0bf34f536b3669b61772",
     },
     "io_bazel_rules_scala_scala_compiler": {
-        "artifact": "org.scala-lang:scala3-compiler_3:3.6.2",
-        "sha256": "a887d13b2ab1f016f5bc7a39eb88cd3791158749f5b21d8af53aa7fe76a4540e",
+        "artifact": "org.scala-lang:scala3-compiler_3:3.6.3",
+        "sha256": "80e8a82525ff9e6001c444cae5fa9ca21757489b0940a0b9f364fcc0ab0e3f8d",
         "deps": [
             "@io_bazel_rules_scala_scala_asm",
             "@io_bazel_rules_scala_scala_interfaces",
@@ -230,7 +230,7 @@ artifacts = {
             "@io_bazel_rules_scala_scala_tasty_core",
             "@org_jline_jline_reader",
             "@org_jline_jline_terminal",
-            "@org_jline_jline_terminal_jna",
+            "@org_jline_jline_terminal_jni",
             "@org_scala_sbt_compiler_interface",
         ],
     },
@@ -239,12 +239,12 @@ artifacts = {
         "sha256": "4c200cd193c082bec14a2a2dffe6a1ba5f8130b1b27c79ee54c936dfcafc8ed9",
     },
     "io_bazel_rules_scala_scala_interfaces": {
-        "artifact": "org.scala-lang:scala3-interfaces:3.6.2",
-        "sha256": "85b8b46a074537a90b999e9b0ccb3e9fba00c5d47d1fbaaf4fd39bf1151327f6",
+        "artifact": "org.scala-lang:scala3-interfaces:3.6.3",
+        "sha256": "ed6a8778dc544e9b4a2ee2a3f931d13cadaa6f7e0dd9676e205511deb7f6e394",
     },
     "io_bazel_rules_scala_scala_library": {
-        "artifact": "org.scala-lang:scala3-library_3:3.6.2",
-        "sha256": "32c6e2e40f89195a1886bfc7da99c2b9f01edba6caf86ae2d51ec4d5a62da672",
+        "artifact": "org.scala-lang:scala3-library_3:3.6.3",
+        "sha256": "cb4f2b3c9e4fe5ed01742bfa15c78fe7984dd00abc4c15f69923403ef7806f52",
         "deps": [
             "@io_bazel_rules_scala_scala_library_2",
         ],
@@ -275,8 +275,8 @@ artifacts = {
         ],
     },
     "io_bazel_rules_scala_scala_tasty_core": {
-        "artifact": "org.scala-lang:tasty-core_3:3.6.2",
-        "sha256": "e6f771f246316a7f54310a61c8d7fc6dd7cc4056b00c83e3bf032eed0166071f",
+        "artifact": "org.scala-lang:tasty-core_3:3.6.3",
+        "sha256": "64c848925d411ca9c22a4e9ec8bef2f2e71552e943a45878f9e5dc02b89b55f4",
         "deps": [
             "@io_bazel_rules_scala_scala_library",
         ],
@@ -502,6 +502,14 @@ artifacts = {
         "sha256": "df2a8f9ba545353dfd48cee3e0f908bd201b87317279700cdddc6a260f4f1c97",
         "deps": [
             "@net_java_dev_jna_jna",
+            "@org_jline_jline_terminal",
+        ],
+    },
+    "org_jline_jline_terminal_jni": {
+        "artifact": "org.jline:jline-terminal-jni:3.27.1",
+        "sha256": "e4bc64f1e68e9fb25d80517338e76abca1e0145b82e389b5c2b2c7d71d150f82",
+        "deps": [
+            "@org_jline_jline_native",
             "@org_jline_jline_terminal",
         ],
     },

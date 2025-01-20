@@ -23,7 +23,7 @@ ROOT_SCALA_VERSIONS = [
     "3.3.4",
     "3.4.3",
     "3.5.2",
-    "3.6.2"
+    "3.6.3"
 ]
 PARSER_COMBINATORS_VERSION = '1.1.2'
 SBT_COMPILER_INTERFACE_VERSION = '1.10.4'
@@ -133,6 +133,7 @@ def select_root_artifacts(scala_version, scala_major, is_scala_3) -> List[str]:
             f'org.jline:jline-reader:{JLINE_VERSION}',
             f'org.jline:jline-terminal:{JLINE_VERSION}',
             f'org.jline:jline-terminal-jna:{JLINE_VERSION}',
+            f'org.jline:jline-terminal-jni:{JLINE_VERSION}',
         ])
 
     else:
