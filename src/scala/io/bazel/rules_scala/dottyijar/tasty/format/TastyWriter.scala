@@ -1,7 +1,7 @@
 package io.bazel.rules_scala.dottyijar.tasty.format
 
-import com.softwaremill.tagging.*
 import dotty.tools.tasty.TastyFormat as DottyTastyFormat
+import io.bazel.rules_scala.dottyijar.tasty.numeric.{SignedInt, SignedLong, UnsignedInt, UnsignedLong}
 import java.nio.charset.StandardCharsets
 import java.util.UUID
 import scala.collection.mutable
@@ -64,7 +64,7 @@ case class TastyWriter private (
     writeUnsignedLongWithWidth(0, TastyWriter.referenceWidth)
   }
 
-  def writeSignedInt(int: SignedInt): Unit = writeSignedLong(int.toLong.taggedWith[Signed])
+  def writeSignedInt(int: SignedInt): Unit = writeSignedLong(SignedLong(int.value.toLong))
 
   /**
    * This method is copied from this one in Dotty:
@@ -83,16 +83,16 @@ case class TastyWriter private (
       writeByte((long & 0x7f).toByte)
     }
 
-    val prefix = long >> 7
+    val prefix = long.value >> 7
 
-    if (prefix != 0L - ((long >> 6) & 1)) {
+    if (prefix != 0L - ((long.value >> 6) & 1)) {
       writePrefix(prefix)
     }
 
-    writeByte(((long & 0x7f) | 0x80).toByte)
+    writeByte(((long.value & 0x7f) | 0x80).toByte)
   }
 
-  def writeUnsignedInt(int: UnsignedInt): Unit = writeUnsignedLong(int.toLong.taggedWith[Unsigned])
+  def writeUnsignedInt(int: UnsignedInt): Unit = writeUnsignedLong(UnsignedLong(int.value.toLong))
   def writeUnsignedLong(long: UnsignedLong): Unit = {
     def writePrefix(long: Long): Unit = {
       val prefix = long >> 7
@@ -104,19 +104,19 @@ case class TastyWriter private (
       writeByte((long & 0x7f).toByte)
     }
 
-    val prefix = long >> 7
+    val prefix = long.value >> 7
 
     if (prefix != 0) {
       writePrefix(prefix)
     }
 
-    writeByte(((long & 0x7f) | 0x80).toByte)
+    writeByte(((long.value & 0x7f) | 0x80).toByte)
   }
 
   def writeUtf8String(string: String): Unit = {
     val bytes = string.getBytes(StandardCharsets.UTF_8)
 
-    writeUnsignedInt(bytes.length.taggedWith[Unsigned])
+    writeUnsignedInt(UnsignedInt(bytes.length))
     writeBytes(bytes)
   }
 
@@ -138,7 +138,7 @@ case class TastyWriter private (
 
     val buffer = bufferWriter.toArray
 
-    writeUnsignedInt(buffer.length.taggedWith[Unsigned])
+    writeUnsignedInt(UnsignedInt(buffer.length))
 
     markers ++= bufferWriter.markers.view.map { case (markerType, marker) =>
       (markerType, marker.copy(position = start + marker.position))

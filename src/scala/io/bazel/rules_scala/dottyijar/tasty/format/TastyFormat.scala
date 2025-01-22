@@ -1,6 +1,6 @@
 package io.bazel.rules_scala.dottyijar.tasty.format
 
-import com.softwaremill.tagging.*
+import io.bazel.rules_scala.dottyijar.tasty.numeric.{SignedInt, SignedLong, UnsignedInt, UnsignedLong}
 import dotty.tools.dotc.util.Spans.Span
 import izumi.reflect.Tag
 import java.util.UUID
@@ -30,13 +30,17 @@ trait TastyFormat[A] private[format] {
   }
 
   final def withLengthPrefixed: TastyFormat[A] = new TastyFormat[A] {
-    override def read(reader: TastyReader): A = reader.readWithLength(reader.readUnsignedInt())(TastyFormat.this.read)
+    override def read(reader: TastyReader): A =
+      reader.readWithLength(reader.readUnsignedInt().value)(TastyFormat.this.read)
+
     override def write(writer: TastyWriter, value: A): Unit =
       writer.writeWithLengthPrefixed(TastyFormat.this.write(_, value))
   }
 }
 
 object TastyFormat {
+  private val isDebuggingEnabled: Boolean = Option(System.getProperty("DEBUG_TASTYFORMAT")).contains("true")
+
   def apply[A: Tag](read: TastyReader => A, write: (TastyWriter, A) => Unit): TastyFormat[A] = {
     val _read = read
     val _write = write
@@ -58,7 +62,7 @@ object TastyFormat {
     factory: Factory[Element, SeqLike],
   ): TastyFormat[SeqLike] = TastyFormat(
     reader =>
-      reader.readWithLength(reader.readUnsignedInt()) { reader =>
+      reader.readWithLength(reader.readUnsignedInt().value) { reader =>
         factory.fromSpecific(reader.readUntilEnd(summon[TastyFormat[Element]].read(reader)))
       },
     (writer, value) =>
@@ -77,7 +81,7 @@ object TastyFormat {
     evidence2: Tuple.Last[Tuple.Append[Init, Option[Last]]] =:= Option[Last],
   ): TastyFormat[Tuple.Append[Init, Option[Last]]] = TastyFormat(
     reader =>
-      reader.readWithLength(reader.readUnsignedInt()) { reader =>
+      reader.readWithLength(reader.readUnsignedInt().value) { reader =>
         val init = summon[TastyFormat[Init]].read(reader)
 
         init :* Option.unless(reader.isAtEnd)(summon[TastyFormat[Last]].read(reader))
@@ -145,7 +149,7 @@ object TastyFormat {
     evidence2: Tuple.Last[Tuple.Append[Init, Last]] =:= Last,
   ): TastyFormat[Tuple.Append[Init, Last]] = TastyFormat(
     reader =>
-      reader.readWithLength(reader.readUnsignedInt()) { reader =>
+      reader.readWithLength(reader.readUnsignedInt().value) { reader =>
         val init = summon[TastyFormat[Init]].read(reader)
 
         init :* summon[Factory[LastElement, Last]]
@@ -161,7 +165,9 @@ object TastyFormat {
 
   given TastyFormat[SignedInt] = TastyFormat(_.readSignedInt(), (writer, value) => writer.writeSignedInt(value))
   given TastyFormat[SignedLong] = TastyFormat(_.readSignedLong(), (writer, value) => writer.writeSignedLong(value))
-  given TastyFormat[Span] = summon[TastyFormat[SignedLong]].bimap(new Span(_), _.coords.taggedWith[Signed])
+  given TastyFormat[Span] =
+    summon[TastyFormat[SignedLong]].bimap(long => new Span(long.value), span => SignedLong(span.coords))
+
   given TastyFormat[String] = TastyFormat(_.readUtf8String(), (writer, value) => writer.writeUtf8String(value))
   given TastyFormat[UnsignedInt] = TastyFormat(_.readUnsignedInt(), (writer, value) => writer.writeUnsignedInt(value))
   given TastyFormat[UnsignedLong] =

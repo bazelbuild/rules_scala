@@ -1,9 +1,9 @@
 package io.bazel.rules_scala.dottyijar.tasty
 
-import com.softwaremill.tagging.*
 import dotty.tools.dotc.util.Spans.Span
 import dotty.tools.tasty.TastyFormat as DottyTastyFormat
 import io.bazel.rules_scala.dottyijar.tasty.format.*
+import io.bazel.rules_scala.dottyijar.tasty.numeric.{SignedInt, SignedLong, UnsignedInt}
 import java.util.UUID
 import scala.annotation.nowarn
 import scala.util.control.NonFatal
@@ -887,18 +887,18 @@ object TastyParameterSignature {
 
   given TastyFormat[TastyParameterSignature] = TastyFormat(
     reader => {
-      val value = reader.readSignedInt()
+      val value = reader.readSignedInt().value
 
       if (value < 0) {
         TypeParameterSectionLength(-value)
       } else {
-        TermParameter(TastyNameReference(value.taggedWith[Unsigned]))
+        TermParameter(TastyNameReference(UnsignedInt(value)))
       }
     },
     (writer, value) =>
       value match {
-        case TypeParameterSectionLength(length, _) => writer.writeSignedInt((-length).taggedWith[Signed])
-        case TermParameter(name, _) => writer.writeSignedInt(name.i.taggedWith[Signed])
+        case TypeParameterSectionLength(length, _) => writer.writeSignedInt(SignedInt(-length))
+        case TermParameter(name, _) => writer.writeSignedInt(SignedInt(name.i.value))
       },
   )
 }
@@ -1004,7 +1004,7 @@ case class TastyNameTable(names: Vector[TastyName]) {
        |${names.zipWithIndex.map { case (name, i) => s"  $i: $name" }.mkString("\n")}
        |)""".stripMargin
 
-  def apply(reference: TastyNameReference): TastyName = names(reference.i)
+  def apply(reference: TastyNameReference): TastyName = names(reference.i.value)
 }
 
 object TastyNameTable {
@@ -1019,7 +1019,7 @@ object TastySection {
     reader => {
       val nameReference = summon[TastyFormat[TastyNameReference]].read(reader)
       val name = nameTable(nameReference)
-      val payload = reader.readWithLength(reader.readUnsignedInt()) { reader =>
+      val payload = reader.readWithLength(reader.readUnsignedInt().value) { reader =>
         name match {
           case TastyName.Simple("ASTs", _) => summon[TastyFormat[TastySectionPayload.Asts]].read(reader)
           case TastyName.Simple("Positions", _) => summon[TastyFormat[TastySectionPayload.Positions]].read(reader)
@@ -1076,12 +1076,12 @@ object TastySectionPayload {
     object LineSizes {
       given TastyFormat[LineSizes] = TastyFormat(
         reader => {
-          val length = reader.readUnsignedInt()
+          val length = reader.readUnsignedInt().value
 
           LineSizes(Range(0, length).map(_ => reader.readUnsignedInt()).toList)
         },
         (writer, lineSizes) => {
-          writer.writeUnsignedInt(lineSizes.sizes.length.taggedWith[Unsigned])
+          writer.writeUnsignedInt(UnsignedInt(lineSizes.sizes.length))
 
           lineSizes.sizes.foreach(writer.writeUnsignedInt)
         },
@@ -1093,7 +1093,7 @@ object TastySectionPayload {
     object Delta {
       given TastyFormat[Delta] = TastyFormat(
         reader => {
-          val header = reader.readUnsignedInt()
+          val header = reader.readUnsignedInt().value
           val addressDelta = header >> 3
           val start = Option.when(((header >>> 2) & 0x1) == 1)(reader.readSignedInt())
           val end = Option.when(((header >>> 1) & 0x1) == 1)(reader.readSignedInt())
@@ -1102,12 +1102,12 @@ object TastySectionPayload {
           Delta(addressDelta, start, end, point)
         },
         (writer, delta) => {
-          val header = (
+          val header = UnsignedInt(
             (delta.addressDelta << 3) |
               ((if (delta.start.isDefined) 1 else 0) << 2) |
               ((if (delta.end.isDefined) 1 else 0) << 1) |
               (if (delta.point.isDefined) 1 else 0)
-          ).taggedWith[Unsigned]
+          )
 
           writer.writeUnsignedInt(header)
 
@@ -1126,7 +1126,7 @@ object TastySectionPayload {
 
     private given TastyFormat[Delta | Source] = TastyFormat(
       reader =>
-        if (reader.peek(_.readUnsignedInt()) == DottyTastyFormat.SOURCE) {
+        if (reader.peek(_.readUnsignedInt().value) == DottyTastyFormat.SOURCE) {
           reader.readUnsignedInt()
 
           summon[TastyFormat[Source]].read(reader)
@@ -1137,7 +1137,7 @@ object TastySectionPayload {
         value match {
           case delta: Delta => summon[TastyFormat[Delta]].write(writer, delta)
           case source: Source =>
-            writer.writeUnsignedInt(DottyTastyFormat.SOURCE.taggedWith[Unsigned])
+            writer.writeUnsignedInt(UnsignedInt(DottyTastyFormat.SOURCE))
 
             summon[TastyFormat[Source]].write(writer, source)
         },
@@ -1377,7 +1377,7 @@ case class TastyTemplate(
 object TastyTemplate {
   private val underlyingTastyFormat = TastyFormat(
     reader =>
-      reader.readWithLength(reader.readUnsignedInt()) { reader =>
+      reader.readWithLength(reader.readUnsignedInt().value) { reader =>
         val typeParameters = reader.readWhile(
           !reader.isAtEnd && summon[TastySumType[TastyTypeParameter]].peekIsVariant(reader),
         )(summon[TastyFormat[TastyTypeParameter]].read(reader))
@@ -1600,7 +1600,7 @@ object TastyTerm {
   object Inlined {
     given TastyFormat[Inlined] = TastyFormat(
       reader =>
-        reader.readWithLength(reader.readUnsignedInt()) { reader =>
+        reader.readWithLength(reader.readUnsignedInt().value) { reader =>
           val expression = summon[TastyFormat[TastyTerm]].read(reader)
           val call = Option.when(!reader.isAtEnd && summon[TastySumType[TastyTypeTree]].peekIsVariant(reader))(
             summon[TastyFormat[TastyTypeTree]].read(reader),
@@ -1681,7 +1681,7 @@ object TastyTerm {
   object Match {
     given TastyFormat[Match] = TastyFormat(
       reader =>
-        reader.readWithLength(reader.readUnsignedInt()) { reader =>
+        reader.readWithLength(reader.readUnsignedInt().value) { reader =>
           val implicitTag = DottyTastyFormat.IMPLICIT.toByte
           val inlineTag = DottyTastyFormat.INLINE.toByte
           val (inline, scrutinee) = reader.peek(_.readByte()) match {
@@ -1788,7 +1788,7 @@ object TastyTerm {
     object Unapply {
       given TastyFormat[Unapply] = TastyFormat(
         reader =>
-          reader.readWithLength(reader.readUnsignedInt()) { reader =>
+          reader.readWithLength(reader.readUnsignedInt().value) { reader =>
             val function = summon[TastyFormat[TastyTerm]].read(reader)
             val implicitArguments = reader.readWhile(
               !reader.isAtEnd && summon[TastySumType[TastyImplicitArgument]].peekIsVariant(reader),
@@ -1864,7 +1864,7 @@ object TastyTerm {
   object Try {
     given TastyFormat[Try] = TastyFormat(
       reader =>
-        reader.readWithLength(reader.readUnsignedInt()) { reader =>
+        reader.readWithLength(reader.readUnsignedInt().value) { reader =>
           val expression = summon[TastyFormat[TastyTerm]].read(reader)
           val cases = reader.readWhile(
             !reader.isAtEnd && summon[TastySumType[TastyCaseDefinition]].peekIsVariant(reader),
@@ -1964,7 +1964,7 @@ object TastyTerm {
   object SplicedPattern {
     given TastyFormat[SplicedPattern] = TastyFormat(
       reader =>
-        reader.readWithLength(reader.readUnsignedInt()) { reader =>
+        reader.readWithLength(reader.readUnsignedInt().value) { reader =>
           val pattern = summon[TastyFormat[TastyTerm]].read(reader)
           val patternType = summon[TastyFormat[TastyType]].read(reader)
           val typeArguments = reader.readWhile(
@@ -2166,7 +2166,7 @@ object TastyType {
   object TypeBounds {
     given TastyFormat[TypeBounds] = TastyFormat(
       reader =>
-        reader.readWithLength(reader.readUnsignedInt()) { reader =>
+        reader.readWithLength(reader.readUnsignedInt().value) { reader =>
           val low = summon[TastyFormat[TastyType]].read(reader)
           val high = Option.when(!reader.isAtEnd && summon[TastySumType[TastyType]].peekIsVariant(reader))(
             summon[TastyFormat[TastyType]].read(reader),
@@ -2340,7 +2340,7 @@ object TastyType {
   object Method {
     given TastyFormat[Method] = TastyFormat(
       reader =>
-        reader.readWithLength(reader.readUnsignedInt()) { reader =>
+        reader.readWithLength(reader.readUnsignedInt().value) { reader =>
           val result = summon[TastyFormat[TastyType]].read(reader)
           val parameters = reader.readWhile(
             !reader.isAtEnd && !summon[TastySumType[TastyModifier]].peekIsVariant(reader),
@@ -2540,7 +2540,7 @@ object TastyTypeTree {
   object Lambda {
     given TastyFormat[Lambda] = TastyFormat(
       reader =>
-        reader.readWithLength(reader.readUnsignedInt()) { reader =>
+        reader.readWithLength(reader.readUnsignedInt().value) { reader =>
           val typeParameters = reader.readWhile(
             !reader.isAtEnd && summon[TastySumType[TastyTypeParameter]].peekIsVariant(reader),
           )(summon[TastyFormat[TastyTypeParameter]].read(reader))
@@ -2573,7 +2573,7 @@ object TastyTypeTree {
   object TypeBounds {
     given TastyFormat[TypeBounds] = TastyFormat(
       reader =>
-        reader.readWithLength(reader.readUnsignedInt()) { reader =>
+        reader.readWithLength(reader.readUnsignedInt().value) { reader =>
           val low = summon[TastyFormat[TastyTypeTree]].read(reader)
           val high = Option.unless(reader.isAtEnd)(summon[TastyFormat[TastyTypeTree]].read(reader))
           val alias = Option.unless(reader.isAtEnd)(summon[TastyFormat[TastyTypeTree]].read(reader))
@@ -2610,7 +2610,7 @@ object TastyTypeTree {
   object Match {
     given TastyFormat[Match] = TastyFormat(
       reader =>
-        reader.readWithLength(reader.readUnsignedInt()) { reader =>
+        reader.readWithLength(reader.readUnsignedInt().value) { reader =>
           val boundOrScrutinee = summon[TastyFormat[TastyTypeTree]].read(reader)
           val (bound, scrutinee) = if (!reader.isAtEnd && summon[TastySumType[TastyTypeTree]].peekIsVariant(reader)) {
             (Some(boundOrScrutinee), summon[TastyFormat[TastyTypeTree]].read(reader))
@@ -2689,7 +2689,7 @@ object TastyValOrDefDefinition {
   object Val {
     given TastyFormat[Val] = TastyFormat(
       reader =>
-        reader.readWithLength(reader.readUnsignedInt()) { reader =>
+        reader.readWithLength(reader.readUnsignedInt().value) { reader =>
           val name = summon[TastyFormat[TastyNameReference]].read(reader)
           val `type` = summon[TastyFormat[TastyTypeTree]].read(reader)
           val value = Option.when(!reader.isAtEnd && summon[TastySumType[TastyTerm]].peekIsVariant(reader))(
@@ -2723,7 +2723,7 @@ object TastyValOrDefDefinition {
   object Def {
     private val underlyingTastyFormat: TastyFormat[Def] = TastyFormat(
       reader =>
-        reader.readWithLength(reader.readUnsignedInt()) { reader =>
+        reader.readWithLength(reader.readUnsignedInt().value) { reader =>
           val name = summon[TastyFormat[TastyNameReference]].read(reader)
           val parameters = reader.readWhile(summon[TastySumType[TastyParameter]].peekIsVariant(reader))(
             summon[TastyFormat[TastyParameter]].read(reader),

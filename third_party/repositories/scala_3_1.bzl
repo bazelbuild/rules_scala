@@ -115,13 +115,6 @@ artifacts = {
             "@io_bazel_rules_scala_scala_library_2",
         ],
     },
-    "com_softwaremill_common_tagging": {
-        "artifact": "com.softwaremill.common:tagging_3:2.3.5",
-        "sha256": "06d2b7578fcd272791a20dbe8e2f279162733dcd9293b38a87060dc5080d0382",
-        "deps": [
-            "@io_bazel_rules_scala_scala_library",
-        ],
-    },
     "com_twitter__scalding_date": {
         "testonly": True,
         "artifact": "com.twitter:scalding-date_2.13:0.17.0",

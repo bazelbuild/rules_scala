@@ -14,7 +14,7 @@ scala_library_for_plugin_bootstrapping(
     visibility = ["//visibility:public"],
     deps = [
         "//src/scala/io/bazel/rules_scala/dottyijar/tasty/format",
-        "@com_softwaremill_common_tagging_3_6_2",
+        "//src/scala/io/bazel/rules_scala/dottyijar/tasty/numeric",
         "@dev_zio_izumi_reflect_3_6_2",
         "@dev_zio_izumi_reflect_thirdparty_boopickle_shaded_3_6_2",
         "@io_bazel_rules_scala_scala_compiler_3_6_2",
@@ -56,6 +56,7 @@ scala_specs2_junit_test(
         ":tasty",
         ":test",
         "//src/scala/io/bazel/rules_scala/dottyijar/tasty/format",
+        "//src/scala/io/bazel/rules_scala/dottyijar/tasty/numeric",
         "@io_bazel_rules_scala_org_specs2_specs2_common_3_6_2",
         "@io_bazel_rules_scala_org_specs2_specs2_core_3_6_2",
         "@io_bazel_rules_scala_org_specs2_specs2_junit",

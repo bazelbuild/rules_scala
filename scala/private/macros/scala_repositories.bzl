@@ -181,7 +181,6 @@ def _artifact_ids(scala_version):
 
     if scala_version.startswith("3."):
         result.extend([
-            "com_softwaremill_common_tagging",
             "dev_zio_izumi_reflect",
             "io_bazel_rules_scala_scala_asm",
             "io_bazel_rules_scala_scala_compiler_2",

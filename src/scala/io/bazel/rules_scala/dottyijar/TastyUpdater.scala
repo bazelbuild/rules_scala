@@ -1,9 +1,9 @@
 package io.bazel.rules_scala.dottyijar
 
-import com.softwaremill.tagging.*
 import java.util.UUID
 import io.bazel.rules_scala.dottyijar.tasty.*
-import io.bazel.rules_scala.dottyijar.tasty.format.{MarkerType, TastyFormat, TastyReader, TastyReference, TastyWriter, Unsigned}
+import io.bazel.rules_scala.dottyijar.tasty.format.{MarkerType, TastyFormat, TastyReader, TastyReference, TastyWriter}
+import io.bazel.rules_scala.dottyijar.tasty.numeric.UnsignedInt
 import scala.collection.mutable
 
 /**
@@ -18,17 +18,17 @@ private class ContextualTastyUpdater(oldTasty: Tasty) {
   private var nextNameIndex = oldTasty.nameTable.names.length
   private val addedNames = mutable.ArrayBuffer.empty[TastyName]
   private def getOrCreateNameReference(name: TastyName): TastyNameReference = oldTasty.nameTable.names.zipWithIndex
-    .collectFirst { case (`name`, i) => TastyNameReference(i.taggedWith[Unsigned]) }
+    .collectFirst { case (`name`, i) => TastyNameReference(UnsignedInt(i)) }
     .getOrElse(
       TastyNameReference(
-        {
+        UnsignedInt({
           val i = nextNameIndex
 
           nextNameIndex += 1
           addedNames += name
 
           i
-        }.taggedWith[Unsigned],
+        }),
       ),
     )
 
@@ -147,7 +147,9 @@ private object TastyUpdater {
       if (!result(i)) {
         result += i
 
-        TastyElement.collect(tasty.nameTable.names(i)) { case TastyNameReference(j, _) => stack += j }.foreach { _ => }
+        TastyElement
+          .collect(tasty.nameTable.names(i)) { case TastyNameReference(j, _) => stack += j.value }
+          .foreach { _ => }
       }
     }
 
@@ -157,7 +159,7 @@ private object TastyUpdater {
   private def getUsedNameIndicesInSection[A <: TastySectionPayload](
     section: TastySection[A],
   )(using TastyElement[TastySection[A]]): Iterable[Int] =
-    TastyElement.collect(section) { case TastyNameReference(i, _) => i }
+    TastyElement.collect(section) { case TastyNameReference(i, _) => i.value }
 
   private def removeDanglingSharedValues[A: TastyElement](
     node: A,
@@ -228,7 +230,7 @@ private object TastyUpdater {
         child =>
           child match {
             case TastyNameReference(i, information) =>
-              TastyNameReference(nameIndexUpdates(i).taggedWith[Unsigned], information).asInstanceOf[B]
+              TastyNameReference(UnsignedInt(nameIndexUpdates(i.value)), information).asInstanceOf[B]
 
             case _ => updateNameReferences(child)
         }

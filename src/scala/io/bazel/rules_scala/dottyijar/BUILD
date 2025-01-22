@@ -12,7 +12,7 @@ scala_library_for_plugin_bootstrapping(
     deps = [
         "//src/scala/io/bazel/rules_scala/dottyijar/tasty",
         "//src/scala/io/bazel/rules_scala/dottyijar/tasty/format",
-        "@com_softwaremill_common_tagging_3_6_2",
+        "//src/scala/io/bazel/rules_scala/dottyijar/tasty/numeric",
         "@dev_zio_izumi_reflect_3_6_2",
     ],
 )

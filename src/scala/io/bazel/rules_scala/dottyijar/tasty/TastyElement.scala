@@ -1,7 +1,8 @@
 package io.bazel.rules_scala.dottyijar.tasty
 
 import dotty.tools.dotc.util.Spans.Span
-import io.bazel.rules_scala.dottyijar.tasty.format.{MarkerType, SignedInt, SignedLong, TastyReferencableInformation, TastyReference, UnsignedInt}
+import io.bazel.rules_scala.dottyijar.tasty.format.{MarkerType, TastyReferencableInformation, TastyReference}
+import io.bazel.rules_scala.dottyijar.tasty.numeric.{SignedInt, SignedLong, UnsignedInt}
 import java.util.UUID
 import scala.annotation.nowarn
 import scala.collection.Factory

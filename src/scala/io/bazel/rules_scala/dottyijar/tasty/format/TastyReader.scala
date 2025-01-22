@@ -1,7 +1,7 @@
 package io.bazel.rules_scala.dottyijar.tasty.format
 
-import com.softwaremill.tagging.*
 import dotty.tools.tasty.TastyFormat as DottyTastyFormat
+import io.bazel.rules_scala.dottyijar.tasty.numeric.{SignedInt, SignedLong, UnsignedInt, UnsignedLong}
 import java.nio.charset.StandardCharsets
 import java.util.UUID
 import scala.annotation.tailrec
@@ -82,7 +82,7 @@ case class TastyReader private (
 
   def readReference[RelativeTo <: MarkerType, Value](relativeTo: RelativeTo): TastyReference[RelativeTo, Value] = {
     val marker = markers.getOrElse(relativeTo, throw new MarkerNotSetException(relativeTo))
-    val position = marker.position + readUnsignedInt()
+    val position = marker.position + readUnsignedInt().value
 
     referencesByTargetPosition
       .getOrElseUpdate(
@@ -97,7 +97,7 @@ case class TastyReader private (
       .asInstanceOf[TastyReference[RelativeTo, Value]]
   }
 
-  def readSignedInt(): SignedInt = readSignedLong().toInt.taggedWith[Signed]
+  def readSignedInt(): SignedInt = SignedInt(readSignedLong().value.toInt)
   def readSignedLong(): SignedLong = {
     var currentByte = readByte()
     var result: Long = (currentByte << 1).toByte >> 1 // Sign extend the first byte, using bit 6 as the sign
@@ -107,10 +107,10 @@ case class TastyReader private (
       result = (result << 7) | (currentByte & 0x7f)
     }
 
-    result.taggedWith[Signed]
+    SignedLong(result)
   }
 
-  def readUnsignedInt(): UnsignedInt = readUnsignedLong().toInt.taggedWith[Unsigned]
+  def readUnsignedInt(): UnsignedInt = UnsignedInt(readUnsignedLong().value.toInt)
   def readUnsignedLong(): UnsignedLong = {
     var currentByte = readByte()
     var result = 0L
@@ -123,7 +123,7 @@ case class TastyReader private (
       currentByte = readByte()
     }
 
-    result.taggedWith[Unsigned]
+    UnsignedLong(result)
   }
 
   def readUntilEnd[A](read: => A): List[A] = {
@@ -134,7 +134,7 @@ case class TastyReader private (
     result
   }
 
-  def readUtf8String(): String = new String(readNBytes(readUnsignedInt()), StandardCharsets.UTF_8)
+  def readUtf8String(): String = new String(readNBytes(readUnsignedInt().value), StandardCharsets.UTF_8)
   def readUuid(): UUID = new UUID(readUncompressedLong(), readUncompressedLong())
   def readWithLength[A](length: Int)(read: TastyReader => A): A = {
     val reader = copy(end = start + length)

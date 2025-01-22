@@ -6,7 +6,7 @@ scala_library_for_plugin_bootstrapping(
     scala_version = "3.6.2",
     visibility = ["//visibility:public"],
     deps = [
-        "@com_softwaremill_common_tagging_3_6_2",
+        "//src/scala/io/bazel/rules_scala/dottyijar/tasty/numeric",
         "@dev_zio_izumi_reflect_3_6_2",
         "@dev_zio_izumi_reflect_thirdparty_boopickle_shaded_3_6_2",
         "@io_bazel_rules_scala_scala_compiler_3_6_2",

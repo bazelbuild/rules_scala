@@ -129,7 +129,6 @@ def select_root_artifacts(scala_version, scala_major, is_scala_3) -> List[str]:
 
     if is_scala_3:
         root_artifacts.extend([
-            'com.softwaremill.common:tagging_3:2.3.5',
             'dev.zio:izumi-reflect_3:2.3.10',
             f'org.jline:jline-reader:{JLINE_VERSION}',
             f'org.jline:jline-terminal:{JLINE_VERSION}',
