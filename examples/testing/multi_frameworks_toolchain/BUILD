@@ -31,5 +31,7 @@ setup_scala_testing_toolchain(
     ],
     specs2_junit_classpath = [
         "@io_bazel_rules_scala_org_specs2_specs2_junit",
+        "@org_portable_scala_portable_scala_reflect",
+        "@org_scala_sbt_test_interface",
     ],
 )

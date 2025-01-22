@@ -34,6 +34,7 @@ scala_toolchain(
 [
     toolchain(
         name = tc,
+        target_settings = ["@io_bazel_rules_scala_config//:scala_version" + version_suffix(SCALA_VERSION)],
         toolchain = tc + "_impl",
         toolchain_type = "//scala:toolchain_type",
         visibility = ["//visibility:public"],

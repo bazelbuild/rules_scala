@@ -76,12 +76,12 @@ def select_root_artifacts(scala_version, scala_major, is_scala_3) -> List[str]:
 
     scala_2_version = scala_version
     scala_2_major = scala_major
-    scalatest_major = scala_major
+    scala_3_major = scala_major
 
     if is_scala_3:
         scala_2_version = max_scala_2_version
         scala_2_major = max_scala_2_major
-        scalatest_major = '3'
+        scala_3_major = '3'
 
     scalafmt_version = SCALAFMT_VERSION
     scalapb_version = SCALAPB_VERSION
@@ -92,29 +92,37 @@ def select_root_artifacts(scala_version, scala_major, is_scala_3) -> List[str]:
         scalapb_version = '0.9.8'
         protoc_bridge_version = '0.7.14'
 
+    if is_scala_3:
+        # Versions greater than v4.20.0 depend on a version of the Scala standard library greater than v3.1.3. This is a
+        # problem because Scala v3.1.3, which we support, needs to use a matching version of the Scala standard library.
+        specs2_version = '4.20.0'
+    elif scala_major == '2.11':
+        specs2_version = '4.10.6'
+    else:
+        specs2_version = '4.20.9'
+
     root_artifacts = [
-        'com.google.api.grpc:proto-google-common-protos:' +
-            GRPC_COMMON_PROTOS_VERSION,
+        f'com.google.api.grpc:proto-google-common-protos:{GRPC_COMMON_PROTOS_VERSION}',
         f'com.google.guava:guava:{GUAVA_VERSION}',
         f'com.google.protobuf:protobuf-java:{PROTOBUF_JAVA_VERSION}',
-        f'com.thesamet.scalapb:compilerplugin_{scala_2_major}:' +
-            scalapb_version,
-        f'com.thesamet.scalapb:protoc-bridge_{scala_2_major}:' +
-            protoc_bridge_version,
-        f'com.thesamet.scalapb:scalapb-runtime_{scala_2_major}:' +
-            scalapb_version,
-        f'com.thesamet.scalapb:scalapb-runtime-grpc_{scala_2_major}:' +
-            scalapb_version,
-        f'org.scala-lang.modules:scala-parser-combinators_{scala_2_major}:' +
-            PARSER_COMBINATORS_VERSION,
+        f'com.thesamet.scalapb:compilerplugin_{scala_2_major}:{scalapb_version}',
+        f'com.thesamet.scalapb:protoc-bridge_{scala_2_major}:{protoc_bridge_version}',
+        f'com.thesamet.scalapb:scalapb-runtime-grpc_{scala_2_major}:{scalapb_version}',
+        f'com.thesamet.scalapb:scalapb-runtime_{scala_2_major}:{scalapb_version}',
+        'commons-io:commons-io:2.18.0',
+        f'org.scala-lang.modules:scala-parser-combinators_{scala_2_major}:{PARSER_COMBINATORS_VERSION}',
         f'org.scala-lang:scala-compiler:{scala_2_version}',
         f'org.scala-lang:scala-library:{scala_2_version}',
         f'org.scala-lang:scala-reflect:{scala_2_version}',
         f'org.scala-lang:scalap:{scala_2_version}',
         f'org.scalameta:scalafmt-core_{scala_2_major}:{scalafmt_version}',
-        f'org.scalatest:scalatest_{scalatest_major}:{SCALATEST_VERSION}',
-        f'org.typelevel:kind-projector_{scala_2_version}:' +
-            KIND_PROJECTOR_VERSION,
+        f'org.scalatest:scalatest_{scala_3_major}:{SCALATEST_VERSION}',
+        f'org.specs2:specs2-common_{scala_3_major}:{specs2_version}',
+        f'org.specs2:specs2-core_{scala_3_major}:{specs2_version}',
+        f'org.specs2:specs2-fp_{scala_3_major}:{specs2_version}',
+        f'org.specs2:specs2-junit_{scala_3_major}:{specs2_version}',
+        f'org.specs2:specs2-matcher_{scala_3_major}:{specs2_version}',
+        f'org.typelevel:kind-projector_{scala_2_version}:{KIND_PROJECTOR_VERSION}',
     ] + [f'io.grpc:grpc-{lib}:{GRPC_VERSION}' for lib in GRPC_LIBS]
 
     if scala_version == max_scala_2_version or is_scala_3:
@@ -123,16 +131,20 @@ def select_root_artifacts(scala_version, scala_major, is_scala_3) -> List[str]:
 
     if is_scala_3:
         root_artifacts.extend([
-            f'org.scala-lang:scala3-library_3:{scala_version}',
-            f'org.scala-lang:scala3-compiler_3:{scala_version}',
-            f'org.scala-lang:scala3-interfaces:{scala_version}',
-            f'org.scala-lang:tasty-core_3:{scala_version}',
-            'org.scala-sbt:compiler-interface:' +
-                SBT_COMPILER_INTERFACE_VERSION,
-            f'org.scala-sbt:util-interface:{SBT_UTIL_INTERFACE_VERSION}',
+            # Versions of izumi-reflect greater than v2.2.1 depend on a version of the Scala standard library greater
+            # than v3.1.3. This is a problem because Scala v3.1.3, which we support, needs to use a matching version of
+            # the Scala standard library.
+            'dev.zio:izumi-reflect_3:2.2.1',
             f'org.jline:jline-reader:{JLINE_VERSION}',
             f'org.jline:jline-terminal:{JLINE_VERSION}',
             f'org.jline:jline-terminal-jna:{JLINE_VERSION}',
+            f'org.scala-lang:scala3-compiler_3:{scala_version}',
+            f'org.scala-lang:scala3-library_3:{scala_version}',
+            f'org.scala-lang:scala3-interfaces:{scala_version}',
+            f'org.scala-lang:scala3-tasty-inspector_3:{scala_version}',
+            f'org.scala-lang:tasty-core_3:{scala_version}',
+            f'org.scala-sbt:compiler-interface:{SBT_COMPILER_INTERFACE_VERSION}',
+            f'org.scala-sbt:util-interface:{SBT_UTIL_INTERFACE_VERSION}',
         ])
 
     else:

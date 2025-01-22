@@ -37,6 +37,13 @@ _COMPILER_SOURCES_ENTRY_TEMPLATE = """
         "@io_bazel_rules_scala_config//:scala_version{scala_version_suffix}":
             "@scala_compiler_source{scala_version_suffix}//:src","""
 
+_IZUMI_REFLECT_DEPS = ["dev_zio_izumi_reflect_thirdparty_boopickle_shaded"]
+_JUNIT_DEPS = ["io_bazel_rules_scala_org_hamcrest_hamcrest_core"]
+_SPECS2_DEPS = [
+    "org_portable_scala_portable_scala_reflect",
+    "org_scala_sbt_test_interface",
+]
+
 def _compiler_sources_repo_impl(rctx):
     sources = [
         _COMPILER_SOURCES_ENTRY_TEMPLATE.format(
@@ -144,12 +151,19 @@ def rules_scala_setup(scala_compiler_srcjar = None):
 
 def _artifact_ids(scala_version):
     result = [
+        "commons_io_commons_io",
+        "io_bazel_rules_scala_junit_junit",
+        "io_bazel_rules_scala_org_specs2_specs2_common",
+        "io_bazel_rules_scala_org_specs2_specs2_core",
+        "io_bazel_rules_scala_org_specs2_specs2_fp",
+        "io_bazel_rules_scala_org_specs2_specs2_junit",
+        "io_bazel_rules_scala_org_specs2_specs2_matcher",
         "io_bazel_rules_scala_scala_compiler",
         "io_bazel_rules_scala_scala_library",
         "io_bazel_rules_scala_scala_parser_combinators",
         "io_bazel_rules_scala_scala_xml",
         "org_scala_lang_modules_scala_collection_compat",
-    ]
+    ] + _JUNIT_DEPS + _SPECS2_DEPS
 
     if scala_version.startswith("2."):
         result.extend([
@@ -167,12 +181,14 @@ def _artifact_ids(scala_version):
 
     if scala_version.startswith("3."):
         result.extend([
+            "dev_zio_izumi_reflect",
             "io_bazel_rules_scala_scala_asm",
             "io_bazel_rules_scala_scala_compiler_2",
             "io_bazel_rules_scala_scala_interfaces",
             "io_bazel_rules_scala_scala_library_2",
             "io_bazel_rules_scala_scala_reflect_2",
             "io_bazel_rules_scala_scala_tasty_core",
+            "io_bazel_rules_scala_scala_tasty_inspector",
             "org_jline_jline_native",
             "org_jline_jline_reader",
             "org_jline_jline_terminal",
@@ -180,6 +196,8 @@ def _artifact_ids(scala_version):
             "org_scala_sbt_compiler_interface",
             "org_scala_sbt_util_interface",
         ])
+
+        result.extend(_IZUMI_REFLECT_DEPS)
 
     return result
 

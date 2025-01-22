@@ -41,8 +41,10 @@ def phase_compile_library(ctx, p):
     return _phase_compile_default(ctx, p, args)
 
 def phase_compile_library_for_plugin_bootstrapping(ctx, p):
+    is_scala_2 = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scala_version.startswith("2.")
+
     args = struct(
-        buildijar = ctx.attr.build_ijar,
+        buildijar = ctx.attr.build_ijar and is_scala_2,
     )
     return _phase_compile_default(ctx, p, args)
 
@@ -102,13 +104,11 @@ def phase_compile_common(ctx, p):
     return _phase_compile_default(ctx, p)
 
 def _phase_compile_default(ctx, p, _args = struct()):
-    buildijar_default_value = True if ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scala_version.startswith("2.") else False
-
     return _phase_compile(
         ctx,
         p,
         _args.srcjars if hasattr(_args, "srcjars") else depset(),
-        _args.buildijar if hasattr(_args, "buildijar") else buildijar_default_value,
+        not hasattr(_args, "buildijar") or _args.buildijar,
         _args.implicit_junit_deps_needed_for_java_compilation if hasattr(_args, "implicit_junit_deps_needed_for_java_compilation") else [],
         unused_dependency_checker_ignored_targets = _args.unused_dependency_checker_ignored_targets if hasattr(_args, "unused_dependency_checker_ignored_targets") else [],
     )
@@ -228,12 +228,7 @@ def _compile_or_empty(
 
         # build ijar if needed
         if buildijar:
-            ijar = java_common.run_ijar(
-                ctx.actions,
-                jar = ctx.outputs.jar,
-                target_label = ctx.label,
-                java_toolchain = specified_java_compile_toolchain(ctx),
-            )
+            ijar = _build_ijar(ctx)
         else:
             #  macro code needs to be available at compile-time,
             #  so set ijar == jar
@@ -265,6 +260,41 @@ def _compile_or_empty(
             full_jars = full_jars,
             merged_provider = merged_provider,
         )
+
+def _build_ijar(ctx):
+    scala_version = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scala_version
+    is_scala_2 = scala_version.startswith("2.")
+
+    if is_scala_2:
+        return java_common.run_ijar(
+            ctx.actions,
+            jar = ctx.outputs.jar,
+            target_label = ctx.label,
+            java_toolchain = specified_java_compile_toolchain(ctx),
+        )
+
+    is_scala_3_3_or_lower = scala_version.startswith("3.") and int(scala_version.split(".")[1]) < 4
+
+    # Prior to Scala v3.4.0, TASTy files couldn't be read directly without a `.class` file present and its
+    # "TASTY" attributes preserved:
+    # https://github.com/scala/scala3/pull/17594
+    if is_scala_3_3_or_lower:
+        return ctx.outputs.jar
+
+    output = ctx.actions.declare_file("{}-ijar.jar".format(ctx.label.name))
+    arguments = ctx.actions.args()
+    arguments.add(ctx.outputs.jar)
+    arguments.add(output)
+
+    ctx.actions.run(
+        arguments = [arguments],
+        executable = ctx.executable._dottyijar,
+        inputs = [ctx.outputs.jar],
+        mnemonic = "DottyIjar",
+        outputs = [output],
+    )
+
+    return output
 
 def _build_nosrc_jar(ctx):
     resources = [s + ":" + t for t, s in _resource_paths(ctx.files.resources, ctx.attr.resource_strip_prefix)]
