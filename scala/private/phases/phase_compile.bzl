@@ -262,13 +262,24 @@ def _compile_or_empty(
         )
 
 def _build_ijar(ctx):
-    if ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scala_version.startswith("2."):
+    scala_version = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scala_version
+    is_scala_2 = scala_version.startswith("2.")
+
+    if is_scala_2:
         return java_common.run_ijar(
             ctx.actions,
             jar = ctx.outputs.jar,
             target_label = ctx.label,
             java_toolchain = specified_java_compile_toolchain(ctx),
         )
+
+    is_scala_3_3_or_lower = scala_version.startswith("3.") and int(scala_version.split(".")[1]) < 4
+
+    # Prior to Scala v3.4.0, TASTy files couldn't be read directly without a `.class` file present and its
+    # "TASTY" attributes preserved:
+    # https://github.com/scala/scala3/pull/17594
+    if is_scala_3_3_or_lower:
+        return ctx.outputs.jar
 
     output = ctx.actions.declare_file("{}-ijar.jar".format(ctx.label.name))
     arguments = ctx.actions.args()

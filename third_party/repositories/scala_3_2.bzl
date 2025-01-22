@@ -133,16 +133,16 @@ artifacts = {
         "sha256": "6d18fe25aa30b7e08b908cd21151d8f96e22965c640acd7751add9bbfe6137d4",
     },
     "dev_zio_izumi_reflect": {
-        "artifact": "dev.zio:izumi-reflect_3:2.3.10",
-        "sha256": "9f4e23968f00eaea2132337b94faa9e52cc7f159cce319c2f112c36d2c29d55d",
+        "artifact": "dev.zio:izumi-reflect_3:2.2.1",
+        "sha256": "1228bff91fa585b227427b3b8b93bffaf64b22727ea6a2c160476f00434d3a10",
         "deps": [
             "@dev_zio_izumi_reflect_thirdparty_boopickle_shaded",
             "@io_bazel_rules_scala_scala_library",
         ],
     },
     "dev_zio_izumi_reflect_thirdparty_boopickle_shaded": {
-        "artifact": "dev.zio:izumi-reflect-thirdparty-boopickle-shaded_3:2.3.10",
-        "sha256": "3c36e0e0c6bc18f5c1a0ffbf820c3783b472690afc56105e9c7c8b81357b5661",
+        "artifact": "dev.zio:izumi-reflect-thirdparty-boopickle-shaded_3:2.2.1",
+        "sha256": "34c34cbf4c18f725ba3860bc9f09dfeaee13430cccc72711cbac711bb379b290",
         "deps": [
             "@io_bazel_rules_scala_scala_library",
         ],
@@ -258,8 +258,8 @@ artifacts = {
         "sha256": "f07bab6250d718613f0f8250cc61cc23217c4fd84c410c3af43b8098fff31f69",
     },
     "io_bazel_rules_scala_scala_library": {
-        "artifact": "org.scala-lang:scala3-library_3:3.3.3",
-        "sha256": "16fe064f1373ed6f098d3d9f812a398ed5075db4bf2721c04e630502cb352816",
+        "artifact": "org.scala-lang:scala3-library_3:3.2.2",
+        "sha256": "f96317c57a5beae2cb16607d2b99cba7b136a96416e736966e5955e6608d868b",
         "deps": [
             "@io_bazel_rules_scala_scala_library_2",
         ],
@@ -301,8 +301,8 @@ artifacts = {
         ],
     },
     "io_bazel_rules_scala_scala_xml": {
-        "artifact": "org.scala-lang.modules:scala-xml_3:2.3.0",
-        "sha256": "3220723238102107ab83182468e5dbe351b081a0601386710ef46c81a95d38d0",
+        "artifact": "org.scala-lang.modules:scala-xml_3:2.1.0",
+        "sha256": "48f22343575f4b1d6550eecc42d4b7f0a0d30223c72f015d8d893feab4cbeecd",
         "deps": [
             "@io_bazel_rules_scala_scala_library",
         ],
@@ -525,8 +525,8 @@ artifacts = {
         ],
     },
     "org_portable_scala_portable_scala_reflect": {
-        "artifact": "org.portable-scala:portable-scala-reflect_2.13:1.1.3",
-        "sha256": "920f62979293069cf721865f931e42f9f7b0b2720ee9f6a9ddff76a19ecf8d4e",
+        "artifact": "org.portable-scala:portable-scala-reflect_2.13:1.1.1",
+        "sha256": "11f2f59d0c228912811095025b36ce58a025a8397851d773295c8ad7862d8488",
         "deps": [
             "@io_bazel_rules_scala_scala_library_2",
         ],

@@ -93,7 +93,9 @@ def select_root_artifacts(scala_version, scala_major, is_scala_3) -> List[str]:
         protoc_bridge_version = '0.7.14'
 
     if is_scala_3:
-        specs2_version = '4.20.9'
+        # Versions greater than v4.20.0 depend on a version of the Scala standard library greater than v3.1.3. This is a
+        # problem because Scala v3.1.3, which we support, needs to use a matching version of the Scala standard library.
+        specs2_version = '4.20.0'
     elif scala_major == '2.11':
         specs2_version = '4.10.6'
     else:
@@ -129,7 +131,10 @@ def select_root_artifacts(scala_version, scala_major, is_scala_3) -> List[str]:
 
     if is_scala_3:
         root_artifacts.extend([
-            'dev.zio:izumi-reflect_3:2.3.10',
+            # Versions of izumi-reflect greater than v2.2.1 depend on a version of the Scala standard library greater
+            # than v3.1.3. This is a problem because Scala v3.1.3, which we support, needs to use a matching version of
+            # the Scala standard library.
+            'dev.zio:izumi-reflect_3:2.2.1',
             f'org.jline:jline-reader:{JLINE_VERSION}',
             f'org.jline:jline-terminal:{JLINE_VERSION}',
             f'org.jline:jline-terminal-jna:{JLINE_VERSION}',
