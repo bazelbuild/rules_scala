@@ -6,7 +6,7 @@ runner=$(get_test_runner "${1:-local}")
 
 incorrect_macro_user_does_not_build() {
   (! bazel build //test/macros:incorrect-macro-user) |&
-    grep --fixed-strings 'java.lang.Exception: You may have declared a target containing a macro as a `scala_library` target instead of a `scala_macro_library` target.'
+    grep --fixed-strings 'Build failure during macro expansion. You may have declared a target containing a macro as a `scala_library` target instead of a `scala_macro_library` target'
 }
 
 correct_macro_user_builds() {
