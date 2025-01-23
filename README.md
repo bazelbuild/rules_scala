@@ -289,4 +289,5 @@ Here's a (non-exhaustive) list of companies that use `rules_scala` in production
 * [VirtusLab](https://virtuslab.com/)
 * [VSCO](https://vsco.co)
 * [Wix](https://www.wix.com/)
+* [Nordea](https://www.nordea.com/en/careers/technology)
 
