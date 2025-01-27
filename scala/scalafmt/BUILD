@@ -1,4 +1,3 @@
-load("//scala/scalafmt/toolchain:setup_scalafmt_toolchain.bzl", "setup_scalafmt_toolchains")
 load("//scala/scalafmt/toolchain:toolchain.bzl", "export_scalafmt_deps")
 load("//scala/scalafmt:phase_scalafmt_ext.bzl", "scalafmt_singleton")
 load("//scala:scala.bzl", "scala_binary")
@@ -37,12 +36,13 @@ scalafmt_singleton(
     visibility = ["//visibility:public"],
 )
 
-setup_scalafmt_toolchains()
-
 # Alias for backward compatibility:
 alias(
     name = "scalafmt_toolchain",
-    actual = "scalafmt_toolchain" + version_suffix(SCALA_VERSION),
+    actual = (
+        "@io_bazel_rules_scala_toolchains//scalafmt:scalafmt_toolchain" +
+        version_suffix(SCALA_VERSION)
+    ),
 )
 
 export_scalafmt_deps(

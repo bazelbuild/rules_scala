@@ -57,7 +57,7 @@ def tests():
         ],
         jvm_flags = common_jvm_flags + [
             "-Dguava.jar.location=$(rootpath @com_google_guava_guava_21_0_with_file//jar)",
-            "-Dapache.commons.jar.location=$(location @org_apache_commons_commons_lang_3_5_without_file//:linkable_org_apache_commons_commons_lang_3_5_without_file)",
+            "-Dapache.commons.jar.location=$(rootpath @org_apache_commons_commons_lang_3_5_without_file//:linkable_org_apache_commons_commons_lang_3_5_without_file)",
         ],
         unused_dependency_checker_mode = "off",
         deps = scala_std_dependencies + [
@@ -76,7 +76,7 @@ def tests():
             "io/bazel/rulesscala/dependencyanalyzer/UnusedDependencyCheckerTest.scala",
         ],
         jvm_flags = common_jvm_flags + [
-            "-Dapache.commons.jar.location=$(location @org_apache_commons_commons_lang_3_5_without_file//:linkable_org_apache_commons_commons_lang_3_5_without_file)",
+            "-Dapache.commons.jar.location=$(rootpath @org_apache_commons_commons_lang_3_5_without_file//:linkable_org_apache_commons_commons_lang_3_5_without_file)",
         ],
         unused_dependency_checker_mode = "off",
         deps = scala_std_dependencies + [
