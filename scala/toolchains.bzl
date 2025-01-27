@@ -9,6 +9,7 @@ load(
 )
 load("//scala:scala_cross_version.bzl", "default_maven_server_urls")
 load("//scala:toolchains_repo.bzl", "scala_toolchains_repo")
+load("//scala_proto/default:repositories.bzl", "scala_proto_artifact_ids")
 load("//scalatest:scalatest.bzl", "scalatest_artifact_ids")
 load("//specs2:specs2.bzl", "specs2_artifact_ids")
 load("//specs2:specs2_junit.bzl", "specs2_junit_artifact_ids")
@@ -28,7 +29,9 @@ def scala_toolchains(
         specs2 = False,
         testing = False,
         scalafmt = False,
-        scalafmt_default_config_path = ".scalafmt.conf"):
+        scalafmt_default_config_path = ".scalafmt.conf",
+        scala_proto = False,
+        scala_proto_enable_all_options = False):
     """Instantiates @io_bazel_rules_scala_toolchains and all its dependencies.
 
     Provides a unified interface to configuring rules_scala both directly in a
@@ -76,6 +79,10 @@ def scala_toolchains(
         scalafmt: whether to instantiate the Scalafmt toolchain
         scalafmt_default_config_path: the relative path to the default Scalafmt
             config file within the repository
+        scala_proto: whether to instantiate the scala_proto toolchain
+        scala_proto_enable_all_options: whether to instantiate the scala_proto
+            toolchain with all options enabled; `scala_proto` must also be
+            `True` for this to take effect
     """
     scala_repositories(
         maven_servers = maven_servers,
@@ -119,6 +126,11 @@ def scala_toolchains(
     for scala_version in SCALA_VERSIONS:
         version_specific_artifact_ids = {}
 
+        if scala_proto:
+            version_specific_artifact_ids.update({
+                id: True
+                for id in scala_proto_artifact_ids(scala_version)
+            })
         if scalafmt:
             version_specific_artifact_ids.update({
                 id: fetch_sources
@@ -145,6 +157,8 @@ def scala_toolchains(
         specs2 = specs2,
         testing = testing,
         scalafmt = scalafmt,
+        scala_proto = scala_proto,
+        scala_proto_enable_all_options = scala_proto_enable_all_options,
     )
 
 def scala_register_toolchains():

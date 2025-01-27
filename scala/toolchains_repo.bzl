@@ -39,11 +39,14 @@ def _scala_toolchains_repo_impl(repository_ctx):
     repo_attr = repository_ctx.attr
     format_args = {
         "rules_scala_repo": Label("//:all").repo_name,
+        "proto_enable_all_options": repo_attr.scala_proto_enable_all_options,
     }
     toolchains = {}
 
     if repo_attr.scala:
         toolchains["scala"] = _SCALA_TOOLCHAIN_BUILD
+    if repo_attr.scala_proto:
+        toolchains["scala_proto"] = _SCALA_PROTO_TOOLCHAIN_BUILD
 
     testing_build_args = _generate_testing_toolchain_build_file_args(repo_attr)
     if testing_build_args != None:
@@ -73,6 +76,8 @@ _scala_toolchains_repo = repository_rule(
         "specs2": attr.bool(),
         "testing": attr.bool(),
         "scalafmt": attr.bool(),
+        "scala_proto": attr.bool(),
+        "scala_proto_enable_all_options": attr.bool(),
     },
 )
 
@@ -155,4 +160,44 @@ load(
 )
 
 setup_scalafmt_toolchains()
+"""
+
+_SCALA_PROTO_TOOLCHAIN_BUILD = """
+load("@@{rules_scala_repo}//scala:providers.bzl", "declare_deps_provider")
+load(
+    "@@{rules_scala_repo}//scala_proto/default:default_deps.bzl",
+    "DEFAULT_SCALAPB_COMPILE_DEPS",
+    "DEFAULT_SCALAPB_GRPC_DEPS",
+    "DEFAULT_SCALAPB_WORKER_DEPS",
+)
+load(
+    "@@{rules_scala_repo}//scala_proto:toolchains.bzl",
+    "setup_scala_proto_toolchains",
+)
+
+setup_scala_proto_toolchains(
+    name = "scala_proto",
+    enable_all_options = {proto_enable_all_options},
+)
+
+declare_deps_provider(
+    name = "scalapb_compile_deps_provider",
+    deps_id = "scalapb_compile_deps",
+    visibility = ["//visibility:public"],
+    deps = DEFAULT_SCALAPB_COMPILE_DEPS,
+)
+
+declare_deps_provider(
+    name = "scalapb_grpc_deps_provider",
+    deps_id = "scalapb_grpc_deps",
+    visibility = ["//visibility:public"],
+    deps = DEFAULT_SCALAPB_GRPC_DEPS,
+)
+
+declare_deps_provider(
+    name = "scalapb_worker_deps_provider",
+    deps_id = "scalapb_worker_deps",
+    visibility = ["//visibility:public"],
+    deps = DEFAULT_SCALAPB_WORKER_DEPS,
+)
 """

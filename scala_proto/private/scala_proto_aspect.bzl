@@ -9,14 +9,10 @@ load(
 )
 load("//scala/private/toolchain_deps:toolchain_deps.bzl", "find_deps_info_on")
 load(
-    "@io_bazel_rules_scala//scala_proto/private:scala_proto_aspect_provider.bzl",
+    "//scala_proto/private:scala_proto_aspect_provider.bzl",
     "ScalaProtoAspectInfo",
 )
-load(
-    "@io_bazel_rules_scala//scala/private:phases/api.bzl",
-    "extras_phases",
-    "run_aspect_phases",
-)
+load("//scala/private:phases/api.bzl", "extras_phases", "run_aspect_phases")
 load("@bazel_skylib//lib:dicts.bzl", "dicts")
 
 def _import_paths(proto, ctx):
@@ -47,7 +43,7 @@ def _code_should_be_generated(ctx, toolchain):
     return toolchain.blacklisted_protos.get(target_absolute_label) == None
 
 def _compile_deps(ctx, toolchain):
-    deps_toolchain_type_label = "@io_bazel_rules_scala//scala_proto:deps_toolchain_type"
+    deps_toolchain_type_label = Label("//scala_proto:deps_toolchain_type")
     return [
         dep[JavaInfo]
         for id in toolchain.compile_dep_ids
@@ -149,14 +145,14 @@ def _phase_deps(ctx, p):
     return [d[ScalaProtoAspectInfo].java_info for d in ctx.rule.attr.deps]
 
 def _phase_scalacopts(ctx, p):
-    return ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scalacopts
+    return ctx.toolchains[Label("//scala:toolchain_type")].scalacopts
 
 def _phase_generate_and_compile(ctx, p):
     proto = p.proto_info
     deps = p.deps
     scalacopts = p.scalacopts
     stamp_label = p.stamp_label
-    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
+    toolchain = ctx.toolchains[Label("//scala_proto:toolchain_type")]
 
     if proto.direct_sources and _code_should_be_generated(ctx, toolchain):
         src_jars = _generate_sources(ctx, toolchain, proto)
@@ -181,7 +177,7 @@ def _strip_suffix(str, suffix):
 
 def _phase_stamp_label(ctx, p):
     rule_label = str(p.target.label)
-    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
+    toolchain = ctx.toolchains[Label("//scala_proto:toolchain_type")]
 
     if toolchain.stamp_by_convention and rule_label.endswith("_proto"):
         return _strip_suffix(rule_label, "_proto") + "_scala_proto"
@@ -228,9 +224,9 @@ def make_scala_proto_aspect(*extras):
             *[extra["attrs"] for extra in extras if "attrs" in extra]
         ),
         toolchains = [
-            "@io_bazel_rules_scala//scala:toolchain_type",
-            "@io_bazel_rules_scala//scala_proto:toolchain_type",
-            "@io_bazel_rules_scala//scala_proto:deps_toolchain_type",
+            Label("//scala:toolchain_type"),
+            Label("//scala_proto:toolchain_type"),
+            Label("//scala_proto:deps_toolchain_type"),
             "@bazel_tools//tools/jdk:toolchain_type",
         ],
     )

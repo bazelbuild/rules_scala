@@ -7,10 +7,22 @@
 # dependency lists. This needs to be the unrolled transitive path to be used
 # without such a facility.
 
+load("//scala:scala_cross_version.bzl", "repositories")
 load("//scala:scala_cross_version_select.bzl", "select_for_scala_version")
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
+
+_DEFAULT_DEP_PROVIDER_FORMAT = (
+    "@io_bazel_rules_scala_toolchains//scala_proto:scalapb_%s_deps_provider"
+)
+
+def scala_proto_deps_providers(
+        compile = _DEFAULT_DEP_PROVIDER_FORMAT % "compile",
+        grpc = _DEFAULT_DEP_PROVIDER_FORMAT % "grpc",
+        worker = _DEFAULT_DEP_PROVIDER_FORMAT % "worker"):
+    return [compile, grpc, worker]
 
 DEFAULT_SCALAPB_COMPILE_DEPS = [
-    "//scala/private/toolchain_deps:scala_library_classpath",
+    Label("//scala/private/toolchain_deps:scala_library_classpath"),
     "@com_google_protobuf//:protobuf_java",
     "@com_lihaoyi_fastparse",
     "@scala_proto_rules_scalapb_lenses",
@@ -51,5 +63,7 @@ DEFAULT_SCALAPB_WORKER_DEPS = [
     "@scala_proto_rules_scalapb_protoc_bridge",
 ] + select_for_scala_version(
     any_2_11 = [],
-    since_2_12 = ["@scala_proto_rules_scalapb_protoc_gen"],
+    since_2_12 = repositories(SCALA_VERSION, [
+        "@scala_proto_rules_scalapb_protoc_gen",
+    ]),
 )
