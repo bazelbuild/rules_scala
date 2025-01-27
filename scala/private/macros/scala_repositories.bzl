@@ -177,6 +177,7 @@ def _artifact_ids(scala_version):
             "org_jline_jline_reader",
             "org_jline_jline_terminal",
             "org_jline_jline_terminal_jna",
+            "org_jline_jline_terminal_jni",
             "org_scala_sbt_compiler_interface",
             "org_scala_sbt_util_interface",
         ])
