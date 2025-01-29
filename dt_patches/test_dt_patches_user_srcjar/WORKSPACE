@@ -120,8 +120,8 @@ srcjars_by_version = {
         "url": "https://repo1.maven.org/maven2/org/scala-lang/scala3-compiler_3/3.2.2/scala3-compiler_3-3.2.2-sources.jar",
         "sha256": "669d580fc4a8d3c2e2d13d5735ae9be05d567613fe44482de5bcc5e2e2ee89ea",
     },
-    "3.3.4": {
-        "url": "https://repo1.maven.org/maven2/org/scala-lang/scala3-compiler_3/3.3.4/scala3-compiler_3-3.3.4-sources.jar",
+    "3.3.5": {
+        "url": "https://repo1.maven.org/maven2/org/scala-lang/scala3-compiler_3/3.3.5/scala3-compiler_3-3.3.5-sources.jar",
     },
     "3.4.3": {
         "label": "@scala3_compiler_srcjar//jar:downloaded.jar",

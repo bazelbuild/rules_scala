@@ -3,7 +3,7 @@
 Mostly generated and updated by scripts/create_repository.py.
 """
 
-scala_version = "3.3.4"
+scala_version = "3.3.5"
 
 artifacts = {
     "com_geirsson_metaconfig_core": {
@@ -217,14 +217,20 @@ artifacts = {
         ],
     },
     "io_bazel_rules_scala_scala_asm": {
-        "artifact": "org.scala-lang.modules:scala-asm:9.6.0-scala-1",
-        "sha256": "bf16f8b69e89cadab550bce266a052780af7f1eb29dd1c04c3bd014113752c12",
+        "artifact": "org.scala-lang.modules:scala-asm:9.7.0-scala-2",
+        "sha256": "823cd3a46e289c69e37994e03aee3864e1e059aacb3e0bf34f536b3669b61772",
     },
     "io_bazel_rules_scala_scala_compiler": {
-        "artifact": "org.scala-lang:scala3-compiler_3:3.3.4",
-        "sha256": "2cca65fdb92e2cc393786cae61b4f7bcb9032ad4be61f9cebae1dca72997e52f",
+        "artifact": "org.scala-lang:scala3-compiler_3:3.3.5",
+        "sha256": "f067da9a52ec450efa5d1cc1a3325b7f9882874a059b11728969460d170ed424",
         "deps": [
             "@io_bazel_rules_scala_scala_asm",
+            "@io_bazel_rules_scala_scala_interfaces",
+            "@io_bazel_rules_scala_scala_library",
+            "@io_bazel_rules_scala_scala_tasty_core",
+            "@org_jline_jline_reader",
+            "@org_jline_jline_terminal",
+            "@org_jline_jline_terminal_jni",
             "@org_scala_sbt_compiler_interface",
         ],
     },
@@ -233,12 +239,12 @@ artifacts = {
         "sha256": "4c200cd193c082bec14a2a2dffe6a1ba5f8130b1b27c79ee54c936dfcafc8ed9",
     },
     "io_bazel_rules_scala_scala_interfaces": {
-        "artifact": "org.scala-lang:scala3-interfaces:3.3.4",
-        "sha256": "fe056c10a217353e14aa62076d2bbd957ebd82e02fb445ca5546ae8ea9d40caa",
+        "artifact": "org.scala-lang:scala3-interfaces:3.3.5",
+        "sha256": "b44fcdf2d4aef100ab2a24f88b5432b3f487de91ab38f54c8e0b96cb35913c93",
     },
     "io_bazel_rules_scala_scala_library": {
-        "artifact": "org.scala-lang:scala3-library_3:3.3.4",
-        "sha256": "d95184acfcd814da2e051378e4962c653f4b468f4086452ab427af030482bd3c",
+        "artifact": "org.scala-lang:scala3-library_3:3.3.5",
+        "sha256": "26163f54674adb4c3e2151155f7f6f17095a0be10ebfb884ee8cdca98adca248",
         "deps": [
             "@io_bazel_rules_scala_scala_library_2",
         ],
@@ -269,8 +275,11 @@ artifacts = {
         ],
     },
     "io_bazel_rules_scala_scala_tasty_core": {
-        "artifact": "org.scala-lang:tasty-core_3:3.3.4",
-        "sha256": "13d44693d6f2d38e0595954d11234c0373d6d0e689a8151b06878c5b631d57d5",
+        "artifact": "org.scala-lang:tasty-core_3:3.3.5",
+        "sha256": "7e14a81eaebe0c23ac5350e5421691d46206a46ce88493450ec625ef47498922",
+        "deps": [
+            "@io_bazel_rules_scala_scala_library",
+        ],
     },
     "io_bazel_rules_scala_scala_xml": {
         "artifact": "org.scala-lang.modules:scala-xml_3:2.1.0",
