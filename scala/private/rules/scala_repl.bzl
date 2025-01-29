@@ -24,6 +24,7 @@ load(
     "phase_runfiles_common",
     "phase_scalac_provider",
     "phase_scalacopts",
+    "phase_scalainfo_provider_non_macro",
     "phase_semanticdb",
     "phase_write_executable_repl",
     "phase_write_manifest",
@@ -36,6 +37,7 @@ def _scala_repl_impl(ctx):
         # customizable phases
         [
             ("scalac_provider", phase_scalac_provider),
+            ("scalainfo_provider", phase_scalainfo_provider_non_macro),
             ("write_manifest", phase_write_manifest),
             ("dependency", phase_dependency_common),
             # need scala-compiler for MainGenericRunner below

@@ -1,10 +1,12 @@
 """Scaladoc support"""
 
+load("@io_bazel_rules_scala//scala:providers.bzl", "ScalaInfo")
 load("@io_bazel_rules_scala//scala/private:common.bzl", "collect_plugin_paths")
 
 ScaladocAspectInfo = provider(fields = [
     "src_files",  #depset[File]
     "compile_jars",  #depset[File]
+    "macro_classpath",  #depset[File]
     "plugins",  #depset[Target]
 ])
 
@@ -29,10 +31,15 @@ def _scaladoc_aspect_impl(target, ctx, transitive = True):
         if hasattr(ctx.rule.attr, "plugins"):
             plugins = depset(ctx.rule.attr.plugins)
 
+    macro_classpath = []
+
+    for dependency in ctx.rule.attr.deps:
+        if ScalaInfo in dependency and dependency[ScalaInfo].contains_macros:
+            macro_classpath.append(dependency[JavaInfo].transitive_runtime_jars)
+
     # Sometimes we only want to generate scaladocs for a single target and not all of its
     # dependencies
     transitive_srcs = depset()
-    transitive_compile_jars = depset()
     transitive_plugins = depset()
 
     if transitive:
@@ -40,12 +47,12 @@ def _scaladoc_aspect_impl(target, ctx, transitive = True):
             if ScaladocAspectInfo in dep:
                 aspec_info = dep[ScaladocAspectInfo]
                 transitive_srcs = aspec_info.src_files
-                transitive_compile_jars = aspec_info.compile_jars
                 transitive_plugins = aspec_info.plugins
 
     return [ScaladocAspectInfo(
         src_files = depset(transitive = [src_files, transitive_srcs]),
-        compile_jars = depset(transitive = [compile_jars, transitive_compile_jars]),
+        compile_jars = depset(transitive = [compile_jars]),
+        macro_classpath = depset(transitive = macro_classpath),
         plugins = depset(transitive = [plugins, transitive_plugins]),
     )]
 
@@ -73,11 +80,15 @@ def _scala_doc_impl(ctx):
     src_files = depset(transitive = [dep[ScaladocAspectInfo].src_files for dep in ctx.attr.deps])
     compile_jars = depset(transitive = [dep[ScaladocAspectInfo].compile_jars for dep in ctx.attr.deps])
 
+    # See the documentation for `collect_jars` in `scala/private/common.bzl` to understand why this is prepended to the
+    # classpath
+    macro_classpath = depset(transitive = [dep[ScaladocAspectInfo].macro_classpath for dep in ctx.attr.deps])
+
     # Get the 'real' paths to the plugin jars.
     plugins = collect_plugin_paths(depset(transitive = [dep[ScaladocAspectInfo].plugins for dep in ctx.attr.deps]).to_list())
 
     # Construct the full classpath depset since we need to add compiler plugins too.
-    classpath = depset(transitive = [plugins, compile_jars])
+    classpath = depset(transitive = [macro_classpath, plugins, compile_jars])
 
     # Construct scaladoc args, which also include scalac args.
     # See `scaladoc -help` for more information.
