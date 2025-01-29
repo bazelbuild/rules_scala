@@ -38,7 +38,7 @@ function scala3_2_example() {
 }
 
 function scala3_3_example() {
-  test_example examples/scala3 "bazel build --repo_env=SCALA_VERSION=3.3.4 //..."
+  test_example examples/scala3 "bazel build --repo_env=SCALA_VERSION=3.3.5 //..."
 }
 
 function scala3_4_example() {
