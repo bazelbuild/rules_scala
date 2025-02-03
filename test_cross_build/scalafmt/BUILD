@@ -36,7 +36,7 @@ scalafmt_scala_library(
     srcs = ["unformatted/unformatted-library3.scala"],
     config = ":scala3-conf",
     format = True,
-    scala_version = "3.3.4",
+    scala_version = "3.3.5",
 )
 
 scalafmt_scala_library(
@@ -44,7 +44,7 @@ scalafmt_scala_library(
     srcs = ["formatted/formatted-library3.scala"],
     config = ":scala3-conf",
     format = True,
-    scala_version = "3.3.4",
+    scala_version = "3.3.5",
 )
 
 scalafmt_scala_binary(
