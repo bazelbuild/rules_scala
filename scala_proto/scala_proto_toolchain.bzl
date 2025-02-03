@@ -80,6 +80,13 @@ scala_proto_toolchain = rule(
             default = Label("//src/scala/scripts:scalapb_worker"),
             allow_files = True,
         ),
+        # `scripts.ScalaPbCodeGenerator` and `_main_generator_dep` are currently
+        # necessary to support protoc-bridge < 0.9.8, specifically 0.7.14
+        # required by Scala 2.11. See #1647 and scalapb/ScalaPB#1771.
+        #
+        # If we drop 2.11 support, restore `scalapb.ScalaPbCodeGenerator` here,
+        # remove `_main_generator_dep`, and delete
+        # `//src/scala/scripts:scalapb_codegenerator_wrapper` and its files.
         "main_generator": attr.string(
             default = "scripts.ScalaPbCodeGenerator",
         ),
