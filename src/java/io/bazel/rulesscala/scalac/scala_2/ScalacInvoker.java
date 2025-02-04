@@ -11,14 +11,14 @@ import java.nio.file.Files;
 
 //Invokes Scala 2 compiler
 class ScalacInvoker{
-   
+
   public static ScalacInvokerResults invokeCompiler(CompileOptions ops, String[] compilerArgs)
     throws IOException, Exception{
 
     ReportableMainClass comp = new ReportableMainClass(ops);
 
     ScalacInvokerResults results = new ScalacInvokerResults();
-    
+
     results.startTime = System.currentTimeMillis();
     try {
       comp.process(compilerArgs);
@@ -28,7 +28,15 @@ class ScalacInvoker{
       } else if (ex.toString().contains("java.lang.StackOverflowError")) {
         throw new ScalacWorker.CompilationFailed("with StackOverflowError", ex);
       } else if (isMacroException(ex)) {
-        throw new ScalacWorker.CompilationFailed("during macro expansion", ex);
+        String reason;
+
+        if (ex instanceof ClassFormatError) {
+          reason = "during macro expansion. You may have declared a target containing a macro as a `scala_library` target instead of a `scala_macro_library` target";
+        } else {
+          reason = "during macro expansion";
+        }
+
+        throw new ScalacWorker.CompilationFailed(reason, ex);
       } else {
         throw ex;
       }
@@ -37,7 +45,7 @@ class ScalacInvoker{
     }
 
     results.stopTime = System.currentTimeMillis();
-    
+
     ConsoleReporter reporter = (ConsoleReporter) comp.getReporter();
     if (reporter == null) {
       // Can happen only when `ReportableMainClass::newCompiler` was not invoked,
