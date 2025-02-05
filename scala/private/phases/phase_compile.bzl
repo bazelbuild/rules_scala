@@ -46,17 +46,6 @@ def phase_compile_library_for_plugin_bootstrapping(ctx, p):
     )
     return _phase_compile_default(ctx, p, args)
 
-def phase_compile_macro_library(ctx, p):
-    args = struct(
-        buildijar = False,
-        unused_dependency_checker_ignored_targets = [
-            target.label
-            for target in p.scalac_provider.default_macro_classpath + ctx.attr.exports +
-                          ctx.attr.unused_dependency_checker_ignored_targets
-        ],
-    )
-    return _phase_compile_default(ctx, p, args)
-
 def phase_compile_junit_test(ctx, p):
     args = struct(
         buildijar = False,

@@ -13,5 +13,10 @@ correct_macro_user_builds() {
   bazel build //test/macros:correct-macro-user
 }
 
+macros_can_have_dependencies() {
+  bazel build //test/macros:macro-with-dependencies-user
+}
+
 $runner incorrect_macro_user_does_not_build
 $runner correct_macro_user_builds
+$runner macros_can_have_dependencies
