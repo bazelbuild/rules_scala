@@ -1,4 +1,8 @@
 load("//scala:providers.bzl", "DepsInfo")
+load(
+    "//scala_proto/default:default_deps.bzl",
+    _scala_proto_deps_providers = "scala_proto_deps_providers",
+)
 
 def _generators(ctx):
     return dict(
@@ -138,13 +142,11 @@ scala_proto_deps_toolchain = rule(
     implementation = _scala_proto_deps_toolchain,
     attrs = {
         "dep_providers": attr.label_list(
-            default = [
-                Label("//scala_proto:scalapb_compile_deps_provider"),
-                Label("//scala_proto:scalapb_grpc_deps_provider"),
-                Label("//scala_proto:scalapb_worker_deps_provider"),
-            ],
+            default = _scala_proto_deps_providers(),
             cfg = "target",
             providers = [DepsInfo],
         ),
     },
 )
+
+scala_proto_deps_providers = _scala_proto_deps_providers

@@ -4,6 +4,7 @@ load("//scala_proto/default:default_deps.bzl", "DEFAULT_SCALAPB_WORKER_DEPS")
 load("//scala_proto:scala_proto.bzl", "scala_proto_library")
 load(
     "//scala_proto:scala_proto_toolchain.bzl",
+    "scala_proto_deps_providers",
     "scala_proto_deps_toolchain",
     "scala_proto_toolchain",
 )
@@ -48,17 +49,15 @@ declare_deps_provider(
 
 scala_proto_deps_toolchain(
     name = "scala_proto_deps_toolchain_def",
-    dep_providers = [
-        ":scalapb_worker_deps_provider",
-        "@io_bazel_rules_scala//scala_proto:scalapb_compile_deps_provider",
-        "@io_bazel_rules_scala//scala_proto:scalapb_grpc_deps_provider",
-    ],
+    dep_providers = scala_proto_deps_providers(
+        worker = ":scalapb_worker_deps_provider",
+    ),
 )
 
 toolchain(
     name = "scala_proto_deps_toolchain",
     toolchain = ":scala_proto_deps_toolchain_def",
-    toolchain_type = "@io_bazel_rules_scala//scala_proto:deps_toolchain_type",
+    toolchain_type = "//scala_proto:deps_toolchain_type",
 )
 
 scala_proto_toolchain(
@@ -69,7 +68,7 @@ scala_proto_toolchain(
 toolchain(
     name = "scala_proto_toolchain",
     toolchain = ":scala_proto_toolchain_def",
-    toolchain_type = "@io_bazel_rules_scala//scala_proto:toolchain_type",
+    toolchain_type = "//scala_proto:toolchain_type",
 )
 
 scala_library(
@@ -88,17 +87,15 @@ declare_deps_provider(
 
 scala_proto_deps_toolchain(
     name = "failing_scala_proto_deps_toolchain_def",
-    dep_providers = [
-        ":failing_scalapb_worker_deps_provider",
-        "@io_bazel_rules_scala//scala_proto:scalapb_compile_deps_provider",
-        "@io_bazel_rules_scala//scala_proto:scalapb_grpc_deps_provider",
-    ],
+    dep_providers = scala_proto_deps_providers(
+        worker = ":failing_scalapb_worker_deps_provider",
+    ),
 )
 
 toolchain(
     name = "failing_scala_proto_deps_toolchain",
     toolchain = ":failing_scala_proto_deps_toolchain_def",
-    toolchain_type = "@io_bazel_rules_scala//scala_proto:deps_toolchain_type",
+    toolchain_type = "//scala_proto:deps_toolchain_type",
 )
 
 scala_proto_toolchain(
@@ -109,5 +106,5 @@ scala_proto_toolchain(
 toolchain(
     name = "failing_scala_proto_toolchain",
     toolchain = ":failing_scala_proto_toolchain_def",
-    toolchain_type = "@io_bazel_rules_scala//scala_proto:toolchain_type",
+    toolchain_type = "//scala_proto:toolchain_type",
 )
