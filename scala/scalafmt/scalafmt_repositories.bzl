@@ -34,8 +34,6 @@ def scalafmt_default_config(path = ".scalafmt.conf", **kwargs):
     scalafmt_config(name = "scalafmt_default", path = "//:" + path, **kwargs)
 
 _SCALAFMT_DEPS = [
-    "com_geirsson_metaconfig_core",
-    "com_geirsson_metaconfig_typesafe_config",
     "com_lihaoyi_fansi",
     "com_typesafe_config",
     "org_scala_lang_scalap",
@@ -48,15 +46,20 @@ _SCALAFMT_DEPS = [
 ] + SCALAPB_COMPILE_ARTIFACT_IDS
 
 _SCALAFMT_DEPS_2_11 = [
+    "com_geirsson_metaconfig_core",
+    "com_geirsson_metaconfig_typesafe_config",
     "com_lihaoyi_pprint",
     "org_scalameta_fastparse",
     "org_scalameta_fastparse_utils",
 ]
 
 _SCALAFMT_DEPS_2_12 = [
-    "com_geirsson_metaconfig_pprint",
     "org_scalameta_mdoc_parser",
+    "org_scalameta_metaconfig_core",
+    "org_scalameta_metaconfig_pprint",
+    "org_scalameta_metaconfig_typesafe_config",
     "org_scalameta_scalafmt_config",
+    "org_scalameta_scalafmt_macros",
     "org_scalameta_scalafmt_sysops",
 ]
 
