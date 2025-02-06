@@ -140,9 +140,9 @@ def repositories(
 
 def _alias_repository_impl(rctx):
     """ Builds a repository containing just two aliases to the Scala Maven artifacts in the `target` repository. """
-
     format_kwargs = {
-        "name": rctx.attr.default_target_name,
+        # Replace with rctx.original_name once all supported Bazels have it
+        "name": getattr(rctx, "original_name", rctx.attr.default_target_name),
         "target": rctx.attr.target,
     }
     rctx.file("BUILD", """alias(
@@ -161,11 +161,14 @@ def _alias_repository_impl(rctx):
 _alias_repository = repository_rule(
     implementation = _alias_repository_impl,
     attrs = {
+        # Remove once all supported Bazels have repository_ctx.original_name
         "default_target_name": attr.string(mandatory = True),
         "target": attr.string(mandatory = True),
     },
 )
 
+# Remove this macro and use `_alias_repository` directly once all supported
+# Bazel versions support `repository_ctx.original_name`.
 def _alias_repository_wrapper(**kwargs):
     """Wraps `_alias_repository` to pass `name` as `default_target_name`."""
     default_target_name = kwargs.pop("default_target_name", kwargs.get("name"))
