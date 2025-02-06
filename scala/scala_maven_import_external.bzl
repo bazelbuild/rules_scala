@@ -68,7 +68,9 @@ def _jvm_import_external_impl(repository_ctx):
     if (repository_ctx.attr.generated_linkable_rule_name and
         not repository_ctx.attr.neverlink):
         fail("Only use generated_linkable_rule_name if neverlink is set")
-    repo_name = repository_ctx.name
+
+    # Replace with rctx.original_name once all supported Bazels have it
+    repo_name = getattr(repository_ctx, "original_name", repository_ctx.name)
     name = repository_ctx.attr.generated_rule_name or repo_name
     urls = repository_ctx.attr.jar_urls
     if repository_ctx.attr.jar_sha256:
@@ -257,6 +259,8 @@ _jvm_import_external = repository_rule(
     environ = [_FETCH_SOURCES_ENV_VAR_NAME],
 )
 
+# Remove this macro and restore `_jvm_import_external` to `jvm_import_external`
+# once all supported Bazel versions support `repository_ctx.original_name`.
 def jvm_import_external(**kwargs):
     """Wraps `_jvm_import_external` to pass `name` as `generated_target_name`.
 
