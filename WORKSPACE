@@ -54,6 +54,7 @@ scala_toolchains(
     scala_proto = True,
     scalafmt = True,
     testing = True,
+    twitter_scrooge = True,
 )
 
 register_toolchains(
@@ -61,10 +62,6 @@ register_toolchains(
     "//test/proto:scalapb_toolchain",
     "@io_bazel_rules_scala_toolchains//...:all",
 )
-
-load("//twitter_scrooge:twitter_scrooge.bzl", "twitter_scrooge")
-
-twitter_scrooge()
 
 # needed for the cross repo proto test
 local_repository(
