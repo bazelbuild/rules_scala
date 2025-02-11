@@ -18,8 +18,12 @@ load("//third_party/repositories:repositories.bzl", "repositories")
 load(
     "//twitter_scrooge/toolchain:toolchain.bzl",
     "twitter_scrooge_artifact_ids",
+    _TWITTER_SCROOGE_DEPS = "TOOLCHAIN_DEPS",
 )
 load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSIONS")
+
+def _get_unknown_entries(entries, allowed_entries):
+    return [e for e in entries if e not in allowed_entries]
 
 def scala_toolchains(
         maven_servers = default_maven_server_urls(),
@@ -39,11 +43,7 @@ def scala_toolchains(
         scala_proto_enable_all_options = False,
         jmh = False,
         twitter_scrooge = False,
-        libthrift = None,
-        scrooge_core = None,
-        scrooge_generator = None,
-        util_core = None,
-        util_logging = None):
+        twitter_scrooge_deps = {}):
     """Instantiates @io_bazel_rules_scala_toolchains and all its dependencies.
 
     Provides a unified interface to configuring rules_scala both directly in a
@@ -97,13 +97,22 @@ def scala_toolchains(
             `True` for this to take effect
         jmh: whether to instantiate the jmh toolchain
         twitter_scrooge: whether to instantiate the twitter_scrooge toolchain
-        libthrift: label to a libthrift artifact for twitter_scrooge
-        scrooge_core: label to a scrooge_core artifact for twitter_scrooge
-        scrooge_generator: label to a scrooge_generator artifact for
-            twitter_scrooge
-        util_core: label to a util_core artifact for twitter_scrooge
-        util_logging: label to a util_logging artifact for twitter_scrooge
+        twitter_scrooge_deps: dictionary of string to Label containing overrides
+            for twitter_scrooge toolchain dependency providers with keys:
+                libthrift
+                scrooge_core
+                scrooge_generator
+                util_core
+                util_logging
     """
+    unknown_ts_deps = _get_unknown_entries(
+        twitter_scrooge_deps,
+        _TWITTER_SCROOGE_DEPS,
+    )
+
+    if unknown_ts_deps:
+        fail("unknown twitter_scrooge_deps:", ", ".join(unknown_ts_deps))
+
     scala_repositories(
         maven_servers = maven_servers,
         # Note the internal macro parameter misspells "overriden".
@@ -150,13 +159,7 @@ def scala_toolchains(
     if twitter_scrooge:
         artifact_ids_to_fetch_sources.update({
             id: False
-            for id in twitter_scrooge_artifact_ids(
-                libthrift = libthrift,
-                scrooge_core = scrooge_core,
-                scrooge_generator = scrooge_generator,
-                util_core = util_core,
-                util_logging = util_logging,
-            )
+            for id in twitter_scrooge_artifact_ids(**twitter_scrooge_deps)
         })
 
     for scala_version in SCALA_VERSIONS:
@@ -197,6 +200,7 @@ def scala_toolchains(
         scala_proto_enable_all_options = scala_proto_enable_all_options,
         jmh = jmh,
         twitter_scrooge = twitter_scrooge,
+        twitter_scrooge_deps = twitter_scrooge_deps,
     )
 
 def scala_register_toolchains():

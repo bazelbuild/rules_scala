@@ -5,8 +5,8 @@ load(
 load("//scala:providers.bzl", "DepsInfo", "declare_deps_provider")
 load(
     "//scala:scala_cross_version.bzl",
+    "version_suffix",
     _default_maven_server_urls = "default_maven_server_urls",
-    _versioned_repositories = "repositories",
 )
 load("//scala_proto/default:repositories.bzl", "GUAVA_ARTIFACT_IDS")
 load("//third_party/repositories:repositories.bzl", "repositories")
@@ -17,6 +17,14 @@ DEP_PROVIDERS = [
     "aspect_compile_classpath",
     "scrooge_generator_classpath",
     "compiler_classpath",
+]
+
+TOOLCHAIN_DEPS = [
+    "libthrift",
+    "scrooge_core",
+    "scrooge_generator",
+    "util_core",
+    "util_logging",
 ]
 
 def twitter_scrooge_artifact_ids(
@@ -106,7 +114,26 @@ export_scrooge_deps = rule(
     incompatible_use_toolchain_transition = True,
 )
 
-def setup_scrooge_toolchain(name):
+def setup_scrooge_toolchain(
+        name,
+        libthrift = None,
+        scrooge_core = None,
+        scrooge_generator = None,
+        util_core = None,
+        util_logging = None):
+    version = version_suffix(SCALA_VERSION)
+
+    if libthrift == None:
+        libthrift = "@libthrift" + version
+    if scrooge_core == None:
+        scrooge_core = "@io_bazel_rules_scala_scrooge_core" + version
+    if scrooge_generator == None:
+        scrooge_generator = "@io_bazel_rules_scala_scrooge_generator" + version
+    if util_core == None:
+        util_core = "@io_bazel_rules_scala_util_core" + version
+    if util_logging == None:
+        util_logging = "@io_bazel_rules_scala_util_logging" + version
+
     scrooge_toolchain(
         name = "%s_impl" % name,
         dep_providers = [":%s_provider" % p for p in DEP_PROVIDERS],
@@ -124,13 +151,12 @@ def setup_scrooge_toolchain(name):
         name = "aspect_compile_classpath_provider",
         deps_id = "aspect_compile_classpath",
         visibility = ["//visibility:public"],
-        deps = _versioned_repositories(SCALA_VERSION, [
-            "@io_bazel_rules_scala_javax_annotation_api",
-            "@libthrift",
-            "@io_bazel_rules_scala_scrooge_core",
-            "@io_bazel_rules_scala_util_core",
-        ]) + [
+        deps = [
+            "@io_bazel_rules_scala_javax_annotation_api" + version,
             Label("//scala/private/toolchain_deps:scala_library_classpath"),
+            libthrift,
+            scrooge_core,
+            util_core,
         ],
     )
 
@@ -138,11 +164,10 @@ def setup_scrooge_toolchain(name):
         name = "compile_classpath_provider",
         deps_id = "compile_classpath",
         visibility = ["//visibility:public"],
-        deps = _versioned_repositories(SCALA_VERSION, [
-            "@libthrift",
-            "@io_bazel_rules_scala_scrooge_core",
-        ]) + [
+        deps = [
             Label("//scala/private/toolchain_deps:scala_library_classpath"),
+            libthrift,
+            scrooge_core,
         ],
     )
 
@@ -150,22 +175,19 @@ def setup_scrooge_toolchain(name):
         name = "scrooge_generator_classpath_provider",
         deps_id = "scrooge_generator_classpath",
         visibility = ["//visibility:public"],
-        deps = _versioned_repositories(SCALA_VERSION, [
-            "@io_bazel_rules_scala_scrooge_generator",
-        ]),
+        deps = [scrooge_generator],
     )
 
     declare_deps_provider(
         name = "compiler_classpath_provider",
         deps_id = "compiler_classpath",
         visibility = ["//visibility:public"],
-        deps = _versioned_repositories(SCALA_VERSION, [
-            "@io_bazel_rules_scala_mustache",
-            "@io_bazel_rules_scala_scopt",
-            "@io_bazel_rules_scala_scrooge_generator",
-            "@io_bazel_rules_scala_util_core",
-            "@io_bazel_rules_scala_util_logging",
-        ]) + [
+        deps = [
+            "@io_bazel_rules_scala_mustache" + version,
+            "@io_bazel_rules_scala_scopt" + version,
             Label("//scala/private/toolchain_deps:parser_combinators"),
+            scrooge_generator,
+            util_core,
+            util_logging,
         ],
     )

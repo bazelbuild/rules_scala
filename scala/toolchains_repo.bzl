@@ -35,6 +35,20 @@ def _generate_testing_toolchain_build_file_args(repo_attr):
         "specs2_junit": framework_deps.get("specs2_junit"),
     }
 
+_TWITTER_SCROOGE_ARGS = [
+    "libthrift",
+    "scrooge_core",
+    "scrooge_generator",
+    "util_core",
+    "util_logging",
+]
+
+def _stringify_template_args(args, arg_names):
+    return {
+        arg: ("\"%s\"" % value if type(value) == "string" else value)
+        for arg, value in {name: args.get(name) for name in arg_names}.items()
+    }
+
 def _scala_toolchains_repo_impl(repository_ctx):
     repo_attr = repository_ctx.attr
     format_args = {
@@ -51,6 +65,10 @@ def _scala_toolchains_repo_impl(repository_ctx):
         toolchains["jmh"] = _JMH_TOOLCHAIN_BUILD
     if repo_attr.twitter_scrooge:
         toolchains["twitter_scrooge"] = _TWITTER_SCROOGE_TOOLCHAIN_BUILD
+        format_args.update(_stringify_template_args(
+            repo_attr.twitter_scrooge_deps,
+            _TWITTER_SCROOGE_ARGS,
+        ))
 
     testing_build_args = _generate_testing_toolchain_build_file_args(repo_attr)
     if testing_build_args != None:
@@ -84,6 +102,8 @@ _scala_toolchains_repo = repository_rule(
         "scala_proto_enable_all_options": attr.bool(),
         "jmh": attr.bool(),
         "twitter_scrooge": attr.bool(),
+        # attr.string_keyed_label_dict isn't available in Bazel 6
+        "twitter_scrooge_deps": attr.string_dict(),
     },
 )
 
@@ -220,5 +240,12 @@ load(
     "setup_scrooge_toolchain",
 )
 
-setup_scrooge_toolchain(name = "scrooge_toolchain")
+setup_scrooge_toolchain(
+    name = "scrooge_toolchain",
+    libthrift = {libthrift},
+    scrooge_core = {scrooge_core},
+    scrooge_generator = {scrooge_generator},
+    util_core = {util_core},
+    util_logging = {util_logging},
+)
 """
