@@ -15,7 +15,15 @@ load("//scalatest:scalatest.bzl", "scalatest_artifact_ids")
 load("//specs2:specs2.bzl", "specs2_artifact_ids")
 load("//specs2:specs2_junit.bzl", "specs2_junit_artifact_ids")
 load("//third_party/repositories:repositories.bzl", "repositories")
+load(
+    "//twitter_scrooge/toolchain:toolchain.bzl",
+    "twitter_scrooge_artifact_ids",
+    _TWITTER_SCROOGE_DEPS = "TOOLCHAIN_DEPS",
+)
 load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSIONS")
+
+def _get_unknown_entries(entries, allowed_entries):
+    return [e for e in entries if e not in allowed_entries]
 
 def scala_toolchains(
         maven_servers = default_maven_server_urls(),
@@ -33,7 +41,9 @@ def scala_toolchains(
         scalafmt_default_config_path = ".scalafmt.conf",
         scala_proto = False,
         scala_proto_enable_all_options = False,
-        jmh = False):
+        jmh = False,
+        twitter_scrooge = False,
+        twitter_scrooge_deps = {}):
     """Instantiates @io_bazel_rules_scala_toolchains and all its dependencies.
 
     Provides a unified interface to configuring rules_scala both directly in a
@@ -86,7 +96,23 @@ def scala_toolchains(
             toolchain with all options enabled; `scala_proto` must also be
             `True` for this to take effect
         jmh: whether to instantiate the jmh toolchain
+        twitter_scrooge: whether to instantiate the twitter_scrooge toolchain
+        twitter_scrooge_deps: dictionary of string to Label containing overrides
+            for twitter_scrooge toolchain dependency providers with keys:
+                libthrift
+                scrooge_core
+                scrooge_generator
+                util_core
+                util_logging
     """
+    unknown_ts_deps = _get_unknown_entries(
+        twitter_scrooge_deps,
+        _TWITTER_SCROOGE_DEPS,
+    )
+
+    if unknown_ts_deps:
+        fail("unknown twitter_scrooge_deps:", ", ".join(unknown_ts_deps))
+
     scala_repositories(
         maven_servers = maven_servers,
         # Note the internal macro parameter misspells "overriden".
@@ -130,6 +156,11 @@ def scala_toolchains(
             id: False
             for id in jmh_artifact_ids()
         })
+    if twitter_scrooge:
+        artifact_ids_to_fetch_sources.update({
+            id: False
+            for id in twitter_scrooge_artifact_ids(**twitter_scrooge_deps)
+        })
 
     for scala_version in SCALA_VERSIONS:
         version_specific_artifact_ids = {}
@@ -168,6 +199,8 @@ def scala_toolchains(
         scala_proto = scala_proto,
         scala_proto_enable_all_options = scala_proto_enable_all_options,
         jmh = jmh,
+        twitter_scrooge = twitter_scrooge,
+        twitter_scrooge_deps = twitter_scrooge_deps,
     )
 
 def scala_register_toolchains():
