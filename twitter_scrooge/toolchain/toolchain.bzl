@@ -80,7 +80,7 @@ def twitter_scrooge(
 
     if register_toolchains:
         native.register_toolchains(
-            "@io_bazel_rules_scala_toolchains//twitter_scrooge:all",
+            "@rules_scala_toolchains//twitter_scrooge:all",
         )
 
 def _scrooge_toolchain_impl(ctx):
@@ -98,7 +98,7 @@ scrooge_toolchain = rule(
     },
 )
 
-_toolchain_type = "//twitter_scrooge/toolchain:scrooge_toolchain_type"
+_toolchain_type = Label("//twitter_scrooge/toolchain:scrooge_toolchain_type")
 
 def _export_scrooge_deps_impl(ctx):
     return expose_toolchain_deps(ctx, _toolchain_type)

@@ -5,11 +5,11 @@
 #
 
 load(
-    "@io_bazel_rules_scala//scala/private:coverage_replacements_provider.bzl",
+    "//scala/private:coverage_replacements_provider.bzl",
     _coverage_replacements_provider = "coverage_replacements_provider",
 )
 load(
-    "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
+    "//scala/private:rule_impls.bzl",
     _allow_security_manager = "allow_security_manager",
 )
 

@@ -9,7 +9,7 @@ use the stable rules exported by scala.bzl:
 
 ```
 load(
-    "@io_bazel_rules_scala//scala:scala.bzl",
+    "//scala:scala.bzl",
     "scala_library",
     "scala_binary",
     "scala_test"
@@ -19,15 +19,15 @@ load(
 """
 
 load(
-    "@io_bazel_rules_scala//scala/private:rules/scala_binary.bzl",
+    "//scala/private:rules/scala_binary.bzl",
     _make_scala_binary = "make_scala_binary",
 )
 load(
-    "@io_bazel_rules_scala//scala/private:rules/scala_library.bzl",
+    "//scala/private:rules/scala_library.bzl",
     _make_scala_library = "make_scala_library",
 )
 load(
-    "@io_bazel_rules_scala//scala/private:rules/scala_test.bzl",
+    "//scala/private:rules/scala_test.bzl",
     _make_scala_test = "make_scala_test",
 )
 

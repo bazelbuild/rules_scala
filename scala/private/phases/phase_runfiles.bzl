@@ -1,4 +1,4 @@
-load("@io_bazel_rules_scala//scala/private:common.bzl", "rlocationpath_from_file")
+load("//scala/private:common.bzl", "rlocationpath_from_file")
 
 #
 # PHASE: runfiles

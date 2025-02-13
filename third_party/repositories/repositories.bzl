@@ -1,4 +1,14 @@
 load(
+    "//scala:scala_cross_version.bzl",
+    "default_maven_server_urls",
+    "extract_major_version",
+    "version_suffix",
+)
+load(
+    "//scala:scala_maven_import_external.bzl",
+    _scala_maven_import_external = "scala_maven_import_external",
+)
+load(
     "//third_party/repositories:scala_2_11.bzl",
     _artifacts_2_11 = "artifacts",
     _scala_version_2_11 = "scala_version",
@@ -42,16 +52,6 @@ load(
     "//third_party/repositories:scala_3_6.bzl",
     _artifacts_3_6 = "artifacts",
     _scala_version_3_6 = "scala_version",
-)
-load(
-    "@io_bazel_rules_scala//scala:scala_cross_version.bzl",
-    "default_maven_server_urls",
-    "extract_major_version",
-    "version_suffix",
-)
-load(
-    "@io_bazel_rules_scala//scala:scala_maven_import_external.bzl",
-    _scala_maven_import_external = "scala_maven_import_external",
 )
 load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
 

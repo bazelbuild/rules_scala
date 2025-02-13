@@ -6,6 +6,6 @@ scala_test(
         "DeleteDirectoryTest.scala",
     ],
     deps = [
-        "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/io_utils",
+        "//src/java/io/bazel/rulesscala/io_utils",
     ],
 )

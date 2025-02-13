@@ -1,5 +1,5 @@
+load("//scala:scala.bzl", "scala_library")
 load("//scala:scala_toolchain.bzl", "scala_toolchain")
-load("@io_bazel_rules_scala//scala:scala.bzl", "scala_library")
 
 scala_toolchain(
     name = "ast_plus_error_impl",
@@ -14,7 +14,7 @@ scala_toolchain(
 toolchain(
     name = "ast_plus_error",
     toolchain = ":ast_plus_error_impl",
-    toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
+    toolchain_type = "//scala:toolchain_type",
     visibility = ["//visibility:public"],
 )
 
@@ -31,7 +31,7 @@ scala_toolchain(
 toolchain(
     name = "ast_plus_warn",
     toolchain = ":ast_plus_warn_impl",
-    toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
+    toolchain_type = "//scala:toolchain_type",
     visibility = ["//visibility:public"],
 )
 

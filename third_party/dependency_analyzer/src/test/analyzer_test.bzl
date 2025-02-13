@@ -1,7 +1,11 @@
-load("@io_bazel_rules_scala//scala:scala.bzl", "scala_test")
-load("@io_bazel_rules_scala//scala:scala_cross_version_select.bzl", "select_for_scala_version")
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_MAJOR_VERSION", "SCALA_VERSION")
+load("//scala:scala.bzl", "scala_test")
 load("//scala:scala_cross_version.bzl", "version_suffix")
+load("//scala:scala_cross_version_select.bzl", "select_for_scala_version")
+load(
+    "@io_bazel_rules_scala_config//:config.bzl",
+    "SCALA_MAJOR_VERSION",
+    "SCALA_VERSION",
+)
 
 def tests():
     suffix = version_suffix(SCALA_VERSION)

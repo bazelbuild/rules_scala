@@ -6,7 +6,7 @@ load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
     alias(
         name = framework + "_toolchain",
         actual = (
-            "@io_bazel_rules_scala_toolchains//testing:testing_toolchain" +
+            "@rules_scala_toolchains//testing:testing_toolchain" +
             version_suffix(SCALA_VERSION)
         ),
     )

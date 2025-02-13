@@ -1,5 +1,5 @@
-load("@io_bazel_rules_scala//scala:scala.bzl", "scala_binary", "scala_library")
-load("@io_bazel_rules_scala//twitter_scrooge:twitter_scrooge.bzl", "scrooge_scala_library")
+load("@rules_scala//scala:scala.bzl", "scala_binary", "scala_library")
+load("@rules_scala//twitter_scrooge:twitter_scrooge.bzl", "scrooge_scala_library")
 
 scrooge_scala_library(
     name = "scrooge1",

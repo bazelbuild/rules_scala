@@ -13,7 +13,7 @@ def scala_proto_register_enable_all_options_toolchain():
     )
 
 def setup_scala_proto_toolchains(name, enable_all_options = False):
-    """Used by @io_bazel_rules_scala_toolchains//scala_proto/BUILD.
+    """Used by @rules_scala_toolchains//scala_proto/BUILD.
 
     See //scala/private:macros/toolchains_repo.bzl for details, especially the
     _SCALA_PROTO_TOOLCHAIN_BUILD string template.

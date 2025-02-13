@@ -1,20 +1,20 @@
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
 load(
-    "@io_bazel_rules_scala//scala:scala_cross_version.bzl",
+    "@rules_scala//scala:scala_cross_version.bzl",
     "default_maven_server_urls",
 )
 load(
-    "@io_bazel_rules_scala//scala:scala_maven_import_external.bzl",
+    "@rules_scala//scala:scala_maven_import_external.bzl",
     "scala_maven_import_external",
 )
 load(
-    "@io_bazel_rules_scala//third_party/repositories:scala_2_13.bzl",
+    "@rules_scala//third_party/repositories:scala_2_13.bzl",
     _scala_2_version = "scala_version",
 )
 load(
-    "@io_bazel_rules_scala//third_party/repositories:scala_3_5.bzl",
+    "@rules_scala//third_party/repositories:scala_3_5.bzl",
     _scala_3_version = "scala_version",
 )
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
 
 _IS_SCALA_2 = SCALA_VERSION.startswith("2.")
 _IS_SCALA_3 = SCALA_VERSION.startswith("3.")

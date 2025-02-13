@@ -3,11 +3,11 @@ workspace(name = "multi_frameworks_toolchain")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 local_repository(
-    name = "io_bazel_rules_scala",
+    name = "rules_scala",
     path = "../../..",
 )
 
-load("@io_bazel_rules_scala//scala:deps.bzl", "rules_scala_dependencies")
+load("@rules_scala//scala:deps.bzl", "rules_scala_dependencies")
 
 rules_scala_dependencies()
 
@@ -48,18 +48,21 @@ load("@rules_proto//proto:toolchains.bzl", "rules_proto_toolchains")
 
 rules_proto_toolchains()
 
-load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
+load("@rules_scala//:scala_config.bzl", "scala_config")
 
 scala_config()
 
-load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_toolchains")
+load(
+    "@rules_scala//scala:toolchains.bzl",
+    "scala_register_toolchains",
+    "scala_toolchains",
+)
 
 scala_toolchains(
     fetch_sources = True,
     testing = True,
 )
 
-register_toolchains(
-    ":testing_toolchain",
-    "@io_bazel_rules_scala_toolchains//...:all",
-)
+register_toolchains(":testing_toolchain")
+
+scala_register_toolchains()

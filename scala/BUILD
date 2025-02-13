@@ -12,7 +12,7 @@ toolchain_type(
 alias(
     name = "default_toolchain",
     actual = (
-        "@io_bazel_rules_scala_toolchains//scala:toolchain" +
+        "@rules_scala_toolchains//scala:toolchain" +
         version_suffix(SCALA_VERSION)
     ),
 )

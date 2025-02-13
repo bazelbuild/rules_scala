@@ -1,10 +1,10 @@
 load("@rules_proto//proto:defs.bzl", "ProtoInfo")
 load(
-    "@io_bazel_rules_scala//scala_proto/private:scala_proto_aspect_provider.bzl",
+    "//scala_proto/private:scala_proto_aspect_provider.bzl",
     "ScalaProtoAspectInfo",
 )
 load(
-    "@io_bazel_rules_scala//scala/private:phases/api.bzl",
+    "//scala/private:phases/api.bzl",
     "extras_phases",
     "run_phases",
 )

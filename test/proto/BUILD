@@ -35,7 +35,7 @@ scala_proto_toolchain(
 toolchain(
     name = "scalapb_toolchain",
     toolchain = ":test_scala_proto_toolchain_configuration",
-    toolchain_type = "@io_bazel_rules_scala//scala_proto:toolchain_type",
+    toolchain_type = "//scala_proto:toolchain_type",
     visibility = ["//visibility:public"],
 )
 
@@ -127,7 +127,7 @@ scala_proto_library(
     deps = [
         ":blacklisted_proto",
         ":test_service",
-        "@io_bazel_rules_scala//test/proto:other_blacklisted_proto",
+        "//test/proto:other_blacklisted_proto",
     ],
 )
 

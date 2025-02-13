@@ -8,5 +8,5 @@ scala_library(
         "FilteredRunnerBuilder.scala",
     ],
     visibility = ["//visibility:public"],
-    deps = ["@io_bazel_rules_scala//testing/toolchain:junit_classpath"],
+    deps = ["//testing/toolchain:junit_classpath"],
 )

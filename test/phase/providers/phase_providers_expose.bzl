@@ -1,5 +1,5 @@
-load("@io_bazel_rules_scala//scala:advanced_usage/providers.bzl", "ScalaRulePhase")
-load("@io_bazel_rules_scala//scala:advanced_usage/scala.bzl", "make_scala_library")
+load("//scala:advanced_usage/providers.bzl", "ScalaRulePhase")
+load("//scala:advanced_usage/scala.bzl", "make_scala_library")
 
 ext_phase_expose_provider = {
     "phase_providers": [

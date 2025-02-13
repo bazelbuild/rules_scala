@@ -32,7 +32,7 @@ java_library(
         ":scala_deps_java_proto",
         "//scala/private/toolchain_deps:scala_compile_classpath",
         "//src/java/io/bazel/rulesscala/scalac/compileoptions",
-        "@io_bazel_rules_scala//src/protobuf/io/bazel/rules_scala:diagnostics_java_proto",
+        "//src/protobuf/io/bazel/rules_scala:diagnostics_java_proto",
     ],
 )
 

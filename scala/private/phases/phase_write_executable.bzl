@@ -4,7 +4,7 @@
 # DOCUMENT THIS
 #
 load(
-    "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
+    "//scala/private:rule_impls.bzl",
     "allow_security_manager",
     "expand_location",
     "first_non_empty",
@@ -14,14 +14,14 @@ load(
     "runfiles_root",
     "specified_java_runtime",
 )
-load("@io_bazel_rules_scala//scala/private:common.bzl", "rlocationpath_from_file")
+load("//scala/private:common.bzl", "rlocationpath_from_file")
 
 def phase_write_executable_scalatest(ctx, p):
     # jvm_flags passed in on the target override scala_test_jvm_flags passed in on the
     # toolchain
     final_jvm_flags = first_non_empty(
         ctx.attr.jvm_flags,
-        ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scala_test_jvm_flags,
+        ctx.toolchains[Label("//scala:toolchain_type")].scala_test_jvm_flags,
     )
 
     args = struct(
@@ -116,7 +116,7 @@ def _write_executable_non_windows(ctx, executable, rjars, main_class, jvm_flags,
         wrapper.short_path,
     )
 
-    scala_toolchain = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"]
+    scala_toolchain = ctx.toolchains[Label("//scala:toolchain_type")]
 
     test_runner_classpath_mode = "argsfile" if scala_toolchain.use_argument_file_in_runner else "manifest"
 

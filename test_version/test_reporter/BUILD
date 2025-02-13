@@ -1,5 +1,5 @@
-load("@io_bazel_rules_scala//scala:scala_toolchain.bzl", "scala_toolchain")
-load("@io_bazel_rules_scala//scala:scala.bzl", "scala_library")
+load("@rules_scala//scala:scala_toolchain.bzl", "scala_toolchain")
+load("@rules_scala//scala:scala.bzl", "scala_library")
 
 scala_toolchain(
     name = "diagnostics_reporter_toolchain_impl",
@@ -10,7 +10,7 @@ scala_toolchain(
 toolchain(
     name = "diagnostics_reporter_toolchain",
     toolchain = "diagnostics_reporter_toolchain_impl",
-    toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
+    toolchain_type = "@rules_scala//scala:toolchain_type",
     visibility = ["//visibility:public"],
 )
 
@@ -24,7 +24,7 @@ scala_toolchain(
 toolchain(
     name = "diagnostics_reporter_and_semanticdb_toolchain",
     toolchain = "diagnostics_reporter_and_semanticdb_toolchain_impl",
-    toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
+    toolchain_type = "@rules_scala//scala:toolchain_type",
     visibility = ["//visibility:public"],
 )
 
@@ -36,7 +36,7 @@ scala_toolchain(
 toolchain(
     name = "no_diagnostics_reporter_toolchain",
     toolchain = "no_diagnostics_reporter_toolchain_impl",
-    toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
+    toolchain_type = "@rules_scala//scala:toolchain_type",
     visibility = ["//visibility:public"],
 )
 

@@ -13,7 +13,7 @@ scala_toolchain(
 toolchain(
     name = "failing_scala_toolchain",
     toolchain = "failing_toolchain_impl",
-    toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
+    toolchain_type = "//scala:toolchain_type",
     visibility = ["//visibility:public"],
 )
 
@@ -27,7 +27,7 @@ scala_toolchain(
 toolchain(
     name = "passing_scala_toolchain",
     toolchain = "passing_toolchain_impl",
-    toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
+    toolchain_type = "//scala:toolchain_type",
     visibility = ["//visibility:public"],
 )
 

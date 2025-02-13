@@ -1,4 +1,4 @@
-load("@io_bazel_rules_scala//scala:scala.bzl", "scala_binary", "scala_library", "scala_test")
+load("@rules_scala//scala:scala.bzl", "scala_binary", "scala_library", "scala_test")
 
 # Here we demonstrate the simplest case,
 # single binary, test or library for which we set a specific version or use the default one:

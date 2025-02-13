@@ -1,4 +1,4 @@
-load("@io_bazel_rules_scala//scala:providers.bzl", _DepsInfo = "DepsInfo")
+load("//scala:providers.bzl", _DepsInfo = "DepsInfo")
 load("//scala/private/toolchain_deps:toolchain_deps.bzl", "expose_toolchain_deps")
 
 SCALAFMT_TOOLCHAIN_TYPE = Label(

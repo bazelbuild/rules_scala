@@ -3,11 +3,11 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 local_repository(
-    name = "io_bazel_rules_scala",
+    name = "rules_scala",
     path = "..",
 )
 
-load("@io_bazel_rules_scala//scala:deps.bzl", "rules_scala_dependencies")
+load("@rules_scala//scala:deps.bzl", "rules_scala_dependencies")
 
 rules_scala_dependencies()
 
@@ -48,7 +48,7 @@ load("@rules_proto//proto:toolchains.bzl", "rules_proto_toolchains")
 
 rules_proto_toolchains()
 
-load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
+load("@rules_scala//:scala_config.bzl", "scala_config")
 
 scala_config(
     scala_version = "3.1.3",
@@ -63,11 +63,15 @@ scala_config(
 )
 
 # loads other rules Rules Scala depends on
-load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_toolchains")
+load(
+    "@rules_scala//scala:toolchains.bzl",
+    "scala_register_toolchains",
+    "scala_toolchains",
+)
 
 scala_toolchains(
     scalafmt = True,
     scalatest = True,
 )
 
-register_toolchains("@io_bazel_rules_scala_toolchains//...:all")
+scala_register_toolchains()

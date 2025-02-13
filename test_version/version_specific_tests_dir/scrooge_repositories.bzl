@@ -1,17 +1,17 @@
 load(
-    "@io_bazel_rules_scala//scala:scala_cross_version.bzl",
+    "@rules_scala//scala:scala_cross_version.bzl",
     "default_maven_server_urls",
 )
 load(
-    "@io_bazel_rules_scala//scala:scala_maven_import_external.bzl",
+    "@rules_scala//scala:scala_maven_import_external.bzl",
     _scala_maven_import_external = "scala_maven_import_external",
 )
 load(
-    "@io_bazel_rules_scala//scala:toolchains_repo.bzl",
+    "@rules_scala//scala:toolchains_repo.bzl",
     "scala_toolchains_repo",
 )
 load(
-    "@io_bazel_rules_scala//twitter_scrooge/toolchain:toolchain.bzl",
+    "@rules_scala//twitter_scrooge/toolchain:toolchain.bzl",
     "twitter_scrooge",
 )
 

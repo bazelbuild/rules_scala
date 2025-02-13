@@ -2,16 +2,16 @@
 
 load("@bazel_skylib//lib:dicts.bzl", _dicts = "dicts")
 load(
-    "@io_bazel_rules_scala//scala/private:common_attributes.bzl",
+    "//scala/private:common_attributes.bzl",
     "common_attrs",
     "implicit_deps",
     "launcher_template",
 )
-load("@io_bazel_rules_scala//scala/private:common.bzl", "sanitize_string_for_usage")
-load("@io_bazel_rules_scala//scala/private:common_outputs.bzl", "common_outputs")
-load("@io_bazel_rules_scala//scala:scala_cross_version.bzl", "scala_version_transition", "toolchain_transition_attr")
+load("//scala/private:common.bzl", "sanitize_string_for_usage")
+load("//scala/private:common_outputs.bzl", "common_outputs")
+load("//scala:scala_cross_version.bzl", "scala_version_transition", "toolchain_transition_attr")
 load(
-    "@io_bazel_rules_scala//scala/private:phases/phases.bzl",
+    "//scala/private:phases/phases.bzl",
     "extras_phases",
     "phase_collect_jars_scalatest",
     "phase_compile_scalatest",
@@ -71,7 +71,7 @@ _scala_test_attrs = {
     ),
     "_scalatest": attr.label(
         default = Label(
-            "@io_bazel_rules_scala//testing/toolchain:scalatest_classpath",
+            "//testing/toolchain:scalatest_classpath",
         ),
     ),
     "_scalatest_runner": attr.label(
@@ -93,10 +93,10 @@ _test_resolve_deps = {
     "_scala_toolchain": attr.label_list(
         default = [
             Label(
-                "@io_bazel_rules_scala//scala/private/toolchain_deps:scala_library_classpath",
+                "//scala/private/toolchain_deps:scala_library_classpath",
             ),
             Label(
-                "@io_bazel_rules_scala//testing/toolchain:scalatest_classpath",
+                "//testing/toolchain:scalatest_classpath",
             ),
         ],
         allow_files = False,

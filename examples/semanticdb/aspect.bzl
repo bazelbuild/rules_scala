@@ -1,7 +1,7 @@
 #This aspect is an example of exposing semanticdb information for each target into a json file.
 # An IDE could use a json file like this to consume the semanticdb data for each target.
 
-load("@io_bazel_rules_scala//scala:semanticdb_provider.bzl", "SemanticdbInfo")
+load("@rules_scala//scala:semanticdb_provider.bzl", "SemanticdbInfo")
 
 def semanticdb_info_aspect_impl(target, ctx):
     if SemanticdbInfo in target:
@@ -20,5 +20,5 @@ def semanticdb_info_aspect_impl(target, ctx):
 semanticdb_info_aspect = aspect(
     implementation = semanticdb_info_aspect_impl,
     attr_aspects = ["deps"],
-    toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
+    toolchains = ["@rules_scala//scala:toolchain_type"],
 )

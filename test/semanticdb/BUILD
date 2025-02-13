@@ -12,7 +12,7 @@ scala_toolchain(
 toolchain(
     name = "semanticdb_bundle_toolchain",
     toolchain = "semanticdb_bundle_toolchain_impl",
-    toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
+    toolchain_type = "//scala:toolchain_type",
     visibility = ["//visibility:public"],
 )
 
@@ -26,7 +26,7 @@ scala_toolchain(
 toolchain(
     name = "semanticdb_nobundle_toolchain",
     toolchain = "semanticdb_nobundle_toolchain_impl",
-    toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
+    toolchain_type = "//scala:toolchain_type",
     visibility = ["//visibility:public"],
 )
 

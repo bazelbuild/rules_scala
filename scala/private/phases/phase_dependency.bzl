@@ -81,7 +81,7 @@ def _get_unused_deps_mode(ctx):
     if ctx.attr.unused_dependency_checker_mode:
         return ctx.attr.unused_dependency_checker_mode
     else:
-        return ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].unused_dependency_checker_mode
+        return ctx.toolchains[Label("//scala:toolchain_type")].unused_dependency_checker_mode
 
 def _is_target_included(target, includes, excludes):
     for exclude in excludes:

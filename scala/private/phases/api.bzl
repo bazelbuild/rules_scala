@@ -3,7 +3,7 @@ The phase API for rules implementation
 """
 
 load(
-    "@io_bazel_rules_scala//scala:advanced_usage/providers.bzl",
+    "//scala:advanced_usage/providers.bzl",
     _ScalaRulePhase = "ScalaRulePhase",
 )
 load("@bazel_skylib//lib:dicts.bzl", "dicts")
