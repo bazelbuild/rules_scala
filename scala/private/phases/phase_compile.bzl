@@ -32,6 +32,7 @@ def phase_compile_binary(ctx, p):
 def phase_compile_library(ctx, p):
     args = struct(
         srcjars = p.collect_srcjars,
+        buildijar = ctx.attr.build_ijar if hasattr(ctx.attr, "build_ijar") else _ijar_default_value(ctx),
         unused_dependency_checker_ignored_targets = [
             target.label
             for target in p.scalac_provider.default_classpath + ctx.attr.exports +
@@ -91,7 +92,7 @@ def phase_compile_common(ctx, p):
     return _phase_compile_default(ctx, p)
 
 def _phase_compile_default(ctx, p, _args = struct()):
-    buildijar_default_value = True if ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scala_version.startswith("2.") else False
+    buildijar_default_value = _ijar_default_value(ctx)
 
     return _phase_compile(
         ctx,
@@ -378,3 +379,6 @@ def _interim_java_provider_for_java_compilation(scala_output):
         compile_jar = scala_output,
         neverlink = True,
     )
+
+def _ijar_default_value(ctx):
+    return True if ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scala_version.startswith("2.") else False
