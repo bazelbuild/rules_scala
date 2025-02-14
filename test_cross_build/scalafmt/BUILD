@@ -20,7 +20,7 @@ scalafmt_scala_library(
     srcs = ["unformatted/unformatted-library2.scala"],
     config = ":scala2-conf",
     format = True,
-    scala_version = "2.13.15",
+    scala_version = "2.13.16",
 )
 
 scalafmt_scala_library(
@@ -28,7 +28,7 @@ scalafmt_scala_library(
     srcs = ["formatted/formatted-library2.scala"],
     config = ":scala2-conf",
     format = True,
-    scala_version = "2.13.15",
+    scala_version = "2.13.16",
 )
 
 scalafmt_scala_library(

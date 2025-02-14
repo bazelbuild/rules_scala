@@ -14,7 +14,7 @@ scala_library(
 scala_test(
     name = "test213",
     srcs = ["test.scala"],
-    scala_version = "2.13.15",
+    scala_version = "2.13.16",
 )
 
 # This one will be compiled by 3.3 compiler (the default one):
