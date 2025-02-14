@@ -69,8 +69,12 @@ def _jvm_import_external_impl(repository_ctx):
         not repository_ctx.attr.neverlink):
         fail("Only use generated_linkable_rule_name if neverlink is set")
 
-    # Replace with rctx.original_name once all supported Bazels have it
-    repo_name = getattr(repository_ctx, "original_name", repository_ctx.name)
+    # Replace with rctx.original_name once all supported Bazels have it.
+    # Remove `or rctx.name` after Bazel fixes bazelbuild/bazel#25286.
+    repo_name = (
+        getattr(repository_ctx, "original_name", repository_ctx.name) or
+        repository_ctx.name
+    )
     name = repository_ctx.attr.generated_rule_name or repo_name
     urls = repository_ctx.attr.jar_urls
     if repository_ctx.attr.jar_sha256:
