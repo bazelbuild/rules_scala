@@ -2,10 +2,8 @@ load("//scala/private/toolchain_deps:toolchain_deps.bzl", "expose_toolchain_deps
 load("//scala:providers.bzl", "declare_deps_provider", _DepsInfo = "DepsInfo")
 load(
     "//scala:scala_cross_version.bzl",
-    "default_maven_server_urls",
     _versioned_repositories = "repositories",
 )
-load("//third_party/repositories:repositories.bzl", "repositories")
 load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
 
 DEP_PROVIDERS = [
@@ -24,18 +22,6 @@ def jmh_artifact_ids():
         "io_bazel_rules_scala_net_sf_jopt_simple_jopt_simple",
         "io_bazel_rules_scala_org_apache_commons_commons_math3",
     ]
-
-def jmh_repositories(
-        maven_servers = default_maven_server_urls(),
-        overriden_artifacts = {}):
-    repositories(
-        scala_version = SCALA_VERSION,
-        for_artifact_ids = jmh_artifact_ids(),
-        fetch_sources = False,
-        maven_servers = maven_servers,
-        overriden_artifacts = overriden_artifacts,
-    )
-    native.register_toolchains("@rules_scala_toolchains//jmh:all")
 
 def _jmh_toolchain_impl(ctx):
     toolchain = platform_common.ToolchainInfo(

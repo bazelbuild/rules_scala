@@ -2,11 +2,15 @@
 
 load("//jmh/toolchain:toolchain.bzl", "jmh_artifact_ids")
 load("//junit:junit.bzl", "junit_artifact_ids")
-load("//scala/private:macros/scala_repositories.bzl", "scala_repositories")
+load(
+    "//scala/private:macros/scala_repositories.bzl",
+    "scala_version_artifact_ids",
+    "setup_scala_compiler_sources",
+)
 load(
     "//scala/scalafmt:scalafmt_repositories.bzl",
     "scalafmt_artifact_ids",
-    "scalafmt_default_config",
+    "scalafmt_config",
 )
 load("//scala:scala_cross_version.bzl", "default_maven_server_urls")
 load("//scala:toolchains_repo.bzl", "scala_toolchains_repo")
@@ -28,7 +32,6 @@ def _get_unknown_entries(entries, allowed_entries):
 def scala_toolchains(
         maven_servers = default_maven_server_urls(),
         overridden_artifacts = {},
-        load_rules_scala_dependencies = True,
         load_scala_toolchain_dependencies = True,
         fetch_sources = False,
         validate_scala_version = True,
@@ -44,18 +47,14 @@ def scala_toolchains(
         jmh = False,
         twitter_scrooge = False,
         twitter_scrooge_deps = {}):
-    """Instantiates @io_bazel_rules_scala_toolchains and all its dependencies.
+    """Instantiates @rules_scala_toolchains and all its dependencies.
 
-    Provides a unified interface to configuring rules_scala both directly in a
+    Provides a unified interface to configuring `rules_scala` both directly in a
     `WORKSPACE` file and in a Bazel module extension.
 
-    Instantiates the `@rules_scala_toolchains` repository. Under
-    `WORKSPACE`, you will need to call `register_toolchains` at some point.
-    Under Bzlmod, rules_scala does this automatically.
-
-    ```starlark
-    register_toolchains("@rules_scala_toolchains//...:all")
-    ```
+    Instantiates a repository containing all configured toolchains. Under
+    `WORKSPACE`, you will need to call `scala_register_toolchains()`. Under
+    Bzlmod, the `MODULE.bazel` file from `rules_scala` does this automatically.
 
     All arguments are optional.
 
@@ -72,10 +71,6 @@ def scala_toolchains(
                 ],
             }
             ```
-        load_rules_scala_dependencies: whether load rules_scala repository
-            dependencies
-        load_scala_toolchain_dependencies: whether to load repository
-            dependencies of the core Scala language toolchain
         fetch_sources: whether to download dependency source jars
         validate_scala_version: whether to check if the configured Scala version
             matches the default version supported by rules_scala
@@ -113,19 +108,11 @@ def scala_toolchains(
     if unknown_ts_deps:
         fail("unknown twitter_scrooge_deps:", ", ".join(unknown_ts_deps))
 
-    scala_repositories(
-        maven_servers = maven_servers,
-        # Note the internal macro parameter misspells "overriden".
-        overriden_artifacts = overridden_artifacts,
-        load_dep_rules = load_rules_scala_dependencies,
-        load_jar_deps = load_scala_toolchain_dependencies,
-        fetch_sources = fetch_sources,
-        validate_scala_version = validate_scala_version,
-        scala_compiler_srcjars = scala_compiler_srcjars,
-    )
+    setup_scala_compiler_sources(scala_compiler_srcjars)
 
     if scalafmt:
-        scalafmt_default_config(scalafmt_default_config_path)
+        scalafmt_conf_target = "//:" + scalafmt_default_config_path
+        scalafmt_config(name = "scalafmt_default", path = scalafmt_conf_target)
 
     if testing:
         scalatest = True
@@ -163,7 +150,10 @@ def scala_toolchains(
         })
 
     for scala_version in SCALA_VERSIONS:
-        version_specific_artifact_ids = {}
+        version_specific_artifact_ids = {
+            id: fetch_sources
+            for id in scala_version_artifact_ids(scala_version)
+        }
 
         if scala_proto:
             version_specific_artifact_ids.update({
@@ -186,6 +176,7 @@ def scala_toolchains(
             maven_servers = maven_servers,
             fetch_sources = fetch_sources,
             fetch_sources_by_id = all_artifacts,
+            # Note the internal macro parameter misspells "overriden".
             overriden_artifacts = overridden_artifacts,
             validate_scala_version = validate_scala_version,
         )

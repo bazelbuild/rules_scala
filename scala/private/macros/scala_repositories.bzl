@@ -1,12 +1,9 @@
-load("//scala:deps.bzl", "rules_scala_dependencies")
 load(
     "//scala:scala_cross_version.bzl",
     "extract_major_version",
     "extract_minor_version",
     "version_suffix",
-    _default_maven_server_urls = "default_maven_server_urls",
 )
-load("//third_party/repositories:repositories.bzl", "repositories")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSIONS")
 
@@ -51,9 +48,6 @@ def _compiler_sources_repo_impl(rctx):
 
 compiler_sources_repo = repository_rule(
     implementation = _compiler_sources_repo_impl,
-    attrs = {
-        "scala_versions": attr.string_list(mandatory = True),
-    },
 )
 
 def _validate_scalac_srcjar(srcjar):
@@ -130,19 +124,9 @@ def setup_scala_compiler_sources(srcjars = {}):
     for scala_version in SCALA_VERSIONS:
         dt_patched_compiler_setup(scala_version, srcjars.get(scala_version))
 
-    compiler_sources_repo(
-        name = "scala_compiler_sources",
-        scala_versions = SCALA_VERSIONS,
-    )
+    compiler_sources_repo(name = "scala_compiler_sources")
 
-def rules_scala_setup(scala_compiler_srcjar = None):
-    rules_scala_dependencies()
-    setup_scala_compiler_sources({
-        version: scala_compiler_srcjar
-        for version in SCALA_VERSIONS
-    })
-
-def _artifact_ids(scala_version):
+def scala_version_artifact_ids(scala_version):
     result = [
         "io_bazel_rules_scala_scala_compiler",
         "io_bazel_rules_scala_scala_library",
@@ -183,40 +167,3 @@ def _artifact_ids(scala_version):
         ])
 
     return result
-
-def rules_scala_toolchain_deps_repositories(
-        maven_servers = _default_maven_server_urls(),
-        overriden_artifacts = {},
-        fetch_sources = False,
-        validate_scala_version = True):
-    for scala_version in SCALA_VERSIONS:
-        repositories(
-            scala_version = scala_version,
-            for_artifact_ids = _artifact_ids(scala_version),
-            maven_servers = maven_servers,
-            fetch_sources = fetch_sources,
-            overriden_artifacts = overriden_artifacts,
-            validate_scala_version = validate_scala_version,
-        )
-
-def scala_repositories(
-        maven_servers = _default_maven_server_urls(),
-        overriden_artifacts = {},
-        load_dep_rules = True,
-        load_jar_deps = True,
-        fetch_sources = False,
-        validate_scala_version = True,
-        scala_compiler_srcjars = {}):
-    if load_dep_rules:
-        # When `WORKSPACE` goes away, so can this case.
-        rules_scala_dependencies()
-
-    setup_scala_compiler_sources(scala_compiler_srcjars)
-
-    if load_jar_deps:
-        rules_scala_toolchain_deps_repositories(
-            maven_servers,
-            overriden_artifacts,
-            fetch_sources,
-            validate_scala_version,
-        )

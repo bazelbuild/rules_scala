@@ -4,26 +4,34 @@
 
 **Some scala_toolchain must be registered!**
 
-### Several options to configure `scala_toolchain`:
+## Several options to configure `scala_toolchain`
 
-#### A) Use the default `scala_toolchain`:
+### A) Use the builtin Scala toolchain via `scala_toolchains`
 
 In your workspace file add the following lines:
 
-```starlark
+```py
 # WORKSPACE
 # register default scala toolchain
-load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_toolchains")
+load(
+    "@rules_scala//scala:toolchains.bzl",
+    "scala_register_toolchains",
+    "scala_toolchains",
+)
+
+scala_toolchains()
+
 scala_register_toolchains()
 ```
 
-#### B) Defining your own `scala_toolchain` requires 2 steps:
+### B) Defining your own `scala_toolchain` requires 2 steps
 
 1. Add your own definition of `scala_toolchain` to a `BUILD` file:
    Example assumes external libraries are resolved with [rules_jvm_external](https://github.com/bazelbuild/rules_jvm_external)
-    ```starlark
+
+    ```py
     # //toolchains/BUILD
-    load("//scala:scala.bzl", "setup_scala_toolchain")
+    load("@rules_scala//scala:scala.bzl", "setup_scala_toolchain")
 
     setup_scala_toolchain(
         name = "my_toolchain",
@@ -55,7 +63,8 @@ scala_register_toolchains()
     ```
 
 2. Register your custom toolchain from `WORKSPACE`:
-    ```python
+
+    ```py
     # WORKSPACE
     register_toolchains("//toolchains:my_scala_toolchain")
     ```
@@ -76,10 +85,10 @@ scala_register_toolchains()
       <td>
         <p><code>List of labels; optional</code></p>
         <p>
-          Allows to configure dependencies lists by configuring <code>DepInfo</code> provider targets. 
-          Currently supported dep ids: <code>scala_compile_classpath</code>, 
-          <code>scala_library_classpath</code>, <code>scala_macro_classpath</code>, <code>scala_xml</code>, 
-          <code>parser_combinators</code>,     
+          Allows to configure dependencies lists by configuring <code>DepInfo</code> provider targets.
+          Currently supported dep ids: <code>scala_compile_classpath</code>,
+          <code>scala_library_classpath</code>, <code>scala_macro_classpath</code>, <code>scala_xml</code>,
+          <code>parser_combinators</code>,
           <code>semanticdb</code>
         </p>
       </td>
@@ -89,7 +98,7 @@ scala_register_toolchains()
       <td>
         <p><code>List of strings; optional</code></p>
         <p>
-          Extra compiler options for this binary to be passed to scalac. 
+          Extra compiler options for this binary to be passed to scalac.
         </p>
       </td>
     </tr>
@@ -150,7 +159,7 @@ scala_register_toolchains()
       <td>
         <p><code>Boolean; optional (default False)</code></p>
         <p>
-          Enables semanticdb output. 
+          Enables semanticdb output.
         </p>
       </td>
     </tr>
