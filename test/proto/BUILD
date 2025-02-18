@@ -241,3 +241,22 @@ default_outputs_test(
     ],
     target_under_test = ":standalone_scala_proto",
 )
+
+scala_proto_library(
+    name = "multiple_deps_scala_proto",
+    deps = [
+        ":test2",
+        ":test3",
+    ],
+)
+
+default_outputs_test(
+    name = "multiple_deps_scala_proto_outs_test",
+    expected_outs = [
+        "test2_scalapb-src.jar",
+        "test2_scalapb.jar",
+        "test3_scalapb-src.jar",
+        "test3_scalapb.jar",
+    ],
+    target_under_test = ":multiple_deps_scala_proto",
+)
