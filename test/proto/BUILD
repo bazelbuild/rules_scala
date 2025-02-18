@@ -12,6 +12,7 @@ load(
     "//scala_proto:scala_proto_toolchain.bzl",
     "scala_proto_toolchain",
 )
+load(":default_outputs_test.bzl", "default_outputs_test")
 
 scala_proto_toolchain(
     name = "test_scala_proto_toolchain_configuration",
@@ -225,4 +226,18 @@ scala_test(
     srcs = ["PackProtosTest.scala"],
     unused_dependency_checker_mode = "off",
     deps = [":pack_protos_lib"],
+)
+
+scala_proto_library(
+    name = "standalone_scala_proto",
+    deps = [":standalone_proto"],
+)
+
+default_outputs_test(
+    name = "standalone_scala_proto_outs_test",
+    expected_outs = [
+        "standalone_proto_scalapb-src.jar",
+        "standalone_proto_scalapb.jar",
+    ],
+    target_under_test = ":standalone_scala_proto",
 )
