@@ -22,14 +22,11 @@ def phase_merge_aspect_java_info(ctx, p):
 
 def phase_default_info(ctx, p):
     java_info = p.merge_aspects.java_info
+    output_jars = [jar.class_jar for jar in java_info.outputs.jars]
+    source_jars = [jar.source_jar for jar in java_info.outputs.jars if jar.source_jar]
     return struct(
         external_providers = {
-            "DefaultInfo": DefaultInfo(
-                files = depset(
-                    java_info.source_jars,
-                    transitive = [java_info.full_compile_jars],
-                ),
-            ),
+            "DefaultInfo": DefaultInfo(files = depset(output_jars + source_jars)),
         },
     )
 
