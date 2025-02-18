@@ -1,5 +1,5 @@
-load("@io_bazel_rules_scala//scala:scala.bzl", "scala_binary", "scala_library")
-load("@io_bazel_rules_scala//scala:scala_cross_version_select.bzl", "select_for_scala_version")
+load("@rules_scala//scala:scala.bzl", "scala_binary", "scala_library")
+load("@rules_scala//scala:scala_cross_version_select.bzl", "select_for_scala_version")
 
 # Here we demonstrate how to provide distinct source files depending on the version requested
 

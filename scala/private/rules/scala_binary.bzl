@@ -2,16 +2,16 @@
 
 load("@bazel_skylib//lib:dicts.bzl", _dicts = "dicts")
 load(
-    "@io_bazel_rules_scala//scala/private:common_attributes.bzl",
+    "//scala/private:common_attributes.bzl",
     "common_attrs",
     "implicit_deps",
     "launcher_template",
     "resolve_deps",
 )
-load("@io_bazel_rules_scala//scala/private:common_outputs.bzl", "common_outputs")
-load("@io_bazel_rules_scala//scala:scala_cross_version.bzl", "scala_version_transition", "toolchain_transition_attr")
+load("//scala/private:common_outputs.bzl", "common_outputs")
+load("//scala:scala_cross_version.bzl", "scala_version_transition", "toolchain_transition_attr")
 load(
-    "@io_bazel_rules_scala//scala/private:phases/phases.bzl",
+    "//scala/private:phases/phases.bzl",
     "extras_phases",
     "phase_collect_jars_common",
     "phase_compile_binary",
@@ -89,7 +89,7 @@ def make_scala_binary(*extras):
             *[extra["outputs"] for extra in extras if "outputs" in extra]
         ),
         toolchains = [
-            "@io_bazel_rules_scala//scala:toolchain_type",
+            Label("//scala:toolchain_type"),
             "@bazel_tools//tools/jdk:toolchain_type",
         ],
         cfg = scala_version_transition,

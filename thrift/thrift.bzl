@@ -1,6 +1,6 @@
 """Rules for organizing thrift files."""
 
-load("@io_bazel_rules_scala//thrift:thrift_info.bzl", "ThriftInfo")
+load("//thrift:thrift_info.bzl", "ThriftInfo")
 
 def empty_thrift_info():
     return ThriftInfo(srcs = depset(), transitive_srcs = depset())

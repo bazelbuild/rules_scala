@@ -3,7 +3,7 @@ load("@rules_java//java:defs.bzl", "java_binary")
 java_binary(
     name = "instrumenter",
     srcs = [
-        "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/coverage/instrumenter:instrumenter_files",
+        "//src/java/io/bazel/rulesscala/coverage/instrumenter:instrumenter_files",
     ],
     javacopts = [
         "-source 1.8",

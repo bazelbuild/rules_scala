@@ -3,10 +3,7 @@
 #
 # DOCUMENT THIS
 #
-load(
-    "@io_bazel_rules_scala//scala/private:common.bzl",
-    "collect_jars",
-)
+load("//scala/private:common.bzl", "collect_jars")
 
 def phase_collect_exports_jars(ctx, p):
     # Add information from exports (is key that AFTER all build actions/runfiles analysis)

@@ -3,22 +3,22 @@ Re-expose all the phase APIs and built-in phases
 """
 
 load(
-    "@io_bazel_rules_scala//scala/private:phases/api.bzl",
+    "//scala/private:phases/api.bzl",
     _extras_phases = "extras_phases",
     _run_phases = "run_phases",
 )
 load(
-    "@io_bazel_rules_scala//scala/private:phases/phase_collect_jars.bzl",
+    "//scala/private:phases/phase_collect_jars.bzl",
     _phase_collect_jars_common = "phase_collect_jars_common",
     _phase_collect_jars_junit_test = "phase_collect_jars_junit_test",
     _phase_collect_jars_macro_library = "phase_collect_jars_macro_library",
     _phase_collect_jars_repl = "phase_collect_jars_repl",
     _phase_collect_jars_scalatest = "phase_collect_jars_scalatest",
 )
-load("@io_bazel_rules_scala//scala/private:phases/phase_collect_exports_jars.bzl", _phase_collect_exports_jars = "phase_collect_exports_jars")
-load("@io_bazel_rules_scala//scala/private:phases/phase_collect_srcjars.bzl", _phase_collect_srcjars = "phase_collect_srcjars")
+load("//scala/private:phases/phase_collect_exports_jars.bzl", _phase_collect_exports_jars = "phase_collect_exports_jars")
+load("//scala/private:phases/phase_collect_srcjars.bzl", _phase_collect_srcjars = "phase_collect_srcjars")
 load(
-    "@io_bazel_rules_scala//scala/private:phases/phase_compile.bzl",
+    "//scala/private:phases/phase_compile.bzl",
     _phase_compile_binary = "phase_compile_binary",
     _phase_compile_common = "phase_compile_common",
     _phase_compile_junit_test = "phase_compile_junit_test",
@@ -28,49 +28,49 @@ load(
     _phase_compile_scalatest = "phase_compile_scalatest",
 )
 load(
-    "@io_bazel_rules_scala//scala/private:phases/phase_coverage.bzl",
+    "//scala/private:phases/phase_coverage.bzl",
     _phase_coverage_common = "phase_coverage_common",
     _phase_coverage_library = "phase_coverage_library",
 )
-load("@io_bazel_rules_scala//scala/private:phases/phase_coverage_runfiles.bzl", _phase_coverage_runfiles = "phase_coverage_runfiles")
-load("@io_bazel_rules_scala//scala/private:phases/phase_declare_executable.bzl", _phase_declare_executable = "phase_declare_executable")
-load("@io_bazel_rules_scala//scala/private:phases/phase_default_info.bzl", _phase_default_info = "phase_default_info")
+load("//scala/private:phases/phase_coverage_runfiles.bzl", _phase_coverage_runfiles = "phase_coverage_runfiles")
+load("//scala/private:phases/phase_declare_executable.bzl", _phase_declare_executable = "phase_declare_executable")
+load("//scala/private:phases/phase_default_info.bzl", _phase_default_info = "phase_default_info")
 load(
-    "@io_bazel_rules_scala//scala/private:phases/phase_dependency.bzl",
+    "//scala/private:phases/phase_dependency.bzl",
     _phase_dependency_common = "phase_dependency_common",
     _phase_dependency_library_for_plugin_bootstrapping = "phase_dependency_library_for_plugin_bootstrapping",
 )
 load(
-    "@io_bazel_rules_scala//scala/private:phases/phase_java_wrapper.bzl",
+    "//scala/private:phases/phase_java_wrapper.bzl",
     _phase_java_wrapper_common = "phase_java_wrapper_common",
     _phase_java_wrapper_repl = "phase_java_wrapper_repl",
 )
-load("@io_bazel_rules_scala//scala/private:phases/phase_jvm_flags.bzl", _phase_jvm_flags = "phase_jvm_flags")
-load("@io_bazel_rules_scala//scala/private:phases/phase_merge_jars.bzl", _phase_merge_jars = "phase_merge_jars")
+load("//scala/private:phases/phase_jvm_flags.bzl", _phase_jvm_flags = "phase_jvm_flags")
+load("//scala/private:phases/phase_merge_jars.bzl", _phase_merge_jars = "phase_merge_jars")
 load(
-    "@io_bazel_rules_scala//scala/private:phases/phase_runfiles.bzl",
+    "//scala/private:phases/phase_runfiles.bzl",
     _phase_runfiles_common = "phase_runfiles_common",
     _phase_runfiles_library = "phase_runfiles_library",
     _phase_runfiles_scalatest = "phase_runfiles_scalatest",
 )
-load("@io_bazel_rules_scala//scala/private:phases/phase_scalac_provider.bzl", _phase_scalac_provider = "phase_scalac_provider")
-load("@io_bazel_rules_scala//scala/private:phases/phase_scalacopts.bzl", _phase_scalacopts = "phase_scalacopts")
-load("@io_bazel_rules_scala//scala/private:phases/phase_scalafmt.bzl", _phase_scalafmt = "phase_scalafmt")
+load("//scala/private:phases/phase_scalac_provider.bzl", _phase_scalac_provider = "phase_scalac_provider")
+load("//scala/private:phases/phase_scalacopts.bzl", _phase_scalacopts = "phase_scalacopts")
+load("//scala/private:phases/phase_scalafmt.bzl", _phase_scalafmt = "phase_scalafmt")
 load(
-    "@io_bazel_rules_scala//scala/private:phases/phase_scalainfo_provider.bzl",
+    "//scala/private:phases/phase_scalainfo_provider.bzl",
     _phase_scalainfo_provider_macro = "phase_scalainfo_provider_macro",
     _phase_scalainfo_provider_non_macro = "phase_scalainfo_provider_non_macro",
 )
-load("@io_bazel_rules_scala//scala/private:phases/phase_semanticdb.bzl", _phase_semanticdb = "phase_semanticdb")
-load("@io_bazel_rules_scala//scala/private:phases/phase_test_environment.bzl", _phase_test_environment = "phase_test_environment")
+load("//scala/private:phases/phase_semanticdb.bzl", _phase_semanticdb = "phase_semanticdb")
+load("//scala/private:phases/phase_test_environment.bzl", _phase_test_environment = "phase_test_environment")
 load(
-    "@io_bazel_rules_scala//scala/private:phases/phase_write_executable.bzl",
+    "//scala/private:phases/phase_write_executable.bzl",
     _phase_write_executable_common = "phase_write_executable_common",
     _phase_write_executable_junit_test = "phase_write_executable_junit_test",
     _phase_write_executable_repl = "phase_write_executable_repl",
     _phase_write_executable_scalatest = "phase_write_executable_scalatest",
 )
-load("@io_bazel_rules_scala//scala/private:phases/phase_write_manifest.bzl", _phase_write_manifest = "phase_write_manifest")
+load("//scala/private:phases/phase_write_manifest.bzl", _phase_write_manifest = "phase_write_manifest")
 
 # API
 run_phases = _run_phases

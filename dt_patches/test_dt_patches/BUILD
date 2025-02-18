@@ -1,8 +1,8 @@
+load("@rules_scala//scala:scala.bzl", "setup_scala_toolchain")
 load(
-    "@io_bazel_rules_scala//scala:scala.bzl",
-    "setup_scala_toolchain",
+    "@rules_scala//scala:scala_cross_version_select.bzl",
+    "select_for_scala_version",
 )
-load("@io_bazel_rules_scala//scala:scala_cross_version_select.bzl", "select_for_scala_version")
 
 SCALA_LIBS = ["@scala_library"] + select_for_scala_version(
     any_2 = ["@scala_reflect"],

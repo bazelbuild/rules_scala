@@ -35,7 +35,7 @@ def jmh_repositories(
         maven_servers = maven_servers,
         overriden_artifacts = overriden_artifacts,
     )
-    native.register_toolchains("@io_bazel_rules_scala_toolchains//jmh:all")
+    native.register_toolchains("@rules_scala_toolchains//jmh:all")
 
 def _jmh_toolchain_impl(ctx):
     toolchain = platform_common.ToolchainInfo(
@@ -53,7 +53,7 @@ jmh_toolchain = rule(
     },
 )
 
-_toolchain_type = "//jmh/toolchain:jmh_toolchain_type"
+_toolchain_type = Label("//jmh/toolchain:jmh_toolchain_type")
 
 def _export_toolchain_deps_impl(ctx):
     return expose_toolchain_deps(ctx, _toolchain_type)
@@ -79,7 +79,7 @@ def setup_jmh_toolchain(name):
     native.toolchain(
         name = name,
         toolchain = ":%s_impl" % name,
-        toolchain_type = Label(_toolchain_type),
+        toolchain_type = _toolchain_type,
         visibility = ["//visibility:public"],
     )
 
@@ -107,7 +107,7 @@ def setup_jmh_toolchain(name):
         deps_id = "benchmark_generator",
         visibility = ["//visibility:public"],
         deps = [
-            "@io_bazel_rules_scala//src/java/io/bazel/rulesscala/jar",
+            Label("//src/java/io/bazel/rulesscala/jar"),
         ] + _versioned_repositories(SCALA_VERSION, [
             "@io_bazel_rules_scala_org_openjdk_jmh_jmh_core",
             "@io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_asm",

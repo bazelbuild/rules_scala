@@ -3,10 +3,7 @@
 #
 # DOCUMENT THIS
 #
-load(
-    "@io_bazel_rules_scala//scala/private:common.bzl",
-    "collect_jars",
-)
+load("//scala/private:common.bzl", "collect_jars")
 
 def phase_collect_jars_scalatest(ctx, p):
     args = struct(

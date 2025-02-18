@@ -12,7 +12,7 @@ load("//scala:scala_cross_version_select.bzl", "select_for_scala_version")
 load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
 
 _DEFAULT_DEP_PROVIDER_FORMAT = (
-    "@io_bazel_rules_scala_toolchains//scala_proto:scalapb_%s_deps_provider"
+    "@rules_scala_toolchains//scala_proto:scalapb_%s_deps_provider"
 )
 
 def scala_proto_deps_providers(

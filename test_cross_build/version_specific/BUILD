@@ -1,4 +1,4 @@
-load("@io_bazel_rules_scala//scala:scala.bzl", "scala_library")
+load("@rules_scala//scala:scala.bzl", "scala_library")
 
 # A collection of arbitrarily chosen backward- and forward-incompatible code.
 # This simply tests if the proper compiler is assigned, according to Scala version setting.

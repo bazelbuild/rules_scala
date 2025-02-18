@@ -3,10 +3,7 @@
 #
 # DOCUMENT THIS
 #
-load(
-    "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
-    "specified_java_compile_toolchain",
-)
+load("//scala/private:rule_impls.bzl", "specified_java_compile_toolchain")
 
 def merge_jars_to_output(ctx, output, jars):
     """Calls Bazel's singlejar utility.
