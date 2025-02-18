@@ -198,8 +198,8 @@ artifacts = {
         ],
     },
     "io_bazel_rules_scala_scala_compiler_2": {
-        "artifact": "org.scala-lang:scala-compiler:2.13.15",
-        "sha256": "4c200cd193c082bec14a2a2dffe6a1ba5f8130b1b27c79ee54c936dfcafc8ed9",
+        "artifact": "org.scala-lang:scala-compiler:2.13.16",
+        "sha256": "f59982714591e321ba9c087af2c8666e2f5fb92b11a0cef72c2c5e9b342152d3",
     },
     "io_bazel_rules_scala_scala_interfaces": {
         "artifact": "org.scala-lang:scala3-interfaces:3.1.3",
@@ -411,8 +411,8 @@ artifacts = {
         "sha256": "90bd8318329907dcf7e161287473e27272b38ee6857e9d56ee8a1958608cc49d",
     },
     "io_github_java_diff_utils_java_diff_utils": {
-        "artifact": "io.github.java-diff-utils:java-diff-utils:4.12",
-        "sha256": "9990a2039778f6b4cc94790141c2868864eacee0620c6c459451121a901cd5b5",
+        "artifact": "io.github.java-diff-utils:java-diff-utils:4.15",
+        "sha256": "964c69e3a23a892db2778ae6806aa1d42f81230032bd8e4982dc8620582ee6b7",
     },
     "libthrift": {
         "artifact": "org.apache.thrift:libthrift:0.8.0",
@@ -481,8 +481,8 @@ artifacts = {
         ],
     },
     "org_scala_lang_scalap": {
-        "artifact": "org.scala-lang:scalap:2.13.15",
-        "sha256": "78991282d73e9d20cbf187bab8549ce2ef940269409d47df2a71faaf9afc4616",
+        "artifact": "org.scala-lang:scalap:2.13.16",
+        "sha256": "7963c72c4c74d52278e42b0108ae8ae866d4d1c4579e20209a2f9617e6aacfca",
         "deps": [
             "@io_bazel_rules_scala_scala_compiler_2",
         ],
@@ -639,7 +639,7 @@ artifacts = {
         "sha256": "6f3e17cb666886b7f21998e981ebf45966fe951898f851437a518a93cab667bd",
     },
     "org_typelevel_kind_projector": {
-        "artifact": "org.typelevel:kind-projector_2.13.15:0.13.3",
+        "artifact": "org.typelevel:kind-projector_2.13.16:0.13.3",
         "sha256": "569fec54deba82cd143f05a6a0456c9e3bf56bff310b0968f0adb5fb3b352d92",
         "deps": [
             "@io_bazel_rules_scala_scala_compiler_2",

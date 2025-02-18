@@ -3,7 +3,7 @@
 Mostly generated and updated by scripts/create_repository.py.
 """
 
-scala_version = "2.13.15"
+scala_version = "2.13.16"
 
 artifacts = {
     "com_github_jnr_jffi_native": {
@@ -184,11 +184,13 @@ artifacts = {
         ],
     },
     "io_bazel_rules_scala_scala_compiler": {
-        "artifact": "org.scala-lang:scala-compiler:2.13.15",
-        "sha256": "4c200cd193c082bec14a2a2dffe6a1ba5f8130b1b27c79ee54c936dfcafc8ed9",
+        "artifact": "org.scala-lang:scala-compiler:2.13.16",
+        "sha256": "f59982714591e321ba9c087af2c8666e2f5fb92b11a0cef72c2c5e9b342152d3",
         "deps": [
             "@io_bazel_rules_scala_scala_library",
             "@io_bazel_rules_scala_scala_reflect",
+            "@io_github_java_diff_utils_java_diff_utils",
+            "@org_jline_jline",
         ],
     },
     "io_bazel_rules_scala_scala_library": {
@@ -401,8 +403,8 @@ artifacts = {
         "sha256": "90bd8318329907dcf7e161287473e27272b38ee6857e9d56ee8a1958608cc49d",
     },
     "io_github_java_diff_utils_java_diff_utils": {
-        "artifact": "io.github.java-diff-utils:java-diff-utils:4.12",
-        "sha256": "9990a2039778f6b4cc94790141c2868864eacee0620c6c459451121a901cd5b5",
+        "artifact": "io.github.java-diff-utils:java-diff-utils:4.15",
+        "sha256": "964c69e3a23a892db2778ae6806aa1d42f81230032bd8e4982dc8620582ee6b7",
     },
     "libthrift": {
         "artifact": "org.apache.thrift:libthrift:0.8.0",
@@ -437,8 +439,8 @@ artifacts = {
         ],
     },
     "org_scala_lang_scalap": {
-        "artifact": "org.scala-lang:scalap:2.13.15",
-        "sha256": "78991282d73e9d20cbf187bab8549ce2ef940269409d47df2a71faaf9afc4616",
+        "artifact": "org.scala-lang:scalap:2.13.16",
+        "sha256": "7963c72c4c74d52278e42b0108ae8ae866d4d1c4579e20209a2f9617e6aacfca",
         "deps": [
             "@io_bazel_rules_scala_scala_compiler",
         ],
@@ -558,8 +560,8 @@ artifacts = {
         ],
     },
     "org_scalameta_semanticdb_scalac": {
-        "artifact": "org.scalameta:semanticdb-scalac_2.13.15:4.9.9",
-        "sha256": "409194fee7eeb3da25733f6fc0c2d62b9ef53ddecdc50b6c922fdc695b250fe7",
+        "artifact": "org.scalameta:semanticdb-scalac_2.13.16:4.9.9",
+        "sha256": "24e2c6e7aeb19656ef6b60e93d2eab886c9a7c530bf3117880b45fcb526addd7",
         "deps": [
             "@io_bazel_rules_scala_scala_library",
         ],
@@ -591,7 +593,7 @@ artifacts = {
         "sha256": "6058d02418e4eb5f1919a1156d63d2d1b93f2c6190b1a1806ee2b73f8726a92f",
     },
     "org_typelevel_kind_projector": {
-        "artifact": "org.typelevel:kind-projector_2.13.15:0.13.3",
+        "artifact": "org.typelevel:kind-projector_2.13.16:0.13.3",
         "sha256": "569fec54deba82cd143f05a6a0456c9e3bf56bff310b0968f0adb5fb3b352d92",
         "deps": [
             "@io_bazel_rules_scala_scala_compiler",
