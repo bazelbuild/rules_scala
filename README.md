@@ -47,8 +47,8 @@ the following dependency versions, make sure to `load()` them before calling
 
 As of version 7.0.0, __`rules_scala` no longer requires the
 `io_bazel_rules_scala` repository name__ unless your `BUILD` files or those of
-your dependencies require it (#1696). In that case, the old name will still work
-when using `http_archive`.
+your dependencies require it (bazelbuild/rules_scala#1696). In that case, the
+old name will still work when using `http_archive`.
 
 ```py
 # WORKSPACE
@@ -134,7 +134,7 @@ load(
 
 # Defines a default toolchain repo for the configured Scala version that
 # loads Maven deps like the Scala compiler and standard libs. On production
-# projects, you may consider defining a custom toolchains to use your project's
+# projects, you may consider defining a custom toolchain to use your project's
 # required dependencies instead.
 #
 # Optional builtin rules_scala toolchains may be configured by setting
@@ -249,7 +249,7 @@ Please check [cross-compilation.md](docs/cross-compilation.md) for more details 
 Bazel compatibility is tied directly to the versions of `protobuf` required by
 Bazel and `rules_java`, and their compatibility with [scalabp/ScalaPB](
 https://github.com/scalapb/ScalaPB) Maven artifacts. For extensive analysis,
-see #1647.
+see bazelbuild/rules_scala#1647.
 
 The Bazel versions and dependency versions in the table below represent the
 maximum available at the time of writing.
@@ -262,9 +262,9 @@ maximum available at the time of writing.
 
 [ci-config]: ./.bazelci/presubmit.yml
 
-| Bazel/Dependency | `rules_scala` 7.x | `rules_scala` 8.x<br/>(Coming soon! See #1482 and #1652.) |
+| Bazel/Dependency | `rules_scala` 7.x | `rules_scala` 8.x<br/>(Coming soon! See bazelbuild/rules_scala#1482 and bazelbuild/rules_scala#1652.) |
 | :-: | :-: | :-: |
-| Bazel versions using Bzlmod<br/>(Coming soon! See #1482.) | 6.5.0, 7.5.0 | 7.5.0, 8.x |
+| Bazel versions using Bzlmod<br/>(Coming soon! See bazelbuild/rules_scala#1482.) | 6.5.0, 7.5.0 | 7.5.0, 8.x |
 | Bazel versions using `WORKSPACE` | 6.5.0, 7.5.0 | 6.5.0, 7.5.0, 8.x<br/>(see the [notes on 6.5.0 compatibility](#6.5.0)) |
 | `protobuf` | v21.7<br/>(can support up to v25.5) | v29.3 |
 | `abseil-cpp` | 20220623.1 | 20250127.0 |
@@ -538,7 +538,7 @@ register a specific toolchain to resolve first).
 [reg_tool]: https://bazel.build/rules/lib/globals/module#register_toolchains
 
 The `MODULE.bazel` files in this repository will also provide many examples
-(when they land per #1482).
+(when they land per bazelbuild/rules_scala#1482).
 
 ### Embedded resource paths no longer begin with `external/<repo_name>`
 
@@ -560,10 +560,10 @@ depend](https://bazel.build/external/module#repository_names_and_strict_deps).
 
 ### Update `@bazel_tools//tools/jdk` targets to `@rules_java//toolchains` targets
 
-Per #1660, `rules_java` 7.10.0 and later precipitate the need to replace
-`@bazel_tools//tools/jdk` targets with corresponding `@rules_java//toolchains`
-targets. Fix any targets broken by this `rules_java` upgrade by doing a global
-search and replace.
+Per bazelbuild/rules_scala#1660, `rules_java` 7.10.0 and later precipitate the
+need to replace `@bazel_tools//tools/jdk` targets with corresponding
+`@rules_java//toolchains` targets. Fix any targets broken by this `rules_java`
+upgrade by doing a global search and replace.
 
 However, `@bazel_tools//tools/jdk:toolchain_type` dependencies must remain for
 now, as there's not yet a corresponding [`toolchain_type()`](
@@ -580,10 +580,10 @@ breaking changes when upgrading from `rules_scala` 7.x.
 ### Replace some `$(location)` calls with `$(rootpath)` for Bazel 8
 
 This isn't actually a `rules_scala` breakage, but a Bazel 8 breakage encountered
-while preparing `rules_scala` for Bazel 8 in #1652.
-bazelbuild/rules_scala@7b98e3a and bazelbuild/bazel#25198 describe how the
-semantics of some instances of `$(location)` changed, and how changing these
-particular instances to `$(rootpath)` fixed them.
+while preparing `rules_scala` for Bazel 8 in bazelbuild/rules_scala#1652.
+bazelbuild/bazel#25198 describes how the semantics of some instances of
+`$(location)` changed, and how changing these particular instances to
+`$(rootpath)` fixed them.
 
 The good news is that replacing such instances `$(location)` with `$(rootpath)`
 is backwards compatible to Bazel 6.5.0 and 7.5.0. Updating them now will ensure
