@@ -47,8 +47,12 @@ the following dependency versions, make sure to `load()` them before calling
 
 As of version 7.0.0, __`rules_scala` no longer requires the
 `io_bazel_rules_scala` repository name__ unless your `BUILD` files or those of
-your dependencies require it (bazelbuild/rules_scala#1696). In that case, the
-old name will still work when using `http_archive`.
+your dependencies require it (bazelbuild/rules_scala#1696).
+
+Note that __`rules_scala` 7 introduces a new `scala_toolchains()` API that is
+very different from `rules_scala` 6__. For details on what's changed, see the
+[New `scala_toolchains()` API for `WORKSPACE`](#new-toolchains-api) section
+below.
 
 ```py
 # WORKSPACE
@@ -57,7 +61,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 # See https://github.com/bazelbuild/rules_scala/releases for up to date version
 # information, including `<SHASUM>` values.
 http_archive(
-    name = "rules_scala",
+    name = "rules_scala",  # Can be "io_bazel_rules_scala" if you still need it.
     sha256 = "<SHASUM>",
     strip_prefix = "rules_scala-7.0.0",
     url = "https://github.com/bazelbuild/rules_scala/releases/download/7.0.0/rules_scala-7.0.0.tar.gz",
@@ -78,7 +82,7 @@ bazel_skylib_workspace()
 # If you need a specific `rules_python` version, specify it here.
 # Otherwise you may get the version defined in the `com_google_protobuf` repo.
 # We use 0.38.0 to maintain compatibility with Bazel 6.5.0; this will change in
-# the next release.
+# rules_scala 8.0.0.
 http_archive(
     name = "rules_python",
     sha256 = "ca2671529884e3ecb5b79d6a5608c7373a82078c3553b1fa53206e6b9dddab34",
@@ -146,10 +150,9 @@ scala_toolchains(
 scala_register_toolchains()
 ```
 
-This will load the `rules_scala` repository at the commit sha
-`rules_scala_version` into your Bazel project and register a [scala_toolchain](docs/scala_toolchain.md) at the default Scala version (2.12.20)
+### Loading the `scala_*` rules
 
-Then in your BUILD file just add the following so the rules will be available:
+Add the following to your `BUILD` files to make the `scala_*` rules available:
 
 ```py
 load(
@@ -160,23 +163,19 @@ load(
 )
 ```
 
-You may wish to have these rules loaded by default using bazel's prelude. You can add the above to the file `tools/build_rules/prelude_bazel` in your repo (don't forget to have a, possibly empty, BUILD file there) and then it will be automatically prepended to every BUILD file in the workspace.
+### Persistent workers
 
-To run with a persistent worker (much faster), you need to add
+To run with a persistent worker (much faster), add the following to
+your `.bazelrc` file:
 
 ```txt
 build --strategy=Scalac=worker
 build --worker_sandboxing
 ```
 
-to your command line, or to enable by default for building/testing add it to
-your `.bazelrc`.
-
 ## Coverage support
 
-It will produce several .dat files with results for your targets.
-
-You can also add more options to receive a combined coverage report:
+To produce a combined coverage report:
 
 ```txt
 bazel coverage \
@@ -211,24 +210,8 @@ Please check [coverage.md](docs/coverage.md) for more details on coverage suppor
 `rules_scala` supports the last two released minor versions for each of Scala 2.11, 2.12, 2.13.
 Previous minor versions may work but are supported only on a best effort basis.
 
-First select the default Scala version by calling `scala_config(scala_version = "2.xx.xx")` and configure
-dependencies by calling [scala_toolchains()](docs/scala_toolchain.md) and `scala_register_toolchains()`:
-
-```py
-# WORKSPACE
-load("@rules_scala//:scala_config.bzl", "scala_config")
-scala_config(scala_version = "2.13.16")
-
-load(
-    "@rules_scala//scala:toolchains.bzl",
-    "scala_register_toolchains",
-    "scala_toolchains",
-)
-
-scala_toolchains()
-
-scala_register_toolchains()
-```
+The [Getting started](#getting-started) section illustrates how to select the
+default Scala version and configure its dependencies.
 
 ### With custom toolchains
 
@@ -361,7 +344,7 @@ to Bazel 7 and Bzlmod.__ To facilitate a gradual migration, it remains
 compatible with both `WORKSPACE` and Bzlmod. However, it contains the following
 breaking changes when upgrading from `rules_scala` 6.x.
 
-### New `scala_toolchains()` API for `WORKSPACE`
+### <a id="new-toolchains-api"></a>New `scala_toolchains()` API for `WORKSPACE`
 
 `rules_scala` 7.0.0 replaces existing `*_repositories()` and `*_toolchains()`
 macros with the combination of `rules_scala_dependencies()`,
@@ -464,16 +447,14 @@ parameter list, which is almost in complete correspondence with parameters from
 the previous macros. The `WORKSPACE` files in this repository also provide many
 examples.
 
-### Replacing toolchain registration macros
-
-`MODULE.bazel` not only doesn't allow `load()` statements, and therefore macros,
-but _all `register_toolchains()` calls_ __must__ _appear in `MODULE.bazel`_.
+### Replacing toolchain registration macros in `WORKSPACE`
 
 Almost all `rules_scala` toolchains are automatically configured and registered by
-`scala_toolchains()` and `scala_register_toolchains()`. There are two exceptions.
+`scala_toolchains()` and `scala_register_toolchains()`. There are two toolchain
+macro replacements that require special handling.
 
-The first exception is `scala_proto_register_enable_all_options_toolchain()`.
-Replace this macro with:
+The first is replacing `scala_proto_register_enable_all_options_toolchain()`
+with the following `scala_toolchains()` parameters:
 
 ```py
 scala_toolchains(
@@ -482,8 +463,8 @@ scala_toolchains(
 )
 ```
 
-The other exception is `scala_register_unused_deps_toolchains()`. Replace this
-macro with:
+The other is replacing `scala_register_unused_deps_toolchains()` with an
+explicit `register_toolchains()` call:
 
 ```py
 register_toolchains(
@@ -491,21 +472,23 @@ register_toolchains(
 )
 ```
 
-In `WORKSPACE`, this must come before calling `scala_register_toolchains()` to
-ensure this toolchain takes precedence. The same exact call will also work in
-`MODULE.bazel`.
+In `WORKSPACE`, this `register_toolchains()` call must come before calling
+`scala_register_toolchains()` to ensure this toolchain takes precedence. The
+same exact call will also work in `MODULE.bazel`.
 
-`scala_register_toolchains()` should remain in `WORKSPACE`, but there's no
-equivalent for `MODULE.bazel`. The `MODULE.bazel` file from `rules_scala` will
-automatically call `register_toolchains()` for toolchains configured via its
-module extension, so you don't have to.
+#### Copy `register_toolchains()` calls from `WORKSPACE` to `MODULE.bazel`
+
+The `MODULE.bazel` file from `rules_scala` will automatically call
+`register_toolchains()` for toolchains configured via its `scala_deps` module
+extension. However, you must register explicitly in your `MODULE.bazel` file any
+toolchains that you want to take precedence over the toolchains configured by
+`scala_deps`.
 
 ### Bzlmod configuration (coming soon!)
 
 The upcoming Bzlmod implementation will funnel through the `scala_toolchains()`
 macro as well, ensuring maximum compatibility with `WORKSPACE` configurations.
-The equivalent Bzlmod stanza for the `scala_toolchains()` stanza above would be
-the following.
+The equivalent Bzlmod stanza for the `scala_toolchains()` stanza above would be:
 
 ```py
 bazel_dep(name = "rules_scala", version = "7.0.0")
@@ -528,8 +511,8 @@ scala_deps.toolchains(
 )
 ```
 
-The module extensions will call `scala_config()` and `scala_toolchains()` in
-their implementation. The `MODULE.bazel` file for `rules_scala` declares its own
+The module extensions will call `scala_config()` and `scala_toolchains()`
+respectively. The `MODULE.bazel` file for `rules_scala` declares its own
 dependencies via `bazel_dep()`, allowing Bazel to resolve versions according to
 the main repository/root module configuration. It also calls
 [`register_toolchains()`][reg_tool], so you don't have to (unless you want to
@@ -623,17 +606,20 @@ improves performance.
 [`compatibility_level`](https://bazel.build/external/module#compatibility_level)
 values for their [`module()`](https://bazel.build/rules/lib/globals/module)
 directives. This is due to the gap in supported `protobuf` versions documented
-in #1647 (between v25.5 and v28).
+in #1647 (between v25.5 and v28) and dropping support for Bazel 6.5.0 Bzlmod
+builds.
 
 This will ensure any users attempting to mismatch `protobuf` and `rules_scala`
 versions will break during module resolution, rather than during a later
-execution step. (Though, as described in #1647, there are now measures in place
-to cause the build to crash during a mismatch instead of hanging.)
+execution step. (Though, as described in bazelbuild/rules_scala#1647, there are
+now measures in place to cause the build to crash during a mismatch instead of
+hanging.)
 
 The concept of proper `compatibility_level` usage is still up for discussion in
-bazelbuild/bazel#24302. The `rules_scala` implementation will track semantic
-versioning major version numbers, and clearly document the reason for the level
-bump. If a version bump may break builds for any known reason, we should explain
+bazelbuild/bazel#24302. The `compatibility_level` for `rules_scala`
+implementation will track major version numbers (per [semantic
+versioning](https://semver.org/)), and clearly document the reason for the level
+bump. If a version bump may break builds for any known reason, we will explain
 why up front instead of waiting for users to be surprised.
 
 [A comment from #1647 illustrates how `rules_erlang` fails due to
