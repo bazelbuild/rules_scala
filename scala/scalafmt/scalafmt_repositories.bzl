@@ -1,15 +1,5 @@
-load(
-    "//scala:scala_cross_version.bzl",
-    "extract_major_version",
-    "version_suffix",
-    _default_maven_server_urls = "default_maven_server_urls",
-)
-load(
-    "//scala_proto/default:repositories.bzl",
-    "SCALAPB_COMPILE_ARTIFACT_IDS",
-)
-load("//third_party/repositories:repositories.bzl", "repositories")
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSIONS")
+load("//scala:scala_cross_version.bzl", "extract_major_version")
+load("//scala_proto/default:repositories.bzl", "SCALAPB_COMPILE_ARTIFACT_IDS")
 
 def _scalafmt_config_impl(repository_ctx):
     config_path = repository_ctx.attr.path
@@ -29,9 +19,6 @@ scalafmt_config = repository_rule(
         "path": attr.label(mandatory = True, allow_single_file = True),
     },
 )
-
-def scalafmt_default_config(path = ".scalafmt.conf", **kwargs):
-    scalafmt_config(name = "scalafmt_default", path = "//:" + path, **kwargs)
 
 _SCALAFMT_DEPS = [
     "com_lihaoyi_fansi",
@@ -77,19 +64,3 @@ def scalafmt_artifact_ids(scala_version):
         extra_deps.append("io_bazel_rules_scala_scala_parallel_collections")
 
     return _SCALAFMT_DEPS + _SCALAFMT_DEPS_2_12 + extra_deps
-
-def scalafmt_repositories(
-        maven_servers = _default_maven_server_urls(),
-        overriden_artifacts = {}):
-    for scala_version in SCALA_VERSIONS:
-        repositories(
-            scala_version = scala_version,
-            for_artifact_ids = scalafmt_artifact_ids(scala_version),
-            maven_servers = maven_servers,
-            overriden_artifacts = overriden_artifacts,
-        )
-
-        native.register_toolchains(str(Label(
-            "@rules_scala_toolchains//scalafmt:scalafmt_toolchain" +
-            version_suffix(scala_version),
-        )))

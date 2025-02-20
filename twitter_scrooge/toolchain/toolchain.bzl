@@ -3,13 +3,8 @@ load(
     "expose_toolchain_deps",
 )
 load("//scala:providers.bzl", "DepsInfo", "declare_deps_provider")
-load(
-    "//scala:scala_cross_version.bzl",
-    "version_suffix",
-    _default_maven_server_urls = "default_maven_server_urls",
-)
+load("//scala:scala_cross_version.bzl", "version_suffix")
 load("//scala_proto/default:repositories.bzl", "GUAVA_ARTIFACT_IDS")
-load("//third_party/repositories:repositories.bzl", "repositories")
 load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
 
 DEP_PROVIDERS = [
@@ -52,36 +47,6 @@ def twitter_scrooge_artifact_ids(
         artifact_ids.append("io_bazel_rules_scala_util_logging")
 
     return artifact_ids
-
-def twitter_scrooge(
-        maven_servers = _default_maven_server_urls(),
-        overriden_artifacts = {},
-        # These target labels need maven_servers to compute sensible defaults.
-        # Therefore we leave them None here.
-        libthrift = None,
-        scrooge_core = None,
-        scrooge_generator = None,
-        util_core = None,
-        util_logging = None,
-        register_toolchains = True):
-    repositories(
-        scala_version = SCALA_VERSION,
-        for_artifact_ids = twitter_scrooge_artifact_ids(
-            libthrift,
-            scrooge_core,
-            scrooge_generator,
-            util_core,
-            util_logging,
-        ),
-        maven_servers = maven_servers,
-        fetch_sources = False,
-        overriden_artifacts = overriden_artifacts,
-    )
-
-    if register_toolchains:
-        native.register_toolchains(
-            "@rules_scala_toolchains//twitter_scrooge:all",
-        )
 
 def _scrooge_toolchain_impl(ctx):
     toolchain = platform_common.ToolchainInfo(

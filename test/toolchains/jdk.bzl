@@ -52,6 +52,3 @@ def remote_jdk21_repositories():
         ],
         version = "21",
     )
-
-def remote_jdk21_toolchains():
-    native.register_toolchains("//test/toolchains:java21_toolchain_definition")

@@ -1,7 +1,3 @@
-load("//scala:scala_cross_version.bzl", "default_maven_server_urls")
-load("//third_party/repositories:repositories.bzl", "repositories")
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
-
 # Needed by scalafmt
 SCALAPB_COMPILE_ARTIFACT_IDS = [
     "com_google_protobuf_protobuf_java",
@@ -60,19 +56,3 @@ def scala_proto_artifact_ids(scala_version):
         "scala_proto_rules_scalapb_protoc_bridge",
         "scala_proto_rules_scalapb_runtime_grpc",
     ] + SCALAPB_COMPILE_ARTIFACT_IDS + GUAVA_ARTIFACT_IDS
-
-def scala_proto_default_repositories(
-        maven_servers = default_maven_server_urls(),
-        scala_version = SCALA_VERSION,
-        overriden_artifacts = {}):
-    repositories(
-        scala_version = scala_version,
-        for_artifact_ids = scala_proto_artifact_ids(scala_version),
-        maven_servers = maven_servers,
-        fetch_sources = True,
-        overriden_artifacts = overriden_artifacts,
-    )
-
-    native.register_toolchains(
-        str(Label("//scala_proto:default_deps_toolchain")),
-    )

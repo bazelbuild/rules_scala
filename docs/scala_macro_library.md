@@ -1,6 +1,6 @@
 # scala_macro_library
 
-```python
+```py
 scala_macro_library(
     name,
     srcs,

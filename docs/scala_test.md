@@ -1,6 +1,6 @@
 # scala_test
 
-```python
+```py
 scala_test(
     name,
     srcs,

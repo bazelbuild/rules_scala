@@ -1,3 +1,4 @@
+load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
 load(
     "@rules_scala//scala:scala_cross_version.bzl",
     "default_maven_server_urls",
@@ -12,8 +13,9 @@ load(
 )
 load(
     "@rules_scala//twitter_scrooge/toolchain:toolchain.bzl",
-    "twitter_scrooge",
+    "twitter_scrooge_artifact_ids",
 )
+load("@rules_scala//third_party/repositories:repositories.bzl", "repositories")
 
 def _import_external(id, artifact, sha256, deps = [], runtime_deps = []):
     _scala_maven_import_external(
@@ -98,7 +100,13 @@ def scrooge_repositories(version = None):
         ]
     }
 
-    twitter_scrooge(register_toolchains = False, **toolchain_deps)
+    repositories(
+        scala_version = SCALA_VERSION,
+        for_artifact_ids = twitter_scrooge_artifact_ids(**toolchain_deps),
+        maven_servers = default_maven_server_urls(),
+        fetch_sources = False,
+    )
+
     scala_toolchains_repo(
         name = "twitter_scrooge_test_toolchain",
         twitter_scrooge = True,
