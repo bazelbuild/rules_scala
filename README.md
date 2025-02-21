@@ -39,11 +39,11 @@ Bazel version.
 [Install Bazel]: https://docs.bazel.build/versions/master/install.html
 [Bazelisk]: https://docs.bazel.build/versions/master/install.html
 
-Add the following stanza to your `WORKSPACE` file and update versions with their
-sha256s if needed. This stanza is designed to ensure that users pick up the
-correct order of dependencies for `rules_scala`. If you want to override any of
-the following dependency versions, make sure to `load()` them before calling
-`rules_scala_dependencies()`.
+Add the following configuration snippet to your `WORKSPACE` file and update
+versions with their sha256s if needed. This snippet is designed to ensure that
+users pick up the correct order of dependencies for `rules_scala`. If you want
+to override any of the following dependency versions, make sure to `load()` them
+before calling `rules_scala_dependencies()`.
 
 As of version 7.0.0, __`rules_scala` no longer requires the
 `io_bazel_rules_scala` repository name__ unless your `BUILD` files or those of
@@ -372,7 +372,7 @@ These macros no longer exist:
 - `specs2_version()`
 - `twitter_scrooge()`
 
-Replace toolchain stanzas like the following:
+Replace toolchain configurations like the following:
 
 ```py
 load(
@@ -420,8 +420,8 @@ load("@rules_scala//scala:deps.bzl", "rules_scala_dependencies")
 
 rules_scala_dependencies()
 
-# See the `WORKSPACE` stanza from the "Getting started" section above
-# for other dependency declarations.
+# See the `WORKSPACE` configuration snippet from the "Getting started" section
+# above for other dependency declarations.
 
 load("@rules_scala//:scala_config.bzl", "scala_config")
 
@@ -488,7 +488,8 @@ toolchains that you want to take precedence over the toolchains configured by
 
 The upcoming Bzlmod implementation will funnel through the `scala_toolchains()`
 macro as well, ensuring maximum compatibility with `WORKSPACE` configurations.
-The equivalent Bzlmod stanza for the `scala_toolchains()` stanza above would be:
+The equivalent Bzlmod configuration for the `scala_toolchains()` configuration
+above would be:
 
 ```py
 bazel_dep(name = "rules_scala", version = "7.0.0")
