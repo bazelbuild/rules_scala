@@ -1,10 +1,3 @@
-load(
-    "//scala:scala_cross_version.bzl",
-    _default_maven_server_urls = "default_maven_server_urls",
-)
-load("//third_party/repositories:repositories.bzl", "repositories")
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSIONS")
-
 def scalatest_artifact_ids():
     return [
         "io_bazel_rules_scala_scalactic",
@@ -24,14 +17,3 @@ def scalatest_artifact_ids():
         "io_bazel_rules_scala_scalatest_shouldmatchers",
         "io_bazel_rules_scala_scalatest_wordspec",
     ]
-
-def scalatest_repositories(
-        maven_servers = _default_maven_server_urls(),
-        fetch_sources = True):
-    for scala_version in SCALA_VERSIONS:
-        repositories(
-            scala_version = scala_version,
-            for_artifact_ids = scalatest_artifact_ids(),
-            maven_servers = maven_servers,
-            fetch_sources = fetch_sources,
-        )

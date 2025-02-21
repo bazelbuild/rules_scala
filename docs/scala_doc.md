@@ -1,6 +1,6 @@
 # scala_doc
 
-```python
+```py
 scala_doc(
     name,
     deps,
@@ -15,7 +15,7 @@ i.e. only when named explicitly and not through wildcards: `tags = ["manual"]`.
 
 ## Example
 
-```python
+```py
 scala_doc(
     name = "scala_docs",
     tags = ["manual"],
@@ -43,6 +43,6 @@ pkg_tar(
 
 | Attribute name        | Description                                           |
 | --------------------- | ----------------------------------------------------- |
-| name                  | `Name, required` <br> A unique name for this target.
-| deps                  | `List of labels, optional` <br> Labels for which you want to create scaladoc.
-| scalacopts            | `List of strings, optional` <br> Extra compiler options for this library to be passed to scalac.
+| name                  | `Name, required`<br/>A unique name for this target. |
+| deps                  | `List of labels, optional`<br/>Labels for which you want to create scaladoc. |
+| scalacopts            | `List of strings, optional`<br/>Extra compiler options for this library to be passed to scalac. |

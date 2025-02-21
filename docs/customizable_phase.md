@@ -1,37 +1,46 @@
 # Customizable Phase
 
 ## Contents
-*  [Overview](#overview)
-*  [Who needs customizable phase](#who-needs-customizable-phase)
-*  [As a consumer](#as-a-consumer)
-*  [As a contributor](#as-a-contributor)
-   *  [Phase naming convention](#phase-naming-convention)
-*  [Cooperation with IntelliJ plugin](#cooperation-with-intellij-plugin)
+
+- [Overview](#overview)
+- [Who needs customizable phase](#who-needs-customizable-phase)
+- [As a consumer](#as-a-consumer)
+- [As a contributor](#as-a-contributor)
+  - [Phase naming convention](#phase-naming-convention)
+- [Cooperation with IntelliJ plugin](#cooperation-with-intellij-plugin)
 
 ## Overview
+
 Phases increase configurability. Rule implementations are defined as a list of phases. Each phase defines a specific step, which helps breaking up implementation into smaller and more readable groups. Some phases are independent from others, which means the order doesn't matter. However, some phases depend on outputs of previous phases, in this case, we should make sure it meets all the prerequisites before executing phases.
 
 The biggest benefit of phases is that it is customizable. If default phase A is not doing what you expect, you may switch it with your self-defined phase A. One use case is to write your own compilation phase with your favorite Scala compiler. You may also extend the default phase list for more functionalities. One use case is to check the Scala format.
 
 ## Who needs customizable phase
+
 Customizable phase is an advanced feature for people who want the rules to do more. If you are an experienced Bazel rules developer, we make this powerful API public for you to do custom work without impacting other consumers. If you have no experience on writing Bazel rules, we are happy to help but be aware it may be frustrating at first.
 
 If you don't need to customize your rules and just need the default setup to work correctly, then just load the following file for default rules:
+
+```py
+load("@rules_scala//scala:scala.bzl")
 ```
-load("@io_bazel_rules_scala//scala:scala.bzl")
-```
+
 Otherwise read on:
 
 ## As a consumer
+
 You need to load the following 2 files:
+
+```py
+load("@rules_scala//scala:advanced_usage/providers.bzl", "ScalaRulePhase")
+load("@rules_scala//scala:advanced_usage/scala.bzl", "make_scala_binary")
 ```
-load("@io_bazel_rules_scala//scala:advanced_usage/providers.bzl", "ScalaRulePhase")
-load("@io_bazel_rules_scala//scala:advanced_usage/scala.bzl", "make_scala_binary")
-```
+
 `ScalaRulePhase` is a phase provider to pass in custom phases. Rules with `make_` prefix, like `make_scala_binary`, are customizable rules. `make_<RULE_NAME>`s take a dictionary as input. It currently supports appending `attrs` and `outputs` to default rules, as well as modifying the phase list.
 
 For example:
-```
+
+```py
 ext_add_custom_phase = {
     "attrs": {
         "custom_content": attr.string(
@@ -48,8 +57,10 @@ ext_add_custom_phase = {
 
 custom_scala_binary = make_scala_binary(ext_add_custom_phase)
 ```
+
 `make_<RULE_NAME>`s append `attrs` and `outputs` to the default rule definitions. All items in `attrs` can be accessed by `ctx.attr`, and all items in `outputs` can be accessed by `ctx.outputs`. `phase_providers` takes a list of targets which define how you want to modify phase list.
-```
+
+```py
 def _add_custom_phase_singleton_implementation(ctx):
     return [
         ScalaRulePhase(
@@ -63,26 +74,31 @@ add_custom_phase_singleton = rule(
     implementation = _add_custom_phase_singleton_implementation,
 )
 ```
+
 `add_custom_phase_singleton` is a rule solely to pass in custom phases using `ScalaRulePhase`. The `custom_phases` field in `ScalaRulePhase` takes a list of tuples. Each tuple has 4 elements:
-```
+
+```py
 (relation, peer_name, phase_name, phase_function)
 ```
- - relation: the position to add a new phase
- - peer_name: the existing phase to compare the position with
- - phase_name: the name of the new phase, also used to access phase information
- - phase_function: the function of the new phase
+
+- relation: the position to add a new phase
+- peer_name: the existing phase to compare the position with
+- phase_name: the name of the new phase, also used to access phase information
+- phase_function: the function of the new phase
 
 There are 5 possible relations:
- - `^` or `first`
- - `$` or `last`
- - `-` or `before`
- - `+` or `after`
- - `=` or `replace`
+
+- `^` or `first`
+- `$` or `last`
+- `-` or `before`
+- `+` or `after`
+- `=` or `replace`
 
 The symbols and words are interchangable. If `first` or `last` is used, it puts your custom phase at the beginning or the end of the phase list, `peer_name` is not needed.
 
 Then you have to call the rule in a `BUILD`
-```
+
+```py
 add_custom_phase_singleton(
     name = "phase_custom_write_extra_file",
     visibility = ["//visibility:public"],
@@ -92,15 +108,18 @@ add_custom_phase_singleton(
 You may now see `phase_providers` in `ext_add_custom_phase` is pointing to this target.
 
 The last step is to write the function of the phase. For example:
-```
+
+```py
 def phase_custom_write_extra_file(ctx, p):
     ctx.actions.write(
         output = ctx.outputs.custom_output,
         content = ctx.attr.custom_content,
     )
 ```
+
 Every phase has 2 arguments, `ctx` and `p`. `ctx` gives you access to the fields defined in rules. `p` is the global provider, which contains information from initial state as well as all the previous phases. You may access the information from previous phases by `p.<PHASE_NAME>.<FIELD_NAME>`. For example, if the previous phase, said `phase_jar` with phase name `jar`, returns a struct
-```
+
+```py
 def phase_jar(ctx, p):
     # Some works to get the jars
     return struct(
@@ -108,26 +127,30 @@ def phase_jar(ctx, p):
         ijar = ijar,
     )
 ```
+
 You are able to access information like `p.jar.class_jar` in `phase_custom_write_extra_file`. You can provide the information for later phases in the same way, then they can access it by `p.custom_write_extra_file.<FIELD_NAME>`.
 
 You should be able to define the files above entirely in your own workspace without making change to the [bazelbuild/rules_scala](https://github.com/bazelbuild/rules_scala). If you believe your custom phase will be valuable to the community, please refer to [As a contributor](#as-a-contributor). Pull requests are welcome.
 
 ## As a contributor
+
 Besides the basics in [As a consumer](#as-a-consumer), the followings help you understand how phases are setup if you plan to contribute to [bazelbuild/rules_scala](https://github.com/bazelbuild/rules_scala).
 
 These are the relevant files
- - `scala/private/phases/api.bzl`: the API of executing and modifying the phase list
- - `scala/private/phases/phases.bzl`: re-expose phases for convenience
- - `scala/private/phases/phase_<PHASE_NAME>.bzl`: all the phase definitions
+
+- `scala/private/phases/api.bzl`: the API of executing and modifying the phase list
+- `scala/private/phases/phases.bzl`: re-expose phases for convenience
+- `scala/private/phases/phase_<PHASE_NAME>.bzl`: all the phase definitions
 
 Currently phase architecture is used by 7 rules:
- - scala_library
- - scala_macro_library
- - scala_library_for_plugin_bootstrapping
- - scala_binary
- - scala_test
- - scala_junit_test
- - scala_repl
+
+- scala_library
+- scala_macro_library
+- scala_library_for_plugin_bootstrapping
+- scala_binary
+- scala_test
+- scala_junit_test
+- scala_repl
 
 If you need to expose providers to downstream targets you need to return a dict of providers (provider-name to provider instance) from your phase under the `external_providers` attribute.
 
@@ -141,40 +164,45 @@ To make a new phase, you have to define a new `phase_<PHASE_NAME>.bzl` in `scala
 In the rule implementations, put your new phase in `builtin_customizable_phases` list. The phases are executed sequentially, the order matters if the new phase depends on previous phases.
 
 ### Phase naming convention
+
 Files in `scala/private/phases/`
- - `phase_<PHASE_NAME>.bzl`: phase definition file
+
+- `phase_<PHASE_NAME>.bzl`: phase definition file
 
 Function names in `phase_<PHASE_NAME>.bzl`
- - `phase_<PHASE_NAME>_<RULE_NAME>`: function with custom inputs of specific rule
- - `phase_<PHASE_NAME>_common`: function without custom inputs
- - `_phase_<PHASE_NAME>_default`: private function that takes `_args` for custom inputs
- - `_phase_<PHASE_NAME>`: private function with the actual logic
+
+- `phase_<PHASE_NAME>_<RULE_NAME>`: function with custom inputs of specific rule
+- `phase_<PHASE_NAME>_common`: function without custom inputs
+- `_phase_<PHASE_NAME>_default`: private function that takes `_args` for custom inputs
+- `_phase_<PHASE_NAME>`: private function with the actual logic
 
 See `phase_compile.bzl` for example.
 
 ## Cooperation with IntelliJ plugin
 
-Bazel IntelliJ plugin has hard-coded the names of rules_scala targets that it detects as Scala targets:
+[The Bazel IntelliJ plugin has hard-coded the names of rules_scala targets that it detects as Scala targets](
+https://github.com/bazelbuild/intellij/blame/22ea25d17ee9368a8c85262231009c5ec0225459/scala/src/com/google/idea/blaze/scala/ScalaBlazeRules.java#L32-L37).
 
-https://github.com/bazelbuild/intellij/blame/22ea25d17ee9368a8c85262231009c5ec0225459/scala/src/com/google/idea/blaze/scala/ScalaBlazeRules.java#L32-L37
-
-If you use custom-named rules, defined by using macros and phases it'll make the IntelliJ plugin not recognize those 
+If you use custom-named rules, defined by using macros and phases it'll make the IntelliJ plugin not recognize those
 as Scala targets. As a consequence e.g. you'll miss external dependency support for Scala in IntelliJ.
 
-```python
+```py
 ext_add_custom_phase = ... # some definition
 
 # Using this rule won't let you see external dependencies:
 custom_scala_binary = make_scala_binary(ext_add_custom_phase)
 ```
 
-This is tracked in https://github.com/bazelbuild/intellij/issues/1824.
+This is tracked in bazelbuild/intellij#1824.
 
 If you need to use custom-named rules and the IntelliJ plugin together, then you have for now mainly two options:
+
 1. name your rules the same way as the IntelliJ plugin has hard-coded them (and use those from your own scope):
-   ```python
+
+   ```py
    scala_binary = make_scala_binary(ext_add_custom_phase)
    ```
+
 2. use a forked IntelliJ plugin where you extend the list of detected Scala targets
 
-   Example: https://github.com/gergelyfabian/intellij/commit/265d3761aeabb60b79cab53a9ae9832899bfc651
+   Example: gergelyfabian/intellij@265d3761aeabb60b79cab53a9ae9832899bfc651
