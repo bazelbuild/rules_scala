@@ -1,14 +1,15 @@
 # scala_toolchain
 
-`scala_toolchain` allows you to define global configuration to all Scala targets.
+`scala_toolchain` allows you to define the global configuration for all Scala
+targets.
 
-**Some scala_toolchain must be registered!**
+**Some `scala_toolchain` must be registered!**
 
-## Several options to configure `scala_toolchain`
+## Options to configure `scala_toolchain`
 
 ### A) Use the builtin Scala toolchain via `scala_toolchains`
 
-In your workspace file add the following lines:
+Add the following lines to `WORKSPACE`:
 
 ```py
 # WORKSPACE
@@ -26,48 +27,84 @@ scala_register_toolchains()
 
 ### B) Defining your own `scala_toolchain` requires 2 steps
 
-1. Add your own definition of `scala_toolchain` to a `BUILD` file:
-   Example assumes external libraries are resolved with [rules_jvm_external](https://github.com/bazelbuild/rules_jvm_external)
+#### Step 1
 
-    ```py
-    # //toolchains/BUILD
-    load("@rules_scala//scala:scala.bzl", "setup_scala_toolchain")
+You can add your own `scala_toolchain` definition to a `BUILD` file in one of
+two ways. If you only want to set different [configuration
+options](#configuration-options), but rely on the builtin toolchain JARs, use
+`scala_toolchain` directly. This example is inspired by [`BUILD.bazel` from michalbogacz/scala-bazel-monorepo/](
+https://github.com/michalbogacz/scala-bazel-monorepo/blob/2cac860f386dcaa1c3be56cd25a84b247d335743/BUILD.bazel)):
 
-    setup_scala_toolchain(
-        name = "my_toolchain",
-        # configure toolchain dependecies
-        parser_combinators_deps = [
-            "@maven//:org_scala_lang_modules_scala_parser_combinators_2_12",
-        ],
-        scala_compile_classpath = [
-            "@maven//:org_scala_lang_scala_compiler",
-            "@maven//:org_scala_lang_scala_library",
-            "@maven//:org_scala_lang_scala_reflect",
-        ],
-        scala_library_classpath = [
-            "@maven//:org_scala_lang_scala_library",
-            "@maven//:org_scala_lang_scala_reflect",
-        ],
-        scala_macro_classpath = [
-            "@maven//:org_scala_lang_scala_library",
-            "@maven//:org_scala_lang_scala_reflect",
-        ],
-        scala_xml_deps = [
-            "@maven//:org_scala_lang_modules_scala_xml_2_12",
-        ],
-        # example of setting attribute values
-        scalacopts = ["-Ywarn-unused"],
-        unused_dependency_checker_mode = "off",
-        visibility = ["//visibility:public"]
-    )
-    ```
+```py
+load("@rules_scala//scala:scala_toolchain.bzl", "scala_toolchain")
 
-2. Register your custom toolchain from `WORKSPACE`:
+scala_toolchain(
+    name = "my_toolchain_impl",
+    scalacopts = [
+        "-Wunused:all",
+    ],
+    strict_deps_mode = "error",
+    unused_dependency_checker_mode = "warn",
+)
 
-    ```py
-    # WORKSPACE
-    register_toolchains("//toolchains:my_scala_toolchain")
-    ```
+toolchain(
+    name = "my_toolchain",
+    toolchain = ":my_toolchain_impl",
+    toolchain_type = "@rules_scala//scala:toolchain_type",
+    visibility = ["//visibility:public"],
+)
+```
+
+If you want to use your own compiler JARs, use `setup_scala_toolchain()`
+instead. This example assumes the external libraries are resolved with
+[rules_jvm_external](https://github.com/bazelbuild/rules_jvm_external)
+
+```py
+# //toolchains/BUILD
+load("@rules_scala//scala:scala.bzl", "setup_scala_toolchain")
+
+setup_scala_toolchain(
+    name = "my_toolchain",
+    # configure toolchain dependecies
+    parser_combinators_deps = [
+        "@maven//:org_scala_lang_modules_scala_parser_combinators_2_12",
+    ],
+    scala_compile_classpath = [
+        "@maven//:org_scala_lang_scala_compiler",
+        "@maven//:org_scala_lang_scala_library",
+        "@maven//:org_scala_lang_scala_reflect",
+    ],
+    scala_library_classpath = [
+        "@maven//:org_scala_lang_scala_library",
+        "@maven//:org_scala_lang_scala_reflect",
+    ],
+    scala_macro_classpath = [
+        "@maven//:org_scala_lang_scala_library",
+        "@maven//:org_scala_lang_scala_reflect",
+    ],
+    scala_xml_deps = [
+        "@maven//:org_scala_lang_modules_scala_xml_2_12",
+    ],
+    # example of setting attribute values
+    scalacopts = ["-Ywarn-unused"],
+    unused_dependency_checker_mode = "off",
+    visibility = ["//visibility:public"]
+)
+```
+
+#### Step 2
+
+Register your custom toolchain:
+
+```py
+# MODULE.bazel or WORKSPACE
+register_toolchains("//toolchains:my_scala_toolchain")
+```
+
+## Configuration options
+
+The following attributes apply to both `scala_toolchain` and
+`setup_scala_toolchain`.
 
 <table class="table table-condensed table-bordered table-params">
   <colgroup>

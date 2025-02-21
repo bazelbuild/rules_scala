@@ -554,6 +554,76 @@ now, as there's not yet a corresponding [`toolchain_type()`](
 https://bazel.build/versions/6.1.0/reference/be/platform#toolchain_type) target
 in `@rules_java`.
 
+### Builtin repositories no longer visible without `use_repo()` under Bzlmod
+
+Under Bzlmod, repos are only visible to the module extension that creates them,
+unless the `MODULE.bazel` file brings them into scope with
+[`use_repo()`](https://bazel.build/rules/lib/globals/module#use_repo). This can
+lead to errors like those from the following example, which [originally called
+`setup_scala_toolchain()` under Bzlmod](
+https://github.com/michalbogacz/scala-bazel-monorepo/blob/17f0890a4345529e09b9ce83bcb2e3d15687c522/BUILD.bazel):
+
+```py
+load("@io_bazel_rules_scala//scala:scala.bzl", "setup_scala_toolchain")
+
+setup_scala_toolchain(
+    name = "custom_scala_toolchain",
+    scalacopts = [
+        "-Wunused:all",
+    ],
+    strict_deps_mode = "error",
+    unused_dependency_checker_mode = "warn",
+)
+```
+
+This worked under `WORKSPACE`, but broke under Bzlmod, the error message
+indicating that the builtin `@org_scala_sbt_compiler_interface` toolchain jar
+isn't visible:
+
+```txt
+ERROR: no such package
+    '@@[unknown repo 'org_scala_sbt_compiler_interface_3_3_5'
+        requested from @@]//':
+    The repository '@@[unknown repo 'org_scala_sbt_compiler_interface_3_3_5'
+        requested from @@]' could not be resolved:
+    No repository visible as '@org_scala_sbt_compiler_interface_3_3_5'
+```
+
+`setup_scala_toolchains` is a macro that can take user specified classpath
+targets as described in [docs/scala_toolchain.md](./docs/scala_toolchain.md).
+Otherwise, it _generates new classpath targets_ using the builtin `rules_scala`
+repositories, but these repositories are no longer in the global scope, causing
+the breakage. (A big part of the Bzlmodification work involved enabling
+`rules_scala` to generate and register toolchains _without_ forcing users to
+bring their dependencies into scope.)
+
+One way to fix this specific problem is to call `use_repo` for every such
+repository needed by the toolchain. Another fix, in this case, is to [use
+`scala_toolchain` directly instead](
+https://github.com/michalbogacz/scala-bazel-monorepo/blob/2cac860f386dcaa1c3be56cd25a84b247d335743/BUILD.bazel).
+Its underlying `BUILD` rule uses the builtin toolchain dependencies via existing
+targets visible within `rules_scala`, without forcing users to import them:
+
+```py
+load("@rules_scala//scala:scala_toolchain.bzl", "scala_toolchain")
+
+scala_toolchain(
+    name = "custom_scala_toolchain_impl",
+    scalacopts = [
+        "-Ywarn-unused",
+    ],
+    strict_deps_mode = "error",
+    unused_dependency_checker_mode = "warn",
+)
+
+toolchain(
+    name = "custom_scala_toolchain",
+    toolchain = ":custom_scala_toolchain_impl",
+    toolchain_type = "@rules_scala//scala:toolchain_type",
+    visibility = ["//visibility:public"],
+)
+```
+
 ## Breaking changes coming in `rules_scala` 8.x
 
 __The main objective of 8.x will be to enable existing users to migrate to Bazel
