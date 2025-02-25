@@ -45,15 +45,6 @@ users pick up the correct order of dependencies for `rules_scala`. If you want
 to override any of the following dependency versions, make sure to `load()` them
 before calling `rules_scala_dependencies()`.
 
-As of version 7.0.0, __`rules_scala` no longer requires the
-`io_bazel_rules_scala` repository name__ unless your `BUILD` files or those of
-your dependencies require it (bazelbuild/rules_scala#1696).
-
-Note that __`rules_scala` 7 introduces a new `scala_toolchains()` API that is
-very different from `rules_scala` 6__. For details on what's changed, see the
-[New `scala_toolchains()` API for `WORKSPACE`](#new-toolchains-api) section
-below.
-
 ```py
 # WORKSPACE
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
@@ -149,6 +140,20 @@ scala_toolchains(
 
 scala_register_toolchains()
 ```
+
+### Important changes in `rules_scala` v7.0.0 configuration
+
+The above configuration snippet reflects important changes since `rules_scala`
+v6.x:
+
+- __`rules_scala` no longer requires the `io_bazel_rules_scala` repository
+    name__ unless your `BUILD` files or those of your dependencies require it
+    (bazelbuild/rules_scala#1696).
+
+- __`rules_scala` v7.0.0 introduces a new `scala_toolchains()` API that is
+    very different from `rules_scala` 6__. For details on what's changed, see
+    the [New 'scala_toolchains()' API for 'WORKSPACE'](#new-toolchains-api)
+    section below.
 
 ### Loading the `scala_*` rules
 
@@ -442,7 +447,7 @@ scala_toolchains(
 scala_register_toolchains()
 ```
 
-See the [`scala_toolchains()` docstring](./scala/toolchains.bzl) for the
+See the [`scala_toolchains()`](./scala/toolchains.bzl) docstring for the
 parameter list, which is almost in complete correspondence with parameters from
 the previous macros. The `WORKSPACE` files in this repository also provide many
 examples.
@@ -526,8 +531,8 @@ The `MODULE.bazel` files in this repository will also provide many examples
 
 ### Embedded resource paths no longer begin with `external/<repo_name>`
 
-[Any program compiled with an external repo asset in its `resources` attribute
-will need to strip the `external/` and repo name components from its
+[Any program compiled with an external repo asset in its 'resources' attribute
+will need to strip the 'external/' and repo name components from its
 path][ext-path]. For example, the path for `resources =
 ["@some_external_repo//:resource.txt"]` would change thus:
 
@@ -646,15 +651,15 @@ future compatibility.
 ### <a id="6.5.0"></a>Limited Bazel 6.5.0 compatibility
 
 `rules_scala` 8.0.0 will not support Bzlmod with Bazel 6.5.0 because
-[Bazel 6.5.0 doesn't support `use_repo_rule`](
+[Bazel 6.5.0 doesn't support 'use_repo_rule'](
 https://bazel.build/versions/6.5.0/rules/lib/globals), which
-[`rules_jvm_external` >= 6.3 requires](
+['rules_jvm_external' >= 6.3 requires](
 https://github.com/bazelbuild/rules_scala/issues/1482#issuecomment-2515496234).
 
 `WORKSPACE` builds will continue to work with Bazel 6.5.0, but not out of the
-box. Per #1647, using Bazel 6.5.0 with `rules_scala` 8.x will require adding the
-following flags to `.bazelrc`, required by the newer `abseil-cpp` version used
-by `protobuf`:
+box. Per bazelbuild/rules_scala#1647, using Bazel 6.5.0 with `rules_scala` 8.x
+will require adding the following flags to `.bazelrc`, required by the newer
+`abseil-cpp` version used by `protobuf`:
 
 ```txt
 common --enable_platform_specific_config
@@ -677,8 +682,8 @@ improves performance.
 [`compatibility_level`](https://bazel.build/external/module#compatibility_level)
 values for their [`module()`](https://bazel.build/rules/lib/globals/module)
 directives. This is due to the gap in supported `protobuf` versions documented
-in #1647 (between v25.5 and v28) and dropping support for Bazel 6.5.0 Bzlmod
-builds.
+in bazelbuild/rules_scala#1647 (between v25.5 and v28) and dropping support for
+Bazel 6.5.0 Bzlmod builds.
 
 This will ensure any users attempting to mismatch `protobuf` and `rules_scala`
 versions will break during module resolution, rather than during a later
@@ -693,8 +698,8 @@ versioning](https://semver.org/)), and clearly document the reason for the level
 bump. If a version bump may break builds for any known reason, we will explain
 why up front instead of waiting for users to be surprised.
 
-[A comment from #1647 illustrates how `rules_erlang` fails due to
-`compatibility_level` conflicts][erlang]. The [`rules_erlang` 3.0.0 release
+[A comment from #1647 illustrates how 'rules_erlang' fails due to
+'compatibility_level' conflicts][erlang]. The ['rules_erlang' 3.0.0 release
 notes](https://github.com/rabbitmq/rules_erlang/releases/tag/3.0.0) describe the
 breaking changes. This seems like a reasonable model to follow.
 
