@@ -1,25 +1,78 @@
 # Cross compilation support
 
-Read *Quick start* for an information on how to use cross compilation.
-The remaining sections contain more detailed information, useful especially for toolchain & rule developers.
+Read [*Quick start*](#quick-start) for information on how to use cross
+compilation. The remaining sections contain more detailed information, useful
+especially for toolchain and rule developers.
 
 ## Quick start
 
-`scala_config` repository rule accepts two parameters related to Scala version:
+The `scala_config` module extension (or`WORKSPACE` macro) creates the
+`@io_bazel_rules_scala_config` repository. It accepts two parameters that
+specify the the Scala versions supported within the project:
 
-- `scala_version` – a single, default version;
-- `scala_versions` – a list of versions to make available for use.
+- `scala_version` – a single default version
+- `scala_versions` – a list of versions supported or required by the project
 
-The first one, `scala_version`, will be used as a default, but it can be overridden for specific targets for any version from the `scala_versions`.
+__`MODULE.bazel`__
+
+```py
+# MODULE.bazel
+scala_config = use_extension(
+    "@rules_scala//scala/extensions:config.bzl",
+    "scala_config",
+)
+
+scala_config.settings(
+    scala_version = "2.13.15",
+    # No need to include `scala_version` in `scala_versions`.
+    scala_versions = [
+        "2.11.12",
+        "2.12.20",
+        "3.1.3",
+        "3.2.2",
+        "3.3.5",
+    ],
+)
+```
+
+__`WORKSPACE` (Legacy support)__
+
+```py
+load("@rules_scala//:scala_config.bzl", "scala_config")
+
+scala_config(
+    scala_version = "3.1.3",
+    # You _must_ include `scala_version` in `scala_versions`.
+    scala_versions = [
+        "2.11.12",
+        "2.12.20",
+        "2.13.15",
+        "3.1.3",
+        "3.2.2",
+        "3.3.5",
+    ],
+)
+```
+
+
+
+The first parameter, `scala_version`, defines the default version of Scala to
+use when building the project. Values from `scala_versions` can override the
+default in one of two ways:
+
+- The `--repo_env=SCALA_VERSION=...` command line flag overrides the default for
+    the entire build.
+- The `scala_version` build rule attribute overrides the Scala version used for
+    a specific target and its dependencies.
 
 Multiple rules, such as:
 
-- [scala_library](/scala/private/rules/scala_library.bzl)
-- [scala_binary](/scala/private/rules/scala_binary.bzl)
-- [scala_repl](/scala/private/rules/scala_repl.bzl)
-- [scala_test](/scala/private/rules/scala_test.bzl)
+- [scala_library](../scala/private/rules/scala_library.bzl)
+- [scala_binary](../scala/private/rules/scala_binary.bzl)
+- [scala_repl](../scala/private/rules/scala_repl.bzl)
+- [scala_test](../scala/private/rules/scala_test.bzl)
 
-support such override via the `scala_version` attribute, e.g.:
+support `scala_version` overrides, e.g.:
 
 ```py
 scala_library(
@@ -30,56 +83,69 @@ scala_library(
 )
 ```
 
-For this library and all its dependencies 2.12.18 compiler will be used, unless explicitly overridden again in another target.
+The above `scala_library` and all its dependencies will use the Scala 2.12.18
+compiler, unless explicitly overridden by another target that depends on this
+one.
 
 ## Version configuration
 
-`scala_config` creates the repository `@io_bazel_rules_scala_config`.
-File created there, `config.bzl`, consists of many variables. In particular:
+The `scala_config` module extension (or `WORKSPACE` macro) creates the
+`@io_bazel_rules_scala_config` repository. Its generated `config.bzl` file
+contains several variables, including:
 
-- `SCALA_VERSION` – representing the default Scala version, e.g. `"3.3.1"`;
-- `SCALA_VERSIONS` – representing all configured Scala versions, e.g. `["2.12.18", "3.3.1"]`.
+- `SCALA_VERSION` – representing the default Scala version, e.g., `"3.3.1"`
+- `SCALA_VERSIONS` – representing all configured Scala versions, e.g.,
+    `["2.12.18", "3.3.1"]`
 
 ## Build settings
 
-Configured `SCALA_VERSIONS` correspond to allowed values of [build setting](https://bazel.build/extending/config#user-defined-build-setting).
+Each element of `SCALA_VERSIONS` corresponds to an allowed [build
+setting](https://bazel.build/extending/config#user-defined-build-settings)
+value.
 
 ### `scala_version`
 
-`@io_bazel_rules_scala_config` in its root package defines the following build setting:
+The root package of `@io_bazel_rules_scala_config` defines the following build
+setting (specifically, a ['string_setting()' from '@bazel_skylib'](
+https://github.com/bazelbuild/bazel-skylib/blob/1.7.1/docs/common_settings_doc.md#string_setting)):
 
 ```py
 string_setting(
     name = "scala_version",
     build_setting_default = "3.3.1",
-    values = ["3.3.1"],
+    values = ["2.12.18", "3.3.1"],
     visibility = ["//visibility:public"],
 )
-...
 ```
 
-This build setting can be subject of change by [transitions](https://bazel.build/extending/config#user-defined-transitions) (within allowed `values`).
+This defines values allowed by the custom [user-defined
+transition](https://bazel.build/extending/config#user-defined-transitions)
+described in the [Requesting a specific version for a custom
+'rule'](#custom-rule) section below.
 
 ### Config settings
 
-Then for each Scala version we have a [config setting](https://bazel.build/extending/config#build-settings-and-select):
+For each Scala version in the above `string_setting()`, we have a [config
+setting]( https://bazel.build/extending/config#build-settings-and-select):
 
 ```py
 config_setting(
     name = "scala_version_3_3_1",
     flag_values = {":scala_version": "3.3.1"},
 )
-...
 ```
 
-The `name` of `config_setting` corresponds to `"scala_version" + version_suffix(scala_version)`.
-One may use this config setting in `select()` e.g. to provide dependencies relevant to a currently used Scala version.
+The `name` of the `config_setting` corresponds to `"scala_version" +
+version_suffix(scala_version)`. One may use this config setting in `select()`
+(e.g., to provide dependencies relevant to a currently used Scala version).
 
 ## Version-dependent behavior
 
-Don't rely on `SCALA_VERSION` as it represents the default Scala version, not necessarily the one that is currently requested.
+Don't rely on `SCALA_VERSION` as it represents the default Scala version, not
+necessarily the one that is currently requested.
 
-If you need to customize the behavior for specific Scala version, there are two scenarios.
+There are two scenarios for customizing behavior based on a specific Scala
+version.
 
 ### From toolchain
 
@@ -94,13 +160,11 @@ def _rule_impl(ctx):
 
 ### From config setting
 
-In BUILD files, you need to use the config settings with `select()`.
-Majority of use cases is covered by the `select_for_scala_version` utility macro.
-If more flexibility is needed, you can always write the select manually.
+In `BUILD` files, you need to use the config settings with `select()`. The
+majority of use cases are covered by the `select_for_scala_version()` utility
+macro. If more flexibility is needed, you can always write the select manually.
 
-#### With select macro
-
-See example usage of the `select_for_scala_version`:
+#### Using the `select_for_scala_version()` macro
 
 ```py
 load(
@@ -128,11 +192,10 @@ scala_library(
 )
 ```
 
-See complete documentation in the [scala_cross_version_select.bzl](/scala/scala_cross_version_select.bzl) file
+See the complete documentation in the [scala_cross_version_select.bzl](
+../scala/scala_cross_version_select.bzl) file
 
-#### Manually
-
-An example usage of `select()` to provide custom dependency for specific Scala version:
+#### Using a manually crafted `select()`
 
 ```py
 deps = select({
@@ -141,7 +204,8 @@ deps = select({
 })
 ```
 
-For more complex logic, you can extract it to a `.bzl` file:
+For more complex logic, define a macro taking a `scala_version` argument in a
+`.bzl` file:
 
 ```py
 def srcs(scala_version):
@@ -150,28 +214,32 @@ def srcs(scala_version):
     ...
 ```
 
-and then in the `BUILD` file:
+and then `load()` the macro in a `BUILD` file:
 
 ```py
-load("....bzl", "srcs")
+load(":my_macros.bzl", "srcs")
 load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSIONS")
 load("@rules_scala//:scala_cross_version.bzl", "version_suffix")
+
+_SCALA_VERSION_SETTING_PREFIX = "@io_bazel_rules_scala_config//:scala_version"
 
 scala_library(
     ...
     srcs = select({
-        "@io_bazel_rules_scala_config//:scala_version" + version_suffix(v): srcs(v)
+        SCALA_VERSION_SETTING_PREFIX + version_suffix(v): srcs(v)
         for v in SCALA_VERSIONS
     }),
     ...
 )
 ```
 
-## Requesting specific version
+## <a id="custom-rule"></a>Requesting a specific version for a custom `rule`
 
-To use other than default version of Scala, you need to change the current `@io_bazel_rules_scala_config//:scala_version` build setting.
-
-Simple transition, setting the Scala version to one found in `scala_version` attribute:
+To enable a `rule` to use a version of Scala other than the default, first
+assign the desired alternative versions to the `scala_versions` configuration
+parameter. `scala_version_transition` from [`scala/scala_cross_version.bzl`](
+../scala/scala_cross_version.bzl) then selects one of the `scala_versions` so
+configured.
 
 ```py
 def _scala_version_transition_impl(settings, attr):
@@ -187,7 +255,11 @@ scala_version_transition = transition(
 )
 ```
 
-To use it in a rule, use the `scala_version_transition` as `cfg` and use `toolchain_transition_attr` in `attrs`:
+In your own [`rule`](https://bazel.build/rules/lib/globals/bzl#rule) definition,
+assign the `scala_version_transition` to the `cfg` attribute and include the
+`toolchain_transition_attr` elements in `attrs`. For an example, see
+`make_scala_library()` from [`scala/private/rules/scala_library.bzl`](
+../scala/private/rules/scala_library.bzl):
 
 ```py
 load(
@@ -196,27 +268,62 @@ load(
     "toolchain_transition_attr",
 )
 
+...
+
 _scala_library_attrs.update(toolchain_transition_attr)
 
 def make_scala_library(*extras):
     return rule(
         attrs = _dicts.add(
-            ...
-            toolchain_transition_attr,
+            _scala_library_attrs,
             ...
         ),
         ...
         cfg = scala_version_transition,
-        incompatible_use_toolchain_transition = True,
         ...
     )
 ```
 
+Now your `rule` can take a `scala_version` parameter to ensure it builds with a
+specific Scala version. See [test_cross_build/version_specific/BUILD](
+../test_cross_build/version_specific/BUILD) for examples of this, such as:
+
+```py
+scala_library(
+    name = "since_3_3",
+    srcs = ["since_3_3.scala"],
+    scala_version = "3.3.5",
+)
+
+scala_library(
+    name = "before_3_3",
+    srcs = ["before_3_3.scala"],
+    scala_version = "3.2.2",
+)
+
+# What's new in 3.2
+scala_library(
+    name = "since_3_2",
+    srcs = ["since_3_2.scala"],
+    scala_version = "3.2.2",
+)
+
+scala_library(
+    name = "before_3_2",
+    srcs = ["before_3_2.scala"],
+    scala_version = "3.1.3",
+)
+```
+
 ## Toolchains
 
-Standard [toolchain resolution](https://bazel.build/extending/toolchains#toolchain-resolution) procedure determines which toolchain to use for Scala targets.
+The standard [toolchain resolution](
+https://bazel.build/extending/toolchains#toolchain-resolution)
+procedure determines which toolchain to use for Scala targets.
 
-Toolchain should declare its compatibility with Scala version by using `target_settings` attribute of the `toolchain` rule:
+Each toolchain should declare its compatibility with a specific Scala version by
+using the `target_settings` attribute of the [`toolchain`](
+https://bazel.build/reference/be/platforms-and-toolchains#toolchain) rule:
 
 ```py
 toolchain(
@@ -229,15 +336,21 @@ toolchain(
 ### Cross-build support tiers
 
 `rules_scala` consists of many toolchains implementing various toolchain types.
-Their support level for cross-build setup varies.
+Their support level for cross-build setups varies.
 
 We can distinguish following tiers:
 
-- No `target_settings` set – not migrated, will work on the default `SCALA_VERSION`; undefined behavior on other versions.
+- No `target_settings` set – not migrated, will work on the default
+    `SCALA_VERSION`; undefined behavior on other versions.
   - (all toolchains not mentioned elsewhere)
-- `target_settings` set to the `SCALA_VERSION` – not fully migrated; will work only on the default `SCALA_VERSION` and will fail the toolchain resolution on other versions.
+
+- `target_settings` set to the `SCALA_VERSION` – not fully migrated; will work
+    only on the default `SCALA_VERSION` and will fail the toolchain resolution
+    on other versions.
   - (no development in progress)
-- Multiple toolchain instances with `target_settings` corresponding to each of `SCALA_VERSIONS` – fully migrated; will work in cross-build setup.
+
+- Multiple toolchain instances with `target_settings` corresponding to each of
+    `SCALA_VERSIONS` – fully migrated; will work in cross-build setup.
   - [the main Scala toolchain](/scala/BUILD)
   - [Scalafmt](/scala/scalafmt/BUILD)
   - [Scalatest](/testing/testing.bzl)

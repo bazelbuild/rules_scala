@@ -76,7 +76,6 @@ export_scrooge_deps = rule(
         ),
     },
     toolchains = [_toolchain_type],
-    incompatible_use_toolchain_transition = True,
 )
 
 def setup_scrooge_toolchain(

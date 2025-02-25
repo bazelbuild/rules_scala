@@ -27,5 +27,4 @@ collect_plus_one_deps_aspect = aspect(
     implementation = _collect_plus_one_deps_aspect_impl,
     attr_aspects = ["deps", "exports"],
     toolchains = [Label("//scala:toolchain_type")],
-    incompatible_use_toolchain_transition = True,
 )

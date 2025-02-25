@@ -344,7 +344,6 @@ scrooge_scala_aspect = aspect(
     provides = [ScroogeAspectInfo],
     required_aspect_providers = common_aspect_providers,
     toolchains = common_toolchains,
-    incompatible_use_toolchain_transition = True,
 )
 
 scrooge_java_aspect = aspect(
@@ -361,7 +360,6 @@ scrooge_java_aspect = aspect(
     provides = [ScroogeAspectInfo],
     required_aspect_providers = common_aspect_providers,
     toolchains = common_toolchains,
-    incompatible_use_toolchain_transition = True,
     fragments = ["java"],
 )
 
@@ -437,5 +435,4 @@ scrooge_scala_import = rule(
         Label("//twitter_scrooge/toolchain:scrooge_toolchain_type"),
         "@bazel_tools//tools/jdk:toolchain_type",
     ],
-    incompatible_use_toolchain_transition = True,
 )

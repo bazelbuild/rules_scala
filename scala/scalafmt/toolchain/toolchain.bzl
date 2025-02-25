@@ -29,5 +29,4 @@ export_scalafmt_deps = rule(
         ),
     },
     toolchains = [SCALAFMT_TOOLCHAIN_TYPE],
-    incompatible_use_toolchain_transition = True,
 )

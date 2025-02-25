@@ -52,7 +52,6 @@ export_toolchain_deps = rule(
         ),
     },
     toolchains = [_toolchain_type],
-    incompatible_use_toolchain_transition = True,
 )
 
 def setup_jmh_toolchain(name):

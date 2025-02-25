@@ -105,7 +105,6 @@ To define toolchain deps with deps exporting, the following steps need to be tak
             ),
         },
         toolchains = ["//my_rules/toolchain:my_toolchain_type"],
-        incompatible_use_toolchain_transition = True,
     )
     ```
 
@@ -170,6 +169,5 @@ Intended to be used when defining toolchain deps exporting rules. Eg.:
             ),
         },
         toolchains = ["//my_rules/toolchain:my_toolchain_type"],
-        incompatible_use_toolchain_transition = True,
     )
     ```

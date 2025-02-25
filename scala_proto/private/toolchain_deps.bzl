@@ -15,6 +15,5 @@ export_scalapb_toolchain_deps = rule(
             mandatory = True,
         ),
     },
-    incompatible_use_toolchain_transition = True,
     toolchains = [_DEPS_TOOLCHAIN_TYPE],
 )

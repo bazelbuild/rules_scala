@@ -68,7 +68,6 @@ _aspect = aspect(
     attr_aspects = _dependency_attributes,
     implementation = _aspect_impl,
     toolchains = [Label("//scala:toolchain_type")],
-    incompatible_use_toolchain_transition = True,
 )
 
 coverage_replacements_provider = struct(
