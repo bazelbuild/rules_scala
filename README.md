@@ -62,7 +62,13 @@ load("@rules_scala//scala:deps.bzl", "rules_scala_dependencies")
 
 rules_scala_dependencies()
 
-load("@rules_java//java:rules_java_deps.bzl", "rules_java_dependencies")
+# In `rules_scala` 7.x, `scala/deps.bzl` imports `rules_java` 7.x. This
+# statement will change for `rules_scala` 8.x, which will use `rules_java` 8.x.
+load(
+    "@rules_java//java:repositories.bzl",
+    "rules_java_dependencies",
+    "rules_java_toolchains",
+)
 
 rules_java_dependencies()
 
@@ -85,14 +91,14 @@ load("@rules_python//python:repositories.bzl", "py_repositories")
 
 py_repositories()
 
-# Note that `rules_java` suggests loading `protobuf_deps()` after
+# Note that `rules_java` 8.x suggests loading `protobuf_deps()` after
 # `rules_java_dependencies` and before `rules_java_toolchains()`:
 # - https://github.com/bazelbuild/rules_java/releases/tag/8.9.0
+#
+# `rules_java` 7.x also works with this ordering.
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 
 protobuf_deps()
-
-load("@rules_java//java:repositories.bzl", "rules_java_toolchains")
 
 rules_java_toolchains()
 

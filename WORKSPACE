@@ -5,7 +5,11 @@ load("//scala:deps.bzl", "rules_scala_dependencies")
 
 rules_scala_dependencies()
 
-load("@rules_java//java:repositories.bzl", "rules_java_dependencies", "rules_java_toolchains")
+load(
+    "@rules_java//java:repositories.bzl",
+    "rules_java_dependencies",
+    "rules_java_toolchains",
+)
 
 rules_java_dependencies()
 
