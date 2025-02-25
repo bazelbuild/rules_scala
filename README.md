@@ -50,12 +50,12 @@ before calling `rules_scala_dependencies()`.
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 # See https://github.com/bazelbuild/rules_scala/releases for up to date version
-# information, including `<SHASUM>` values.
+# information, including `<VERSION>` and `<SHASUM>` values.
 http_archive(
     name = "rules_scala",  # Can be "io_bazel_rules_scala" if you still need it.
     sha256 = "<SHASUM>",
-    strip_prefix = "rules_scala-7.0.0",
-    url = "https://github.com/bazelbuild/rules_scala/releases/download/7.0.0/rules_scala-7.0.0.tar.gz",
+    strip_prefix = "rules_scala-<VERSION>",
+    url = "https://github.com/bazelbuild/rules_scala/releases/download/<VERSION>/rules_scala-<VERSION>.tar.gz",
 )
 
 load("@rules_scala//scala:deps.bzl", "rules_scala_dependencies")
@@ -575,7 +575,7 @@ lead to errors like those from the following example, which [originally called
 https://github.com/michalbogacz/scala-bazel-monorepo/blob/17f0890a4345529e09b9ce83bcb2e3d15687c522/BUILD.bazel):
 
 ```py
-load("@io_bazel_rules_scala//scala:scala.bzl", "setup_scala_toolchain")
+load("@rules_scala//scala:scala.bzl", "setup_scala_toolchain")
 
 setup_scala_toolchain(
     name = "custom_scala_toolchain",
