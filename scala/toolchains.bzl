@@ -47,7 +47,7 @@ def scala_toolchains(
         jmh = False,
         twitter_scrooge = False,
         twitter_scrooge_deps = {}):
-    """Instantiates @rules_scala_toolchains and all its dependencies.
+    """Instantiates rules_scala toolchains and all their dependencies.
 
     Provides a unified interface to configuring `rules_scala` both directly in a
     `WORKSPACE` file and in a Bazel module extension.
