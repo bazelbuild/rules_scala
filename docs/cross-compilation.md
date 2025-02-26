@@ -6,9 +6,8 @@ especially for toolchain and rule developers.
 
 ## Quick start
 
-The `scala_config` module extension (or`WORKSPACE` macro) creates the
-`@io_bazel_rules_scala_config` repository. It accepts two parameters that
-specify the the Scala versions supported within the project:
+The `scala_config` module extension (or`WORKSPACE` macro) accepts two parameters
+that specify the the Scala versions supported within the project:
 
 - `scala_version` – a single default version
 - `scala_versions` – a list of versions supported or required by the project
@@ -54,8 +53,6 @@ scala_config(
 )
 ```
 
-
-
 The first parameter, `scala_version`, defines the default version of Scala to
 use when building the project. Values from `scala_versions` can override the
 default in one of two ways:
@@ -90,8 +87,8 @@ one.
 ## Version configuration
 
 The `scala_config` module extension (or `WORKSPACE` macro) creates the
-`@io_bazel_rules_scala_config` repository. Its generated `config.bzl` file
-contains several variables, including:
+`@rules_scala_config` repository. Its generated `config.bzl` file contains
+several variables, including:
 
 - `SCALA_VERSION` – representing the default Scala version, e.g., `"3.3.1"`
 - `SCALA_VERSIONS` – representing all configured Scala versions, e.g.,
@@ -105,8 +102,8 @@ value.
 
 ### `scala_version`
 
-The root package of `@io_bazel_rules_scala_config` defines the following build
-setting (specifically, a ['string_setting()' from '@bazel_skylib'](
+The root package of `@rules_scala_config` defines the following build setting
+(specifically, a ['string_setting()' from '@bazel_skylib'](
 https://github.com/bazelbuild/bazel-skylib/blob/1.7.1/docs/common_settings_doc.md#string_setting)):
 
 ```py
@@ -199,7 +196,7 @@ See the complete documentation in the [scala_cross_version_select.bzl](
 
 ```py
 deps = select({
-    "@io_bazel_rules_scala_config//:scala_version_3_3_1": [...],
+    "@rules_scala_config//:scala_version_3_3_1": [...],
     ...
 })
 ```
@@ -218,15 +215,13 @@ and then `load()` the macro in a `BUILD` file:
 
 ```py
 load(":my_macros.bzl", "srcs")
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSIONS")
 load("@rules_scala//:scala_cross_version.bzl", "version_suffix")
-
-_SCALA_VERSION_SETTING_PREFIX = "@io_bazel_rules_scala_config//:scala_version"
+load("@rules_scala_config//:config.bzl", "SCALA_VERSIONS")
 
 scala_library(
     ...
     srcs = select({
-        SCALA_VERSION_SETTING_PREFIX + version_suffix(v): srcs(v)
+        "@rules_scala_config//:scala_version" + version_suffix(v): srcs(v)
         for v in SCALA_VERSIONS
     }),
     ...
@@ -244,14 +239,14 @@ configured.
 ```py
 def _scala_version_transition_impl(settings, attr):
     if attr.scala_version:
-        return {"@io_bazel_rules_scala_config//:scala_version": attr.scala_version}
+        return {"@rules_scala_config//:scala_version": attr.scala_version}
     else:
         return {}
 
 scala_version_transition = transition(
     implementation = _scala_version_transition_impl,
     inputs = [],
-    outputs = ["@io_bazel_rules_scala_config//:scala_version"],
+    outputs = ["@rules_scala_config//:scala_version"],
 )
 ```
 
@@ -328,7 +323,7 @@ https://bazel.build/reference/be/platforms-and-toolchains#toolchain) rule:
 ```py
 toolchain(
     ...
-    target_settings = ["@io_bazel_rules_scala_config//:scala_version_3_3_1"],
+    target_settings = ["@rules_scala_config//:scala_version_3_3_1"],
     ...
 )
 ```

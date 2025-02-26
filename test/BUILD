@@ -13,9 +13,9 @@ load(
 )
 load("//scala:scala_cross_version.bzl", "repositories")
 load(":check_statsfile.bzl", "check_statsfile")
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
 load("@rules_java//java:defs.bzl", "java_binary", "java_library")
 load("@rules_python//python:defs.bzl", "py_binary")
+load("@rules_scala_config//:config.bzl", "SCALA_VERSION")
 
 package(default_testonly = 1)
 

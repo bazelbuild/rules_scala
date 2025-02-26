@@ -6,7 +6,7 @@ load(
 load("//scala/scalafmt:scalafmt_repositories.bzl", "scalafmt_artifact_ids")
 load("//scala:providers.bzl", "declare_deps_provider")
 load("//scala:scala_cross_version.bzl", "version_suffix")
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSIONS")
+load("@rules_scala_config//:config.bzl", "SCALA_VERSIONS")
 
 def setup_scalafmt_toolchain(
         name,
@@ -28,7 +28,7 @@ def setup_scalafmt_toolchain(
     native.toolchain(
         name = name,
         target_settings = [
-            "@io_bazel_rules_scala_config//:scala_version" +
+            "@rules_scala_config//:scala_version" +
             version_suffix(scala_version),
         ],
         toolchain = ":%s_impl" % name,

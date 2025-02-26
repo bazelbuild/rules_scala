@@ -1,4 +1,3 @@
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
 load(
     "@rules_scala//scala:scala_cross_version.bzl",
     "default_maven_server_urls",
@@ -15,6 +14,7 @@ load(
     "@rules_scala//third_party/repositories:scala_3_5.bzl",
     _scala_3_version = "scala_version",
 )
+load("@rules_scala_config//:config.bzl", "SCALA_VERSION")
 
 _IS_SCALA_2 = SCALA_VERSION.startswith("2.")
 _IS_SCALA_3 = SCALA_VERSION.startswith("3.")

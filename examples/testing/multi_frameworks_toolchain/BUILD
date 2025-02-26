@@ -3,7 +3,7 @@ load(
     "@rules_scala//testing:testing.bzl",
     "setup_scala_testing_toolchain",
 )
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
+load("@rules_scala_config//:config.bzl", "SCALA_VERSION")
 
 # This example uses the same toolchain deps you'd get from using
 # `scala_toolchains(junit = True, scalatest = True, specs2 = True)`. It's a

@@ -3,7 +3,7 @@ load("//scala/scalafmt:phase_scalafmt_ext.bzl", "scalafmt_singleton")
 load("//scala:scala.bzl", "scala_binary")
 load("//scala:scala_cross_version.bzl", "version_suffix")
 load("//scala:scala_cross_version_select.bzl", "select_for_scala_version")
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
+load("@rules_scala_config//:config.bzl", "SCALA_VERSION")
 
 filegroup(
     name = "runner",

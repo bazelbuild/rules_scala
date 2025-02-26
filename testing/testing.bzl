@@ -5,7 +5,7 @@ load("//scalatest:scalatest.bzl", "scalatest_artifact_ids")
 load("//specs2:specs2.bzl", "specs2_artifact_ids")
 load("//specs2:specs2_junit.bzl", "specs2_junit_artifact_ids")
 load("//testing/toolchain:toolchain.bzl", "scala_testing_toolchain")
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
+load("@rules_scala_config//:config.bzl", "SCALA_VERSION")
 
 def _repoize(ids):
     return ["@" + id for id in ids]
@@ -96,10 +96,8 @@ def setup_scala_testing_toolchain(
         toolchain = ":" + name + "_impl",
         toolchain_type = Label("//testing/toolchain:testing_toolchain_type"),
         target_settings = [
-            Label(
-                "@io_bazel_rules_scala_config//:scala_version" +
-                version_suffix(scala_version),
-            ),
+            "@rules_scala_config//:scala_version" +
+            version_suffix(scala_version),
         ],
         visibility = visibility,
     )

@@ -1,5 +1,5 @@
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSIONS")
 load(":scala_cross_version.bzl", "version_suffix")
+load("@rules_scala_config//:config.bzl", "SCALA_VERSIONS")
 
 def select_for_scala_version(default = [], **kwargs):
     """
@@ -41,7 +41,7 @@ def select_for_scala_version(default = [], **kwargs):
     """
 
     return select({
-        "@io_bazel_rules_scala_config//:scala_version" + version_suffix(scala_version): _matches_for_version(scala_version, kwargs, default)
+        "@rules_scala_config//:scala_version" + version_suffix(scala_version): _matches_for_version(scala_version, kwargs, default)
         for scala_version in SCALA_VERSIONS
     })
 
