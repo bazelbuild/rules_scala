@@ -1,7 +1,22 @@
+load("//junit:junit.bzl", "junit_artifact_ids")
 load("//scala:providers.bzl", "declare_deps_provider")
-load("//scala:scala_cross_version.bzl", "repositories", "version_suffix")
+load("//scala:scala_cross_version.bzl", "version_suffix")
+load("//scalatest:scalatest.bzl", "scalatest_artifact_ids")
+load("//specs2:specs2.bzl", "specs2_artifact_ids")
+load("//specs2:specs2_junit.bzl", "specs2_junit_artifact_ids")
 load("//testing/toolchain:toolchain.bzl", "scala_testing_toolchain")
 load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
+
+def _repoize(ids):
+    return ["@" + id for id in ids]
+
+JUNIT_DEPS = _repoize(junit_artifact_ids())
+
+SCALATEST_DEPS = _repoize(scalatest_artifact_ids())
+
+SPECS2_DEPS = _repoize(specs2_artifact_ids())
+
+SPECS2_JUNIT_DEPS = _repoize(specs2_junit_artifact_ids())
 
 DEP_PROVIDERS = [
     "junit_classpath",
@@ -35,7 +50,7 @@ def setup_scala_testing_toolchain(
             _declare_deps_provider(
                 name,
                 "junit_classpath",
-                repositories(scala_version, junit_classpath),
+                junit_classpath,
                 visibility,
             ),
         )
@@ -45,7 +60,7 @@ def setup_scala_testing_toolchain(
             _declare_deps_provider(
                 name,
                 "specs2_junit_classpath",
-                repositories(scala_version, specs2_junit_classpath),
+                specs2_junit_classpath,
                 visibility,
             ),
         )
@@ -55,7 +70,7 @@ def setup_scala_testing_toolchain(
             _declare_deps_provider(
                 name,
                 "specs2_classpath",
-                repositories(scala_version, specs2_classpath),
+                specs2_classpath,
                 visibility,
             ),
         )
@@ -65,7 +80,7 @@ def setup_scala_testing_toolchain(
             _declare_deps_provider(
                 name,
                 "scalatest_classpath",
-                repositories(scala_version, scalatest_classpath),
+                scalatest_classpath,
                 visibility,
             ),
         )

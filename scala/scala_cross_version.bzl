@@ -53,7 +53,22 @@ def version_suffix(scala_version):
     return "_" + sanitize_version(scala_version)
 
 def repositories(scala_version, repos):
-    """Adds the Scala version suffix to a list of repository IDs."""
+    """Adds the Scala version suffix to a list of repository IDs.
+
+    If `repos` is `None`, this will return `None`. This enables the massaging
+    optional function arguments.
+
+    Args:
+        scala_version: the Scala version to append to each repo name
+        repos: list of repository names
+
+    Returns:
+        a list of repository names with the Scala version suffix appended, or
+        `None` if `repos` is `None`
+    """
+    if repos == None:
+        return None
+
     suffix = version_suffix(scala_version)
     return [repo + suffix for repo in repos]
 
