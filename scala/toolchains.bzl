@@ -39,7 +39,6 @@ def scala_toolchains(
         scalatest = False,
         junit = False,
         specs2 = False,
-        testing = False,
         scalafmt = False,
         scalafmt_default_config_path = ".scalafmt.conf",
         scala_proto = False,
@@ -78,11 +77,9 @@ def scala_toolchains(
             compiler srcjar metadata dictionaries containing:
             - exactly one "label", "url", or "urls" key
             - optional "integrity" or "sha256" keys
-        scalatest: whether to instantiate the Scalatest toolchain
+        scalatest: whether to instantiate the ScalaTest toolchain
         junit: whether to instantiate the JUnit toolchain
         specs2: whether to instantiate the Specs2 JUnit toolchain
-        testing: whether to instantiate the Scalatest, JUnit, and Specs2 JUnit
-            toolchains combined
         scalafmt: whether to instantiate the Scalafmt toolchain
         scalafmt_default_config_path: the relative path to the default Scalafmt
             config file within the repository
@@ -90,7 +87,7 @@ def scala_toolchains(
         scala_proto_enable_all_options: whether to instantiate the scala_proto
             toolchain with all options enabled; `scala_proto` must also be
             `True` for this to take effect
-        jmh: whether to instantiate the jmh toolchain
+        jmh: whether to instantiate the Java Microbenchmarks Harness toolchain
         twitter_scrooge: whether to instantiate the twitter_scrooge toolchain
         twitter_scrooge_deps: dictionary of string to Label containing overrides
             for twitter_scrooge toolchain dependency providers with keys:
@@ -114,10 +111,6 @@ def scala_toolchains(
         scalafmt_conf_target = "//:" + scalafmt_default_config_path
         scalafmt_config(name = "scalafmt_default", path = scalafmt_conf_target)
 
-    if testing:
-        scalatest = True
-        junit = True
-        specs2 = True
     if specs2:
         junit = True
 
@@ -185,7 +178,6 @@ def scala_toolchains(
         scalatest = scalatest,
         junit = junit,
         specs2 = specs2,
-        testing = testing,
         scalafmt = scalafmt,
         scala_proto = scala_proto,
         scala_proto_enable_all_options = scala_proto_enable_all_options,

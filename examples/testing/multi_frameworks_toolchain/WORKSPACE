@@ -60,7 +60,9 @@ load(
 
 scala_toolchains(
     fetch_sources = True,
-    testing = True,
+    junit = True,
+    scalatest = True,
+    specs2 = True,
 )
 
 register_toolchains(":testing_toolchain")
