@@ -55,7 +55,7 @@ def version_suffix(scala_version):
 def repositories(scala_version, repos):
     """Adds the Scala version suffix to a list of repository IDs.
 
-    If `repos` is `None`, this will return `None`. This enables the massaging
+    If `repos` is `None`, this will return `None`. This enables the massaging of
     optional function arguments.
 
     Args:
