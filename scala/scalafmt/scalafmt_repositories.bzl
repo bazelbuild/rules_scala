@@ -54,6 +54,7 @@ _SCALAFMT_DEPS_2_11 = [
 ]
 
 _SCALAFMT_DEPS_2_12 = [
+    "org_scalameta_io",
     "org_scalameta_mdoc_parser",
     "org_scalameta_metaconfig_core",
     "org_scalameta_metaconfig_pprint",
