@@ -5,7 +5,11 @@ load("//scala:deps.bzl", "rules_scala_dependencies")
 
 rules_scala_dependencies()
 
-load("@rules_java//java:repositories.bzl", "rules_java_dependencies", "rules_java_toolchains")
+load(
+    "@rules_java//java:repositories.bzl",
+    "rules_java_dependencies",
+    "rules_java_toolchains",
+)
 
 rules_java_dependencies()
 
@@ -51,9 +55,11 @@ load("//scala:toolchains.bzl", "scala_register_toolchains", "scala_toolchains")
 scala_toolchains(
     fetch_sources = True,
     jmh = True,
+    junit = True,
     scala_proto = True,
     scalafmt = True,
-    testing = True,
+    scalatest = True,
+    specs2 = True,
     twitter_scrooge = True,
 )
 

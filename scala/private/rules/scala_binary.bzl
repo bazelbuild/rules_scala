@@ -93,7 +93,6 @@ def make_scala_binary(*extras):
             "@bazel_tools//tools/jdk:toolchain_type",
         ],
         cfg = scala_version_transition,
-        incompatible_use_toolchain_transition = True,
         provides = [JavaInfo],
         implementation = _scala_binary_impl,
     )

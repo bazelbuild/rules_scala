@@ -88,7 +88,6 @@ def make_scala_repl(*extras):
             "@bazel_tools//tools/jdk:toolchain_type",
         ],
         cfg = scala_version_transition,
-        incompatible_use_toolchain_transition = True,
         provides = [JavaInfo],
         implementation = _scala_repl_impl,
     )

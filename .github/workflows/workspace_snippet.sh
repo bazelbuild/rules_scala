@@ -19,7 +19,7 @@ Paste this snippet into your \`WORKSPACE\` file:
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
-    name = "io_bazel_rules_scala",
+    name = "rules_scala",  # Can be "io_bazel_rules_scala" if you still need it.
     sha256 = "${SHA}",
     strip_prefix = "${PREFIX}",
     url = "https://github.com/bazelbuild/rules_scala/releases/download/${TAG}/${ARCHIVE}",

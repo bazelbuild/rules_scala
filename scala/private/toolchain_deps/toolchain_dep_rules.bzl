@@ -14,5 +14,4 @@ common_toolchain_deps = rule(
         "deps_id": attr.string(mandatory = True),
     },
     toolchains = [_TOOLCHAIN_TYPE],
-    incompatible_use_toolchain_transition = True,
 )

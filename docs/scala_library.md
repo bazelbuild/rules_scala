@@ -1,6 +1,6 @@
 # scala_library
 
-```python
+```py
 scala_library(
     name,
     srcs,
