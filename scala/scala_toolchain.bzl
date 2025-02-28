@@ -1,10 +1,10 @@
 load("//scala:providers.bzl", _DepsInfo = "DepsInfo")
+load("@bazel_skylib//rules:common_settings.bzl", "BuildSettingInfo")
 load(
-    "@io_bazel_rules_scala_config//:config.bzl",
+    "@rules_scala_config//:config.bzl",
     "ENABLE_COMPILER_DEPENDENCY_TRACKING",
     "SCALA_MAJOR_VERSION",
 )
-load("@bazel_skylib//rules:common_settings.bzl", "BuildSettingInfo")
 
 def _compute_strict_deps_mode(input_strict_deps_mode, dependency_mode):
     if dependency_mode == "direct":
@@ -175,7 +175,9 @@ _scala_toolchain = rule(
             default = False,
             doc = "Changes java binaries scripts (including tests) to use argument files and not classpath jars to improve performance, requires java > 8",
         ),
-        "_scala_version": attr.label(default = "@io_bazel_rules_scala_config//:scala_version"),
+        "_scala_version": attr.label(
+            default = Label("@rules_scala_config//:scala_version"),
+        ),
     },
     fragments = ["java"],
 )

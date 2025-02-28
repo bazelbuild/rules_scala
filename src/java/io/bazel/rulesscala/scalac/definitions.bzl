@@ -1,5 +1,5 @@
-load("@io_bazel_rules_scala_config//:config.bzl", "ENABLE_COMPILER_DEPENDENCY_TRACKING")
 load("@rules_java//java:defs.bzl", "java_binary")
+load("@rules_scala_config//:config.bzl", "ENABLE_COMPILER_DEPENDENCY_TRACKING")
 
 DEFAULT_SCALAC_DEPS = [
     Label(dep)

@@ -1,7 +1,7 @@
 load("//scala:scala_toolchain.bzl", "scala_toolchain")
 load("//scala:providers.bzl", "declare_deps_provider")
 load("//scala:scala_cross_version.bzl", "repositories", "version_suffix")
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
+load("@rules_scala_config//:config.bzl", "SCALA_VERSION")
 
 def setup_scala_toolchain(
         name,
@@ -98,7 +98,10 @@ def setup_scala_toolchain(
         name = name,
         toolchain = ":%s_impl" % name,
         toolchain_type = Label("//scala:toolchain_type"),
-        target_settings = ["@io_bazel_rules_scala_config//:scala_version" + version_suffix(scala_version)],
+        target_settings = [
+            "@rules_scala_config//:scala_version" +
+            version_suffix(scala_version),
+        ],
         visibility = visibility,
     )
 

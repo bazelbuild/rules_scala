@@ -53,7 +53,7 @@ load(
     _artifacts_3_6 = "artifacts",
     _scala_version_3_6 = "scala_version",
 )
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
+load("@rules_scala_config//:config.bzl", "SCALA_VERSION")
 
 artifacts_by_major_scala_version = {
     "2.11": _artifacts_2_11,

@@ -4,7 +4,7 @@ load(
     "//scala:scala_cross_version.bzl",
     _versioned_repositories = "repositories",
 )
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
+load("@rules_scala_config//:config.bzl", "SCALA_VERSION")
 
 DEP_PROVIDERS = [
     "jmh_classpath",

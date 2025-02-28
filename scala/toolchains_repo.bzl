@@ -137,11 +137,7 @@ load(
 )
 load("@@{rules_scala_repo}//scala:providers.bzl", "declare_deps_provider")
 load("@@{rules_scala_repo}//scala:scala_cross_version.bzl", "version_suffix")
-load(
-    "@io_bazel_rules_scala_config//:config.bzl",
-    "SCALA_VERSION",
-    "SCALA_VERSIONS",
-)
+load("@rules_scala_config//:config.bzl", "SCALA_VERSION", "SCALA_VERSIONS")
 
 [
     setup_scala_toolchain(
@@ -181,7 +177,7 @@ load(
     "{deps_symbols}",
     "setup_scala_testing_toolchain",
 )
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSIONS")
+load("@rules_scala_config//:config.bzl", "SCALA_VERSIONS")
 
 [
     setup_scala_testing_toolchain(

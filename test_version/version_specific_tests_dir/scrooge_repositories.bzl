@@ -1,4 +1,3 @@
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
 load(
     "@rules_scala//scala:scala_cross_version.bzl",
     "default_maven_server_urls",
@@ -16,6 +15,7 @@ load(
     "twitter_scrooge_artifact_ids",
 )
 load("@rules_scala//third_party/repositories:repositories.bzl", "repositories")
+load("@rules_scala_config//:config.bzl", "SCALA_VERSION")
 
 def _import_external(id, artifact, sha256, deps = [], runtime_deps = []):
     _scala_maven_import_external(

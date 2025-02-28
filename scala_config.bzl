@@ -69,6 +69,7 @@ string_setting(
 
 _config_repository = repository_rule(
     implementation = _store_config,
+    doc = "rules_scala configuration parameters",
     attrs = {
         "scala_version": attr.string(
             mandatory = True,
@@ -90,7 +91,7 @@ def scala_config(
         scala_versions = [],
         enable_compiler_dependency_tracking = False):
     _config_repository(
-        name = "io_bazel_rules_scala_config",
+        name = "rules_scala_config",
         scala_version = scala_version,
         scala_versions = scala_versions,
         enable_compiler_dependency_tracking = enable_compiler_dependency_tracking,

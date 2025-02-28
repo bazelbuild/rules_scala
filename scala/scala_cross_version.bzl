@@ -74,14 +74,14 @@ def repositories(scala_version, repos):
 
 def _scala_version_transition_impl(settings, attr):
     if attr.scala_version:
-        return {"@io_bazel_rules_scala_config//:scala_version": attr.scala_version}
+        return {"@rules_scala_config//:scala_version": attr.scala_version}
     else:
         return {}
 
 scala_version_transition = transition(
     implementation = _scala_version_transition_impl,
     inputs = [],
-    outputs = ["@io_bazel_rules_scala_config//:scala_version"],
+    outputs = ["@rules_scala_config//:scala_version"],
 )
 
 toolchain_transition_attr = {

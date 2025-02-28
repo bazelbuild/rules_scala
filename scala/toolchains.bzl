@@ -24,7 +24,7 @@ load(
     "twitter_scrooge_artifact_ids",
     _TWITTER_SCROOGE_DEPS = "TOOLCHAIN_DEPS",
 )
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSIONS")
+load("@rules_scala_config//:config.bzl", "SCALA_VERSIONS")
 
 def _get_unknown_entries(entries, allowed_entries):
     return [e for e in entries if e not in allowed_entries]

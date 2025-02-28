@@ -9,7 +9,7 @@
 
 load("//scala:scala_cross_version.bzl", "repositories")
 load("//scala:scala_cross_version_select.bzl", "select_for_scala_version")
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
+load("@rules_scala_config//:config.bzl", "SCALA_VERSION")
 
 _DEFAULT_DEP_PROVIDER_FORMAT = (
     "@rules_scala_toolchains//scala_proto:scalapb_%s_deps_provider"

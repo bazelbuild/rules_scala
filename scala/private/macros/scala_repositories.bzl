@@ -5,7 +5,7 @@ load(
     "version_suffix",
 )
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSIONS")
+load("@rules_scala_config//:config.bzl", "SCALA_VERSIONS")
 
 def _dt_patched_compiler_impl(rctx):
     # Need to give the file a .zip extension so rctx.extract knows what type of archive it is
@@ -31,7 +31,7 @@ _COMPILER_SOURCE_ALIAS_TEMPLATE = """alias(
 """
 
 _COMPILER_SOURCES_ENTRY_TEMPLATE = """
-        "@io_bazel_rules_scala_config//:scala_version{scala_version_suffix}":
+        "@rules_scala_config//:scala_version{scala_version_suffix}":
             "@scala_compiler_source{scala_version_suffix}//:src","""
 
 def _compiler_sources_repo_impl(rctx):
