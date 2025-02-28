@@ -155,13 +155,14 @@ load(
 """
 
 _TESTING_TOOLCHAIN_BUILD = """
-load("@@{rules_scala_repo}//scala:scala_cross_version.bzl", "version_suffix")
 load(
-    "@@{rules_scala_repo}//testing:deps.bzl",
-    "{deps_symbols}",
+    "@@{rules_scala_repo}//scala:scala_cross_version.bzl",
+    "repositories",
+    "version_suffix",
 )
 load(
     "@@{rules_scala_repo}//testing:testing.bzl",
+    "{deps_symbols}",
     "setup_scala_testing_toolchain",
 )
 load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSIONS")
@@ -170,10 +171,10 @@ load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSIONS")
     setup_scala_testing_toolchain(
         name = "testing_toolchain" + version_suffix(scala_version),
         scala_version = scala_version,
-        scalatest_classpath = {scalatest},
-        junit_classpath = {junit},
-        specs2_classpath = {specs2},
-        specs2_junit_classpath = {specs2_junit},
+        scalatest_classpath = repositories(scala_version, {scalatest}),
+        junit_classpath = repositories(scala_version, {junit}),
+        specs2_classpath = repositories(scala_version, {specs2}),
+        specs2_junit_classpath = repositories(scala_version, {specs2_junit}),
     )
     for scala_version in SCALA_VERSIONS
 ]
