@@ -56,7 +56,7 @@ def _validate_scalac_srcjar(srcjar):
     oneof = ["url", "urls", "label"]
     count = 0
     for key in oneof:
-        if key in srcjar:
+        if srcjar.get(key):
             count += 1
     return count == 1
 
@@ -94,7 +94,7 @@ def dt_patched_compiler_setup(scala_version, scala_compiler_srcjar = None):
         ("scala_compiler_srcjar invalid, must be a dict with exactly one of \"label\", \"url\"" +
          " or \"urls\" keys, got: ") + repr(srcjar),
     )
-    if "label" in srcjar:
+    if srcjar.get("label"):
         dt_patched_compiler(
             name = "scala_compiler_source" + version_suffix(scala_version),
             build_file_content = build_file_content,

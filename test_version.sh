@@ -2,12 +2,11 @@
 
 set -e
 
-scala_2_11_version="2.11.12"
 scala_2_12_version="2.12.20"
 scala_2_13_version="2.13.16"
 scala_3_version="3.3.5"
 
-SCALA_VERSION_DEFAULT=$scala_2_11_version
+SCALA_VERSION_DEFAULT=$scala_2_12_version
 
 diagnostics_reporter_toolchain="//:diagnostics_reporter_toolchain"
 diagnostics_reporter_and_semanticdb_toolchain="//:diagnostics_reporter_and_semanticdb_toolchain"
@@ -117,24 +116,20 @@ dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 runner=$(get_test_runner "${1:-local}")
 export USE_BAZEL_VERSION=${USE_BAZEL_VERSION:-$(cat $dir/.bazelversion)}
 
-TEST_TIMEOUT=15 $runner test_scala_version "${scala_2_11_version}"
 TEST_TIMEOUT=15 $runner test_scala_version "${scala_2_12_version}"
 TEST_TIMEOUT=15 $runner test_scala_version "${scala_2_13_version}"
 
 TEST_TIMEOUT=15 $runner test_twitter_scrooge_versions "18.6.0"
 TEST_TIMEOUT=15 $runner test_twitter_scrooge_versions "21.2.0"
 
-TEST_TIMEOUT=15 $runner test_reporter "${scala_2_11_version}" "${no_diagnostics_reporter_toolchain}"
 TEST_TIMEOUT=15 $runner test_reporter "${scala_2_12_version}" "${no_diagnostics_reporter_toolchain}"
 TEST_TIMEOUT=15 $runner test_reporter "${scala_2_13_version}" "${no_diagnostics_reporter_toolchain}"
 TEST_TIMEOUT=15 $runner test_reporter "${scala_3_version}"    "${no_diagnostics_reporter_toolchain}"
 
-TEST_TIMEOUT=15 $runner test_reporter "${scala_2_11_version}" "${diagnostics_reporter_toolchain}"
 TEST_TIMEOUT=15 $runner test_reporter "${scala_2_12_version}" "${diagnostics_reporter_toolchain}"
 TEST_TIMEOUT=15 $runner test_reporter "${scala_2_13_version}" "${diagnostics_reporter_toolchain}"
 TEST_TIMEOUT=15 $runner test_reporter "${scala_3_version}"    "${diagnostics_reporter_toolchain}"
 
-TEST_TIMEOUT=15 $runner test_reporter "${scala_2_11_version}" "${diagnostics_reporter_and_semanticdb_toolchain}"
 TEST_TIMEOUT=15 $runner test_reporter "${scala_2_12_version}" "${diagnostics_reporter_and_semanticdb_toolchain}"
 TEST_TIMEOUT=15 $runner test_reporter "${scala_2_13_version}" "${diagnostics_reporter_and_semanticdb_toolchain}"
 TEST_TIMEOUT=15 $runner test_reporter "${scala_3_version}"    "${diagnostics_reporter_and_semanticdb_toolchain}"
