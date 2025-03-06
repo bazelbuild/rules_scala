@@ -46,6 +46,7 @@ def rules_scala_dependencies():
         sha256 = "75be42bd736f4df6d702a0e4e4d30de9ee40eac024c4b845d17ae4cc831fe4ae",
         strip_prefix = "protobuf-21.7",
         url = "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v21.7.tar.gz",
+        repo_mapping = {"@com_google_absl": "@abseil-cpp"},
     )
 
     maybe(
