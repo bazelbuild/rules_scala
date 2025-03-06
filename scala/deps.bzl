@@ -23,13 +23,12 @@ def rules_scala_dependencies():
         strip_prefix = "rules_cc-0.0.9",
     )
 
-    # Needed by protobuf-21.7 and Bazel 6.5.0, as later versions require C++14.
     maybe(
         http_archive,
-        name = "com_google_absl",
-        sha256 = "91ac87d30cc6d79f9ab974c51874a704de9c2647c40f6932597329a282217ba8",
-        strip_prefix = "abseil-cpp-20220623.1",
-        url = "https://github.com/abseil/abseil-cpp/archive/refs/tags/20220623.1.tar.gz",
+        name = "abseil-cpp",
+        sha256 = "16242f394245627e508ec6bb296b433c90f8d914f73b9c026fddb905e27276e8",
+        strip_prefix = "abseil-cpp-20250127.0",
+        url = "https://github.com/abseil/abseil-cpp/archive/refs/tags/20250127.0.tar.gz",
     )
 
     maybe(
@@ -44,9 +43,9 @@ def rules_scala_dependencies():
     maybe(
         http_archive,
         name = "com_google_protobuf",
-        sha256 = "75be42bd736f4df6d702a0e4e4d30de9ee40eac024c4b845d17ae4cc831fe4ae",
-        strip_prefix = "protobuf-21.7",
-        url = "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v21.7.tar.gz",
+        sha256 = "ecfeb9f673e63321b4871c1cee6b5adeb0ef711d08a0c5bb1945271767df65bf",
+        strip_prefix = "protobuf-25.6",
+        url = "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v25.6.tar.gz",
     )
 
     maybe(
