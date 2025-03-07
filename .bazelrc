@@ -4,6 +4,6 @@ build --enable_platform_specific_config
 
 build:windows --worker_quit_after_build --enable_runfiles 
 
-# Remove upon completing Bzlmod compatibility work.
-# - https://github.com/bazelbuild/rules_scala/issues/1482
-build --noenable_bzlmod
+# Switch to --noenable_workspace when Bzlmod lands.
+# https://github.com/bazelbuild/rules_scala/issues/1482
+common --enable_workspace --noenable_bzlmod
