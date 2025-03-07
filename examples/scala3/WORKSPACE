@@ -50,7 +50,7 @@ rules_proto_toolchains()
 
 load("@rules_scala//:scala_config.bzl", "scala_config")
 
-scala_config(scala_version = "3.6.3")
+scala_config(scala_version = "3.6.4")
 
 load(
     "@rules_scala//scala:toolchains.bzl",
