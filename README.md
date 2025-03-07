@@ -81,8 +81,8 @@ bazel_skylib_workspace()
 
 # If you need a specific `rules_python` version, specify it here.
 # Otherwise you may get the version defined in the `com_google_protobuf` repo.
-# We use 0.38.0 to maintain compatibility with Bazel 6.5.0; this will change in
-# rules_scala 8.0.0.
+# We use 0.38.0 to maintain compatibility with the combination of `protobuf`,
+# `rules_cc`, and related dependencies. This will change in rules_scala 7.0.0.
 http_archive(
     name = "rules_python",
     sha256 = "ca2671529884e3ecb5b79d6a5608c7373a82078c3553b1fa53206e6b9dddab34",
@@ -767,9 +767,9 @@ with Bazel 6.5.0 won't work at all because [Bazel 6.5.0 doesn't support
 ['rules_jvm_external' >= 6.3 requires](
 https://github.com/bazelbuild/rules_scala/issues/1482#issuecomment-2515496234).
 
-`WORKSPACE` builds will continue to work with Bazel 6.5.0, but not out of the
-box. Per bazelbuild/rules_scala#1647, using Bazel 6.5.0 with `rules_scala` 8.x
-will require adding the following flags to `.bazelrc`, required by the newer
+At the moment, `WORKSPACE` builds mostly continue to work with Bazel 6.5.0, but
+not out of the box, and may break at any time.  Per bazelbuild/rules_scala#1647,
+you must add the following flags to `.bazelrc`, required by the newer
 `abseil-cpp` version used by `protobuf`:
 
 ```txt
