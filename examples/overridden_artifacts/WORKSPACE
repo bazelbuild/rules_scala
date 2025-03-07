@@ -1,0 +1,98 @@
+workspace(name = "overridden_artifacts")
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+local_repository(
+    name = "rules_scala",
+    path = "../..",
+)
+
+load("@rules_scala//scala:deps.bzl", "rules_scala_dependencies")
+
+rules_scala_dependencies()
+
+load(
+    "@rules_java//java:repositories.bzl",
+    "rules_java_dependencies",
+    "rules_java_toolchains",
+)
+
+rules_java_dependencies()
+
+load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
+
+bazel_skylib_workspace()
+
+http_archive(
+    name = "rules_python",
+    sha256 = "ca2671529884e3ecb5b79d6a5608c7373a82078c3553b1fa53206e6b9dddab34",
+    strip_prefix = "rules_python-0.38.0",
+    url = "https://github.com/bazelbuild/rules_python/releases/download/0.38.0/rules_python-0.38.0.tar.gz",
+)
+
+load("@rules_python//python:repositories.bzl", "py_repositories")
+
+py_repositories()
+
+load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+
+protobuf_deps()
+
+rules_java_toolchains()
+
+load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies")
+
+rules_proto_dependencies()
+
+load("@rules_proto//proto:setup.bzl", "rules_proto_setup")
+
+rules_proto_setup()
+
+load("@rules_proto//proto:toolchains.bzl", "rules_proto_toolchains")
+
+rules_proto_toolchains()
+
+load("@rules_scala//:scala_config.bzl", "scala_config")
+
+scala_config(scala_version = "3.3.5")
+
+load(
+    "@rules_scala//scala:toolchains.bzl",
+    "scala_register_toolchains",
+    "scala_toolchains",
+)
+
+scala_toolchains(
+    # Deliberately set for Scala 3.3 and 2.13 versions less than the most
+    # recently supported. See the `scala_version` setting at the top of
+    # `third_party/repositories/scala_{2_13,3_3}.bzl`.
+    overridden_artifacts = {
+        "io_bazel_rules_scala_scala_library": {
+            "artifact": "org.scala-lang:scala3-library_3:3.3.4",
+            "sha256": "d95184acfcd814da2e051378e4962c653f4b468f4086452ab427af030482bd3c",
+        },
+        "io_bazel_rules_scala_scala_compiler": {
+            "artifact": "org.scala-lang:scala3-compiler_3:3.3.4",
+            "sha256": "2cca65fdb92e2cc393786cae61b4f7bcb9032ad4be61f9cebae1dca72997e52f",
+            # These are _not_ strictly required in this case, but we want to
+            # test that nothing breaks when they're specified.
+            "deps": [
+                "@io_bazel_rules_scala_scala_asm",
+                "@io_bazel_rules_scala_scala_interfaces",
+                "@io_bazel_rules_scala_scala_library",
+                "@io_bazel_rules_scala_scala_tasty_core",
+                "@org_jline_jline_reader",
+                "@org_jline_jline_terminal",
+                "@org_jline_jline_terminal_jni",
+                "@org_scala_sbt_compiler_interface",
+            ],
+        },
+        "io_bazel_rules_scala_scala_library_2": {
+            "artifact": "org.scala-lang:scala-library:2.13.14",
+            "sha256": "43e0ca1583df1966eaf02f0fbddcfb3784b995dd06bfc907209347758ce4b7e3",
+        },
+    },
+    scalatest = True,
+)
+
+scala_register_toolchains()
