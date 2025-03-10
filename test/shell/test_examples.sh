@@ -67,6 +67,11 @@ function cross_build_example() {
   test_example examples/crossbuild "bazel build //..."
 }
 
+function overridden_artifacts_example() {
+  test_example examples/overridden_artifacts \
+    "bazel test --test_output=errors //..."
+}
+
 $runner scalatest_repositories_example
 $runner specs2_junit_repositories_example
 $runner multi_framework_toolchain_example
@@ -78,3 +83,4 @@ $runner scala3_4_example
 $runner scala3_5_example
 $runner scala3_6_example
 $runner cross_build_example
+$runner overridden_artifacts_example
