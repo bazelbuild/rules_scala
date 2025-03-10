@@ -123,8 +123,7 @@ run_test_local test_compiler_patch 3.2.2
 run_test_local test_compiler_patch 3.3.5
 run_test_local test_compiler_patch 3.4.3
 run_test_local test_compiler_patch 3.5.2
-run_test_local test_compiler_patch 3.6.2
-run_test_local test_compiler_patch 3.6.3
+run_test_local test_compiler_patch 3.6.4
 
 run_test_local test_compiler_srcjar_error 2.12.11
 run_test_local test_compiler_srcjar_error 2.12.12
@@ -156,4 +155,4 @@ run_test_local test_compiler_srcjar 3.2.2
 run_test_local test_compiler_srcjar_nonhermetic 3.3.5
 run_test_local test_compiler_srcjar 3.4.3
 run_test_local test_compiler_srcjar_nonhermetic 3.5.2
-run_test_local test_compiler_srcjar_nonhermetic 3.6.2
+run_test_local test_compiler_srcjar_nonhermetic 3.6.4
