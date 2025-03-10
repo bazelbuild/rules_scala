@@ -16,11 +16,26 @@ compilation_should_fail() {
   # runs the tests locally
   set +e
   TEST_ARG=$@
-  DUMMY=$(bazel $TEST_ARG)
+  OUTPUT="$(bazel $TEST_ARG 2>&1)"
   RESPONSE_CODE=$?
+  set -e
+
   if [ $RESPONSE_CODE -eq 0 ]; then
     echo -e "${RED} \"bazel $TEST_ARG\" should have failed but passed. $NC"
+    echo "$OUTPUT"
     return -1
+  fi
+
+  local expected_error_pattern=(
+    "ErrorFile\.scala:6:[[:print:][:space:]]*'[)]' expected,? but '[}]' found"
+  )
+
+  if [[ ! "$OUTPUT" =~ $expected_error_pattern ]]; then
+    echo -e "${RED}  \"bazel $*\" failure should have matched:"
+    echo -e "    ${expected_error_pattern}"
+    echo -e "  got:${NC}"
+    echo "$OUTPUT"
+    return 1
   else
     return 0
   fi
@@ -45,12 +60,12 @@ run_in_test_repo() {
 
   if [[ -n "$TWITTER_SCROOGE_VERSION" ]]; then
     local version_param="version = \"$TWITTER_SCROOGE_VERSION\""
-    scrooge_ws="$version_param"
+    scrooge_ws="$version_param\\n"
   fi
 
-  sed -e "s%\${twitter_scrooge_repositories}%${scrooge_ws}\n%" \
+  sed -e "s%\${twitter_scrooge_repositories}%${scrooge_ws}%" \
       WORKSPACE.template >> $NEW_TEST_DIR/WORKSPACE
-  cp ../.bazel{rc,version} $NEW_TEST_DIR/
+  cp ../.bazel{rc,version} scrooge_repositories.bzl $NEW_TEST_DIR/
 
   cd $NEW_TEST_DIR
 
