@@ -97,6 +97,35 @@ srcjars_by_version = {
     "2.13.12": {
         "url": "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.13.12/scala-compiler-2.13.12-sources.jar?foo",
     },
+    "2.13.14": {
+        "url": "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.13.14/scala-compiler-2.13.14-sources.jar?foo",
+    },
+    "2.13.15": {
+        "url": "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.13.15/scala-compiler-2.13.15-sources.jar?foo",
+    },
+    "2.13.16": {
+        "url": "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.13.16/scala-compiler-2.13.16-sources.jar?foo",
+    },
+    "3.1.3": {
+        "url": "https://repo1.maven.org/maven2/org/scala-lang/scala3-compiler_3/3.1.3/scala3-compiler_3-3.1.3-sources.jar",
+        "integrity": "sha384-4J2ihR1QSdP5cvL3y2OUfw4uUX/hsQqcPlJV+IrQdsM/soiIAYfoEeIEt6vl3xBk",
+    },
+    "3.2.2": {
+        "url": "https://repo1.maven.org/maven2/org/scala-lang/scala3-compiler_3/3.2.2/scala3-compiler_3-3.2.2-sources.jar",
+        "sha256": "669d580fc4a8d3c2e2d13d5735ae9be05d567613fe44482de5bcc5e2e2ee89ea",
+    },
+    "3.3.5": {
+        "url": "https://repo1.maven.org/maven2/org/scala-lang/scala3-compiler_3/3.3.5/scala3-compiler_3-3.3.5-sources.jar",
+    },
+    "3.4.3": {
+        "label": "@scala3_compiler_srcjar//jar:downloaded.jar",
+    },
+    "3.5.2": {
+        "url": "https://repo1.maven.org/maven2/org/scala-lang/scala3-compiler_3/3.5.2/scala3-compiler_3-3.5.2-sources.jar",
+    },
+    "3.6.4": {
+        "url": "https://repo1.maven.org/maven2/org/scala-lang/scala3-compiler_3/3.6.4/scala3-compiler_3-3.6.4-sources.jar",
+    },
 }
 
 rules_scala_setup(scala_compiler_srcjar = srcjars_by_version[SCALA_VERSION])

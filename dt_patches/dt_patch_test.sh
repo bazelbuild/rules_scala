@@ -65,9 +65,6 @@ test_compiler_srcjar_error() {
   run_in_test_repo "bazel build //... --repo_env=SCALA_VERSION=${SCALA_VERSION} //..." "test_dt_patches_user_srcjar" 2>&1 | grep "$EXPECTED_ERROR"
 }
 
-run_test_local test_compiler_patch 2.12.1
-
-
 #run_test_local test_compiler_patch 2.11.0
 #run_test_local test_compiler_patch 2.11.1
 #run_test_local test_compiler_patch 2.11.2
@@ -101,6 +98,8 @@ run_test_local test_compiler_patch 2.12.15
 run_test_local test_compiler_patch 2.12.16
 run_test_local test_compiler_patch 2.12.17
 run_test_local test_compiler_patch 2.12.18
+run_test_local test_compiler_patch 2.12.19
+run_test_local test_compiler_patch 2.12.20
 
 run_test_local test_compiler_patch 2.13.0
 run_test_local test_compiler_patch 2.13.1
@@ -114,18 +113,46 @@ run_test_local test_compiler_patch 2.13.8
 run_test_local test_compiler_patch 2.13.10
 run_test_local test_compiler_patch 2.13.11
 run_test_local test_compiler_patch 2.13.12
+run_test_local test_compiler_patch 2.13.14
+run_test_local test_compiler_patch 2.13.15
+run_test_local test_compiler_patch 2.13.16
+
+run_test_local test_compiler_patch 3.1.0 # Minimal supported version
+run_test_local test_compiler_patch 3.1.3
+run_test_local test_compiler_patch 3.2.2
+run_test_local test_compiler_patch 3.3.5
+run_test_local test_compiler_patch 3.4.3
+run_test_local test_compiler_patch 3.5.2
+run_test_local test_compiler_patch 3.6.4
 
 run_test_local test_compiler_srcjar_error 2.12.11
 run_test_local test_compiler_srcjar_error 2.12.12
 run_test_local test_compiler_srcjar_error 2.12.13
+
 # These tests are semi-stateful, if two tests are run sequentially with the
 # same Scala version, the DEBUG message about a canonical reproducible form
 # that we grep for will only be outputted the first time (on Bazel >= 6).
+# So we clean the repo first to ensure consistency.
+
+run_in_test_repo "bazel clean --expunge" "test_dt_patches_user_srcjar"
+
 run_test_local test_compiler_srcjar 2.12.14
 run_test_local test_compiler_srcjar 2.12.15
 run_test_local test_compiler_srcjar 2.12.16
 run_test_local test_compiler_srcjar_nonhermetic 2.12.17
 run_test_local test_compiler_srcjar_nonhermetic 2.12.18
+run_test_local test_compiler_srcjar_nonhermetic 2.12.19
+run_test_local test_compiler_srcjar_nonhermetic 2.12.20
 
 run_test_local test_compiler_srcjar_nonhermetic 2.13.11
 run_test_local test_compiler_srcjar_nonhermetic 2.13.12
+run_test_local test_compiler_srcjar_nonhermetic 2.13.14
+run_test_local test_compiler_srcjar_nonhermetic 2.13.15
+run_test_local test_compiler_srcjar_nonhermetic 2.13.16
+
+run_test_local test_compiler_srcjar 3.1.3
+run_test_local test_compiler_srcjar 3.2.2
+run_test_local test_compiler_srcjar_nonhermetic 3.3.5
+run_test_local test_compiler_srcjar 3.4.3
+run_test_local test_compiler_srcjar_nonhermetic 3.5.2
+run_test_local test_compiler_srcjar_nonhermetic 3.6.4

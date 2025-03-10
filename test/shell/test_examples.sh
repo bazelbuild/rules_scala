@@ -30,15 +30,27 @@ function multi_framework_toolchain_example() {
 }
 
 function scala3_1_example() {
-  test_example examples/scala3 "bazel build --repo_env=SCALA_VERSION=3.1.0 //..."
+  test_example examples/scala3 "bazel build --repo_env=SCALA_VERSION=3.1.3 //..."
 }
 
 function scala3_2_example() {
-  test_example examples/scala3 "bazel build --repo_env=SCALA_VERSION=3.2.1 //..."
+  test_example examples/scala3 "bazel build --repo_env=SCALA_VERSION=3.2.2 //..."
 }
 
 function scala3_3_example() {
-  test_example examples/scala3 "bazel build --repo_env=SCALA_VERSION=3.3.1 //..."
+  test_example examples/scala3 "bazel build --repo_env=SCALA_VERSION=3.3.5 //..."
+}
+
+function scala3_4_example() {
+   test_example examples/scala3 "bazel build --repo_env=SCALA_VERSION=3.4.3 //..."
+}
+
+function scala3_5_example() {
+   test_example examples/scala3 "bazel build --repo_env=SCALA_VERSION=3.5.2 //..."
+}
+
+function scala3_6_example() {
+   test_example examples/scala3 "bazel build --repo_env=SCALA_VERSION=3.6.4 //..."
 }
 
 function semanticdb_example() {
@@ -55,6 +67,11 @@ function cross_build_example() {
   test_example examples/crossbuild "bazel build //..."
 }
 
+function overridden_artifacts_example() {
+  test_example examples/overridden_artifacts \
+    "bazel test --test_output=errors //..."
+}
+
 $runner scalatest_repositories_example
 $runner specs2_junit_repositories_example
 $runner multi_framework_toolchain_example
@@ -62,4 +79,8 @@ $runner semanticdb_example
 $runner scala3_1_example
 $runner scala3_2_example
 $runner scala3_3_example
+$runner scala3_4_example
+$runner scala3_5_example
+$runner scala3_6_example
 $runner cross_build_example
+$runner overridden_artifacts_example

@@ -36,6 +36,16 @@ rules_proto_dependencies()
 
 rules_proto_toolchains()
 
-load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_toolchains")
+load("@rules_scala//:scala_config.bzl", "scala_config")
+
+scala_config(scala_version = "3.6.4")
+
+load(
+    "@rules_scala//scala:toolchains.bzl",
+    "scala_register_toolchains",
+    "scala_toolchains",
+)
+
+scala_toolchains(fetch_sources = True)
 
 scala_register_toolchains()
