@@ -1,5 +1,8 @@
 """Repository rule to instantiate @rules_scala_toolchains"""
 
+load("//protoc:private/protoc_integrity.bzl", "PROTOC_RELEASES_URL")
+load("//protoc:private/protoc_toolchain.bzl", "setup_protoc_toolchains")
+
 def _generate_testing_toolchain_build_file_args(repo_attr):
     framework_deps = {}
 
@@ -50,6 +53,10 @@ def _scala_toolchains_repo_impl(repository_ctx):
     }
     toolchains = {}
 
+    # Always generate a //protoc package, even if it's empty, to avoid
+    # conditional `--incompatible_enable_proto_toolchain_resolution` logic.
+    setup_protoc_toolchains(repository_ctx, "protoc")
+
     if repo_attr.scala:
         toolchains["scala"] = _SCALA_TOOLCHAIN_BUILD
     if repo_attr.scala_proto:
@@ -88,6 +95,16 @@ _scala_toolchains_repo = repository_rule(
         "scala": attr.bool(
             doc = "Instantiate the Scala compiler toolchain",
             default = True,
+        ),
+        "protoc_platforms": attr.string_list(
+            doc = (
+                "Operating system and architecture identifiers for " +
+                "precompiled protocol compiler release download filenames " +
+                "from " + PROTOC_RELEASES_URL + ". If unspecified, will use " +
+                "the identifier matching the HOST_CONSTRAINTS from " +
+                "@platforms//host:constraints.bzl. Only takes effect when " +
+                "using `--incompatible_enable_proto_toolchain_resolution`."
+            ),
         ),
         "scalatest": attr.bool(doc = "Instantiate the ScalaTest toolchain"),
         "junit": attr.bool(doc = "Instantiate the JUnit toolchain"),

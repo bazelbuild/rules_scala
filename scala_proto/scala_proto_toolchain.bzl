@@ -3,6 +3,20 @@ load(
     "//scala_proto/default:default_deps.bzl",
     _scala_proto_deps_providers = "scala_proto_deps_providers",
 )
+load("@com_google_protobuf//bazel/common:proto_common.bzl", "proto_common")
+load("@rules_proto//proto:proto_common.bzl", "toolchains")
+
+_TOOLCHAIN_TYPE = Label("@rules_scala_toolchains//protoc:toolchain_type")
+
+# Inspired by: https://github.com/protocolbuffers/protobuf/pull/19679
+def _protoc(ctx):
+    if proto_common.INCOMPATIBLE_ENABLE_PROTO_TOOLCHAIN_RESOLUTION:
+        toolchain = ctx.toolchains[_TOOLCHAIN_TYPE]
+        if not toolchain:
+            fail("Protocol compiler toolchain could not be resolved.")
+        return toolchain.proto.proto_compiler.executable
+    else:
+        return ctx.attr.protoc[DefaultInfo].files_to_run.executable
 
 def _generators(ctx):
     return dict(
@@ -41,7 +55,7 @@ def _ignored_proto_targets_by_label(ctx):
 def _worker_flags(ctx, generators, jars):
     env = dict(
         {"GEN_" + k: v for k, v in generators.items()},
-        PROTOC = ctx.executable.protoc.path,
+        PROTOC = _protoc(ctx).path,
         JARS = ctx.configuration.host_path_separator.join(
             [f.path for f in jars.to_list()],
         ),
@@ -57,7 +71,7 @@ def _scala_proto_toolchain_impl(ctx):
         generators_opts = _generators_opts(ctx),
         compile_dep_ids = _compile_dep_ids(ctx),
         blacklisted_protos = _ignored_proto_targets_by_label(ctx),
-        protoc = ctx.executable.protoc,
+        protoc = _protoc(ctx),
         scalac = ctx.attr.scalac.files_to_run,
         worker = ctx.attr.code_generator.files_to_run,
         worker_flags = _worker_flags(ctx, generators, generators_jars),
@@ -104,11 +118,6 @@ scala_proto_toolchain = rule(
             default = Label("//src/java/io/bazel/rulesscala/scalac"),
             allow_files = True,
         ),
-        "protoc": attr.label(
-            executable = True,
-            cfg = "exec",
-            default = Label("@com_google_protobuf//:protoc"),
-        ),
         "stamp_by_convention": attr.bool(
             default = False,
             doc = """
@@ -129,7 +138,15 @@ scala_proto_toolchain = rule(
             executable = False,
             cfg = "exec",
         ),
-    },
+    } | toolchains.if_legacy_toolchain({
+        "protoc": attr.label(
+            allow_files = True,
+            cfg = "exec",
+            default = Label("@com_google_protobuf//:protoc"),
+            executable = True,
+        ),
+    }),
+    toolchains = toolchains.use_toolchain(_TOOLCHAIN_TYPE),
 )
 
 def _scala_proto_deps_toolchain(ctx):
