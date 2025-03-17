@@ -223,14 +223,7 @@ declare_deps_provider(
     name = "scalapb_compile_deps_provider",
     deps_id = "scalapb_compile_deps",
     visibility = ["//visibility:public"],
-    deps = DEFAULT_SCALAPB_COMPILE_DEPS,
-)
-
-declare_deps_provider(
-    name = "scalapb_grpc_deps_provider",
-    deps_id = "scalapb_grpc_deps",
-    visibility = ["//visibility:public"],
-    deps = DEFAULT_SCALAPB_GRPC_DEPS,
+    deps = DEFAULT_SCALAPB_COMPILE_DEPS + DEFAULT_SCALAPB_GRPC_DEPS,
 )
 
 declare_deps_provider(
