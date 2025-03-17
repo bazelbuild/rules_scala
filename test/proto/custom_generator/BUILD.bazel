@@ -103,7 +103,7 @@ toolchain(
 scala_proto_toolchain(
     name = "failing_scala_proto_toolchain_def",
     named_generators = {
-        "scala": "test.proto.custom_generator.FailingGenerator"
+        "scala": "test.proto.custom_generator.FailingGenerator",
     },
 )
 
