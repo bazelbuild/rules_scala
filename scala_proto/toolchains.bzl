@@ -4,7 +4,11 @@ load(
     "scala_proto_toolchain",
 )
 
-def setup_scala_proto_toolchains(name, enable_all_options = False):
+_default_gen_opts = [
+    "grpc",
+]
+
+def setup_scala_proto_toolchains(name, default_gen_opts = _default_gen_opts):
     """Used by @rules_scala_toolchains//scala_proto/BUILD.
 
     See //scala/private:macros/toolchains_repo.bzl for details, especially the
@@ -12,14 +16,13 @@ def setup_scala_proto_toolchains(name, enable_all_options = False):
 
     Args:
       name: prefix for all generate toolchains
-      enable_all_options: set to True to enable the `with_flat_package` and
-        `with_single_line_to_string` attributes of `scala_proto_toolchain`
+      default_gen_opts: parameters passed to the default generator
     """
     scala_proto_deps_toolchain(
         name = "%s_default_deps_toolchain_impl" % name,
         dep_providers = [
             ":scalapb_%s_deps_provider" % p
-            for p in ["compile", "grpc", "worker"]
+            for p in ["compile", "worker"]
         ],
         visibility = ["//visibility:public"],
     )
@@ -32,22 +35,13 @@ def setup_scala_proto_toolchains(name, enable_all_options = False):
 
     toolchain_name = "%s_default_toolchain" % name
     toolchain_impl_name = "%s_default_toolchain_impl" % name
-    toolchain_options = {
-        "with_flat_package": False,
-        "with_grpc": True,
-        "with_single_line_to_string": False,
-    }
-
-    if enable_all_options:
-        toolchain_name = "%s_enable_all_options_toolchain" % name
-        toolchain_impl_name = "%s_enable_all_options_toolchain_impl" % name
-        toolchain_options["with_flat_package"] = True
-        toolchain_options["with_single_line_to_string"] = True
 
     scala_proto_toolchain(
         name = toolchain_impl_name,
         visibility = ["//visibility:public"],
-        **toolchain_options
+        generators_opts = {
+            "scala": default_gen_opts,
+        },
     )
 
     native.toolchain(
