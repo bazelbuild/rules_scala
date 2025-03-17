@@ -70,7 +70,8 @@ def _generate_sources(ctx, toolchain, proto):
     args.use_param_file(param_file_arg = "@%s", use_always = True)
     for gen, out in outputs.items():
         args.add("--" + gen + "_out", out)
-        args.add("--" + gen + "_opt", toolchain.generators_opts)
+        if gen in toolchain.generators_opts:
+            args.add_all(toolchain.generators_opts[gen], format_each = "--{}_opt=%s".format(gen))
     args.add_joined("--descriptor_set_in", descriptors, join_with = ctx.configuration.host_path_separator)
     args.add_all(sources)
 

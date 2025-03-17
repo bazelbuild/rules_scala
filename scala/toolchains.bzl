@@ -42,7 +42,7 @@ def scala_toolchains(
         scalafmt = False,
         scalafmt_default_config_path = ".scalafmt.conf",
         scala_proto = False,
-        scala_proto_enable_all_options = False,
+        scala_proto_options = [],
         jmh = False,
         twitter_scrooge = False,
         twitter_scrooge_deps = {}):
@@ -180,7 +180,7 @@ def scala_toolchains(
         specs2 = specs2,
         scalafmt = scalafmt,
         scala_proto = scala_proto,
-        scala_proto_enable_all_options = scala_proto_enable_all_options,
+        scala_proto_options = scala_proto_options,
         jmh = jmh,
         twitter_scrooge = twitter_scrooge,
         twitter_scrooge_deps = twitter_scrooge_deps,
