@@ -494,7 +494,7 @@ with the following `scala_toolchains()` parameters:
 ```py
 scala_toolchains(
     scala_proto = True,
-    scala_proto_enable_all_options = True,
+    scala_proto_options = [],
 )
 ```
 
