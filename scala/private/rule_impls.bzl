@@ -222,11 +222,12 @@ def java_bin_windows(ctx):
 def is_windows(ctx):
     return ctx.configuration.host_path_separator == ";"
 
-# Return a jvm flag allowing security manager for jdk runtime >= 17
+# Return a jvm flag allowing security manager for jdk runtime >= 17 and < 24,
+# since 17 requires explicitly enabling the SM while 24 removes support for the SM entirely.
 # If no runtime is supplied then runtime is taken from ctx.attr._java_host_runtime
 # This must be a runtime used in generated java_binary script (usually workers using SecurityManager)
 def allow_security_manager(ctx, runtime = None):
     java_runtime = runtime if runtime else ctx.attr._java_host_runtime[java_common.JavaRuntimeInfo]
 
     # Bazel 5.x doesn't have java_runtime.version defined
-    return ["-Djava.security.manager=allow"] if hasattr(java_runtime, "version") and java_runtime.version >= 17 else []
+    return ["-Djava.security.manager=allow"] if hasattr(java_runtime, "version") and java_runtime.version >= 17 and java_runtime.version < 24 else []

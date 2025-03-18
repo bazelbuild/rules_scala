@@ -54,14 +54,16 @@ public final class Worker {
 
   /** The main loop for persistent worker processes */
   private static void persistentWorkerMain(Interface workerInterface) {
-    System.setSecurityManager(
-        new SecurityManager() {
-          @Override
-          public void checkPermission(Permission permission) {
-            Matcher matcher = exitPattern.matcher(permission.getName());
-            if (matcher.find()) throw new ExitTrapped(Integer.parseInt(matcher.group(1)));
-          }
-        });
+    if (Runtime.version().feature() < 24) {
+      System.setSecurityManager(
+              new SecurityManager() {
+                @Override
+                public void checkPermission(Permission permission) {
+                  Matcher matcher = exitPattern.matcher(permission.getName());
+                  if (matcher.find()) throw new ExitTrapped(Integer.parseInt(matcher.group(1)));
+                }
+              });
+    }
 
     InputStream stdin = System.in;
     PrintStream stdout = System.out;
