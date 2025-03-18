@@ -42,7 +42,7 @@ def scala_toolchains(
         scalafmt = False,
         scalafmt_default_config_path = ".scalafmt.conf",
         scala_proto = False,
-        scala_proto_enable_all_options = False,
+        scala_proto_options = [],
         jmh = False,
         twitter_scrooge = False,
         twitter_scrooge_deps = {}):
@@ -84,9 +84,8 @@ def scala_toolchains(
         scalafmt_default_config_path: the relative path to the default Scalafmt
             config file within the repository
         scala_proto: whether to instantiate the scala_proto toolchain
-        scala_proto_enable_all_options: whether to instantiate the scala_proto
-            toolchain with all options enabled; `scala_proto` must also be
-            `True` for this to take effect
+        scala_proto_options: protobuf options, like 'scala3_sources' or 'grpc';
+            `scala_proto` must also be `True` for this to take effect
         jmh: whether to instantiate the Java Microbenchmarks Harness toolchain
         twitter_scrooge: whether to instantiate the twitter_scrooge toolchain
         twitter_scrooge_deps: dictionary of string to Label containing overrides
@@ -180,7 +179,7 @@ def scala_toolchains(
         specs2 = specs2,
         scalafmt = scalafmt,
         scala_proto = scala_proto,
-        scala_proto_enable_all_options = scala_proto_enable_all_options,
+        scala_proto_options = scala_proto_options,
         jmh = jmh,
         twitter_scrooge = twitter_scrooge,
         twitter_scrooge_deps = twitter_scrooge_deps,
