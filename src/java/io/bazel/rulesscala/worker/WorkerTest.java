@@ -214,9 +214,6 @@ public class WorkerTest {
 
   @AfterClass
   public static void teardown() {
-    // Persistent workers install a security manager. We need to
-    // reset it here so that our own process can exit!
-    System.setSecurityManager(null);
   }
 
   // Copied/modified from Bazel's MoreAsserts

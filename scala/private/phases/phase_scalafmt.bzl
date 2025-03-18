@@ -4,10 +4,6 @@
 # Outputs to format the scala files when it is explicitly specified
 #
 load("//scala/private:paths.bzl", _scala_extension = "scala_extension")
-load(
-    "//scala/private:rule_impls.bzl",
-    _allow_security_manager = "allow_security_manager",
-)
 
 def phase_scalafmt(ctx, p):
     if ctx.attr.format:
@@ -26,7 +22,7 @@ def _build_format(ctx):
     files = []
     srcs = []
     manifest_content = []
-    jvm_flags = ["-Dfile.encoding=UTF-8"] + _allow_security_manager(ctx)
+    jvm_flags = ["-Dfile.encoding=UTF-8"]
     for src in ctx.files.srcs:
         # only format scala source files, not generated files
         if src.path.endswith(_scala_extension) and src.is_source:

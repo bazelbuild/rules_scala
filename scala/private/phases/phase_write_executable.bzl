@@ -1,3 +1,5 @@
+load("//scala/private:common.bzl", "rlocationpath_from_file")
+
 #
 # PHASE: write executable
 #
@@ -5,16 +7,13 @@
 #
 load(
     "//scala/private:rule_impls.bzl",
-    "allow_security_manager",
     "expand_location",
     "first_non_empty",
     "is_windows",
     "java_bin",
     "java_bin_windows",
     "runfiles_root",
-    "specified_java_runtime",
 )
-load("//scala/private:common.bzl", "rlocationpath_from_file")
 
 def phase_write_executable_scalatest(ctx, p):
     # jvm_flags passed in on the target override scala_test_jvm_flags passed in on the
@@ -29,7 +28,7 @@ def phase_write_executable_scalatest(ctx, p):
         jvm_flags = [
             "-DRULES_SCALA_MAIN_WS_NAME=%s" % ctx.workspace_name,
             "-DRULES_SCALA_ARGS_FILE=%s" % rlocationpath_from_file(ctx, p.runfiles.args_file),
-        ] + expand_location(ctx, final_jvm_flags) + _allow_security_manager_for_specified_java_runtime(ctx),
+        ] + expand_location(ctx, final_jvm_flags),
         use_jacoco = ctx.configuration.coverage_enabled,
     )
     return _phase_write_executable_default(ctx, p, args)
@@ -44,7 +43,7 @@ def phase_write_executable_repl(ctx, p):
 def phase_write_executable_junit_test(ctx, p):
     args = struct(
         rjars = p.coverage_runfiles.rjars,
-        jvm_flags = p.jvm_flags + ctx.attr.jvm_flags + _allow_security_manager_for_specified_java_runtime(ctx),
+        jvm_flags = p.jvm_flags + ctx.attr.jvm_flags + ["-Dcom.google.testing.junit.runner.shouldInstallTestSecurityManager=false"],
         main_class = "com.google.testing.junit.runner.BazelTestRunner",
         use_jacoco = ctx.configuration.coverage_enabled,
     )
@@ -186,13 +185,3 @@ def _jar_path_based_on_java_bin(ctx):
     java_bin_var = java_bin(ctx)
     jar_path = java_bin_var.rpartition("/")[0] + "/jar"
     return jar_path
-
-# Allow security manager for generated test executables if they will be run with jdk >= 17
-def _allow_security_manager_for_specified_java_runtime(ctx):
-    return allow_security_manager(
-        ctx,
-        specified_java_runtime(
-            ctx,
-            default_runtime = ctx.attr._java_runtime[java_common.JavaRuntimeInfo],
-        ),
-    )

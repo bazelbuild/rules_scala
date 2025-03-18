@@ -1,19 +1,18 @@
+load("@bazel_skylib//lib:dicts.bzl", "dicts")
 load("@rules_proto//proto:defs.bzl", "ProtoInfo")
 load("//scala/private:common.bzl", "write_manifest_file")
 load("//scala/private:dependency.bzl", "legacy_unclear_dependency_info_for_protobuf_scrooge")
+load("//scala/private:phases/api.bzl", "extras_phases", "run_aspect_phases")
 load(
     "//scala/private:rule_impls.bzl",
     "compile_scala",
     "specified_java_compile_toolchain",
-    _allow_security_manager = "allow_security_manager",
 )
 load("//scala/private/toolchain_deps:toolchain_deps.bzl", "find_deps_info_on")
 load(
     "//scala_proto/private:scala_proto_aspect_provider.bzl",
     "ScalaProtoAspectInfo",
 )
-load("//scala/private:phases/api.bzl", "extras_phases", "run_aspect_phases")
-load("@bazel_skylib//lib:dicts.bzl", "dicts")
 
 def _import_paths(proto, ctx):
     # Under Bazel 7.x, direct_sources from generated protos may still contain
@@ -77,7 +76,7 @@ def _generate_sources(ctx, toolchain, proto):
 
     ctx.actions.run(
         executable = toolchain.worker,
-        arguments = ["--jvm_flag=%s" % f for f in _allow_security_manager(ctx)] + [toolchain.worker_flags, args],
+        arguments = [toolchain.worker_flags, args],
         inputs = depset(transitive = [descriptors, toolchain.generators_jars]),
         outputs = outputs.values(),
         tools = [toolchain.protoc],
