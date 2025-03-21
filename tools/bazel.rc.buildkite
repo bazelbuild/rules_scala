@@ -1,5 +1,10 @@
-build --strategy=Scalac=worker --strategy=ScroogeRule=worker --worker_max_instances=3
-
 # Switch to --noenable_workspace when Bzlmod lands.
 # https://github.com/bazelbuild/rules_scala/issues/1482
 common --enable_workspace --noenable_bzlmod
+
+# Remove once proto toolchainization becomes the default
+# - https://bazel.build/reference/command-line-reference#flag--incompatible_enable_proto_toolchain_resolution
+# - https://docs.google.com/document/d/1CE6wJHNfKbUPBr7-mmk_0Yo3a4TaqcTPE0OWNuQkhPs/edit
+common --incompatible_enable_proto_toolchain_resolution
+
+build --strategy=Scalac=worker --strategy=ScroogeRule=worker --worker_max_instances=3

@@ -67,8 +67,8 @@ artifacts = {
         "sha256": "88241573467ddca44ffd4d74aa04c2bbfd11bf7c17e0c342c94c9de7a70a7c64",
     },
     "com_google_protobuf_protobuf_java": {
-        "artifact": "com.google.protobuf:protobuf-java:4.30.0",
-        "sha256": "3e9ec992a1bd02eeec7229879e5e99798c0f582a3cbfc924792640256e87b67d",
+        "artifact": "com.google.protobuf:protobuf-java:4.30.1",
+        "sha256": "ff666fc33646eb2b609259b7928fc675782e401ee6e39ef3ae4581e06f642a15",
     },
     "com_lihaoyi_fansi": {
         "artifact": "com.lihaoyi:fansi_2.11:0.2.6",
@@ -779,8 +779,8 @@ artifacts = {
         "sha256": "c7b478503ec524e55df19b424d46d27c8a68aeb801664fadd4f069b71f52d0f6",
     },
     "scala_proto_rules_proto_google_common_protos": {
-        "artifact": "com.google.api.grpc:proto-google-common-protos:2.53.0",
-        "sha256": "61ac7fbd31a9f604890d22330a6f94b3f410ea2d7247e0f5f11a87ae34087385",
+        "artifact": "com.google.api.grpc:proto-google-common-protos:2.54.1",
+        "sha256": "2fcff25fe8a90fcacb146a900222c497ba0a9a531271e6b135a76450d23b1ef2",
         "deps": [
             "@com_google_protobuf_protobuf_java",
         ],

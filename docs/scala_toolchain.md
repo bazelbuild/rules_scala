@@ -25,7 +25,7 @@ scala_toolchains()
 scala_register_toolchains()
 ```
 
-### B) Defining your own `scala_toolchain` requires 2 steps
+### B) Defining your own `scala_toolchain`
 
 #### Step 1
 
@@ -65,7 +65,7 @@ load("@rules_scala//scala:scala.bzl", "setup_scala_toolchain")
 
 setup_scala_toolchain(
     name = "my_toolchain",
-    # configure toolchain dependecies
+    # configure toolchain dependencies
     parser_combinators_deps = [
         "@maven//:org_scala_lang_modules_scala_parser_combinators_2_12",
     ],
@@ -100,6 +100,24 @@ Register your custom toolchain:
 # MODULE.bazel or WORKSPACE
 register_toolchains("//toolchains:my_scala_toolchain")
 ```
+
+#### Step 3 (optional)
+
+If you use `scala_toolchains()` to instantiate other builtin toolchains like the
+precompiled proto compiler toolchain, set `scala = False`:
+
+```py
+# WORKSPACE
+scala_toolchains(
+    scala = False,
+    # ...other toolchain parameters...
+)
+```
+
+Otherwise, `scala_toolchains()` will try to instantiate a default Scala
+toolchain and its compiler JAR dependency repositories. The build will then fail
+if the configured Scala version doesn't match the `scala_version` value in
+the corresponding `third_party/repositories/scala_*.bzl` file.
 
 ## Configuration options
 
@@ -168,7 +186,7 @@ The following attributes apply to both `scala_toolchain` and
       <td>
         <p><code>String; optional</code></p>
         <p>
-          Enable unused dependency checking (see <a href="https://github.com/bazelbuild/rules_scala#experimental-unused-dependency-checking">Unused dependency checking</a>).
+          Enable unused dependency checking (see <a href="./dependency-tracking.md#experimental-unused-dependency-checking">Unused dependency checking</a>).
           Possible values are: <code>off</code>, <code>warn</code> and <code>error</code>.
         </p>
       </td>

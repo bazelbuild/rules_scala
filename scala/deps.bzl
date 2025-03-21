@@ -17,42 +17,54 @@ def rules_scala_dependencies():
 
     maybe(
         http_archive,
+        name = "platforms",
+        urls = [
+            "https://mirror.bazel.build/github.com/bazelbuild/platforms/releases/download/0.0.11/platforms-0.0.11.tar.gz",
+            "https://github.com/bazelbuild/platforms/releases/download/0.0.11/platforms-0.0.11.tar.gz",
+        ],
+        sha256 = "29742e87275809b5e598dc2f04d86960cc7a55b3067d97221c9abbc9926bff0f",
+    )
+
+    maybe(
+        http_archive,
         name = "rules_cc",
-        urls = ["https://github.com/bazelbuild/rules_cc/releases/download/0.0.9/rules_cc-0.0.9.tar.gz"],
-        sha256 = "2037875b9a4456dce4a79d112a8ae885bbc4aad968e6587dca6e64f3a0900cdf",
-        strip_prefix = "rules_cc-0.0.9",
+        urls = ["https://github.com/bazelbuild/rules_cc/releases/download/0.1.1/rules_cc-0.1.1.tar.gz"],
+        sha256 = "712d77868b3152dd618c4d64faaddefcc5965f90f5de6e6dd1d5ddcd0be82d42",
+        strip_prefix = "rules_cc-0.1.1",
     )
 
     maybe(
         http_archive,
         name = "abseil-cpp",
-        sha256 = "16242f394245627e508ec6bb296b433c90f8d914f73b9c026fddb905e27276e8",
-        strip_prefix = "abseil-cpp-20250127.0",
-        url = "https://github.com/abseil/abseil-cpp/archive/refs/tags/20250127.0.tar.gz",
+        sha256 = "b396401fd29e2e679cace77867481d388c807671dc2acc602a0259eeb79b7811",
+        strip_prefix = "abseil-cpp-20250127.1",
+        url = "https://github.com/abseil/abseil-cpp/archive/refs/tags/20250127.1.tar.gz",
     )
 
     maybe(
         http_archive,
         name = "rules_java",
         urls = [
-            "https://github.com/bazelbuild/rules_java/releases/download/7.12.4/rules_java-7.12.4.tar.gz",
+            "https://github.com/bazelbuild/rules_java/releases/download/8.11.0/rules_java-8.11.0.tar.gz",
         ],
-        sha256 = "302bcd9592377bf9befc8e41aa97ec02df12813d47af9979e4764f3ffdcc5da8",
+        sha256 = "d31b6c69e479ffa45460b64dc9c7792a431cac721ef8d5219fc9f603fa2ff877",
     )
 
     maybe(
         http_archive,
         name = "com_google_protobuf",
-        sha256 = "75be42bd736f4df6d702a0e4e4d30de9ee40eac024c4b845d17ae4cc831fe4ae",
-        strip_prefix = "protobuf-21.7",
-        url = "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v21.7.tar.gz",
+        sha256 = "1451b03faec83aed17cdc71671d1bbdfd72e54086b827f5f6fd02bf7a4041b68",
+        strip_prefix = "protobuf-30.1",
+        url = "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v30.1.tar.gz",
         repo_mapping = {"@com_google_absl": "@abseil-cpp"},
+        patches = [Label("//protoc:0001-protobuf-19679-rm-protoc-dep.patch")],
+        patch_args = ["-p1"],
     )
 
     maybe(
         http_archive,
         name = "rules_proto",
-        sha256 = "6fb6767d1bef535310547e03247f7518b03487740c11b6c6adb7952033fe1295",
-        strip_prefix = "rules_proto-6.0.2",
-        url = "https://github.com/bazelbuild/rules_proto/releases/download/6.0.2/rules_proto-6.0.2.tar.gz",
+        sha256 = "14a225870ab4e91869652cfd69ef2028277fc1dc4910d65d353b62d6e0ae21f4",
+        strip_prefix = "rules_proto-7.1.0",
+        url = "https://github.com/bazelbuild/rules_proto/releases/download/7.1.0/rules_proto-7.1.0.tar.gz",
     )
