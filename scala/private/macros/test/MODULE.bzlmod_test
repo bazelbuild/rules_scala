@@ -1,0 +1,18 @@
+"""Used by test/shell/test_bzlmod_helpers.sh to test bzlmod.bzl."""
+
+module(name = "test_module", version = "0.0.0")
+
+bazel_dep(name = "rules_scala")
+local_path_override(
+    module_name = "rules_scala",
+    path = "${rules_scala_dir}"
+)
+
+test_ext = use_extension("//:bzlmod_test_ext.bzl", "test_ext")
+use_repo(test_ext, "test_tag_values")
+
+dev_test_ext = use_extension(
+    "//:bzlmod_test_ext.bzl",
+    "test_ext",
+    dev_dependency = True,
+)

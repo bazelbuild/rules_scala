@@ -112,3 +112,20 @@ def scrooge_repositories(version = None):
         twitter_scrooge = True,
         twitter_scrooge_deps = toolchain_deps,
     )
+
+_settings = tag_class(
+    attrs = {
+        "version": attr.string(mandatory = True),
+    },
+)
+
+def _scrooge_repositories_ext_impl(module_ctx):
+    settings = module_ctx.modules[0].tags.settings
+    scrooge_repositories(settings[0].version if len(settings) != 0 else None)
+
+scrooge_repositories_ext = module_extension(
+    implementation = _scrooge_repositories_ext_impl,
+    tag_classes = {
+        "settings": _settings,
+    },
+)

@@ -1,5 +1,10 @@
 """Repositories for testing rules_scala itself"""
 
+load(
+    "//scala/private:macros/bzlmod.bzl",
+    "root_module_tags",
+    "single_tag_values",
+)
 load("//scala:scala_cross_version.bzl", "default_maven_server_urls")
 load("//scala:scala_maven_import_external.bzl", "java_import_external")
 load("//third_party/repositories:repositories.bzl", "repositories")
@@ -7,10 +12,28 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 _BUILD_TOOLS_RELEASE = "5.1.0"
 
+_settings_defaults = {
+    "maven_servers": default_maven_server_urls(),
+    "fetch_sources": False,
+}
+
+_settings_attrs = {
+    "maven_servers": attr.string_list(
+        default = _settings_defaults["maven_servers"],
+    ),
+    "fetch_sources": attr.bool(
+        default = _settings_defaults["fetch_sources"],
+    ),
+}
+
+_tag_classes = {
+    "settings": tag_class(attrs = _settings_attrs),
+}
+
 def dev_deps_repositories(
         name = "unused_dev_deps_name",
-        maven_servers = default_maven_server_urls(),
-        fetch_sources = False):
+        maven_servers = _settings_defaults["maven_servers"],
+        fetch_sources = _settings_defaults["fetch_sources"]):
     """Instantiates internal only repos for development and testing
 
     Args:
@@ -67,3 +90,15 @@ def dev_deps_repositories(
         ],
         maven_servers = maven_servers,
     )
+
+def _dev_deps_impl(module_ctx):
+    """Instantiate internal only repos for development and testing"""
+    tags = root_module_tags(module_ctx, _tag_classes.keys())
+    settings = single_tag_values(module_ctx, tags.settings, _settings_defaults)
+    dev_deps_repositories(**settings)
+
+dev_deps = module_extension(
+    implementation = _dev_deps_impl,
+    tag_classes = _tag_classes,
+    doc = "Configures repositories used only for internal testing",
+)

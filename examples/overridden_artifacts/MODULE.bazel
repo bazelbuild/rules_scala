@@ -1,0 +1,85 @@
+"""Bazel module ./test/shell/test_examples.sh tests"""
+
+module(name = "overridden_artifacts")
+
+bazel_dep(name = "rules_scala")
+local_path_override(
+    module_name = "rules_scala",
+    path = "../..",
+)
+
+scala_config = use_extension(
+    "@rules_scala//scala/extensions:config.bzl",
+    "scala_config",
+)
+scala_config.settings(
+    scala_version = "3.3.5",
+)
+
+scala_deps = use_extension(
+    "@rules_scala//scala/extensions:deps.bzl",
+    "scala_deps",
+)
+scala_deps.settings(
+    fetch_sources = False,
+)
+
+# Deliberately set for Scala 3.3 and 2.13 versions less than the most
+# recently supported. See the `scala_version` setting at the top of
+# `third_party/repositories/scala_{2_13,3_3}.bzl`.
+scala_deps.overridden_artifact(
+    name = "io_bazel_rules_scala_scala_library",
+    artifact = "org.scala-lang:scala3-library_3:3.3.4",
+    sha256 = "d95184acfcd814da2e051378e4962c653f4b468f4086452ab427af030482bd3c",
+)
+scala_deps.overridden_artifact(
+    name = "io_bazel_rules_scala_scala_compiler",
+    artifact = "org.scala-lang:scala3-compiler_3:3.3.4",
+    sha256 = "2cca65fdb92e2cc393786cae61b4f7bcb9032ad4be61f9cebae1dca72997e52f",
+    # These are _not_ strictly required in this case, but we want to test that
+    # nothing breaks when they're specified.
+    deps = [
+        "@io_bazel_rules_scala_scala_asm",
+        "@io_bazel_rules_scala_scala_interfaces",
+        "@io_bazel_rules_scala_scala_library",
+        "@io_bazel_rules_scala_scala_tasty_core",
+        "@org_jline_jline_reader",
+        "@org_jline_jline_terminal",
+        "@org_jline_jline_terminal_jni",
+        "@org_scala_sbt_compiler_interface",
+    ],
+)
+scala_deps.overridden_artifact(
+    name = "io_bazel_rules_scala_scala_library_2",
+    artifact = "org.scala-lang:scala-library:2.13.14",
+    sha256 = "43e0ca1583df1966eaf02f0fbddcfb3784b995dd06bfc907209347758ce4b7e3",
+)
+scala_deps.toolchains(
+    scalatest = True,
+)
+
+scala_protoc = use_extension(
+    "@rules_scala//scala/extensions:protoc.bzl",
+    "scala_protoc",
+    dev_dependency = True,
+)
+use_repo(scala_protoc, "rules_scala_protoc_toolchains")
+
+register_toolchains(
+    "@rules_scala_protoc_toolchains//...:all",
+    dev_dependency = True,
+)
+
+# Temporarily required for `protoc` toolchainization until resolution of
+# protocolbuffers/protobuf#19679.
+bazel_dep(
+    name = "protobuf",
+    version = "30.1",
+    repo_name = "com_google_protobuf",
+)
+single_version_override(
+    module_name = "protobuf",
+    patch_strip = 1,
+    patches = ["//:protobuf.patch"],
+    version = "30.1",
+)

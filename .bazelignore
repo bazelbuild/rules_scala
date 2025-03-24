@@ -1,0 +1,19 @@
+# Remove once the following is fixed:
+# - bazelbuild/bazel: Loading top-level targets in local_path_override modules
+#   in child directory breaks the build #22208
+#   https://github.com/bazelbuild/bazel/issues/22208
+dt_patches/compiler_sources
+dt_patches/test_dt_patches
+dt_patches/test_dt_patches_user_srcjar
+examples/crossbuild
+examples/overridden_artifacts
+examples/scala3
+examples/semanticdb
+examples/testing/multi_frameworks_toolchain
+examples/testing/scalatest_repositories
+examples/testing/specs2_junit_repositories
+test/proto_cross_repo_boundary/repo
+test_cross_build
+third_party/test/example_external_workspace
+third_party/test/new_local_repo
+third_party/test/proto

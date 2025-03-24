@@ -1,8 +1,7 @@
-# Switch to --noenable_workspace when Bzlmod lands.
-# https://github.com/bazelbuild/rules_scala/issues/1482
-common --enable_workspace --noenable_bzlmod
+# Remove once Bazel 8 becomes the minimum supported version.
+common --noenable_workspace --incompatible_use_plus_in_repo_names
 
-# Remove once proto toolchainization becomes the default
+# Remove if protocol compiler toolchainization ever becomes the default.
 # - https://bazel.build/reference/command-line-reference#flag--incompatible_enable_proto_toolchain_resolution
 # - https://docs.google.com/document/d/1CE6wJHNfKbUPBr7-mmk_0Yo3a4TaqcTPE0OWNuQkhPs/edit
 common --incompatible_enable_proto_toolchain_resolution
