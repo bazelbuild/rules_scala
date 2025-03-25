@@ -15,6 +15,7 @@ GUAVA_ARTIFACT_IDS = [
     "io_bazel_rules_scala_guava",
     "io_bazel_rules_scala_failureaccess",
     "org_checkerframework_checker_qual",
+    "org_jspecify_jspecify",
 ]
 
 def scala_proto_artifact_ids(scala_version):

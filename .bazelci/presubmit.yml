@@ -53,16 +53,16 @@ tasks:
     - "set PATH=/usr/bin;%PATH%" #Make sure bash uses msys commands over windows commands. (i.e. find).
     - "bash -lc \"pacman --noconfirm --needed -S libxml2\"" #tests require xmllint
     - "bash test_rules_scala.sh"
-  test_coverage_linux_7_5_0:
+  test_coverage_linux_7_6_0:
     name: "./test_coverage"
     platform: ubuntu2004
-    bazel: 7.5.0
+    bazel: 7.6.0
     shell_commands:
       - "./test_coverage.sh"
-  test_coverage_macos_7.5.0:
+  test_coverage_macos_7.6.0:
     name: "./test_coverage"
     platform: macos
-    bazel: 7.5.0
+    bazel: 7.6.0
     shell_commands:
       - "./test_coverage.sh"
   test_reproducibility_linux:
@@ -93,13 +93,13 @@ tasks:
   examples_linux:
     name: "./test_examples"
     platform: ubuntu2004
-    bazel: 7.5.0
+    bazel: 7.6.0
     shell_commands:
       - "./test_examples.sh"
   cross_build_linux:
     name: "./test_cross_build"
     platform: ubuntu2004
-    bazel: 7.5.0
+    bazel: 7.6.0
     shell_commands:
       - "./test_cross_build.sh"
   lint_linux:

@@ -31,6 +31,7 @@ DEFAULT_SCALAPB_COMPILE_DEPS = [
 
 DEFAULT_SCALAPB_GRPC_DEPS = [
     "@io_bazel_rules_scala_guava",
+    "@org_jspecify_jspecify",
     "@scala_proto_rules_disruptor",
     "@scala_proto_rules_grpc_api",
     "@scala_proto_rules_grpc_context",

@@ -25,7 +25,7 @@ scala_toolchains()
 scala_register_toolchains()
 ```
 
-### B) Defining your own `scala_toolchain` requires 2 steps
+### B) Defining your own `scala_toolchain`
 
 #### Step 1
 
@@ -57,7 +57,7 @@ toolchain(
 
 If you want to use your own compiler JARs, use `setup_scala_toolchain()`
 instead. This example assumes the external libraries are resolved with
-[rules_jvm_external](https://github.com/bazelbuild/rules_jvm_external)
+[rules_jvm_external](https://github.com/bazelbuild/rules_jvm_external):
 
 ```py
 # //toolchains/BUILD
@@ -65,7 +65,7 @@ load("@rules_scala//scala:scala.bzl", "setup_scala_toolchain")
 
 setup_scala_toolchain(
     name = "my_toolchain",
-    # configure toolchain dependecies
+    # configure toolchain dependencies
     parser_combinators_deps = [
         "@maven//:org_scala_lang_modules_scala_parser_combinators_2_12",
     ],

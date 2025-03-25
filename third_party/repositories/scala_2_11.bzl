@@ -67,8 +67,8 @@ artifacts = {
         "sha256": "88241573467ddca44ffd4d74aa04c2bbfd11bf7c17e0c342c94c9de7a70a7c64",
     },
     "com_google_protobuf_protobuf_java": {
-        "artifact": "com.google.protobuf:protobuf-java:4.30.0",
-        "sha256": "3e9ec992a1bd02eeec7229879e5e99798c0f582a3cbfc924792640256e87b67d",
+        "artifact": "com.google.protobuf:protobuf-java:4.30.1",
+        "sha256": "ff666fc33646eb2b609259b7928fc675782e401ee6e39ef3ae4581e06f642a15",
     },
     "com_lihaoyi_fansi": {
         "artifact": "com.lihaoyi:fansi_2.11:0.2.6",
@@ -115,14 +115,13 @@ artifacts = {
         "sha256": "8a8f81cf9b359e3f6dfa691a1e776985c061ef2f223c9b2c80753e1b458e8064",
     },
     "io_bazel_rules_scala_guava": {
-        "artifact": "com.google.guava:guava:33.4.0-jre",
-        "sha256": "b918c98a7e44dbe94ebd9fe3e40cddaadb5a93e6a78eb6008b42df237241e538",
+        "artifact": "com.google.guava:guava:33.4.4-jre",
+        "sha256": "95bde613be18dfa2f0b870e4029ac264d5ba6989967204fc92ffe9ad5370cf5e",
         "deps": [
-            "@com_google_code_findbugs_jsr305",
             "@com_google_errorprone_error_prone_annotations",
             "@com_google_j2objc_j2objc_annotations",
             "@io_bazel_rules_scala_failureaccess",
-            "@org_checkerframework_checker_qual",
+            "@org_jspecify_jspecify",
         ],
     },
     "io_bazel_rules_scala_javax_annotation_api": {
@@ -423,6 +422,10 @@ artifacts = {
     "org_codehaus_mojo_animal_sniffer_annotations": {
         "artifact": "org.codehaus.mojo:animal-sniffer-annotations:1.24",
         "sha256": "c720e6e5bcbe6b2f48ded75a47bccdb763eede79d14330102e0d352e3d89ed92",
+    },
+    "org_jspecify_jspecify": {
+        "artifact": "org.jspecify:jspecify:1.0.0",
+        "sha256": "1fad6e6be7557781e4d33729d49ae1cdc8fdda6fe477bb0cc68ce351eafdfbab",
     },
     "org_scala_lang_modules_scala_collection_compat": {
         "artifact": "org.scala-lang.modules:scala-collection-compat_2.11:2.1.2",
@@ -779,8 +782,8 @@ artifacts = {
         "sha256": "c7b478503ec524e55df19b424d46d27c8a68aeb801664fadd4f069b71f52d0f6",
     },
     "scala_proto_rules_proto_google_common_protos": {
-        "artifact": "com.google.api.grpc:proto-google-common-protos:2.53.0",
-        "sha256": "61ac7fbd31a9f604890d22330a6f94b3f410ea2d7247e0f5f11a87ae34087385",
+        "artifact": "com.google.api.grpc:proto-google-common-protos:2.54.1",
+        "sha256": "2fcff25fe8a90fcacb146a900222c497ba0a9a531271e6b135a76450d23b1ef2",
         "deps": [
             "@com_google_protobuf_protobuf_java",
         ],
