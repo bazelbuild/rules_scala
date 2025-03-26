@@ -819,13 +819,22 @@ under WORKSPACE](#6.5.0), with the maximum dependency versions specified in
 that section. While this may continue to work for some time, it is not
 officially supported.
 
-### `scala_proto_toolchain` changes
+### `scala_proto_toolchain` changes and new `scalapb_toolchain` macro
 
-Since #1718 `scala_proto_toolchain`'s `main_generator` was removed in flavor of more
-flexible protobuf plugins configuration. Now each generator (plugin) will get a corresponding name
+`scala_proto_toolchain` has a more flexible plugin configuration schema. The
+new `generators` and `generators_opts` attributes replace the following
+attributes:
+
+- `with_grpc`
+- `with_flat_package`
+- `with_single_line_to_string`
+- `main_generator`
+- `named_generators`
+
+Now each generator (plugin) will get a corresponding name
 that can be used for further plugin options setup:
 
-```
+```py
 scala_proto_toolchain(
     name = "example",
     generators = {
@@ -845,8 +854,25 @@ scala_proto_toolchain(
 )
 ```
 
-Also, `scalapb_grpc_deps` was removed since this changes moves the responsibility
-on the user side to configure dependencies based on the provided generators and their options.
+`scalapb_grpc_deps` no longer exists since it's now the user's responsibility
+to configure dependencies based on the provided generators and their options.
+
+The new `scalapb_toolchain` convenience macro wraps `scala_proto_toolchain`
+to provide the default [ScalaPB](https://scalapb.github.io/) implementation:
+
+.``py
+load("//scala_proto:scala_proto_toolchain.bzl", "scalapb_toolchain")
+
+scalapb_toolchain(
+    name = "my_toolchain",
+    opts = [
+        "grpc",
+        "single_line_to_proto_string",
+    ],
+    visibility = ["//visibility:public"],
+)
+.``
+
 
 ### Removal of `bind()` aliases for `twitter_scrooge` dependencies
 

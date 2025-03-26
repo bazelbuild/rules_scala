@@ -104,11 +104,12 @@ scala_proto_toolchain = rule(
 )
 
 def scalapb_toolchain(name, opts = [], **kwargs):
-    """Setups default scala protobuf (scalapb) toolchain
+    """Sets up a scala_proto_toolchain using ScalaPB.
 
     Args:
-    name: A unique name for this target
-    opts: scalapb generator options like 'grpc' or 'flat_package'
+        name: A unique name for this target
+        opts: scalapb generator options like 'grpc' or 'flat_package'
+        kwargs: remaining arguments to `scala_proto_toolchain`
     """
     scala_proto_toolchain(
         name = name,
