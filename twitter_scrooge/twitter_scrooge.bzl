@@ -1,3 +1,4 @@
+load("@bazel_skylib//lib:dicts.bzl", "dicts")
 load(
     "//scala/private:common.bzl",
     "write_manifest_file",
@@ -8,13 +9,11 @@ load(
 )
 load(
     "//scala/private:rule_impls.bzl",
-    "allow_security_manager",
     "compile_java",
     "compile_scala",
 )
-load("//thrift:thrift_info.bzl", "ThriftInfo")
 load("//thrift:thrift.bzl", "merge_thrift_infos")
-load("@bazel_skylib//lib:dicts.bzl", "dicts")
+load("//thrift:thrift_info.bzl", "ThriftInfo")
 
 def _colon_paths(data):
     return ":".join([f.path for f in sorted(data)])
@@ -86,7 +85,7 @@ def _generate_jvm_code(ctx, label, compile_thrifts, include_thrifts, jar_output,
         # be correctly handled since the executable is a jvm app that will
         # consume the flags on startup.
         #arguments = ["--jvm_flag=%s" % flag for flag in ctx.attr.jvm_flags] +
-        arguments = ["--jvm_flag=%s" % f for f in allow_security_manager(ctx)] + ["@" + argfile.path],
+        arguments = ["@" + argfile.path],
     )
 
 def _compiled_jar_file(actions, scrooge_jar):
