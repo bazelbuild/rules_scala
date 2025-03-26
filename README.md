@@ -860,7 +860,7 @@ to configure dependencies based on the provided generators and their options.
 The new `scalapb_toolchain` convenience macro wraps `scala_proto_toolchain`
 to provide the default [ScalaPB](https://scalapb.github.io/) implementation:
 
-.``py
+```py
 load("//scala_proto:scala_proto_toolchain.bzl", "scalapb_toolchain")
 
 scalapb_toolchain(
@@ -871,8 +871,7 @@ scalapb_toolchain(
     ],
     visibility = ["//visibility:public"],
 )
-.``
-
+```
 
 ### Removal of `bind()` aliases for `twitter_scrooge` dependencies
 
