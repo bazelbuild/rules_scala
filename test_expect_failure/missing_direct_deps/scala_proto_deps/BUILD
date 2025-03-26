@@ -2,7 +2,7 @@ load("@rules_proto//proto:defs.bzl", "proto_library")
 load("@rules_java//java:defs.bzl", "java_library")
 load("//scala:scala.bzl", "scala_library")
 load("//scala_proto:scala_proto.bzl", "scala_proto_library")
-load("//scala_proto:scala_proto_toolchain.bzl", "scala_proto_toolchain")
+load("//scala_proto:scala_proto_toolchain.bzl", "scalapb_toolchain")
 load(":customized_scala_proto.bzl", "custom_stamping_convention", "custom_stamping_scala_proto_library")
 
 proto_library(
@@ -28,7 +28,7 @@ java_library(
     deps = [":some_scala_proto"],
 )
 
-scala_proto_toolchain(
+scalapb_toolchain(
     name = "stamp_by_convention_toolchain_impl",
     stamp_by_convention = True,
 )

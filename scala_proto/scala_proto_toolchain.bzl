@@ -116,9 +116,9 @@ def scalapb_toolchain(name, opts = [], **kwargs):
             "scala": "scripts.ScalaPbCodeGenerator",
         },
         generators_opts = {
-            "scala": opts
+            "scala": opts,
         },
-        **kwargs,
+        **kwargs
     )
 
 def _scala_proto_deps_toolchain(ctx):
@@ -139,4 +139,3 @@ scala_proto_deps_toolchain = rule(
 )
 
 scala_proto_deps_providers = _scala_proto_deps_providers
-
