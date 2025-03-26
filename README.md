@@ -65,13 +65,22 @@ load("@rules_scala//scala:deps.bzl", "rules_scala_dependencies")
 
 rules_scala_dependencies()
 
-# In `rules_scala` 7.x, `scala/deps.bzl` imports `rules_java` 7.x. This
-# statement will change for `rules_scala` 8.x, which will use `rules_java` 8.x.
-load(
-    "@rules_java//java:repositories.bzl",
-    "rules_java_dependencies",
-    "rules_java_toolchains",
-)
+# Only include the next two statements if using
+# `--incompatible_enable_proto_toolchain_resolution`.
+# See the "Using a precompiled protocol compiler" section below.
+load("@platforms//host:extension.bzl", "host_platform_repo")
+
+# Instantiates the `@host_platform` repo to work around:
+# - https://github.com/bazelbuild/bazel/issues/22558
+host_platform_repo(name = "host_platform")
+
+# This is optional, but register this toolchain before any others. Requires
+# invoking the `scala_protoc_toolchains` repo rule, but is safe to include even
+# `--incompatible_enable_proto_toolchain_resolution` is `False`.
+# See the "Using a precompiled protocol compiler" section below.
+register_toolchains("@rules_scala_protoc_toolchains//...:all")
+
+load("@rules_java//java:rules_java_deps.bzl", "rules_java_dependencies")
 
 rules_java_dependencies()
 
@@ -81,13 +90,11 @@ bazel_skylib_workspace()
 
 # If you need a specific `rules_python` version, specify it here.
 # Otherwise you may get the version defined in the `com_google_protobuf` repo.
-# We use 0.38.0 to maintain compatibility with the combination of `protobuf`,
-# `rules_cc`, and related dependencies. This will change in rules_scala 7.0.0.
 http_archive(
     name = "rules_python",
-    sha256 = "ca2671529884e3ecb5b79d6a5608c7373a82078c3553b1fa53206e6b9dddab34",
-    strip_prefix = "rules_python-0.38.0",
-    url = "https://github.com/bazelbuild/rules_python/releases/download/0.38.0/rules_python-0.38.0.tar.gz",
+    sha256 = "2ef40fdcd797e07f0b6abda446d1d84e2d9570d234fddf8fcd2aa262da852d1c",
+    strip_prefix = "rules_python-1.2.0",
+    url = "https://github.com/bazelbuild/rules_python/releases/download/1.2.0/rules_python-1.2.0.tar.gz",
 )
 
 load("@rules_python//python:repositories.bzl", "py_repositories")
@@ -103,6 +110,8 @@ load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 
 protobuf_deps()
 
+load("@rules_java//java:repositories.bzl", "rules_java_toolchains")
+
 rules_java_toolchains()
 
 load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies")
@@ -116,6 +125,14 @@ rules_proto_setup()
 load("@rules_proto//proto:toolchains.bzl", "rules_proto_toolchains")
 
 rules_proto_toolchains()
+
+# Include this after loading `platforms`, `com_google_protobuf`, and
+# `rules_proto` to enable the `//protoc` precompiled protocol compiler
+# toolchains. See the "Using a precompiled protocol compiler" section below.
+load("@rules_scala//protoc:toolchains.bzl", "scala_protoc_toolchains")
+
+# This name can be anything, but we recommend `rules_scala_protoc_toolchains`.
+scala_protoc_toolchains(name = "rules_scala_protoc_toolchains")
 
 load("@rules_scala//:scala_config.bzl", "scala_config")
 
@@ -136,16 +153,17 @@ load(
     "scala_toolchains",
 )
 
-# Defines a default toolchain repo for the configured Scala version that
-# loads Maven deps like the Scala compiler and standard libs. On production
-# projects, you may consider defining a custom toolchain to use your project's
-# required dependencies instead.
+# Defines a default toolchain repo for the configured Scala version that loads
+# Maven deps like the Scala compiler and standard libs. Enable other builtin
+# toolchains by setting their corresponding parameters to `True`. See the
+# `scala_toolchains()` docstring for all builtin toolchain configuration
+# options.
 #
-# Optional builtin rules_scala toolchains may be configured by setting
-# parameters as documented in the `scala_toolchains()` docstring.
-scala_toolchains(
-    scalatest = True,
-)
+# On production projects, you may consider defining a custom toolchain to use
+# your project's required dependencies instead. In that case, you can omit
+# `scala_toolchains()` or explicitly set `scala = False` if you use it to
+# instantiate other builtin toolchains.
+scala_toolchains()
 
 scala_register_toolchains()
 ```
@@ -186,6 +204,256 @@ load(
     "scala_test",
 )
 ```
+
+### <a id="protoc"></a>Using a precompiled protocol compiler
+
+`rules_scala` now supports the
+[`--incompatible_enable_proto_toolchain_resolution`][] flag when using
+[protobuf v29 or later](#why-proto-v29). When using this flag with the
+`MODULE.bazel` or `WORKSPACE` configurations below, `rules_scala` will use a
+precompiled protocol compiler binary by default.
+
+[`--incompatible_enable_proto_toolchain_resolution`]: https://bazel.build/reference/command-line-reference#flag--incompatible_enable_proto_toolchain_resolution
+
+__Windows builds now require using `protobuf` v29 or later with the precompiled
+protocol compiler toolchain.__ See the [Windows MSVC builds of protobuf broken
+by default](#protoc-msvc) section below for details.
+
+#### Common setup
+
+To set the flag in your `.bazelrc` file:
+
+```txt
+common --incompatible_enable_proto_toolchain_resolution
+```
+
+In both `MODULE.bazel` and `WORKSPACE`, you must register the protocol compiler
+toolchains _before_ any other toolchains. It's safe to use even when
+`--incompatible_enable_proto_toolchain_resolution` is `False`.
+
+It is OK to call `register_toolchains` before using the `scala_protoc` extension
+under Bzlmod, and before the `scala_protoc_toolchains()` repo rule under
+`WORKSPACE`.
+
+```py
+# MODULE.bazel
+register_toolchains(
+    "@rules_scala_protoc_toolchains//...:all",
+    dev_dependency = True,
+)
+
+# WORKSPACE
+register_toolchains("@rules_scala_protoc_toolchains//...:all")
+```
+
+#### Using the `scala_protoc` module extension under Bzlmod
+
+The `scala_protoc` module extension instantiates the protocol compiler
+toolchain under Bzlmod. It _must_ be marked as a `dev_dependency`.
+
+```py
+# MODULE.bazel
+
+scala_protoc = use_extension(
+    "@rules_scala//scala/extensions:protoc.bzl",
+    "scala_protoc",
+    dev_dependency = True,
+)
+use_repo(scala_protoc, "rules_scala_protoc_toolchains")
+```
+
+#### Invoking the `scala_protoc_toolchains()` repo rule under `WORKSPACE`
+
+The `scala_protoc_toolchains` repo rule instantiates the protocol compiler
+toolchain. The repo name can be anything, but we recommend
+`rules_scala_protoc_toolchains`.
+
+```py
+# WORKSPACE
+
+# Include this after loading `platforms`, `com_google_protobuf`, and
+# `rules_proto`.
+load("@rules_scala//protoc:toolchains.bzl", "scala_protoc_toolchains")
+
+scala_protoc_toolchains(name = "rules_scala_protoc_toolchains")
+```
+
+#### Specifying additional `protoc` platforms
+
+Use the `platforms` parameter to specify additional [platforms][] if the
+execution platform may differ from the host platform, as when building with
+remote execution. Valid values come from the file name suffixes of
+[protocolbuffers/protobuf releases][]. It's also safe to explicitly include the
+host platform.
+
+[platforms]: https://bazel.build/extending/platforms
+[protocolbuffers/protobuf releases]: https://github.com/protocolbuffers/protobuf/releases
+
+For example, imagine the host platform is macOS running on Apple Silicon, but
+the remote execution platform is Linux running on an x86 processor.
+`rules_scala` configures the `"osx-aarch_64"` platform automatically. Then in
+`MODULE.bazel` you would include:
+
+```py
+# MODULE.bazel
+
+scala_protoc_toolchains(
+    name = "rules_scala_protoc_toolchains",
+    platforms = ["linux-x86_64"],
+    dev_dependency = True,
+)
+```
+
+In `WORKSPACE` you would include:
+
+```py
+# WORKSPACE
+
+scala_protoc_toolchains(
+    name = "rules_scala_protoc_toolchains",
+    platforms = ["linux-x86_64"],
+)
+```
+
+#### Temporary required `protobuf` patch
+
+At the moment, enabling protocol compiler toolchainization requires applying
+[protoc/0001-protobuf-19679-rm-protoc-dep.patch][]. It is the `git diff` output
+from the branch used to create protocolbuffers/protobuf#19679. Without it, a
+transitive dependency on `@com_google_protobuf//:protoc` remains, causing
+`protoc` to recompile even with the precompiled toolchain registered first.
+
+[protoc/0001-protobuf-19679-rm-protoc-dep.patch]: ./protoc/0001-protobuf-19679-rm-protoc-dep.patch
+
+If and when `protobuf` merges that pull request, or applies an equivalent fix,
+this patch will no longer be necessary.
+
+#### `protobuf` patch setup under Bzlmod
+
+Applying the `protobuf` patch requires using [`single_version_override`][],
+which also requires that the patch be a regular file in your own repo. In other
+words, neither `@rules_scala//protoc:0001-protobuf-19679-rm-protoc-dep.patch`
+nor an [`alias`][] to it will work.
+
+[`single_version_override`]: https://bazel.build/rules/lib/globals/module#single_version_override
+[`alias`]: https://bazel.build/reference/be/general#alias
+
+Assuming you've copied the patch to a file called `protobuf.patch` in the root
+package of your repository, add the following to your `MODULE.bazel`:
+
+```py
+# MODULE.bazel
+
+# Required for protocol compiler toolchainization until resolution of
+# protocolbuffers/protobuf#19679.
+bazel_dep(
+    name = "protobuf",
+    version = "30.1",
+    repo_name = "com_google_protobuf",
+)
+single_version_override(
+    module_name = "protobuf",
+    patch_strip = 1,
+    patches = ["//:protobuf.patch"],
+    version = "30.1",
+)
+```
+
+#### `protobuf` patch setup under `WORKSPACE`
+
+[`scala/deps.bzl`](./scala/deps.bzl) currently applies the `protobuf` patch to `protobuf` v30.1.
+
+If you need to apply the patch to a different version of `protobuf`, copy it to
+your repo as described in the Bzlmod setup above. Then apply it in your own
+`http_archive` call:
+
+```py
+http_archive(
+    name = "com_google_protobuf",
+    sha256 = "1451b03faec83aed17cdc71671d1bbdfd72e54086b827f5f6fd02bf7a4041b68",
+    strip_prefix = "protobuf-30.1",
+    url = "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v30.1.tar.gz",
+    repo_mapping = {"@com_google_absl": "@abseil-cpp"},
+    patches = ["//protobuf.patch"],
+    patch_args = ["-p1"],
+)
+```
+
+#### Setting up the `@host_platform` repo under `WORKSPACE`
+
+`WORKSPACE` must include the `host_platform_repo` snippet from
+[Getting started](#getting-started) to work around bazelbuild/bazel#22558:
+
+```py
+# WORKSPACE
+load("@platforms//host:extension.bzl", "host_platform_repo")
+
+# Instantiates the `@host_platform` repo to work around:
+# - https://github.com/bazelbuild/bazel/issues/22558
+host_platform_repo(name = "host_platform")
+```
+
+#### <a id="why-proto-v29"></a>Why this requires `protobuf` v29 or later
+
+Using `--incompatible_enable_proto_toolchain_resolution` with versions of
+`protobuf` before v29 causes build failures due to a missing internal Bazel
+dependency.
+
+Bazel's builtin `bazel_java_proto_aspect` transitively depends on a toolchain
+with a [`toolchain_type`][] of `@rules_java//java/proto:toolchain_type`.
+Experimentation with `protobuf` v28.2 using both Bazel 6.5.0 and 7.5.0 led to
+the following error:
+
+```txt
+ERROR: .../external/bazel_tools/src/main/protobuf/BUILD:28:15:
+  in @@_builtins//:common/java/proto/java_proto_library.bzl%bazel_java_proto_aspect
+  aspect on proto_library rule
+  @@bazel_tools//src/main/protobuf:worker_protocol_proto:
+
+Traceback (most recent call last):
+  File "/virtual_builtins_bzl/common/java/proto/java_proto_library.bzl",
+    line 53, column 53, in _bazel_java_proto_aspect_impl
+  File "/virtual_builtins_bzl/common/proto/proto_common.bzl",
+    line 364, column 17, in _find_toolchain
+Error in fail: No toolchains registered for
+  '@rules_java//java/proto:toolchain_type'.
+
+ERROR: Analysis of target
+  '@@bazel_tools//src/main/protobuf:worker_protocol_proto' failed
+```
+
+See bazelbuild/rules_scala#1710 for details of the experiment.
+
+For `protobuf` v29.0, protocolbuffers/protobuf#18308 added the
+[`@protobuf//bazel/private/toolchains`][proto-private-tc] package and updated
+`protobuf_deps()` from `@protobuf//:protobuf_deps.bzl` to register it:
+
+```py
+native.register_toolchains("//bazel/private/toolchains:all")
+```
+
+[`toolchain_type`]: https://bazel.build/extending/toolchains#writing-rules-toolchains
+[proto-private-tc]: https://github.com/protocolbuffers/protobuf/blob/v29.0/bazel/private/toolchains/BUILD.bazel
+
+protocolbuffers/protobuf#18435 then introduced
+[`java_source_toolchain_bazel7`][java-proto-tc] with the required
+`toolchain_type`.
+
+[java-proto-tc]: https://github.com/protocolbuffers/protobuf/blob/v29.0/bazel/private/toolchains/BUILD.bazel#L50-L74
+
+#### More background on protocol compiler toolchainization
+
+- [Proto Toolchainisation Design Doc](
+    https://docs.google.com/document/d/1CE6wJHNfKbUPBr7-mmk_0Yo3a4TaqcTPE0OWNuQkhPs/edit)
+
+- [bazelbuild/bazel#7095: Protobuf repo recompilation sensitivity](
+    https://github.com/bazelbuild/bazel/issues/7095)
+
+- [bazelbuild/rules_proto#179: Implement proto toolchainisation](
+    https://github.com/bazelbuild/rules_proto/issues/179)
+
+- [rules_proto 6.0.0 release notes mentioning Protobuf Toolchainization](
+    https://github.com/bazelbuild/rules_proto/releases/tag/6.0.0)
 
 ### Persistent workers
 
@@ -283,6 +551,37 @@ v29 and remove `rules_proto` completely. This is to comply with the guidance in
 https://protobuf.dev/news/v29/). For more details, see this [comment from #1710
 explaining why rules_proto remains for now](
 https://github.com/bazelbuild/rules_scala/pull/1710#issuecomment-2750001012).
+
+### Using a prebuilt `@com_google_protobuf//:protoc` or C++ compiler flags
+
+Newer versions of `abseil-cpp`, required by newer versions of
+`@com_google_protobuf//:protoc`, fail to compile under Bazel 6.5.0 and 7.6.0 by
+default. [protoc will also fail to build on Windows when using
+MSVC](#protoc-msvc). You will have to choose one of the following approaches to
+resolve this problem.
+
+You may use protocol compiler toolchainization with `protobuf` v29 or later to
+avoid recompiling `protoc`. You may want to enable this even if your build
+doesn't break, as it saves time by avoiding frequent `protoc` recompilation. See
+the [Using a precompiled protocol compiler](#protoc) section for details.
+
+Otherwise, if migrating to Bazel 8 isn't an immediate option, you will need to
+set the following compiler flags in `.bazelrc` per bazelbuild/rules_scala#1647:
+
+```txt
+common --enable_platform_specific_config
+
+common:linux --cxxopt=-std=c++17
+common:linux --host_cxxopt=-std=c++17
+common:macos --cxxopt=-std=c++17
+common:macos --host_cxxopt=-std=c++17
+common:windows --cxxopt=/std=c++17
+common:windows --host_cxxopt=/std=c++17
+```
+
+Note that this example uses `common:` config settings instead of `build:`. This
+seems to prevent invalidating the action cache between `bazel` runs, which
+improves performance.
 
 ## Usage with [bazel-deps](https://github.com/johnynek/bazel-deps)
 
@@ -467,8 +766,6 @@ load(
     "scala_toolchains",
 )
 
-# The `scala_version` toolchain repos used by `scala_library` and `scala_binary`
-# are _always_ configured, but all others are optional.
 scala_toolchains(
     scalafmt = True,
     scalatest = True,
@@ -511,6 +808,38 @@ In `WORKSPACE`, this `register_toolchains()` call must come before calling
 `scala_register_toolchains()` to ensure this toolchain takes precedence. The
 same exact call will also work in `MODULE.bazel`.
 
+### Disabling builtin Scala toolchains when defining custom Scala toolchains
+
+When [using 'setup_scala_toolchain()' with custom compiler JARs](
+docs/scala_toolchain.md#b-defining-your-own-scala_toolchain), don't use
+`scala_toolchains()` if you don't need any other builtin toolchains.
+
+If you do need other builtin toolchains, then set `scala = False`:
+
+```py
+# WORKSPACE
+scala_toolchains(
+    scala = False,
+    # ...other toolchain parameters...
+)
+```
+
+This avoids instantiating the default Scala toolchain and compiler JAR
+repositories, and disables the corresponding Scala version check, which may
+otherwise fail. This is equivalent to two ways in which the previous API avoided
+the same default behavior:
+
+- Calling `scala_repositories(load_jar_deps = False)` would instantiate only
+    other `rules_scala` dependency repos (`rules_java`, `protobuf`, etc.) and
+    compiler source JAR repos.
+
+- Calling `rules_scala_setup()` directly, instead of indirectly via
+    `scala_repositories()`, instantiated the other dependency repositories only.
+
+See ["Defining your own scala_toolchain > Step 3 (optional)" from
+docs/scala_toolchain.md](docs/scala_toolchain.md#step-3-optional) for futher
+details.
+
 ### Bzlmod configuration (coming soon!)
 
 The upcoming Bzlmod implementation will funnel through the `scala_toolchains()`
@@ -525,14 +854,12 @@ scala_config = use_extension(
     "@rules_scala//scala/extensions:config.bzl",
     "scala_config",
 )
-
 scala_config.settings(scala_version = "2.13.16")
 
 scala_deps = use_extension(
     "@rules_scala//scala/extensions:deps.bzl",
     "scala_deps",
 )
-
 scala_deps.toolchains(
     scalafmt = True,
     scalatest = True,
@@ -587,7 +914,6 @@ scala_config = use_extension(
     "@rules_scala//scala/extensions:config.bzl",
     "scala_config",
 )
-
 use_repo(scala_config, io_bazel_rules_scala_config = "rules_scala_config")
 ```
 
@@ -651,6 +977,44 @@ http_archive(
     ...
 )
 ```
+
+### <a id="protoc-msvc"></a>Windows MSVC builds of `protobuf` broken by default
+
+MSVC builds of recent `protobuf` versions started failing, as first noted in
+bazelbuild/rules_scala#1710. On top of that, `protobuf` is planning to stop
+supporting Bazel + MSVC builds per:
+
+- [protocolbuffers/protobuf#12947: src build on windows not working](
+    https://github.com/protocolbuffers/protobuf/issues/12947)
+
+- [protobuf.dev News Announcements for Version 30.x:Poison MSVC + Bazel](
+    https://protobuf.dev/news/v30/#poison-msvc--bazel)
+
+- [protocolbuffers/protobuf#20085: Breaking Change: Dropping support for
+    Bazel+MSVC](https://github.com/protocolbuffers/protobuf/issues/20085)
+
+Enable [protocol compiler toolchainization](#protoc) to fix broken Windows
+builds by avoiding `@com_google_protobuf//:protoc` recompilation.
+
+### Minimum of `protobuf` v28
+
+`rules_scala` requires at least `protobuf` v28, and at least v29 for [protocol
+compiler toolchain](#protoc) support. No `ScalaPB` release supports `protobuf`
+v25.6, v26, or v27.
+
+#### Using earlier `protobuf` versions
+
+If you can't update to `protobuf` v28 or later right now, build using Bazel 7
+and the following maximum versions of key dependencies. This is not officially
+supported, but should work for some time.
+
+| Dependency | Max compatible version | Reason |
+| :-: | :-: | :- |
+| `protobuf` | v25.5 | Maximum version supported by `ScalaPB` 0.11.17. |
+| `rules_proto` | 6.0.2 | Maximum version supporting `protobuf` v25.5 |
+| `rules_java` | 7.12.4 | 8.x requires `protobuf` v27 and later. |
+| `rules_cc` | 0.0.9 | 0.0.10 requires Bazel 7 to define `CcSharedLibraryHintInfo`.<br/>0.0.13 requires at least `protobuf` v27.0. |
+| `ScalaPB` | 0.11.17<br/>(0.9.8 for Scala 2.11) | Later versions only support `protobuf` >= v28. |
 
 ### Embedded resource paths no longer begin with `external/<repo_name>`
 
@@ -774,35 +1138,43 @@ with Bazel 6.5.0 won't work at all because [Bazel 6.5.0 doesn't support
 https://github.com/bazelbuild/rules_scala/issues/1482#issuecomment-2515496234).
 
 At the moment, `WORKSPACE` builds mostly continue to work with Bazel 6.5.0, but
-not out of the box, and may break at any time.  Per bazelbuild/rules_scala#1647,
-you must add the following flags to `.bazelrc`, required by the newer
-`abseil-cpp` version used by `protobuf`:
+not out of the box, and may break at any time.
+
+#### Maximum of `protobuf` v29
+
+You _must_ use `protobuf` v29 or earlier. `rules_scala` now uses v30 by default,
+which removes `py_proto_library` and other symbols that Bazel 6.5.0 requires:
 
 ```txt
-common --enable_platform_specific_config
+ERROR: Traceback (most recent call last):
+  File ".../external/bazel_tools/src/main/protobuf/BUILD",
+  line 1, column 46, in <toplevel>
+    load("@com_google_protobuf//:protobuf.bzl", "py_proto_library")
 
-common:linux --cxxopt=-std=c++17
-common:linux --host_cxxopt=-std=c++17
-common:macos --cxxopt=-std=c++17
-common:macos --host_cxxopt=-std=c++17
-common:windows --cxxopt=/std=c++17
-common:windows --host_cxxopt=/std=c++17
+Error: file '@com_google_protobuf//:protobuf.bzl'
+  does not contain symbol 'py_proto_library'
+
+ERROR: .../src/java/io/bazel/rulesscala/worker/BUILD:3:13:
+  no such target '@bazel_tools//src/main/protobuf:worker_protocol_java_proto':
+  target 'worker_protocol_java_proto'
+  not declared in package 'src/main/protobuf'
+  defined by .../external/bazel_tools/src/main/protobuf/BUILD
+  (Tip: use `query "@bazel_tools//src/main/protobuf:*"`
+    to see all the targets in that package)
+  and referenced by '//src/java/io/bazel/rulesscala/worker:worker'
 ```
 
-Note that this example uses `common:` config settings instead of `build:`. This
-seems to prevent invalidating the action cache between `bazel` runs, which
-improves performance.
+#### Configuring the protocol compiler toolchain
 
-If you have a dependency that requires `protobuf` version before v28, use the
-following maximum versions of key dependencies. Note that no `ScalaPB` release
-supports `protobuf` v25.6, v26, or v27.
+See [Using a prebuilt @com_google_protobuf//:protoc or C++ compiler
+flags][protoc-opts] for protocol compiler configuration requirements.
 
-| Dependency | Max compatible version | Reason |
-| :-: | :-: | :- |
-| `protobuf` | v25.5 | Maximum version supported by `ScalaPB` 0.11.17. |
-| `rules_java` | 7.12.4 | 8.x requires `protobuf` v27 and later. |
-| `rules_cc` | 0.0.9 | 0.0.10 requires Bazel 7 to define `CcSharedLibraryHintInfo`.<br/>0.0.13 requires at least `protobuf` v27.0. |
-| `ScalaPB` | 0.11.17<br/>(0.9.8 for Scala 2.11) | Later versions only support `protobuf` >= v28. |
+[protoc-opts]: #using-a-prebuilt-com_google_protobufprotoc-or-c-compiler-flags
+
+#### Using older versions of `protobuf`
+
+See [Using earlier protobuf versions](#using-earlier-protobuf-versions) for
+details on using older versions of protobuf if necessary.
 
 ### `scala_proto` not supported for Scala 2.11
 
@@ -872,6 +1244,9 @@ scalapb_toolchain(
     visibility = ["//visibility:public"],
 )
 ```
+
+Similarly, `setup_scala_proto_toolchains()` now uses a `default_gen_opts`
+parameter to replace the previous boolean `enable_all_options` parameter.
 
 ### Removal of `bind()` aliases for `twitter_scrooge` dependencies
 

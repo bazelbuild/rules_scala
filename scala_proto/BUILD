@@ -1,4 +1,7 @@
-load("//scala_proto/private:toolchain_deps.bzl", "export_scalapb_toolchain_deps")
+load(
+    "//scala_proto/private:toolchain_deps.bzl",
+    "export_scalapb_toolchain_deps",
+)
 
 toolchain_type(
     name = "toolchain_type",

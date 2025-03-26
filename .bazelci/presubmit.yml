@@ -29,16 +29,17 @@ tasks:
     # Install xmllint
     - sudo apt update && sudo apt install --reinstall libxml2-utils -y
     - "./test_rules_scala.sh"
-  test_rules_scala_linux_latest:
-    name: "./test_rules_scala (latest Bazel)"
+  # Switch `last_rc` to `last_green` once Bzlmod lands.
+  # https://github.com/bazelbuild/rules_scala/issues/1482
+  test_rules_scala_linux_last_rc:
+    name: "./test_rules_scala (last_rc Bazel)"
     platform: ubuntu2004
-    # Restore `bazel: latest` once Bazel 8 compatibility lands (#1625, #1652).
-    bazel: 7.x
+    bazel: last_rc
     shell_commands:
     # Install xmllint
     - sudo apt update && sudo apt install --reinstall libxml2-utils -y
     - echo "build --enable_workspace" >> .bazelrc
-    - "./test_rules_scala.sh || buildkite-agent annotate --style 'warning' \"Optional build with latest Bazel version failed, [see here](${BUILDKITE_BUILD_URL}#${BUILDKITE_JOB_ID}) (It is not mandatory but worth checking)\""
+    - "./test_rules_scala.sh || buildkite-agent annotate --style 'warning' \"Optional build with last_rc Bazel version failed, [see here](${BUILDKITE_BUILD_URL}#${BUILDKITE_JOB_ID}) (It is not mandatory but worth checking)\""
   test_rules_scala_macos:
     name: "./test_rules_scala"
     platform: macos

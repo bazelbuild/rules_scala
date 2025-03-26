@@ -101,6 +101,36 @@ Register your custom toolchain:
 register_toolchains("//toolchains:my_scala_toolchain")
 ```
 
+#### Step 3 (optional)
+
+When using your own JARs for every `setup_scala_toolchain()` argument, while
+using `scala_toolchains()` to instantiate other builtin toolchains, set `scala =
+False`:
+
+```py
+# WORKSPACE
+scala_toolchains(
+    scala = False,
+    # ...other toolchain parameters...
+)
+```
+
+Otherwise, `scala_toolchains()` will try to instantiate a default Scala
+toolchain and its compiler JAR repositories. The build will then fail if the
+configured Scala version doesn't match the `scala_version` value in the
+corresponding `third_party/repositories/scala_*.bzl` file.
+
+If you don't specify your own jars for every `setup_scala_toolchain()` argument,
+set `validate_scala_version = False` to disable the Scala version check.
+
+```py
+# WORKSPACE
+scala_toolchains(
+    validate_scala_version = False,
+    # ...other toolchain parameters...
+)
+```
+
 ## Configuration options
 
 The following attributes apply to both `scala_toolchain` and
@@ -168,7 +198,7 @@ The following attributes apply to both `scala_toolchain` and
       <td>
         <p><code>String; optional</code></p>
         <p>
-          Enable unused dependency checking (see <a href="https://github.com/bazelbuild/rules_scala#experimental-unused-dependency-checking">Unused dependency checking</a>).
+          Enable unused dependency checking (see <a href="./dependency-tracking.md#experimental-unused-dependency-checking">Unused dependency checking</a>).
           Possible values are: <code>off</code>, <code>warn</code> and <code>error</code>.
         </p>
       </td>

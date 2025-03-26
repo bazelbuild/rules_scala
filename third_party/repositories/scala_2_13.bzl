@@ -843,8 +843,8 @@ artifacts = {
         ],
     },
     "scala_proto_rules_scalapb_compilerplugin": {
-        "artifact": "com.thesamet.scalapb:compilerplugin_2.13:0.11.17",
-        "sha256": "d36b84059289c7aa2f2bf08eeab7e85084fcf72bf58b337edf167c73218880d7",
+        "artifact": "com.thesamet.scalapb:compilerplugin_2.13:1.0.0-alpha.1",
+        "sha256": "218640423ba8156f994d6d700ef960d65025f79a5918070c0898213f4384df1f",
         "deps": [
             "@com_google_protobuf_protobuf_java",
             "@io_bazel_rules_scala_scala_library",
@@ -853,8 +853,8 @@ artifacts = {
         ],
     },
     "scala_proto_rules_scalapb_lenses": {
-        "artifact": "com.thesamet.scalapb:lenses_2.13:0.11.17",
-        "sha256": "4abe3fe573b8505a633414b0fbbcae4240250690ba48a9d4a6eeb3dfc3302ddf",
+        "artifact": "com.thesamet.scalapb:lenses_2.13:1.0.0-alpha.1",
+        "sha256": "46902feb0fd848fce92e234514254dc43b3cde5f6e10e88ae6eec52f4c016fbc",
         "deps": [
             "@io_bazel_rules_scala_scala_library",
             "@org_scala_lang_modules_scala_collection_compat",
@@ -877,8 +877,8 @@ artifacts = {
         ],
     },
     "scala_proto_rules_scalapb_runtime": {
-        "artifact": "com.thesamet.scalapb:scalapb-runtime_2.13:0.11.17",
-        "sha256": "fe91faf58bccef68be348e76cab339a5fe2c215e48f7bd8f836190449ed94077",
+        "artifact": "com.thesamet.scalapb:scalapb-runtime_2.13:1.0.0-alpha.1",
+        "sha256": "0ceaaf48bc3fa41419fcb8830d21685aea8b7a5e403b90b3246124d9f4b6d087",
         "deps": [
             "@com_google_protobuf_protobuf_java",
             "@io_bazel_rules_scala_scala_library",
@@ -887,8 +887,8 @@ artifacts = {
         ],
     },
     "scala_proto_rules_scalapb_runtime_grpc": {
-        "artifact": "com.thesamet.scalapb:scalapb-runtime-grpc_2.13:0.11.17",
-        "sha256": "c03687c038f2a45bb413551519542069a59faf322de29fd1f9e06f2dd65003d0",
+        "artifact": "com.thesamet.scalapb:scalapb-runtime-grpc_2.13:1.0.0-alpha.1",
+        "sha256": "75eb71fea9509308070812b8bcf1eec90c065be3e9d8c60b12098f206db6c581",
         "deps": [
             "@io_bazel_rules_scala_scala_library",
             "@org_scala_lang_modules_scala_collection_compat",
