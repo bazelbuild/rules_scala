@@ -1,7 +1,7 @@
 load(
     "//scala_proto:scala_proto_toolchain.bzl",
     "scala_proto_deps_toolchain",
-    "scala_proto_toolchain",
+    "scalapb_toolchain",
 )
 
 _default_gen_opts = [
@@ -36,12 +36,10 @@ def setup_scala_proto_toolchains(name, default_gen_opts = _default_gen_opts):
     toolchain_name = "%s_default_toolchain" % name
     toolchain_impl_name = "%s_default_toolchain_impl" % name
 
-    scala_proto_toolchain(
+    scalapb_toolchain(
         name = toolchain_impl_name,
+        opts = default_gen_opts,
         visibility = ["//visibility:public"],
-        generators_opts = {
-            "scala": default_gen_opts,
-        },
     )
 
     native.toolchain(

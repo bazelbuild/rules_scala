@@ -78,7 +78,7 @@ toolchain(
 | generators_opts                | `List of strings, optional`<br/>Additional protobuf options like 'grpc', 'flat_package' or 'scala3_sources'. |
 | blacklisted_protos            | `List of labels, optional`<br/>List of protobuf targets to exclude from recursive building. |
 | code_generator                | `Label, optional (has default)`<br/>Which code generator to use. A sensible default is provided. |
-| named_generators              | `String dict, optional` |
+| generators                    | `String dict, optional` |
 | extra_generator_dependencies  | `List of labels, optional` |
 | scalac                        | `Label, optional (has default)`<br/>Target for scalac. A sensible default is provided. |
 

@@ -27,7 +27,7 @@ def _worker_flags(ctx, generators, jars):
     return "--jvm_flags=" + " ".join(["-D%s=%s" % i for i in env.items()])
 
 def _scala_proto_toolchain_impl(ctx):
-    generators = ctx.attr.named_generators
+    generators = ctx.attr.generators
     generators_jars = _generators_jars(ctx)
     compile_dep_ids = ["scalapb_compile_deps"]
     toolchain = platform_common.ToolchainInfo(
@@ -57,18 +57,7 @@ scala_proto_toolchain = rule(
             default = Label("//src/scala/scripts:scalapb_worker"),
             allow_files = True,
         ),
-        # `scripts.ScalaPbCodeGenerator` and `_main_generator_dep` are currently
-        # necessary to support protoc-bridge < 0.9.8, specifically 0.7.14
-        # required by Scala 2.11. See #1647 and scalapb/ScalaPB#1771.
-        #
-        # If we drop 2.11 support, restore `scalapb.ScalaPbCodeGenerator` here,
-        # remove `_main_generator_dep`, and delete
-        # `//src/scala/scripts:scalapb_codegenerator_wrapper` and its files.
-        "named_generators": attr.string_dict(
-            default = {
-                "scala": "scripts.ScalaPbCodeGenerator",
-            },
-        ),
+        "generators": attr.string_dict(),
         "generators_opts": attr.string_list_dict(),
         "extra_generator_dependencies": attr.label_list(
             providers = [JavaInfo],
@@ -96,6 +85,13 @@ scala_proto_toolchain = rule(
             [proto rules documentation](https://docs.bazel.build/versions/master/be/protocol-buffer.html#proto_library)
             """,
         ),
+        # `scripts.ScalaPbCodeGenerator` and `_main_generator_dep` are currently
+        # necessary to support protoc-bridge < 0.9.8, specifically 0.7.14
+        # required by Scala 2.11. See #1647 and scalapb/ScalaPB#1771.
+        #
+        # If we drop 2.11 support, restore `scalapb.ScalaPbCodeGenerator` here,
+        # remove `_main_generator_dep`, and delete
+        # `//src/scala/scripts:scalapb_codegenerator_wrapper` and its files.
         "_main_generator_dep": attr.label(
             default = Label(
                 "//src/scala/scripts:scalapb_codegenerator_wrapper",
@@ -106,6 +102,24 @@ scala_proto_toolchain = rule(
         ),
     },
 )
+
+def scalapb_toolchain(name, opts = [], **kwargs):
+    """Setups default scala protobuf (scalapb) toolchain
+
+    Args:
+    name: A unique name for this target
+    opts: scalapb generator options like 'grpc' or 'flat_package'
+    """
+    scala_proto_toolchain(
+        name = name,
+        generators = {
+            "scala": "scripts.ScalaPbCodeGenerator",
+        },
+        generators_opts = {
+            "scala": opts
+        },
+        **kwargs,
+    )
 
 def _scala_proto_deps_toolchain(ctx):
     toolchain = platform_common.ToolchainInfo(
@@ -125,3 +139,4 @@ scala_proto_deps_toolchain = rule(
 )
 
 scala_proto_deps_providers = _scala_proto_deps_providers
+

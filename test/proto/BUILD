@@ -34,7 +34,7 @@ scala_proto_toolchain(
             "single_line_to_proto_string",
         ],
     },
-    named_generators = {
+    generators = {
         "scala": "scripts.ScalaPbCodeGenerator",
         "jvm_extra_protobuf_generator": "scalarules.test.extra_protobuf_generator.ExtraProtobufGenerator",
     },
