@@ -126,8 +126,8 @@ load("@rules_scala//:scala_config.bzl", "scala_config")
 #   scala_config(scala_version = "2.13.16")
 #
 # You may define your own custom toolchain using Maven artifact dependencies
-# configured by your `WORKSPACE` file, imported using external loader like
-# https://github.com/bazelbuild/rules_jvm_external.
+# configured by your `WORKSPACE` file, imported using an external loader like
+# https://github.com/bazelbuild/rules_jvm_external. See docs/scala_toolchain.md.
 scala_config()
 
 load(
@@ -264,19 +264,25 @@ maximum available at the time of writing.
 - For the actual versions used by `rules_scala`, see
     [scala/deps.bzl](scala/deps.bzl).
 
-- See [the configuration file][ci-config] for the exact Bazel versions verified
-    with the continuous-integration builds.
-
-[ci-config]: ./.bazelci/presubmit.yml
+- See [.bazelci/presubmit.yml](./.bazelci/presubmit.yml) for the exact Bazel
+    versions verified by the continuous integration builds.
 
 | Bazel/Dependency |  `rules_scala` 7.x |
 | :-: |  :-: |
-| Bazel versions using Bzlmod<br/>(Coming soon! See bazelbuild/rules_scala#1482.) | 7.5.0, 8.x,<br/>`rolling`, `last_green` |
-| Bazel versions using `WORKSPACE` | 6.5.0, 7.5.0, 8.x<br/>(see the [notes on 6.5.0 compatibility](#6.5.0)) |
-| `protobuf` |  v30.0 |
-| `abseil-cpp` | 20250127.0 |
-| `rules_java` | 8.10.0 |
+| Bazel versions using Bzlmod<br/>(Coming soon! See bazelbuild/rules_scala#1482.) | 7.6.0, 8.x,<br/>`rolling`, `last_green` |
+| Bazel versions using `WORKSPACE` | 6.5.0, 7.6.0, 8.x<br/>(see the [notes on 6.5.0 compatibility](#6.5.0)) |
+| `protobuf` |  v30.1 |
+| `rules_proto` | 7.1.0 |
+| `abseil-cpp` | 20250127.1 |
+| `rules_java` | 8.11.0 |
 | `ScalaPB` | 1.0.0-alpha.1 |
+
+The next major release will likely drop support for `protobuf` versions before
+v29 and remove `rules_proto` completely. This is to comply with the guidance in
+[Protobuf News: News Announcements for Version 29.x](
+https://protobuf.dev/news/v29/). For more details, see this [comment from #1710
+explaining why rules_proto remains for now](
+https://github.com/bazelbuild/rules_scala/pull/1710#issuecomment-2750001012).
 
 ## Usage with [bazel-deps](https://github.com/johnynek/bazel-deps)
 
@@ -682,7 +688,7 @@ Under Bzlmod, repos are only visible to the module extension that creates them,
 unless the `MODULE.bazel` file brings them into scope with
 [`use_repo()`](https://bazel.build/rules/lib/globals/module#use_repo). This can
 lead to errors like those from the following example, which [originally called
-`setup_scala_toolchain()` under Bzlmod](
+'setup_scala_toolchain()' under Bzlmod](
 https://github.com/michalbogacz/scala-bazel-monorepo/blob/17f0890a4345529e09b9ce83bcb2e3d15687c522/BUILD.bazel):
 
 ```py
@@ -756,7 +762,7 @@ bazelbuild/bazel#25198 describes how the semantics of some instances of
 `$(rootpath)` fixed them.
 
 The good news is that replacing such instances `$(location)` with `$(rootpath)`
-is backwards compatible to Bazel 6.5.0 and 7.5.0. Updating them now will ensure
+is backwards compatible to Bazel 6.5.0 and 7.6.0. Updating them now will ensure
 future compatibility.
 
 ### <a id="6.5.0"></a>Limited Bazel 6.5.0 compatibility
@@ -809,9 +815,51 @@ https://github.com/scalapb/ScalaPB/releases/tag/v1.0.0-alpha.1), we had to
 remove the Scala 2.11 test cases.
 
 Building `scala_proto` for Scala 2.11 requires [building with Bazel 6.5.0
-under `WORKSPACE`](#6.5.0), with the maximum dependency versions specified in
+under WORKSPACE](#6.5.0), with the maximum dependency versions specified in
 that section. While this may continue to work for some time, it is not
 officially supported.
+
+### Removal of `bind()` aliases for `twitter_scrooge` dependencies
+
+`rules_scala` 7.x removes all of the obsolete [`bind()`][] aliases under
+`//external:io_bazel_rules_scala/dependency/` created for `twitter_scrooge`
+toolchain dependencies. If your project happens to depend on these aliases, you
+can replace them with the following repository references:
+
+| `bind()` alias under `//external:io_bazel_rules_scala/dependency/` | Repository reference |
+| :-- | :-- |
+| `scala/guava` | `@io_bazel_rules_scala_guava` |
+| `thrift/javax_annotation_api` | `@io_bazel_rules_scala_javax_annotation_api` |
+| `thrift/libthrift` | `@libthrift` |
+| `thrift/mustache` | `@io_bazel_rules_scala_mustache` |
+| `thrift/scopt` | `@io_bazel_rules_scala_scopt` |
+| `thrift/scrooge_core` | `@io_bazel_rules_scala_scrooge_core` |
+| `thrift/scrooge_generator` | `@io_bazel_rules_scala_scrooge_generator` |
+| `thrift/util_core` | `@io_bazel_rules_scala_util_core` |
+| `thrift/util_logging` | `@io_bazel_rules_scala_util_logging` |
+
+[`bind()`]: https://bazel.build/reference/be/workspace#bind
+
+To access these repositories under Bzlmod, you'll need to add the following to
+your `MODULE.bazel` file:
+
+```py
+scala_deps.toolchains(
+    twitter_scrooge = True,
+)
+use_repo(
+    scala_deps,
+    "io_bazel_rules_scala_guava",
+    "io_bazel_rules_scala_javax_annotation_api",
+    "io_bazel_rules_scala_mustache",
+    "io_bazel_rules_scala_scopt",
+    "io_bazel_rules_scala_scrooge_core",
+    "io_bazel_rules_scala_scrooge_generator",
+    "io_bazel_rules_scala_util_core",
+    "io_bazel_rules_scala_util_logging",
+    "libthrift",
+)
+```
 
 ### Bazel module compatibility levels
 
