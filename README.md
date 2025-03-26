@@ -828,6 +828,10 @@ that can be used for further plugin options setup:
 ```
 scala_proto_toolchain(
     name = "example",
+    generators = {
+        "scala": "scripts.ScalaPbCodeGenerator",
+        "jvm_extra_protobuf_generator": "scalarules.test.extra_protobuf_generator.ExtraProtobufGenerator",
+    },
     generators_opts = {
         "scala": [
             "grpc",
@@ -837,10 +841,6 @@ scala_proto_toolchain(
             "grpc",
             "single_line_to_proto_string",
         ],
-    },
-    generators = {
-        "scala": "scripts.ScalaPbCodeGenerator",
-        "jvm_extra_protobuf_generator": "scalarules.test.extra_protobuf_generator.ExtraProtobufGenerator",
     },
 )
 ```
