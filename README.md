@@ -819,6 +819,35 @@ under WORKSPACE](#6.5.0), with the maximum dependency versions specified in
 that section. While this may continue to work for some time, it is not
 officially supported.
 
+### `scala_proto_toolchain` changes
+
+Since #1718 `scala_proto_toolchain`'s `main_generator` was removed in flavor of more
+flexible protobuf plugins configuration. Now each generator (plugin) will get a corresponding name
+that can be used for further plugin options setup:
+
+```
+scala_proto_toolchain(
+    name = "example",
+    generators_opts = {
+        "scala": [
+            "grpc",
+            "single_line_to_proto_string",
+        ],
+        "jvm_extra_protobuf_generator": [
+            "grpc",
+            "single_line_to_proto_string",
+        ],
+    },
+    generators = {
+        "scala": "scripts.ScalaPbCodeGenerator",
+        "jvm_extra_protobuf_generator": "scalarules.test.extra_protobuf_generator.ExtraProtobufGenerator",
+    },
+)
+```
+
+Also, `scalapb_grpc_deps` was removed since this changes moves the responsibility
+on the user side to configure dependencies based on the provided generators and their options.
+
 ### Removal of `bind()` aliases for `twitter_scrooge` dependencies
 
 `rules_scala` 7.x removes all of the obsolete [`bind()`][] aliases under
