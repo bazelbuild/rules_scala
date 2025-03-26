@@ -494,7 +494,7 @@ with the following `scala_toolchains()` parameters:
 ```py
 scala_toolchains(
     scala_proto = True,
-    scala_proto_enable_all_options = True,
+    scala_proto_options = [],
 )
 ```
 
@@ -818,6 +818,60 @@ Building `scala_proto` for Scala 2.11 requires [building with Bazel 6.5.0
 under WORKSPACE](#6.5.0), with the maximum dependency versions specified in
 that section. While this may continue to work for some time, it is not
 officially supported.
+
+### `scala_proto_toolchain` changes and new `scalapb_toolchain` macro
+
+`scala_proto_toolchain` has a more flexible plugin configuration schema. The
+new `generators` and `generators_opts` attributes replace the following
+attributes:
+
+- `with_grpc`
+- `with_flat_package`
+- `with_single_line_to_string`
+- `main_generator`
+- `named_generators`
+
+Now each generator (plugin) will get a corresponding name
+that can be used for further plugin options setup:
+
+```py
+scala_proto_toolchain(
+    name = "example",
+    generators = {
+        "scala": "scripts.ScalaPbCodeGenerator",
+        "jvm_extra_protobuf_generator": "scalarules.test.extra_protobuf_generator.ExtraProtobufGenerator",
+    },
+    generators_opts = {
+        "scala": [
+            "grpc",
+            "single_line_to_proto_string",
+        ],
+        "jvm_extra_protobuf_generator": [
+            "grpc",
+            "single_line_to_proto_string",
+        ],
+    },
+)
+```
+
+`scalapb_grpc_deps` no longer exists since it's now the user's responsibility
+to configure dependencies based on the provided generators and their options.
+
+The new `scalapb_toolchain` convenience macro wraps `scala_proto_toolchain`
+to provide the default [ScalaPB](https://scalapb.github.io/) implementation:
+
+```py
+load("//scala_proto:scala_proto_toolchain.bzl", "scalapb_toolchain")
+
+scalapb_toolchain(
+    name = "my_toolchain",
+    opts = [
+        "grpc",
+        "single_line_to_proto_string",
+    ],
+    visibility = ["//visibility:public"],
+)
+```
 
 ### Removal of `bind()` aliases for `twitter_scrooge` dependencies
 

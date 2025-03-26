@@ -65,6 +65,7 @@ load(
 scala_toolchains(
     fetch_sources = True,
     scala_proto = True,
+    scala_proto_options = ["grpc"],
     scalatest = True,
     specs2 = True,
 )

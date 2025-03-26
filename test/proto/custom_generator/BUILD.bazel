@@ -62,7 +62,9 @@ toolchain(
 
 scala_proto_toolchain(
     name = "scala_proto_toolchain_def",
-    main_generator = "test.proto.custom_generator.DummyGenerator",
+    generators = {
+        "scala": "test.proto.custom_generator.DummyGenerator",
+    },
 )
 
 toolchain(
@@ -100,7 +102,9 @@ toolchain(
 
 scala_proto_toolchain(
     name = "failing_scala_proto_toolchain_def",
-    main_generator = "test.proto.custom_generator.FailingGenerator",
+    generators = {
+        "scala": "test.proto.custom_generator.FailingGenerator",
+    },
 )
 
 toolchain(
