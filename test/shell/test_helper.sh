@@ -142,3 +142,21 @@ jar_contains_files() {
     fi
   done
 }
+
+_print_error_msg() {
+  printf '%b' "$RED"
+  printf '%b\n' "$@"
+  printf '%b' "$NC"
+}
+
+assert_matches() {
+  local expected="$1"
+  local actual="$2"
+
+  if [[ ! "$actual" =~ $expected ]]; then
+    _print_error_msg "Value did not match regular expression" \
+      "Expected: \"$expected\"" \
+      "Actual:   \"$actual\""
+    return 1
+  fi
+}

@@ -1,0 +1,19 @@
+"""Used by test/shell/test_bzlmod_helpers.sh to test bzlmod.bzl.
+
+Used by `test_bzlmod_creates_fake_root_module_tags_when_unused_by_root_module`
+to test `root_module_tags` when the extension isn't imported by the root module.
+"""
+
+module(name = "test_root_module", version = "0.0.0")
+
+bazel_dep(name = "rules_scala")
+local_path_override(
+    module_name = "rules_scala",
+    path = "${rules_scala_dir}"
+)
+
+bazel_dep(name = "test_module")
+local_path_override(
+    module_name = "test_module",
+    path = "${test_module_dir}"
+)
