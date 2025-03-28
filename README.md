@@ -146,8 +146,8 @@ single_version_override(
 ### Legacy `WORKSPACE` configuration
 
 `rules_scala` 7.x enables existing users to migrate to Bzlmod. `WORKSPACE`
-continues to work for Bazel [6.5.0 (for now)](#6.5.0), 7.6.0, and 8, but
-[__`WORKSPACE` is going away in Bazel 9__][bazel-9].
+continues to work for Bazel [6.5.0 (for now)](#6.5.0), 7.6.1, and 8, but
+[__WORKSPACE is going away in Bazel 9__][bazel-9].
 
 [bazel-9]: https://bazel.build/external/migration
 
@@ -1242,7 +1242,7 @@ bazelbuild/bazel#25198 describes how the semantics of some instances of
 `$(rootpath)` fixed them.
 
 The good news is that replacing such instances `$(location)` with `$(rootpath)`
-is backwards compatible to Bazel 6.5.0 and 7.6.0. Updating them now will ensure
+is backwards compatible to Bazel 6.5.0 and 7.6.1. Updating them now will ensure
 future compatibility.
 
 ### <a id="6.5.0"></a>Limited Bazel 6.5.0 compatibility
