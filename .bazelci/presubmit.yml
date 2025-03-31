@@ -29,17 +29,15 @@ tasks:
     # Install xmllint
     - sudo apt update && sudo apt install --reinstall libxml2-utils -y
     - "./test_rules_scala.sh"
-  # Switch `last_rc` to `last_green` once Bzlmod lands.
-  # https://github.com/bazelbuild/rules_scala/issues/1482
-  test_rules_scala_linux_last_rc:
-    name: "./test_rules_scala (last_rc Bazel)"
+  test_rules_scala_linux_last_green:
+    name: "./test_rules_scala (last_green Bazel)"
     platform: ubuntu2004
-    bazel: last_rc
+    bazel: last_green
     shell_commands:
     # Install xmllint
     - sudo apt update && sudo apt install --reinstall libxml2-utils -y
     - echo "build --enable_workspace" >> .bazelrc
-    - "./test_rules_scala.sh || buildkite-agent annotate --style 'warning' \"Optional build with last_rc Bazel version failed, [see here](${BUILDKITE_BUILD_URL}#${BUILDKITE_JOB_ID}) (It is not mandatory but worth checking)\""
+    - "./test_rules_scala.sh || buildkite-agent annotate --style 'warning' \"Optional build with last_green Bazel version failed, [see here](${BUILDKITE_BUILD_URL}#${BUILDKITE_JOB_ID}) (It is not mandatory but worth checking)\""
   test_rules_scala_macos:
     name: "./test_rules_scala"
     platform: macos
@@ -104,10 +102,10 @@ tasks:
     shell_commands:
       - "./test_cross_build.sh"
   lint_linux:
-    name: "bazel //tools:lint_check"
+    name: "./test_lint.sh"
     platform: ubuntu2004
-    run_targets:
-    -  "//tools:lint_check"
+    shell_commands:
+    -  "./test_lint.sh"
   test_rules_scala_jdk21:
     name: "./test_rules_scala with jdk21"
     platform: ubuntu2004

@@ -100,7 +100,7 @@ _scala_toolchains_repo = repository_rule(
         "scala_proto_options": attr.string_list(
             doc = (
                 "Protobuf generator options; " +
-                "scala_proto must also be True for this to take effect"
+                "`scala_proto` must also be `True` for this to take effect"
             ),
         ),
         "jmh": attr.bool(

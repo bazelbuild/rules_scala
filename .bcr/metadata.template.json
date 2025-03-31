@@ -1,0 +1,20 @@
+{
+  "homepage": "https://github.com/bazelbuild/rules_scala",
+  "maintainers": [
+    {
+      "name": "Simonas Pinevičius",
+      "email": "simonas.pinevicius@gmail.com",
+      "github": "simuons"
+    },
+    {
+      "name": "Vaidas Pilkauskas",
+      "email": "vaidas.pilkauskas@gmail.com",
+      "github": "liucijus"
+    }
+  ],
+  "repository": [
+    "github:bazelbuild/rules_scala"
+  ],
+  "versions": [],
+  "yanked_versions": {}
+}
