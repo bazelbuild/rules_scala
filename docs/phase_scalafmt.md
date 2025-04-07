@@ -12,9 +12,21 @@ A phase extension `phase_scalafmt` can format Scala source code via [Scalafmt](h
 
 ## How to set up
 
-Add this snippet to `WORKSPACE`
+Add this snippet to `MODULE.bazel`:
 
 ```py
+# MODULE.bazel
+scala_deps = use_extension(
+    "@rules_scala//scala/extensions:deps.bzl",
+    "scala_deps",
+)
+scala_deps.scalafmt()
+```
+
+or to `WORKSPACE`:
+
+```py
+# WORKSPACE
 load(
     "@rules_scala//scala:toolchains.bzl",
     "scala_register_toolchains",
@@ -59,16 +71,23 @@ bazel run <TARGET>.format-test
 
 to check the format (without modifying source code).
 
-The extension provides default configuration, but there are 2 ways to use custom configuration
+The extension provides a default configuration, but there are 2 ways to use
+a custom configuration:
 
 - Put `.scalafmt.conf` at the root of your workspace
 - Pass `.scalafmt.conf` in via `scala_toolchains`:
 
     ```py
+    # MODULE.bazel
+    scala_deps.scalafmt(
+        default_config = "//path/to/my/custom:scalafmt.conf",
+    )
+
+    # WORKSPACE
     scala_toolchains(
         # Other toolchains settings...
         scalafmt = True,
-        scalafmt_default_config_path = "//path/to/my/custom:scalafmt.conf",
+        scalafmt_default_config = "//path/to/my/custom:scalafmt.conf",
     )
     ```
 

@@ -90,16 +90,13 @@ _compiler_srcjar_attrs = {
 }
 
 _scalafmt_defaults = {
-    "default_config_path": ".scalafmt.conf",
+    "default_config": "//:.scalafmt.conf",
 }
 
 _scalafmt_attrs = {
-    "default_config_path": attr.string(
-        default = _scalafmt_defaults["default_config_path"],
-        doc = (
-            "The relative path to the default Scalafmt config file " +
-            "within the repository"
-        ),
+    "default_config": attr.label(
+        default = _scalafmt_defaults["default_config"],
+        doc = "The default config file for Scalafmt targets",
     ),
 }
 

@@ -1,25 +1,6 @@
 load("//scala:scala_cross_version.bzl", "extract_major_version")
 load("//scala_proto/default:repositories.bzl", "SCALAPB_COMPILE_ARTIFACT_IDS")
 
-def _scalafmt_config_impl(repository_ctx):
-    config_path = repository_ctx.attr.path
-    build = []
-    build.append("filegroup(")
-    build.append("    name = \"config\",")
-    build.append("    srcs = [\"{}\"],".format(config_path.name))
-    build.append("    visibility = [\"//visibility:public\"],")
-    build.append(")\n")
-
-    repository_ctx.file("BUILD", "\n".join(build), executable = False)
-    repository_ctx.symlink(repository_ctx.path(config_path), config_path.name)
-
-scalafmt_config = repository_rule(
-    implementation = _scalafmt_config_impl,
-    attrs = {
-        "path": attr.label(mandatory = True, allow_single_file = True),
-    },
-)
-
 _SCALAFMT_DEPS = [
     "com_lihaoyi_fansi",
     "com_typesafe_config",

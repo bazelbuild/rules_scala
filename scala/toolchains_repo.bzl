@@ -47,6 +47,7 @@ def _scala_toolchains_repo_impl(repository_ctx):
     format_args = {
         "rules_scala_repo": Label("//:all").repo_name,
         "proto_options": repo_attr.scala_proto_options,
+        "scalafmt_default_config": repo_attr.scalafmt_default_config,
     }
     toolchains = {}
 
@@ -94,6 +95,10 @@ _scala_toolchains_repo = repository_rule(
         "junit": attr.bool(doc = "Instantiate the JUnit toolchain"),
         "specs2": attr.bool(doc = "Instantiate the Specs2 toolchain"),
         "scalafmt": attr.bool(doc = "Instantiate the Scalafmt toolchain"),
+        "scalafmt_default_config": attr.label(
+            doc = "Default Scalafmt config file",
+            allow_single_file = True,
+        ),
         "scala_proto": attr.bool(
             doc = "Instantiate the scala_proto toolchain",
         ),
@@ -197,6 +202,12 @@ _SCALAFMT_TOOLCHAIN_BUILD = """
 load(
     "@@{rules_scala_repo}//scala/scalafmt/toolchain:setup_scalafmt_toolchain.bzl",
     "setup_scalafmt_toolchains",
+)
+
+alias(
+    name = "config",
+    actual = "{scalafmt_default_config}",
+    visibility = ["//visibility:public"],
 )
 
 setup_scalafmt_toolchains()
