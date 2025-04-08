@@ -8,6 +8,12 @@ local_path_override(
     path = "../..",
 )
 
+bazel_dep(name = "latest_dependencies")
+local_path_override(
+    module_name = "latest_dependencies",
+    path = "../../deps/latest",
+)
+
 scala_config = use_extension(
     "@rules_scala//scala/extensions:config.bzl",
     "scala_config",
@@ -49,12 +55,12 @@ register_toolchains(
 # protocolbuffers/protobuf#19679.
 bazel_dep(
     name = "protobuf",
-    version = "30.1",
+    version = "30.2",
     repo_name = "com_google_protobuf",
 )
 single_version_override(
     module_name = "protobuf",
     patch_strip = 1,
     patches = ["//:protobuf.patch"],
-    version = "30.1",
+    version = "30.2",
 )

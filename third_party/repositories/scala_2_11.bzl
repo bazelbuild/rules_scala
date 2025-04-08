@@ -67,8 +67,8 @@ artifacts = {
         "sha256": "88241573467ddca44ffd4d74aa04c2bbfd11bf7c17e0c342c94c9de7a70a7c64",
     },
     "com_google_protobuf_protobuf_java": {
-        "artifact": "com.google.protobuf:protobuf-java:4.30.1",
-        "sha256": "ff666fc33646eb2b609259b7928fc675782e401ee6e39ef3ae4581e06f642a15",
+        "artifact": "com.google.protobuf:protobuf-java:4.30.2",
+        "sha256": "0f3a4e9264db07cec429f2a68a66030e9b7487277b76863cdd0e9238cece249b",
     },
     "com_lihaoyi_fansi": {
         "artifact": "com.lihaoyi:fansi_2.11:0.2.6",

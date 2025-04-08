@@ -3,7 +3,7 @@
 module(
     name = "rules_scala",
     version = "7.0.0",
-    bazel_compatibility = [">=7.5.0"],
+    bazel_compatibility = [">=7.1.0"],
     compatibility_level = 7,
 )
 
@@ -26,15 +26,33 @@ SCALA_3_VERSIONS = [
 
 SCALA_VERSIONS = SCALA_2_VERSIONS + SCALA_3_VERSIONS
 
-bazel_dep(name = "bazel_skylib", version = "1.7.1")
-bazel_dep(name = "platforms", version = "0.0.11")
-bazel_dep(name = "rules_cc", version = "0.1.1")
-bazel_dep(name = "abseil-cpp", version = "20250127.1")
-bazel_dep(name = "rules_java", version = "8.11.0")
-bazel_dep(name = "rules_proto", version = "7.1.0")
+bazel_dep(name = "bazel_skylib", version = "1.6.0")
+single_version_override(
+    module_name = "bazel_skylib",
+    version = "1.7.1",
+)
+
+bazel_dep(name = "platforms", version = "0.0.9")
+single_version_override(
+    module_name = "platforms",
+    version = "0.0.11",
+)
+
+bazel_dep(name = "rules_java", version = "7.6.0")
+single_version_override(
+    module_name = "rules_java",
+    version = "8.11.0",
+)
+
+bazel_dep(name = "rules_proto", version = "6.0.0")
+single_version_override(
+    module_name = "rules_proto",
+    version = "7.1.0",
+)
+
 bazel_dep(
     name = "protobuf",
-    version = "30.1",
+    version = "28.2",
     repo_name = "com_google_protobuf",
 )
 
@@ -44,7 +62,7 @@ single_version_override(
     module_name = "protobuf",
     patch_strip = 1,
     patches = ["//protoc:0001-protobuf-19679-rm-protoc-dep.patch"],
-    version = "30.1",
+    version = "30.2",
 )
 
 scala_protoc = use_extension(
