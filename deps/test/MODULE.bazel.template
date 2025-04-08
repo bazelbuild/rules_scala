@@ -1,0 +1,71 @@
+"""Bazel module template for test/shell/test_deps_versions.sh tests."""
+
+module(
+    name = "rules_scala_deps_versions_test",
+    bazel_compatibility = [">=${bazelversion}"],
+)
+
+bazel_dep(name = "rules_scala")
+local_path_override(
+    module_name = "rules_scala",
+    path = "../..",
+)
+
+bazel_dep(name = "bazel_skylib")
+single_version_override(
+    module_name = "bazel_skylib",
+    version = "${skylib_version}",
+)
+
+bazel_dep(name = "platforms")
+single_version_override(
+    module_name = "platforms",
+    version = "${platforms_version}",
+)
+
+bazel_dep(name = "rules_java")
+single_version_override(
+    module_name = "rules_java",
+    version = "${rules_java_version}",
+)
+
+bazel_dep(name = "rules_proto")
+single_version_override(
+    module_name = "rules_proto",
+    version = "${rules_proto_version}",
+)
+
+# Requires the patch for `protoc` toolchainization until resolution of
+# protocolbuffers/protobuf#19679.
+bazel_dep(name = "protobuf")
+single_version_override(
+    module_name = "protobuf",
+    patch_strip = 1,
+    patches = ["//:protobuf.patch"],
+    version = "${protobuf_version}",
+)
+
+scala_protoc = use_extension(
+    "@rules_scala//scala/extensions:protoc.bzl",
+    "scala_protoc",
+    dev_dependency = True,
+)
+use_repo(scala_protoc, "rules_scala_protoc_toolchains")
+
+register_toolchains(
+    "@rules_scala_protoc_toolchains//...:all",
+    dev_dependency = True,
+)
+
+scala_deps = use_extension(
+    "@rules_scala//scala/extensions:deps.bzl",
+    "scala_deps",
+)
+scala_deps.scala()
+scala_deps.jmh()
+scala_deps.junit()
+scala_deps.scala_proto()
+scala_deps.scalafmt()
+scala_deps.scalatest()
+scala_deps.specs2()
+scala_deps.twitter_scrooge()

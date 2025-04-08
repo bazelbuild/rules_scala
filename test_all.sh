@@ -6,6 +6,7 @@ dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 "${dir}"/test_lint.sh
 "${dir}"/test_rules_scala.sh
 "${dir}"/test_version.sh
+"${dir}"/test_dependency_versions.sh
 "${dir}"/test_cross_build.sh
 "${dir}"/test_reproducibility.sh
 #"${dir}"/test_intellij_aspect.sh

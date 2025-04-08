@@ -9,7 +9,6 @@ test_source="${dir}/test/shell/${BASH_SOURCE[0]#*test/shell/}"
 # shellcheck source=./test_runner.sh
 . "${dir}"/test/shell/test_runner.sh
 . "${dir}"/test/shell/test_helper.sh
-runner=$(get_test_runner "${1:-local}")
 export USE_BAZEL_VERSION=${USE_BAZEL_VERSION:-$(cat $dir/.bazelversion)}
 
 # Setup and teardown
@@ -23,14 +22,11 @@ setup_suite() {
   fi
 
   original_dir="$PWD"
-  test_tmpdir="${dir}/tmp/${BASH_SOURCE[0]##*/}"
-  test_tmpdir="${test_tmpdir%.*}"
+  setup_test_tmpdir_for_file "$original_dir" "$test_source"
+  test_tmpdir="$PWD"
+
+  rules_scala_dir="$(relative_path_to_parent "$original_dir" "$test_tmpdir")"
   test_srcs_dir="${dir}/scala/private/macros/test"
-
-  mkdir -p "$test_tmpdir"
-  cd "$test_tmpdir"
-
-  rules_scala_dir="../.."
   test_tmpdir_base="${test_tmpdir##*/}"
   test_module_bazel_regex="[^ ]+${test_tmpdir_base}/MODULE.bazel"
 
@@ -44,10 +40,7 @@ setup_suite() {
 }
 
 teardown_suite() {
-    # Make sure bazel isn't still running for this workspace.
-    bazel clean --expunge_async 2>/dev/null
-    cd "$original_dir"
-    rm -rf "$test_tmpdir"
+    teardown_test_tmpdir "$original_dir" "$test_tmpdir"
 }
 
 setup_test_module() {
@@ -223,22 +216,6 @@ test_bzlmod_repeated_tag_values_fails_on_duplicate_key() {
     "${bazel_run_args[@]}" "$print_repeated_test_tag_values_target"
 }
 
-# Run tests
-# To skip a test, add a `_` prefix to its function name.
-# To run a specific test, set the `RULES_SCALA_TEST_ONLY` env var to its name.
-
 setup_suite
-
-while IFS= read -r line; do
-  if [[ "$line" =~ ^_?(test_[A-Za-z0-9_]+)\(\)\ ?\{$ ]]; then
-    test_name="${BASH_REMATCH[1]}"
-
-    if [[ "${line:0:1}" == '_' ]]; then
-      echo -e "${YELLOW}skipping ${test_name}${NC}"
-    else
-      "$runner" "$test_name"
-    fi
-  fi
-done <"$test_source"
-
+run_tests "$test_source" "$(get_test_runner "${1:-local}")"
 teardown_suite

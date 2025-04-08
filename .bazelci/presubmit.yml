@@ -45,7 +45,7 @@ tasks:
   test_rules_scala_win:
     name: "./test_rules_scala"
     platform: windows
-    environment:      
+    environment:
       MSYS2_ARG_CONV_EXCL: "*"
     batch_commands:
     - "set PATH=/usr/bin;%PATH%" #Make sure bash uses msys commands over windows commands. (i.e. find).
@@ -74,7 +74,7 @@ tasks:
     shell_commands:
     - "./test_reproducibility.sh"
   versions_linux:
-    name: "./test_version.sh"      
+    name: "./test_version.sh"
     platform: ubuntu2004
     shell_commands:
     - "./test_version.sh"
@@ -84,7 +84,7 @@ tasks:
     shell_commands:
     - "./test_version.sh"
   thirdparty_version_linux:
-    name: "./test_thirdparty_version.sh"      
+    name: "./test_thirdparty_version.sh"
     platform: ubuntu2204_java17
     shell_commands:
     - "./test_thirdparty_version.sh"
@@ -117,3 +117,18 @@ tasks:
       - echo "build --tool_java_language_version=21" >> .bazelrc
       - echo "build --tool_java_runtime_version=21" >> .bazelrc
       - "./test_rules_scala.sh"
+  dependency_versions_linux:
+    name: "./test_dependency_versions"
+    platform: ubuntu2004
+    shell_commands:
+    - "./test_dependency_versions.sh"
+  dependency_versions_macos:
+    name: "./test_dependency_versions"
+    platform: macos
+    shell_commands:
+    - "./test_dependency_versions.sh"
+  dependency_versions_windows:
+    name: "./test_dependency_versions"
+    platform: windows
+    shell_commands:
+    - "./test_dependency_versions.sh"
