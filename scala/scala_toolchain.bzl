@@ -160,7 +160,7 @@ _scala_toolchain = rule(
             doc = "Enable the output of structured diagnostics through the BEP",
         ),
         "jacocorunner": attr.label(
-            default = Label("@bazel_tools//tools/jdk:JacocoCoverage"),
+            default = "@bazel_tools//tools/jdk:JacocoCoverage",
         ),
         "enable_stats_file": attr.bool(
             default = True,
@@ -176,7 +176,7 @@ _scala_toolchain = rule(
             doc = "Changes java binaries scripts (including tests) to use argument files and not classpath jars to improve performance, requires java > 8",
         ),
         "_scala_version": attr.label(
-            default = Label("@rules_scala_config//:scala_version"),
+            default = "@rules_scala_config//:scala_version",
         ),
     },
     fragments = ["java"],

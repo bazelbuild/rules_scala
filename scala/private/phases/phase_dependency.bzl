@@ -35,7 +35,7 @@ def _phase_dependency(
         p,
         unused_deps_always_off,
         strict_deps_always_off):
-    toolchain = ctx.toolchains[Label("//scala:toolchain_type")]
+    toolchain = ctx.toolchains["//scala:toolchain_type"]
 
     target_label = str(ctx.label)
 
@@ -81,7 +81,7 @@ def _get_unused_deps_mode(ctx):
     if ctx.attr.unused_dependency_checker_mode:
         return ctx.attr.unused_dependency_checker_mode
     else:
-        return ctx.toolchains[Label("//scala:toolchain_type")].unused_dependency_checker_mode
+        return ctx.toolchains["//scala:toolchain_type"].unused_dependency_checker_mode
 
 def _is_target_included(target, includes, excludes):
     for exclude in excludes:

@@ -9,7 +9,7 @@ def phase_semanticdb(ctx, p):
 
     #Scala3: Semanticdb is built into scalac. Currently, if semanticdb-target is used, the semanticdb files are written and not bundled, otherwise, the semanticdb files are not written as files and only available inside the jar.
 
-    toolchain_type_label = Label("//scala:toolchain_type")
+    toolchain_type_label = "//scala:toolchain_type"
     toolchain = ctx.toolchains[toolchain_type_label]
 
     if toolchain.enable_semanticdb == True:

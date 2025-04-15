@@ -84,7 +84,7 @@ def make_scala_repl(*extras):
             *[extra["outputs"] for extra in extras if "outputs" in extra]
         ),
         toolchains = [
-            Label("//scala:toolchain_type"),
+            "//scala:toolchain_type",
             "@bazel_tools//tools/jdk:toolchain_type",
         ],
         cfg = scala_version_transition,

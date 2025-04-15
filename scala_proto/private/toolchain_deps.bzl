@@ -3,7 +3,7 @@ load(
     "expose_toolchain_deps",
 )
 
-_DEPS_TOOLCHAIN_TYPE = Label("//scala_proto:deps_toolchain_type")
+_DEPS_TOOLCHAIN_TYPE = "//scala_proto:deps_toolchain_type"
 
 def _export_scalapb_toolchain_deps(ctx):
     return expose_toolchain_deps(ctx, _DEPS_TOOLCHAIN_TYPE)

@@ -172,7 +172,7 @@ thrift_library = rule(
         "_zipper": attr.label(
             executable = True,
             cfg = "exec",
-            default = Label("@bazel_tools//tools/zip:zipper"),
+            default = "@bazel_tools//tools/zip:zipper",
             allow_files = True,
         ),
     },

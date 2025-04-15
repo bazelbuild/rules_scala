@@ -3,7 +3,7 @@ load(
     "expose_toolchain_deps",
 )
 
-_TOOLCHAIN_TYPE = Label("//scala:toolchain_type")
+_TOOLCHAIN_TYPE = "//scala:toolchain_type"
 
 def _common_toolchain_deps(ctx):
     return expose_toolchain_deps(ctx, _TOOLCHAIN_TYPE)

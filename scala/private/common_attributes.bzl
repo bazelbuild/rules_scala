@@ -29,7 +29,7 @@ common_attrs_for_plugin_bootstrapping = {
     "resource_strip_prefix": attr.string(),
     "resource_jars": attr.label_list(allow_files = True),
     "java_compile_toolchain": attr.label(
-        default = Label("@rules_java//toolchains:current_java_toolchain"),
+        default = "@rules_java//toolchains:current_java_toolchain",
         providers = [java_common.JavaToolchainInfo],
     ),
     "scalacopts": attr.string_list(),
@@ -56,8 +56,8 @@ common_attrs.update(common_attrs_for_plugin_bootstrapping)
 
 common_attrs.update({
     "_dependency_analyzer_plugin": attr.label(
-        default = Label(
-            "//third_party/dependency_analyzer/src/main:dependency_analyzer",
+        default = (
+            "//third_party/dependency_analyzer/src/main:dependency_analyzer"
         ),
         allow_files = [".jar"],
         mandatory = False,
@@ -73,9 +73,7 @@ common_attrs.update({
     ),
     "unused_dependency_checker_ignored_targets": attr.label_list(default = []),
     "_code_coverage_instrumentation_worker": attr.label(
-        default = Label(
-            "//src/java/io/bazel/rulesscala/coverage/instrumenter",
-        ),
+        default = "//src/java/io/bazel/rulesscala/coverage/instrumenter",
         allow_files = True,
         executable = True,
         cfg = "exec",
@@ -84,27 +82,27 @@ common_attrs.update({
 
 implicit_deps = {
     "_java_runtime": attr.label(
-        default = Label("@rules_java//toolchains:current_java_runtime"),
+        default = "@rules_java//toolchains:current_java_runtime",
     ),
     "_java_host_runtime": attr.label(
-        default = Label("@rules_java//toolchains:current_host_java_runtime"),
+        default = "@rules_java//toolchains:current_host_java_runtime",
     ),
     "_scalac": attr.label(
         executable = True,
         cfg = "exec",
-        default = Label("//src/java/io/bazel/rulesscala/scalac"),
+        default = "//src/java/io/bazel/rulesscala/scalac",
         allow_files = True,
     ),
     "_exe": attr.label(
         executable = True,
         cfg = "exec",
-        default = Label("//src/java/io/bazel/rulesscala/exe:exe"),
+        default = "//src/java/io/bazel/rulesscala/exe:exe",
     ),
 }
 
 launcher_template = {
     "_java_stub_template": attr.label(
-        default = Label("//java_stub_template/file"),
+        default = "//java_stub_template/file",
     ),
 }
 
@@ -112,7 +110,7 @@ launcher_template = {
 resolve_deps = {
     "_scala_toolchain": attr.label_list(
         default = [
-            Label("//scala/private/toolchain_deps:scala_library_classpath"),
+            "//scala/private/toolchain_deps:scala_library_classpath",
         ],
         allow_files = False,
     ),

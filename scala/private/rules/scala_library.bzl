@@ -105,7 +105,7 @@ def make_scala_library(*extras):
             *[extra["outputs"] for extra in extras if "outputs" in extra]
         ),
         toolchains = [
-            Label("//scala:toolchain_type"),
+            "//scala:toolchain_type",
             "@bazel_tools//tools/jdk:toolchain_type",
         ],
         cfg = scala_version_transition,
@@ -179,9 +179,7 @@ _scala_library_for_plugin_bootstrapping_attrs.update({
     "_scalac": attr.label(
         executable = True,
         cfg = "exec",
-        default = Label(
-            "//src/java/io/bazel/rulesscala/scalac:scalac_bootstrap",
-        ),
+        default = "//src/java/io/bazel/rulesscala/scalac:scalac_bootstrap",
         allow_files = True,
     ),
 })
@@ -209,7 +207,7 @@ def make_scala_library_for_plugin_bootstrapping(*extras):
             *[extra["outputs"] for extra in extras if "outputs" in extra]
         ),
         toolchains = [
-            Label("//scala:toolchain_type"),
+            "//scala:toolchain_type",
             "@bazel_tools//tools/jdk:toolchain_type",
         ],
         cfg = scala_version_transition,
@@ -285,7 +283,7 @@ def make_scala_macro_library(*extras):
             *[extra["outputs"] for extra in extras if "outputs" in extra]
         ),
         toolchains = [
-            Label("//scala:toolchain_type"),
+            "//scala:toolchain_type",
             "@bazel_tools//tools/jdk:toolchain_type",
         ],
         cfg = scala_version_transition,

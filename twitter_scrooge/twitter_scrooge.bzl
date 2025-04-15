@@ -161,7 +161,7 @@ def _compile_generated_scala(
         print_compile_time = False,
         expect_java_output = False,
         scalac_jvm_flags = [],
-        scalacopts = ctx.toolchains[Label("//scala:toolchain_type")].scalacopts,
+        scalacopts = ctx.toolchains["//scala:toolchain_type"].scalacopts,
         scalac = ctx.executable._scalac,
         dependency_info = legacy_unclear_dependency_info_for_protobuf_scrooge(ctx),
         unused_dependency_checker_ignored_targets = [],
@@ -303,15 +303,15 @@ common_attrs = {
     "_pluck_scrooge_scala": attr.label(
         executable = True,
         cfg = "exec",
-        default = Label("//src/scala/scripts:scrooge_worker"),
+        default = "//src/scala/scripts:scrooge_worker",
         allow_files = True,
     ),
     "_implicit_compile_deps": attr.label_list(
         providers = [JavaInfo],
-        default = [Label("//twitter_scrooge:aspect_compile_classpath")],
+        default = ["//twitter_scrooge:aspect_compile_classpath"],
     ),
     "_java_host_runtime": attr.label(
-        default = Label("@rules_java//toolchains:current_host_java_runtime"),
+        default = "@rules_java//toolchains:current_host_java_runtime",
     ),
 }
 
@@ -321,8 +321,8 @@ common_aspect_providers = [
 ]
 
 common_toolchains = [
-    Label("//scala:toolchain_type"),
-    Label("//twitter_scrooge/toolchain:scrooge_toolchain_type"),
+    "//scala:toolchain_type",
+    "//twitter_scrooge/toolchain:scrooge_toolchain_type",
     "@bazel_tools//tools/jdk:toolchain_type",
 ]
 
@@ -335,7 +335,7 @@ scrooge_scala_aspect = aspect(
             "_scalac": attr.label(
                 executable = True,
                 cfg = "exec",
-                default = Label("//src/java/io/bazel/rulesscala/scalac"),
+                default = "//src/java/io/bazel/rulesscala/scalac",
                 allow_files = True,
             ),
         },
@@ -351,9 +351,9 @@ scrooge_java_aspect = aspect(
     attrs = dicts.add(
         common_attrs,
         {
-            "_java_toolchain": attr.label(default = Label(
-                "@rules_java//toolchains:current_java_toolchain",
-            )),
+            "_java_toolchain": attr.label(
+                default = "@rules_java//toolchains:current_java_toolchain",
+            ),
         },
     ),
     provides = [ScroogeAspectInfo],
@@ -426,12 +426,12 @@ scrooge_scala_import = rule(
         "scala_jars": attr.label_list(allow_files = [".jar"]),
         "_implicit_compile_deps": attr.label_list(
             providers = [JavaInfo],
-            default = [Label("//twitter_scrooge:compile_classpath")],
+            default = ["//twitter_scrooge:compile_classpath"],
         ),
     },
     provides = [ThriftInfo, JavaInfo, ScroogeImport],
     toolchains = [
-        Label("//twitter_scrooge/toolchain:scrooge_toolchain_type"),
+        "//twitter_scrooge/toolchain:scrooge_toolchain_type",
         "@bazel_tools//tools/jdk:toolchain_type",
     ],
 )

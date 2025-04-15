@@ -199,5 +199,5 @@ def scala_register_toolchains():
 
 def scala_register_unused_deps_toolchains():
     native.register_toolchains(
-        str(Label("//scala:unused_dependency_checker_error_toolchain")),
+        "//scala:unused_dependency_checker_error_toolchain",
     )

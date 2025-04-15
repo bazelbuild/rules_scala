@@ -126,7 +126,7 @@ def make_scala_doc_rule(aspect = _scaladoc_transitive_aspect):
             "_scaladoc": attr.label(
                 cfg = "exec",
                 executable = True,
-                default = Label("//src/scala/io/bazel/rules_scala/scaladoc_support:scaladoc_generator"),
+                default = "//src/scala/io/bazel/rules_scala/scaladoc_support:scaladoc_generator",
             ),
         },
         doc = "Generate Scaladoc HTML documentation for source files in from the given dependencies.",

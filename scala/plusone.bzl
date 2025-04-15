@@ -10,7 +10,7 @@ PlusOneDeps = provider(
 )
 
 def _collect_plus_one_deps_aspect_impl(target, ctx):
-    toolchain = ctx.toolchains[Label("//scala:toolchain_type")]
+    toolchain = ctx.toolchains["//scala:toolchain_type"]
     if toolchain.dependency_mode != "plus-one":
         return []
 
@@ -26,5 +26,5 @@ def _collect_plus_one_deps_aspect_impl(target, ctx):
 collect_plus_one_deps_aspect = aspect(
     implementation = _collect_plus_one_deps_aspect_impl,
     attr_aspects = ["deps", "exports"],
-    toolchains = [Label("//scala:toolchain_type")],
+    toolchains = ["//scala:toolchain_type"],
 )

@@ -61,7 +61,7 @@ scala_proto_toolchain = rule(
         "code_generator": attr.label(
             executable = True,
             cfg = "exec",
-            default = Label("//src/scala/scripts:scalapb_worker"),
+            default = "//src/scala/scripts:scalapb_worker",
             allow_files = True,
         ),
         "generators": attr.string_dict(),
@@ -72,7 +72,7 @@ scala_proto_toolchain = rule(
         "scalac": attr.label(
             executable = True,
             cfg = "exec",
-            default = Label("//src/java/io/bazel/rulesscala/scalac"),
+            default = "//src/java/io/bazel/rulesscala/scalac",
             allow_files = True,
         ),
         "stamp_by_convention": attr.bool(
@@ -95,9 +95,7 @@ scala_proto_toolchain = rule(
         # remove `_main_generator_dep`, and delete
         # `//src/scala/scripts:scalapb_codegenerator_wrapper` and its files.
         "_main_generator_dep": attr.label(
-            default = Label(
-                "//src/scala/scripts:scalapb_codegenerator_wrapper",
-            ),
+            default = "//src/scala/scripts:scalapb_codegenerator_wrapper",
             allow_single_file = True,
             executable = False,
             cfg = "exec",

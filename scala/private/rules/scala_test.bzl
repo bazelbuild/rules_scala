@@ -70,19 +70,17 @@ _scala_test_attrs = {
         default = "io.bazel.rules.scala.JUnitXmlReporter",
     ),
     "_scalatest": attr.label(
-        default = Label(
-            "//testing/toolchain:scalatest_classpath",
-        ),
+        default = "//testing/toolchain:scalatest_classpath",
     ),
     "_scalatest_runner": attr.label(
         cfg = "exec",
-        default = Label("//src/java/io/bazel/rulesscala/scala_test:runner"),
+        default = "//src/java/io/bazel/rulesscala/scala_test:runner",
     ),
     "_scalatest_reporter": attr.label(
-        default = Label("//scala/support:test_reporter"),
+        default = "//scala/support:test_reporter",
     ),
     "_lcov_merger": attr.label(
-        default = Label("@bazel_tools//tools/test/CoverageOutputGenerator/java/com/google/devtools/coverageoutputgenerator:Main"),
+        default = "@bazel_tools//tools/test/CoverageOutputGenerator/java/com/google/devtools/coverageoutputgenerator:Main",
         cfg = "exec",
     ),
     "env": attr.string_dict(default = {}),
@@ -92,12 +90,8 @@ _scala_test_attrs = {
 _test_resolve_deps = {
     "_scala_toolchain": attr.label_list(
         default = [
-            Label(
-                "//scala/private/toolchain_deps:scala_library_classpath",
-            ),
-            Label(
-                "//testing/toolchain:scalatest_classpath",
-            ),
+            "//scala/private/toolchain_deps:scala_library_classpath",
+            "//testing/toolchain:scalatest_classpath",
         ],
         allow_files = False,
     ),
@@ -128,8 +122,8 @@ def make_scala_test(*extras):
         ),
         test = True,
         toolchains = [
-            Label("//scala:toolchain_type"),
-            Label("//testing/toolchain:testing_toolchain_type"),
+            "//scala:toolchain_type",
+            "//testing/toolchain:testing_toolchain_type",
             "@bazel_tools//tools/jdk:toolchain_type",
         ],
         cfg = scala_version_transition,
