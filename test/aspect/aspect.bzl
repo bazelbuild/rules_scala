@@ -5,6 +5,8 @@ sure the targets we expect are there.
 """
 attr_aspects = ["_scala_toolchain", "deps"]
 
+VisitedInfo = provider("Collection of visited targets", fields = ["visited"])
+
 def _stringify_label(label):
     s = str(label)
     if s.startswith("@@//"):
@@ -15,12 +17,12 @@ def _stringify_label(label):
 
 def _aspect_impl(target, ctx):
     visited = [_stringify_label(target.label)]
+
     for attr_name in attr_aspects:
-        if hasattr(ctx.rule.attr, attr_name):
-            for dep in getattr(ctx.rule.attr, attr_name):
-                if hasattr(dep, "visited"):
-                    visited += dep.visited
-    return struct(visited = visited)
+        for dep in getattr(ctx.rule.attr, attr_name, []):
+            visited += dep[VisitedInfo].visited
+
+    return VisitedInfo(visited = visited)
 
 test_aspect = aspect(
     attr_aspects = attr_aspects,
@@ -56,7 +58,7 @@ def _aspect_testscript_impl(ctx):
     }
     content = ""
     for target in ctx.attr.targets:
-        visited = depset(sorted(target.visited)).to_list()
+        visited = depset(sorted(target[VisitedInfo].visited)).to_list()
         expected = depset(sorted(expected_deps[target.label.name])).to_list()
         if visited != expected:
             content += """
@@ -71,12 +73,12 @@ def _aspect_testscript_impl(ctx):
                 visited = ", ".join(visited),
             )
 
-    scriptFile = ctx.actions.declare_file("aspect_test.sh")
+    script_file = ctx.actions.declare_file("aspect_test.sh")
     ctx.actions.write(
-        output = scriptFile,
+        output = script_file,
         content = content,
     )
-    return [DefaultInfo(files = depset([scriptFile]))]
+    return [DefaultInfo(files = depset([script_file]))]
 
 aspect_testscript = rule(
     implementation = _aspect_testscript_impl,
