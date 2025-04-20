@@ -160,14 +160,14 @@ test_bzlmod_single_tag_values_fails_if_two_dev_tags() {
 test_bzlmod_repeated_tag_values_for_zero_instances() {
   setup_test_module
 
-  assert_matches '{}$' "$(print_repeated_test_tag_values)"
+  assert_matches '\{\}$' "$(print_repeated_test_tag_values)"
 }
 
 test_bzlmod_repeated_tag_values_for_one_instance() {
   setup_test_module \
     'test_ext.repeated_test_tag(unique_key = "foo", required = "bar")'
 
-  assert_matches '{"foo": {"required": "bar", "optional": ""}}$' \
+  assert_matches '\{"foo": \{"required": "bar", "optional": ""\}\}$' \
     "$(print_repeated_test_tag_values)"
 }
 
@@ -185,9 +185,9 @@ test_bzlmod_repeated_tag_values_for_multiple_instances() {
     ')'
 
   local expected=(
-    '{"foo": {"required": "bar", "optional": ""},'
-    '"baz": {"required": "quux", "optional": "xyzzy"},'
-    '"plugh": {"required": "frobozz", "optional": ""}}$'
+    '\{"foo": \{"required": "bar", "optional": ""\},'
+    '"baz": \{"required": "quux", "optional": "xyzzy"\},'
+    '"plugh": \{"required": "frobozz", "optional": ""\}\}$'
   )
 
   assert_matches "${expected[*]}" "$(print_repeated_test_tag_values)"
@@ -212,7 +212,7 @@ test_bzlmod_repeated_tag_values_fails_on_duplicate_key() {
 # To run a specific test, set the `RULES_SCALA_TEST_ONLY` env var to its name.
 
 while IFS= read -r line; do
-  if [[ "$line" =~ ^_?(test_[A-Za-z0-9_]+)\(\)\ ?{$ ]]; then
+  if [[ "$line" =~ ^_?(test_[A-Za-z0-9_]+)\(\)\ ?\{$ ]]; then
     test_name="${BASH_REMATCH[1]}"
 
     if [[ "${line:0:1}" == '_' ]]; then
