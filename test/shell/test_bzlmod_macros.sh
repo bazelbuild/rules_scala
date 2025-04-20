@@ -26,7 +26,6 @@ teardown_suite() {
     cd "$original_dir"
     rm -rf "$test_tmpdir"
 }
-trap 'teardown_suite' EXIT
 
 if [[ "$(bazel --version)" =~ ^bazel\ 6\. ]]; then
   exit
@@ -223,3 +222,5 @@ while IFS= read -r line; do
     fi
   fi
 done <"$test_source"
+
+teardown_suite

@@ -12,7 +12,7 @@ test_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/test/shell
 . "${test_dir}"/test_runner.sh
 runner=$(get_test_runner "${1:-local}")
 
-"${test_dir}"/test_bzlmod_macros.sh
+. "${test_dir}"/test_bzlmod_macros.sh
 $runner bazel build test/...
 #$runner bazel build "test/... --all_incompatible_changes"
 $runner bazel test test/...

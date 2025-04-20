@@ -20,7 +20,6 @@ check_module_bazel() {
   cd "${rootdir}/${repo_path}"
   cp MODULE.bazel "$mod_orig"
 
-  trap "rm ${mod_orig} ${mod_diff}" EXIT
   bazel mod tidy
   bazel shutdown
 
