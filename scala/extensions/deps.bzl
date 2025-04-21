@@ -50,7 +50,8 @@ _settings_attrs = {
         doc = (
             "Check if the configured Scala version matches " +
             "the default version supported by rules_scala. " +
-            "Only takes effect if `scala_deps.toolchains(scala = True)`."
+            "Only takes effect when the builtin Scala toolchain is " +
+            "instantiated via `scala_deps.scala()`."
         ),
     ),
 }

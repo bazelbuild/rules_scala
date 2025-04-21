@@ -105,21 +105,10 @@ register_toolchains("//toolchains:my_scala_toolchain")
 
 When using your own JARs for every `setup_scala_toolchain()` argument, while
 using `scala_deps` or`scala_toolchains()` to instantiate other builtin
-toolchains, set `scala = False`:
+toolchains:
 
-```py
-# MODULE.bazel
-scala_deps.toolchains(
-    scala = False,
-    # ...other toolchain parameters...
-)
-
-# WORKSPACE
-scala_toolchains(
-    scala = False,
-    # ...other toolchain parameters...
-)
-```
+- Bzlmod: Don't instantiate `scala_deps.scala()`.
+- `WORKSPACE`: Call `scala_toolchains(scala = False, ...)`.
 
 Otherwise, `scala_deps` or `scala_toolchains()` will try to instantiate a
 default Scala toolchain and its compiler JAR repositories. The build will then
@@ -131,7 +120,7 @@ set `validate_scala_version = False` to disable the Scala version check.
 
 ```py
 # MODULE.bazel
-scala_deps.toolchains(
+scala_deps.settings(
     validate_scala_version = False,
     # ...other toolchain parameters...
 )
