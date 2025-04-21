@@ -145,7 +145,7 @@ jar_contains_files() {
 
 _print_error_msg() {
   printf '%b' "$RED"
-  printf '%b\n' "$@"
+  printf '%s\n' "$@"
   printf '%b' "$NC"
 }
 
