@@ -19,10 +19,12 @@ scala_config.settings(
 scala_deps = use_extension(
     "@rules_scala//scala/extensions:deps.bzl",
     "scala_deps",
+    dev_dependency = True,
 )
 scala_deps.settings(
     fetch_sources = False,
 )
+scala_deps.scala()
 
 # Deliberately set for Scala 3.3 and 2.13 versions less than the most
 # recently supported. See the `scala_version` setting at the top of
@@ -54,9 +56,7 @@ scala_deps.overridden_artifact(
     artifact = "org.scala-lang:scala-library:2.13.14",
     sha256 = "43e0ca1583df1966eaf02f0fbddcfb3784b995dd06bfc907209347758ce4b7e3",
 )
-scala_deps.toolchains(
-    scalatest = True,
-)
+scala_deps.scalatest()
 
 scala_protoc = use_extension(
     "@rules_scala//scala/extensions:protoc.bzl",

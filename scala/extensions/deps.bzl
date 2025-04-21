@@ -3,11 +3,16 @@
 Provides the `scala_deps` module extension with the following tag classes:
 
 - `settings`
-- `scalafmt`
 - `overridden_artifact`
 - `compiler_srcjar`
-- `toolchains`
+- `scala`
+- `scalatest`
+- `junit`
+- `specs2`
+- `scalafmt`
+- `scala_proto`
 - `twitter_scrooge`
+- `jmh`
 
 For documentation, see the `_tag_classes` dict, and the `_<TAG>_attrs` dict
 corresponding to each `<TAG>` listed above.
@@ -50,20 +55,6 @@ _settings_attrs = {
     ),
 }
 
-_scalafmt_defaults = {
-    "default_config_path": ".scalafmt.conf",
-}
-
-_scalafmt_attrs = {
-    "default_config_path": attr.string(
-        default = _scalafmt_defaults["default_config_path"],
-        doc = (
-            "The relative path to the default Scalafmt config file " +
-            "within the repository"
-        ),
-    ),
-}
-
 _overridden_artifact_attrs = {
     "name": attr.string(
         doc = (
@@ -97,75 +88,30 @@ _compiler_srcjar_attrs = {
     "integrity": attr.string(),
 }
 
-_toolchains_defaults = {
-    "scalatest": False,
-    "junit": False,
-    "specs2": False,
-    "scalafmt": False,
-    "scala_proto": False,
-    "scala_proto_options": [],
-    "twitter_scrooge": False,
-    "jmh": False,
+_scalafmt_defaults = {
+    "default_config_path": ".scalafmt.conf",
 }
 
-_toolchains_attrs = {
-    "scalatest": attr.bool(
-        default = _toolchains_defaults["scalatest"],
-        doc = "Register the Scalatest toolchain",
-    ),
-    "junit": attr.bool(
-        default = _toolchains_defaults["junit"],
-        doc = "Register the JUnit toolchain",
-    ),
-    "specs2": attr.bool(
-        default = _toolchains_defaults["specs2"],
-        doc = "Register the Specs2 JUnit toolchain",
-    ),
-    "scalafmt": attr.bool(
-        default = _toolchains_defaults["scalafmt"],
+_scalafmt_attrs = {
+    "default_config_path": attr.string(
+        default = _scalafmt_defaults["default_config_path"],
         doc = (
-            "Register the Scalafmt toolchain; configured by the " +
-            "`scalafmt` tag"
+            "The relative path to the default Scalafmt config file " +
+            "within the repository"
         ),
-    ),
-    "scala_proto": attr.bool(
-        default = _toolchains_defaults["scala_proto"],
-        doc = "Register the scala_proto toolchain",
-    ),
-    "scala_proto_options": attr.string_list(
-        default = _toolchains_defaults["scala_proto_options"],
-        doc = (
-            "Protobuf options, like 'scala3_sources' or 'grpc'; " +
-            "`scala_proto` must also be `True` for this to take effect"
-        ),
-    ),
-    "twitter_scrooge": attr.bool(
-        default = _toolchains_defaults["twitter_scrooge"],
-        doc = (
-            "Use the twitter_scrooge toolchain; configured by the " +
-            "`twitter_scrooge` tag"
-        ),
-    ),
-    "jmh": attr.bool(
-        default = _toolchains_defaults["jmh"],
-        doc = "Use the jmh toolchain",
     ),
 }
 
-def _toolchains(mctx):
-    result = dict(_toolchains_defaults)
+_scala_proto_defaults = {
+    "options": [],
+}
 
-    for mod in mctx.modules:
-        toolchains_tags = mod.tags.toolchains
-        values = single_tag_values(mctx, toolchains_tags, _toolchains_defaults)
-
-        if mod.is_root:
-            return values
-
-        # Don't overwrite `True` values with `False` from another tag.
-        result.update({k: v for k, v in values.items() if v})
-
-    return result
+_scala_proto_attrs = {
+    "options": attr.string_list(
+        default = _scala_proto_defaults["options"],
+        doc = "Protobuf options, like 'scala3_sources' or 'grpc'",
+    ),
+}
 
 _twitter_scrooge_defaults = {
     "libthrift": None,
@@ -180,14 +126,11 @@ _twitter_scrooge_attrs = {
     for k, v in _twitter_scrooge_defaults.items()
 }
 
-_tag_classes = {
+# Tag classes affecting all toolchains.
+_general_tag_classes = {
     "settings": tag_class(
         attrs = _settings_attrs,
         doc = "Settings affecting the configuration of all toolchains",
-    ),
-    "scalafmt": tag_class(
-        attrs = _scalafmt_attrs,
-        doc = "Options for the Scalafmt toolchain",
     ),
     "overridden_artifact": tag_class(
         attrs = _overridden_artifact_attrs,
@@ -212,24 +155,63 @@ instance must contain:
     - `integrity` or `sha256` are optional, but highly recommended
 """,
     ),
-    "toolchains": tag_class(
-        attrs = _toolchains_attrs,
-        doc = """
-Selects which builtin toolchains to use.
+}
 
-If the root module explicitly uses the extension, it assumes responsibility for
-selecting all required toolchains. It can also disable any toolchains it doesn't
-actually use.
-""",
+# Tag classes for supported toolchains.
+_toolchain_tag_classes = {
+    "scala": tag_class(
+        doc = "Configures the Scala toolchain",
+    ),
+    "scalatest": tag_class(
+        doc = "Configures the ScalaTest",
+    ),
+    "junit": tag_class(
+        doc = "Configures the JUnit toolchain",
+    ),
+    "specs2": tag_class(
+        doc = "Configures the Specs2 toolchain",
+    ),
+    "scalafmt": tag_class(
+        attrs = _scalafmt_attrs,
+        doc = "Configures the Scalafmt toolchain",
+    ),
+    "scala_proto": tag_class(
+        attrs = _scala_proto_attrs,
+        doc = "Configures the scala_proto toolchain",
     ),
     "twitter_scrooge": tag_class(
         attrs = _twitter_scrooge_attrs,
-        doc = (
-            "Targets that override default `twitter_scrooge` toolchain " +
-            "dependency providers"
-        ),
+        doc = "Configures the twitter_scrooge toolchain",
+    ),
+    "jmh": tag_class(
+        doc = "Configures the Java Microbenchmark Harness",
     ),
 }
+
+_tag_classes = _general_tag_classes | _toolchain_tag_classes
+
+def _toolchains(mctx):
+    result = {k: False for k in _toolchain_tag_classes}
+
+    for mod in mctx.modules:
+        values = {tc: len(getattr(mod.tags, tc)) != 0 for tc in result}
+
+        if mod.is_root:
+            return values
+
+        # Don't overwrite `True` values with `False` from another tag.
+        result.update({k: v for k, v in values.items() if v})
+
+    return result
+
+def _scala_proto_options(mctx):
+    result = {}
+
+    for mod in mctx.modules:
+        for tag in mod.tags.scala_proto:
+            result.update({opt: True for opt in tag.options})
+
+    return sorted(result.keys())
 
 def _scala_deps_impl(module_ctx):
     tags = root_module_tags(module_ctx, _tag_classes.keys())
@@ -249,6 +231,7 @@ def _scala_deps_impl(module_ctx):
             tags.compiler_srcjar,
             _compiler_srcjar_attrs,
         ),
+        scala_proto_options = _scala_proto_options(module_ctx),
         # `None` breaks the `attr.string_dict` in `scala_toolchains_repo`.
         twitter_scrooge_deps = {k: v for k, v in scrooge_deps.items() if v},
         **(
@@ -261,5 +244,28 @@ def _scala_deps_impl(module_ctx):
 scala_deps = module_extension(
     implementation = _scala_deps_impl,
     tag_classes = _tag_classes,
-    doc = "Configures builtin toolchains",
+    doc = """Selects and configures builtin toolchains.
+
+If the root module explicitly uses the extension, it assumes responsibility for
+selecting all required toolchains by insantiating the corresponding tag classes:
+
+```py
+scala_deps = use_extension(
+    "@rules_scala//scala/extensions:deps.bzl",
+    "scala_deps",
+)
+scala_deps.scala()
+scala_deps.scala_proto()
+
+dev_deps = use_extension(
+    "@rules_scala//scala/extensions:deps.bzl",
+    "scala_deps",
+    dev_dependency = True,
+)
+dev_deps.scalafmt()
+dev_deps.scalatest()
+
+# And so on...
+```
+""",
 )

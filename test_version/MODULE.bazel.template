@@ -38,16 +38,17 @@ use_repo(scala_config, "rules_scala_config")
 scala_deps = use_extension(
     "@rules_scala//scala/extensions:deps.bzl",
     "scala_deps",
+    dev_dependency = True,
 )
 scala_deps.settings(
     fetch_sources = True,
 )
-scala_deps.toolchains(
-    scala_proto = True,
-    scala_proto_options = ["grpc"],
-    scalatest = True,
-    specs2 = True,
+scala_deps.scala()
+scala_deps.scala_proto(
+    options = ["grpc"],
 )
+scala_deps.scalatest()
+scala_deps.specs2()
 
 scrooge_repos = use_extension(
     "//:scrooge_repositories.bzl",

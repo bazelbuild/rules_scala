@@ -61,6 +61,7 @@ scala_deps.settings(
     fetch_sources = True,
     validate_scala_version = False,
 )
+scala_deps.scala()
 
 # The `scala_deps.compiler_srcjar()` tag prevents some of the kinds of errors
 # represented in the corresponding `WORKSPACE` file, so we have to force

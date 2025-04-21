@@ -28,14 +28,14 @@ use_repo(scala_config, "rules_scala_config")
 scala_deps = use_extension(
     "@rules_scala//scala/extensions:deps.bzl",
     "scala_deps",
+    dev_dependency = True,
 )
 scala_deps.settings(
     fetch_sources = True,
 )
-scala_deps.toolchains(
-    scalafmt = True,
-    scalatest = True,
-)
+scala_deps.scala()
+scala_deps.scalafmt()
+scala_deps.scalatest()
 
 scala_protoc = use_extension(
     "@rules_scala//scala/extensions:protoc.bzl",

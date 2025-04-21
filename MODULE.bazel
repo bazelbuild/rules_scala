@@ -77,6 +77,7 @@ use_repo(
     "rules_scala_toolchains",
     "scala_compiler_sources",
 )
+scala_deps.scala()
 
 # Register some of our testing toolchains first when building our repo.
 register_toolchains(
@@ -100,15 +101,13 @@ dev_deps = use_extension(
     "scala_deps",
     dev_dependency = True,
 )
-dev_deps.toolchains(
-    jmh = True,
-    junit = True,
-    scala_proto = True,
-    scalafmt = True,
-    scalatest = True,
-    specs2 = True,
-    twitter_scrooge = True,
-)
+dev_deps.jmh()
+dev_deps.junit()
+dev_deps.scala_proto()
+dev_deps.scalafmt()
+dev_deps.scalatest()
+dev_deps.specs2()
+dev_deps.twitter_scrooge()
 use_repo(
     dev_deps,
     "scala_proto_rules_scalapb_compilerplugin",

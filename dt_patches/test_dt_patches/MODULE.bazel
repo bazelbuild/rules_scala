@@ -51,6 +51,7 @@ scala_deps.settings(
     fetch_sources = True,
     validate_scala_version = False,
 )
+scala_deps.scala()
 
 scala_protoc = use_extension(
     "@rules_scala//scala/extensions:protoc.bzl",

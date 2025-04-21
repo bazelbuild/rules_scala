@@ -11,13 +11,13 @@ local_path_override(
 scala_deps = use_extension(
     "@rules_scala//scala/extensions:deps.bzl",
     "scala_deps",
+    dev_dependency = True,
 )
 scala_deps.settings(
     fetch_sources = True,
 )
-scala_deps.toolchains(
-    scalatest = True,
-)
+scala_deps.scala()
+scala_deps.scalatest()
 
 scala_protoc = use_extension(
     "@rules_scala//scala/extensions:protoc.bzl",

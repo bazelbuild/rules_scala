@@ -75,17 +75,18 @@ scala_deps = use_extension(
     "scala_deps",
 )
 
-# Defines a default toolchain repo for the configured Scala version that
-# loads Maven deps like the Scala compiler and standard libs. Enable other builtin
-# toolchains by setting their corresponding parameters to `True`. See the
-# documentation of `_toolchains_attrs` from `scala/extensions/deps.bzl` for all
-# builtin toolchain configuration options.
+# Defines a default toolchain repo for the configured Scala version that loads
+# Maven deps like the Scala compiler and standard libs. Enable and configure
+# other builtin toolchains by instantiating their corresponding tag classes.
+# See the documentation in `scala/extensions/deps.bzl` for all builtin
+# toolchain configuration options.
 #
 # On production projects, you may consider defining a custom toolchain to use
-# your project's required dependencies instead. In that case, you can omit
-# `scala_deps` or explicitly set `scala = False` if you use it to instantiate
-# other builtin toolchains.
-scala_deps.toolchains()
+# your project's required dependencies instead. In that case, you can omit using
+# the module extension and this next line altogether. Or, you can still use the
+# module extension to instantiate other optional `rules_scala` toolchains
+# without it.
+scala_deps.scala()
 
 # The remaining items are optional, enabling the precompiled protocol compiler
 # toolchain via `--incompatible_enable_proto_toolchain_resolution`. See the
@@ -921,18 +922,23 @@ docs/scala_toolchain.md#b-defining-your-own-scala_toolchain), don't use
 `scala_deps` or `scala_toolchains()` if you don't need any other builtin
 toolchains.
 
-If you do need other builtin toolchains, then set `scala = False`:
+If you do need other builtin toolchains when using Bzlmod, then use the module
+extension and only instantiate the tag classes to the corresponding toolchains.
+
+If you do need other builtin toolchains when using `WORKSPACE`, then set `scala
+= False`.
 
 ```py
 # MODULE.bazel
-scala_deps.toolchains(
-    scala = False,
-    # ...other toolchain parameters...
-)
+scala_deps.scala_proto()
+scala_deps.twitter_scrooge()
+# ...other scala_deps tag class instantations...
 
 # WORKSPACE
 scala_toolchains(
     scala = False,
+    scala_proto = True,
+    twitter_scrooge = True,
     # ...other toolchain parameters...
 )
 ```
@@ -972,10 +978,9 @@ scala_deps = use_extension(
     "@rules_scala//scala/extensions:deps.bzl",
     "scala_deps",
 )
-scala_deps.toolchains(
-    scalafmt = True,
-    scalatest = True,
-)
+scala_deps.scala()
+scala_deps.scalafmt()
+scala_deps.scalatest()
 ```
 
 The module extensions call `scala_config()` and `scala_toolchains()`
@@ -1384,9 +1389,7 @@ To access these repositories under Bzlmod, you'll need to add the following to
 your `MODULE.bazel` file:
 
 ```py
-scala_deps.toolchains(
-    twitter_scrooge = True,
-)
+scala_deps.twitter_scrooge()
 use_repo(
     scala_deps,
     "io_bazel_rules_scala_guava",
