@@ -14,8 +14,8 @@ Provides the `scala_deps` module extension with the following tag classes:
 - `twitter_scrooge`
 - `jmh`
 
-For documentation, see the `_tag_classes` dict, and the `_<TAG>_attrs` dict
-corresponding to each `<TAG>` listed above.
+For documentation, see the `_{general,toolchain}_tag_classes` dicts and the
+`_<TAG>_attrs` dict corresponding to each `<TAG>` listed above.
 
 See the `scala/private/macros/bzlmod.bzl` docstring for a description of
 the defaults, attrs, and tag class dictionaries pattern employed here.
@@ -27,6 +27,7 @@ load(
     "root_module_tags",
     "single_tag_values",
 )
+load("//scala/private:toolchain_defaults.bzl", "TOOLCHAIN_DEFAULTS")
 load("//scala:scala_cross_version.bzl", "default_maven_server_urls")
 load("//scala:toolchains.bzl", "scala_toolchains")
 
@@ -89,9 +90,7 @@ _compiler_srcjar_attrs = {
     "integrity": attr.string(),
 }
 
-_scalafmt_defaults = {
-    "default_config": "//:.scalafmt.conf",
-}
+_scalafmt_defaults = TOOLCHAIN_DEFAULTS["scalafmt"]
 
 _scalafmt_attrs = {
     "default_config": attr.label(
@@ -100,24 +99,16 @@ _scalafmt_attrs = {
     ),
 }
 
-_scala_proto_defaults = {
-    "options": [],
-}
+_scala_proto_defaults = TOOLCHAIN_DEFAULTS["scala_proto"]
 
 _scala_proto_attrs = {
-    "options": attr.string_list(
-        default = _scala_proto_defaults["options"],
+    "default_gen_opts": attr.string_list(
+        default = _scala_proto_defaults["default_gen_opts"],
         doc = "Protobuf options, like 'scala3_sources' or 'grpc'",
     ),
 }
 
-_twitter_scrooge_defaults = {
-    "libthrift": None,
-    "scrooge_core": None,
-    "scrooge_generator": None,
-    "util_core": None,
-    "util_logging": None,
-}
+_twitter_scrooge_defaults = TOOLCHAIN_DEFAULTS["twitter_scrooge"]
 
 _twitter_scrooge_attrs = {
     k: attr.label(default = v)
@@ -186,39 +177,51 @@ _toolchain_tag_classes = {
     ),
 }
 
+def _toolchain_settings(module_ctx, tags, tc_names, toolchain_defaults):
+    """Configures all builtin toolchains enabled throughout the module graph.
+
+    Configures toolchain options for enabled toolchains that support them based
+    on the root module's settings for each toolchain. In other words, it uses:
+
+    - the root module's tag class settings, if present; and
+    - the default tag class settings otherwise.
+
+    This avoids trying to reconcile different toolchain settings across the
+    module graph. Non root modules that require specific settings should either:
+
+    - publish their required toolchain settings, or
+    - define and register a custom toolchain instead.
+
+    Args:
+        module_ctx: the module context object
+        tags: a tags object, presumably the result of `root_module_tags()`
+        tc_names: names of all supported toolchains
+        toolchain_defaults: a dict of `{toolchain_name: default options dict}`
+
+    Returns:
+        a dict of `{toolchain_name: bool or options dict}` to pass as keyword
+            arguments to `scala_toolchains()`
+    """
+    toolchains = {k: False for k in tc_names}
+
+    for mod in module_ctx.modules:
+        values = {tc: len(getattr(mod.tags, tc)) != 0 for tc in toolchains}
+
+        # Don't overwrite True values with False from another tag.
+        toolchains.update({k: v for k, v in values.items() if v})
+
+    for tc, defaults in toolchain_defaults.items():
+        if toolchains[tc]:
+            values = single_tag_values(module_ctx, getattr(tags, tc), defaults)
+            toolchains[tc] = {k: v for k, v in values.items() if v != None}
+
+    return toolchains
+
 _tag_classes = _general_tag_classes | _toolchain_tag_classes
-
-def _toolchains(mctx):
-    result = {k: False for k in _toolchain_tag_classes}
-
-    for mod in mctx.modules:
-        values = {tc: len(getattr(mod.tags, tc)) != 0 for tc in result}
-
-        if mod.is_root:
-            return values
-
-        # Don't overwrite `True` values with `False` from another tag.
-        result.update({k: v for k, v in values.items() if v})
-
-    return result
-
-def _scala_proto_options(mctx):
-    result = {}
-
-    for mod in mctx.modules:
-        for tag in mod.tags.scala_proto:
-            result.update({opt: True for opt in tag.options})
-
-    return sorted(result.keys())
 
 def _scala_deps_impl(module_ctx):
     tags = root_module_tags(module_ctx, _tag_classes.keys())
-    scalafmt = single_tag_values(module_ctx, tags.scalafmt, _scalafmt_defaults)
-    scrooge_deps = single_tag_values(
-        module_ctx,
-        tags.twitter_scrooge,
-        _twitter_scrooge_defaults,
-    )
+    tc_names = [tc for tc in _toolchain_tag_classes]
 
     scala_toolchains(
         overridden_artifacts = repeated_tag_values(
@@ -229,13 +232,9 @@ def _scala_deps_impl(module_ctx):
             tags.compiler_srcjar,
             _compiler_srcjar_attrs,
         ),
-        scala_proto_options = _scala_proto_options(module_ctx),
-        # `None` breaks the `attr.string_dict` in `scala_toolchains_repo`.
-        twitter_scrooge_deps = {k: v for k, v in scrooge_deps.items() if v},
         **(
             single_tag_values(module_ctx, tags.settings, _settings_defaults) |
-            {"scalafmt_%s" % k: v for k, v in scalafmt.items()} |
-            _toolchains(module_ctx)
+            _toolchain_settings(module_ctx, tags, tc_names, TOOLCHAIN_DEFAULTS)
         )
     )
 

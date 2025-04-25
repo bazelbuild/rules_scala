@@ -109,6 +109,7 @@ def scrooge_repositories(version = None):
 
     scala_toolchains_repo(
         name = "twitter_scrooge_test_toolchain",
+        scala = False,
         twitter_scrooge = True,
         twitter_scrooge_deps = toolchain_deps,
     )

@@ -4,11 +4,13 @@ load(
     "scalapb_toolchain",
 )
 
-_default_gen_opts = [
-    "grpc",
-]
+TOOLCHAIN_DEFAULTS = {
+    "default_gen_opts": ["grpc"],
+}
 
-def setup_scala_proto_toolchains(name, default_gen_opts = _default_gen_opts):
+def setup_scala_proto_toolchains(
+        name,
+        default_gen_opts = ["grpc"]):
     """Used by @rules_scala_toolchains//scala_proto/BUILD.
 
     See //scala/private:macros/toolchains_repo.bzl for details, especially the

@@ -7,6 +7,7 @@ load(
     "scala_version_artifact_ids",
     "setup_scala_compiler_sources",
 )
+load("//scala/private:toolchain_defaults.bzl", "TOOLCHAIN_DEFAULTS")
 load("//scala/scalafmt:scalafmt_repositories.bzl", "scalafmt_artifact_ids")
 load("//scala:scala_cross_version.bzl", "default_maven_server_urls")
 load("//scala:toolchains_repo.bzl", "scala_toolchains_repo")
@@ -18,14 +19,69 @@ load("//third_party/repositories:repositories.bzl", "repositories")
 load(
     "//twitter_scrooge/toolchain:toolchain.bzl",
     "twitter_scrooge_artifact_ids",
-    _TWITTER_SCROOGE_DEPS = "TOOLCHAIN_DEPS",
 )
 load("@rules_scala_config//:config.bzl", "SCALA_VERSIONS")
 
-def _get_unknown_entries(entries, allowed_entries):
-    return [e for e in entries if e not in allowed_entries]
+_DEFAULT_TOOLCHAINS_REPO_NAME = "rules_scala_toolchains"
+
+def _toolchain_opts(tc_arg):
+    """Converts a toolchain parameter to a (bool, dict of options).
+
+    Used by `scala_toolchains` to parse toolchain arguments as True, False,
+    None, or a dict of options.
+
+    Args:
+        tc_arg: a bool, dict, or None
+
+    Returns:
+        a bool indicating whether the toolchain is enabled, and a dict
+            containing any provided toolchain options
+    """
+    if tc_arg == False or tc_arg == None:
+        return False, {}
+    return True, ({} if tc_arg == True else tc_arg)
+
+def _process_toolchain_options(toolchain_defaults, **kwargs):
+    """Checks the validity of toolchain options and provides defaults.
+
+    Updates each toolchain option dictionary with defaults for every missing
+    entry.
+
+    Args:
+        toolchain_defaults: a dict of `{toolchain_name: default options dict}`
+        **kwargs: keyword arguments of the form `toolchain_name = options_dict`
+
+    Returns:
+        a list of error messages for invalid toolchains or options
+    """
+    errors = []
+
+    for tc, options in kwargs.items():
+        defaults = toolchain_defaults.get(tc, None)
+
+        if defaults == None:
+            errors.append("unknown toolchain or doesn't have defaults: " + tc)
+            continue
+
+        unexpected = [a for a in options if a not in defaults]
+
+        if unexpected:
+            plural = "s" if len(unexpected) != 1 else ""
+            errors.append(
+                "unexpected %s toolchain attribute%s: " % (tc, plural) +
+                ", ".join(unexpected),
+            )
+
+        options.update({
+            k: v
+            for k, v in defaults.items()
+            if k not in options and v != None
+        })
+
+    return errors
 
 def scala_toolchains(
+        name = _DEFAULT_TOOLCHAINS_REPO_NAME,
         maven_servers = default_maven_server_urls(),
         overridden_artifacts = {},
         fetch_sources = False,
@@ -36,12 +92,9 @@ def scala_toolchains(
         junit = False,
         specs2 = False,
         scalafmt = False,
-        scalafmt_default_config = Label("//:.scalafmt.conf"),
         scala_proto = False,
-        scala_proto_options = [],
         jmh = False,
-        twitter_scrooge = False,
-        twitter_scrooge_deps = {}):
+        twitter_scrooge = False):
     """Instantiates rules_scala toolchains and all their dependencies.
 
     Provides a unified interface to configuring `rules_scala` both directly in a
@@ -54,6 +107,7 @@ def scala_toolchains(
     All arguments are optional.
 
     Args:
+        name: Name of the generated toolchains repository
         maven_servers: Maven servers used to fetch dependency jar files
         overridden_artifacts: artifacts overriding the defaults for the
             configured Scala version, in the format:
@@ -82,28 +136,26 @@ def scala_toolchains(
         scalatest: whether to instantiate the ScalaTest toolchain
         junit: whether to instantiate the JUnit toolchain
         specs2: whether to instantiate the Specs2 JUnit toolchain
-        scalafmt: whether to instantiate the Scalafmt toolchain
-        scalafmt_default_config: the default config file for Scalafmt targets
-        scala_proto: whether to instantiate the scala_proto toolchain
-        scala_proto_options: protobuf options, like 'scala3_sources' or 'grpc';
-            `scala_proto` must also be `True` for this to take effect
+        scalafmt: boolean or dictionary of Scalafmt options:
+            - default_config: default Scalafmt config file target
+        scala_proto: boolean or dictionary of `setup_scala_proto_toolchain()`
+            options
         jmh: whether to instantiate the Java Microbenchmarks Harness toolchain
-        twitter_scrooge: whether to instantiate the twitter_scrooge toolchain
-        twitter_scrooge_deps: dictionary of string to Label containing overrides
-            for twitter_scrooge toolchain dependency providers with keys:
-                libthrift
-                scrooge_core
-                scrooge_generator
-                util_core
-                util_logging
+        twitter_scrooge: bool or dictionary of `setup_scrooge_toolchain()`
+            options
     """
-    unknown_ts_deps = _get_unknown_entries(
-        twitter_scrooge_deps,
-        _TWITTER_SCROOGE_DEPS,
-    )
+    scalafmt, scalafmt_options = _toolchain_opts(scalafmt)
+    scala_proto, scala_proto_options = _toolchain_opts(scala_proto)
+    twitter_scrooge, twitter_scrooge_options = _toolchain_opts(twitter_scrooge)
 
-    if unknown_ts_deps:
-        fail("unknown twitter_scrooge_deps:", ", ".join(unknown_ts_deps))
+    errors = _process_toolchain_options(
+        TOOLCHAIN_DEFAULTS,
+        scalafmt = scalafmt_options,
+        scala_proto = scala_proto_options,
+        twitter_scrooge = twitter_scrooge_options,
+    )
+    if errors:
+        fail("\n".join(errors))
 
     setup_scala_compiler_sources(scala_compiler_srcjars)
 
@@ -135,7 +187,7 @@ def scala_toolchains(
     if twitter_scrooge:
         artifact_ids_to_fetch_sources.update({
             id: False
-            for id in twitter_scrooge_artifact_ids(**twitter_scrooge_deps)
+            for id in twitter_scrooge_artifact_ids(**twitter_scrooge_options)
         })
 
     for scala_version in SCALA_VERSIONS:
@@ -174,20 +226,21 @@ def scala_toolchains(
         )
 
     scala_toolchains_repo(
+        name = name,
         scalatest = scalatest,
         junit = junit,
         specs2 = specs2,
         scalafmt = scalafmt,
-        scalafmt_default_config = scalafmt_default_config,
+        scalafmt_default_config = scalafmt_options["default_config"],
         scala_proto = scala_proto,
-        scala_proto_options = scala_proto_options,
+        scala_proto_options = scala_proto_options["default_gen_opts"],
         jmh = jmh,
         twitter_scrooge = twitter_scrooge,
-        twitter_scrooge_deps = twitter_scrooge_deps,
+        twitter_scrooge_deps = twitter_scrooge_options,
     )
 
-def scala_register_toolchains():
-    native.register_toolchains("@rules_scala_toolchains//...:all")
+def scala_register_toolchains(name = _DEFAULT_TOOLCHAINS_REPO_NAME):
+    native.register_toolchains("@%s//...:all" % name)
 
 def scala_register_unused_deps_toolchains():
     native.register_toolchains(

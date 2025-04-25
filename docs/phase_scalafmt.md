@@ -86,8 +86,7 @@ a custom configuration:
     # WORKSPACE
     scala_toolchains(
         # Other toolchains settings...
-        scalafmt = True,
-        scalafmt_default_config = "//path/to/my/custom:scalafmt.conf",
+        scalafmt = {"default_config": "//path/to/my/custom:scalafmt.conf"},
     )
     ```
 

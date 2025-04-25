@@ -28,26 +28,21 @@ def _generate_testing_toolchain_build_file_args(repo_attr):
         "specs2_junit": framework_deps.get("specs2_junit"),
     }
 
-_TWITTER_SCROOGE_ARGS = [
-    "libthrift",
-    "scrooge_core",
-    "scrooge_generator",
-    "util_core",
-    "util_logging",
-]
+def _stringify(value):
+    """Wraps string values in double quotes for use in `BUILD` files."""
+    return "\"%s\"" % value if type(value) == "string" else value
 
-def _stringify_template_args(args, arg_names):
-    return {
-        arg: ("\"%s\"" % value if type(value) == "string" else value)
-        for arg, value in {name: args.get(name) for name in arg_names}.items()
-    }
+def _stringify_args(args, indent = " " * 4):
+    """Formats a dict as `BUILD` rule or macro arguments."""
+    return "".join([
+        "%s%s = %s,\n" % (indent, k, _stringify(v))
+        for k, v in args.items()
+    ])
 
 def _scala_toolchains_repo_impl(repository_ctx):
     repo_attr = repository_ctx.attr
     format_args = {
         "rules_scala_repo": Label("//:all").repo_name,
-        "proto_options": repo_attr.scala_proto_options,
-        "scalafmt_default_config": repo_attr.scalafmt_default_config,
     }
     toolchains = {}
 
@@ -55,14 +50,16 @@ def _scala_toolchains_repo_impl(repository_ctx):
         toolchains["scala"] = _SCALA_TOOLCHAIN_BUILD
     if repo_attr.scala_proto:
         toolchains["scala_proto"] = _SCALA_PROTO_TOOLCHAIN_BUILD
+        format_args["scala_proto_opts"] = _stringify_args({
+            "default_gen_opts": repo_attr.scala_proto_options,
+        })
     if repo_attr.jmh:
         toolchains["jmh"] = _JMH_TOOLCHAIN_BUILD
     if repo_attr.twitter_scrooge:
         toolchains["twitter_scrooge"] = _TWITTER_SCROOGE_TOOLCHAIN_BUILD
-        format_args.update(_stringify_template_args(
+        format_args["twitter_scrooge_opts"] = _stringify_args(
             repo_attr.twitter_scrooge_deps,
-            _TWITTER_SCROOGE_ARGS,
-        ))
+        )
 
     testing_build_args = _generate_testing_toolchain_build_file_args(repo_attr)
     if testing_build_args != None:
@@ -71,6 +68,9 @@ def _scala_toolchains_repo_impl(repository_ctx):
 
     if repo_attr.scalafmt:
         toolchains["scalafmt"] = _SCALAFMT_TOOLCHAIN_BUILD
+        format_args["scalafmt_default_config"] = (
+            repo_attr.scalafmt_default_config
+        )
 
     # Generate a root package so that the `register_toolchains` call in
     # `MODULE.bazel` always succeeds.
@@ -83,7 +83,7 @@ def _scala_toolchains_repo_impl(repository_ctx):
             executable = False,
         )
 
-_scala_toolchains_repo = repository_rule(
+scala_toolchains_repo = repository_rule(
     implementation = _scala_toolchains_repo_impl,
     doc = "Creates a repo containing Scala toolchain packages",
     attrs = {
@@ -103,10 +103,7 @@ _scala_toolchains_repo = repository_rule(
             doc = "Instantiate the scala_proto toolchain",
         ),
         "scala_proto_options": attr.string_list(
-            doc = (
-                "Protobuf generator options; " +
-                "`scala_proto` must also be `True` for this to take effect"
-            ),
+            doc = "Protobuf generator options",
         ),
         "jmh": attr.bool(
             doc = "Instantiate the Java Microbenchmarks Harness toolchain",
@@ -116,24 +113,10 @@ _scala_toolchains_repo = repository_rule(
         ),
         # attr.string_keyed_label_dict isn't available in Bazel 6
         "twitter_scrooge_deps": attr.string_dict(
-            doc = (
-                "overrides for twitter_scrooge toolchain dependency " +
-                "providers with keys:\n" +
-                "    libthrift\n" +
-                "    scrooge_core\n" +
-                "    scrooge_generator\n" +
-                "    util_core\n" +
-                "    util_logging"
-            ),
+            doc = "twitter_scrooge toolchain dependency provider overrides",
         ),
     },
 )
-
-def scala_toolchains_repo(name = "rules_scala_toolchains", **kwargs):
-    _scala_toolchains_repo(
-        name = name,
-        **kwargs
-    )
 
 _SCALA_TOOLCHAIN_BUILD = """
 load(
@@ -228,8 +211,7 @@ load(
 
 setup_scala_proto_toolchains(
     name = "scala_proto",
-    default_gen_opts = {proto_options},
-)
+{scala_proto_opts})
 
 declare_deps_provider(
     name = "scalapb_compile_deps_provider",
@@ -260,10 +242,5 @@ load(
 
 setup_scrooge_toolchain(
     name = "scrooge_toolchain",
-    libthrift = {libthrift},
-    scrooge_core = {scrooge_core},
-    scrooge_generator = {scrooge_generator},
-    util_core = {util_core},
-    util_logging = {util_logging},
-)
+{twitter_scrooge_opts})
 """

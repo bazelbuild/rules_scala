@@ -8,6 +8,13 @@ load("//scala:providers.bzl", "declare_deps_provider")
 load("//scala:scala_cross_version.bzl", "version_suffix")
 load("@rules_scala_config//:config.bzl", "SCALA_VERSIONS")
 
+TOOLCHAIN_DEFAULTS = {
+    # Used by `scala_toolchains{,_repo}` to generate
+    # `@rules_scala_toolchains//scalafmt:config`, the default config for
+    # `ext_scalafmt` from `phase_scalafmt_ext.bzl`.
+    "default_config": Label("//:.scalafmt.conf"),
+}
+
 def setup_scalafmt_toolchain(
         name,
         scalafmt_classpath,
