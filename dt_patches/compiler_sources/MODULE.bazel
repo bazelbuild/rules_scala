@@ -1,0 +1,15 @@
+"""Bazel module ./test/shell/test_examples.sh tests"""
+
+module(name = "compiler_sources")
+
+bazel_dep(name = "rules_scala")
+local_path_override(
+    module_name = "rules_scala",
+    path = "../..",
+)
+
+scala_config = use_extension(
+    "@rules_scala//scala/extensions:config.bzl",
+    "scala_config",
+)
+use_repo(scala_config, "rules_scala_config")

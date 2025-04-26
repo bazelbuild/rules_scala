@@ -1,0 +1,94 @@
+"""Bazel module ./test/shell/test_examples.sh tests"""
+
+module(name = "multi_frameworks_toolchain")
+
+SCALA_VERSION = "2.12.20"
+
+VERSION_SUFFIX = "_" + SCALA_VERSION.replace(".", "_")
+
+bazel_dep(name = "rules_scala")
+local_path_override(
+    module_name = "rules_scala",
+    path = "../../..",
+)
+
+scala_config = use_extension(
+    "@rules_scala//scala/extensions:config.bzl",
+    "scala_config",
+)
+scala_config.settings(
+    scala_version = SCALA_VERSION,
+)
+use_repo(scala_config, "rules_scala_config")
+
+scala_deps = use_extension(
+    "@rules_scala//scala/extensions:deps.bzl",
+    "scala_deps",
+    dev_dependency = True,
+)
+scala_deps.settings(
+    fetch_sources = True,
+)
+scala_deps.scala()
+scala_deps.junit()
+scala_deps.scalatest()
+scala_deps.specs2()
+
+# Under normal circumstances, the above `scala_deps` tag class instantiations
+# would be all you need. rules_scala will set up and register the toolchains
+# automatically.
+#
+# However, we need to import the repos used by the
+# `setup_scala_testing_toolchain()` example in the `BUILD` file. These repos
+# are versioned by Scala version, so we have to append the `VERSION_SUFFIX`.
+[
+    use_repo(scala_deps, "io_bazel_rules_scala_" + dep + VERSION_SUFFIX)
+    for dep in [
+        "junit_junit",
+        "org_hamcrest_hamcrest_core",
+        "scalactic",
+        "scalatest",
+        "scalatest_compatible",
+        "scalatest_core",
+        "scalatest_featurespec",
+        "scalatest_flatspec",
+        "scalatest_freespec",
+        "scalatest_funspec",
+        "scalatest_funsuite",
+        "scalatest_matchers_core",
+        "scalatest_mustmatchers",
+        "scalatest_shouldmatchers",
+        "org_specs2_specs2_common",
+        "org_specs2_specs2_core",
+        "org_specs2_specs2_fp",
+        "org_specs2_specs2_matcher",
+        "org_specs2_specs2_junit",
+    ]
+]
+
+scala_protoc = use_extension(
+    "@rules_scala//scala/extensions:protoc.bzl",
+    "scala_protoc",
+    dev_dependency = True,
+)
+use_repo(scala_protoc, "rules_scala_protoc_toolchains")
+
+register_toolchains(
+    "@rules_scala_protoc_toolchains//...:all",
+    "//:testing_toolchain",
+    dev_dependency = True,
+)
+
+# Temporarily required for `protoc` toolchainization until resolution of
+# protocolbuffers/protobuf#19679.
+bazel_dep(
+    name = "protobuf",
+    version = "30.1",
+    repo_name = "com_google_protobuf",
+)
+single_version_override(
+    module_name = "protobuf",
+    patch_strip = 1,
+    patches = ["//:protobuf.patch"],
+    version = "30.1",
+)

@@ -1,0 +1,193 @@
+"""Bazel module ./test/shell/test_examples.sh tests"""
+
+module(name = "scala3_example")
+
+bazel_dep(name = "rules_scala")
+local_path_override(
+    module_name = "rules_scala",
+    path = "../..",
+)
+
+scala_config = use_extension(
+    "@rules_scala//scala/extensions:config.bzl",
+    "scala_config",
+)
+scala_config.settings(
+    enable_compiler_dependency_tracking = True,
+)
+use_repo(scala_config, "rules_scala_config")
+
+bazel_dep(name = "compiler_sources")
+local_path_override(
+    module_name = "compiler_sources",
+    path = "../compiler_sources",
+)
+
+source_repos = use_extension(
+    "@compiler_sources//:extensions.bzl",
+    "compiler_source_repos",
+)
+use_repo(
+    source_repos,
+    # Configured for the current Scala version
+    "scala_compiler",
+    "scala_library",
+    # Scala 2 specific
+    "scala_reflect",
+    # Scala 3 specific
+    "scala3_interfaces",
+    "tasty_core",
+    # Hardcoded versions
+    "sbt_compiler_interface",
+    "scala2_library",
+    "scala_asm",
+)
+
+srcjar_repos = use_extension(
+    "//:extensions.bzl",
+    "compiler_user_srcjar_repos",
+)
+use_repo(
+    srcjar_repos,
+    "scala3_compiler_srcjar",
+    "scala_compiler_srcjar",
+)
+
+scala_deps = use_extension(
+    "@rules_scala//scala/extensions:deps.bzl",
+    "scala_deps",
+)
+scala_deps.settings(
+    fetch_sources = True,
+    validate_scala_version = False,
+)
+scala_deps.scala()
+
+# The `scala_deps.compiler_srcjar()` tag prevents some of the kinds of errors
+# represented in the corresponding `WORKSPACE` file, so we have to force
+# different ones. In particular, we can't use unspecified data types or kwargs,
+# or Bazel itself will error out.
+
+# Invalid
+scala_deps.compiler_srcjar(
+    url = "foo",
+    urls = ["bar"],
+    version = "2.12.11",
+)
+
+# Invalid
+scala_deps.compiler_srcjar(
+    label = "baz",
+    url = "foo",
+    version = "2.12.12",
+)
+
+# Invalid
+scala_deps.compiler_srcjar(
+    label = "baz",
+    urls = ["bar"],
+    version = "2.12.13",
+)
+scala_deps.compiler_srcjar(
+    integrity = "sha384-yKJTudaHM2dA+VM//elLxhEfOmyCYRHzbLlQcf5jlrR+G5FEW+fBW/b794mQLMOX",
+    urls = ["https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.12.14/scala-compiler-2.12.14-sources.jar"],
+    version = "2.12.14",
+)
+scala_deps.compiler_srcjar(
+    sha256 = "65f783f1fbef7de661224f607ac07ca03c5d19acfdb7f2234ff8def1e79b5cd8",
+    url = "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.12.15/scala-compiler-2.12.15-sources.jar",
+    version = "2.12.15",
+)
+scala_deps.compiler_srcjar(
+    label = "@scala_compiler_srcjar//jar:downloaded.jar",
+    version = "2.12.16",
+)
+scala_deps.compiler_srcjar(
+    url = "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.12.17/scala-compiler-2.12.17-sources.jar?foo",
+    version = "2.12.17",
+)
+scala_deps.compiler_srcjar(
+    url = "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.12.18/scala-compiler-2.12.18-sources.jar?foo",
+    version = "2.12.18",
+)
+scala_deps.compiler_srcjar(
+    url = "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.12.19/scala-compiler-2.12.19-sources.jar?foo",
+    version = "2.12.19",
+)
+scala_deps.compiler_srcjar(
+    url = "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.12.20/scala-compiler-2.12.20-sources.jar?foo",
+    version = "2.12.20",
+)
+scala_deps.compiler_srcjar(
+    url = "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.13.11/scala-compiler-2.13.11-sources.jar?foo",
+    version = "2.13.11",
+)
+scala_deps.compiler_srcjar(
+    url = "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.13.12/scala-compiler-2.13.12-sources.jar?foo",
+    version = "2.13.12",
+)
+scala_deps.compiler_srcjar(
+    url = "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.13.14/scala-compiler-2.13.14-sources.jar?foo",
+    version = "2.13.14",
+)
+scala_deps.compiler_srcjar(
+    url = "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.13.15/scala-compiler-2.13.15-sources.jar?foo",
+    version = "2.13.15",
+)
+scala_deps.compiler_srcjar(
+    url = "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.13.16/scala-compiler-2.13.16-sources.jar?foo",
+    version = "2.13.16",
+)
+scala_deps.compiler_srcjar(
+    integrity = "sha384-4J2ihR1QSdP5cvL3y2OUfw4uUX/hsQqcPlJV+IrQdsM/soiIAYfoEeIEt6vl3xBk",
+    url = "https://repo1.maven.org/maven2/org/scala-lang/scala3-compiler_3/3.1.3/scala3-compiler_3-3.1.3-sources.jar",
+    version = "3.1.3",
+)
+scala_deps.compiler_srcjar(
+    sha256 = "669d580fc4a8d3c2e2d13d5735ae9be05d567613fe44482de5bcc5e2e2ee89ea",
+    url = "https://repo1.maven.org/maven2/org/scala-lang/scala3-compiler_3/3.2.2/scala3-compiler_3-3.2.2-sources.jar",
+    version = "3.2.2",
+)
+scala_deps.compiler_srcjar(
+    url = "https://repo1.maven.org/maven2/org/scala-lang/scala3-compiler_3/3.3.5/scala3-compiler_3-3.3.5-sources.jar",
+    version = "3.3.5",
+)
+scala_deps.compiler_srcjar(
+    label = "@scala3_compiler_srcjar//jar:downloaded.jar",
+    version = "3.4.3",
+)
+scala_deps.compiler_srcjar(
+    url = "https://repo1.maven.org/maven2/org/scala-lang/scala3-compiler_3/3.5.2/scala3-compiler_3-3.5.2-sources.jar",
+    version = "3.5.2",
+)
+scala_deps.compiler_srcjar(
+    url = "https://repo1.maven.org/maven2/org/scala-lang/scala3-compiler_3/3.6.4/scala3-compiler_3-3.6.4-sources.jar",
+    version = "3.6.4",
+)
+
+scala_protoc = use_extension(
+    "@rules_scala//scala/extensions:protoc.bzl",
+    "scala_protoc",
+    dev_dependency = True,
+)
+use_repo(scala_protoc, "rules_scala_protoc_toolchains")
+
+register_toolchains(
+    "@rules_scala_protoc_toolchains//...:all",
+    "//:dt_scala_toolchain",
+    dev_dependency = True,
+)
+
+# Temporarily required for `protoc` toolchainization until resolution of
+# protocolbuffers/protobuf#19679.
+bazel_dep(
+    name = "protobuf",
+    version = "30.1",
+    repo_name = "com_google_protobuf",
+)
+single_version_override(
+    module_name = "protobuf",
+    patch_strip = 1,
+    patches = ["//:protobuf.patch"],
+    version = "30.1",
+)

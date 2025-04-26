@@ -61,3 +61,10 @@ def import_compiler_source_repos():
             licenses = ["notice"],
             server_urls = default_maven_server_urls(),
         )
+
+def _compiler_source_repos_impl(_ctx):
+    import_compiler_source_repos()
+
+compiler_source_repos = module_extension(
+    implementation = _compiler_source_repos_impl,
+)
