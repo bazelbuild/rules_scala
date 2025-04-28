@@ -35,10 +35,10 @@ PROTOBUF_JAVA_VERSION = "4.30.1"
 JLINE_VERSION = '3.29.0'
 SCALAPB_VERSION = '1.0.0-alpha.1'
 PROTOC_BRIDGE_VERSION = '0.9.8'
-GRPC_VERSION = '1.71.0'
-GRPC_COMMON_PROTOS_VERSION = '2.54.1'
+GRPC_VERSION = '1.72.0'
+GRPC_COMMON_PROTOS_VERSION = '2.55.2'
 GRPC_LIBS = ['netty', 'protobuf', 'stub']
-GUAVA_VERSION = '33.4.4-jre'
+GUAVA_VERSION = '33.4.8-jre'
 
 # This should include values corresponding to `MavenCoordinates.artifact_name`,
 # i.e., group:artifact after stripping any Scala version suffix from artifact.
