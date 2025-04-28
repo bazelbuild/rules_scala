@@ -63,7 +63,7 @@ scrooge_toolchain = rule(
     },
 )
 
-_toolchain_type = Label("//twitter_scrooge/toolchain:scrooge_toolchain_type")
+_toolchain_type = "//twitter_scrooge/toolchain:scrooge_toolchain_type"
 
 def _export_scrooge_deps_impl(ctx):
     return expose_toolchain_deps(ctx, _toolchain_type)

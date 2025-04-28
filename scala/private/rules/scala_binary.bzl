@@ -60,7 +60,7 @@ _scala_binary_attrs = {
     "classpath_resources": attr.label_list(allow_files = True),
     "jvm_flags": attr.string_list(),
     "runtime_jdk": attr.label(
-        default = Label("@rules_java//toolchains:current_java_runtime"),
+        default = "@rules_java//toolchains:current_java_runtime",
         providers = [java_common.JavaRuntimeInfo],
     ),
 }
@@ -89,7 +89,7 @@ def make_scala_binary(*extras):
             *[extra["outputs"] for extra in extras if "outputs" in extra]
         ),
         toolchains = [
-            Label("//scala:toolchain_type"),
+            "//scala:toolchain_type",
             "@bazel_tools//tools/jdk:toolchain_type",
         ],
         cfg = scala_version_transition,

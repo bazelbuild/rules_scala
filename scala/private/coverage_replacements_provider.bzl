@@ -67,7 +67,7 @@ def _aspect_impl(target, ctx):
 _aspect = aspect(
     attr_aspects = _dependency_attributes,
     implementation = _aspect_impl,
-    toolchains = [Label("//scala:toolchain_type")],
+    toolchains = ["//scala:toolchain_type"],
 )
 
 coverage_replacements_provider = struct(

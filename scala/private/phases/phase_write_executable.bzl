@@ -20,7 +20,7 @@ def phase_write_executable_scalatest(ctx, p):
     # toolchain
     final_jvm_flags = first_non_empty(
         ctx.attr.jvm_flags,
-        ctx.toolchains[Label("//scala:toolchain_type")].scala_test_jvm_flags,
+        ctx.toolchains["//scala:toolchain_type"].scala_test_jvm_flags,
     )
 
     args = struct(
@@ -115,7 +115,7 @@ def _write_executable_non_windows(ctx, executable, rjars, main_class, jvm_flags,
         wrapper.short_path,
     )
 
-    scala_toolchain = ctx.toolchains[Label("//scala:toolchain_type")]
+    scala_toolchain = ctx.toolchains["//scala:toolchain_type"]
 
     test_runner_classpath_mode = "argsfile" if scala_toolchain.use_argument_file_in_runner else "manifest"
 

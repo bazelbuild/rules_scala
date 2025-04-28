@@ -68,8 +68,8 @@ _scala_junit_test_attrs = {
     "prefixes": attr.string_list(default = []),
     "suffixes": attr.string_list(default = []),
     "suite_label": attr.label(
-        default = Label(
-            "//src/java/io/bazel/rulesscala/test_discovery:test_discovery",
+        default = (
+            "//src/java/io/bazel/rulesscala/test_discovery:test_discovery"
         ),
     ),
     "suite_class": attr.string(
@@ -81,21 +81,21 @@ _scala_junit_test_attrs = {
     ),
     "jvm_flags": attr.string_list(),
     "runtime_jdk": attr.label(
-        default = Label("@rules_java//toolchains:current_java_runtime"),
+        default = "@rules_java//toolchains:current_java_runtime",
         providers = [java_common.JavaRuntimeInfo],
     ),
     "env": attr.string_dict(default = {}),
     "env_inherit": attr.string_list(),
     "_junit_classpath": attr.label(
-        default = Label("//testing/toolchain:junit_classpath"),
+        default = "//testing/toolchain:junit_classpath",
     ),
     "_bazel_test_runner": attr.label(
-        default = Label("//scala:bazel_test_runner_deploy"),
+        default = "//scala:bazel_test_runner_deploy",
         allow_files = True,
     ),
     "_lcov_merger": attr.label(
-        default = Label(
-            "@bazel_tools//tools/test/CoverageOutputGenerator/java/com/google/devtools/coverageoutputgenerator:Main",
+        default = (
+            "@bazel_tools//tools/test/CoverageOutputGenerator/java/com/google/devtools/coverageoutputgenerator:Main"
         ),
     ),
 }
@@ -103,8 +103,8 @@ _scala_junit_test_attrs = {
 _junit_resolve_deps = {
     "_scala_toolchain": attr.label_list(
         default = [
-            Label("//scala/private/toolchain_deps:scala_library_classpath"),
-            Label("//testing/toolchain:junit_classpath"),
+            "//scala/private/toolchain_deps:scala_library_classpath",
+            "//testing/toolchain:junit_classpath",
         ],
         allow_files = False,
     ),
@@ -138,8 +138,8 @@ def make_scala_junit_test(*extras):
         ),
         test = True,
         toolchains = [
-            Label("//scala:toolchain_type"),
-            Label("//testing/toolchain:testing_toolchain_type"),
+            "//scala:toolchain_type",
+            "//testing/toolchain:testing_toolchain_type",
             "@bazel_tools//tools/jdk:toolchain_type",
         ],
         cfg = scala_version_transition,

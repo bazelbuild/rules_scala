@@ -136,16 +136,16 @@ scala_import = rule(
         "srcjar": attr.label(allow_single_file = True),
         "_placeholder_jar": attr.label(
             allow_single_file = True,
-            default = Label(
-                "//scala:libPlaceHolderClassToCreateEmptyJarForScalaImport.jar",
+            default = (
+                "//scala:libPlaceHolderClassToCreateEmptyJarForScalaImport.jar"
             ),
         ),
         "stamp": attr.label(
             doc = "Adds Target-Label attribute to MANIFEST.MF for dep tracking",
-            default = Label("//scala/settings:stamp_scala_import"),
+            default = "//scala/settings:stamp_scala_import",
         ),
         "java_compile_toolchain": attr.label(
-            default = Label("@rules_java//toolchains:current_java_toolchain"),
+            default = "@rules_java//toolchains:current_java_toolchain",
         ),
     },
     toolchains = ["@bazel_tools//tools/jdk:toolchain_type"],

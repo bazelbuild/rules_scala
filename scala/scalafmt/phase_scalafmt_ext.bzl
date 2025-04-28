@@ -20,21 +20,19 @@ ext_scalafmt = {
         ),
         "_fmt": attr.label(
             cfg = "exec",
-            default = Label("//scala/scalafmt"),
+            default = "//scala/scalafmt",
             executable = True,
         ),
         "_java_host_runtime": attr.label(
-            default = Label(
-                "@rules_java//toolchains:current_host_java_runtime",
-            ),
+            default = "@rules_java//toolchains:current_host_java_runtime",
         ),
         "_runner": attr.label(
             allow_single_file = True,
-            default = Label("//scala/scalafmt:runner"),
+            default = "//scala/scalafmt:runner",
         ),
         "_testrunner": attr.label(
             allow_single_file = True,
-            default = Label("//scala/scalafmt:testrunner"),
+            default = "//scala/scalafmt:testrunner",
         ),
     },
     "outputs": {
@@ -42,7 +40,7 @@ ext_scalafmt = {
         "scalafmt_testrunner": "%{name}.format-test",
     },
     "phase_providers": [
-        Label("//scala/scalafmt:phase_scalafmt"),
+        "//scala/scalafmt:phase_scalafmt",
     ],
 }
 

@@ -39,12 +39,12 @@ scala_generate_benchmark = rule(
         "_generator": attr.label(
             executable = True,
             cfg = "exec",
-            default = Label(
-                "//src/scala/io/bazel/rules_scala/jmh_support:benchmark_generator",
+            default = (
+                "//src/scala/io/bazel/rules_scala/jmh_support:benchmark_generator"
             ),
         ),
         "runtime_jdk": attr.label(
-            default = Label("@rules_java//toolchains:current_java_runtime"),
+            default = "@rules_java//toolchains:current_java_runtime",
             providers = [java_common.JavaRuntimeInfo],
         ),
     },
