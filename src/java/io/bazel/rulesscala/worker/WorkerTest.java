@@ -55,7 +55,12 @@ public class WorkerTest {
             }
           };
 
-      String contents = "line 1\n--flag_1\nsome arg\n";
+      String contents = String.join(
+        System.getProperty("line.separator"),
+        "line 1",
+        "--flag_1",
+        "some arg",
+        "");  // The output will always have a line separator at the end.
 
       Files.write(tmpFile, contents.getBytes(StandardCharsets.UTF_8));
 
@@ -69,8 +74,8 @@ public class WorkerTest {
       WorkerProtocol.WorkResponse response =
           WorkerProtocol.WorkResponse.parseDelimitedFrom(helper.responseIn);
 
-      assertEquals(response.getExitCode(), 0);
-      assertEquals(response.getOutput(), contents);
+      assertEquals(0, response.getExitCode());
+      assertEquals(contents, response.getOutput());
     } finally {
       Files.deleteIfExists(tmpFile);
     }
