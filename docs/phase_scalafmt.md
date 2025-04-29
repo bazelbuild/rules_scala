@@ -75,7 +75,7 @@ The extension provides a default configuration, but there are 2 ways to use
 a custom configuration:
 
 - Put `.scalafmt.conf` at the root of your workspace
-- Pass `.scalafmt.conf` in via `scala_toolchains`:
+- Pass `.scalafmt.conf` into the toolchain configuration:
 
     ```py
     # MODULE.bazel

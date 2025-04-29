@@ -930,19 +930,36 @@ parameter list, which is almost in complete correspondence with parameters from
 the previous macros. The `WORKSPACE` files in this repository also provide many
 examples.
 
-### Replacing toolchain registration macros in `WORKSPACE`
+### Replacing toolchain registration macros
 
 Almost all `rules_scala` toolchains configured using `scala_toolchains()` are
-automatically registered by `scala_register_toolchains()`. There are two
-toolchain macro replacements that require special handling.
+automatically registered by `scala_register_toolchains()`. The same is true for
+toolchains configured using the `scala_deps` module extension under Bzlmod.
+There are two toolchain macro replacements that require special handling.
 
 The first is replacing `scala_proto_register_enable_all_options_toolchain()`
-with the following `scala_toolchains()` parameters:
+with the following:
 
 ```py
+# MODULE.bazel
+
+scala_deps.scala_proto(
+    "default_gen_opts" = [
+        "flat_package",
+        "grpc",
+        "single_line_to_proto_string",
+    ],
+)
+
+# WORKSPACE
 scala_toolchains(
-    scala_proto = True,
-    scala_proto_options = [],
+    scala_proto = {
+        "default_gen_opts": [
+            "flat_package",
+            "grpc",
+            "single_line_to_proto_string",
+        ],
+    },
 )
 ```
 

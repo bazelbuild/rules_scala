@@ -16,6 +16,10 @@ def setup_scala_proto_toolchains(
     See //scala/private:macros/toolchains_repo.bzl for details, especially the
     _SCALA_PROTO_TOOLCHAIN_BUILD string template.
 
+    See the `scalapbc` column of the "ScalaPB: SBT Settings > Additional options
+    to the generator" table below for `default_gen_opts` values:
+    - https://scalapb.github.io/docs/sbt-settings#additional-options-to-the-generator
+
     Args:
       name: prefix for all generate toolchains
       default_gen_opts: parameters passed to the default generator

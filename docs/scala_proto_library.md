@@ -1,21 +1,39 @@
 # scala_proto_library
 
-To use this rule, you'll first need to add the following to your `WORKSPACE` file,
-which adds a few dependencies needed for ScalaPB:
+To use this rule, add the following configuration, which adds the dependencies
+needed for ScalaPB:
 
 ```py
-scala_toolchains(
-    # Other toolchains settings...
-    scala_proto = True,
-    scala_proto_options = [
+# MODULE.bazel
+scala_deps.scala_proto(
+    "default_gen_opts" = [
         "grpc",
         "flat_package",
         "scala3_sources",
     ],
 )
+```
+
+```py
+# WORKSPACE
+scala_toolchains(
+    # Other toolchains settings...
+    scala_proto = {
+        "default_gen_opts": [
+            "grpc",
+            "flat_package",
+            "scala3_sources",
+        ],
+    },
+)
 
 scala_register_toolchains()
 ```
+
+See the __scalapbc__ column of the [__ScalaPB: SBT Settings > Additional options
+to the generator__](
+https://scalapb.github.io/docs/sbt-settings#additional-options-to-the-generator
+) table for `default_gen_opts` values.
 
 Then you can import `scala_proto_library` in any `BUILD` file like this:
 
