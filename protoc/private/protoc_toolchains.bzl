@@ -17,9 +17,14 @@ def _default_platform():
     for platform, info in PROTOC_BUILDS.items():
         if sorted(info["exec_compat"]) == host_platform:
             return platform
+
+    # Temporary measure until native Windows ARM64 builds exist.
+    if host_platform == ["@platforms//cpu:aarch64", "@platforms//os:windows"]:
+        return "win64"
+
     fail(
         "no protoc build found for host platform with constraints: " +
-        HOST_CONSTRAINTS,
+        ", ".join(HOST_CONSTRAINTS),
     )
 
 def _platform_build(platform):

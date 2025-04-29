@@ -22,3 +22,6 @@ repository-artifacts.json
 
 # Used by some tests, but can also be used for local experimentation.
 tmp/
+
+# Not required by tests.
+deps/latest/.bazelversion

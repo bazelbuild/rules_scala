@@ -7,7 +7,7 @@ local_repository(
     path = "..",
 )
 
-load("@rules_scala//scala:deps.bzl", "rules_scala_dependencies")
+load("@rules_scala//scala:latest_deps.bzl", "rules_scala_dependencies")
 
 rules_scala_dependencies()
 

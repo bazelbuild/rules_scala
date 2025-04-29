@@ -2,6 +2,7 @@
 # - bazelbuild/bazel: Loading top-level targets in local_path_override modules
 #   in child directory breaks the build #22208
 #   https://github.com/bazelbuild/bazel/issues/22208
+deps/
 dt_patches/compiler_sources
 dt_patches/test_dt_patches
 dt_patches/test_dt_patches_user_srcjar
