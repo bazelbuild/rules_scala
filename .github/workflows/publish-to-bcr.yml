@@ -28,7 +28,7 @@ jobs:
     with:
       tag_name: ${{ inputs.tag_name }}
       # bazelbuild/bazel-central-registry fork used to open a pull request.
-      registry_fork: simuons/bazel-central-registry
+      registry_fork: bazel-contrib/bazel-central-registry
     permissions:
       attestations: write
       contents: write
