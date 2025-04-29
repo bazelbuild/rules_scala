@@ -7,11 +7,7 @@ load(
     "scala_version_artifact_ids",
     "setup_scala_compiler_sources",
 )
-load(
-    "//scala/scalafmt:scalafmt_repositories.bzl",
-    "scalafmt_artifact_ids",
-    "scalafmt_config",
-)
+load("//scala/scalafmt:scalafmt_repositories.bzl", "scalafmt_artifact_ids")
 load("//scala:scala_cross_version.bzl", "default_maven_server_urls")
 load("//scala:toolchains_repo.bzl", "scala_toolchains_repo")
 load("//scala_proto/default:repositories.bzl", "scala_proto_artifact_ids")
@@ -40,7 +36,7 @@ def scala_toolchains(
         junit = False,
         specs2 = False,
         scalafmt = False,
-        scalafmt_default_config_path = ".scalafmt.conf",
+        scalafmt_default_config = Label("//:.scalafmt.conf"),
         scala_proto = False,
         scala_proto_options = [],
         jmh = False,
@@ -87,8 +83,7 @@ def scala_toolchains(
         junit: whether to instantiate the JUnit toolchain
         specs2: whether to instantiate the Specs2 JUnit toolchain
         scalafmt: whether to instantiate the Scalafmt toolchain
-        scalafmt_default_config_path: the relative path to the default Scalafmt
-            config file within the repository
+        scalafmt_default_config: the default config file for Scalafmt targets
         scala_proto: whether to instantiate the scala_proto toolchain
         scala_proto_options: protobuf options, like 'scala3_sources' or 'grpc';
             `scala_proto` must also be `True` for this to take effect
@@ -111,10 +106,6 @@ def scala_toolchains(
         fail("unknown twitter_scrooge_deps:", ", ".join(unknown_ts_deps))
 
     setup_scala_compiler_sources(scala_compiler_srcjars)
-
-    if scalafmt:
-        scalafmt_conf_target = "//:" + scalafmt_default_config_path
-        scalafmt_config(name = "scalafmt_default", path = scalafmt_conf_target)
 
     if specs2:
         junit = True
@@ -187,6 +178,7 @@ def scala_toolchains(
         junit = junit,
         specs2 = specs2,
         scalafmt = scalafmt,
+        scalafmt_default_config = scalafmt_default_config,
         scala_proto = scala_proto,
         scala_proto_options = scala_proto_options,
         jmh = jmh,

@@ -112,7 +112,6 @@ use_repo(
     dev_deps,
     "scala_proto_rules_scalapb_compilerplugin",
     "scala_proto_rules_scalapb_protoc_bridge",
-    "scalafmt_default",
 )
 
 # Default versions of version specific repos needed by some of our tests. Tests

@@ -11,7 +11,7 @@ ext_scalafmt = {
     "attrs": {
         "config": attr.label(
             allow_single_file = [".conf"],
-            default = "@scalafmt_default//:config",
+            default = "@rules_scala_toolchains//scalafmt:config",
             doc = "The Scalafmt configuration file.",
         ),
         "format": attr.bool(
