@@ -130,5 +130,10 @@ tasks:
   dependency_versions_windows:
     name: "./test_dependency_versions"
     platform: windows
-    shell_commands:
-    - "./test_dependency_versions.sh"
+    environment:
+      MSYS2_ARG_CONV_EXCL: "*"
+    batch_commands:
+    - "set PATH=/usr/bin;%PATH%" #Make sure bash uses msys commands over windows commands. (i.e. find).
+    - "bash -lc \"pacman --noconfirm --needed -S libxml2\"" #tests require xmllint
+    - "bash test_dependency_versions.sh"
+

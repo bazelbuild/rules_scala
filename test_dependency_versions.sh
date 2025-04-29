@@ -143,14 +143,13 @@ do_build_and_test() {
     "${dir}/deps/test/MODULE.bazel.template" >MODULE.bazel
 
   # Copy files needed by the test targets
-  local test_files=(
-    "${dir}"/deps/test/*.{scala,bzl}
-    "${dir}"/examples/testing/multi_frameworks_toolchain/example/*.scala
-    "${dir}"/test/jmh/{TestBenchmark.scala,data.txt}
-    "${dir}"/test/proto/standalone.proto
-    "${dir}"/test/src/main/scala/scalarules/test/twitter_scrooge/thrift/thrift2/thrift3/Thrift3.thrift
-  )
-  cp "${test_files[@]}" .
+  cp \
+    "${dir}"/deps/test/*.{scala,bzl} \
+    "${dir}"/examples/testing/multi_frameworks_toolchain/example/*.scala \
+    "${dir}"/test/jmh/{TestBenchmark.scala,data.txt} \
+    "${dir}"/test/proto/standalone.proto \
+    "${dir}"/test/src/main/scala/scalarules/test/twitter_scrooge/thrift/thrift2/thrift3/Thrift3.thrift \
+    .
 
   set -e
   bazel build //...
