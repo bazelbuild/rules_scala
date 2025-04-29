@@ -135,5 +135,4 @@ tasks:
     batch_commands:
     - "set PATH=/usr/bin;%PATH%" #Make sure bash uses msys commands over windows commands. (i.e. find).
     - "bash -lc \"pacman --noconfirm --needed -S libxml2\"" #tests require xmllint
-    - "bash test_dependency_versions.sh"
-
+    - "bash ./test_dependency_versions.sh" # script removes ./ from BASH_SOURCE
