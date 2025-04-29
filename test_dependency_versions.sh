@@ -154,7 +154,15 @@ do_build_and_test() {
   set -e
   bazel build //...
   bazel test //...
-  bazel run //:ScalafmtTest.format-test
+
+  # Windows fails with:
+  # FATAL: ExecuteProgram(C:\...\ScalafmtTest.format-test) failed:
+  #   ERROR: src/main/native/windows/process.cc(202):
+  #   CreateProcessW("C:\...\ScalafmtTest.format-test"):
+  #   %1 is not a valid Win32 application.
+  if ! is_windows; then
+    bazel run //:ScalafmtTest.format-test
+  fi
 }
 
 test_minimum_supported_versions() {
