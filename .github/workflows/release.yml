@@ -27,7 +27,7 @@ permissions:
 
 jobs:
   release:
-    uses: bazel-contrib/.github/.github/workflows/release_ruleset.yaml@v7.1.0
+    uses: bazel-contrib/.github/.github/workflows/release_ruleset.yaml@v7.2.2
     with:
       bazel_test_command: "bazel test //src/... //test/... //third_party/..."
       prerelease: false
