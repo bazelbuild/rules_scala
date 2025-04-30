@@ -96,6 +96,7 @@ _scalafmt_attrs = {
     "default_config": attr.label(
         default = _scalafmt_defaults["default_config"],
         doc = "The default config file for Scalafmt targets",
+        allow_single_file = True,
     ),
 }
 
