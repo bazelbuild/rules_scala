@@ -244,8 +244,11 @@ scala_deps = module_extension(
     tag_classes = _tag_classes,
     doc = """Selects and configures builtin toolchains.
 
-If the root module explicitly uses the extension, it assumes responsibility for
-selecting all required toolchains by insantiating the corresponding tag classes:
+Modules throughout the dependency graph can enable a builtin toolchain by
+instantiating its corresponding tag class. The root module controls the
+configuration of all toolchains it directly enables. Any other builtin
+toolchain required by other modules will use that toolchain's default
+configuration values.
 
 ```py
 scala_deps = use_extension(
@@ -253,14 +256,14 @@ scala_deps = use_extension(
     "scala_deps",
 )
 scala_deps.scala()
-scala_deps.scala_proto()
+scala_deps.scala_proto(default_gen_opts = ["grpc", "scala3_sources"])
 
 dev_deps = use_extension(
     "@rules_scala//scala/extensions:deps.bzl",
     "scala_deps",
     dev_dependency = True,
 )
-dev_deps.scalafmt()
+dev_deps.scalafmt(default_config = "path/to/scalafmt.conf")
 dev_deps.scalatest()
 
 # And so on...
