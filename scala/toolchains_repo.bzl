@@ -68,10 +68,11 @@ def _scala_toolchains_repo_impl(repository_ctx):
 
     if repo_attr.scalafmt:
         toolchains["scalafmt"] = _SCALAFMT_TOOLCHAIN_BUILD
-        repository_ctx.symlink(
-            repository_ctx.path(repo_attr.scalafmt_default_config),
-            "scalafmt/.scalafmt.conf",
-        )
+        config_path = repository_ctx.path(repo_attr.scalafmt_default_config)
+
+        if not config_path.exists:
+            fail("Scalafmt default config file doesn't exist:", config_path)
+        repository_ctx.symlink(config_path, "scalafmt/scalafmt.conf")
 
     # Generate a root package so that the `register_toolchains` call in
     # `MODULE.bazel` always succeeds.
@@ -190,7 +191,7 @@ load(
 
 filegroup(
     name = "config",
-    srcs = [":.scalafmt.conf"],
+    srcs = [":scalafmt.conf"],
     visibility = ["//visibility:public"],
 )
 
