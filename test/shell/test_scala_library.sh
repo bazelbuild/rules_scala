@@ -59,14 +59,14 @@ test_scala_library_expect_failure_on_missing_direct_internal_deps() {
 }
 
 test_scala_library_expect_failure_on_missing_direct_external_deps_jar() {
-  dependenecy_target='@com_google_guava_guava_21_0//:com_google_guava_guava_21_0'
+  dependenecy_target='@[a-z_.~+-]*com_google_guava_guava_21_0//:com_google_guava_guava_21_0'
   test_target='test_expect_failure/missing_direct_deps/external_deps:transitive_external_dependency_user'
 
   test_scala_library_expect_failure_on_missing_direct_deps $dependenecy_target $test_target
 }
 
 test_scala_library_expect_failure_on_missing_direct_external_deps_file_group() {
-  dependenecy_target='@com_google_guava_guava_21_0_with_file//:com_google_guava_guava_21_0_with_file'
+  dependenecy_target='@[a-z_.~+-]*com_google_guava_guava_21_0_with_file//:com_google_guava_guava_21_0_with_file'
   test_target='test_expect_failure/missing_direct_deps/external_deps:transitive_external_dependency_user_file_group'
 
   test_scala_library_expect_failure_on_missing_direct_deps $dependenecy_target $test_target
@@ -177,7 +177,7 @@ test_scala_library_expect_better_failure_with_target_label_from_stamped_jar_on_m
 
 test_scala_library_expect_better_failure_message_on_missing_transitive_dependency_labels_from_other_jvm_rules() {
   transitive_target='.*transitive_dependency_without_manifest.jar'
-  direct_target='@//test_expect_failure/missing_direct_deps/internal_deps:unstamped_direct_java_provider_dependency'
+  direct_target='@@?//test_expect_failure/missing_direct_deps/internal_deps:unstamped_direct_java_provider_dependency'
   test_target='//test_expect_failure/missing_direct_deps/internal_deps:unstamped_jar_dependent_on_some_java_provider'
 
   expected_message="Unknown label of file $transitive_target which came from $direct_target"

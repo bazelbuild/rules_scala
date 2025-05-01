@@ -52,16 +52,36 @@ def sanitize_version(scala_version):
 def version_suffix(scala_version):
     return "_" + sanitize_version(scala_version)
 
+def repositories(scala_version, repos):
+    """Adds the Scala version suffix to a list of repository IDs.
+
+    If `repos` is `None`, this will return `None`. This enables the massaging of
+    optional function arguments.
+
+    Args:
+        scala_version: the Scala version to append to each repo name
+        repos: list of repository names
+
+    Returns:
+        a list of repository names with the Scala version suffix appended, or
+        `None` if `repos` is `None`
+    """
+    if repos == None:
+        return None
+
+    suffix = version_suffix(scala_version)
+    return [repo + suffix for repo in repos]
+
 def _scala_version_transition_impl(settings, attr):
     if attr.scala_version:
-        return {"@io_bazel_rules_scala_config//:scala_version": attr.scala_version}
+        return {"@rules_scala_config//:scala_version": attr.scala_version}
     else:
         return {}
 
 scala_version_transition = transition(
     implementation = _scala_version_transition_impl,
     inputs = [],
-    outputs = ["@io_bazel_rules_scala_config//:scala_version"],
+    outputs = ["@rules_scala_config//:scala_version"],
 )
 
 toolchain_transition_attr = {

@@ -2,15 +2,15 @@
 
 load("@bazel_skylib//lib:dicts.bzl", _dicts = "dicts")
 load(
-    "@io_bazel_rules_scala//scala/private:common_attributes.bzl",
+    "//scala/private:common_attributes.bzl",
     "common_attrs",
     "implicit_deps",
     "launcher_template",
 )
-load("@io_bazel_rules_scala//scala/private:common_outputs.bzl", "common_outputs")
-load("@io_bazel_rules_scala//scala:scala_cross_version.bzl", "scala_version_transition", "toolchain_transition_attr")
+load("//scala/private:common_outputs.bzl", "common_outputs")
+load("//scala:scala_cross_version.bzl", "scala_version_transition", "toolchain_transition_attr")
 load(
-    "@io_bazel_rules_scala//scala/private:phases/phases.bzl",
+    "//scala/private:phases/phases.bzl",
     "extras_phases",
     "phase_collect_jars_junit_test",
     "phase_compile_junit_test",
@@ -25,6 +25,7 @@ load(
     "phase_runfiles_common",
     "phase_scalac_provider",
     "phase_scalacopts",
+    "phase_scalainfo_provider_non_macro",
     "phase_semanticdb",
     "phase_test_environment",
     "phase_write_executable_junit_test",
@@ -42,6 +43,7 @@ def _scala_junit_test_impl(ctx):
         # customizable phases
         [
             ("scalac_provider", phase_scalac_provider),
+            ("scalainfo_provider", phase_scalainfo_provider_non_macro),
             ("write_manifest", phase_write_manifest),
             ("dependency", phase_dependency_common),
             ("collect_jars", phase_collect_jars_junit_test),
@@ -66,8 +68,8 @@ _scala_junit_test_attrs = {
     "prefixes": attr.string_list(default = []),
     "suffixes": attr.string_list(default = []),
     "suite_label": attr.label(
-        default = Label(
-            "//src/java/io/bazel/rulesscala/test_discovery:test_discovery",
+        default = (
+            "//src/java/io/bazel/rulesscala/test_discovery:test_discovery"
         ),
     ),
     "suite_class": attr.string(
@@ -79,23 +81,21 @@ _scala_junit_test_attrs = {
     ),
     "jvm_flags": attr.string_list(),
     "runtime_jdk": attr.label(
-        default = Label("@bazel_tools//tools/jdk:current_java_runtime"),
+        default = "@rules_java//toolchains:current_java_runtime",
         providers = [java_common.JavaRuntimeInfo],
     ),
     "env": attr.string_dict(default = {}),
     "env_inherit": attr.string_list(),
     "_junit_classpath": attr.label(
-        default = Label("@io_bazel_rules_scala//testing/toolchain:junit_classpath"),
+        default = "//testing/toolchain:junit_classpath",
     ),
     "_bazel_test_runner": attr.label(
-        default = Label(
-            "@io_bazel_rules_scala//scala:bazel_test_runner_deploy",
-        ),
+        default = "//scala:bazel_test_runner_deploy",
         allow_files = True,
     ),
     "_lcov_merger": attr.label(
-        default = Label(
-            "@bazel_tools//tools/test/CoverageOutputGenerator/java/com/google/devtools/coverageoutputgenerator:Main",
+        default = (
+            "@bazel_tools//tools/test/CoverageOutputGenerator/java/com/google/devtools/coverageoutputgenerator:Main"
         ),
     ),
 }
@@ -103,10 +103,8 @@ _scala_junit_test_attrs = {
 _junit_resolve_deps = {
     "_scala_toolchain": attr.label_list(
         default = [
-            Label(
-                "@io_bazel_rules_scala//scala/private/toolchain_deps:scala_library_classpath",
-            ),
-            Label("@io_bazel_rules_scala//testing/toolchain:junit_classpath"),
+            "//scala/private/toolchain_deps:scala_library_classpath",
+            "//testing/toolchain:junit_classpath",
         ],
         allow_files = False,
     ),
@@ -140,11 +138,12 @@ def make_scala_junit_test(*extras):
         ),
         test = True,
         toolchains = [
-            "@io_bazel_rules_scala//scala:toolchain_type",
+            "//scala:toolchain_type",
+            "//testing/toolchain:testing_toolchain_type",
             "@bazel_tools//tools/jdk:toolchain_type",
         ],
         cfg = scala_version_transition,
-        incompatible_use_toolchain_transition = True,
+        provides = [JavaInfo],
         implementation = _scala_junit_test_impl,
     )
 

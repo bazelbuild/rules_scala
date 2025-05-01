@@ -1,9 +1,9 @@
 load("//scala_proto:scala_proto.bzl", "make_scala_proto_aspect", "make_scala_proto_library")
-load("@io_bazel_rules_scala//scala:advanced_usage/providers.bzl", "ScalaRulePhase")
+load("//scala:advanced_usage/providers.bzl", "ScalaRulePhase")
 
 def _phase_custom_stamping_convention(ctx, p):
     rule_label = str(p.target.label)
-    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
+    toolchain = ctx.toolchains["//scala_proto:toolchain_type"]
 
     if toolchain.stamp_by_convention:
         return rule_label + "_custom_suffix"

@@ -8,7 +8,7 @@ dependencies_to_test = [
 deps_with_external_binds = [
     (
         dep_name,
-        "//external:io_bazel_rules_scala/dependency/thrift/{}".format(dep_name),
+        "@io_bazel_rules_scala_{}".format(dep_name),
     )
     for dep_name in dependencies_to_test
 ]

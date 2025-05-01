@@ -1,29 +1,5 @@
-load("//scala:scala.bzl", "scala_binary", "scala_library")
-load(
-    "//scala:scala_cross_version.bzl",
-    "default_maven_server_urls",
-)
-load("//third_party/repositories:repositories.bzl", "repositories")
-
-def jmh_repositories(
-        maven_servers = default_maven_server_urls(),
-        overriden_artifacts = {}):
-    repositories(
-        for_artifact_ids = [
-            "io_bazel_rules_scala_org_openjdk_jmh_jmh_core",
-            "io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_asm",
-            "io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_reflection",
-            "io_bazel_rules_scala_org_openjdk_jmh_jmh_generator_reflection",
-            "io_bazel_rules_scala_org_ows2_asm_asm",
-            "io_bazel_rules_scala_net_sf_jopt_simple_jopt_simple",
-            "io_bazel_rules_scala_org_apache_commons_commons_math3",
-        ],
-        fetch_sources = False,
-        maven_servers = maven_servers,
-        overriden_artifacts = {},
-    )
-
-    native.register_toolchains("@io_bazel_rules_scala//jmh:jmh_toolchain")
+load("//scala/private:rules/scala_binary.bzl", "scala_binary")
+load("//scala/private:rules/scala_library.bzl", "scala_library")
 
 def _scala_generate_benchmark(ctx):
     # we use required providers to ensure JavaInfo exists
@@ -63,12 +39,12 @@ scala_generate_benchmark = rule(
         "_generator": attr.label(
             executable = True,
             cfg = "exec",
-            default = Label(
-                "//src/scala/io/bazel/rules_scala/jmh_support:benchmark_generator",
+            default = (
+                "//src/scala/io/bazel/rules_scala/jmh_support:benchmark_generator"
             ),
         ),
         "runtime_jdk": attr.label(
-            default = Label("@bazel_tools//tools/jdk:current_java_runtime"),
+            default = "@rules_java//toolchains:current_java_runtime",
             providers = [java_common.JavaRuntimeInfo],
         ),
     },
@@ -89,14 +65,15 @@ def scala_benchmark_jmh(**kw):
     testonly = kw.get("testonly", False)
     scalacopts = kw.get("scalacopts", [])
     main_class = kw.get("main_class", "org.openjdk.jmh.Main")
-    runtime_jdk = kw.get("runtime_jdk", "@bazel_tools//tools/jdk:current_java_runtime")
+    runtime_jdk = kw.get(
+        "runtime_jdk",
+        "@rules_java//toolchains:current_java_runtime",
+    )
 
     scala_library(
         name = lib,
         srcs = srcs,
-        deps = deps + [
-            "@io_bazel_rules_scala//jmh:jmh_core",
-        ],
+        deps = deps + [Label("//jmh:jmh_core")],
         runtime_deps = runtime_deps,
         scalacopts = scalacopts,
         resources = kw.get("resources", []),
@@ -119,7 +96,7 @@ def scala_benchmark_jmh(**kw):
         name = compiled_lib,
         srcs = ["%s.srcjar" % codegen],
         deps = deps + [
-            "@io_bazel_rules_scala//jmh:jmh_core",
+            Label("//jmh:jmh_core"),
             lib,
         ],
         resource_jars = ["%s_resources.jar" % codegen],
@@ -129,7 +106,7 @@ def scala_benchmark_jmh(**kw):
     scala_binary(
         name = name,
         deps = [
-            "@io_bazel_rules_scala//jmh:jmh_classpath",
+            Label("//jmh:jmh_classpath"),
             compiled_lib,
         ],
         data = data,

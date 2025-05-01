@@ -3,100 +3,25 @@ package io.bazel.rulesscala.utils
 import java.nio.file.Path
 import java.nio.file.Paths
 import scala.reflect.internal.util.BatchSourceFile
+import scala.reflect.internal.util.Position
 import scala.reflect.io.AbstractFile
 import scala.reflect.io.Directory
 import scala.reflect.io.PlainDirectory
 import scala.reflect.io.VirtualDirectory
-import scala.tools.cmd.CommandLineParser
 import scala.tools.nsc.CompilerCommand
 import scala.tools.nsc.Global
 import scala.tools.nsc.Settings
 import scala.tools.nsc.reporters.StoreReporter
 import io.bazel.rulesscala.dependencyanalyzer.DependencyTrackingMethod
 
-object TestUtil {
-  final val defaultTarget = "//..."
+object TestUtil extends TestUtilCommon {
 
-  val isWindows: Boolean = System.getProperty("os.name").toLowerCase.contains("windows")
-
-  //Backslashes used as escape, so paths should use forward slashes to simulate the scalacworker.
-  private def normalizePath(s:String): String  = {
-     if (isWindows) s.replace('\\', '/') else s 
-  }
-
-  private def constructPluginParam(pluginName: String)(name: String, values: Iterable[String]): String = {
-    //Using ';' as a param value delimiter, and then need to escape any ';' thats in a param's value
-    if (values.isEmpty) ""
-    else s"-P:$pluginName:$name:${values.map(s=>s.replace(";", "\\;")).mkString(";")}" 
-  }
-
-  private lazy val toolboxPluginOptions: String = {
-    val jar = System.getProperty(s"plugin.jar.location")
-    val start = jar.indexOf(s"/third_party/dependency_analyzer")
-    // this substring is needed due to issue: https://github.com/bazelbuild/bazel/issues/2475
-    val jarInRelationToBaseDir = jar.substring(start, jar.length)
-    val pluginPath = Paths.get(baseDir, jarInRelationToBaseDir).toAbsolutePath
-    s"-Xplugin:$pluginPath -Jdummy=${pluginPath.toFile.lastModified}"
-  }
-
-  case class DependencyAnalyzerTestParams(
-    dependencyTrackingMethod: DependencyTrackingMethod,
-    strictDeps: Boolean = false,
-    unusedDeps: Boolean = false,
-    directJars: List[String] = List.empty,
-    directTargets: List[String] = List.empty,
-    indirectJars: List[String] = List.empty,
-    indirectTargets: List[String] = List.empty
-  )
-
-  private def getDependencyAnalyzerOptions(params: DependencyAnalyzerTestParams): String = {
-    val argsForAnalyzer =
-      List(
-        "dependency-tracking-method" -> Seq(params.dependencyTrackingMethod.name),
-        "current-target" -> Seq(TestUtil.defaultTarget),
-        "unused-deps-mode" -> (if (params.unusedDeps) { Seq("error") } else { Seq() }),
-        "strict-deps-mode" -> (if (params.strictDeps) { Seq("error") } else { Seq() }),
-        "direct-jars" -> params.directJars.map(normalizePath),
-        "direct-targets" -> params.directTargets,
-        "indirect-jars" -> params.indirectJars.map(normalizePath),
-        "indirect-targets" -> params.indirectTargets
-      )
-    val constructParam = TestUtil.constructPluginParam("dependency-analyzer") _
-    val argsForAnalyzerString =
-      argsForAnalyzer
-        .map { case (k, v) =>
-          constructParam(k, v)
-        }
-        .mkString(" ")
-    s"$argsForAnalyzerString $toolboxPluginOptions"
-  }
-
-  private def getClasspathArguments(extraClasspath: List[String]): String = {
-    val classpathEntries = {
-      val builtinClassPaths = builtinClasspaths.filterNot(_.isEmpty)
-      extraClasspath ++ builtinClassPaths
-    }
-    if (classpathEntries.isEmpty) {
-      ""
-    } else {
-      s"-classpath ${classpathEntries.map(normalizePath).mkString(java.io.File.pathSeparator)}"
-    }
-  }
-
-  /**
-   * Runs the compiler on a piece of code.
-   *
-   * @param dependencyAnalyzerParamsOpt If set, includes the dependency analyzer
-   *                                    plugin with the provided parameters
-   * @param outputPathOpt If non-None, a directory to output the files in
-   * @return list of errors returned by the compiler
-   */
-  def runCompiler(
+  override def runCompiler(
     code: String,
     extraClasspath: List[String] = List.empty,
     dependencyAnalyzerParamsOpt: Option[DependencyAnalyzerTestParams] = None,
     outputPathOpt: Option[Path] = None
-  ): List[StoreReporter#Info] = {
+  ): List[Diagnostic] = {
     val dependencyAnalyzerOptions =
       dependencyAnalyzerParamsOpt
         .map(getDependencyAnalyzerOptions)
@@ -110,13 +35,18 @@ object TestUtil {
     eval(code = code, compileOptions = compileOptions, output = output)
   }
 
+  class CompatSourcePosition(underlying: Position) extends SourcePosition {
+    override def isDefined = underlying.isDefined
+    override def line = underlying.line
+    override def column = underlying.column
+  }
   private def eval(
     code: String,
     compileOptions: String,
     output: AbstractFile
-  ): List[StoreReporter#Info] = {
+  ): List[Diagnostic] = {
     // TODO: Optimize and cache global.
-    val options = CommandLineParser.tokenize(compileOptions)
+    val options = CommandLineParserAdapter.tokenize(compileOptions)
     val reporter = new StoreReporter()
     val settings = new Settings(println)
     val _ = new CompilerCommand(options, settings)
@@ -135,25 +65,14 @@ object TestUtil {
     val toCompile = new BatchSourceFile("CompiledCode.scala", code)
     run.compileSources(List(toCompile))
     reporter.infos.filter(_.severity == reporter.ERROR).toList
+    .map{ v => 
+      new Diagnostic.Error(v.msg, new CompatSourcePosition(v.pos))
+    }
   }
 
-  private lazy val baseDir = System.getProperty("user.dir")
-
-  private lazy val builtinClasspaths: Vector[String] =
+  override lazy val builtinClasspaths: Seq[String] =
     Vector(
       pathOf("scala.library.location"),
       pathOf("scala.reflect.location")
     )
-
-  lazy val guavaClasspath: String =
-    pathOf("guava.jar.location")
-
-  lazy val apacheCommonsClasspath: String =
-    pathOf("apache.commons.jar.location")
-
-  private def pathOf(jvmFlag: String) = {
-    val jar = System.getProperty(jvmFlag)
-    val libPath = Paths.get(baseDir, jar).toAbsolutePath
-    libPath.toString
-  }
 }

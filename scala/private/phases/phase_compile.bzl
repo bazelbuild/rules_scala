@@ -4,14 +4,14 @@
 # DOCUMENT THIS
 #
 load(
-    "@io_bazel_rules_scala//scala/private:paths.bzl",
+    "//scala/private:paths.bzl",
     _get_files_with_extension = "get_files_with_extension",
     _java_extension = "java_extension",
     _scala_extension = "scala_extension",
     _srcjar_extension = "srcjar_extension",
 )
 load(
-    "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
+    "//scala/private:rule_impls.bzl",
     "specified_java_compile_toolchain",
     _compile_java = "compile_java",
     _compile_scala = "compile_scala",
@@ -43,17 +43,6 @@ def phase_compile_library(ctx, p):
 def phase_compile_library_for_plugin_bootstrapping(ctx, p):
     args = struct(
         buildijar = ctx.attr.build_ijar,
-    )
-    return _phase_compile_default(ctx, p, args)
-
-def phase_compile_macro_library(ctx, p):
-    args = struct(
-        buildijar = False,
-        unused_dependency_checker_ignored_targets = [
-            target.label
-            for target in p.scalac_provider.default_macro_classpath + ctx.attr.exports +
-                          ctx.attr.unused_dependency_checker_ignored_targets
-        ],
     )
     return _phase_compile_default(ctx, p, args)
 
@@ -102,7 +91,8 @@ def phase_compile_common(ctx, p):
     return _phase_compile_default(ctx, p)
 
 def _phase_compile_default(ctx, p, _args = struct()):
-    buildijar_default_value = True if ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scala_version.startswith("2.") else False
+    toolchain = ctx.toolchains["//scala:toolchain_type"]
+    buildijar_default_value = toolchain.scala_version.startswith("2.")
 
     return _phase_compile(
         ctx,

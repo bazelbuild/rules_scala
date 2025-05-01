@@ -1,6 +1,6 @@
 # scala_binary
 
-```python
+```py
 scala_binary(
     name,
     srcs,

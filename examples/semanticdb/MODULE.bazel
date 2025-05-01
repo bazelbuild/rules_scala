@@ -1,0 +1,60 @@
+"""Bazel module ./test/shell/test_examples.sh tests"""
+
+module(name = "semanticdb_example")
+
+bazel_dep(name = "rules_scala")
+local_path_override(
+    module_name = "rules_scala",
+    path = "../..",
+)
+
+bazel_dep(name = "latest_dependencies")
+local_path_override(
+    module_name = "latest_dependencies",
+    path = "../../deps/latest",
+)
+
+scala_config = use_extension(
+    "@rules_scala//scala/extensions:config.bzl",
+    "scala_config",
+)
+scala_config.settings(
+    scala_version = "2.13.16",
+)
+
+scala_deps = use_extension(
+    "@rules_scala//scala/extensions:deps.bzl",
+    "scala_deps",
+)
+scala_deps.settings(
+    fetch_sources = True,
+)
+scala_deps.scala()
+
+scala_protoc = use_extension(
+    "@rules_scala//scala/extensions:protoc.bzl",
+    "scala_protoc",
+    dev_dependency = True,
+)
+use_repo(scala_protoc, "rules_scala_protoc_toolchains")
+
+# Register and use the custom toolchain that has semanticdb enabled
+register_toolchains(
+    "@rules_scala_protoc_toolchains//...:all",
+    "//:semanticdb_toolchain",
+    dev_dependency = True,
+)
+
+# Temporarily required for `protoc` toolchainization until resolution of
+# protocolbuffers/protobuf#19679.
+bazel_dep(
+    name = "protobuf",
+    version = "30.2",
+    repo_name = "com_google_protobuf",
+)
+single_version_override(
+    module_name = "protobuf",
+    patch_strip = 1,
+    patches = ["//:protobuf.patch"],
+    version = "30.2",
+)

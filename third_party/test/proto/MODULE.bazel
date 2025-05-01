@@ -1,0 +1,50 @@
+"""Bazel module ./test/shell/test_scala_proto_library.sh tests"""
+
+module(name = "proto")
+
+bazel_dep(name = "rules_scala")
+local_path_override(
+    module_name = "rules_scala",
+    path = "../../..",
+)
+
+bazel_dep(name = "latest_dependencies")
+local_path_override(
+    module_name = "latest_dependencies",
+    path = "../../../deps/latest",
+)
+
+scala_deps = use_extension(
+    "@rules_scala//scala/extensions:deps.bzl",
+    "scala_deps",
+    dev_dependency = True,
+)
+scala_deps.scala()
+scala_deps.scala_proto()
+
+scala_protoc = use_extension(
+    "@rules_scala//scala/extensions:protoc.bzl",
+    "scala_protoc",
+    dev_dependency = True,
+)
+use_repo(scala_protoc, "rules_scala_protoc_toolchains")
+
+register_toolchains(
+    "@rules_scala_protoc_toolchains//...:all",
+    "@rules_scala//scala:unused_dependency_checker_error_toolchain",
+    dev_dependency = True,
+)
+
+# Temporarily required for `protoc` toolchainization until resolution of
+# protocolbuffers/protobuf#19679.
+bazel_dep(
+    name = "protobuf",
+    version = "30.2",
+    repo_name = "com_google_protobuf",
+)
+single_version_override(
+    module_name = "protobuf",
+    patch_strip = 1,
+    patches = ["//:protobuf.patch"],
+    version = "30.2",
+)

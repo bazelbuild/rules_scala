@@ -1,0 +1,87 @@
+"""Bazel module ./test/shell/test_examples.sh tests"""
+
+module(name = "scala3_example")
+
+bazel_dep(name = "rules_scala")
+local_path_override(
+    module_name = "rules_scala",
+    path = "../..",
+)
+
+bazel_dep(name = "latest_dependencies")
+local_path_override(
+    module_name = "latest_dependencies",
+    path = "../../deps/latest",
+)
+
+scala_config = use_extension(
+    "@rules_scala//scala/extensions:config.bzl",
+    "scala_config",
+)
+scala_config.settings(
+    enable_compiler_dependency_tracking = True,
+)
+use_repo(scala_config, "rules_scala_config")
+
+bazel_dep(name = "compiler_sources")
+local_path_override(
+    module_name = "compiler_sources",
+    path = "../compiler_sources",
+)
+
+source_repos = use_extension(
+    "@compiler_sources//:extensions.bzl",
+    "compiler_source_repos",
+)
+use_repo(
+    source_repos,
+    # Configured for the current Scala version
+    "scala_compiler",
+    "scala_library",
+    # Scala 2 specific
+    "scala_reflect",
+    # Scala 3 specific
+    "scala3_interfaces",
+    "tasty_core",
+    # Hardcoded versions
+    "sbt_compiler_interface",
+    "scala2_library",
+    "scala_asm",
+)
+
+scala_deps = use_extension(
+    "@rules_scala//scala/extensions:deps.bzl",
+    "scala_deps",
+)
+scala_deps.settings(
+    fetch_sources = True,
+    validate_scala_version = False,
+)
+scala_deps.scala()
+
+scala_protoc = use_extension(
+    "@rules_scala//scala/extensions:protoc.bzl",
+    "scala_protoc",
+    dev_dependency = True,
+)
+use_repo(scala_protoc, "rules_scala_protoc_toolchains")
+
+register_toolchains(
+    "@rules_scala_protoc_toolchains//...:all",
+    "//:dt_scala_toolchain",
+    dev_dependency = True,
+)
+
+# Temporarily required for `protoc` toolchainization until resolution of
+# protocolbuffers/protobuf#19679.
+bazel_dep(
+    name = "protobuf",
+    version = "30.2",
+    repo_name = "com_google_protobuf",
+)
+single_version_override(
+    module_name = "protobuf",
+    patch_strip = 1,
+    patches = ["//:protobuf.patch"],
+    version = "30.2",
+)

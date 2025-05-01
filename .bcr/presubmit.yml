@@ -1,0 +1,14 @@
+bcr_test_module:
+  module_path: "examples/crossbuild"
+  matrix:
+    platform: ["debian10", "macos", "ubuntu2004", "windows"]
+    bazel: [7.x, 8.x, rolling, last_green]
+  tasks:
+    run_tests:
+      name: "Build and test the example module"
+      platform: ${{ platform }}
+      bazel: ${{ bazel }}
+      build_targets:
+        - "//..."
+      test_targets:
+        - "//..."

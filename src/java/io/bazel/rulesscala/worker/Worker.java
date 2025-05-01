@@ -9,10 +9,7 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.security.Permission;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * A base for JVM workers.
@@ -27,6 +24,16 @@ public final class Worker {
 
   public static interface Interface {
     public void work(String[] args) throws Exception;
+
+
+    public abstract class WorkerException extends RuntimeException {
+      public WorkerException(String message) {
+        super(message);
+      }
+      public WorkerException(String message, Throwable cause) {
+        super(message, cause);
+      }
+    }
   }
 
   /**
@@ -44,15 +51,6 @@ public final class Worker {
 
   /** The main loop for persistent worker processes */
   private static void persistentWorkerMain(Interface workerInterface) {
-    System.setSecurityManager(
-        new SecurityManager() {
-          @Override
-          public void checkPermission(Permission permission) {
-            Matcher matcher = exitPattern.matcher(permission.getName());
-            if (matcher.find()) throw new ExitTrapped(Integer.parseInt(matcher.group(1)));
-          }
-        });
-
     InputStream stdin = System.in;
     PrintStream stdout = System.out;
     PrintStream stderr = System.err;
@@ -84,11 +82,9 @@ public final class Worker {
             String[] workerArgs = stringListToArray(request.getArgumentsList());
             String[] args = expandArgsIfArgsfile(workerArgs);
             workerInterface.work(args);
-          } catch (ExitTrapped e) {
-            code = e.code;
           } catch (Exception e) {
-            System.err.println(e.getMessage());
-            e.printStackTrace();
+            if (e instanceof Interface.WorkerException) System.err.println(e.getMessage());
+            else e.printStackTrace();
             code = 1;
           }
 
@@ -166,17 +162,6 @@ public final class Worker {
       }
     }
   }
-
-  static class ExitTrapped extends RuntimeException {
-    final int code;
-
-    ExitTrapped(int code) {
-      super();
-      this.code = code;
-    }
-  }
-
-  private static Pattern exitPattern = Pattern.compile("exitVM\\.(-?\\d+)");
 
   private static String[] stringListToArray(List<String> argList) {
     int numArgs = argList.size();

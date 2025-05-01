@@ -4,7 +4,7 @@ load("//scala:scala_toolchain.bzl", "scala_toolchain")
 toolchain(
     name = "plus_one_strict_deps_filter",
     toolchain = ":plus_one_strict_deps_filter_a_impl",
-    toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
+    toolchain_type = "//scala:toolchain_type",
     visibility = ["//visibility:public"],
 )
 

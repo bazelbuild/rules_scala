@@ -5,6 +5,7 @@
 NC='\033[0m'
 GREEN='\033[0;32m'
 RED='\033[0;31m'
+YELLOW='\033[0;33m'
 
 run_test_ci() {
   # spawns the test to new process
@@ -13,9 +14,10 @@ run_test_ci() {
   echo "running test $TEST_ARG"
   eval $TEST_ARG &>$log_file &
   local test_pid=$!
+
   SECONDS=0
-  TIMOUT=${TEST_TIMEOUT-60}
-  test_pulse_printer $! $TIMOUT $TEST_ARG &
+  test_pulse_printer "$test_pid" "${TEST_TIMEOUT:-60}" $TEST_ARG &
+
   local pulse_printer_pid=$!
   local result
 
@@ -25,7 +27,7 @@ run_test_ci() {
     kill $pulse_printer_pid && wait $pulse_printer_pid 2>/dev/null || true
   } || return 1
 
-  DURATION=$SECONDS
+  local DURATION=$SECONDS
   if [ $result -eq 0 ]; then
     echo -e "\n${GREEN}Test \"$TEST_ARG\" successful ($DURATION sec) $NC"
   else
@@ -38,9 +40,9 @@ run_test_ci() {
 
 test_pulse_printer() {
   # makes sure something is printed to stdout while test is running
-  local test_pid=$1
+  local test_pid="$1"
   shift
-  local timeout=$1 # in minutes
+  local timeout="$1" # in minutes
   shift
   local count=0
 
@@ -60,24 +62,42 @@ test_pulse_printer() {
 run_test_local() {
   # runs the tests locally
   set +e
-  SECONDS=0
-  TEST_ARG=$@
+  local TEST_ARG=$@
+  local RES=''
+
+  # This allows us to run a single test case with full Bazel output without
+  # having to search for it and recreate its command line.
+  if [[ -n "$RULES_SCALA_TEST_ONLY" &&
+        "$TEST_ARG" != "$RULES_SCALA_TEST_ONLY" ]]; then
+    return
+  fi
+
   echo "running test $TEST_ARG"
-  RES=$($TEST_ARG 2>&1)
-  RESPONSE_CODE=$?
-  DURATION=$SECONDS
+  SECONDS=0
+
+  if [[ -n "$RULES_SCALA_TEST_VERBOSE" || -n "$RULES_SCALA_TEST_ONLY" ]]; then
+    $TEST_ARG
+  else
+    RES="$($TEST_ARG 2>&1)"
+  fi
+
+  local RESPONSE_CODE="$?"
+  local DURATION="$SECONDS"
+
   if [ $RESPONSE_CODE -eq 0 ]; then
     echo -e "${GREEN} Test \"$TEST_ARG\" successful ($DURATION sec) $NC"
   else
-    echo -e "\nLog:\n"
-    echo "$RES"
+    if [[ -n "$RES" ]]; then
+      echo -e "\nLog:\n"
+      echo "$RES"
+    fi
     echo -e "${RED} Test \"$TEST_ARG\" failed $NC ($DURATION sec) $NC"
     exit $RESPONSE_CODE
   fi
 }
 
 get_test_runner() {
-  test_env=$1
+  local test_env="$1"
   if [[ "${test_env}" != "ci" && "${test_env}" != "local" ]]; then
     echo -e "${RED}test_env must be either 'local' or 'ci'"
     exit 1

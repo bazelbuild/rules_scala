@@ -7,21 +7,38 @@ on:
     tags:
       - 'v*.*.*'
 
+  # In case of problems, enable manual dispatch from the GitHub UI.
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        required: true
+        type: string
+
+# Uses the `release_ruleset` workflow to generate provenance attestation files
+# referenced by the `publish-to-bcr` workflow.
+#
+# Based on .github/workflows/release.yml from aspect-build/rules_lint v1.3.5.
+# See .bcr/README.md.
+
+permissions:
+  attestations: write # Needed to attest provenance
+  contents: write # Needed to create release
+  id-token: write # Needed to attest provenance
+
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+  release:
+    uses: bazel-contrib/.github/.github/workflows/release_ruleset.yaml@v7.2.2
+    with:
+      bazel_test_command: "bazel test //src/... //test/... //third_party/..."
+      prerelease: false
+      release_files: rules_scala-*.tar.gz
+      release_prep_command: .github/workflows/workspace_snippet.sh
+      tag_name: ${{ inputs.tag_name || github.ref_name }}
 
-      - name: Prepare workspace snippet
-        run: .github/workflows/workspace_snippet.sh ${{ env.GITHUB_REF_NAME }} > release_notes.txt
-
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        with:
-          # Use GH feature to populate the changelog automatically
-          generate_release_notes: true
-          body_path: release_notes.txt
-          fail_on_unmatched_files: true
-          files: rules_scala-*.tar.gz
+  publish-to-bcr:
+    needs: release
+    uses: ./.github/workflows/publish-to-bcr.yml
+    with:
+      tag_name: ${{ inputs.tag_name || github.ref_name }}
+    secrets:
+      bcr_publish_token: ${{ secrets.bcr_publish_token }}

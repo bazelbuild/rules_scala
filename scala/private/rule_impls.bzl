@@ -14,7 +14,7 @@
 """Rules for supporting the Scala language."""
 
 load("@bazel_skylib//lib:paths.bzl", "paths")
-load("@bazel_tools//tools/jdk:toolchain_utils.bzl", "find_java_toolchain")
+load("@rules_java//toolchains:toolchain_utils.bzl", "find_java_toolchain")
 load(":common.bzl", "rlocationpath_from_rootpath", _collect_plugin_paths = "collect_plugin_paths")
 load(":resources.bzl", _resource_paths = "paths")
 
@@ -64,7 +64,7 @@ def compile_scala(
     if dependency_info.use_analyzer:
         plugins = depset(transitive = [plugins, ctx.attr._dependency_analyzer_plugin.files])
 
-    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"]
+    toolchain = ctx.toolchains["//scala:toolchain_type"]
     compiler_classpath_jars = cjars if dependency_info.dependency_mode == "direct" else transitive_compile_jars
     classpath_resources = getattr(ctx.files, "classpath_resources", [])
     scalacopts_expanded = [ctx.expand_location(v, input_plugins) for v in scalacopts]
@@ -124,7 +124,7 @@ def compile_scala(
     # TODO: scalac worker is run with @bazel_tools//tools/jdk:runtime_toolchain_type
     # which is different from rules_java where compilation runtime is used from
     # @bazel_tools//tools/jdk:toolchain_type
-    final_scalac_jvm_flags = first_non_empty(scalac_jvm_flags, toolchain.scalac_jvm_flags) + allow_security_manager(ctx)
+    final_scalac_jvm_flags = first_non_empty(scalac_jvm_flags, toolchain.scalac_jvm_flags)
 
     ctx.actions.run(
         inputs = ins,
@@ -157,10 +157,9 @@ def compile_java(ctx, source_jars, source_files, output, extra_javac_opts, provi
         output = output,
         javac_opts = expand_location(
             ctx,
-            extra_javac_opts +
             java_common.default_javac_opts(
                 java_toolchain = java_toolchain,
-            ),
+            ) + extra_javac_opts,
         ),
         deps = providers_of_dependencies,
         #exports can be empty since the manually created provider exposes exports
@@ -222,12 +221,3 @@ def java_bin_windows(ctx):
 
 def is_windows(ctx):
     return ctx.configuration.host_path_separator == ";"
-
-# Return a jvm flag allowing security manager for jdk runtime >= 17
-# If no runtime is supplied then runtime is taken from ctx.attr._java_host_runtime
-# This must be a runtime used in generated java_binary script (usually workers using SecurityManager)
-def allow_security_manager(ctx, runtime = None):
-    java_runtime = runtime if runtime else ctx.attr._java_host_runtime[java_common.JavaRuntimeInfo]
-
-    # Bazel 5.x doesn't have java_runtime.version defined
-    return ["-Djava.security.manager=allow"] if hasattr(java_runtime, "version") and java_runtime.version >= 17 else []

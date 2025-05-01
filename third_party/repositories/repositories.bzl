@@ -1,4 +1,14 @@
 load(
+    "//scala:scala_cross_version.bzl",
+    "default_maven_server_urls",
+    "extract_major_version",
+    "version_suffix",
+)
+load(
+    "//scala:scala_maven_import_external.bzl",
+    _scala_maven_import_external = "scala_maven_import_external",
+)
+load(
     "//third_party/repositories:scala_2_11.bzl",
     _artifacts_2_11 = "artifacts",
     _scala_version_2_11 = "scala_version",
@@ -29,16 +39,21 @@ load(
     _scala_version_3_3 = "scala_version",
 )
 load(
-    "@io_bazel_rules_scala//scala:scala_cross_version.bzl",
-    "default_maven_server_urls",
-    "extract_major_version",
-    "version_suffix",
+    "//third_party/repositories:scala_3_4.bzl",
+    _artifacts_3_4 = "artifacts",
+    _scala_version_3_4 = "scala_version",
 )
 load(
-    "@io_bazel_rules_scala//scala:scala_maven_import_external.bzl",
-    _scala_maven_import_external = "scala_maven_import_external",
+    "//third_party/repositories:scala_3_5.bzl",
+    _artifacts_3_5 = "artifacts",
+    _scala_version_3_5 = "scala_version",
 )
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
+load(
+    "//third_party/repositories:scala_3_6.bzl",
+    _artifacts_3_6 = "artifacts",
+    _scala_version_3_6 = "scala_version",
+)
+load("@rules_scala_config//:config.bzl", "SCALA_VERSION")
 
 artifacts_by_major_scala_version = {
     "2.11": _artifacts_2_11,
@@ -47,6 +62,9 @@ artifacts_by_major_scala_version = {
     "3.1": _artifacts_3_1,
     "3.2": _artifacts_3_2,
     "3.3": _artifacts_3_3,
+    "3.4": _artifacts_3_4,
+    "3.5": _artifacts_3_5,
+    "3.6": _artifacts_3_6,
 }
 
 scala_version_by_major_scala_version = {
@@ -56,6 +74,9 @@ scala_version_by_major_scala_version = {
     "3.1": _scala_version_3_1,
     "3.2": _scala_version_3_2,
     "3.3": _scala_version_3_3,
+    "3.4": _scala_version_3_4,
+    "3.5": _scala_version_3_5,
+    "3.6": _scala_version_3_6,
 }
 
 def repositories(
@@ -64,6 +85,7 @@ def repositories(
         maven_servers = default_maven_server_urls(),
         overriden_artifacts = {},
         fetch_sources = True,
+        fetch_sources_by_id = {},
         validate_scala_version = False):
     """
     Downloads given artifacts.
@@ -88,29 +110,39 @@ def repositories(
     default_artifacts = artifacts_by_major_scala_version[major_scala_version]
     artifacts = dict(default_artifacts.items() + overriden_artifacts.items())
     for id in for_artifact_ids:
+        if id not in artifacts:
+            fail("artifact %s not in third_party/repositories/scala_%s.bzl" % (
+                id,
+                major_scala_version.replace(".", "_"),
+            ))
+
+        artifact_repo_name = id + suffix
         _scala_maven_import_external(
-            name = id + suffix,
+            name = artifact_repo_name,
             artifact = artifacts[id]["artifact"],
             artifact_sha256 = artifacts[id]["sha256"],
             licenses = ["notice"],
             server_urls = maven_servers,
             deps = [dep + suffix for dep in artifacts[id].get("deps", [])],
-            runtime_deps = artifacts[id].get("runtime_deps", []),
+            runtime_deps = [
+                dep + suffix
+                for dep in artifacts[id].get("runtime_deps", [])
+            ],
             testonly_ = artifacts[id].get("testonly", False),
-            fetch_sources = fetch_sources,
+            fetch_sources = fetch_sources_by_id.get(id, fetch_sources),
         )
 
         # For backward compatibility: non-suffixed repo pointing to the suffixed one,
         # See: https://github.com/bazelbuild/rules_scala/pull/1573
         # Hopefully we can deprecate and remove it one day.
         if suffix and scala_version == SCALA_VERSION:
-            _alias_repository(name = id, target = id + suffix)
+            _alias_repository_wrapper(name = id, target = artifact_repo_name)
 
 def _alias_repository_impl(rctx):
     """ Builds a repository containing just two aliases to the Scala Maven artifacts in the `target` repository. """
-
     format_kwargs = {
-        "name": rctx.name,
+        # Replace with rctx.original_name once all supported Bazels have it
+        "name": getattr(rctx, "original_name", rctx.attr.default_target_name),
         "target": rctx.attr.target,
     }
     rctx.file("BUILD", """alias(
@@ -129,6 +161,15 @@ def _alias_repository_impl(rctx):
 _alias_repository = repository_rule(
     implementation = _alias_repository_impl,
     attrs = {
+        # Remove once all supported Bazels have repository_ctx.original_name
+        "default_target_name": attr.string(mandatory = True),
         "target": attr.string(mandatory = True),
     },
 )
+
+# Remove this macro and use `_alias_repository` directly once all supported
+# Bazel versions support `repository_ctx.original_name`.
+def _alias_repository_wrapper(**kwargs):
+    """Wraps `_alias_repository` to pass `name` as `default_target_name`."""
+    default_target_name = kwargs.pop("default_target_name", kwargs.get("name"))
+    _alias_repository(default_target_name = default_target_name, **kwargs)

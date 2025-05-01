@@ -1,7 +1,29 @@
-load("@io_bazel_rules_scala//scala:providers.bzl", "declare_deps_provider")
-load("@io_bazel_rules_scala//testing/toolchain:toolchain.bzl", "scala_testing_toolchain")
+load("//junit:junit.bzl", "junit_artifact_ids")
+load("//scala:providers.bzl", "declare_deps_provider")
 load("//scala:scala_cross_version.bzl", "version_suffix")
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
+load("//scalatest:scalatest.bzl", "scalatest_artifact_ids")
+load("//specs2:specs2.bzl", "specs2_artifact_ids")
+load("//specs2:specs2_junit.bzl", "specs2_junit_artifact_ids")
+load("//testing/toolchain:toolchain.bzl", "scala_testing_toolchain")
+load("@rules_scala_config//:config.bzl", "SCALA_VERSION")
+
+def _repoize(ids):
+    return ["@" + id for id in ids]
+
+JUNIT_DEPS = _repoize(junit_artifact_ids())
+
+SCALATEST_DEPS = _repoize(scalatest_artifact_ids())
+
+SPECS2_DEPS = _repoize(specs2_artifact_ids())
+
+SPECS2_JUNIT_DEPS = _repoize(specs2_junit_artifact_ids())
+
+DEP_PROVIDERS = [
+    "junit_classpath",
+    "scalatest_classpath",
+    "specs2_classpath",
+    "specs2_junit_classpath",
+]
 
 def _declare_deps_provider(macro_name, deps_id, deps, visibility):
     label = "%s_%s_provider" % (macro_name, deps_id)
@@ -11,7 +33,7 @@ def _declare_deps_provider(macro_name, deps_id, deps, visibility):
         visibility = visibility,
         deps = deps,
     )
-    return label
+    return ":%s" % label
 
 def setup_scala_testing_toolchain(
         name,
@@ -72,7 +94,10 @@ def setup_scala_testing_toolchain(
     native.toolchain(
         name = name,
         toolchain = ":" + name + "_impl",
-        toolchain_type = "@io_bazel_rules_scala//testing/toolchain:testing_toolchain_type",
-        target_settings = ["@io_bazel_rules_scala_config//:scala_version" + version_suffix(scala_version)],
+        toolchain_type = Label("//testing/toolchain:testing_toolchain_type"),
+        target_settings = [
+            "@rules_scala_config//:scala_version" +
+            version_suffix(scala_version),
+        ],
         visibility = visibility,
     )

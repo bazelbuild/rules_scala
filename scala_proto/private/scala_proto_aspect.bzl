@@ -1,31 +1,33 @@
+load("@bazel_skylib//lib:dicts.bzl", "dicts")
 load("@rules_proto//proto:defs.bzl", "ProtoInfo")
 load("//scala/private:common.bzl", "write_manifest_file")
 load("//scala/private:dependency.bzl", "legacy_unclear_dependency_info_for_protobuf_scrooge")
+load("//scala/private:phases/api.bzl", "extras_phases", "run_aspect_phases")
 load(
     "//scala/private:rule_impls.bzl",
     "compile_scala",
     "specified_java_compile_toolchain",
-    _allow_security_manager = "allow_security_manager",
 )
 load("//scala/private/toolchain_deps:toolchain_deps.bzl", "find_deps_info_on")
 load(
-    "@io_bazel_rules_scala//scala_proto/private:scala_proto_aspect_provider.bzl",
+    "//scala_proto/private:scala_proto_aspect_provider.bzl",
     "ScalaProtoAspectInfo",
 )
-load(
-    "@io_bazel_rules_scala//scala/private:phases/api.bzl",
-    "extras_phases",
-    "run_aspect_phases",
-)
-load("@bazel_skylib//lib:dicts.bzl", "dicts")
 
-def _import_paths(proto):
+def _import_paths(proto, ctx):
+    # Under Bazel 7.x, direct_sources from generated protos may still contain
+    # ctx.bin_dir.path, even when proto_source_root does not. proto_source_root
+    # may also be relative to ctx.bin_dir.path, or it may contain it. So we try
+    # removing ctx.bin_dir.path from everything.
+    bin_dir = ctx.bin_dir.path + "/"
     source_root = proto.proto_source_root
-    if "." == source_root:
-        return [src.path for src in proto.direct_sources]
-    else:
-        offset = len(source_root) + 1  # + '/'
-        return [src.path[offset:] for src in proto.direct_sources]
+    source_root += "/" if source_root != "." else ""
+    source_root = source_root.removeprefix(bin_dir)
+
+    return [
+        ds.path.removeprefix(bin_dir).removeprefix(source_root)
+        for ds in proto.direct_sources
+    ]
 
 def _code_should_be_generated(ctx, toolchain):
     # This feels rather hacky and odd, but we can't compare the labels to ignore a target easily
@@ -35,12 +37,14 @@ def _code_should_be_generated(ctx, toolchain):
     # so we make the local target we are looking at absolute too
     target_absolute_label = ctx.label
     if not str(target_absolute_label)[0] == "@":
-        target_absolute_label = Label("@%s//%s:%s" % (ctx.workspace_name, ctx.label.package, ctx.label.name))
+        target_absolute_label = Label(
+            "@@%s//%s:%s" % (ctx.repo_name, ctx.label.package, ctx.label.name),
+        )
 
     return toolchain.blacklisted_protos.get(target_absolute_label) == None
 
 def _compile_deps(ctx, toolchain):
-    deps_toolchain_type_label = "@io_bazel_rules_scala//scala_proto:deps_toolchain_type"
+    deps_toolchain_type_label = "//scala_proto:deps_toolchain_type"
     return [
         dep[JavaInfo]
         for id in toolchain.compile_dep_ids
@@ -56,7 +60,7 @@ def _pack_sources(ctx, src_jars):
     )
 
 def _generate_sources(ctx, toolchain, proto):
-    sources = _import_paths(proto)
+    sources = _import_paths(proto, ctx)
     descriptors = proto.transitive_descriptor_sets
     outputs = {
         k: ctx.actions.declare_file("%s_%s_scalapb.srcjar" % (ctx.label.name, k))
@@ -68,13 +72,14 @@ def _generate_sources(ctx, toolchain, proto):
     args.use_param_file(param_file_arg = "@%s", use_always = True)
     for gen, out in outputs.items():
         args.add("--" + gen + "_out", out)
-        args.add("--" + gen + "_opt", toolchain.generators_opts)
+        if gen in toolchain.generators_opts:
+            args.add_all(toolchain.generators_opts[gen], format_each = "--{}_opt=%s".format(gen))
     args.add_joined("--descriptor_set_in", descriptors, join_with = ctx.configuration.host_path_separator)
     args.add_all(sources)
 
     ctx.actions.run(
         executable = toolchain.worker,
-        arguments = ["--jvm_flag=%s" % f for f in _allow_security_manager(ctx)] + [toolchain.worker_flags, args],
+        arguments = [toolchain.worker_flags, args],
         inputs = depset(transitive = [descriptors, toolchain.generators_jars]),
         outputs = outputs.values(),
         tools = [toolchain.protoc],
@@ -142,14 +147,14 @@ def _phase_deps(ctx, p):
     return [d[ScalaProtoAspectInfo].java_info for d in ctx.rule.attr.deps]
 
 def _phase_scalacopts(ctx, p):
-    return ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].scalacopts
+    return ctx.toolchains["//scala:toolchain_type"].scalacopts
 
 def _phase_generate_and_compile(ctx, p):
     proto = p.proto_info
     deps = p.deps
     scalacopts = p.scalacopts
     stamp_label = p.stamp_label
-    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
+    toolchain = ctx.toolchains["//scala_proto:toolchain_type"]
 
     if proto.direct_sources and _code_should_be_generated(ctx, toolchain):
         src_jars = _generate_sources(ctx, toolchain, proto)
@@ -174,7 +179,7 @@ def _strip_suffix(str, suffix):
 
 def _phase_stamp_label(ctx, p):
     rule_label = str(p.target.label)
-    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala_proto:toolchain_type"]
+    toolchain = ctx.toolchains["//scala_proto:toolchain_type"]
 
     if toolchain.stamp_by_convention and rule_label.endswith("_proto"):
         return _strip_suffix(rule_label, "_proto") + "_scala_proto"
@@ -202,16 +207,15 @@ def _scala_proto_aspect_impl(target, ctx):
 def make_scala_proto_aspect(*extras):
     attrs = {
         "_java_toolchain": attr.label(
-            default = Label("@bazel_tools//tools/jdk:current_java_toolchain"),
+            default = "@rules_java//toolchains:current_java_toolchain",
         ),
         "_java_host_runtime": attr.label(
-            default = Label("@bazel_tools//tools/jdk:current_host_java_runtime"),
+            default = "@rules_java//toolchains:current_host_java_runtime",
         ),
     }
     return aspect(
         implementation = _scala_proto_aspect_impl,
         attr_aspects = ["deps"],
-        incompatible_use_toolchain_transition = True,
         provides = [ScalaProtoAspectInfo],
         attrs = dicts.add(
             attrs,
@@ -219,9 +223,9 @@ def make_scala_proto_aspect(*extras):
             *[extra["attrs"] for extra in extras if "attrs" in extra]
         ),
         toolchains = [
-            "@io_bazel_rules_scala//scala:toolchain_type",
-            "@io_bazel_rules_scala//scala_proto:toolchain_type",
-            "@io_bazel_rules_scala//scala_proto:deps_toolchain_type",
+            "//scala:toolchain_type",
+            "//scala_proto:toolchain_type",
+            "//scala_proto:deps_toolchain_type",
             "@bazel_tools//tools/jdk:toolchain_type",
         ],
     )

@@ -1,0 +1,2 @@
+# Remove after moving to Bazel 7.
+import ../.bazelrc

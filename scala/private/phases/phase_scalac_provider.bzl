@@ -3,17 +3,11 @@
 #
 # DOCUMENT THIS
 #
-load(
-    "@io_bazel_rules_scala//scala:providers.bzl",
-    _ScalacProvider = "ScalacProvider",
-)
-load(
-    "@io_bazel_rules_scala//scala/private/toolchain_deps:toolchain_deps.bzl",
-    "find_deps_info_on",
-)
+load("//scala/private/toolchain_deps:toolchain_deps.bzl", "find_deps_info_on")
+load("//scala:providers.bzl", _ScalacProvider = "ScalacProvider")
 
 def phase_scalac_provider(ctx, p):
-    toolchain_type_label = "@io_bazel_rules_scala//scala:toolchain_type"
+    toolchain_type_label = "//scala:toolchain_type"
 
     library_classpath = find_deps_info_on(ctx, toolchain_type_label, "scala_library_classpath").deps
     compile_classpath = find_deps_info_on(ctx, toolchain_type_label, "scala_compile_classpath").deps

@@ -15,9 +15,11 @@ class CustomProtobufGenerator(
   import implicits._
   import ProtobufGenerator._
 
+  val protobufAdapter = new ProtobufAdapter(implicits)
+
   def printCustomMessage(printer: FunctionalPrinter, message: Descriptor): FunctionalPrinter = {
     printer
-      .add(s"final case object Custom${message.nameSymbol}{}")
+      .add(s"final case object Custom${protobufAdapter.nameSymbol(message)}{}")
   }
 
   override def generateSingleScalaFileForFileDescriptor(
@@ -31,24 +33,47 @@ class CustomProtobufGenerator(
         .result()
 
     val b = CodeGeneratorResponse.File.newBuilder()
-    b.setName(file.scalaDirectory + "/Custom" + file.fileDescriptorObjectName + ".scala")
+    b.setName(
+      file.scalaDirectory + "/Custom" +
+      protobufAdapter.fileDescriptorObjectName(file) + ".scala"
+    )
     b.setContent(code)
     List(b.build)
   }
 
 }
 
-
 object ExtraProtobufGenerator extends ProtocCodeGenerator {
    override def run(req: Array[Byte]): Array[Byte] = {
-    val registry = ExtensionRegistry.newInstance()
-    Scalapb.registerAllExtensions(registry)
-    val request = CodeGeneratorRequest.parseFrom(req)
-    handleCodeGeneratorRequest(request).toByteArray
+    val b = CodeGeneratorResponse.newBuilder
+
+    try {
+      val registry = ExtensionRegistry.newInstance()
+      Scalapb.registerAllExtensions(registry)
+      val request = CodeGeneratorRequest.parseFrom(req)
+      handleCodeGeneratorRequest(request, b)
+
+    } catch {
+      case e: Throwable =>
+        // Yes, we want to catch _all_ errors and send them back to the
+        // requestor. Otherwise uncaught errors will cause the generator to
+        // die and the worker invoking it to hang under protoc-bridge < 0.9.8.
+        // See #1647 and scalapb/ScalaPB#1771.
+        //
+        // Scala 2.11 is stuck at protoc-bridge 0.7.14. If/when we drop
+        // Scala 2.11 support, we can remove this `catch` block (and elide the
+        // `ProtobufAdapter` implementation and delete its files).
+        val stackStream = new java.io.ByteArrayOutputStream
+        e.printStackTrace(new java.io.PrintStream(stackStream))
+        b.setError(stackStream.toString())
+    }
+    b.build.toByteArray
   }
 
-    def handleCodeGeneratorRequest(request: CodeGeneratorRequest): CodeGeneratorResponse = {
-    val b = CodeGeneratorResponse.newBuilder
+  def handleCodeGeneratorRequest(
+    request: CodeGeneratorRequest,
+    b: CodeGeneratorResponse.Builder
+  ) = {
     ProtobufGenerator.parseParameters(request.getParameter) match {
       case Right(params) =>
         try {
@@ -63,7 +88,6 @@ object ExtraProtobufGenerator extends ProtocCodeGenerator {
           val generator = new CustomProtobufGenerator(params, implicits)
           val validator = new ProtoValidation(implicits)
           validator.validateFiles(filesByName.values.toSeq)
-          import implicits.FileDescriptorPimp
           request.getFileToGenerateList.asScala.foreach { name =>
             val file = filesByName(name)
             val responseFiles =
@@ -77,7 +101,5 @@ object ExtraProtobufGenerator extends ProtocCodeGenerator {
       case Left(error) =>
         b.setError(error)
     }
-    b.build
   }
-
 }

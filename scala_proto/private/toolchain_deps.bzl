@@ -1,10 +1,12 @@
 load(
-    "@io_bazel_rules_scala//scala/private/toolchain_deps:toolchain_deps.bzl",
+    "//scala/private/toolchain_deps:toolchain_deps.bzl",
     "expose_toolchain_deps",
 )
 
+_DEPS_TOOLCHAIN_TYPE = "//scala_proto:deps_toolchain_type"
+
 def _export_scalapb_toolchain_deps(ctx):
-    return expose_toolchain_deps(ctx, "@io_bazel_rules_scala//scala_proto:deps_toolchain_type")
+    return expose_toolchain_deps(ctx, _DEPS_TOOLCHAIN_TYPE)
 
 export_scalapb_toolchain_deps = rule(
     _export_scalapb_toolchain_deps,
@@ -13,6 +15,5 @@ export_scalapb_toolchain_deps = rule(
             mandatory = True,
         ),
     },
-    incompatible_use_toolchain_transition = True,
-    toolchains = ["@io_bazel_rules_scala//scala_proto:deps_toolchain_type"],
+    toolchains = [_DEPS_TOOLCHAIN_TYPE],
 )

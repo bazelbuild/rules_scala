@@ -1,4 +1,4 @@
-load("@io_bazel_rules_scala//scala:scala.bzl", "scala_binary", "scala_library", "scala_test")
+load("@rules_scala//scala:scala.bzl", "scala_binary", "scala_library", "scala_test")
 
 # Here we demonstrate the simplest case,
 # single binary, test or library for which we set a specific version or use the default one:
@@ -14,7 +14,7 @@ scala_library(
 scala_test(
     name = "test213",
     srcs = ["test.scala"],
-    scala_version = "2.13.14",
+    scala_version = "2.13.16",
 )
 
 # This one will be compiled by 3.3 compiler (the default one):

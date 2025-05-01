@@ -1,49 +1,98 @@
 # Phase Scalafmt
 
 ## Contents
-*  [Overview](#overview)
-*  [How to set up](#how-to-set-up)
-*  [IntelliJ plugin support](#intellij-plugin-support)
+
+- [Overview](#overview)
+- [How to set up](#how-to-set-up)
+- [IntelliJ plugin support](#intellij-plugin-support)
 
 ## Overview
+
 A phase extension `phase_scalafmt` can format Scala source code via [Scalafmt](https://scalameta.org/scalafmt/).
 
 ## How to set up
-Add this snippet to `WORKSPACE`
+
+Add this snippet to `MODULE.bazel`:
+
+```py
+# MODULE.bazel
+scala_deps = use_extension(
+    "@rules_scala//scala/extensions:deps.bzl",
+    "scala_deps",
+)
+scala_deps.scalafmt()
 ```
-load("//scala/scalafmt:scalafmt_repositories.bzl", "scalafmt_default_config", "scalafmt_repositories")
-scalafmt_default_config()
-scalafmt_repositories()
+
+or to `WORKSPACE`:
+
+```py
+# WORKSPACE
+load(
+    "@rules_scala//scala:toolchains.bzl",
+    "scala_register_toolchains",
+    "scala_toolchains",
+)
+
+scala_toolchains(
+    # Other toolchains settings...
+    scalafmt = True,
+)
+
+scala_register_toolchains()
 ```
 
 To add this phase to a rule, you have to pass the extension to a rule macro. Take `scala_binary` for example,
-```
+
+```py
 load("//scala:advanced_usage/scala.bzl", "make_scala_binary")
 load("//scala/scalafmt:phase_scalafmt_ext.bzl", "ext_scalafmt")
 
 scalafmt_scala_binary = make_scala_binary(ext_scalafmt)
 ```
+
 Then use `scalafmt_scala_binary` as normal.
 
 The extension adds 2 additional attributes to the rule
- - `format`: enable formatting
- - `config`: the Scalafmt configuration file
+
+- `format`: enable formatting
+- `config`: the Scalafmt configuration file
 
 When `format` is set to `true`, you can do
-```
+
+```txt
 bazel run <TARGET>.format
 ```
+
 to format the source code, and do
-```
+
+```txt
 bazel run <TARGET>.format-test
 ```
+
 to check the format (without modifying source code).
 
-The extension provides default configuration, but there are 2 ways to use custom configuration
- - Put `.scalafmt.conf` at root of your workspace
- - Pass `.scalafmt.conf` in via `config` attribute
+The extension provides a default configuration, but there are 2 ways to use
+a custom configuration:
 
-If using scala 3 you must append `runner.dialect = scala3` to .scalafmt.conf
+- Put `.scalafmt.conf` at the root of your workspace
+- Pass `.scalafmt.conf` in via `scala_toolchains`:
+
+    ```py
+    # MODULE.bazel
+    scala_deps.scalafmt(
+        default_config = "//path/to/my/custom:scalafmt.conf",
+    )
+
+    # WORKSPACE
+    scala_toolchains(
+        # Other toolchains settings...
+        scalafmt = True,
+        scalafmt_default_config = "//path/to/my/custom:scalafmt.conf",
+    )
+    ```
+
+When using Scala 3, you must append `runner.dialect = scala3` to
+`.scalafmt.conf`.
 
 ## IntelliJ plugin support
 

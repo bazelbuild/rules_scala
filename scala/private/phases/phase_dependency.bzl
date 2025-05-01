@@ -1,13 +1,13 @@
 # Gathers information about dependency mode and analysis
 
 load(
-    "@io_bazel_rules_scala//scala/private:dependency.bzl",
+    "//scala/private:dependency.bzl",
     "get_compiler_deps_mode",
     "get_strict_deps_mode",
     "new_dependency_info",
 )
 load(
-    "@io_bazel_rules_scala//scala/private:paths.bzl",
+    "//scala/private:paths.bzl",
     _get_files_with_extension = "get_files_with_extension",
     _java_extension = "java_extension",
 )
@@ -35,7 +35,7 @@ def _phase_dependency(
         p,
         unused_deps_always_off,
         strict_deps_always_off):
-    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"]
+    toolchain = ctx.toolchains["//scala:toolchain_type"]
 
     target_label = str(ctx.label)
 
@@ -81,7 +81,7 @@ def _get_unused_deps_mode(ctx):
     if ctx.attr.unused_dependency_checker_mode:
         return ctx.attr.unused_dependency_checker_mode
     else:
-        return ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"].unused_dependency_checker_mode
+        return ctx.toolchains["//scala:toolchain_type"].unused_dependency_checker_mode
 
 def _is_target_included(target, includes, excludes):
     for exclude in excludes:

@@ -1,7 +1,7 @@
 load("//scala:scala_toolchain.bzl", "scala_toolchain")
 load("//scala:providers.bzl", "declare_deps_provider")
-load("//scala:scala_cross_version.bzl", "version_suffix")
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSION")
+load("//scala:scala_cross_version.bzl", "repositories", "version_suffix")
+load("@rules_scala_config//:config.bzl", "SCALA_VERSION")
 
 def setup_scala_toolchain(
         name,
@@ -97,8 +97,11 @@ def setup_scala_toolchain(
     native.toolchain(
         name = name,
         toolchain = ":%s_impl" % name,
-        toolchain_type = "@io_bazel_rules_scala//scala:toolchain_type",
-        target_settings = ["@io_bazel_rules_scala_config//:scala_version" + version_suffix(scala_version)],
+        toolchain_type = Label("//scala:toolchain_type"),
+        target_settings = [
+            "@rules_scala_config//:scala_version" +
+            version_suffix(scala_version),
+        ],
         visibility = visibility,
     )
 
@@ -116,6 +119,7 @@ _DEFAULT_DEPS = {
             "@io_bazel_rules_scala_scala_tasty_core",
             "@io_bazel_rules_scala_scala_asm",
             "@io_bazel_rules_scala_scala_library_2",
+            "@org_scala_sbt_compiler_interface",
         ],
     },
     "scala_library_classpath": {
@@ -154,4 +158,4 @@ _DEFAULT_DEPS = {
 def default_deps(deps_id, scala_version):
     versions = _DEFAULT_DEPS[deps_id]
     deps = versions.get("any", []) + versions.get(scala_version[0], [])
-    return [dep + version_suffix(scala_version) for dep in deps]
+    return repositories(scala_version, deps)

@@ -1,8 +1,5 @@
-load(
-    "@io_bazel_rules_scala//scala/private/toolchain_deps:toolchain_deps.bzl",
-    "find_deps_info_on",
-)
-load("@io_bazel_rules_scala//scala:semanticdb_provider.bzl", "SemanticdbInfo")
+load("//scala/private/toolchain_deps:toolchain_deps.bzl", "find_deps_info_on")
+load("//scala:semanticdb_provider.bzl", "SemanticdbInfo")
 load("@bazel_skylib//lib:paths.bzl", "paths")
 
 def phase_semanticdb(ctx, p):
@@ -12,8 +9,8 @@ def phase_semanticdb(ctx, p):
 
     #Scala3: Semanticdb is built into scalac. Currently, if semanticdb-target is used, the semanticdb files are written and not bundled, otherwise, the semanticdb files are not written as files and only available inside the jar.
 
-    toolchain = ctx.toolchains["@io_bazel_rules_scala//scala:toolchain_type"]
-    toolchain_type_label = "@io_bazel_rules_scala//scala:toolchain_type"
+    toolchain_type_label = "//scala:toolchain_type"
+    toolchain = ctx.toolchains[toolchain_type_label]
 
     if toolchain.enable_semanticdb == True:
         scalacopts = []

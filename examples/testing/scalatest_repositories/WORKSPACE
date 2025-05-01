@@ -2,46 +2,77 @@ workspace(name = "scalatest_repositories")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-http_archive(
-    name = "bazel_skylib",
-    sha256 = "b8a1527901774180afc798aeb28c4634bdccf19c4d98e7bdd1ce79d1fe9aaad7",
-    urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.4.1/bazel-skylib-1.4.1.tar.gz",
-        "https://github.com/bazelbuild/bazel-skylib/releases/download/1.4.1/bazel-skylib-1.4.1.tar.gz",
-    ],
-)
-
 local_repository(
-    name = "io_bazel_rules_scala",
+    name = "rules_scala",
     path = "../../..",
 )
 
-load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
+load("@rules_scala//scala:latest_deps.bzl", "rules_scala_dependencies")
+
+rules_scala_dependencies()
+
+load("@platforms//host:extension.bzl", "host_platform_repo")
+
+host_platform_repo(name = "host_platform")
+
+register_toolchains("@rules_scala_protoc_toolchains//...:all")
+
+load("@rules_java//java:rules_java_deps.bzl", "rules_java_dependencies")
+
+rules_java_dependencies()
+
+load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
+
+bazel_skylib_workspace()
+
+http_archive(
+    name = "rules_python",
+    sha256 = "2cc26bbd53854ceb76dd42a834b1002cd4ba7f8df35440cf03482e045affc244",
+    strip_prefix = "rules_python-1.3.0",
+    url = "https://github.com/bazelbuild/rules_python/releases/download/1.3.0/rules_python-1.3.0.tar.gz",
+)
+
+load("@rules_python//python:repositories.bzl", "py_repositories")
+
+py_repositories()
+
+load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+
+protobuf_deps()
+
+load("@rules_java//java:repositories.bzl", "rules_java_toolchains")
+
+rules_java_toolchains()
+
+load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies")
+
+rules_proto_dependencies()
+
+load("@rules_proto//proto:setup.bzl", "rules_proto_setup")
+
+rules_proto_setup()
+
+load("@rules_proto//proto:toolchains.bzl", "rules_proto_toolchains")
+
+rules_proto_toolchains()
+
+load("@rules_scala//protoc:toolchains.bzl", "scala_protoc_toolchains")
+
+scala_protoc_toolchains(name = "rules_scala_protoc_toolchains")
+
+load("@rules_scala//:scala_config.bzl", "scala_config")
 
 scala_config()
 
 load(
-    "@io_bazel_rules_scala//scala:scala.bzl",
-    "rules_scala_setup",
-    "rules_scala_toolchain_deps_repositories",
+    "@rules_scala//scala:toolchains.bzl",
+    "scala_register_toolchains",
+    "scala_toolchains",
 )
 
-rules_scala_setup()
-
-rules_scala_toolchain_deps_repositories(fetch_sources = True)
-
-load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
-
-rules_proto_dependencies()
-
-rules_proto_toolchains()
-
-load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_toolchains")
+scala_toolchains(
+    fetch_sources = True,
+    scalatest = True,
+)
 
 scala_register_toolchains()
-
-load("@io_bazel_rules_scala//testing:scalatest.bzl", "scalatest_repositories", "scalatest_toolchain")
-
-scalatest_repositories()
-
-scalatest_toolchain()

@@ -1,7 +1,7 @@
 # thrift_library
 
-```python
-load("@io_bazel_rules_scala//thrift:thrift.bzl", "thrift_library")
+```py
+load("@rules_scala//thrift:thrift.bzl", "thrift_library")
 thrift_library(
     name,
     srcs,

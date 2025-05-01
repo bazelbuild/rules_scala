@@ -12,6 +12,7 @@ load(
     "//scala_proto:scala_proto_toolchain.bzl",
     "scala_proto_toolchain",
 )
+load(":default_outputs_test.bzl", "default_outputs_test")
 
 scala_proto_toolchain(
     name = "test_scala_proto_toolchain_configuration",
@@ -23,19 +24,27 @@ scala_proto_toolchain(
     extra_generator_dependencies = [
         "//test/src/main/scala/scalarules/test/extra_protobuf_generator",
     ],
-    named_generators = {
+    generators = {
+        "scala": "scripts.ScalaPbCodeGenerator",
         "jvm_extra_protobuf_generator": "scalarules.test.extra_protobuf_generator.ExtraProtobufGenerator",
     },
+    generators_opts = {
+        "scala": [
+            "grpc",
+            "single_line_to_proto_string",
+        ],
+        "jvm_extra_protobuf_generator": [
+            "grpc",
+            "single_line_to_proto_string",
+        ],
+    },
     visibility = ["//visibility:public"],
-    with_flat_package = False,
-    with_grpc = True,
-    with_single_line_to_string = True,
 )
 
 toolchain(
     name = "scalapb_toolchain",
     toolchain = ":test_scala_proto_toolchain_configuration",
-    toolchain_type = "@io_bazel_rules_scala//scala_proto:toolchain_type",
+    toolchain_type = "//scala_proto:toolchain_type",
     visibility = ["//visibility:public"],
 )
 
@@ -127,7 +136,7 @@ scala_proto_library(
     deps = [
         ":blacklisted_proto",
         ":test_service",
-        "@io_bazel_rules_scala//test/proto:other_blacklisted_proto",
+        "//test/proto:other_blacklisted_proto",
     ],
 )
 
@@ -225,4 +234,37 @@ scala_test(
     srcs = ["PackProtosTest.scala"],
     unused_dependency_checker_mode = "off",
     deps = [":pack_protos_lib"],
+)
+
+scala_proto_library(
+    name = "standalone_scala_proto",
+    deps = [":standalone_proto"],
+)
+
+default_outputs_test(
+    name = "standalone_scala_proto_outs_test",
+    expected_outs = [
+        "standalone_proto_scalapb-src.jar",
+        "standalone_proto_scalapb.jar",
+    ],
+    target_under_test = ":standalone_scala_proto",
+)
+
+scala_proto_library(
+    name = "multiple_deps_scala_proto",
+    deps = [
+        ":test2",
+        ":test3",
+    ],
+)
+
+default_outputs_test(
+    name = "multiple_deps_scala_proto_outs_test",
+    expected_outs = [
+        "test2_scalapb-src.jar",
+        "test2_scalapb.jar",
+        "test3_scalapb-src.jar",
+        "test3_scalapb.jar",
+    ],
+    target_under_test = ":multiple_deps_scala_proto",
 )

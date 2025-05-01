@@ -1,5 +1,6 @@
-load("@io_bazel_rules_scala//scala:jars_to_labels.bzl", "JarsToLabelsInfo")
-load("@io_bazel_rules_scala//scala:plusone.bzl", "PlusOneDeps")
+load("//scala:jars_to_labels.bzl", "JarsToLabelsInfo")
+load("//scala:plusone.bzl", "PlusOneDeps")
+load("//scala:providers.bzl", "ScalaInfo")
 load("@bazel_skylib//lib:paths.bzl", "paths")
 
 def write_manifest_file(actions, output_file, main_class):
@@ -22,6 +23,7 @@ def collect_jars(
     compile_jars = []
     runtime_jars = []
     deps_providers = []
+    macro_classpath = []
 
     for dep_target in dep_targets:
         # we require a JavaInfo for dependencies
@@ -50,11 +52,34 @@ def collect_jars(
                 java_provider.compile_jars.to_list(),
             )
 
+        # Macros are different from ordinary targets in that they’re used at compile time instead of at runtime. That
+        # means that both their compile-time classpath and runtime classpath are needed at compile time. We could have
+        # `scala_macro_library` targets include their runtime dependencies in their compile-time dependencies, but then
+        # we wouldn't have any guarantees classpath order.
+        #
+        # Consider the following scenario. Target A depends on targets B and C. Target C is a macro target, whereas
+        # target B isn't. Targets C depends on target B. If target A doesn't include the runtime version of target C on
+        # the compile classpath before the compile (`ijar`d) version of target B that target C depends on, then target A
+        # won't use the correct version of target B at compile-time when evaluating the macros contained in target C.
+        #
+        # For that reason, we opt for a different approach: have `scala_macro_library` targets export `JavaInfo`
+        # providers as normal, but put their transitive runtime dependencies first on the classpath. Note that we
+        # shouldn't encounter any issues with external dependencies, so long as they aren't `ijar`d.
+        if ScalaInfo in dep_target and dep_target[ScalaInfo].contains_macros:
+            macro_classpath.append(java_provider.transitive_runtime_jars)
+
+            add_labels_of_jars_to(
+                jars2labels,
+                dep_target,
+                [],
+                java_provider.transitive_runtime_jars.to_list(),
+            )
+
     return struct(
-        compile_jars = depset(transitive = compile_jars),
+        compile_jars = depset(order = "preorder", transitive = macro_classpath + compile_jars),
         transitive_runtime_jars = depset(transitive = runtime_jars),
         jars2labels = JarsToLabelsInfo(jars_to_labels = jars2labels),
-        transitive_compile_jars = depset(transitive = transitive_compile_jars),
+        transitive_compile_jars = depset(order = "preorder", transitive = macro_classpath + transitive_compile_jars),
         deps_providers = deps_providers,
     )
 

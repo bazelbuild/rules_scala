@@ -1,50 +1,40 @@
 load(
-    "@io_bazel_rules_scala//specs2:specs2_junit.bzl",
+    "//specs2:specs2_junit.bzl",
     _specs2_junit_dependencies = "specs2_junit_dependencies",
 )
 load(
-    "@io_bazel_rules_scala//scala/private:macros/scala_repositories.bzl",
-    _rules_scala_setup = "rules_scala_setup",
-    _rules_scala_toolchain_deps_repositories = "rules_scala_toolchain_deps_repositories",
-    _scala_repositories = "scala_repositories",
-)
-load(
-    "@io_bazel_rules_scala//scala/private:macros/setup_scala_toolchain.bzl",
+    "//scala/private:macros/setup_scala_toolchain.bzl",
     _setup_scala_toolchain = "setup_scala_toolchain",
 )
 load(
-    "@io_bazel_rules_scala//scala/private:rules/scala_binary.bzl",
+    "//scala/private:rules/scala_binary.bzl",
     _scala_binary = "scala_binary",
 )
 load(
-    "@io_bazel_rules_scala//scala/private:rules/scala_doc.bzl",
+    "//scala/private:rules/scala_doc.bzl",
     _ScaladocAspectInfo = "ScaladocAspectInfo",
     _make_scala_doc_rule = "make_scala_doc_rule",
     _scaladoc_intransitive_aspect = "scaladoc_intransitive_aspect",
 )
 load(
-    "@io_bazel_rules_scala//scala/private:rules/scala_junit_test.bzl",
+    "//scala/private:rules/scala_junit_test.bzl",
     _scala_junit_test = "scala_junit_test",
 )
 load(
-    "@io_bazel_rules_scala//scala/private:rules/scala_library.bzl",
+    "//scala/private:rules/scala_library.bzl",
     _scala_library = "scala_library",
     _scala_library_for_plugin_bootstrapping = "scala_library_for_plugin_bootstrapping",
     _scala_library_suite = "scala_library_suite",
     _scala_macro_library = "scala_macro_library",
 )
 load(
-    "@io_bazel_rules_scala//scala/private:rules/scala_repl.bzl",
+    "//scala/private:rules/scala_repl.bzl",
     _scala_repl = "scala_repl",
 )
 load(
-    "@io_bazel_rules_scala//scala/private:rules/scala_test.bzl",
+    "//scala/private:rules/scala_test.bzl",
     _scala_test = "scala_test",
     _scala_test_suite = "scala_test_suite",
-)
-load(
-    "@io_bazel_rules_scala//testing:testing.bzl",
-    _setup_scala_testing_toolchain = "setup_scala_testing_toolchain",
 )
 
 def scala_specs2_junit_test(name, **kwargs):
@@ -74,10 +64,6 @@ scala_library_for_plugin_bootstrapping = _scala_library_for_plugin_bootstrapping
 scala_library_suite = _scala_library_suite
 scala_macro_library = _scala_macro_library
 scala_repl = _scala_repl
-scala_repositories = _scala_repositories
-rules_scala_setup = _rules_scala_setup
-rules_scala_toolchain_deps_repositories = _rules_scala_toolchain_deps_repositories
 scala_test = _scala_test
 scala_test_suite = _scala_test_suite
-setup_scala_testing_toolchain = _setup_scala_testing_toolchain
 setup_scala_toolchain = _setup_scala_toolchain

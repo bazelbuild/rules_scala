@@ -12,7 +12,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -21,60 +20,6 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(JUnit4.class)
 public class WorkerTest {
-
-  @Test
-  public void testEphemeralWorkerSystemExit() throws Exception {
-
-    // An ephemeral worker behaves like a regular main method,
-    // so we expect the worker to system exit normally
-
-    Worker.Interface worker =
-        new Worker.Interface() {
-          @Override
-          public void work(String[] args) {
-            System.exit(99);
-          }
-        };
-
-    int code =
-        assertThrows(Worker.ExitTrapped.class, () -> Worker.workerMain(new String[] {}, worker))
-            .code;
-
-    assert (code == 99);
-  }
-
-  @Test
-  public void testPersistentWorkerSystemExit() throws Exception {
-    // We're going to spin up a persistent worker and run a single
-    // work request. We expect System.exit calls to impact the
-    // worker request lifecycle without exiting the overall worker
-    // process.
-
-    try (PersistentWorkerHelper helper = new PersistentWorkerHelper(); ) {
-      WorkerProtocol.WorkRequest.newBuilder().build().writeDelimitedTo(helper.requestOut);
-
-      Worker.Interface worker =
-          new Worker.Interface() {
-            @Override
-            public void work(String[] args) {
-              // we should see this print statement
-              System.out.println("before exit");
-              System.exit(100);
-              // we should not see this print statement
-              System.out.println("after exit");
-            }
-          };
-
-      helper.runWorker(worker);
-
-      WorkerProtocol.WorkResponse response =
-          WorkerProtocol.WorkResponse.parseDelimitedFrom(helper.responseIn);
-
-      assert (response.getOutput().contains("before"));
-      assert (response.getExitCode() == 100);
-      assert (!response.getOutput().contains("after"));
-    }
-  }
 
   @Test
   public void testPersistentWorkerNoStdin() throws Exception {
@@ -110,7 +55,12 @@ public class WorkerTest {
             }
           };
 
-      String contents = "line 1\n--flag_1\nsome arg\n";
+      String contents = String.join(
+        System.getProperty("line.separator"),
+        "line 1",
+        "--flag_1",
+        "some arg",
+        "");  // The output will always have a line separator at the end.
 
       Files.write(tmpFile, contents.getBytes(StandardCharsets.UTF_8));
 
@@ -124,8 +74,8 @@ public class WorkerTest {
       WorkerProtocol.WorkResponse response =
           WorkerProtocol.WorkResponse.parseDelimitedFrom(helper.responseIn);
 
-      assertEquals(response.getExitCode(), 0);
-      assertEquals(response.getOutput(), contents);
+      assertEquals(0, response.getExitCode());
+      assertEquals(contents, response.getOutput());
     } finally {
       Files.deleteIfExists(tmpFile);
     }
@@ -214,9 +164,6 @@ public class WorkerTest {
 
   @AfterClass
   public static void teardown() {
-    // Persistent workers install a security manager. We need to
-    // reset it here so that our own process can exit!
-    System.setSecurityManager(null);
   }
 
   // Copied/modified from Bazel's MoreAsserts

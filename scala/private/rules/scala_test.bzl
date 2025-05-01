@@ -2,16 +2,16 @@
 
 load("@bazel_skylib//lib:dicts.bzl", _dicts = "dicts")
 load(
-    "@io_bazel_rules_scala//scala/private:common_attributes.bzl",
+    "//scala/private:common_attributes.bzl",
     "common_attrs",
     "implicit_deps",
     "launcher_template",
 )
-load("@io_bazel_rules_scala//scala/private:common.bzl", "sanitize_string_for_usage")
-load("@io_bazel_rules_scala//scala/private:common_outputs.bzl", "common_outputs")
-load("@io_bazel_rules_scala//scala:scala_cross_version.bzl", "scala_version_transition", "toolchain_transition_attr")
+load("//scala/private:common.bzl", "sanitize_string_for_usage")
+load("//scala/private:common_outputs.bzl", "common_outputs")
+load("//scala:scala_cross_version.bzl", "scala_version_transition", "toolchain_transition_attr")
 load(
-    "@io_bazel_rules_scala//scala/private:phases/phases.bzl",
+    "//scala/private:phases/phases.bzl",
     "extras_phases",
     "phase_collect_jars_scalatest",
     "phase_compile_scalatest",
@@ -25,6 +25,7 @@ load(
     "phase_runfiles_scalatest",
     "phase_scalac_provider",
     "phase_scalacopts",
+    "phase_scalainfo_provider_non_macro",
     "phase_semanticdb",
     "phase_test_environment",
     "phase_write_executable_scalatest",
@@ -38,6 +39,7 @@ def _scala_test_impl(ctx):
         # customizable phases
         [
             ("scalac_provider", phase_scalac_provider),
+            ("scalainfo_provider", phase_scalainfo_provider_non_macro),
             ("write_manifest", phase_write_manifest),
             ("dependency", phase_dependency_common),
             ("collect_jars", phase_collect_jars_scalatest),
@@ -68,19 +70,17 @@ _scala_test_attrs = {
         default = "io.bazel.rules.scala.JUnitXmlReporter",
     ),
     "_scalatest": attr.label(
-        default = Label(
-            "@io_bazel_rules_scala//testing/toolchain:scalatest_classpath",
-        ),
+        default = "//testing/toolchain:scalatest_classpath",
     ),
     "_scalatest_runner": attr.label(
         cfg = "exec",
-        default = Label("//src/java/io/bazel/rulesscala/scala_test:runner"),
+        default = "//src/java/io/bazel/rulesscala/scala_test:runner",
     ),
     "_scalatest_reporter": attr.label(
-        default = Label("//scala/support:test_reporter"),
+        default = "//scala/support:test_reporter",
     ),
     "_lcov_merger": attr.label(
-        default = Label("@bazel_tools//tools/test/CoverageOutputGenerator/java/com/google/devtools/coverageoutputgenerator:Main"),
+        default = "@bazel_tools//tools/test/CoverageOutputGenerator/java/com/google/devtools/coverageoutputgenerator:Main",
         cfg = "exec",
     ),
     "env": attr.string_dict(default = {}),
@@ -90,12 +90,8 @@ _scala_test_attrs = {
 _test_resolve_deps = {
     "_scala_toolchain": attr.label_list(
         default = [
-            Label(
-                "@io_bazel_rules_scala//scala/private/toolchain_deps:scala_library_classpath",
-            ),
-            Label(
-                "@io_bazel_rules_scala//testing/toolchain:scalatest_classpath",
-            ),
+            "//scala/private/toolchain_deps:scala_library_classpath",
+            "//testing/toolchain:scalatest_classpath",
         ],
         allow_files = False,
     ),
@@ -126,11 +122,12 @@ def make_scala_test(*extras):
         ),
         test = True,
         toolchains = [
-            "@io_bazel_rules_scala//scala:toolchain_type",
+            "//scala:toolchain_type",
+            "//testing/toolchain:testing_toolchain_type",
             "@bazel_tools//tools/jdk:toolchain_type",
         ],
         cfg = scala_version_transition,
-        incompatible_use_toolchain_transition = True,
+        provides = [JavaInfo],
         implementation = _scala_test_impl,
     )
 

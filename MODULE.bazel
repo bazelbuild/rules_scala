@@ -1,0 +1,303 @@
+"""Bazel module definition for rules_scala"""
+
+module(
+    name = "rules_scala",
+    version = "7.0.0",
+    bazel_compatibility = [">=7.1.0"],
+    compatibility_level = 7,
+)
+
+SCALA_VERSION = "2.12.20"
+
+# These versions match those required by some tests, including
+# test_thirdparty_version.sh.
+SCALA_2_VERSIONS = [
+    "2.11.12",
+    "2.12.20",
+    "2.13.16",
+]
+
+SCALA_3_VERSIONS = [
+    "3.1.3",
+    "3.3.5",
+    "3.5.2",
+    "3.6.4",
+]
+
+SCALA_VERSIONS = SCALA_2_VERSIONS + SCALA_3_VERSIONS
+
+bazel_dep(name = "bazel_skylib", version = "1.6.0")
+single_version_override(
+    module_name = "bazel_skylib",
+    version = "1.7.1",
+)
+
+bazel_dep(name = "platforms", version = "0.0.9")
+single_version_override(
+    module_name = "platforms",
+    version = "0.0.11",
+)
+
+bazel_dep(name = "rules_java", version = "7.6.0")
+single_version_override(
+    module_name = "rules_java",
+    version = "8.11.0",
+)
+
+bazel_dep(name = "rules_proto", version = "6.0.0")
+single_version_override(
+    module_name = "rules_proto",
+    version = "7.1.0",
+)
+
+bazel_dep(
+    name = "protobuf",
+    version = "28.2",
+    repo_name = "com_google_protobuf",
+)
+
+# Temporarily required for `protoc` toolchainization until resolution of
+# protocolbuffers/protobuf#19679.
+single_version_override(
+    module_name = "protobuf",
+    patch_strip = 1,
+    patches = ["//protoc:0001-protobuf-19679-rm-protoc-dep.patch"],
+    version = "30.2",
+)
+
+scala_protoc = use_extension(
+    "//scala/extensions:protoc.bzl",
+    "scala_protoc",
+    dev_dependency = True,
+)
+use_repo(scala_protoc, "rules_scala_protoc_toolchains")
+
+scala_config = use_extension(
+    "//scala/extensions:config.bzl",
+    "scala_config",
+)
+use_repo(scala_config, "rules_scala_config")
+
+dev_config = use_extension(
+    "//scala/extensions:config.bzl",
+    "scala_config",
+    dev_dependency = True,
+)
+dev_config.settings(
+    enable_compiler_dependency_tracking = True,
+    scala_version = SCALA_VERSION,
+    scala_versions = SCALA_VERSIONS,
+)
+
+scala_deps = use_extension("//scala/extensions:deps.bzl", "scala_deps")
+use_repo(
+    scala_deps,
+    "rules_scala_toolchains",
+    "scala_compiler_sources",
+)
+scala_deps.scala()
+
+# Register some of our testing toolchains first when building our repo.
+register_toolchains(
+    # This is optional, but still safe to include even when not using
+    # `--incompatible_enable_proto_toolchain_resolution`. Requires invoking the
+    # `scala_protoc_toolchains` repo rule. Register this toolchain before any
+    # others.
+    "@rules_scala_protoc_toolchains//...:all",
+    "//scala:unused_dependency_checker_error_toolchain",
+    "//test/proto:scalapb_toolchain",
+    "//test/toolchains:java21_toolchain_definition",
+    dev_dependency = True,
+)
+
+register_toolchains("@rules_scala_toolchains//...:all")
+
+# Dev dependencies
+
+dev_deps = use_extension(
+    "//scala/extensions:deps.bzl",
+    "scala_deps",
+    dev_dependency = True,
+)
+dev_deps.jmh()
+dev_deps.junit()
+dev_deps.scala_proto()
+dev_deps.scalafmt()
+dev_deps.scalatest()
+dev_deps.specs2()
+dev_deps.twitter_scrooge()
+use_repo(
+    dev_deps,
+    "scala_proto_rules_scalapb_compilerplugin",
+    "scala_proto_rules_scalapb_protoc_bridge",
+)
+
+# Default versions of version specific repos needed by some of our tests. Tests
+# that set `--repo_env=SCALA_VERSION=...` break without using the default here,
+# because version specific repos for other versions won't be available.
+use_repo(
+    dev_deps,
+    "io_bazel_rules_scala_guava",
+    "io_bazel_rules_scala_junit_junit",
+    "io_bazel_rules_scala_scala_compiler",
+    "io_bazel_rules_scala_scala_library",
+)
+
+[
+    [
+        use_repo(dev_deps, dep + "_" + scala_version.replace(".", "_"))
+        for dep in [
+            "io_bazel_rules_scala_junit_junit",
+            "io_bazel_rules_scala_scala_compiler",
+            "io_bazel_rules_scala_scala_library",
+        ] + (
+            # We can remove this condition once we drop support for Scala 2.11.
+            [] if scala_version.startswith("2.11.") else [
+                "scala_proto_rules_scalapb_protoc_gen",
+            ]
+        )
+    ]
+    for scala_version in SCALA_VERSIONS
+]
+
+[
+    [
+        use_repo(dev_deps, dep + "_" + scala_version.replace(".", "_"))
+        for dep in [
+            "io_bazel_rules_scala_scala_reflect",
+        ]
+    ]
+    for scala_version in SCALA_2_VERSIONS
+]
+
+[
+    [
+        use_repo(dev_deps, dep + "_" + scala_version.replace(".", "_"))
+        for dep in [
+            "io_bazel_rules_scala_scala_compiler_2",
+            "io_bazel_rules_scala_scala_library_2",
+            "io_bazel_rules_scala_scala_reflect_2",
+        ]
+    ]
+    for scala_version in SCALA_3_VERSIONS
+]
+
+internal_dev_deps = use_extension(
+    "//scala/private/extensions:dev_deps.bzl",
+    "dev_deps",
+    dev_dependency = True,
+)
+
+# See //scala/private:extensions/dev_deps.bzl for notes on some of these repos.
+use_repo(
+    internal_dev_deps,
+    "com_github_bazelbuild_buildtools",
+    "com_github_jnr_jffi_native",
+    "com_google_guava_guava_21_0",
+    "com_google_guava_guava_21_0_with_file",
+    "com_twitter__scalding_date",
+    "org_apache_commons_commons_lang_3_5",
+    "org_apache_commons_commons_lang_3_5_without_file",
+    "org_springframework_spring_core",
+    "org_springframework_spring_tx",
+    "org_typelevel__cats_core",
+    "org_typelevel_kind_projector",
+)
+
+java_toolchains = use_extension(
+    "@rules_java//java:extensions.bzl",
+    "toolchains",
+    dev_dependency = True,
+)
+use_repo(
+    java_toolchains,
+    # //test/toolchains:java21_toolchain
+    "remotejdk21_linux",
+    "remotejdk21_macos",
+    "remotejdk21_win",
+    # //test/jmh:test_jmh_jdk8
+    "remote_jdk8_linux",
+    "remote_jdk8_macos",
+    "remote_jdk8_windows",
+)
+
+[
+    (
+        bazel_dep(name = name, dev_dependency = True),
+        local_path_override(
+            module_name = name,
+            path = path,
+        ),
+    )
+    for name, path in [
+        (
+            "proto_cross_repo_boundary",
+            "test/proto_cross_repo_boundary/repo",
+        ),
+        (
+            "test_new_local_repo",
+            "third_party/test/new_local_repo",
+        ),
+        (
+            "example_external_workspace",
+            "third_party/test/example_external_workspace",
+        ),
+    ]
+]
+
+bazel_dep(
+    name = "bazel_ci_rules",
+    version = "1.0.0",
+    dev_dependency = True,
+    repo_name = "bazelci_rules",
+)
+bazel_dep(
+    name = "rules_go",
+    version = "0.54.0",
+    dev_dependency = True,
+    repo_name = "io_bazel_rules_go",  # for com_github_bazelbuild_buildtools
+)
+bazel_dep(name = "gazelle", version = "0.43.0", dev_dependency = True)
+
+go_sdk = use_extension(
+    "@io_bazel_rules_go//go:extensions.bzl",
+    "go_sdk",
+    dev_dependency = True,
+)
+go_sdk.download(version = "1.24.2")
+
+go_deps = use_extension(
+    "@gazelle//:extensions.bzl",
+    "go_deps",
+    dev_dependency = True,
+)
+
+# The go_deps.module calls are inspired by the following to get the
+# com_github_bazelbuild_buildtools repo to work:
+#
+# - https://github.com/bazelbuild/bazel-central-registry/blob/main/modules/gazelle/0.39.1/MODULE.bazel#L31-L57
+#
+# To get the latest version and hashes for each per:
+#
+# - https://go.dev/ref/mod#go-list-m
+# - https://go.dev/ref/mod#checksum-database
+#
+#   go list -m golang.org/x/tools@latest
+#   curl https://sum.golang.org/lookup/golang.org/x/tools@v0.31.0
+go_deps.module(
+    path = "golang.org/x/tools",
+    sum = "h1:Q7N1vhpkQv7ybVzLFtTjvQya2ewbwNDZzUgfXGqtMWU=",
+    version = "v0.32.0",
+)
+go_deps.module(
+    path = "github.com/golang/protobuf",
+    sum = "h1:i7eJL8qZTpSEXOPTxNKhASYpMn+8e5Q6AdndVa1dWek=",
+    version = "v1.5.4",
+)
+use_repo(
+    go_deps,
+    "com_github_golang_protobuf",
+    "org_golang_x_tools",
+)
+
+bazel_dep(name = "rules_python", version = "1.3.0", dev_dependency = True)

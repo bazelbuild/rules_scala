@@ -20,7 +20,7 @@ scalafmt_scala_library(
     srcs = ["unformatted/unformatted-library2.scala"],
     config = ":scala2-conf",
     format = True,
-    scala_version = "2.13.14",
+    scala_version = "2.13.16",
 )
 
 scalafmt_scala_library(
@@ -28,7 +28,7 @@ scalafmt_scala_library(
     srcs = ["formatted/formatted-library2.scala"],
     config = ":scala2-conf",
     format = True,
-    scala_version = "2.13.14",
+    scala_version = "2.13.16",
 )
 
 scalafmt_scala_library(
@@ -36,7 +36,7 @@ scalafmt_scala_library(
     srcs = ["unformatted/unformatted-library3.scala"],
     config = ":scala3-conf",
     format = True,
-    scala_version = "3.3.3",
+    scala_version = "3.3.5",
 )
 
 scalafmt_scala_library(
@@ -44,7 +44,7 @@ scalafmt_scala_library(
     srcs = ["formatted/formatted-library3.scala"],
     config = ":scala3-conf",
     format = True,
-    scala_version = "3.3.3",
+    scala_version = "3.3.5",
 )
 
 scalafmt_scala_binary(
@@ -53,16 +53,16 @@ scalafmt_scala_binary(
     config = ":scala2-conf",
     format = True,
     main_class = "UnformattedBinary",
-    scala_version = "2.12.19",
+    scala_version = "2.12.20",
 )
 
-scalafmt_scala_library(
+scalafmt_scala_binary(
     name = "formatted-binary2",
     srcs = ["formatted/formatted-binary2.scala"],
     config = ":scala2-conf",
     format = True,
     main_class = "UnformattedBinary",
-    scala_version = "2.12.19",
+    scala_version = "2.12.20",
 )
 
 scalafmt_scala_binary(
@@ -74,7 +74,7 @@ scalafmt_scala_binary(
     scala_version = "3.2.2",
 )
 
-scalafmt_scala_library(
+scalafmt_scala_binary(
     name = "formatted-binary3",
     srcs = ["formatted/formatted-binary3.scala"],
     config = ":scala3-conf",
@@ -88,7 +88,7 @@ scalafmt_scala_test(
     srcs = ["unformatted/unformatted-test2.scala"],
     config = ":scala2-conf",
     format = True,
-    scala_version = "2.12.19",
+    scala_version = "2.12.20",
 )
 
 scalafmt_scala_test(
@@ -96,7 +96,7 @@ scalafmt_scala_test(
     srcs = ["formatted/formatted-test2.scala"],
     config = ":scala2-conf",
     format = True,
-    scala_version = "2.12.19",
+    scala_version = "2.12.20",
 )
 
 #default scala version is 3.1.3

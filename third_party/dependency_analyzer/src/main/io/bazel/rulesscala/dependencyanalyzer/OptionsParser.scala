@@ -35,28 +35,25 @@ object OptionsParser {
     }
 
     @annotation.tailrec
-    def tokenize(tokens:List[String], targetsStr:String, currTokenStartIdx:Int, currIdx:Int, isEscaped:Boolean) : Seq[String] = {
-
-      if(currIdx >= targetsStr.size)
+    def tokenize(tokens: List[String], targetsStr: String, currTokenStartIdx: Int, currIdx: Int, isEscaped: Boolean): Seq[String] = {
+      if (currIdx >= targetsStr.size)
         return tokens;
 
-      val currChar = targetsStr.charAt(currIdx) 
-            
-      val isNextEscaped = if (!isEscaped)  (currChar == '\\') else  false;
+      val currChar = targetsStr.charAt(currIdx)
 
-      if(!isEscaped && currChar == ';'){
+      val isNextEscaped = if (!isEscaped) (currChar == '\\') else false;
+
+      if (!isEscaped && currChar == ';') {
         val updatedTokens = extractAndAppendToken(tokens, targetsStr, currTokenStartIdx, currIdx);
-
-        return tokenize(updatedTokens, targetsStr, currIdx + 1, currIdx + 1, isNextEscaped)
-        
-      }else if(currIdx == targetsStr.size-1){
-        return extractAndAppendToken(tokens, targetsStr, currTokenStartIdx, targetsStr.size);
-      }else{
-        return tokenize(tokens, targetsStr, currTokenStartIdx, currIdx+1, isNextEscaped)
+        tokenize(updatedTokens, targetsStr, currIdx + 1, currIdx + 1, isNextEscaped)
+      } else if (currIdx == targetsStr.size - 1) {
+        extractAndAppendToken(tokens, targetsStr, currTokenStartIdx, targetsStr.size);
+      } else {
+        tokenize(tokens, targetsStr, currTokenStartIdx, currIdx + 1, isNextEscaped)
       }
     }
 
-    tokenize(List[String](), targetsStr, 0, 0, false);    
+    tokenize(List[String](), targetsStr, 0, 0, false)
   }
 }
 

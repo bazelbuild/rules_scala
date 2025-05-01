@@ -1,14 +1,17 @@
 load("//scala:scala.bzl", "scala_library_for_plugin_bootstrapping")
-load("@io_bazel_rules_scala_config//:config.bzl", "SCALA_VERSIONS")
-load("@io_bazel_rules_scala//scala:scala_cross_version.bzl", "version_suffix")
+load("//scala:scala_cross_version_select.bzl", "select_for_scala_version")
 
 scala_library_for_plugin_bootstrapping(
     name = "dep_reporting_compiler",
-    srcs = select({
-        "@io_bazel_rules_scala_config//:scala_version" + version_suffix(v): ["@scala_compiler_source%s//:src" % version_suffix(v)]
-        for v in SCALA_VERSIONS
-    }),
+    srcs = ["@scala_compiler_sources//:src"],
     scalac_jvm_flags = ["-Xmx128M"],  # fixme - workaround for a failing test
+    scalacopts = select_for_scala_version(
+        any_3 = [
+            # Silence migration warnings when using Scala 3.4+
+            "-Wconf:msg=Alphanumeric method .* is not declared infix:s",
+            "-Wconf:cat=deprecation:s",
+        ],
+    ),
     visibility = ["//visibility:public"],
     deps = ["//scala/private/toolchain_deps:scala_compile_classpath"],
 )

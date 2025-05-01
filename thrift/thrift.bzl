@@ -1,6 +1,6 @@
 """Rules for organizing thrift files."""
 
-load("@io_bazel_rules_scala//thrift:thrift_info.bzl", "ThriftInfo")
+load("//thrift:thrift_info.bzl", "ThriftInfo")
 
 def empty_thrift_info():
     return ThriftInfo(srcs = depset(), transitive_srcs = depset())
@@ -172,10 +172,11 @@ thrift_library = rule(
         "_zipper": attr.label(
             executable = True,
             cfg = "exec",
-            default = Label("@bazel_tools//tools/zip:zipper"),
+            default = "@bazel_tools//tools/zip:zipper",
             allow_files = True,
         ),
     },
     outputs = {"libarchive": "lib%{name}.jar"},
     provides = [ThriftInfo],
+    toolchains = ["@bazel_tools//tools/jdk:toolchain_type"],
 )

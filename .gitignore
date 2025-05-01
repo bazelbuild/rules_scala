@@ -6,8 +6,22 @@ hash2
 .DS_store
 .bazel_cache
 .ijwb
+.bazelbsp
+.bsp
 .metals
 .vscode
 unformatted-*.backup.scala
 .scala-build
 test/semanticdb/tempsrc
+
+# From scripts/create_repository.py
+repository-artifacts.json
+
+# Until it settles down
+**/MODULE.bazel.lock
+
+# Used by some tests, but can also be used for local experimentation.
+tmp/
+
+# Not required by tests.
+deps/latest/.bazelversion

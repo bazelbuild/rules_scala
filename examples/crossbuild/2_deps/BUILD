@@ -1,4 +1,4 @@
-load("@io_bazel_rules_scala//scala:scala.bzl", "scala_binary", "scala_library")
+load("@rules_scala//scala:scala.bzl", "scala_binary", "scala_library")
 
 # Here we demonstrate how scala_version is propagated through deps.
 
@@ -19,7 +19,7 @@ scala_binary(
     name = "bin213",
     srcs = ["bin.scala"],  # compiled with 2.13 (as per `scala_version`)
     main_class = "C",
-    scala_version = "2.13.14",
+    scala_version = "2.13.16",
     deps = [
         ":lib",  # compiled 2.13 (as per `scala_version`)
         ":lib211",  # compiled with 2.11 (that target overrides version)

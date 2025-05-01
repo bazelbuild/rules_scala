@@ -1,4 +1,5 @@
 load("//scala:scala.bzl", "scala_binary", "scala_library")
+load("//scala:scala_cross_version_select.bzl", "select_for_scala_version")
 
 scala_library(
     name = "scrooge_worker_lib",
@@ -19,6 +20,25 @@ scala_binary(
     visibility = ["//visibility:public"],
     deps = [
         ":scrooge_worker_lib",
+    ],
+)
+
+# Used by `scala_proto_toolchain()` to support protoc-bridge < 0.9.8,
+# specifically 0.7.14 required by Scala 2.11. See #1647 and
+# scalapb/ScalaPB#1771.
+#
+# If we drop 2.11 support, delete this target and its files, and update
+# `scala_proto_toolchain()` (in `scala_proto/scala_proto_toolchain.bzl`) to use
+# `scalapb.ScalaPbCodeGenerator` as its `main_generator`.
+scala_library(
+    name = "scalapb_codegenerator_wrapper",
+    srcs = select_for_scala_version(
+        any_2_11 = ["ScalaPbCodeGeneratorWrapper_2_11.scala"],
+        since_2_12 = ["ScalaPbCodeGeneratorWrapper.scala"],
+    ),
+    visibility = ["//visibility:public"],
+    deps = [
+        "//scala_proto:scalapb_worker_deps",
     ],
 )
 

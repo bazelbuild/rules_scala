@@ -11,7 +11,7 @@ ext_scalafmt = {
     "attrs": {
         "config": attr.label(
             allow_single_file = [".conf"],
-            default = "@scalafmt_default//:config",
+            default = "@rules_scala_toolchains//scalafmt:config",
             doc = "The Scalafmt configuration file.",
         ),
         "format": attr.bool(
@@ -24,7 +24,7 @@ ext_scalafmt = {
             executable = True,
         ),
         "_java_host_runtime": attr.label(
-            default = Label("@bazel_tools//tools/jdk:current_host_java_runtime"),
+            default = "@rules_java//toolchains:current_host_java_runtime",
         ),
         "_runner": attr.label(
             allow_single_file = True,

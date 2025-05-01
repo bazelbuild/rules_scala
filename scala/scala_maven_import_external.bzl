@@ -37,6 +37,10 @@ the following macros are defined below that utilize jvm_import_external:
 
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "read_netrc", "read_user_netrc", "use_netrc")
 
+_SCALA_IMPORT_RULE_LOAD = (
+    "load(\"%s\", \"scala_import\")" % Label("//scala:scala_import.bzl")
+)
+
 # https://github.com/bazelbuild/bazel/issues/13709#issuecomment-1336699672
 def _get_auth(ctx, urls):
     """Given the list of URLs obtain the correct auth dict."""
@@ -59,24 +63,27 @@ _PASS_PROPS = (
 
 _FETCH_SOURCES_ENV_VAR_NAME = "BAZEL_JVM_FETCH_SOURCES"
 
-def _jvm_import_external(repository_ctx):
+def _jvm_import_external_impl(repository_ctx):
     """Implementation of `java_import_external` rule."""
     if (repository_ctx.attr.generated_linkable_rule_name and
         not repository_ctx.attr.neverlink):
         fail("Only use generated_linkable_rule_name if neverlink is set")
-    name = repository_ctx.attr.generated_rule_name or repository_ctx.name
+
+    # Replace with rctx.original_name once all supported Bazels have it
+    repo_name = getattr(repository_ctx, "original_name", repository_ctx.name)
+    name = repository_ctx.attr.generated_rule_name or repo_name
     urls = repository_ctx.attr.jar_urls
     if repository_ctx.attr.jar_sha256:
         print("'jar_sha256' is deprecated. Please use 'artifact_sha256'")
     sha = repository_ctx.attr.jar_sha256 or repository_ctx.attr.artifact_sha256
-    path = repository_ctx.name + ".jar"
+    path = repo_name + ".jar"
     for url in urls:
         if url.endswith(".jar"):
             path = url[url.rindex("/") + 1:]
             break
     srcurls = repository_ctx.attr.srcjar_urls
     srcsha = repository_ctx.attr.srcjar_sha256
-    srcpath = repository_ctx.name + "-src.jar" if srcurls else ""
+    srcpath = repo_name + "-src.jar" if srcurls else ""
     coordinates = repository_ctx.attr.coordinates
     for url in srcurls:
         if url.endswith(".jar"):
@@ -125,7 +132,7 @@ def _jvm_import_external(repository_ctx):
             lines.append("")
     repository_ctx.download(urls, path, sha, auth = _get_auth(repository_ctx, urls))
     if srcurls and _should_fetch_sources_in_current_env(repository_ctx):
-        repository_ctx.download(srcurls, srcpath, srcsha)
+        repository_ctx.download(srcurls, srcpath, srcsha, auth = _get_auth(repository_ctx, srcurls))
     repository_ctx.file("BUILD", "\n".join(lines))
     repository_ctx.file("jar/BUILD", "\n".join([
         _HEADER,
@@ -136,7 +143,7 @@ def _jvm_import_external(repository_ctx):
         "",
         "alias(",
         "    name = \"jar\",",
-        "    actual = \"@%s\"," % repository_ctx.name,
+        "    actual = \"//:%s\"," % name,
         ")",
         "",
     ]))
@@ -222,8 +229,8 @@ def _serialize_given_rule_import(
     lines.append("")
     return lines
 
-jvm_import_external = repository_rule(
-    implementation = _jvm_import_external,
+_jvm_import_external = repository_rule(
+    implementation = _jvm_import_external_impl,
     attrs = {
         "rule_name": attr.string(mandatory = True),
         "licenses": attr.string_list(mandatory = True, allow_empty = False),
@@ -252,10 +259,20 @@ jvm_import_external = repository_rule(
     environ = [_FETCH_SOURCES_ENV_VAR_NAME],
 )
 
+# Remove this macro and restore `_jvm_import_external` to `jvm_import_external`
+# once all supported Bazel versions support `repository_ctx.original_name`.
+def jvm_import_external(**kwargs):
+    """Wraps `_jvm_import_external` to pass `name` as `generated_target_name`.
+
+    If `generated_rule_name` is specified already, this is a noop.
+    """
+    generated_rule_name = kwargs.pop("generated_rule_name", kwargs.get("name"))
+    _jvm_import_external(generated_rule_name = generated_rule_name, **kwargs)
+
 def scala_maven_import_external(
         artifact,
         server_urls,
-        rule_load = "load(\"@io_bazel_rules_scala//scala:scala_import.bzl\", \"scala_import\")",
+        rule_load = _SCALA_IMPORT_RULE_LOAD,
         fetch_sources = False,
         **kwargs):
     jvm_maven_import_external(
@@ -297,7 +314,7 @@ def jvm_maven_import_external(
     jvm_import_external(jar_urls = jar_urls, srcjar_urls = srcjar_urls, coordinates = artifact, **kwargs)
 
 def scala_import_external(
-        rule_load = "load(\"@io_bazel_rules_scala//scala:scala_import.bzl\", \"scala_import\")",
+        rule_load = _SCALA_IMPORT_RULE_LOAD,
         **kwargs):
     jvm_import_external(
         rule_name = "scala_import",

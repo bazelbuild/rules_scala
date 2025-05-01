@@ -1,6 +1,6 @@
 # scala_repl
 
-```python
+```py
 scala_repl(
     name,
     deps,
@@ -19,7 +19,8 @@ Since `bazel run` closes stdin, it cannot be used to start a REPL.
 Instead, use `bazel build` to build the script, then run that script as normal to start a REPL session.
 
 An example in this repo:
-```
+
+```txt
 bazel build test:HelloLibRepl
 bazel-bin/test/HelloLibRepl
 ```

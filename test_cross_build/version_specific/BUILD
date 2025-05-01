@@ -1,4 +1,4 @@
-load("@io_bazel_rules_scala//scala:scala.bzl", "scala_library")
+load("@rules_scala//scala:scala.bzl", "scala_library")
 
 # A collection of arbitrarily chosen backward- and forward-incompatible code.
 # This simply tests if the proper compiler is assigned, according to Scala version setting.
@@ -7,7 +7,7 @@ load("@io_bazel_rules_scala//scala:scala.bzl", "scala_library")
 scala_library(
     name = "since_3_3",
     srcs = ["since_3_3.scala"],
-    scala_version = "3.3.3",
+    scala_version = "3.3.5",
 )
 
 scala_library(
@@ -43,7 +43,7 @@ scala_library(
         "since_3_2.scala",
         "since_3_3.scala",
     ],
-    scala_version = "3.3.3",
+    scala_version = "3.3.5",
 )
 
 scala_library(

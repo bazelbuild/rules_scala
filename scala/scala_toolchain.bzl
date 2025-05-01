@@ -1,13 +1,10 @@
+load("//scala:providers.bzl", _DepsInfo = "DepsInfo")
+load("@bazel_skylib//rules:common_settings.bzl", "BuildSettingInfo")
 load(
-    "@io_bazel_rules_scala//scala:providers.bzl",
-    _DepsInfo = "DepsInfo",
-)
-load(
-    "@io_bazel_rules_scala_config//:config.bzl",
+    "@rules_scala_config//:config.bzl",
     "ENABLE_COMPILER_DEPENDENCY_TRACKING",
     "SCALA_MAJOR_VERSION",
 )
-load("@bazel_skylib//rules:common_settings.bzl", "BuildSettingInfo")
 
 def _compute_strict_deps_mode(input_strict_deps_mode, dependency_mode):
     if dependency_mode == "direct":
@@ -108,17 +105,20 @@ def _scala_toolchain_impl(ctx):
 
 def _default_dep_providers():
     dep_providers = [
-        "@io_bazel_rules_scala//scala:scala_xml_provider",
-        "@io_bazel_rules_scala//scala:parser_combinators_provider",
-        "@io_bazel_rules_scala//scala:scala_compile_classpath_provider",
-        "@io_bazel_rules_scala//scala:scala_library_classpath_provider",
-        "@io_bazel_rules_scala//scala:scala_macro_classpath_provider",
+        "scala_xml",
+        "parser_combinators",
+        "scala_compile_classpath",
+        "scala_library_classpath",
+        "scala_macro_classpath",
     ]
-    if SCALA_MAJOR_VERSION.startswith("2"):
-        dep_providers.append("@io_bazel_rules_scala//scala:semanticdb_provider")
-    return dep_providers
+    if SCALA_MAJOR_VERSION.startswith("2."):
+        dep_providers.append("semanticdb")
+    return [
+        "@rules_scala_toolchains//scala:%s_provider" % p
+        for p in dep_providers
+    ]
 
-scala_toolchain = rule(
+_scala_toolchain = rule(
     _scala_toolchain_impl,
     attrs = {
         "scalacopts": attr.string_list(),
@@ -160,7 +160,7 @@ scala_toolchain = rule(
             doc = "Enable the output of structured diagnostics through the BEP",
         ),
         "jacocorunner": attr.label(
-            default = Label("@bazel_tools//tools/jdk:JacocoCoverage"),
+            default = "@bazel_tools//tools/jdk:JacocoCoverage",
         ),
         "enable_stats_file": attr.bool(
             default = True,
@@ -175,7 +175,37 @@ scala_toolchain = rule(
             default = False,
             doc = "Changes java binaries scripts (including tests) to use argument files and not classpath jars to improve performance, requires java > 8",
         ),
-        "_scala_version": attr.label(default = "@io_bazel_rules_scala_config//:scala_version"),
+        "_scala_version": attr.label(
+            default = "@rules_scala_config//:scala_version",
+        ),
     },
     fragments = ["java"],
 )
+
+def _expand_patterns(patterns):
+    """Expands string patterns to match actual Label values."""
+    result = []
+
+    for p in patterns:
+        exclude = p.startswith("-")
+        p = p.lstrip("-")
+        expanded = str(native.package_relative_label(p)) if p else ""
+
+        # If the original pattern doesn't contain ":", match any target
+        # beginning with the pattern prefix.
+        if expanded and ":" not in p:
+            expanded = expanded[:expanded.rindex(":")]
+
+        result.append(("-" if exclude else "") + expanded)
+
+    return result
+
+def scala_toolchain(**kwargs):
+    """Creates a Scala toolchain target."""
+    strict = kwargs.pop("dependency_tracking_strict_deps_patterns", [""])
+    unused = kwargs.pop("dependency_tracking_unused_deps_patterns", [""])
+    _scala_toolchain(
+        dependency_tracking_strict_deps_patterns = _expand_patterns(strict),
+        dependency_tracking_unused_deps_patterns = _expand_patterns(unused),
+        **kwargs
+    )

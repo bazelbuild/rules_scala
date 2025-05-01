@@ -15,7 +15,9 @@ custom_jvm = rule(
         "deps": attr.label_list(),
         "jar": attr.label(
             allow_single_file = True,
-            default = Label("@io_bazel_rules_scala//scala:libPlaceHolderClassToCreateEmptyJarForScalaImport.jar"),
+            default = (
+                "//scala:libPlaceHolderClassToCreateEmptyJarForScalaImport.jar"
+            ),
         ),
     },
 )

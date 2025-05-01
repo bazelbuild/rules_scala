@@ -3,7 +3,7 @@ load(
     "expose_toolchain_deps",
 )
 
-_toolchain_type = "@io_bazel_rules_scala//testing/toolchain:testing_toolchain_type"
+_toolchain_type = "//testing/toolchain:testing_toolchain_type"
 
 def _testing_toolchain_deps(ctx):
     return expose_toolchain_deps(ctx, _toolchain_type)
@@ -14,5 +14,4 @@ testing_toolchain_deps = rule(
         "deps_id": attr.string(mandatory = True),
     },
     toolchains = [_toolchain_type],
-    incompatible_use_toolchain_transition = True,
 )

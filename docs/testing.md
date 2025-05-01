@@ -1,37 +1,38 @@
-## Testing toolchain configuration
+# Testing toolchain configuration
 
 Toolchain type `testing_toolchain_type` is used to set up test dependencies. You can customize
 test dependencies by defining a custom testing toolchain.
 
 In your `WORKSPACE` default repositories and toolchains can be loaded via:
-```starlark
-# JUnit 4
-load("@io_bazel_rules_scala//testing:junit.bzl", "junit_repositories", "junit_toolchain")
-junit_repositories()
-junit_toolchain()
 
-# ScalaTest
-load("@io_bazel_rules_scala//testing:scalatest.bzl", "scalatest_repositories", "scalatest_toolchain")
-scalatest_repositories()
-scalatest_toolchain()
+```py
+load(
+    "@rules_scala//scala:toolchains.bzl",
+    "scala_register_toolchains",
+    "scala_toolchains",
+)
 
-# Specs2 with Junit
-load("@io_bazel_rules_scala//testing:specs2_junit.bzl", "specs2_junit_repositories", "specs2_junit_toolchain")
-specs2_junit_repositories()
-specs2_junit_toolchain()
+scala_toolchains(
+    junit = True,      # JUnit 4
+    scalatest = True,  # ScalaTest
+    specs2 = True,     # Specs2 with JUnit
+    testing = True,    # Use for all of the above, instead of individual settings
+)
+
+scala_register_toolchains()
 ```
 
-### Configuring testing dependencies via toolchain
+## Configuring testing dependencies via toolchain
 
-Default dependencies, which come preconfigured with Rules Scala repositories are mostly tailored 
-towards supporting Rules Scala codebase, and may miss specific versions or libraries for your 
+Default dependencies, which come preconfigured with Rules Scala repositories are mostly tailored
+towards supporting Rules Scala codebase, and may miss specific versions or libraries for your
 usecase. You should prefer configuring dependencies via toolchains.
 
 Test framework dependencies are configured via testing toolchain. For convenience, macro
 `setup_scala_testing_toolchain` can be used to define such toolchains.
 
-```starlark
-load("@io_bazel_rules_scala//scala:scala.bzl", "setup_scala_testing_toolchain")
+```py
+load("@rules_scala//testing:testing.bzl", "setup_scala_testing_toolchain")
 ```
 
 Attributes
@@ -49,15 +50,15 @@ Attributes
 
 Examples (assumes maven deps are managed with rules_jvm_external):
 
-#### ScalaTest (flat spec with must matchers)
+### ScalaTest (flat spec with must matchers)
 
-```starlark
+```py
 # BUILD
-load("@io_bazel_rules_scala//scala:scala.bzl", "setup_scala_testing_toolchain")
+load("@rules_scala//testing:testing.bzl", "setup_scala_testing_toolchain")
 
 setup_scala_testing_toolchain(
     name = "scalatest_toolchain",
-    scalatest_classpath = [ 
+    scalatest_classpath = [
        "@maven//:org_scalactic_scalactic_2_13",
        "@maven//:org_scalatest_scalatest_2_13",
        "@maven//:org_scalatest_scalatest_compatible",
@@ -68,16 +69,19 @@ setup_scala_testing_toolchain(
     ],
 )
 ```
+
 Register the toolchain
-```starlark
+
+```py
 # WORKSPACE
 register_toolchains('//:scalatest_toolchain')
 ```
 
-#### JUnit 4
-```starlark
+### JUnit 4
+
+```py
 # BUILD
-load("@io_bazel_rules_scala//scala:scala.bzl", "setup_scala_testing_toolchain")
+load("@rules_scala//testing:testing.bzl", "setup_scala_testing_toolchain")
 
 setup_scala_testing_toolchain(
     name = "junit_toolchain",
@@ -87,18 +91,22 @@ setup_scala_testing_toolchain(
     ],
 )
 ```
+
 Register the toolchain
-```starlark
+
+```py
 # WORKSPACE
 register_toolchains('//:junit_toolchain')
 ```
 
-#### Specs2
+### Specs2
+
 For Specs2 rules to work, `junit_classpath`, `specs2_junit_classpath` and `specs2_classpath` must
 be configured.
-```starlark
+
+```py
 # BUILD
-load("@io_bazel_rules_scala//scala:scala.bzl", "setup_scala_testing_toolchain")
+load("@rules_scala//testing:testing.bzl", "setup_scala_testing_toolchain")
 
 setup_scala_testing_toolchain(
     name = "specs2_toolchain",
@@ -116,10 +124,12 @@ setup_scala_testing_toolchain(
         "@maven//:org_specs2_specs2_junit_2_12",
         "@maven//:org_specs2_specs2_matcher_2_12",
     ]
-)        
+)
 ```
+
 Register the toolchain
-```starlark
+
+```py
 # WORKSPACE
 register_toolchains('//:specs2_toolchain')
 ```

@@ -22,6 +22,7 @@ test_custom_reporter_class_has_been_set() {
   bazel test test/scala_test:custom_reporter
   set +e
   reporter_output_dir="$(bazel info bazel-testlogs)/test/scala_test/custom_reporter/test.outputs"
+  chmod u+w "$reporter_output_dir"  # Needed under Bazel 7
   reporter_output_filepath="${reporter_output_dir}/${custom_reporter_check_file}"
   unzip -oq "${reporter_output_dir}/outputs.zip" -d "${reporter_output_dir}"
   assert_file_exists "${reporter_output_filepath}"

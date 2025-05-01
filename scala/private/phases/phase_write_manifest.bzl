@@ -4,7 +4,7 @@
 # DOCUMENT THIS
 #
 load(
-    "@io_bazel_rules_scala//scala/private:common.bzl",
+    "//scala/private:common.bzl",
     _write_manifest_file = "write_manifest_file",
 )
 

@@ -5,12 +5,8 @@
 #
 
 load(
-    "@io_bazel_rules_scala//scala/private:coverage_replacements_provider.bzl",
+    "//scala/private:coverage_replacements_provider.bzl",
     _coverage_replacements_provider = "coverage_replacements_provider",
-)
-load(
-    "@io_bazel_rules_scala//scala/private:rule_impls.bzl",
-    _allow_security_manager = "allow_security_manager",
 )
 
 def phase_coverage_library(ctx, p):
@@ -64,7 +60,7 @@ def _phase_coverage(ctx, p, srcjars):
             outputs = [output_jar],
             executable = ctx.attr._code_coverage_instrumentation_worker.files_to_run,
             execution_requirements = {"supports-workers": "1"},
-            arguments = ["--jvm_flag=%s" % f for f in _allow_security_manager(ctx)] + [args],
+            arguments = [args],
         )
 
         replacements = {input_jar: output_jar}

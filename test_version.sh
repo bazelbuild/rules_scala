@@ -2,11 +2,11 @@
 
 set -e
 
-scala_2_11_version="2.11.12"
-scala_2_12_version="2.12.19"
-scala_2_13_version="2.13.14"
+scala_2_12_version="2.12.20"
+scala_2_13_version="2.13.16"
+scala_3_version="3.3.5"
 
-SCALA_VERSION_DEFAULT=$scala_2_11_version
+SCALA_VERSION_DEFAULT=$scala_2_12_version
 
 diagnostics_reporter_toolchain="//:diagnostics_reporter_toolchain"
 diagnostics_reporter_and_semanticdb_toolchain="//:diagnostics_reporter_and_semanticdb_toolchain"
@@ -16,14 +16,37 @@ compilation_should_fail() {
   # runs the tests locally
   set +e
   TEST_ARG=$@
-  DUMMY=$(bazel $TEST_ARG)
+  OUTPUT="$(bazel $TEST_ARG 2>&1)"
   RESPONSE_CODE=$?
+  set -e
+
   if [ $RESPONSE_CODE -eq 0 ]; then
     echo -e "${RED} \"bazel $TEST_ARG\" should have failed but passed. $NC"
+    echo "$OUTPUT"
     return -1
+  fi
+
+  local expected_error_pattern=(
+    "ErrorFile\.scala:6:[[:print:][:space:]]*'[)]' expected,? but '[}]' found"
+  )
+
+  if [[ ! "$OUTPUT" =~ $expected_error_pattern ]]; then
+    echo -e "${RED}  \"bazel $*\" failure should have matched:"
+    echo -e "    ${expected_error_pattern}"
+    echo -e "  got:${NC}"
+    echo "$OUTPUT"
+    return 1
   else
     return 0
   fi
+}
+
+teardown_test_repo() {
+  local test_dir="$1"
+
+  #make sure bazel still not running or consuming space for this workspace
+  bazel clean --expunge_async 2>/dev/null
+  rm -rf "$test_dir"
 }
 
 run_in_test_repo() {
@@ -41,23 +64,42 @@ run_in_test_repo() {
 
   cp -r $test_target $NEW_TEST_DIR
 
-  sed \
-      -e "s%\${twitter_scrooge_repositories}%$TWITTER_SCROOGE_REPOSITORIES%" \
+  local scrooge_ws=""
+  local scrooge_mod=""
+
+  if [[ -n "$TWITTER_SCROOGE_VERSION" ]]; then
+    local version_param="version = \"$TWITTER_SCROOGE_VERSION\""
+    scrooge_ws="$version_param"
+    scrooge_mod="scrooge_repos.settings($version_param)\\n"
+  fi
+
+  sed -e "s%\${twitter_scrooge_repositories}%${scrooge_ws}%" \
       WORKSPACE.template >> $NEW_TEST_DIR/WORKSPACE
-  cp ../.bazelrc $NEW_TEST_DIR/.bazelrc
+  sed -e "s%\${twitter_scrooge_repositories}%${scrooge_mod}%" \
+      MODULE.bazel.template >> $NEW_TEST_DIR/MODULE.bazel
+  cp ../.bazel{rc,version} scrooge_repositories.bzl $NEW_TEST_DIR/
+  cp ../protoc/0001-protobuf-19679-rm-protoc-dep.patch \
+      $NEW_TEST_DIR/protobuf.patch
 
   cd $NEW_TEST_DIR
 
+  #make sure bazel still not running or consuming space for this workspace
+  trap "teardown_test_repo '$PWD'" EXIT
+
   ${test_command}
-  RESPONSE_CODE=$?
+  exit $?
+}
 
-  #make sure bazel still not running for this workspace
-  bazel shutdown
+check_module_bazel_template() {
+  cp MODULE.bazel MODULE.orig \
+    && bazel mod --enable_bzlmod tidy \
+    && diff -u MODULE.orig MODULE.bazel
+}
 
-  cd ..
-  rm -rf $NEW_TEST_DIR
-  
-  exit $RESPONSE_CODE
+test_check_module_bazel_template() {
+  run_in_test_repo "check_module_bazel_template" \
+    "bzlmod_tidy" \
+    "version_specific_tests_dir/"
 }
 
 test_scala_version() {
@@ -83,21 +125,20 @@ test_diagnostic_proto_files() {
 }
 
 test_twitter_scrooge_versions() {
-  local version_under_test=$1
+  local TWITTER_SCROOGE_VERSION="$1"
 
-  local TWITTER_SCROOGE_REPOSITORIES_18_6_0='scrooge_repositories(version = "18.6.0")'
+  case "$TWITTER_SCROOGE_VERSION" in
+  18.6.0|20.9.0)
+    ;;
+  *)
+    echo "Unknown Twitter Scrooge version given $TWITTER_SCROOGE_VERSION"
+    ;;
+  esac
 
-  local TWITTER_SCROOGE_REPOSITORIES_21_2_0='scrooge_repositories(version = "21.2.0")'
-
-  if [ "18.6.0" = $version_under_test ]; then
-    TWITTER_SCROOGE_REPOSITORIES=$TWITTER_SCROOGE_REPOSITORIES_18_6_0
-  elif [ "20.9.0" = $version_under_test ]; then
-    TWITTER_SCROOGE_REPOSITORIES=$TWITTER_SCROOGE_REPOSITORIES_20_9_0
-  else
-    echo "Unknown Twitter Scrooge version given $version_under_test"
-  fi
-
-  run_in_test_repo "bazel test //twitter_scrooge/... --test_arg=${version_under_test}" "scrooge_version" "version_specific_tests_dir/"
+  run_in_test_repo \
+    "bazel test //twitter_scrooge/... --test_arg=${TWITTER_SCROOGE_VERSION}" \
+    "scrooge_version" \
+    "version_specific_tests_dir/"
 }
 
 if ! bazel_loc="$(type -p 'bazel')" || [[ -z "$bazel_loc" ]]; then
@@ -111,27 +152,29 @@ dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 runner=$(get_test_runner "${1:-local}")
 export USE_BAZEL_VERSION=${USE_BAZEL_VERSION:-$(cat $dir/.bazelversion)}
 
-TEST_TIMEOUT=15 $runner test_scala_version "${scala_2_11_version}"
+TEST_TIMEOUT=15 $runner test_check_module_bazel_template
 TEST_TIMEOUT=15 $runner test_scala_version "${scala_2_12_version}"
 TEST_TIMEOUT=15 $runner test_scala_version "${scala_2_13_version}"
 
 TEST_TIMEOUT=15 $runner test_twitter_scrooge_versions "18.6.0"
 TEST_TIMEOUT=15 $runner test_twitter_scrooge_versions "21.2.0"
 
-TEST_TIMEOUT=15 $runner test_reporter "${scala_2_11_version}" "${no_diagnostics_reporter_toolchain}"
 TEST_TIMEOUT=15 $runner test_reporter "${scala_2_12_version}" "${no_diagnostics_reporter_toolchain}"
 TEST_TIMEOUT=15 $runner test_reporter "${scala_2_13_version}" "${no_diagnostics_reporter_toolchain}"
+TEST_TIMEOUT=15 $runner test_reporter "${scala_3_version}"    "${no_diagnostics_reporter_toolchain}"
 
-TEST_TIMEOUT=15 $runner test_reporter "${scala_2_11_version}" "${diagnostics_reporter_toolchain}"
 TEST_TIMEOUT=15 $runner test_reporter "${scala_2_12_version}" "${diagnostics_reporter_toolchain}"
 TEST_TIMEOUT=15 $runner test_reporter "${scala_2_13_version}" "${diagnostics_reporter_toolchain}"
+TEST_TIMEOUT=15 $runner test_reporter "${scala_3_version}"    "${diagnostics_reporter_toolchain}"
 
-TEST_TIMEOUT=15 $runner test_reporter "${scala_2_11_version}" "${diagnostics_reporter_and_semanticdb_toolchain}"
 TEST_TIMEOUT=15 $runner test_reporter "${scala_2_12_version}" "${diagnostics_reporter_and_semanticdb_toolchain}"
 TEST_TIMEOUT=15 $runner test_reporter "${scala_2_13_version}" "${diagnostics_reporter_and_semanticdb_toolchain}"
+TEST_TIMEOUT=15 $runner test_reporter "${scala_3_version}"    "${diagnostics_reporter_and_semanticdb_toolchain}"
 
-TEST_TIMEOUT=15 $runner test_diagnostic_proto_files "${scala_2_12_version}" //test_expect_failure/diagnostics_reporter:diagnostics_reporter_toolchain 
-TEST_TIMEOUT=15 $runner test_diagnostic_proto_files "${scala_2_13_version}" //test_expect_failure/diagnostics_reporter:diagnostics_reporter_toolchain 
+TEST_TIMEOUT=15 $runner test_diagnostic_proto_files "${scala_2_12_version}" //test_expect_failure/diagnostics_reporter:diagnostics_reporter_toolchain
+TEST_TIMEOUT=15 $runner test_diagnostic_proto_files "${scala_2_13_version}" //test_expect_failure/diagnostics_reporter:diagnostics_reporter_toolchain
+TEST_TIMEOUT=15 $runner test_diagnostic_proto_files "${scala_3_version}"    //test_expect_failure/diagnostics_reporter:diagnostics_reporter_toolchain 
 
-TEST_TIMEOUT=15 $runner test_diagnostic_proto_files "${scala_2_12_version}" //test_expect_failure/diagnostics_reporter:diagnostics_reporter_and_semanticdb_toolchain 
-TEST_TIMEOUT=15 $runner test_diagnostic_proto_files "${scala_2_13_version}" //test_expect_failure/diagnostics_reporter:diagnostics_reporter_and_semanticdb_toolchain 
+TEST_TIMEOUT=15 $runner test_diagnostic_proto_files "${scala_2_12_version}" //test_expect_failure/diagnostics_reporter:diagnostics_reporter_and_semanticdb_toolchain
+TEST_TIMEOUT=15 $runner test_diagnostic_proto_files "${scala_2_13_version}" //test_expect_failure/diagnostics_reporter:diagnostics_reporter_and_semanticdb_toolchain
+TEST_TIMEOUT=15 $runner test_diagnostic_proto_files "${scala_3_version}"    //test_expect_failure/diagnostics_reporter:diagnostics_reporter_and_semanticdb_toolchain

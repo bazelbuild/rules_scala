@@ -30,13 +30,13 @@ tasks:
     - sudo apt update && sudo apt install --reinstall libxml2-utils -y
     - "./test_rules_scala.sh"
   test_rules_scala_linux_last_green:
-    name: "./test_rules_scala (Bazel green head)"
+    name: "./test_rules_scala (last_green Bazel)"
     platform: ubuntu2004
     bazel: last_green
     shell_commands:
     # Install xmllint
     - sudo apt update && sudo apt install --reinstall libxml2-utils -y
-    - "./test_rules_scala.sh || buildkite-agent annotate --style 'warning' \"Optional build with latest Bazel version failed, [see here](${BUILDKITE_BUILD_URL}#${BUILDKITE_JOB_ID}) (It is not mandatory but worth checking)\""
+    - "./test_rules_scala.sh || buildkite-agent annotate --style 'warning' \"Optional build with last_green Bazel version failed, [see here](${BUILDKITE_BUILD_URL}#${BUILDKITE_JOB_ID}) (It is not mandatory but worth checking)\""
   test_rules_scala_macos:
     name: "./test_rules_scala"
     platform: macos
@@ -45,18 +45,22 @@ tasks:
   test_rules_scala_win:
     name: "./test_rules_scala"
     platform: windows
-    shell_commands:
+    environment:      
+      MSYS2_ARG_CONV_EXCL: "*"
+    batch_commands:
+    - "set PATH=/usr/bin;%PATH%" #Make sure bash uses msys commands over windows commands. (i.e. find).
+    - "bash -lc \"pacman --noconfirm --needed -S libxml2\"" #tests require xmllint
     - "bash test_rules_scala.sh"
-  test_coverage_linux_6_3_0:
+  test_coverage_linux_7_6_1:
     name: "./test_coverage"
     platform: ubuntu2004
-    bazel: 6.3.0
+    bazel: 7.6.1
     shell_commands:
       - "./test_coverage.sh"
-  test_coverage_macos_6.3.0:
+  test_coverage_macos_7.6.1:
     name: "./test_coverage"
     platform: macos
-    bazel: 6.3.0
+    bazel: 7.6.1
     shell_commands:
       - "./test_coverage.sh"
   test_reproducibility_linux:
@@ -79,23 +83,28 @@ tasks:
     platform: macos
     shell_commands:
     - "./test_version.sh"
+  thirdparty_version_linux:
+    name: "./test_thirdparty_version.sh"      
+    platform: ubuntu2204_java17
+    shell_commands:
+    - "./test_thirdparty_version.sh"
   examples_linux:
     name: "./test_examples"
     platform: ubuntu2004
-    bazel: 6.3.0
+    bazel: 7.6.1
     shell_commands:
       - "./test_examples.sh"
   cross_build_linux:
     name: "./test_cross_build"
     platform: ubuntu2004
-    bazel: 6.3.0
+    bazel: 7.6.1
     shell_commands:
       - "./test_cross_build.sh"
   lint_linux:
-    name: "bazel //tools:lint_check"
+    name: "./test_lint.sh"
     platform: ubuntu2004
-    run_targets:
-    -  "//tools:lint_check"
+    shell_commands:
+    -  "./test_lint.sh"
   test_rules_scala_jdk21:
     name: "./test_rules_scala with jdk21"
     platform: ubuntu2004
