@@ -1,0 +1,129 @@
+"""Test targets to ensure dependency version compatibility.
+
+Copied and adapted targets from the main repo as noted.
+"""
+load(
+    ":defs.bzl",
+    "default_outputs_test",
+    "scalafmt_scala_test",
+    "scrooge_transitive_outputs_test",
+)
+load("@rules_proto//proto:defs.bzl", "proto_library")
+load("@rules_scala//jmh:jmh.bzl", "scala_benchmark_jmh")
+load("@rules_scala//scala/scalafmt:phase_scalafmt_ext.bzl", "ext_scalafmt")
+load("@rules_scala//scala:advanced_usage/scala.bzl", "make_scala_test")
+load(
+    "@rules_scala//scala:scala.bzl",
+    "scala_binary",
+    "scala_doc",
+    "scala_junit_test",
+    "scala_library",
+    "scala_specs2_junit_test",
+    "scala_test",
+)
+load("@rules_scala//scala_proto:scala_proto.bzl", "scala_proto_library")
+load("@rules_scala//thrift:thrift.bzl", "thrift_library")
+load(
+    "@rules_scala//twitter_scrooge:twitter_scrooge.bzl",
+    "scrooge_java_library",
+    "scrooge_scala_library",
+)
+
+# From: `test/BUILD`
+scala_binary(
+    name = "ScalaBinary",
+    srcs = ["ScalaBinary.scala"],
+    main_class = "scalarules.test.ScalaBinary",
+    deps = [
+        ":HelloLib",
+    ],
+)
+
+scala_library(
+    name = "HelloLib",
+    srcs = ["HelloLib.scala"],
+)
+
+scala_doc(
+    name = "ScalaDoc",
+    deps = [":HelloLib"],
+)
+
+# From: `examples/testing/multi_frameworks_toolchain/example/BUILD`
+scala_test(
+    name = "scalatest_example",
+    srcs = ["ScalaTestExampleTest.scala"],
+)
+
+scala_specs2_junit_test(
+    name = "specs2_example",
+    srcs = ["Specs2ExampleTest.scala"],
+    suffixes = ["Test"],
+)
+
+# Manufactured based on `docs/phase_scalafmt.md` and `test/scalafmt/BUILD`.
+scalafmt_scala_test(
+    name = "ScalafmtTest",
+    srcs = ["ScalaTestExampleTest.scala"],
+    format = True,
+)
+
+# From: `test/proto/BUILD`
+proto_library(
+    name = "standalone_proto",
+    srcs = ["standalone.proto"],
+)
+
+scala_proto_library(
+    name = "standalone_scala_proto",
+    deps = [":standalone_proto"],
+)
+
+default_outputs_test(
+    name = "standalone_scala_proto_outs_test",
+    expected_outs = [
+        "standalone_proto_scalapb-src.jar",
+        "standalone_proto_scalapb.jar",
+    ],
+    target_under_test = ":standalone_scala_proto",
+)
+
+# From: `test/jmh/BUILD`
+scala_benchmark_jmh(
+    name = "test_benchmark",
+    srcs = ["TestBenchmark.scala"],
+    data = ["data.txt"],
+    deps = ["@rules_scala//test/jmh:add_numbers"],
+)
+
+# From: `test/src/main/scala/scalarules/test/twitter_scrooge/BUILD`
+
+thrift_library(
+    name = "thrift3",
+    srcs = ["Thrift3.thrift"],
+    visibility = ["//visibility:public"],
+)
+
+scrooge_scala_library(
+    name = "scrooge3",
+    visibility = ["//visibility:public"],
+    deps = [":thrift3"],
+)
+
+scrooge_java_library(
+    name = "scrooge3_java",
+    visibility = ["//visibility:public"],
+    deps = [":thrift3"],
+)
+
+scrooge_transitive_outputs_test(
+    name = "scrooge_test_scala",
+    dep = ":scrooge3",
+    expected_jars = ["thrift3_scrooge_scala.jar"],
+)
+
+scrooge_transitive_outputs_test(
+    name = "scrooge_test_java",
+    dep = ":scrooge3_java",
+    expected_jars = ["thrift3_scrooge_java.jar"],
+)

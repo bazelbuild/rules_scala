@@ -349,7 +349,8 @@ by default](#protoc-msvc) section below for details.
 #### Minimum dependency versions
 
 These are the minimum dependency versions required to enable the precompiled
-protocol compiler toolchain.
+protocol compiler toolchain. These are validated by
+[`test_dependency_versions.sh`](./test/shell/test_dependency_versions.sh).
 
 Note that `rules_java` can be as low as 8.3.0, compared to `rules_java` 8.5.0
 specified in [Compatible Bazel versions](#compatible-bazel-versions).
