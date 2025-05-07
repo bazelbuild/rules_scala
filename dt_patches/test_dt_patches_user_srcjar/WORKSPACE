@@ -147,6 +147,9 @@ srcjars_by_version = {
     "3.6.4": {
         "url": "https://repo1.maven.org/maven2/org/scala-lang/scala3-compiler_3/3.6.4/scala3-compiler_3-3.6.4-sources.jar",
     },
+    "3.7.0": {
+        "url": "https://repo1.maven.org/maven2/org/scala-lang/scala3-compiler_3/3.7.0/scala3-compiler_3-3.7.0-sources.jar",
+    },
 }
 
 load("@rules_scala//scala:toolchains.bzl", "scala_toolchains")

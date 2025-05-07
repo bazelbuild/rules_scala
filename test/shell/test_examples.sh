@@ -53,6 +53,10 @@ function scala3_6_example() {
    test_example examples/scala3 "bazel build --repo_env=SCALA_VERSION=3.6.4 //..."
 }
 
+function scala3_7_example() {
+   test_example examples/scala3 "bazel build --repo_env=SCALA_VERSION=3.7.0 //..."
+}
+
 function semanticdb_example() {
 
   function build_semanticdb_example(){

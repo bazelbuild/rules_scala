@@ -170,6 +170,10 @@ scala_deps.compiler_srcjar(
     url = "https://repo1.maven.org/maven2/org/scala-lang/scala3-compiler_3/3.6.4/scala3-compiler_3-3.6.4-sources.jar",
     version = "3.6.4",
 )
+scala_deps.compiler_srcjar(
+    url = "https://repo1.maven.org/maven2/org/scala-lang/scala3-compiler_3/3.7.0/scala3-compiler_3-3.7.0-sources.jar",
+    version = "3.7.0",
+)
 
 scala_protoc = use_extension(
     "@rules_scala//scala/extensions:protoc.bzl",
