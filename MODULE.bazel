@@ -22,6 +22,7 @@ SCALA_3_VERSIONS = [
     "3.3.5",
     "3.5.2",
     "3.6.4",
+    "3.7.0",
 ]
 
 SCALA_VERSIONS = SCALA_2_VERSIONS + SCALA_3_VERSIONS
