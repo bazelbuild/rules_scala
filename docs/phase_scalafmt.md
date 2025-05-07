@@ -72,18 +72,21 @@ bazel run <TARGET>.format-test
 to check the format (without modifying source code).
 
 The extension provides a default configuration. To use a custom configuration,
-pass its path or target Label to the toolchain configuration:
+pass its path or target `Label` string to the toolchain configuration. The file
+must exist within a package; the following examples presume a `BUILD` file
+exists in the repository root:
 
 ```py
 # MODULE.bazel
 scala_deps.scalafmt(
-    default_config = "path/to/my/custom/scalafmt.conf",
+    default_config = "path/to/my/custom/.scalafmt.conf",
 )
 
 # WORKSPACE
 scala_toolchains(
     # Other toolchains settings...
-    scalafmt = {"default_config": "path/to/my/custom/scalafmt.conf"},
+    # This _must_ be a target Label under WORKSPACE.
+    scalafmt = {"default_config": "//:path/to/my/custom/.scalafmt.conf"},
 )
 ```
 
