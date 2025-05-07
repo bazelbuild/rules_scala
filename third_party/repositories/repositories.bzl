@@ -53,6 +53,11 @@ load(
     _artifacts_3_6 = "artifacts",
     _scala_version_3_6 = "scala_version",
 )
+load(
+    "//third_party/repositories:scala_3_7.bzl",
+    _artifacts_3_7 = "artifacts",
+    _scala_version_3_7 = "scala_version",
+)
 load("@rules_scala_config//:config.bzl", "SCALA_VERSION")
 
 artifacts_by_major_scala_version = {
@@ -65,6 +70,7 @@ artifacts_by_major_scala_version = {
     "3.4": _artifacts_3_4,
     "3.5": _artifacts_3_5,
     "3.6": _artifacts_3_6,
+    "3.7": _artifacts_3_7,
 }
 
 scala_version_by_major_scala_version = {
@@ -77,6 +83,7 @@ scala_version_by_major_scala_version = {
     "3.4": _scala_version_3_4,
     "3.5": _scala_version_3_5,
     "3.6": _scala_version_3_6,
+    "3.7": _scala_version_3_7,
 }
 
 def repositories(
