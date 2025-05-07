@@ -1499,6 +1499,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for more info.
 
 Here's a (non-exhaustive) list of companies that use `rules_scala` in production. Don't see yours? [You can add it in a PR](https://github.com/bazelbuild/rules_scala/edit/master/README.md)!
 
+- [Airbnb](https://airbnb.com/)
 - [Ascend](https://ascend.io/)
 - [Canva](https://www.canva.com/)
 - [Domino Data Lab](https://www.dominodatalab.com/)
