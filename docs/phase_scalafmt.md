@@ -71,25 +71,21 @@ bazel run <TARGET>.format-test
 
 to check the format (without modifying source code).
 
-The extension provides a default configuration, but there are 2 ways to use
-a custom configuration:
+The extension provides a default configuration. To use a custom configuration,
+pass its path or target Label to the toolchain configuration:
 
-- Put `.scalafmt.conf` at the root of your workspace
-- Pass `.scalafmt.conf` in via `scala_toolchains`:
+```py
+# MODULE.bazel
+scala_deps.scalafmt(
+    default_config = "path/to/my/custom/scalafmt.conf",
+)
 
-    ```py
-    # MODULE.bazel
-    scala_deps.scalafmt(
-        default_config = "//path/to/my/custom:scalafmt.conf",
-    )
-
-    # WORKSPACE
-    scala_toolchains(
-        # Other toolchains settings...
-        scalafmt = True,
-        scalafmt_default_config = "//path/to/my/custom:scalafmt.conf",
-    )
-    ```
+# WORKSPACE
+scala_toolchains(
+    # Other toolchains settings...
+    scalafmt = {"default_config": "path/to/my/custom/scalafmt.conf"},
+)
+```
 
 When using Scala 3, you must append `runner.dialect = scala3` to
 `.scalafmt.conf`.

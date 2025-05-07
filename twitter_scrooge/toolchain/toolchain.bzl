@@ -14,14 +14,6 @@ DEP_PROVIDERS = [
     "compiler_classpath",
 ]
 
-TOOLCHAIN_DEPS = [
-    "libthrift",
-    "scrooge_core",
-    "scrooge_generator",
-    "util_core",
-    "util_logging",
-]
-
 def twitter_scrooge_artifact_ids(
         libthrift = None,
         scrooge_core = None,
@@ -77,6 +69,14 @@ export_scrooge_deps = rule(
     },
     toolchains = [_toolchain_type],
 )
+
+TOOLCHAIN_DEFAULTS = {
+    "libthrift": None,
+    "scrooge_core": None,
+    "scrooge_generator": None,
+    "util_core": None,
+    "util_logging": None,
+}
 
 def setup_scrooge_toolchain(
         name,

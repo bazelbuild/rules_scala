@@ -4,15 +4,21 @@ load(
     "scalapb_toolchain",
 )
 
-_default_gen_opts = [
-    "grpc",
-]
+TOOLCHAIN_DEFAULTS = {
+    "default_gen_opts": ["grpc"],
+}
 
-def setup_scala_proto_toolchains(name, default_gen_opts = _default_gen_opts):
+def setup_scala_proto_toolchains(
+        name,
+        default_gen_opts = ["grpc"]):
     """Used by @rules_scala_toolchains//scala_proto/BUILD.
 
     See //scala/private:macros/toolchains_repo.bzl for details, especially the
     _SCALA_PROTO_TOOLCHAIN_BUILD string template.
+
+    See the `scalapbc` column of the "ScalaPB: SBT Settings > Additional options
+    to the generator" table below for `default_gen_opts` values:
+    - https://scalapb.github.io/docs/sbt-settings#additional-options-to-the-generator
 
     Args:
       name: prefix for all generate toolchains

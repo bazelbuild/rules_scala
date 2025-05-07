@@ -49,9 +49,7 @@ scala_deps.settings(
     fetch_sources = True,
 )
 scala_deps.scala()
-scala_deps.scala_proto(
-    options = ["grpc"],
-)
+scala_deps.scala_proto()
 scala_deps.scalatest()
 scala_deps.specs2()
 
