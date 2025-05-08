@@ -155,8 +155,8 @@ scala_deps.compiler_srcjar(
     version = "3.2.2",
 )
 scala_deps.compiler_srcjar(
-    url = "https://repo1.maven.org/maven2/org/scala-lang/scala3-compiler_3/3.3.5/scala3-compiler_3-3.3.5-sources.jar",
-    version = "3.3.5",
+    url = "https://repo1.maven.org/maven2/org/scala-lang/scala3-compiler_3/3.3.6/scala3-compiler_3-3.3.6-sources.jar",
+    version = "3.3.6",
 )
 scala_deps.compiler_srcjar(
     label = "@scala3_compiler_srcjar//jar:downloaded.jar",

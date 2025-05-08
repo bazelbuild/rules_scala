@@ -29,7 +29,7 @@ scala_config.settings(
         "2.12.20",
         "3.1.3",
         "3.2.2",
-        "3.3.5",
+        "3.3.6",
     ],
 )
 ```
@@ -48,7 +48,7 @@ scala_config(
         "2.13.16",
         "3.1.3",
         "3.2.2",
-        "3.3.5",
+        "3.3.6",
     ],
 )
 ```
@@ -287,7 +287,7 @@ specific Scala version. See [test_cross_build/version_specific/BUILD](
 scala_library(
     name = "since_3_3",
     srcs = ["since_3_3.scala"],
-    scala_version = "3.3.5",
+    scala_version = "3.3.6",
 )
 
 scala_library(

@@ -4,7 +4,7 @@ set -e
 
 scala_2_12_version="2.12.20"
 scala_2_13_version="2.13.16"
-scala_3_version="3.3.5"
+scala_3_version="3.3.6"
 
 SCALA_VERSION_DEFAULT=$scala_2_12_version
 

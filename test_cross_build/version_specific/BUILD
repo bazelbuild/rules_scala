@@ -7,7 +7,7 @@ load("@rules_scala//scala:scala.bzl", "scala_library")
 scala_library(
     name = "since_3_3",
     srcs = ["since_3_3.scala"],
-    scala_version = "3.3.5",
+    scala_version = "3.3.6",
 )
 
 scala_library(
@@ -43,7 +43,7 @@ scala_library(
         "since_3_2.scala",
         "since_3_3.scala",
     ],
-    scala_version = "3.3.5",
+    scala_version = "3.3.6",
 )
 
 scala_library(

@@ -19,7 +19,7 @@ scala_config = use_extension(
     "scala_config",
 )
 scala_config.settings(
-    scala_version = "3.3.5",
+    scala_version = "3.3.6",
 )
 
 scala_deps = use_extension(
