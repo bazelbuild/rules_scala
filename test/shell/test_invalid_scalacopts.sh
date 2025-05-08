@@ -25,7 +25,7 @@ test_logs_not_contains() {
    2>&1 | grep -v "$expected"
 }
 
-for scalaVersion in 2.12.20 2.13.16 3.3.5; do
+for scalaVersion in 2.12.20 2.13.16 3.3.6; do
   if [[ "$scalaVersion" == 3.* ]]; then
     $runner test_logs_contains $scalaVersion "not-existing is not a valid choice for -source"
   else

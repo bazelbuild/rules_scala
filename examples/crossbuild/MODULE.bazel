@@ -19,11 +19,11 @@ scala_config = use_extension(
     "scala_config",
 )
 scala_config.settings(
-    scala_version = "3.3.5",
+    scala_version = "3.3.6",
     scala_versions = [
         "2.11.12",
         "2.13.16",
-        "3.3.5",
+        "3.3.6",
     ],
 )
 use_repo(scala_config, "rules_scala_config")
