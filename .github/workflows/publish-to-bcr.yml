@@ -29,6 +29,8 @@ jobs:
       tag_name: ${{ inputs.tag_name }}
       # bazelbuild/bazel-central-registry fork used to open a pull request.
       registry_fork: bazel-contrib/bazel-central-registry
+      # No need to create a draft since PRs are opened by a machine account
+      draft: false
     permissions:
       attestations: write
       contents: write
