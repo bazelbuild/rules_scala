@@ -32,7 +32,6 @@ jobs:
       bazel_test_command: "bazel test //src/... //test/... //third_party/..."
       prerelease: false
       release_files: rules_scala-*.tar.gz
-      release_prep_command: .github/workflows/workspace_snippet.sh
       tag_name: ${{ inputs.tag_name || github.ref_name }}
 
   publish-to-bcr:

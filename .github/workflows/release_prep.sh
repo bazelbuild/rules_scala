@@ -2,9 +2,8 @@
 
 set -o errexit -o nounset -o pipefail
 
-# Set by GH actions, see
-# https://docs.github.com/en/actions/learn-github-actions/environment-variables#default-environment-variables
-TAG="${GITHUB_REF_NAME}"
+# Single tag arg is passed by https://github.com/bazel-contrib/.github/blob/master/.github/workflows/release_ruleset.yaml
+TAG="$1"
 VERSION="${TAG:1}"
 PREFIX="rules_scala-${VERSION}"
 ARCHIVE="rules_scala-$TAG.tar.gz"
