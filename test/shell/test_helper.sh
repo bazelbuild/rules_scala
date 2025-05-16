@@ -184,10 +184,26 @@ jar_contains_files() {
   done
 }
 
-_print_error_msg() {
+fail() {
   printf '%b' "$RED"
   printf '%s\n' "$@"
   printf '%b' "$NC"
+  return 1
+}
+
+target_file_location() {
+  local target="$1"
+  local cmd=(bazel query --output location "$target")
+  local regex="([^[:cntrl:]]*):[0-9]+:[0-9]+: [^[:cntrl:]]+ ${target//./\\.}$"
+  local output
+
+  if ! output="$("${cmd[@]}" 2>&1)"; then
+    fail "failed: ${cmd[*]}" "$output"
+  elif [[ "$output" =~ $regex ]]; then
+    printf '%s' "${BASH_REMATCH[1]}"
+  else
+    fail "output of: ${cmd[*]}" "does not match: ${pattern}" "$output"
+  fi
 }
 
 assert_matches() {
@@ -196,10 +212,10 @@ assert_matches() {
   local msg="${3:-Value did not match regular expression}"
 
   if [[ ! "$actual" =~ $expected ]]; then
-    _print_error_msg "$msg" \
+    fail "$msg" \
       "Expected: \"$expected\"" \
       "Actual:   \"$actual\""
-    return 1
+
   elif verbose_test_output; then
     printf '%b' "$GREEN"
     printf ' %s\n' "Value matched regular expression:" \

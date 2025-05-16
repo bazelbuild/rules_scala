@@ -3,9 +3,20 @@
 Toolchain type `testing_toolchain_type` is used to set up test dependencies. You can customize
 test dependencies by defining a custom testing toolchain.
 
-In your `WORKSPACE` default repositories and toolchains can be loaded via:
+Builtin repositories and toolchains can be loaded via:
 
 ```py
+# MODULE.bazel
+scala_deps = use_extension(
+    "@rules_scala//scala/extensions:deps.bzl",
+    "scala_deps",
+)
+scala_deps.scala()      # Ensure builtin Scala toolchain deps are visible
+scala_deps.junit()      # JUnit 4
+scala_deps.scalatest()  # ScalaTest
+scala_deps.specs2()     # Specs2 with JUnit
+
+# legacy WORKSPACE
 load(
     "@rules_scala//scala:toolchains.bzl",
     "scala_register_toolchains",
@@ -16,7 +27,6 @@ scala_toolchains(
     junit = True,      # JUnit 4
     scalatest = True,  # ScalaTest
     specs2 = True,     # Specs2 with JUnit
-    testing = True,    # Use for all of the above, instead of individual settings
 )
 
 scala_register_toolchains()
