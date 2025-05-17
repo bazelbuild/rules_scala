@@ -1,12 +1,12 @@
+load("@rules_scala_config//:config.bzl", "SCALA_VERSIONS")
+load("//scala:providers.bzl", "declare_deps_provider")
+load("//scala:scala_cross_version.bzl", "version_suffix")
+load("//scala/scalafmt:scalafmt_repositories.bzl", "scalafmt_artifact_ids")
 load(
     "//scala/scalafmt/toolchain:toolchain.bzl",
     "SCALAFMT_TOOLCHAIN_TYPE",
     "scalafmt_toolchain",
 )
-load("//scala/scalafmt:scalafmt_repositories.bzl", "scalafmt_artifact_ids")
-load("//scala:providers.bzl", "declare_deps_provider")
-load("//scala:scala_cross_version.bzl", "version_suffix")
-load("@rules_scala_config//:config.bzl", "SCALA_VERSIONS")
 
 TOOLCHAIN_DEFAULTS = {
     # Used by `scala_toolchains{,_repo}` to generate

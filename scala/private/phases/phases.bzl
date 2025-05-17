@@ -7,6 +7,7 @@ load(
     _extras_phases = "extras_phases",
     _run_phases = "run_phases",
 )
+load("//scala/private:phases/phase_collect_exports_jars.bzl", _phase_collect_exports_jars = "phase_collect_exports_jars")
 load(
     "//scala/private:phases/phase_collect_jars.bzl",
     _phase_collect_jars_common = "phase_collect_jars_common",
@@ -15,7 +16,6 @@ load(
     _phase_collect_jars_repl = "phase_collect_jars_repl",
     _phase_collect_jars_scalatest = "phase_collect_jars_scalatest",
 )
-load("//scala/private:phases/phase_collect_exports_jars.bzl", _phase_collect_exports_jars = "phase_collect_exports_jars")
 load("//scala/private:phases/phase_collect_srcjars.bzl", _phase_collect_srcjars = "phase_collect_srcjars")
 load(
     "//scala/private:phases/phase_compile.bzl",

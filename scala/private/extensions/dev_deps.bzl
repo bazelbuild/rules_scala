@@ -1,14 +1,14 @@
 """Repositories for testing rules_scala itself"""
 
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("//scala:scala_cross_version.bzl", "default_maven_server_urls")
+load("//scala:scala_maven_import_external.bzl", "java_import_external")
 load(
     "//scala/private:macros/bzlmod.bzl",
     "root_module_tags",
     "single_tag_values",
 )
-load("//scala:scala_cross_version.bzl", "default_maven_server_urls")
-load("//scala:scala_maven_import_external.bzl", "java_import_external")
 load("//third_party/repositories:repositories.bzl", "repositories")
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 _BUILD_TOOLS_RELEASE = "5.1.0"
 

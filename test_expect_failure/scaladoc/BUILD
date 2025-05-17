@@ -1,6 +1,6 @@
-load("scaladoc.bzl", "scala_doc_intransitive")
 load("//scala:scala.bzl", "scala_doc", "scala_library")
 load("//scala:scala_import.bzl", "scala_import")
+load("scaladoc.bzl", "scala_doc_intransitive")
 
 package(default_testonly = 1)
 

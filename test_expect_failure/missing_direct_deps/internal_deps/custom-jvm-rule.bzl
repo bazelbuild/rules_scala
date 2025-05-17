@@ -1,3 +1,5 @@
+load("@rules_java//java/common:java_info.bzl", "JavaInfo")
+
 #This rule is an example for a jvm rule that doesn't support Jars2Labels
 def _custom_jvm_impl(ctx):
     # TODO(#8867): Migrate away from the placeholder jar hack when #8867 is fixed.

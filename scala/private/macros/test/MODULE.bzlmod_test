@@ -16,3 +16,5 @@ dev_test_ext = use_extension(
     "test_ext",
     dev_dependency = True,
 )
+
+bazel_dep(name = "rules_shell", version = "0.4.1")

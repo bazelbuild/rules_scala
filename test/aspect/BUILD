@@ -1,5 +1,4 @@
-load(":aspect.bzl", "aspect_testscript")
-load(":javainfo_from_aspect_test.bzl", "javainfo_from_aspect_test")
+load("@rules_shell//shell:sh_test.bzl", "sh_test")
 load(
     "//scala:scala.bzl",
     "scala_junit_test",
@@ -8,6 +7,8 @@ load(
     "scala_test",
 )
 load("//scala:scala_import.bzl", "scala_import")
+load(":aspect.bzl", "aspect_testscript")
+load(":javainfo_from_aspect_test.bzl", "javainfo_from_aspect_test")
 
 aspect_testscript(
     name = "aspect_testscript",

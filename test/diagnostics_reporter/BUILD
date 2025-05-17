@@ -1,5 +1,5 @@
-load("//scala:scala_cross_version_select.bzl", "select_for_scala_version")
 load("@rules_java//java:defs.bzl", "java_binary")
+load("//scala:scala_cross_version_select.bzl", "select_for_scala_version")
 
 java_binary(
     name = "diagnostics_reporter_test",

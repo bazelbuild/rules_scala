@@ -1,6 +1,7 @@
 load("@rules_java//java:defs.bzl", "java_library")
-load("//scala:scala.bzl", "scala_library", "scala_test")
+load("@rules_shell//shell:sh_test.bzl", "sh_test")
 load("//jmh:jmh.bzl", "scala_benchmark_jmh")
+load("//scala:scala.bzl", "scala_library", "scala_test")
 
 java_library(
     name = "java_type",

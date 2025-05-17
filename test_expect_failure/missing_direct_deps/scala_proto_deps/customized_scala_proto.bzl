@@ -1,5 +1,5 @@
-load("//scala_proto:scala_proto.bzl", "make_scala_proto_aspect", "make_scala_proto_library")
 load("//scala:advanced_usage/providers.bzl", "ScalaRulePhase")
+load("//scala_proto:scala_proto.bzl", "make_scala_proto_aspect", "make_scala_proto_library")
 
 def _phase_custom_stamping_convention(ctx, p):
     rule_label = str(p.target.label)

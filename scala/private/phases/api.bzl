@@ -2,11 +2,11 @@
 The phase API for rules implementation
 """
 
+load("@bazel_skylib//lib:dicts.bzl", "dicts")
 load(
     "//scala:advanced_usage/providers.bzl",
     _ScalaRulePhase = "ScalaRulePhase",
 )
-load("@bazel_skylib//lib:dicts.bzl", "dicts")
 
 # A method to modify the built-in phase list
 # - Insert new phases to the first/last position

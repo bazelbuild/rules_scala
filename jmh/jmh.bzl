@@ -1,3 +1,5 @@
+load("@rules_java//java/common:java_common.bzl", "java_common")
+load("@rules_java//java/common:java_info.bzl", "JavaInfo")
 load("//scala/private:rules/scala_binary.bzl", "scala_binary")
 load("//scala/private:rules/scala_library.bzl", "scala_library")
 

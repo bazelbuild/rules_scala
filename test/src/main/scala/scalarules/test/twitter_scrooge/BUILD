@@ -1,7 +1,8 @@
 load("@rules_java//java:defs.bzl", "java_binary")
+load("@rules_shell//shell:sh_test.bzl", "sh_test")
 load("//scala:scala.bzl", "scala_binary", "scala_library")
-load("//twitter_scrooge:twitter_scrooge.bzl", "scrooge_java_library", "scrooge_scala_library")
 load("//test/src/main/scala/scalarules/test/twitter_scrooge:twitter_scrooge_test.bzl", "twitter_scrooge_test_suite")
+load("//twitter_scrooge:twitter_scrooge.bzl", "scrooge_java_library", "scrooge_scala_library")
 
 scrooge_scala_library(
     name = "scrooge1",

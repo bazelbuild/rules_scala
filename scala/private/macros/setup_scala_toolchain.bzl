@@ -1,7 +1,7 @@
-load("//scala:scala_toolchain.bzl", "scala_toolchain")
+load("@rules_scala_config//:config.bzl", "SCALA_VERSION")
 load("//scala:providers.bzl", "declare_deps_provider")
 load("//scala:scala_cross_version.bzl", "repositories", "version_suffix")
-load("@rules_scala_config//:config.bzl", "SCALA_VERSION")
+load("//scala:scala_toolchain.bzl", "scala_toolchain")
 
 def setup_scala_toolchain(
         name,

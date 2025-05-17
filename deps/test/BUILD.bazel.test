@@ -8,6 +8,7 @@ load(
     "scalafmt_scala_test",
     "scrooge_transitive_outputs_test",
 )
+load("@rules_java//java:defs.bzl", "java_library")
 load("@rules_proto//proto:defs.bzl", "proto_library")
 load("@rules_scala//jmh:jmh.bzl", "scala_benchmark_jmh")
 load("@rules_scala//scala/scalafmt:phase_scalafmt_ext.bzl", "ext_scalafmt")
@@ -89,11 +90,37 @@ default_outputs_test(
 )
 
 # From: `test/jmh/BUILD`
+java_library(
+    name = "java_type",
+    srcs = ["JavaType.java"],
+    visibility = ["//visibility:public"],
+)
+
+scala_library(
+    name = "scala_type",
+    srcs = ["ScalaType.scala"],
+    visibility = ["//visibility:public"],
+)
+
+scala_library(
+    name = "add_numbers",
+    srcs = ["AddNumbers.scala"],
+    visibility = ["//visibility:public"],
+    exports = [
+        ":java_type",
+        ":scala_type",
+    ],
+    deps = [
+        ":java_type",
+        ":scala_type",
+    ],
+)
+
 scala_benchmark_jmh(
     name = "test_benchmark",
     srcs = ["TestBenchmark.scala"],
     data = ["data.txt"],
-    deps = ["@rules_scala//test/jmh:add_numbers"],
+    deps = [":add_numbers"],
 )
 
 # From: `test/src/main/scala/scalarules/test/twitter_scrooge/BUILD`

@@ -1,15 +1,17 @@
+load("@bazel_skylib//lib:dicts.bzl", "dicts")
+load("@rules_java//java/common:java_common.bzl", "java_common")
+load("@rules_java//java/common:java_info.bzl", "JavaInfo")
 load("@rules_proto//proto:defs.bzl", "ProtoInfo")
-load(
-    "//scala_proto/private:scala_proto_aspect_provider.bzl",
-    "ScalaProtoAspectInfo",
-)
 load(
     "//scala/private:phases/api.bzl",
     "extras_phases",
     "run_phases",
 )
-load("@bazel_skylib//lib:dicts.bzl", "dicts")
 load("//scala_proto/private:scala_proto_aspect.bzl", "make_scala_proto_aspect")
+load(
+    "//scala_proto/private:scala_proto_aspect_provider.bzl",
+    "ScalaProtoAspectInfo",
+)
 
 def phase_merge_aspect_java_info(ctx, p):
     java_info = java_common.merge([dep[ScalaProtoAspectInfo].java_info for dep in ctx.attr.deps])

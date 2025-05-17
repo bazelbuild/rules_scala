@@ -1,11 +1,11 @@
-load("//scala:scala.bzl", "scala_test")
-load("//scala:scala_cross_version.bzl", "version_suffix")
-load("//scala:scala_cross_version_select.bzl", "select_for_scala_version")
 load(
     "@rules_scala_config//:config.bzl",
     "SCALA_MAJOR_VERSION",
     "SCALA_VERSION",
 )
+load("//scala:scala.bzl", "scala_test")
+load("//scala:scala_cross_version.bzl", "version_suffix")
+load("//scala:scala_cross_version_select.bzl", "select_for_scala_version")
 
 def tests():
     suffix = version_suffix(SCALA_VERSION)

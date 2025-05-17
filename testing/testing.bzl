@@ -1,3 +1,4 @@
+load("@rules_scala_config//:config.bzl", "SCALA_VERSION")
 load("//junit:junit.bzl", "junit_artifact_ids")
 load("//scala:providers.bzl", "declare_deps_provider")
 load("//scala:scala_cross_version.bzl", "version_suffix")
@@ -5,7 +6,6 @@ load("//scalatest:scalatest.bzl", "scalatest_artifact_ids")
 load("//specs2:specs2.bzl", "specs2_artifact_ids")
 load("//specs2:specs2_junit.bzl", "specs2_junit_artifact_ids")
 load("//testing/toolchain:toolchain.bzl", "scala_testing_toolchain")
-load("@rules_scala_config//:config.bzl", "SCALA_VERSION")
 
 def _repoize(ids):
     return ["@" + id for id in ids]

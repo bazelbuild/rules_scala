@@ -21,6 +21,8 @@ See the `scala/private/macros/bzlmod.bzl` docstring for a description of
 the defaults, attrs, and tag class dictionaries pattern employed here.
 """
 
+load("//scala:scala_cross_version.bzl", "default_maven_server_urls")
+load("//scala:toolchains.bzl", "scala_toolchains")
 load(
     "//scala/private:macros/bzlmod.bzl",
     "repeated_tag_values",
@@ -28,8 +30,6 @@ load(
     "single_tag_values",
 )
 load("//scala/private:toolchain_defaults.bzl", "TOOLCHAIN_DEFAULTS")
-load("//scala:scala_cross_version.bzl", "default_maven_server_urls")
-load("//scala:toolchains.bzl", "scala_toolchains")
 
 _settings_defaults = {
     "maven_servers": default_maven_server_urls(),

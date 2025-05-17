@@ -1,8 +1,4 @@
 load(
-    "//specs2:specs2_junit.bzl",
-    _specs2_junit_dependencies = "specs2_junit_dependencies",
-)
-load(
     "//scala/private:macros/setup_scala_toolchain.bzl",
     _setup_scala_toolchain = "setup_scala_toolchain",
 )
@@ -35,6 +31,10 @@ load(
     "//scala/private:rules/scala_test.bzl",
     _scala_test = "scala_test",
     _scala_test_suite = "scala_test_suite",
+)
+load(
+    "//specs2:specs2_junit.bzl",
+    _specs2_junit_dependencies = "specs2_junit_dependencies",
 )
 
 def scala_specs2_junit_test(name, **kwargs):

@@ -1,5 +1,5 @@
-load(":scala_cross_version.bzl", "version_suffix")
 load("@rules_scala_config//:config.bzl", "SCALA_VERSIONS")
+load(":scala_cross_version.bzl", "version_suffix")
 
 def select_for_scala_version(default = [], **kwargs):
     """

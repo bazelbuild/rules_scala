@@ -1,7 +1,7 @@
-load("//scala:scala_cross_version.bzl", "version_suffix")
-load("//scala:scala_toolchain.bzl", "scala_toolchain")
 load("@rules_java//java:defs.bzl", "java_import", "java_library")
 load("@rules_scala_config//:config.bzl", "SCALA_VERSION")
+load("//scala:scala_cross_version.bzl", "version_suffix")
+load("//scala:scala_toolchain.bzl", "scala_toolchain")
 
 toolchain_type(
     name = "toolchain_type",

@@ -1,5 +1,5 @@
-load("//scala:scala_cross_version.bzl", "version_suffix")
 load("@rules_scala_config//:config.bzl", "SCALA_VERSION")
+load("//scala:scala_cross_version.bzl", "version_suffix")
 
 # Aliases for backward compatibility:
 [

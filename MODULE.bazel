@@ -302,3 +302,4 @@ use_repo(
 )
 
 bazel_dep(name = "rules_python", version = "1.4.0", dev_dependency = True)
+bazel_dep(name = "rules_shell", version = "0.4.1", dev_dependency = True)

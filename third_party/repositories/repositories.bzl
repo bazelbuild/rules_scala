@@ -1,3 +1,4 @@
+load("@rules_scala_config//:config.bzl", "SCALA_VERSION")
 load(
     "//scala:scala_cross_version.bzl",
     "default_maven_server_urls",
@@ -58,7 +59,6 @@ load(
     _artifacts_3_7 = "artifacts",
     _scala_version_3_7 = "scala_version",
 )
-load("@rules_scala_config//:config.bzl", "SCALA_VERSION")
 
 artifacts_by_major_scala_version = {
     "2.11": _artifacts_2_11,

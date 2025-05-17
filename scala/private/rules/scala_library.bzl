@@ -1,4 +1,6 @@
 load("@bazel_skylib//lib:dicts.bzl", _dicts = "dicts")
+load("@rules_java//java/common:java_info.bzl", "JavaInfo")
+load("//scala:scala_cross_version.bzl", "scala_version_transition", "toolchain_transition_attr")
 load(
     "//scala/private:common.bzl",
     "sanitize_string_for_usage",
@@ -15,7 +17,6 @@ load(
     "//scala/private:coverage_replacements_provider.bzl",
     _coverage_replacements_provider = "coverage_replacements_provider",
 )
-load("//scala:scala_cross_version.bzl", "scala_version_transition", "toolchain_transition_attr")
 load(
     "//scala/private:phases/phases.bzl",
     "extras_phases",
