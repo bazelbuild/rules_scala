@@ -33,9 +33,10 @@ def _scaladoc_aspect_impl(target, ctx, transitive = True):
 
     macro_classpath = []
 
-    for dependency in ctx.rule.attr.deps:
-        if ScalaInfo in dependency and dependency[ScalaInfo].contains_macros:
-            macro_classpath.append(dependency[JavaInfo].transitive_runtime_jars)
+    if hasattr(ctx.rule.attr, "deps"):
+        for dependency in ctx.rule.attr.deps:
+            if ScalaInfo in dependency and dependency[ScalaInfo].contains_macros:
+                macro_classpath.append(dependency[JavaInfo].transitive_runtime_jars)
 
     # Sometimes we only want to generate scaladocs for a single target and not all of its
     # dependencies
