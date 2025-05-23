@@ -117,6 +117,11 @@ tasks:
       - echo "build --tool_java_language_version=21" >> .bazelrc
       - echo "build --tool_java_runtime_version=21" >> .bazelrc
       - "./test_rules_scala.sh"
+  dt_patches_linux:
+    name: "dt_patches/dt_patch_test"
+    platform: ubuntu2004
+    shell_commands:
+    - "dt_patches/dt_patch_test.sh"
   dependency_versions_linux:
     name: "./test_dependency_versions"
     platform: ubuntu2004

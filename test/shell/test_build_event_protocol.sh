@@ -4,19 +4,22 @@ dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 runner=$(get_test_runner "${1:-local}")
 
 scala_binary_common_jar_is_exposed_in_build_event_protocol() {
-  local target=$1
-  local target_suffix=${2:-""}
+  local target="$1"
+  local target_suffix="${2:-}"
+  local bes_file="${target}_bes.txt"
+  local jar_file="test/${target}${target_suffix}.jar"
   set +e
-  bazel build test:$target --build_event_text_file=$target_bes.txt
-  cat $target_bes.txt | grep "test/$target$target_suffix.jar"
-  if [ $? -ne 0 ]; then
-    echo "test/$target$target_suffix.jar was not found in build event protocol:"
-    cat $target_bes.txt
-    rm $target_bes.txt
+
+  bazel build "test:${target}" "--build_event_text_file=${bes_file}"
+  cat "${bes_file}" | grep "${jar_file}"
+  if [[ $? -ne 0 ]]; then
+    echo "${jar_file} was not found in build event protocol:"
+    cat "${bes_file}"
+    rm "${bes_file}"
     exit 1
   fi
 
-  rm $target_bes.txt
+  rm "${bes_file}"
   set -e
 }
 

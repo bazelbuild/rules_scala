@@ -99,8 +99,10 @@ def setup_scala_toolchain(
         toolchain = ":%s_impl" % name,
         toolchain_type = Label("//scala:toolchain_type"),
         target_settings = [
-            "@rules_scala_config//:scala_version" +
-            version_suffix(scala_version),
+            Label(
+                "@rules_scala_config//:scala_version" +
+                version_suffix(scala_version),
+            ),
         ],
         visibility = visibility,
     )

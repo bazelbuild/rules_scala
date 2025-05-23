@@ -21,6 +21,8 @@ test_source="${dir}/${BASH_SOURCE[0]##*/}"
 . "${dir}"/test/shell/test_runner.sh
 . "${dir}"/test/shell/test_helper.sh
 
+windows_regex=''
+
 setup_suite() {
   original_dir="$PWD"
   setup_test_tmpdir_for_file "$dir" "$test_source"

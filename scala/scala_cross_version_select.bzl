@@ -41,7 +41,9 @@ def select_for_scala_version(default = [], **kwargs):
     """
 
     return select({
-        "@rules_scala_config//:scala_version" + version_suffix(scala_version): _matches_for_version(scala_version, kwargs, default)
+        Label(
+            "@rules_scala_config//:scala_version" + version_suffix(scala_version),
+        ): _matches_for_version(scala_version, kwargs, default)
         for scala_version in SCALA_VERSIONS
     })
 

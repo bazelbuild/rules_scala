@@ -68,6 +68,12 @@ def dev_deps_repositories(
 
     repositories(
         fetch_sources = fetch_sources,
+        fetch_sources_by_id = {
+            # Required by test/shell/test_scala_import_source_jar.sh. Without
+            # this, the first test will always fail, and the
+            # `BAZEL_JVM_FETCH_SOURCES` environment variable has no effect.
+            "com_google_guava_guava_21_0": True,
+        },
         for_artifact_ids = [
             # test adding a scala jar:
             "com_twitter__scalding_date",
