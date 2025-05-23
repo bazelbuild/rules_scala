@@ -1,11 +1,11 @@
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@rules_scala_config//:config.bzl", "SCALA_VERSIONS")
 load(
     "//scala:scala_cross_version.bzl",
     "extract_major_version",
     "extract_minor_version",
     "version_suffix",
 )
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("@rules_scala_config//:config.bzl", "SCALA_VERSIONS")
 
 def _dt_patched_compiler_impl(rctx):
     # Need to give the file a .zip extension so rctx.extract knows what type of archive it is

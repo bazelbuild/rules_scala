@@ -1,6 +1,8 @@
+load("@rules_java//java/common:java_common.bzl", "java_common")
+load("@rules_java//java/common:java_info.bzl", "JavaInfo")
+load("//scala:jars_to_labels.bzl", "JarsToLabelsInfo")
 load("//scala/private:rule_impls.bzl", "specified_java_compile_toolchain")
 load("//scala/settings:stamp_settings.bzl", "StampScalaImport")
-load("//scala:jars_to_labels.bzl", "JarsToLabelsInfo")
 
 def _stamp_jar(ctx, jar):
     stamped_jar_filename = "%s.stamp/%s" % (ctx.label.name, jar.basename)

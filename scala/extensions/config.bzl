@@ -5,14 +5,14 @@ See the `_settings_attrs` dict for documentation.
 """
 
 load(
-    "//scala/private:macros/bzlmod.bzl",
-    "root_module_tags",
-    "single_tag_values",
-)
-load(
     "//:scala_config.bzl",
     "DEFAULT_SCALA_VERSION",
     _scala_config = "scala_config",
+)
+load(
+    "//scala/private:macros/bzlmod.bzl",
+    "root_module_tags",
+    "single_tag_values",
 )
 
 _settings_defaults = {

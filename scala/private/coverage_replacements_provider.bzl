@@ -18,6 +18,8 @@
 # duplicate providers.
 #
 
+load("@rules_java//java/common:java_info.bzl", "JavaInfo")
+
 _CoverageReplacements = provider(
     fields = {
         "replacements": "hash of files to swap out",

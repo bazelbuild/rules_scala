@@ -1,10 +1,10 @@
-load("//scala:providers.bzl", _DepsInfo = "DepsInfo")
 load("@bazel_skylib//rules:common_settings.bzl", "BuildSettingInfo")
 load(
     "@rules_scala_config//:config.bzl",
     "ENABLE_COMPILER_DEPENDENCY_TRACKING",
     "SCALA_MAJOR_VERSION",
 )
+load("//scala:providers.bzl", _DepsInfo = "DepsInfo")
 
 def _compute_strict_deps_mode(input_strict_deps_mode, dependency_mode):
     if dependency_mode == "direct":

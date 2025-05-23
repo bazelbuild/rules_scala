@@ -1,7 +1,10 @@
 """Macros to instantiate and register @rules_scala_toolchains"""
 
+load("@rules_scala_config//:config.bzl", "SCALA_VERSIONS")
 load("//jmh/toolchain:toolchain.bzl", "jmh_artifact_ids")
 load("//junit:junit.bzl", "junit_artifact_ids")
+load("//scala:scala_cross_version.bzl", "default_maven_server_urls")
+load("//scala:toolchains_repo.bzl", "scala_toolchains_repo")
 load(
     "//scala/private:macros/scala_repositories.bzl",
     "scala_version_artifact_ids",
@@ -9,8 +12,6 @@ load(
 )
 load("//scala/private:toolchain_defaults.bzl", "TOOLCHAIN_DEFAULTS")
 load("//scala/scalafmt:scalafmt_repositories.bzl", "scalafmt_artifact_ids")
-load("//scala:scala_cross_version.bzl", "default_maven_server_urls")
-load("//scala:toolchains_repo.bzl", "scala_toolchains_repo")
 load("//scala_proto/default:repositories.bzl", "scala_proto_artifact_ids")
 load("//scalatest:scalatest.bzl", "scalatest_artifact_ids")
 load("//specs2:specs2.bzl", "specs2_artifact_ids")
@@ -20,7 +21,6 @@ load(
     "//twitter_scrooge/toolchain:toolchain.bzl",
     "twitter_scrooge_artifact_ids",
 )
-load("@rules_scala_config//:config.bzl", "SCALA_VERSIONS")
 
 _DEFAULT_TOOLCHAINS_REPO_NAME = "rules_scala_toolchains"
 

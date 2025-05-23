@@ -1,5 +1,6 @@
-load("@bazel_skylib//lib:unittest.bzl", "analysistest", "asserts")
 load("@bazel_skylib//lib:new_sets.bzl", "sets")
+load("@bazel_skylib//lib:unittest.bzl", "analysistest", "asserts")
+load("@rules_java//java/common:java_info.bzl", "JavaInfo")
 
 # Tests and documents the functionality of phase_compile.bzl's _pack_source_jar
 

@@ -1,4 +1,3 @@
-load("//scala:scala_toolchain.bzl", "scala_toolchain")
 load(
     "@rules_java//toolchains:default_java_toolchain.bzl",
     "BASE_JDK9_JVM_OPTS",
@@ -6,6 +5,7 @@ load(
     "DEFAULT_TOOLCHAIN_CONFIGURATION",
     "default_java_toolchain",
 )
+load("//scala:scala_toolchain.bzl", "scala_toolchain")
 
 default_java_toolchain(
     name = "java21_toolchain",

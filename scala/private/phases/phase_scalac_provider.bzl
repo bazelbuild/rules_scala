@@ -1,10 +1,11 @@
+load("//scala:providers.bzl", _ScalacProvider = "ScalacProvider")
+
 #
 # PHASE: scalac provider
 #
 # DOCUMENT THIS
 #
 load("//scala/private/toolchain_deps:toolchain_deps.bzl", "find_deps_info_on")
-load("//scala:providers.bzl", _ScalacProvider = "ScalacProvider")
 
 def phase_scalac_provider(ctx, p):
     toolchain_type_label = "//scala:toolchain_type"

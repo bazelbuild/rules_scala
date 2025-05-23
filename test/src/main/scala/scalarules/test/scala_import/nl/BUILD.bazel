@@ -1,6 +1,6 @@
+load("@rules_java//java:defs.bzl", "java_library")
 load("//scala:scala.bzl", "scala_specs2_junit_test")
 load("//scala:scala_import.bzl", "scala_import")
-load("@rules_java//java:defs.bzl", "java_library")
 
 java_library(
     name = "scala_import_never_link",

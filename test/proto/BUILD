@@ -1,12 +1,12 @@
 load("@rules_proto//proto:defs.bzl", "proto_library")
 load(
-    "//scala_proto:scala_proto.bzl",
-    "scala_proto_library",
-)
-load(
     "//scala:scala.bzl",
     "scala_binary",
     "scala_test",
+)
+load(
+    "//scala_proto:scala_proto.bzl",
+    "scala_proto_library",
 )
 load(
     "//scala_proto:scala_proto_toolchain.bzl",

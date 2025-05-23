@@ -1,3 +1,5 @@
+load("@rules_shell//shell:sh_test.bzl", "sh_test")
+
 dependencies_to_test = [
     "scrooge_core",
     "scrooge_generator",

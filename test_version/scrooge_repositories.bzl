@@ -10,11 +10,11 @@ load(
     "@rules_scala//scala:toolchains_repo.bzl",
     "scala_toolchains_repo",
 )
+load("@rules_scala//third_party/repositories:repositories.bzl", "repositories")
 load(
     "@rules_scala//twitter_scrooge/toolchain:toolchain.bzl",
     "twitter_scrooge_artifact_ids",
 )
-load("@rules_scala//third_party/repositories:repositories.bzl", "repositories")
 load("@rules_scala_config//:config.bzl", "SCALA_VERSION")
 
 def _import_external(id, artifact, sha256, deps = [], runtime_deps = []):

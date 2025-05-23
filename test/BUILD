@@ -1,3 +1,7 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
+load("@rules_python//python:defs.bzl", "py_binary")
+load("@rules_scala_config//:config.bzl", "SCALA_VERSION")
+load("@rules_shell//shell:sh_test.bzl", "sh_test")
 load(
     "//scala:scala.bzl",
     "scala_binary",
@@ -13,9 +17,6 @@ load(
 )
 load("//scala:scala_cross_version.bzl", "repositories")
 load(":check_statsfile.bzl", "check_statsfile")
-load("@rules_java//java:defs.bzl", "java_binary", "java_library")
-load("@rules_python//python:defs.bzl", "py_binary")
-load("@rules_scala_config//:config.bzl", "SCALA_VERSION")
 
 package(default_testonly = 1)
 

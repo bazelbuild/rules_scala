@@ -1,4 +1,6 @@
 load("@bazel_skylib//lib:dicts.bzl", "dicts")
+load("@rules_java//java/common:java_common.bzl", "java_common")
+load("@rules_java//java/common:java_info.bzl", "JavaInfo")
 load(
     "//scala/private:common.bzl",
     "write_manifest_file",

@@ -3,14 +3,14 @@
 Provides precompiled protocol compiler toolchains.
 """
 
+load("@com_google_protobuf//:protobuf_version.bzl", "PROTOC_VERSION")
+load("@platforms//host:constraints.bzl", "HOST_CONSTRAINTS")
 load(":private/protoc_integrity.bzl", "PROTOC_BUILDS", "PROTOC_DOWNLOAD_URL")
 load(
     ":private/toolchain_impl.bzl",
     "PROTOC_TOOLCHAIN_ENABLED",
     "PROTOC_TOOLCHAIN_TYPE",
 )
-load("@com_google_protobuf//:protobuf_version.bzl", "PROTOC_VERSION")
-load("@platforms//host:constraints.bzl", "HOST_CONSTRAINTS")
 
 def _default_platform():
     host_platform = sorted(HOST_CONSTRAINTS)

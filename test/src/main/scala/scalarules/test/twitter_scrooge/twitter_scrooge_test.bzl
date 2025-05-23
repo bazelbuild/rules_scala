@@ -1,5 +1,6 @@
-load("@bazel_skylib//lib:unittest.bzl", "asserts", "unittest")
 load("@bazel_skylib//lib:collections.bzl", "collections")
+load("@bazel_skylib//lib:unittest.bzl", "asserts", "unittest")
+load("@rules_java//java/common:java_info.bzl", "JavaInfo")
 
 def _scrooge_transitive_outputs(ctx):
     env = unittest.begin(ctx)
