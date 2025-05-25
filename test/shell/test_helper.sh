@@ -193,11 +193,18 @@ _print_error_msg() {
 assert_matches() {
   local expected="$1"
   local actual="$2"
+  local msg="${3:-Value did not match regular expression}"
 
   if [[ ! "$actual" =~ $expected ]]; then
-    _print_error_msg "Value did not match regular expression" \
+    _print_error_msg "$msg" \
       "Expected: \"$expected\"" \
       "Actual:   \"$actual\""
     return 1
+  elif verbose_test_output; then
+    printf '%b' "$GREEN"
+    printf ' %s\n' "Value matched regular expression:" \
+      "Expected: \"$expected\"" \
+      "Actual:   \"$actual\""
+    printf '%b' "$NC"
   fi
 }
