@@ -14,16 +14,16 @@ runner=$(get_test_runner "${1:-local}")
 test_output_flag="--test_output=errors"
 
 . "${test_dir}"/test_bzlmod_macros.sh
-$runner bazel build "src/... test/..."
-#$runner bazel build "src/... test/... --all_incompatible_changes"
-$runner bazel test "${test_output_flag} src/... test/..."
-$runner bazel test "${test_output_flag} third_party/..."
-$runner bazel build "--extra_toolchains=//test/toolchains:high_level_transitive_deps_strict_deps_error -- test/..."
-$runner bazel build "--extra_toolchains=//scala:minimal_direct_source_deps -- test/..."
-#$runner bazel build "--extra_toolchains=//test/toolchains:high_level_transitive_deps_strict_deps_error --all_incompatible_changes -- test/..."
-$runner bazel test "${test_output_flag} --extra_toolchains=//test/toolchains:high_level_transitive_deps_strict_deps_error -- test/..."
-$runner bazel test "${test_output_flag} --extra_toolchains=//scala:minimal_direct_source_deps -- test/..."
-$runner bazel build "test_expect_failure/missing_direct_deps/internal_deps/... --strict_java_deps=warn --extra_toolchains=//test/toolchains:high_level_transitive_deps_strict_deps_warn"
+$runner bazel build src/... test/...
+#$runner bazel build src/... test/... --all_incompatible_changes
+$runner bazel test "${test_output_flag}" src/... test/...
+$runner bazel test "${test_output_flag}" third_party/...
+$runner bazel build --extra_toolchains=//test/toolchains:high_level_transitive_deps_strict_deps_error -- test/...
+$runner bazel build --extra_toolchains=//scala:minimal_direct_source_deps -- test/...
+#$runner bazel build --extra_toolchains=//test/toolchains:high_level_transitive_deps_strict_deps_error --all_incompatible_changes -- test/...
+$runner bazel test "${test_output_flag}" --extra_toolchains=//test/toolchains:high_level_transitive_deps_strict_deps_error -- test/...
+$runner bazel test "${test_output_flag}" --extra_toolchains=//scala:minimal_direct_source_deps -- test/...
+$runner bazel build test_expect_failure/missing_direct_deps/internal_deps/... --strict_java_deps=warn --extra_toolchains=//test/toolchains:high_level_transitive_deps_strict_deps_warn
 $runner bazel build //test_expect_failure/proto_source_root/... --strict_proto_deps=off
 $runner bazel test "$test_output_flag" //test/... --extra_toolchains="//test_expect_failure/plus_one_deps:plus_one_deps"
 $runner bazel build test:ScalaBinaryInGenrule --nolegacy_external_runfiles
@@ -61,3 +61,4 @@ $runner bazel build //test_statsfile:SimpleNoStatsFile_statsfile --extra_toolcha
 . "${test_dir}"/test_semanticdb.sh
 . "${test_dir}"/test_scaladoc.sh
 . "${test_dir}"/test_invalid_scalacopts.sh
+. "${test_dir}"/test_macros.sh

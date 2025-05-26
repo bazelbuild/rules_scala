@@ -16,6 +16,8 @@
 # Skips test cases whose name begins with `_` unless those tests match
 # `RULES_SCALA_TEST_ONLY` or `RULES_SCALA_TEST_REGEX`.
 
+set -euo pipefail
+
 NC='\033[0m'
 GREEN='\033[0;32m'
 RED='\033[0;31m'
@@ -75,7 +77,7 @@ run_test_ci() {
   } || return 1
 
   local DURATION=$SECONDS
-  if [ $result -eq 0 ]; then
+  if [[ $result -eq 0 ]]; then
     echo -e "\n${GREEN}Test \"$TEST_ARG\" successful ($DURATION sec) $NC"
   else
     echo -e "\nLog:\n"
@@ -96,7 +98,7 @@ test_pulse_printer() {
   # clear the line
   echo -e "\n"
 
-  while [ $count -lt $timeout ]; do
+  while [[ $count -lt $timeout ]]; do
     count=$(($count + 1))
     echo -ne "Still running: \"$@\"\r"
     sleep 60
@@ -104,6 +106,10 @@ test_pulse_printer() {
 
   echo -e "\n${RED}Timeout (${timeout} minutes) reached. Terminating \"$@\"${NC}\n"
   kill -9 $test_pid
+}
+
+verbose_test_output() {
+  [[ -n "${RULES_SCALA_TEST_VERBOSE}${RULES_SCALA_TEST_ONLY}" ]]
 }
 
 run_test_local() {
@@ -119,17 +125,21 @@ run_test_local() {
   echo "running test $TEST_ARG"
   SECONDS=0
 
-  if [[ -n "$RULES_SCALA_TEST_VERBOSE" || -n "$RULES_SCALA_TEST_ONLY" ]]; then
-    $TEST_ARG
+  if verbose_test_output; then
+    "$@"
   else
-    RES="$($TEST_ARG 2>&1)"
+    RES="$("$@" 2>&1)"
   fi
 
   local RESPONSE_CODE="$?"
   local DURATION="$SECONDS"
 
-  if [ $RESPONSE_CODE -eq 0 ]; then
+  if [[ $RESPONSE_CODE -eq 0 ]]; then
     echo -e "${GREEN} Test \"$TEST_ARG\" successful ($DURATION sec) $NC"
+    if [[ -n "$RULES_SCALA_TEST_ONLY" ]]; then
+      exit
+    fi
+
   else
     if [[ -n "$RES" ]]; then
       echo -e "\nLog:\n"

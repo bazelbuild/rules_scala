@@ -50,7 +50,8 @@ teardown_test_repo() {
 }
 
 run_in_test_repo() {
-  local SCALA_VERSION=${SCALA_VERSION:-$SCALA_VERSION_DEFAULT}
+  local SCALA_VERSION="${SCALA_VERSION:-$SCALA_VERSION_DEFAULT}"
+  local TWITTER_SCROOGE_VERSION="${TWITTER_SCROOGE_VERSION:-}"
 
   local test_command=$1
   local test_dir_prefix=$2

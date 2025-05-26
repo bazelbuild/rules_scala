@@ -21,7 +21,6 @@ scala_config = use_extension(
 scala_config.settings(
     enable_compiler_dependency_tracking = True,
 )
-use_repo(scala_config, "rules_scala_config")
 
 bazel_dep(name = "compiler_sources")
 local_path_override(
