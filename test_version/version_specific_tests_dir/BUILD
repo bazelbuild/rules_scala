@@ -9,6 +9,7 @@ load(
     "scala_specs2_junit_test",
     "scala_test",
 )
+load("@rules_shell//shell:sh_test.bzl", "sh_test")
 
 package(default_testonly = 1)
 

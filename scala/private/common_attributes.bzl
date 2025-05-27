@@ -1,12 +1,14 @@
 """Shared attributes for rules"""
 
-load(
-    "//scala/private:coverage_replacements_provider.bzl",
-    _coverage_replacements_provider = "coverage_replacements_provider",
-)
+load("@rules_java//java/common:java_common.bzl", "java_common")
+load("@rules_java//java/common:java_info.bzl", "JavaInfo")
 load(
     "//scala:plusone.bzl",
     _collect_plus_one_deps_aspect = "collect_plus_one_deps_aspect",
+)
+load(
+    "//scala/private:coverage_replacements_provider.bzl",
+    _coverage_replacements_provider = "coverage_replacements_provider",
 )
 
 common_attrs_for_plugin_bootstrapping = {

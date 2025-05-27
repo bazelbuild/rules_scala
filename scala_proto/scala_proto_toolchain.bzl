@@ -1,3 +1,4 @@
+load("@rules_java//java/common:java_info.bzl", "JavaInfo")
 load(
     "//protoc:private/toolchain_impl.bzl",
     "PROTOC_ATTR",
@@ -9,7 +10,6 @@ load(
     "//scala_proto/default:default_deps.bzl",
     _scala_proto_deps_providers = "scala_proto_deps_providers",
 )
-load("@rules_java//java/common:java_info.bzl", "JavaInfo")
 
 def _generators_jars(ctx):
     generator_deps = ctx.attr.extra_generator_dependencies + [

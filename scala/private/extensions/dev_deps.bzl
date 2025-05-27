@@ -1,14 +1,14 @@
 """Repositories for testing rules_scala itself"""
 
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("//scala:scala_cross_version.bzl", "default_maven_server_urls")
+load("//scala:scala_maven_import_external.bzl", "java_import_external")
 load(
     "//scala/private:macros/bzlmod.bzl",
     "root_module_tags",
     "single_tag_values",
 )
-load("//scala:scala_cross_version.bzl", "default_maven_server_urls")
-load("//scala:scala_maven_import_external.bzl", "java_import_external")
 load("//third_party/repositories:repositories.bzl", "repositories")
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 _BUILD_TOOLS_RELEASE = "5.1.0"
 
@@ -68,6 +68,12 @@ def dev_deps_repositories(
 
     repositories(
         fetch_sources = fetch_sources,
+        fetch_sources_by_id = {
+            # Required by test/shell/test_scala_import_source_jar.sh. Without
+            # this, the first test will always fail, and the
+            # `BAZEL_JVM_FETCH_SOURCES` environment variable has no effect.
+            "com_google_guava_guava_21_0": True,
+        },
         for_artifact_ids = [
             # test adding a scala jar:
             "com_twitter__scalding_date",

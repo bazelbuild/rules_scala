@@ -1,10 +1,10 @@
-load("//scala/private/toolchain_deps:toolchain_deps.bzl", "expose_toolchain_deps")
+load("@rules_scala_config//:config.bzl", "SCALA_VERSION")
 load("//scala:providers.bzl", "declare_deps_provider", _DepsInfo = "DepsInfo")
 load(
     "//scala:scala_cross_version.bzl",
     _versioned_repositories = "repositories",
 )
-load("@rules_scala_config//:config.bzl", "SCALA_VERSION")
+load("//scala/private/toolchain_deps:toolchain_deps.bzl", "expose_toolchain_deps")
 
 DEP_PROVIDERS = [
     "jmh_classpath",

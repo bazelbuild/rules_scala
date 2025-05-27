@@ -1,3 +1,7 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
 # shellcheck source=./test_runner.sh
 dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 . "${dir}"/test_runner.sh

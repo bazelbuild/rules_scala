@@ -1,3 +1,6 @@
+load("@rules_java//java/common:java_common.bzl", "java_common")
+load("@rules_java//java/common:java_info.bzl", "JavaInfo")
+
 #
 # PHASE: compile
 #

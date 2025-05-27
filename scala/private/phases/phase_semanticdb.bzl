@@ -1,6 +1,7 @@
-load("//scala/private/toolchain_deps:toolchain_deps.bzl", "find_deps_info_on")
-load("//scala:semanticdb_provider.bzl", "SemanticdbInfo")
 load("@bazel_skylib//lib:paths.bzl", "paths")
+load("@rules_java//java/common:java_info.bzl", "JavaInfo")
+load("//scala:semanticdb_provider.bzl", "SemanticdbInfo")
+load("//scala/private/toolchain_deps:toolchain_deps.bzl", "find_deps_info_on")
 
 def phase_semanticdb(ctx, p):
     #semanticdb_bundle_in_jar feature: enables bundling the semanticdb files within the output jar.

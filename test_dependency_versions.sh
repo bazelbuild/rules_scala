@@ -21,6 +21,8 @@ test_source="${dir}/${BASH_SOURCE[0]##*/}"
 . "${dir}"/test/shell/test_runner.sh
 . "${dir}"/test/shell/test_helper.sh
 
+windows_regex=''
+
 setup_suite() {
   original_dir="$PWD"
   setup_test_tmpdir_for_file "$dir" "$test_source"
@@ -146,7 +148,7 @@ do_build_and_test() {
   cp \
     "${dir}"/deps/test/*.{scala,bzl} \
     "${dir}"/examples/testing/multi_frameworks_toolchain/example/*.scala \
-    "${dir}"/test/jmh/{TestBenchmark.scala,data.txt} \
+    "${dir}"/test/jmh/{AddNumbers.scala,JavaType.java,ScalaType.scala,TestBenchmark.scala,data.txt} \
     "${dir}"/test/proto/standalone.proto \
     "${dir}"/test/src/main/scala/scalarules/test/twitter_scrooge/thrift/thrift2/thrift3/Thrift3.thrift \
     .

@@ -1,5 +1,6 @@
 load("@rules_scala//scala:scala.bzl", "scala_binary", "scala_library")
 load("@rules_scala//twitter_scrooge:twitter_scrooge.bzl", "scrooge_scala_library")
+load("@rules_shell//shell:sh_test.bzl", "sh_test")
 
 scrooge_scala_library(
     name = "scrooge1",

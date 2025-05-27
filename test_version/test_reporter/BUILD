@@ -1,5 +1,5 @@
-load("@rules_scala//scala:scala_toolchain.bzl", "scala_toolchain")
 load("@rules_scala//scala:scala.bzl", "scala_library")
+load("@rules_scala//scala:scala_toolchain.bzl", "scala_toolchain")
 
 scala_toolchain(
     name = "diagnostics_reporter_toolchain_impl",

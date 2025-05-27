@@ -1,3 +1,5 @@
+load("@rules_java//java/common:java_common.bzl", "java_common")
+load("@rules_java//java/common:java_info.bzl", "JavaInfo")
 load("//scala:providers.bzl", "DepsInfo")
 
 def _required_deps_id_message(target, toolchain_type_label, deps_id):

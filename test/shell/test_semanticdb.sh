@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # shellcheck source=./test_runner.sh
 
 dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
@@ -21,20 +23,20 @@ test_produces_semanticdb(){
 
   local scala_majver=$1
   local is_bundle=$2
+  local options=()
 
 
   if [ $is_bundle -eq 1 ]; then
-    local toolchain="--extra_toolchains=//test/semanticdb:semanticdb_bundle_toolchain"
+    options+=("--extra_toolchains=//test/semanticdb:semanticdb_bundle_toolchain")
   else
-    local toolchain="--extra_toolchains=//test/semanticdb:semanticdb_nobundle_toolchain"
+    options+=("--extra_toolchains=//test/semanticdb:semanticdb_nobundle_toolchain")
   fi
 
   if [ $scala_majver -eq 3 ]; then
-    local version_opt="--repo_env=SCALA_VERSION=3.3.6"
+    options+=("--repo_env=SCALA_VERSION=3.3.6")
   fi
 
-
-  bazel build //test/semanticdb:semantic_provider_vars_all  ${toolchain}  ${version_opt}
+  bazel build //test/semanticdb:semantic_provider_vars_all "${options[@]}"
 
   #semantic_provider_vars.sh contains the SemanticdbInfo data
   . $(bazel info bazel-bin)/test/semanticdb/semantic_provider_vars_all.sh

@@ -1,9 +1,9 @@
-load("//scala/scalafmt/toolchain:toolchain.bzl", "export_scalafmt_deps")
-load("//scala/scalafmt:phase_scalafmt_ext.bzl", "scalafmt_singleton")
+load("@rules_scala_config//:config.bzl", "SCALA_VERSION")
 load("//scala:scala.bzl", "scala_binary")
 load("//scala:scala_cross_version.bzl", "version_suffix")
 load("//scala:scala_cross_version_select.bzl", "select_for_scala_version")
-load("@rules_scala_config//:config.bzl", "SCALA_VERSION")
+load("//scala/scalafmt:phase_scalafmt_ext.bzl", "scalafmt_singleton")
+load("//scala/scalafmt/toolchain:toolchain.bzl", "export_scalafmt_deps")
 
 filegroup(
     name = "runner",

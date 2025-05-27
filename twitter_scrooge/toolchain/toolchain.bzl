@@ -1,11 +1,11 @@
+load("@rules_scala_config//:config.bzl", "SCALA_VERSION")
+load("//scala:providers.bzl", "DepsInfo", "declare_deps_provider")
+load("//scala:scala_cross_version.bzl", "version_suffix")
 load(
     "//scala/private/toolchain_deps:toolchain_deps.bzl",
     "expose_toolchain_deps",
 )
-load("//scala:providers.bzl", "DepsInfo", "declare_deps_provider")
-load("//scala:scala_cross_version.bzl", "version_suffix")
 load("//scala_proto/default:repositories.bzl", "GUAVA_ARTIFACT_IDS")
-load("@rules_scala_config//:config.bzl", "SCALA_VERSION")
 
 DEP_PROVIDERS = [
     "compile_classpath",

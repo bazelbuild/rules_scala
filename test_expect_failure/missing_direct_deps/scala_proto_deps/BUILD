@@ -1,5 +1,5 @@
-load("@rules_proto//proto:defs.bzl", "proto_library")
 load("@rules_java//java:defs.bzl", "java_library")
+load("@rules_proto//proto:defs.bzl", "proto_library")
 load("//scala:scala.bzl", "scala_library")
 load("//scala_proto:scala_proto.bzl", "scala_proto_library")
 load("//scala_proto:scala_proto_toolchain.bzl", "scalapb_toolchain")

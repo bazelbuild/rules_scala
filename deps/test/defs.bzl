@@ -1,5 +1,6 @@
-load("@bazel_skylib//lib:unittest.bzl", "analysistest", "asserts", "unittest")
 load("@bazel_skylib//lib:collections.bzl", "collections")
+load("@bazel_skylib//lib:unittest.bzl", "analysistest", "asserts", "unittest")
+load("@rules_java//java/common:java_info.bzl", "JavaInfo")
 load("@rules_scala//scala:advanced_usage/scala.bzl", "make_scala_test")
 load("@rules_scala//scala/scalafmt:phase_scalafmt_ext.bzl", "ext_scalafmt")
 

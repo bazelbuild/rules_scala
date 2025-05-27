@@ -1,5 +1,5 @@
-load("@rules_scala//scala:scala_toolchain.bzl", "scala_toolchain")
 load("@rules_scala//scala:scala.bzl", "scala_binary", "scala_library")
+load("@rules_scala//scala:scala_toolchain.bzl", "scala_toolchain")
 
 scala_toolchain(
     name = "semanticdb_toolchain_impl",

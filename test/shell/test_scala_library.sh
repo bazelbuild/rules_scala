@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # shellcheck source=./test_runner.sh
 dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 . "${dir}"/test_runner.sh
@@ -76,7 +78,7 @@ test_scala_library_expect_failure_on_missing_direct_deps_strict_is_disabled_by_d
   expected_message="not found: value C"
   test_target='test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency_user'
 
-  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "$expected_message" $test_target ""
+  test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message "$expected_message" "$test_target"
 }
 
 test_scala_library_expect_failure_on_missing_direct_deps_warn_mode() {
@@ -162,7 +164,7 @@ test_scala_library_expect_failure_on_java_in_src_jar_when_disabled() {
 
   expected_message=".*Found java files in source jars but expect Java output is set to false"
 
-  test_expect_failure_with_message "${expected_message}" $test_target
+  test_expect_failure_with_message "${expected_message}" "$test_target"
 }
 
 test_scala_library_expect_better_failure_with_target_label_from_stamped_jar_on_missing_transitive_dependency() {

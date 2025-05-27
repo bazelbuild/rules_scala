@@ -1,5 +1,5 @@
-load("//scala:scala_toolchain.bzl", "scala_toolchain")
 load("//scala:scala.bzl", "scala_library")
+load("//scala:scala_toolchain.bzl", "scala_toolchain")
 load("//test/semanticdb:rules.bzl", "semanticdb_vars_script")
 
 scala_toolchain(

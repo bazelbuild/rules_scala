@@ -185,7 +185,7 @@ scala_specs2_exception_in_initializer_without_filter(){
   expected_message="org.specs2.control.UserException: cannot create an instance for class scalarules.test.junit.specs2.FailingTest"
   test_command="test_expect_failure/scala_junit_test:specs2_failing_test"
 
-  test_expect_failure_with_message "$expected_message" $test_filter $test_command
+  test_expect_failure_with_message "$expected_message" "$test_command"
 }
 
 scala_specs2_exception_in_initializer_terminates_without_timeout(){

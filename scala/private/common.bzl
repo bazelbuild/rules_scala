@@ -1,7 +1,8 @@
+load("@bazel_skylib//lib:paths.bzl", "paths")
+load("@rules_java//java/common:java_info.bzl", "JavaInfo")
 load("//scala:jars_to_labels.bzl", "JarsToLabelsInfo")
 load("//scala:plusone.bzl", "PlusOneDeps")
 load("//scala:providers.bzl", "ScalaInfo")
-load("@bazel_skylib//lib:paths.bzl", "paths")
 
 def write_manifest_file(actions, output_file, main_class):
     # TODO(bazel-team): I don't think this classpath is what you want

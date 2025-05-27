@@ -1,5 +1,5 @@
-load("//scala:scala_toolchain.bzl", "scala_toolchain")
 load("//scala:scala.bzl", "scala_test")
+load("//scala:scala_toolchain.bzl", "scala_toolchain")
 
 scala_toolchain(
     name = "passing_toolchain_impl",

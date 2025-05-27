@@ -1,4 +1,5 @@
 load("@bazel_skylib//lib:unittest.bzl", "analysistest", "asserts")
+load("@rules_java//java/common:java_info.bzl", "JavaInfo")
 load("//scala:scala_import.bzl", "scala_import")
 load("//scala/settings:stamp_settings.bzl", "stamp_scala_import")
 

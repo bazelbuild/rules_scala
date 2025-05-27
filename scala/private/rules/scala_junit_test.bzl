@@ -1,6 +1,9 @@
 """Rules for writing tests with JUnit"""
 
 load("@bazel_skylib//lib:dicts.bzl", _dicts = "dicts")
+load("@rules_java//java/common:java_common.bzl", "java_common")
+load("@rules_java//java/common:java_info.bzl", "JavaInfo")
+load("//scala:scala_cross_version.bzl", "scala_version_transition", "toolchain_transition_attr")
 load(
     "//scala/private:common_attributes.bzl",
     "common_attrs",
@@ -8,7 +11,6 @@ load(
     "launcher_template",
 )
 load("//scala/private:common_outputs.bzl", "common_outputs")
-load("//scala:scala_cross_version.bzl", "scala_version_transition", "toolchain_transition_attr")
 load(
     "//scala/private:phases/phases.bzl",
     "extras_phases",

@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # shellcheck source=./test_runner.sh
 
 dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
@@ -5,24 +7,23 @@ dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 . "${dir}"/test_helper.sh
 runner=$(get_test_runner "${1:-local}")
 
-test_logs_contains() {
-  scalaVersion=$1
-  expected=$2
+_check_failing_action() {
+  local assertion="$1"
+  local scalaVersion="$2"
+  local expected="$3"
   
-  bazel build \
-   --repo_env=SCALA_VERSION=${scalaVersion} \
-   //test_expect_failure/scalacopts_invalid:empty \
-   2>&1 | grep "$expected"
+  "$assertion" "$expected" \
+    build \
+    "--repo_env=SCALA_VERSION=${scalaVersion}" \
+    //test_expect_failure/scalacopts_invalid:empty
+}
+
+test_logs_contains() {
+  _check_failing_action 'action_should_fail_with_message' "$@"
 }
 
 test_logs_not_contains() {
-  scalaVersion=$1
-  expected=$2
-
-  bazel build \
-   --repo_env=SCALA_VERSION=${scalaVersion} \
-   //test_expect_failure/scalacopts_invalid:empty \
-   2>&1 | grep -v "$expected"
+  _check_failing_action 'action_should_fail_without_message' "$@"
 }
 
 for scalaVersion in 2.12.20 2.13.16 3.3.6; do

@@ -26,6 +26,23 @@ load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 bazel_skylib_workspace()
 
 http_archive(
+    name = "rules_shell",
+    sha256 = "bc61ef94facc78e20a645726f64756e5e285a045037c7a61f65af2941f4c25e1",
+    strip_prefix = "rules_shell-0.4.1",
+    url = "https://github.com/bazelbuild/rules_shell/releases/download/v0.4.1/rules_shell-v0.4.1.tar.gz",
+)
+
+load(
+    "@rules_shell//shell:repositories.bzl",
+    "rules_shell_dependencies",
+    "rules_shell_toolchains",
+)
+
+rules_shell_dependencies()
+
+rules_shell_toolchains()
+
+http_archive(
     name = "rules_python",
     sha256 = "a837679f1382f26968c1ee6f839c7daf9079aa53128069a1f2815decaa637304",
     strip_prefix = "rules_python-1.4.0",
