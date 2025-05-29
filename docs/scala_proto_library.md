@@ -6,7 +6,7 @@ needed for ScalaPB:
 ```py
 # MODULE.bazel
 scala_deps.scala_proto(
-    "default_gen_opts" = [
+    default_gen_opts = [
         "grpc",
         "flat_package",
         "scala3_sources",
