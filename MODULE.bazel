@@ -36,7 +36,7 @@ single_version_override(
 bazel_dep(name = "platforms", version = "0.0.9")
 single_version_override(
     module_name = "platforms",
-    version = "0.0.11",
+    version = "1.0.0",
 )
 
 bazel_dep(name = "rules_java", version = "7.6.0")
@@ -63,7 +63,7 @@ single_version_override(
     module_name = "protobuf",
     patch_strip = 1,
     patches = ["//protoc:0001-protobuf-19679-rm-protoc-dep.patch"],
-    version = "31.0",
+    version = "31.1",
 )
 
 scala_protoc = use_extension(

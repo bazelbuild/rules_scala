@@ -7,8 +7,8 @@ module(
 )
 
 bazel_dep(name = "bazel_skylib", version = "1.7.1")
-bazel_dep(name = "platforms", version = "0.0.11")
-bazel_dep(name = "protobuf", version = "31.0")
+bazel_dep(name = "platforms", version = "1.0.0")
+bazel_dep(name = "protobuf", version = "31.1")
 bazel_dep(name = "rules_java", version = "8.12.0")
 bazel_dep(name = "rules_proto", version = "7.1.0")
 

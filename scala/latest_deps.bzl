@@ -19,10 +19,10 @@ def rules_scala_dependencies():
         http_archive,
         name = "platforms",
         urls = [
-            "https://mirror.bazel.build/github.com/bazelbuild/platforms/releases/download/0.0.11/platforms-0.0.11.tar.gz",
-            "https://github.com/bazelbuild/platforms/releases/download/0.0.11/platforms-0.0.11.tar.gz",
+            "https://mirror.bazel.build/github.com/bazelbuild/platforms/releases/download/1.0.0/platforms-1.0.0.tar.gz",
+            "https://github.com/bazelbuild/platforms/releases/download/1.0.0/platforms-1.0.0.tar.gz",
         ],
-        sha256 = "29742e87275809b5e598dc2f04d86960cc7a55b3067d97221c9abbc9926bff0f",
+        sha256 = "3384eb1c30762704fbe38e440204e114154086c8fc8a8c2e3e28441028c019a8",
     )
 
     maybe(
@@ -37,9 +37,9 @@ def rules_scala_dependencies():
     maybe(
         http_archive,
         name = "com_google_protobuf",
-        sha256 = "2b695cb1eaef8e173f884235ee6d55f57186e95d89ebb31361ee55cb5fd1b996",
-        strip_prefix = "protobuf-31.0",
-        url = "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v31.0.tar.gz",
+        sha256 = "c3a0a9ece8932e31c3b736e2db18b1c42e7070cd9b881388b26d01aa71e24ca2",
+        strip_prefix = "protobuf-31.1",
+        url = "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v31.1.tar.gz",
         patches = [Label("//protoc:0001-protobuf-19679-rm-protoc-dep.patch")],
         patch_args = ["-p1"],
     )
