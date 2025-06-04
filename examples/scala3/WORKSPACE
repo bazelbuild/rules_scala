@@ -62,7 +62,7 @@ scala_protoc_toolchains(name = "rules_scala_protoc_toolchains")
 
 load("@rules_scala//:scala_config.bzl", "scala_config")
 
-scala_config(scala_version = "3.7.0")
+scala_config(scala_version = "3.7.1")
 
 load(
     "@rules_scala//scala:toolchains.bzl",
