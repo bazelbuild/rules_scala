@@ -118,7 +118,7 @@ $runner test_compiler_patch 3.3.6
 $runner test_compiler_patch 3.4.3
 $runner test_compiler_patch 3.5.2
 $runner test_compiler_patch 3.6.4
-$runner test_compiler_patch 3.7.0
+$runner test_compiler_patch 3.7.1
 
 $runner test_compiler_srcjar_error 2.12.11
 $runner test_compiler_srcjar_error 2.12.12
@@ -151,4 +151,4 @@ $runner test_compiler_srcjar_nonhermetic 3.3.6
 $runner test_compiler_srcjar 3.4.3
 $runner test_compiler_srcjar_nonhermetic 3.5.2
 $runner test_compiler_srcjar_nonhermetic 3.6.4
-$runner test_compiler_srcjar_nonhermetic 3.7.0
+$runner test_compiler_srcjar_nonhermetic 3.7.1
