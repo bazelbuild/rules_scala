@@ -4,7 +4,7 @@ set -o errexit -o nounset -o pipefail
 
 # Single tag arg is passed by https://github.com/bazel-contrib/.github/blob/master/.github/workflows/release_ruleset.yaml
 TAG="$1"
-VERSION="${TAG:1}"
+VERSION="${TAG#v}"
 PREFIX="rules_scala-${VERSION}"
 ARCHIVE="rules_scala-$TAG.tar.gz"
 git archive --format=tar --prefix=${PREFIX}/ ${TAG} | gzip > $ARCHIVE

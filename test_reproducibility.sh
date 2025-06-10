@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 
-set -e
+test_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/test/shell
+# shellcheck source=./test_runner.sh
+. "${test_dir}"/test_runner.sh
+. "${test_dir}"/test_helper.sh
+runner=$(get_test_runner "${1:-local}")
 
 if ! bazel_loc="$(type -p 'bazel')" || [[ -z "$bazel_loc" ]]; then
   export PATH="$(cd "$(dirname "$0")"; pwd)"/tools:$PATH
@@ -19,7 +23,6 @@ md5_util() {
 non_deploy_jar_md5_sum() {
     find bazel-bin/test -name "*.jar" ! -name "*_deploy.jar" ! -path 'bazel-bin/test/jmh/*' | xargs -n 1 -P 5 $(md5_util) | sort
 }
-
 
 test_build_is_identical() {
     local test_coverage_packages=()
@@ -49,13 +52,6 @@ test_build_is_identical() {
     non_deploy_jar_md5_sum > hash2
     diff hash1 hash2
 }
-
-test_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/test/shell
-# shellcheck source=./test_runner.sh
-. "${test_dir}"/test_runner.sh
-. "${test_dir}"/test_helper.sh
-runner=$(get_test_runner "${1:-local}")
-
 
 # This test is last/separate since it compares the current outputs to new ones to make sure they're identical
 # If it runs before some of the above (like jmh) the "current" output in CI might be too close in time to the "new" one

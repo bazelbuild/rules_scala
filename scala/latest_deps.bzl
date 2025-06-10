@@ -19,27 +19,27 @@ def rules_scala_dependencies():
         http_archive,
         name = "platforms",
         urls = [
-            "https://mirror.bazel.build/github.com/bazelbuild/platforms/releases/download/0.0.11/platforms-0.0.11.tar.gz",
-            "https://github.com/bazelbuild/platforms/releases/download/0.0.11/platforms-0.0.11.tar.gz",
+            "https://mirror.bazel.build/github.com/bazelbuild/platforms/releases/download/1.0.0/platforms-1.0.0.tar.gz",
+            "https://github.com/bazelbuild/platforms/releases/download/1.0.0/platforms-1.0.0.tar.gz",
         ],
-        sha256 = "29742e87275809b5e598dc2f04d86960cc7a55b3067d97221c9abbc9926bff0f",
+        sha256 = "3384eb1c30762704fbe38e440204e114154086c8fc8a8c2e3e28441028c019a8",
     )
 
     maybe(
         http_archive,
         name = "rules_java",
         urls = [
-            "https://github.com/bazelbuild/rules_java/releases/download/8.11.0/rules_java-8.11.0.tar.gz",
+            "https://github.com/bazelbuild/rules_java/releases/download/8.12.0/rules_java-8.12.0.tar.gz",
         ],
-        sha256 = "d31b6c69e479ffa45460b64dc9c7792a431cac721ef8d5219fc9f603fa2ff877",
+        sha256 = "1558508fc6c348d7f99477bd21681e5746936f15f0436b5f4233e30832a590f9",
     )
 
     maybe(
         http_archive,
         name = "com_google_protobuf",
-        sha256 = "07a43d88fe5a38e434c7f94129cad56a4c43a51f99336074d0799c2f7d4e44c5",
-        strip_prefix = "protobuf-30.2",
-        url = "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v30.2.tar.gz",
+        sha256 = "c3a0a9ece8932e31c3b736e2db18b1c42e7070cd9b881388b26d01aa71e24ca2",
+        strip_prefix = "protobuf-31.1",
+        url = "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v31.1.tar.gz",
         patches = [Label("//protoc:0001-protobuf-19679-rm-protoc-dep.patch")],
         patch_args = ["-p1"],
     )

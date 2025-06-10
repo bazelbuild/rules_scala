@@ -75,12 +75,12 @@ register_toolchains(
 # protocolbuffers/protobuf#19679.
 bazel_dep(
     name = "protobuf",
-    version = "30.2",
+    version = "31.1",
     repo_name = "com_google_protobuf",
 )
 single_version_override(
     module_name = "protobuf",
     patch_strip = 1,
     patches = ["//:protobuf.patch"],
-    version = "30.2",
+    version = "31.1",
 )
