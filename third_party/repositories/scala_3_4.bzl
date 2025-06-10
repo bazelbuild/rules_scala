@@ -505,8 +505,8 @@ artifacts = {
         ],
     },
     "org_scala_sbt_util_interface": {
-        "artifact": "org.scala-sbt:util-interface:1.11.0",
-        "sha256": "6c36180df7bac3e254e3e0fe6ed0f95e9ab1141b4677dea2621ce66a25d12784",
+        "artifact": "org.scala-sbt:util-interface:1.11.1",
+        "sha256": "33760952e89ea64f289498b13ccbed8547674d0ccb2fffba037eaec43e732296",
     },
     "org_scalameta_common": {
         "artifact": "org.scalameta:common_2.13:4.13.6",
@@ -888,8 +888,8 @@ artifacts = {
         "sha256": "c7b478503ec524e55df19b424d46d27c8a68aeb801664fadd4f069b71f52d0f6",
     },
     "scala_proto_rules_proto_google_common_protos": {
-        "artifact": "com.google.api.grpc:proto-google-common-protos:2.57.0",
-        "sha256": "475d3d14197b45a02e8731a5d9736f5f859d459025bc19c7b7f2f74a0f6cb320",
+        "artifact": "com.google.api.grpc:proto-google-common-protos:2.58.0",
+        "sha256": "f8640af546c0afe26477fc5e946a7f455a1afebfc73d021b0c8a5034b8e67152",
         "deps": [
             "@com_google_protobuf_protobuf_java",
         ],
@@ -913,16 +913,16 @@ artifacts = {
         ],
     },
     "scala_proto_rules_scalapb_protoc_bridge": {
-        "artifact": "com.thesamet.scalapb:protoc-bridge_2.13:0.9.8",
-        "sha256": "0b3827da2cd9bca867d6963c2a821e7eaff41f5ac3babf671c4c00408bd14a9b",
+        "artifact": "com.thesamet.scalapb:protoc-bridge_2.13:0.9.9",
+        "sha256": "d3b70d7ef67e9186d25b10898b115d27bf2ccf53e9f3d136404420d2ec52ed66",
         "deps": [
             "@dev_dirs_directories",
             "@io_bazel_rules_scala_scala_library_2",
         ],
     },
     "scala_proto_rules_scalapb_protoc_gen": {
-        "artifact": "com.thesamet.scalapb:protoc-gen_2.13:0.9.8",
-        "sha256": "cf2b50721952cb4f10ca05a0ed36d7b01b88eb6505a9478556ee5a7af1a21775",
+        "artifact": "com.thesamet.scalapb:protoc-gen_2.13:0.9.9",
+        "sha256": "0adb3cedd175aa703d06aa58c914e3876a6e88613a63eb83d3e2a74592f1ba1b",
         "deps": [
             "@io_bazel_rules_scala_scala_library_2",
             "@scala_proto_rules_scalapb_protoc_bridge",

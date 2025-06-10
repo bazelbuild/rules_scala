@@ -254,7 +254,7 @@ bazel_dep(
 )
 bazel_dep(
     name = "rules_go",
-    version = "0.54.1",
+    version = "0.55.0",
     dev_dependency = True,
     repo_name = "io_bazel_rules_go",  # for com_github_bazelbuild_buildtools
 )
@@ -265,7 +265,7 @@ go_sdk = use_extension(
     "go_sdk",
     dev_dependency = True,
 )
-go_sdk.download(version = "1.24.3")
+go_sdk.download(version = "1.24.4")
 
 go_deps = use_extension(
     "@gazelle//:extensions.bzl",
@@ -287,8 +287,8 @@ go_deps = use_extension(
 #   curl https://sum.golang.org/lookup/golang.org/x/tools@v0.34.0
 go_deps.module(
     path = "golang.org/x/tools",
-    sum = "h1:4qz2S3zmRxbGIhDIAgjxvFutSvH5EfnsYrRBj0UI0bc=",
-    version = "v0.33.0",
+    sum = "h1:qIpSLOxeCYGg9TrcJokLBG4KFA6d795g0xkBkiESGlo=",
+    version = "v0.34.0",
 )
 go_deps.module(
     path = "github.com/golang/protobuf",

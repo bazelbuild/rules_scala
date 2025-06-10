@@ -812,8 +812,8 @@ artifacts = {
         "sha256": "c7b478503ec524e55df19b424d46d27c8a68aeb801664fadd4f069b71f52d0f6",
     },
     "scala_proto_rules_proto_google_common_protos": {
-        "artifact": "com.google.api.grpc:proto-google-common-protos:2.57.0",
-        "sha256": "475d3d14197b45a02e8731a5d9736f5f859d459025bc19c7b7f2f74a0f6cb320",
+        "artifact": "com.google.api.grpc:proto-google-common-protos:2.58.0",
+        "sha256": "f8640af546c0afe26477fc5e946a7f455a1afebfc73d021b0c8a5034b8e67152",
         "deps": [
             "@com_google_protobuf_protobuf_java",
         ],
@@ -837,16 +837,16 @@ artifacts = {
         ],
     },
     "scala_proto_rules_scalapb_protoc_bridge": {
-        "artifact": "com.thesamet.scalapb:protoc-bridge_2.12:0.9.8",
-        "sha256": "4af997be5176753aa480ce40cbe9aab89ba659740a1ca6dae660afffb7bb343a",
+        "artifact": "com.thesamet.scalapb:protoc-bridge_2.12:0.9.9",
+        "sha256": "dcfb2c0ec742e1e2c89ed43d7ed9e3b105a0c48af0a6c1d381d1077ffe55aa08",
         "deps": [
             "@dev_dirs_directories",
             "@io_bazel_rules_scala_scala_library",
         ],
     },
     "scala_proto_rules_scalapb_protoc_gen": {
-        "artifact": "com.thesamet.scalapb:protoc-gen_2.12:0.9.8",
-        "sha256": "65391bf190ac9cab45674dcd8063893e4bffd4f7289742cad145962b42928648",
+        "artifact": "com.thesamet.scalapb:protoc-gen_2.12:0.9.9",
+        "sha256": "3e1e6305b4091e0579ca935ec7341770af34ed34c14e3f53b9485704fe15c7ad",
         "deps": [
             "@io_bazel_rules_scala_scala_library",
             "@scala_proto_rules_scalapb_protoc_bridge",
