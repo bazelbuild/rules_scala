@@ -1,5 +1,9 @@
 # Remove once Bazel 8 becomes the minimum supported version.
-common --noenable_workspace --incompatible_use_plus_in_repo_names
+common --noenable_workspace --incompatible_use_plus_in_repo_names --incompatible_autoload_externally=
+
+# Uncomment to run tests under `WORKSPACE`. Remove once Bazel 9 becomes the
+# minimum supported version.
+#common --enable_workspace --noenable_bzlmod
 
 # Uncomment for WORKSPACE builds for Bazel [8.0.0, 8.3.0) per:
 # https://github.com/bazelbuild/rules_java/releases/tag/8.12.0

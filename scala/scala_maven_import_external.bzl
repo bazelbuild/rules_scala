@@ -40,6 +40,9 @@ load("@bazel_tools//tools/build_defs/repo:utils.bzl", "read_netrc", "read_user_n
 _SCALA_IMPORT_RULE_LOAD = (
     "load(\"%s\", \"scala_import\")" % Label("//scala:scala_import.bzl")
 )
+_JAVA_IMPORT_RULE_LOAD = (
+    "load(\"@rules_java//java:java_import.bzl\", \"java_import\")"
+)
 
 # https://github.com/bazelbuild/bazel/issues/13709#issuecomment-1336699672
 def _get_auth(ctx, urls):
@@ -97,6 +100,7 @@ def _jvm_import_external_impl(repository_ctx):
         lines.append("package(default_visibility = %s)" %
                      (repository_ctx.attr.default_visibility))
         lines.append("")
+
     lines.append("licenses(%s)" % repr(repository_ctx.attr.licenses))
     lines.append("")
     lines.extend(
@@ -229,6 +233,7 @@ def _serialize_given_rule_import(
     lines.append("")
     return lines
 
+# buildifier: disable=attr-licenses
 _jvm_import_external = repository_rule(
     implementation = _jvm_import_external_impl,
     attrs = {
@@ -237,7 +242,7 @@ _jvm_import_external = repository_rule(
         "jar_urls": attr.string_list(mandatory = True, allow_empty = False),
         "jar_sha256": attr.string(doc = "'jar_sha256' is deprecated. Please use 'artifact_sha256'"),
         "artifact_sha256": attr.string(),
-        "rule_load": attr.string(),
+        "rule_load": attr.string(default = _JAVA_IMPORT_RULE_LOAD),
         "additional_rule_attrs": attr.string_dict(),
         "srcjar_urls": attr.string_list(),
         "srcjar_sha256": attr.string(),

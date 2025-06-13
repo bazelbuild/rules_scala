@@ -1,4 +1,8 @@
-load("@com_github_bazelbuild_buildtools//buildifier:def.bzl", "buildifier")
+load(
+    "@com_github_bazelbuild_buildtools//buildifier:def.bzl",
+    "buildifier",
+    "buildifier_test",
+)
 
 WARNINGS_CONFIG = [
     "-module-docstring",
@@ -16,7 +20,7 @@ WARNINGS_CONFIG = [
     "-unused-variable",
 ]
 
-buildifier(
+buildifier_test(
     name = "lint_check",
     exclude_patterns = [
         "./.ijwb/*",
@@ -24,6 +28,8 @@ buildifier(
     lint_mode = "warn",
     lint_warnings = WARNINGS_CONFIG,
     mode = "check",
+    no_sandbox = True,
+    workspace = "//:MODULE.bazel",
 )
 
 buildifier(

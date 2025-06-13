@@ -51,3 +51,21 @@ def rules_scala_dependencies():
         strip_prefix = "rules_proto-7.1.0",
         url = "https://github.com/bazelbuild/rules_proto/releases/download/7.1.0/rules_proto-7.1.0.tar.gz",
     )
+
+    # Resolves the following error when building under `WORKSPACE` with Bazel 8.2.1,
+    # `protobuf` v31.1, and `rules_java` 8.12.0:
+    # https://github.com/protocolbuffers/protobuf/pull/19129#issuecomment-2968934424
+    rules_jvm_external_tag = "6.7"
+    rules_jvm_external_sha = (
+        "a1e351607f04fed296ba33c4977d3fe2a615ed50df7896676b67aac993c53c18"
+    )
+    maybe(
+        http_archive,
+        name = "rules_jvm_external",
+        sha256 = rules_jvm_external_sha,
+        strip_prefix = "rules_jvm_external-%s" % rules_jvm_external_tag,
+        url = "https://github.com/bazel-contrib/rules_jvm_external/releases/download/%s/rules_jvm_external-%s.tar.gz" % (
+            rules_jvm_external_tag,
+            rules_jvm_external_tag,
+        ),
+    )
