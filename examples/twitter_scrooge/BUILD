@@ -1,14 +1,13 @@
-# Test targets for test/shell/test_twitter_scrooge_toolchains.sh.
 # Targets adapted from //test/src/main/scala/scalarules/test/twitter_scrooge.
 load("@rules_scala//scala:scala.bzl", "scala_library")
 load("@rules_scala//thrift:thrift.bzl", "thrift_library")
 load(
-    "@rules_scala//twitter_scrooge/toolchain:toolchain.bzl",
-    "setup_scrooge_toolchain",
-)
-load(
     "@rules_scala//twitter_scrooge:twitter_scrooge.bzl",
     "scrooge_scala_library",
+)
+load(
+    "@rules_scala//twitter_scrooge/toolchain:toolchain.bzl",
+    "setup_scrooge_toolchain",
 )
 
 # When using `setup_scrooge_toolchain` with all its dependencies specified, you
