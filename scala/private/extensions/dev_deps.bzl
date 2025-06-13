@@ -10,7 +10,8 @@ load(
 )
 load("//third_party/repositories:repositories.bzl", "repositories")
 
-_BUILD_TOOLS_RELEASE = "5.1.0"
+_BUILD_TOOLS_RELEASE = "8.2.1"
+_BUILD_TOOLS_INTEGRITY = "sha256-UxGTl7vOHNfkxZDhF9zaNDwghhmd5ikyEGyAczUmwmE="
 
 _settings_defaults = {
     "maven_servers": default_maven_server_urls(),
@@ -41,12 +42,16 @@ def dev_deps_repositories(
         maven_servers: servers to use when resolving Maven artifacts
         fetch_sources: retrieve Maven artifact sources when True
     """
+
+    # gazelle is still getting `buildtools` from its `go.mod` file, which breaks
+    # `bazel run //tools:lint_check` when we don't import it like this. See:
+    # - https://github.com/bazel-contrib/bazel-gazelle/blob/v0.43.0/MODULE.bazel#L32-L44
     http_archive(
         name = "com_github_bazelbuild_buildtools",
-        sha256 = "e3bb0dc8b0274ea1aca75f1f8c0c835adbe589708ea89bf698069d0790701ea3",
+        integrity = _BUILD_TOOLS_INTEGRITY,
         strip_prefix = "buildtools-%s" % _BUILD_TOOLS_RELEASE,
         url = (
-            "https://github.com/bazelbuild/buildtools/archive/%s.tar.gz" %
+            "https://github.com/bazelbuild/buildtools/archive/v%s.tar.gz" %
             _BUILD_TOOLS_RELEASE
         ),
     )
