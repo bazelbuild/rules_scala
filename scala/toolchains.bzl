@@ -236,7 +236,12 @@ def scala_toolchains(
         scala_proto_options = scala_proto_options["default_gen_opts"],
         jmh = jmh,
         twitter_scrooge = twitter_scrooge,
-        twitter_scrooge_deps = twitter_scrooge_options,
+        # When we _really_ drop Bazel 6 entirely, this attribute can become an
+        # attr.string_keyed_label_dict, and this conversion won't be necessary.
+        twitter_scrooge_deps = {
+            k: str(v)
+            for k, v in twitter_scrooge_options.items()
+        },
     )
 
 def scala_register_toolchains(name = _DEFAULT_TOOLCHAINS_REPO_NAME):

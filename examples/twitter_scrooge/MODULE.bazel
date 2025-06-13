@@ -1,0 +1,128 @@
+# Test configuration for test/shell/test_twitter_scrooge_toolchains.sh.
+module(name = "twitter_scrooge_toolchains")
+
+bazel_dep(name = "rules_scala")
+local_path_override(
+    module_name = "rules_scala",
+    path = "../..",
+)
+
+bazel_dep(name = "latest_dependencies")
+local_path_override(
+    module_name = "latest_dependencies",
+    path = "../../deps/latest",
+)
+
+bazel_dep(
+    name = "protobuf",
+    version = "31.1",
+    repo_name = "com_google_protobuf",
+)
+
+# Temporarily required for `protoc` toolchainization until resolution of
+# protocolbuffers/protobuf#19679.
+single_version_override(
+    module_name = "protobuf",
+    patch_strip = 1,
+    patches = ["//:protobuf.patch"],
+    version = "31.1",
+)
+
+bazel_dep(name = "rules_jvm_external", version = "6.7")
+
+maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
+maven.install(
+    artifacts = [
+        "com.github.scopt:scopt_2.12:4.0.0-RC2",
+        "com.github.spullara.mustache.java:compiler:0.8.18",
+        "com.twitter:scrooge-core_2.12:21.2.0",
+        "com.twitter:scrooge-generator_2.12:21.2.0",
+        "com.twitter:util-core_2.12:21.2.0",
+        "com.twitter:util-logging_2.12:21.2.0",
+        "javax.annotation:javax.annotation-api:1.3.2",
+        "org.apache.thrift:libthrift:0.10.0",
+    ],
+    lock_file = "//:maven_install.json",
+)
+use_repo(maven, "maven")
+
+scala_protoc = use_extension(
+    "@rules_scala//scala/extensions:protoc.bzl",
+    "scala_protoc",
+    dev_dependency = True,
+)
+use_repo(scala_protoc, "rules_scala_protoc_toolchains")
+
+register_toolchains("@rules_scala_protoc_toolchains//...:all")
+
+scala_config = use_extension(
+    "@rules_scala//scala/extensions:config.bzl",
+    "scala_config",
+)
+scala_config.settings(scala_version = "2.12.20")
+
+scala_deps = use_extension(
+    "@rules_scala//scala/extensions:deps.bzl",
+    "scala_deps",
+    dev_dependency = True,
+)
+scala_deps.scala()
+
+# When using `setup_scrooge_toolchain` with all its dependencies specified in a
+# `BUILD` file, you don't need to instantiate this builtin toolchain. In that
+# case, make sure to register your custom toolchain via `register_toolchains`
+# (see below). See the `//:toolchain_from_build_file` comments in the `BUILD`
+# file for further details.
+#
+# It's OK to remove any of these overrides in order to use the builtin defaults
+# for those dependencies instead.
+#
+# However, if you remove the `scrooge_generator` override, the toolchain will
+# also depend on the builtin `mustache` and `scopt` repos. You will need to
+# remove the `mustache` and `scopt` overrides, too, to use the builtin repos
+# instead.
+scala_deps.twitter_scrooge(
+    javax_annotation_api = "@maven//:javax_annotation_javax_annotation_api",
+    libthrift = "@maven//:org_apache_thrift_libthrift",
+    mustache = "@maven//:com_github_spullara_mustache_java_compiler",
+    scopt = "@maven//:com_github_scopt_scopt_2_12",
+    scrooge_core = "@maven//:com_twitter_scrooge_core_2_12",
+    scrooge_generator = "@maven//:com_twitter_scrooge_generator_2_12",
+    util_core = "@maven//:com_twitter_util_core_2_12",
+    util_logging = "@maven//:com_twitter_util_logging_2_12",
+)
+
+# If you want to depend on any of the builtin repos when using
+# `setup_scala_toolchain` in a `BUILD` file, you will need to:
+#
+# - Remove the `scala_deps.twitter_scrooge()` overrides for those repos. This
+#   enables the module extension to generate the builtin repos for those
+#   dependencies.
+#
+# - Uncomment the `use_repo` call below to import the builtin repos into the
+#   main module's scope.
+#
+# `version_suffix` should match the `scala_version` argument to
+# `scala_config.settings()`.
+#version_suffix = "_2_12_20"
+#[
+#    use_repo(scala_deps, repo + version_suffix)
+#    for repo in [
+#        "libthrift",
+#        "io_bazel_rules_scala_scrooge_core",
+#        "io_bazel_rules_scala_scrooge_generator",
+#        "io_bazel_rules_scala_util_core",
+#        "io_bazel_rules_scala_util_logging",
+#        "io_bazel_rules_scala_javax_annotation_api",
+#        "io_bazel_rules_scala_mustache",
+#        "io_bazel_rules_scala_scopt",
+#    ]
+#]
+
+# To depend on the toolchain defined by `setup_scala_toolchain` by default,
+# instead of the builtin toolchain, uncomment this line. You can also specify it
+# on demand via:
+#
+#   bazel build --extra_toolchains=//:toolchain_from_build_file //...
+#
+#register_toolchains("//:toolchain_from_build_file")

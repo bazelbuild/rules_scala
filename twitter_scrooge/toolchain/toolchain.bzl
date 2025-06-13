@@ -19,13 +19,11 @@ def twitter_scrooge_artifact_ids(
         scrooge_core = None,
         scrooge_generator = None,
         util_core = None,
-        util_logging = None):
-    artifact_ids = [
-        # Mustache is needed to generate java from thrift.
-        "io_bazel_rules_scala_mustache",
-        "io_bazel_rules_scala_javax_annotation_api",
-        "io_bazel_rules_scala_scopt",
-    ] + GUAVA_ARTIFACT_IDS
+        util_logging = None,
+        javax_annotation_api = None,
+        mustache = None,
+        scopt = None):
+    artifact_ids = []
 
     if libthrift == None:
         artifact_ids.append("libthrift")
@@ -37,8 +35,15 @@ def twitter_scrooge_artifact_ids(
         artifact_ids.append("io_bazel_rules_scala_util_core")
     if util_logging == None:
         artifact_ids.append("io_bazel_rules_scala_util_logging")
+    if javax_annotation_api == None:
+        artifact_ids.append("io_bazel_rules_scala_javax_annotation_api")
+    if mustache == None:
+        # Mustache is for generating Java from Thrift.
+        artifact_ids.append("io_bazel_rules_scala_mustache")
+    if scopt == None:
+        artifact_ids.append("io_bazel_rules_scala_scopt")
 
-    return artifact_ids
+    return artifact_ids + GUAVA_ARTIFACT_IDS
 
 def _scrooge_toolchain_impl(ctx):
     toolchain = platform_common.ToolchainInfo(
@@ -76,6 +81,9 @@ TOOLCHAIN_DEFAULTS = {
     "scrooge_generator": None,
     "util_core": None,
     "util_logging": None,
+    "javax_annotation_api": None,
+    "mustache": None,
+    "scopt": None,
 }
 
 def setup_scrooge_toolchain(
@@ -84,7 +92,10 @@ def setup_scrooge_toolchain(
         scrooge_core = None,
         scrooge_generator = None,
         util_core = None,
-        util_logging = None):
+        util_logging = None,
+        javax_annotation_api = None,
+        mustache = None,
+        scopt = None):
     version = version_suffix(SCALA_VERSION)
 
     if libthrift == None:
@@ -97,6 +108,14 @@ def setup_scrooge_toolchain(
         util_core = "@io_bazel_rules_scala_util_core" + version
     if util_logging == None:
         util_logging = "@io_bazel_rules_scala_util_logging" + version
+    if javax_annotation_api == None:
+        javax_annotation_api = (
+            "@io_bazel_rules_scala_javax_annotation_api" + version
+        )
+    if mustache == None:
+        mustache = "@io_bazel_rules_scala_mustache" + version
+    if scopt == None:
+        scopt = "@io_bazel_rules_scala_scopt" + version
 
     scrooge_toolchain(
         name = "%s_impl" % name,
@@ -116,7 +135,7 @@ def setup_scrooge_toolchain(
         deps_id = "aspect_compile_classpath",
         visibility = ["//visibility:public"],
         deps = [
-            "@io_bazel_rules_scala_javax_annotation_api" + version,
+            javax_annotation_api,
             Label("//scala/private/toolchain_deps:scala_library_classpath"),
             libthrift,
             scrooge_core,
@@ -147,8 +166,8 @@ def setup_scrooge_toolchain(
         deps_id = "compiler_classpath",
         visibility = ["//visibility:public"],
         deps = [
-            "@io_bazel_rules_scala_mustache" + version,
-            "@io_bazel_rules_scala_scopt" + version,
+            mustache,
+            scopt,
             Label("//scala/private/toolchain_deps:parser_combinators"),
             scrooge_generator,
             util_core,

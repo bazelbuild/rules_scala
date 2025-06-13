@@ -13,6 +13,7 @@ examples/semanticdb
 examples/testing/multi_frameworks_toolchain
 examples/testing/scalatest_repositories
 examples/testing/specs2_junit_repositories
+examples/twitter_scrooge
 test/proto_cross_repo_boundary/repo
 test_cross_build
 third_party/test/example_external_workspace

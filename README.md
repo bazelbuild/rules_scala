@@ -30,6 +30,9 @@ This project defines core build rules for [Scala](https://www.scala-lang.org/) t
 - [scala_import](./docs/scala_import.md)
 - [scala_doc](./docs/scala_doc.md)
 
+See the [docs](./docs/) directory for documentation on other `rules_scala`
+capabilities as well.
+
 ## Getting started
 
 [Install Bazel][], preferably using the [Bazelisk][] wrapper. See the
